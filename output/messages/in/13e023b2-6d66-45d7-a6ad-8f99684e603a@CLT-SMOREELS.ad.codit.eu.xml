@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DeliverMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>13e023b2-6d66-45d7-a6ad-8f99684e603a@CLT-SMOREELS.ad.codit.eu</MessageId>
+    <Mpc />
+  </MessageInfo>
+  <PartyInfo>
+    <FromParty>
+      <Role>Sender</Role>
+      <PartyIds>
+        <PartyId>
+          <Id>org:holodeckb2b:example:company:A</Id>
+          <Type />
+        </PartyId>
+      </PartyIds>
+    </FromParty>
+    <ToParty>
+      <Role>Receiver</Role>
+      <PartyIds>
+        <PartyId>
+          <Id>org:eu:europa:as4:example</Id>
+          <Type />
+        </PartyId>
+      </PartyIds>
+    </ToParty>
+  </PartyInfo>
+  <CollaborationInfo>
+    <Action>StoreMessage</Action>
+    <ConversationId>org:holodeckb2b:test:conversation</ConversationId>
+    <AgreementRef>
+      <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
+      <PModeId>8.3.5-pmode</PModeId>
+    </AgreementRef>
+    <Service>
+      <Value>Test</Value>
+      <Type>org:holodeckb2b:services</Type>
+    </Service>
+  </CollaborationInfo>
+  <MessageProperties />
+  <Payloads>
+    <Payload>
+      <Id>cid:13e023b2-6d66-45d7-a6ad-8f99684e603-1197781071@CLT-SMOREELS.ad.codit.eu</Id>
+      <Location />
+      <PayloadProperties />
+    </Payload>
+    <Payload>
+      <Id>cid:13e023b2-6d66-45d7-a6ad-8f99684e603-1061587490@CLT-SMOREELS.ad.codit.eu</Id>
+      <Location />
+      <PayloadProperties />
+    </Payload>
+  </Payloads>
+</DeliverMessage>

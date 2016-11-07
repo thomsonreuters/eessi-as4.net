@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <Collaboration>
+    <AgreementRef>
+      <PModeId>push-sample</PModeId>
+      <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
+    </AgreementRef>
+    <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+  </Collaboration>
+
+  <MessageProperties>
+    <MessageProperty>
+      <Name>Test</Name>
+      <Type>Test</Type>
+      <Value>Test</Value>
+    </MessageProperty>
+    <MessageProperty>
+      <Name>Test</Name>
+      <Type>Test</Type>
+      <Value>Test</Value>
+    </MessageProperty>
+  </MessageProperties>
+
+  <Payloads>
+    <Payload>
+      <Id>earth</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location>file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg</Location>
+      <PayloadProperties>
+        <PayloadProperty>
+           <Name>Test</Name>
+          <Value>Test</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+
+    <Payload>
+      <Id>earth2</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location>file://CLT-SMOREELS/Users/smoreels/Documents/Public/earth.jpg</Location>
+      <PayloadProperties>
+        <PayloadProperty>
+           <Name>Test</Name>
+          <Value>Test</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+  </Payloads>
+</SubmitMessage>

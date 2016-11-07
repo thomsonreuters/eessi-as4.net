@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>8d1d8540-2af3-41e3-a06d-c2d97e2067f4@158.166.170.8</MessageId>
+    <RefToMessageId>ca3b8278-a70f-461f-baa9-fba52c6a9869@158.166.170.8</RefToMessageId>
+  </MessageInfo>
+  <StatusInfo>
+    <Status>Error</Status>
+    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <eb:MessageInfo>
+        <eb:Timestamp>2016-10-21T13:53:25.104Z</eb:Timestamp>
+        <eb:MessageId>a1ecb583-4785-4910-acd2-eba71af8d57a@158.166.170.8</eb:MessageId>
+        <eb:RefToMessageId>ca3b8278-a70f-461f-baa9-fba52c6a9869@158.166.170.8</eb:RefToMessageId>
+      </eb:MessageInfo>
+      <eb:Error category="Processing" refToMessageInError="ca3b8278-a70f-461f-baa9-fba52c6a9869@158.166.170.8" errorCode="EBMS:0010" origin="ebms" severity="FAILURE" shortDescription="ProcessingModeMismatch">
+        <eb:ErrorDetail>Can not process message [msgId=ca3b8278-a70f-461f-baa9-fba52c6a9869@158.166.170.8] because no P-Mode was found for the message!</eb:ErrorDetail>
+      </eb:Error>
+    </eb:SignalMessage>
+  </StatusInfo>
+</NotifyMessage>

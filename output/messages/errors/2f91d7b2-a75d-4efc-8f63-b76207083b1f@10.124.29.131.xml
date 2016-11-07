@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>2f91d7b2-a75d-4efc-8f63-b76207083b1f@10.124.29.131</MessageId>
+    <RefToMessageId>2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131</RefToMessageId>
+  </MessageInfo>
+  <StatusInfo>
+    <Status>Error</Status>
+    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <eb:MessageInfo>
+        <eb:Timestamp>2016-10-31T11:02:18.815Z</eb:Timestamp>
+        <eb:MessageId>016b9e1f-4d75-4998-9860-e6358b2f47bb@10.124.29.131</eb:MessageId>
+        <eb:RefToMessageId>2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131</eb:RefToMessageId>
+      </eb:MessageInfo>
+      <eb:Error category="Processing" refToMessageInError="2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131" errorCode="EBMS:0101" origin="security" severity="FAILURE" shortDescription="FailedAuthentication">
+        <eb:ErrorDetail>Authentication of message unit failed!</eb:ErrorDetail>
+      </eb:Error>
+    </eb:SignalMessage>
+  </StatusInfo>
+</NotifyMessage>
