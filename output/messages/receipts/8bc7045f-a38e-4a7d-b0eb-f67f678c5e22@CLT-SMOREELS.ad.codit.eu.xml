@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>8bc7045f-a38e-4a7d-b0eb-f67f678c5e22@CLT-SMOREELS.ad.codit.eu</MessageId>
+    <RefToMessageId>13488e10-ad27-40b3-96b6-65056309a7cd@10.124.29.131</RefToMessageId>
+  </MessageInfo>
+  <StatusInfo>
+    <Status>Delivered</Status>
+    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <eb:MessageInfo>
+        <eb:Timestamp>2016-11-07T06:35:56.733Z</eb:Timestamp>
+        <eb:MessageId>8bc7045f-a38e-4a7d-b0eb-f67f678c5e22@CLT-SMOREELS.ad.codit.eu</eb:MessageId>
+        <eb:RefToMessageId>13488e10-ad27-40b3-96b6-65056309a7cd@10.124.29.131</eb:RefToMessageId>
+      </eb:MessageInfo>
+      <eb:Receipt>
+        <eb:NonRepudiationInformation>
+          <MessagePartNRInformation xmlns="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0">
+            <Reference URI="#header-2318e68a-2a2c-4265-8e35-ca05c5f846d3" xmlns="http://www.w3.org/2000/09/xmldsig#">
+              <Transforms>
+                <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+              </Transforms>
+              <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+              <DigestValue>U3lzdGVtLkJ5dGVbXQ==</DigestValue>
+            </Reference>
+          </MessagePartNRInformation>
+          <MessagePartNRInformation xmlns="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0">
+            <Reference URI="#body-49aaf312-4642-4c56-95e7-7f4a7a4b5556" xmlns="http://www.w3.org/2000/09/xmldsig#">
+              <Transforms>
+                <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+              </Transforms>
+              <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+              <DigestValue>U3lzdGVtLkJ5dGVbXQ==</DigestValue>
+            </Reference>
+          </MessagePartNRInformation>
+          <MessagePartNRInformation xmlns="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0">
+            <Reference URI="cid:earth" xmlns="http://www.w3.org/2000/09/xmldsig#">
+              <Transforms>
+                <Transform Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform" />
+              </Transforms>
+              <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+              <DigestValue>U3lzdGVtLkJ5dGVbXQ==</DigestValue>
+            </Reference>
+          </MessagePartNRInformation>
+        </eb:NonRepudiationInformation>
+      </eb:Receipt>
+    </eb:SignalMessage>
+  </StatusInfo>
+</NotifyMessage>

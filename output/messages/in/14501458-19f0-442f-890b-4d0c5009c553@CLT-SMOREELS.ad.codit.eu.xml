@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<DeliverMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>14501458-19f0-442f-890b-4d0c5009c553@CLT-SMOREELS.ad.codit.eu</MessageId>
+    <Mpc />
+  </MessageInfo>
+  <PartyInfo>
+    <FromParty>
+      <Role>Sender</Role>
+      <PartyIds>
+        <PartyId>
+          <Id>org:holodeckb2b:example:company:A</Id>
+          <Type />
+        </PartyId>
+      </PartyIds>
+    </FromParty>
+    <ToParty>
+      <Role>Receiver</Role>
+      <PartyIds>
+        <PartyId>
+          <Id>org:eu:europa:as4:example</Id>
+          <Type />
+        </PartyId>
+      </PartyIds>
+    </ToParty>
+  </PartyInfo>
+  <CollaborationInfo>
+    <Action>StoreMessage</Action>
+    <ConversationId>org:holodeckb2b:test:conversation</ConversationId>
+    <AgreementRef>
+      <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
+      <PModeId>8.3.13-pmode</PModeId>
+    </AgreementRef>
+    <Service>
+      <Value>Test</Value>
+      <Type>org:holodeckb2b:services</Type>
+    </Service>
+  </CollaborationInfo>
+  <MessageProperties />
+  <Payloads>
+    <Payload>
+      <Id>cid:14501458-19f0-442f-890b-4d0c5009c55-1646888592@CLT-SMOREELS.ad.codit.eu</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location />
+      <PayloadProperties>
+        <PayloadProperty>
+          <Name>CompressionType</Name>
+          <Value>application/gzip</Value>
+        </PayloadProperty>
+        <PayloadProperty>
+          <Name>MimeType</Name>
+          <Value>image/jpeg</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+  </Payloads>
+</DeliverMessage>

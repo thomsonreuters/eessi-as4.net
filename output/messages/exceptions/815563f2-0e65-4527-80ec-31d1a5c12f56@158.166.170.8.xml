@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>815563f2-0e65-4527-80ec-31d1a5c12f56@158.166.170.8</MessageId>
+    <RefToMessageId>17aea225-d8dc-4b31-92a8-955e890289cb@158.166.170.8</RefToMessageId>
+  </MessageInfo>
+  <StatusInfo>
+    <Status>Exception</Status>
+    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <eb:MessageInfo>
+        <eb:Timestamp>2016-10-25T13:08:25.1833531Z</eb:Timestamp>
+        <eb:MessageId>815563f2-0e65-4527-80ec-31d1a5c12f56@158.166.170.8</eb:MessageId>
+        <eb:RefToMessageId>17aea225-d8dc-4b31-92a8-955e890289cb@158.166.170.8</eb:RefToMessageId>
+      </eb:MessageInfo>
+      <eb:Error refToMessageInError="17aea225-d8dc-4b31-92a8-955e890289cb@158.166.170.8" errorCode="EBMS:0004" severity="FAILURE">
+        <eb:ErrorDetail>[17aea225-d8dc-4b31-92a8-955e890289cb@158.166.170.8] Problems with Computing Signature
+   at Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep.TrySignAS4Message(CancellationToken cancellationToken) in C:\agent\_work\1\s\Steps\Eu.EDelivery.AS4.Steps\Send\SignAS4MessageStep.cs:line 89
+   at Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep.ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken) in C:\agent\_work\1\s\Steps\Eu.EDelivery.AS4.Steps\Send\SignAS4MessageStep.cs:line 60
+   at Eu.EDelivery.AS4.Steps.CompositeStep.&lt;ExecuteStep&gt;d__5.MoveNext() in C:\agent\_work\1\s\AS4\Eu.EDelivery.AS4\Steps\CompositeStep.cs:line 50
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Eu.EDelivery.AS4.Steps.CompositeStep.&lt;ExecuteAsync&gt;d__4.MoveNext() in C:\agent\_work\1\s\AS4\Eu.EDelivery.AS4\Steps\CompositeStep.cs:line 43
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator.&lt;ExecuteAsync&gt;d__7.MoveNext() in C:\agent\_work\1\s\Steps\Eu.EDelivery.AS4.Steps\Common\OutExceptionStepDecorator.cs:line 58
+Certificate cannot be retrieved from the Certificate Store
+   at Eu.EDelivery.AS4.Repositories.CertificateRepository.GetCertificate(Signing signing) in C:\agent\_work\1\s\AS4\Eu.EDelivery.AS4\Repositories\CertificateRepository.cs:line 42
+   at Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep.RetrieveCertificate() in C:\agent\_work\1\s\Steps\Eu.EDelivery.AS4.Steps\Send\SignAS4MessageStep.cs:line 97
+   at Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep.TrySignAS4Message(CancellationToken cancellationToken) in C:\agent\_work\1\s\Steps\Eu.EDelivery.AS4.Steps\Send\SignAS4MessageStep.cs:line 81
+</eb:ErrorDetail>
+      </eb:Error>
+    </eb:SignalMessage>
+  </StatusInfo>
+</NotifyMessage>

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<DeliverMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>6834607b-ee5d-478d-8002-d78d237509e9@CLT-SMOREELS.ad.codit.eu</MessageId>
+    <Mpc />
+  </MessageInfo>
+  <PartyInfo>
+    <FromParty>
+      <Role>Sender</Role>
+      <PartyIds>
+        <PartyId>
+          <Id>org:holodeckb2b:example:company:A</Id>
+          <Type />
+        </PartyId>
+      </PartyIds>
+    </FromParty>
+    <ToParty>
+      <Role>Receiver</Role>
+      <PartyIds>
+        <PartyId>
+          <Id>org:eu:europa:as4:example</Id>
+          <Type />
+        </PartyId>
+      </PartyIds>
+    </ToParty>
+  </PartyInfo>
+  <CollaborationInfo>
+    <Action>StoreMessage</Action>
+    <ConversationId>org:holodeckb2b:test:conversation</ConversationId>
+    <AgreementRef>
+      <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
+      <PModeId>8.3.8-pmode</PModeId>
+    </AgreementRef>
+    <Service>
+      <Value>Test</Value>
+      <Type>org:holodeckb2b:services</Type>
+    </Service>
+  </CollaborationInfo>
+  <MessageProperties />
+  <Payloads>
+    <Payload>
+      <Id>cid:6834607b-ee5d-478d-8002-d78d237509e-1704349278@CLT-SMOREELS.ad.codit.eu</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location />
+      <PayloadProperties>
+        <PayloadProperty>
+          <Name>CompressionType</Name>
+          <Value>application/gzip</Value>
+        </PayloadProperty>
+        <PayloadProperty>
+          <Name>MimeType</Name>
+          <Value>image/jpeg</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+    <Payload>
+      <Id>cid:6834607b-ee5d-478d-8002-d78d237509e-1163086073@CLT-SMOREELS.ad.codit.eu</Id>
+      <MimeType>application/xml</MimeType>
+      <Location />
+      <PayloadProperties>
+        <PayloadProperty>
+          <Name>CompressionType</Name>
+          <Value>application/gzip</Value>
+        </PayloadProperty>
+        <PayloadProperty>
+          <Name>MimeType</Name>
+          <Value>application/xml</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+  </Payloads>
+</DeliverMessage>
