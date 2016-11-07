@@ -1,0 +1,14 @@
+﻿<!-- This is in a file named GenerateSchemaFromType.xml. -->
+<xsd xmlns='http://microsoft.com/dotnet/tools/xsd/' nologo="true">
+  <generateClasses language='CS' namespace='CEF.EDelivery.AS4.Xml'>
+    <schema>ebms-header-3_0-200704_refactored.xsd</schema>
+    <schema>ebms-multihop-1_0-200902_refactored.xsd</schema>
+    <schema>ebbp-signals-2.0.xsd</schema>
+    <schema>Soap11.xsd</schema>
+    <schema>Soap12.xsd</schema>
+    <schema>ws-addr.xsd</schema>
+    <schema>xlink.xsd</schema>
+    <schema>xmldsig-core-schema.xsd</schema>
+    <schema>PMode.xsd</schema>
+  </generateClasses>
+</xsd>

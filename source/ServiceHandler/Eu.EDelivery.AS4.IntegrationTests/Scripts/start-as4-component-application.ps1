@@ -1,0 +1,1 @@
+﻿Start-Process C:\agent\_work\1\output\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe -ErrorAction SilentlyContinue

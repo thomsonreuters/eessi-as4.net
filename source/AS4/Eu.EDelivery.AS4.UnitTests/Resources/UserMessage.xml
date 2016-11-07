@@ -1,0 +1,100 @@
+﻿<!-- Source: http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/profiles/AS4-profile/v1.0/os/AS4-profile-v1.0-os.html -->
+<!--
+<S12:Envelope
+  xmlns:S12="http://www.w3.org/2003/05/soap-envelope"
+  xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+  xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+  xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+  <S12:Header>
+    <eb:Messaging S12:mustUnderstand="true" id="_9ecb9d3c-cef8-4006-ac18-f425c5c7ae3d">
+      <eb:UserMessage>
+        <eb:MessageInfo>
+          <eb:Timestamp>2011-04-03T14:49:28.886Z</eb:Timestamp>
+          <eb:MessageId>2011-921@5209999001264.example.com</eb:MessageId>
+        </eb:MessageInfo>
+        <eb:PartyInfo>
+          <eb:From>
+            <eb:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:iso6523:0088">5209999001264</eb:PartyId>
+            <eb:Role>Seller</eb:Role>
+          </eb:From>
+          <eb:To>
+            <eb:PartyId type="urn:oasis:names:tc:ebcore:partyid-type:iso6523:0088">5209999001295</eb:PartyId>
+            <eb:Role>Buyer</eb:Role>
+          </eb:To>
+        </eb:PartyInfo>
+        <eb:CollaborationInfo>
+          <eb:Service>http://docs.oasis-open.org/ebxml-msg/as4/200902/service</eb:Service>
+          <eb:Action>http://docs.oasis-open.org/ebxml-msg/as4/200902/action</eb:Action>
+          <eb:ConversationId>2011-921</eb:ConversationId>
+        </eb:CollaborationInfo>
+        <eb:PayloadInfo>
+          <eb:PartInfo href="#_f8aa8b55-b31c-4364-94d0-3615ca65aa40" />
+        </eb:PayloadInfo>
+      </eb:UserMessage>
+    </eb:Messaging>
+    <wsse:Security S12:mustUnderStand="true">
+      -->
+<!-- Content omitted -->
+<!--
+    </wsse:Security>
+  </S12:Header>
+  <S12:Body wsu:Id="_f8aa8b55-b31c-4364-94d0-3615ca65aa40">
+    <CrossIndustryInvoice xmlns="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:2">
+      -->
+<!-- content omitted -->
+<!--
+    </CrossIndustryInvoice>
+  </S12:Body>
+</S12:Envelope>-->
+
+<s12:Envelope xmlns:s12="http://www.w3.org/2003/05/soap-envelope">
+  <s12:Header>
+    <eb:Messaging xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" wsu:Id="header-1b744354-0186-4847-a56a-0bf23ee5d0ee" xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <eb:UserMessage>
+        <eb:MessageInfo>
+          <eb:Timestamp>2016-09-02T07:12:06.9484458Z</eb:Timestamp>
+          <eb:MessageId>5ae47c51-acd2-47d0-9eff-9ab923bd4efa@10.124.29.214</eb:MessageId>
+        </eb:MessageInfo>
+        <eb:PartyInfo>
+          <eb:From>
+            <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+            <eb:Role>Sender</eb:Role>
+          </eb:From>
+          <eb:To>
+            <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+            <eb:Role>Receiver</eb:Role>
+          </eb:To>
+        </eb:PartyInfo>
+        <eb:CollaborationInfo>
+          <eb:AgreementRef pmode="push-sample">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+          <eb:Service>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/service</eb:Service>
+          <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test</eb:Action>
+          <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+        </eb:CollaborationInfo>
+        <eb:MessageProperties>
+          <eb:Property name="Test" type="Test">Test</eb:Property>
+          <eb:Property name="Test" type="Test">Test</eb:Property>
+        </eb:MessageProperties>
+        <eb:PayloadInfo>
+          <eb:PartInfo href="cid:earth">
+            <eb:Schemas />
+            <eb:PartProperties>
+              <eb:Property name="CompressionType">application/gzip</eb:Property>
+              <eb:Property name="MimeType">image/jpeg</eb:Property>
+              <eb:Property name="Test">Test</eb:Property>
+            </eb:PartProperties>
+          </eb:PartInfo>
+          <eb:PartInfo href="cid:earth2">
+            <eb:Schemas />
+            <eb:PartProperties>
+              <eb:Property name="CompressionType">application/gzip</eb:Property>
+              <eb:Property name="MimeType">image/jpeg</eb:Property>
+              <eb:Property name="Test">Test</eb:Property>
+            </eb:PartProperties>
+          </eb:PartInfo>
+        </eb:PayloadInfo>
+      </eb:UserMessage>
+    </eb:Messaging>
+  </s12:Header>
+  <Body xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" xmlns="http://schemas.xmlsoap.org/soap/envelope/" wsu:Id="body-c1c9a7ed-7a2e-45b1-aa31-143f8ed88d68" />
+</s12:Envelope>

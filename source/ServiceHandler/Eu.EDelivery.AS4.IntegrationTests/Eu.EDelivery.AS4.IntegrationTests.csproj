@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F82AAC30-6DDC-442C-849D-5DDD0478893B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Eu.EDelivery.AS4.IntegrationTests</RootNamespace>
+    <AssemblyName>Eu.EDelivery.AS4.IntegrationTests</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.0.0\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Memory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Caching.Memory.1.0.0\lib\net451\Microsoft.Extensions.Caching.Memory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.1.0.0\lib\netstandard1.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.1.0.0\lib\netstandard1.1\Microsoft.Extensions.Logging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Logging.Abstractions.1.0.0\lib\netstandard1.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Options.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Options.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.3.5\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
+      <HintPath>..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.2.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Interactive.Async, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Interactive.Async.3.0.0\lib\net45\System.Interactive.Async.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.assert, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.assert.2.1.0\lib\dotnet\xunit.assert.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.core, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.core.2.1.0\lib\dotnet\xunit.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="xunit.execution.desktop, Version=2.1.0.3179, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
+      <HintPath>..\packages\xunit.extensibility.execution.2.1.0\lib\net45\xunit.execution.desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\Holodeck.cs" />
+    <Compile Include="Common\StubSender.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.1 Receive Message that cannot be linked PMode\ReceiveMessageWithNotLinkedPModeIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.2 Receive Message with External Payload References\ReceiveExternalPayloadReferencesMessageIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.3 Receive Compressed Messages without MimeType\ReceiveCompressedMessageWithoutMimeTypeIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.4 Receive Incorrectly Compressed Message\ReceiveIncorrectlyCompressedMessageIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.5 Receive Incorrectly Signed Message\ReceiveIncorrectlySignedMessageIntegrationTest.cs" />
+    <Compile Include="Negative Receive Scenarios\8.4.6 Receive Incorrectly Encrypted Message\ReceiveIncorrectlyEncryptedMessageIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.1 Submit message override not allowed FILE\SubmitMessageOverrideNotAllowedIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.2 Submit message nonexisting PMode FILE\SubmitMessageContainsNonExistingPModeIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.3 Submit message PMode Id of invalid PMode FILE\SubmitMessageInvalidPModeIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.4 Submit message invalid payload reference FILE\SubmitMessageReferenceNonExistingPayloadIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.5 Configure PMode nonexisting signing certificate\SubmitMessageReferenceNonExistingCertificateIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.6 Configure PMode nonexisting encryption certificate\SendMessageWithNonExistingEncryptionCertificateIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.7 Send message to nonexisting URL\SubmitMessageReferenceNonExistingUrlIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.8 Send message to incorrectly configured R MSH\SendMessageToIncorrectlyConfiguredRMSHIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.1 Receive Single Payload with FILE Deliver\ReceiveSinglePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.10 Receive Single Payload Return Sync Receipt\ReceiveSinglePayloadReturnSyncReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.11 Receive Single Payload Return Sync Signed NRR Receipt\ReceiveSinglePayloadReturnSyncSignedNRRReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.12 Receive Single Payload Return Async Receipt\ReceiveSinglePayloadReturnAsyncReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.13 Receive Single Payload Return Async Signed NRR Receipt\ReceiveSinglePayloadReturnAsyncSignedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.14 Receive Test Message\ReceiveTestMessageIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.15 Receive Duplicate Message\ReceiveDuplicateMessageIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.5 Receive Multiple Payloads Encrypted\ReceiveMultiplePayloadsEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.7 Receive Multiple Payloads Compressed Encrypted\ReceiveMultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.8 Receive Multiple Payloads Compressed Signed Encrypted\ReceiveMultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.9 Receive Multiple Payloads Signed Encrypted\ReceiveMultiplePayloadsSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.12 Receive Async Signed NRR Receipt\ReceiveAsyncSignedNRRReceiptIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.2 Receive Multiple Payloads with FILE Deliver\ReceiveMultiplePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.3 Receive Multiple Payloads Compressed\ReceiveMultiplePayloadsCompressedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.4 Receive Multiple Payloads Signed\ReceiveMultiplePayloadsSignedIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.6 Receive Multiple Payloads Compressed Signed\ReceiveMultiplePayloadsCompressedSignedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.1. Send Single Payload with FILE Submit\SinglePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.10. Send Single Payload with Message Properties\SinglePayloadMessagePropertiesIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.11 Send Single Payload with Message Ids\SinglePayloadMessageIdsIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.13 Receive Async Error\ReceiveAsyncSignedErrorIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.2. Send Multiple Payloads with FILE Submit\MultiplePayloadIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.3. Send Multiple Payloads Compressed\MultiplePayloadsCompressedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.4. Send Multiple Payloads Signed\MultiplePayloadsSignedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.5. Send Multiple Payloads Encrypted\MultiplePayloadsEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.6. Send Multiple Payloads Compressed Signed\MultiplePayloadsCompressedSignedIntegrationTest.cs" />
+    <Compile Include="Common\IntegrationTestTemplate.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.7. Send Multiple Payloads Compressed, Encrypted\MultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.8. Send Multiple Payloads Compressed, Signed, Encrypted\MultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.9. Send Multiple Payloads Signed, Encrypted\MultiplePayloadsSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Resources\as4-soap-wrong-signed-callback-message.xml" />
+    <Content Include="Resources\as4-soap-wrong-signed-message.txt" />
+    <Content Include="Resources\as4-soap-wrong-encrypted-message.txt" />
+    <None Include="Resources\as4message_external_payloads.txt" />
+    <None Include="Resources\as4message_missing_mime_property.txt" />
+    <None Include="Resources\as4message_incorect_compressed.txt" />
+    <None Include="Resources\as4message.txt" />
+    <None Include="packages.config" />
+    <None Include="Resources\earth.jpg" />
+    <None Include="Scripts\change-ip-in-pmode.ps1" />
+    <None Include="Scripts\start-as4-component-application.ps1" />
+    <None Include="Scripts\stop-as4-component-application.ps1" />
+    <None Include="Scripts\xunit-runner-console.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
+      <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
+      <Name>Eu.EDelivery.AS4</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
+      <Project>{B0BE265A-8190-415C-8E46-2B85FE6BDBE7}</Project>
+      <Name>Eu.EDelivery.AS4.Receivers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Steps\Eu.EDelivery.AS4.Steps\Eu.EDelivery.AS4.Steps.csproj">
+      <Project>{9208D4FA-018E-4DB4-A60D-EE475F5EC421}</Project>
+      <Name>Eu.EDelivery.AS4.Steps</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.csproj">
+      <Project>{40E359EE-B4B8-4A4A-B8FE-DB2240DF097E}</Project>
+      <Name>Eu.EDelivery.AS4.ServiceHandler.ConsoleHost</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Eu.EDelivery.AS4.ServiceHandler\Eu.EDelivery.AS4.ServiceHandler.csproj">
+      <Project>{83D47064-14B4-4E42-8E10-ABE1EDA41920}</Project>
+      <Name>Eu.EDelivery.AS4.ServiceHandler</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

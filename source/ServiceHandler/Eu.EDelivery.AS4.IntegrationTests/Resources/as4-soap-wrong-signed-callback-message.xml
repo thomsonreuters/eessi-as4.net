@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s12:Envelope xmlns:s12="http://www.w3.org/2003/05/soap-envelope">
+  <s12:Header>
+    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+      <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <SignedInfo>
+          <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+          <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+          <Reference URI="#header-3dafcd3d-088d-4824-8eda-2dd267a2dac8">
+            <Transforms>
+              <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+            </Transforms>
+            <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+            <DigestValue>5XZ7sE3ESAqzFEXKfeIaIlQsKl9MG7/4ai0AHuYLZn8=</DigestValue>
+          </Reference>
+          <Reference URI="#body-8ff4b071-9e67-4f0d-81c5-681967b0de6d">
+            <Transforms>
+              <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+            </Transforms>
+            <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+            <DigestValue>/ZqqBXfLrA15w5nda/qNIDlWBGDCz0GvBgoGkTf7/ZQ=</DigestValue>
+          </Reference>
+        </SignedInfo>
+        <SignatureValue>GcNSCDZtk7rqpy9EFliU2EQqEAoVqEU9d9rISKDIAJTqti4Z4Awd3bnnxHdr9ltN2N0Grpao0XhA76DS7D1SZOKjAhu3e5ogA80JvTWqQNPW9fueH0helhoYz5NtACMZrZLMesPGROlvEkhV7Hhrx95tItTDEg0VgFYDxhmb1Sg=</SignatureValue>
+        <KeyInfo>
+          <SecurityTokenReference xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <Reference ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" URI="#cert-7fc5f6fd-b9c8-4079-9951-bbacf704b0b8" />
+          </SecurityTokenReference>
+        </KeyInfo>
+      </Signature>
+      <BinarySecurityToken EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" p4:Id="cert-7fc5f6fd-b9c8-4079-9951-bbacf704b0b8" xmlns:p4="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">MIIC0jCCAjugAwIBAgIJANryxxvXrz/7MA0GCSqGSIb3DQEBCwUAMIGBMQswCQYDVQQGEwJFWDEVMBMGA1UECAwMRXhhbXBsZVN0YXRlMRgwFgYDVQQHDA9FeGFtcGxlTG9jYXRpb24xHTAbBgNVBAoMFEhvbG9kZWNrX0IyQl9wcm9qZWN0MREwDwYDVQQLDAhFeGFtcGxlczEPMA0GA1UEAwwGUGFydHlBMB4XDTE1MDUwMTEyMDAzOVoXDTIwMDQyOTEyMDAzOVowgYExCzAJBgNVBAYTAkVYMRUwEwYDVQQIDAxFeGFtcGxlU3RhdGUxGDAWBgNVBAcMD0V4YW1wbGVMb2NhdGlvbjEdMBsGA1UECgwUSG9sb2RlY2tfQjJCX3Byb2plY3QxETAPBgNVBAsMCEV4YW1wbGVzMQ8wDQYDVQQDDAZQYXJ0eUEwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMDOiJ927tDHZBc19Vgu+HkTO8jqJxBBuzo91fwfDIZxF5+RsA1b9hFIGH+Yvpr+OjRbM4jk5G3xfk0Vdvg1Ims/tOh8cOK5kzbjJ35UDbpVEaM/Oga0or9GSLkxs/FfTqeN18cOeNmhAQcHcR83QiRsoO+ofnEYxqKhJDsFkbFpAgMBAAGjUDBOMB0GA1UdDgQWBBSFGY7IfD+gsgEGwYqn8v2rMJRnWTAfBgNVHSMEGDAWgBSFGY7IfD+gsgEGwYqn8v2rMJRnWTAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAFVMjH5gvQ4iUbUmwjX+UouPiw+K7CnTlAWWRE7pXo6jpd4oQLUIaYkr2I6fZyUbxV/S85mC18C4yAinQ+8svokldGVJs6FvqTxvO9FTiGnt5SDKgDz344HNfyrnu+GTzPdwsM7qxWx9bFqDEDVR975XqVv+lYiTQhqp6hhNm5Py</BinarySecurityToken>
+    </wsse:Security>
+    <eb:Messaging xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:s12="http://www.w3.org/2003/05/soap-envelope" wsu:Id="header-3dafcd3d-088d-4824-8eda-2dd267a2dac8" xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <eb:UserMessage>
+        <eb:MessageInfo>
+          <eb:Timestamp>2016-10-28T12:13:21.3889745Z</eb:Timestamp>
+          <eb:MessageId>2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131</eb:MessageId>
+        </eb:MessageInfo>
+        <eb:PartyInfo>
+          <eb:From>
+            <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+            <eb:Role>Sender</eb:Role>
+          </eb:From>
+          <eb:To>
+            <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+            <eb:Role>Receiver</eb:Role>
+          </eb:To>
+        </eb:PartyInfo>
+        <eb:CollaborationInfo>
+          <eb:AgreementRef pmode="8.1.13-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+          <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+          <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+          <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+        </eb:CollaborationInfo>
+        <eb:MessageProperties>
+          <eb:Property name="Test" type="Test">Test</eb:Property>
+          <eb:Property name="Test" type="Test">Test</eb:Property>
+        </eb:MessageProperties>
+      </eb:UserMessage>
+    </eb:Messaging>
+  </s12:Header>
+  <s12:Body p2:Id="body-8ff4b071-9e67-4f0d-81c5-681967b0de6d" xmlns:p2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" />
+</s12:Envelope>

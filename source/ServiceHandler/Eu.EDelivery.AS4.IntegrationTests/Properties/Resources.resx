@@ -1,0 +1,363 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="earth" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\earth.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="holodeck_B_input_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_in</value>
+  </data>
+  <data name="pmodexml" xml:space="preserve">
+    <value>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode"&gt;
+  &lt;Id&gt;push-sample&lt;/Id&gt;
+  &lt;AllowOverride&gt;false&lt;/AllowOverride&gt;
+  &lt;Mep&gt;OneWay&lt;/Mep&gt;
+  &lt;MepBinding&gt;Push&lt;/MepBinding&gt;
+  &lt;PushConfiguration&gt;
+    &lt;Protocol&gt;
+      &lt;UseChunking&gt;false&lt;/UseChunking&gt;
+      &lt;UseHttpCompression&gt;false&lt;/UseHttpCompression&gt;
+    &lt;/Protocol&gt;
+    &lt;TlsConfiguration&gt;
+      &lt;IsEnabled&gt;false&lt;/IsEnabled&gt;
+      &lt;TlsVersion&gt;Tls12&lt;/TlsVersion&gt;
+      &lt;ClientCertificateReference/&gt;
+    &lt;/TlsConfiguration&gt;
+  &lt;/PushConfiguration&gt;
+  &lt;PullConfiguration&gt;
+    &lt;SubChannel /&gt;
+  &lt;/PullConfiguration&gt;
+  &lt;Reliability&gt;
+    &lt;ReceptionAwareness&gt;
+      &lt;IsEnabled&gt;false&lt;/IsEnabled&gt;
+      &lt;RetryCount&gt;5&lt;/RetryCount&gt;
+      &lt;RetryInterval /&gt;
+    &lt;/ReceptionAwareness&gt;
+  &lt;/Reliability&gt;
+  &lt;ReceiptHandling&gt;
+    &lt;NotifyMessageProducer&gt;false&lt;/NotifyMessageProducer&gt;
+    &lt;NotifyMethod /&gt;
+  &lt;/ReceiptHandling&gt;
+  &lt;ErrorHandling&gt;
+    &lt;NotifyMessageProducer&gt;false&lt;/NotifyMessageProducer&gt;
+    &lt;NotifyMethod /&gt;
+  &lt;/ErrorHandling&gt;
+  &lt;ExceptionHandling&gt;
+    &lt;NotifyMessageProducer&gt;false&lt;/NotifyMessageProducer&gt;
+    &lt;NotifyMethod /&gt;
+  &lt;/ExceptionHandling&gt;
+  &lt;Security&gt;
+    &lt;Signing&gt;
+      &lt;IsEnabled&gt;false&lt;/IsEnabled&gt;
+    &lt;/Signing&gt;
+    &lt;Encryption&gt;
+      &lt;IsEnabled&gt;false&lt;/IsEnabled&gt;
+    &lt;/Encryption&gt;
+  &lt;/Security&gt;
+  &lt;MessagePackaging&gt;
+    &lt;UseAS4Compression&gt;true&lt;/UseAS4Compression&gt;
+    &lt;IsMultiHop&gt;false&lt;/IsMultiHop&gt;
+    &lt;IncludePModeId&gt;true&lt;/IncludePModeId&gt;
+	&lt;PartyInfo&gt;
+			&lt;FromParty&gt;
+				&lt;PartyIds&gt;
+					&lt;PartyId&gt;
+						&lt;Id&gt;org:eu:europa:as4:example&lt;/Id&gt;
+					&lt;/PartyId&gt;
+				&lt;/PartyIds&gt;
+				&lt;Role&gt;Sender&lt;/Role&gt;
+			&lt;/FromParty&gt;
+			&lt;ToParty&gt;
+				&lt;PartyIds&gt;
+					&lt;PartyId&gt;
+						&lt;Id&gt;org:holodeckb2b:example:company:B&lt;/Id&gt;
+					&lt;/PartyId&gt;
+				&lt;/PartyIds&gt;
+				&lt;Role&gt;Receiver&lt;/Role&gt;
+			&lt;/ToParty&gt;
+		&lt;/PartyInfo&gt;
+  &lt;/MessagePackaging&gt;
+&lt;/PMode&gt;</value>
+    <comment>PMode</comment>
+  </data>
+  <data name="submitmessage_multiple_payloads_xml" xml:space="preserve">
+    <value>&lt;?xml version="1.0"?&gt;
+&lt;SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages"&gt;
+  &lt;Collaboration&gt;
+    &lt;AgreementRef&gt;
+      &lt;PModeId&gt;push-sample&lt;/PModeId&gt;
+      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
+    &lt;/AgreementRef&gt;
+    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
+  &lt;/Collaboration&gt;
+
+  &lt;MessageProperties&gt;
+    &lt;MessageProperty&gt;
+      &lt;Name&gt;Test&lt;/Name&gt;
+      &lt;ExceptionType&gt;Test&lt;/ExceptionType&gt;
+      &lt;Value&gt;Test&lt;/Value&gt;
+    &lt;/MessageProperty&gt;
+    &lt;MessageProperty&gt;
+      &lt;Name&gt;Test&lt;/Name&gt;
+      &lt;ExceptionType&gt;Test&lt;/ExceptionType&gt;
+      &lt;Value&gt;Test&lt;/Value&gt;
+    &lt;/MessageProperty&gt;
+  &lt;/MessageProperties&gt;
+
+  &lt;Payloads&gt;
+    &lt;Payload&gt;
+      &lt;Id&gt;earth&lt;/Id&gt;
+      &lt;MimeExceptionType&gt;image/jpeg&lt;/MimeExceptionType&gt;
+      &lt;Location&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg&lt;/Location&gt;
+      &lt;PayloadProperties&gt;
+        &lt;PayloadProperty&gt;
+           &lt;Name&gt;Test&lt;/Name&gt;
+          &lt;Value&gt;Test&lt;/Value&gt;
+        &lt;/PayloadProperty&gt;
+      &lt;/PayloadProperties&gt;
+    &lt;/Payload&gt;
+
+    &lt;Payload&gt;
+      &lt;Id&gt;earth2&lt;/Id&gt;
+      &lt;MimeExceptionType&gt;image/jpeg&lt;/MimeExceptionType&gt;
+      &lt;Location&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth(2).jpg&lt;/Location&gt;
+      &lt;PayloadProperties&gt;
+        &lt;PayloadProperty&gt;
+           &lt;Name&gt;Test&lt;/Name&gt;
+          &lt;Value&gt;Test&lt;/Value&gt;
+        &lt;/PayloadProperty&gt;
+      &lt;/PayloadProperties&gt;
+    &lt;/Payload&gt;
+  &lt;/Payloads&gt;
+&lt;/SubmitMessage&gt;</value>
+    <comment>Submit message with Multiple Payloads</comment>
+  </data>
+  <data name="submitmessage_single_payload_xml" xml:space="preserve">
+    <value>&lt;?xml version="1.0"?&gt;
+&lt;SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages"&gt;
+  &lt;Collaboration&gt;
+    &lt;AgreementRef&gt;
+      &lt;PModeId&gt;push-sample&lt;/PModeId&gt;
+      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
+    &lt;/AgreementRef&gt;
+    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
+  &lt;/Collaboration&gt;
+
+  &lt;MessageProperties&gt;
+    &lt;MessageProperty&gt;
+      &lt;Name&gt;Test&lt;/Name&gt;
+      &lt;ExceptionType&gt;Test&lt;/ExceptionType&gt;
+      &lt;Value&gt;Test&lt;/Value&gt;
+    &lt;/MessageProperty&gt;
+    &lt;MessageProperty&gt;
+      &lt;Name&gt;Test&lt;/Name&gt;
+      &lt;ExceptionType&gt;Test&lt;/ExceptionType&gt;
+      &lt;Value&gt;Test&lt;/Value&gt;
+    &lt;/MessageProperty&gt;
+  &lt;/MessageProperties&gt;
+
+  &lt;Payloads&gt;
+    &lt;Payload&gt;
+      &lt;Id&gt;earth&lt;/Id&gt;
+      &lt;MimeExceptionType&gt;image/jpeg&lt;/MimeExceptionType&gt;
+      &lt;Location&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg&lt;/Location&gt;
+      &lt;PayloadProperties&gt;
+        &lt;PayloadProperty&gt;
+           &lt;Name&gt;Test&lt;/Name&gt;
+          &lt;Value&gt;Test&lt;/Value&gt;
+        &lt;/PayloadProperty&gt;
+      &lt;/PayloadProperties&gt;
+    &lt;/Payload&gt;
+  &lt;/Payloads&gt;
+&lt;/SubmitMessage&gt;</value>
+    <comment>Submit message with a single payload</comment>
+  </data>
+  <data name="submit_input_path" xml:space="preserve">
+    <value>\messages\in</value>
+    <comment>Path to place the outcoming messages</comment>
+  </data>
+  <data name="submit_messages_path" xml:space="preserve">
+    <value>\messages</value>
+  </data>
+  <data name="submit_output_path" xml:space="preserve">
+    <value>\messages\out</value>
+  </data>
+  <data name="holodeck_B_pmodes" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\conf\pmodes</value>
+  </data>
+  <data name="holodeck_test_pmodes" xml:space="preserve">
+    <value>\config\holodeck-pmodes</value>
+  </data>
+  <data name="submitmessage_single_payload_path" xml:space="preserve">
+    <value>\messages\attachments\earth.jpg</value>
+  </data>
+  <data name="submitmessage_second_payload_path" xml:space="preserve">
+    <value>\messages\attachments\xml-sample.xml</value>
+  </data>
+  <data name="notify_error_path" xml:space="preserve">
+    <value>\messages\errors</value>
+  </data>
+  <data name="holodeck_A_output_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out</value>
+  </data>
+  <data name="holodeck_A_pmodes" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\conf\pmodes</value>
+  </data>
+  <data name="holodeck_payload_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out\payloads\dandelion.jpg</value>
+  </data>
+  <data name="holodeck_A_input_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_in</value>
+  </data>
+  <data name="duplicated_as4message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\as4message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
+  </data>
+  <data name="as4message_incorect_compressed" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4message_incorect_compressed.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="as4message_missing_mime_property" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4message_missing_mime_property.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="as4_soap_wrong_signed_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-soap-wrong-signed-message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="as4_component_receipts_path" xml:space="preserve">
+    <value>\messages\receipts</value>
+  </data>
+  <data name="as4_component_exceptions_path" xml:space="preserve">
+    <value>\messages\exceptions</value>
+  </data>
+  <data name="as4message_external_payloads" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4message_external_payloads.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="as4_soap_wrong_signed_callback_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-soap-wrong-signed-callback-message.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="as4_component_errors_path" xml:space="preserve">
+    <value>\messages\errors</value>
+  </data>
+  <data name="as4_soap_wrong_encrypted_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-soap-wrong-encrypted-message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="holodeck_xml_payload_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out\payloads\simple_document.xml</value>
+  </data>
+</root>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!--<RunConfiguration>
+    <MaxCpuCount>1</MaxCpuCount>
+  </RunConfiguration>-->
+
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage"
+                     uri="datacollector://Microsoft/CodeCoverage/2.0"
+                     assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <Configuration>
+          <CodeCoverage>
+            <ModulePaths>
+              <Include>
+                <ModulePath>Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.dll</ModulePath>
+                <ModulePath>Eu.EDelivery.AS4.ServiceHandler.dll</ModulePath>
+                <ModulePath>Eu.EDelivery.AS4.dll</ModulePath>
+                <ModulePath>Eu.EDelivery.AS4.Steps.dll</ModulePath>
+                <ModulePath>Eu.EDelivery.AS4.Receivers.dll</ModulePath>
+                <ModulePath>Eu.EDelivery.AS4.Transformers.dll</ModulePath>
+              </Include>
+            </ModulePaths>
+            <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
+            <AllowLowIntegrityProcesses>True</AllowLowIntegrityProcesses>
+            <CollectFromChildProcesses>True</CollectFromChildProcesses>
+            <CollectAspDotNet>False</CollectAspDotNet>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
