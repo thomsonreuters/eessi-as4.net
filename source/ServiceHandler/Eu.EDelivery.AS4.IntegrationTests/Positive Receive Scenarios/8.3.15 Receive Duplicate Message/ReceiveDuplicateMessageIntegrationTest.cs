@@ -30,6 +30,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._15
 
             // Act
             this._sender.SendAsync(Properties.Resources.duplicated_as4message, ContentType);
+            base.CleanUpFiles(AS4FullInputPath);
+            this._sender.SendAsync(Properties.Resources.duplicated_as4message, ContentType);
 
             // Assert
             AssertMessageIsNotDelivered();
