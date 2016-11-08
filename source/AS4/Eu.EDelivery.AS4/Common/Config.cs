@@ -7,7 +7,6 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Validators;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
@@ -23,8 +22,6 @@ namespace Eu.EDelivery.AS4.Common
         private readonly ILogger _logger;
 
         private readonly IDictionary<string, string> _configuration;
-        private readonly IDictionary<string, SendingProcessingMode> _sendingPModes;
-        private readonly IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
 
         private readonly ConcurrentDictionary<string, SendingProcessingMode> _concurrentSendingPModes;
         private readonly ConcurrentDictionary<string, ReceivingProcessingMode> _concurrentReceivingPModes;
@@ -38,16 +35,14 @@ namespace Eu.EDelivery.AS4.Common
 
         internal Config()
         {
-            this._sendingPModes = new Dictionary<string, SendingProcessingMode>();
             this._logger = LogManager.GetCurrentClassLogger();
-            this._receivingPmodes = new Dictionary<string, ReceivingProcessingMode>();
-            this._configuration = new Dictionary<string, string>(
-                StringComparer.CurrentCultureIgnoreCase);
 
-            this._concurrentSendingPModes = new ConcurrentDictionary<string, SendingProcessingMode>(
-                StringComparer.CurrentCultureIgnoreCase);
-            this._concurrentReceivingPModes = new ConcurrentDictionary<string, ReceivingProcessingMode>(
-                StringComparer.CurrentCultureIgnoreCase);
+            this._configuration = new Dictionary
+                <string, string>(StringComparer.CurrentCultureIgnoreCase);
+            this._concurrentSendingPModes = new ConcurrentDictionary
+                <string, SendingProcessingMode>(StringComparer.CurrentCultureIgnoreCase);
+            this._concurrentReceivingPModes = new ConcurrentDictionary
+                <string, ReceivingProcessingMode>(StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -70,14 +65,6 @@ namespace Eu.EDelivery.AS4.Common
             }
         }
 
-        private void RetrievePModes(string pmodeFolder, Action<FileSystemInfo> assign)
-        {
-            var startDir = new DirectoryInfo(pmodeFolder);
-
-            FileInfo[] files = startDir.GetFiles("*.xml", SearchOption.AllDirectories);
-            foreach (FileInfo file in files) assign(file);
-        }
-
         private string GetSendPModeFolder()
         {
             return Path.Combine(
@@ -90,18 +77,6 @@ namespace Eu.EDelivery.AS4.Common
             return Path.Combine(
                 Properties.Resources.configurationfolder,
                 Properties.Resources.receivepmodefolder);
-        }
-
-        private void AssignPModeToDictionary<T>(FileSystemInfo file, IDictionary<string, T> dictionary, IValidator<T> validator) where T : class, IPMode
-        {
-            var pmode = TryDeserialize<T>(file.FullName);
-            if (pmode == null) return;
-            validator.Validate(pmode);
-
-            if (dictionary.ContainsKey(pmode.Id))
-                this._logger.Warn($"Multiple PModes configuration files are found with Id: {pmode.Id}");
-
-            if (pmode.Id != null) dictionary[pmode.Id] = pmode;
         }
 
         private void RetrieveLocalConfiguration()
