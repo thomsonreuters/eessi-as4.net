@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -62,7 +63,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             {
                 IAgent agent = GetAgentFromSettings(settingAgent);
                 agent.AgentConfig = new AgentConfig(settingAgent.Name);
-                
+
                 this._agents.Add(agent);
             }
         }
@@ -125,11 +126,20 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
         private T CreateInstance<T>(string typeString, params object[] args) where T : class
         {
-            Type type = Type.GetType(typeString);
+            Type type = ResolveType(typeString);
             if (type == null) throw new AS4Exception($"Not given class found for given Type: {typeString}");
 
             if (args != null) return Activator.CreateInstance(type, args) as T;
             return Activator.CreateInstance(type) as T;
+        }
+
+        private Type ResolveType(string type)
+        {
+            return Type.GetType(type) ?? Type.GetType(type, name =>
+            {
+                Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
+            }, typeResolver: null, throwOnError: true);
         }
     }
 }
