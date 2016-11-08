@@ -53,11 +53,25 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._8_Sen
             if (notifyErrorFile == null) return;
 
             Console.WriteLine($@"Notify Error Message found at: {notifyErrorFile.FullName}");
-            var xmlDocument = new XmlDocument();
-            xmlDocument.Load(notifyErrorFile.FullName);
+            XmlDocument xmlDocument = TryGetXmlDocument(notifyErrorFile);
+            if (xmlDocument == null) return;
 
             AssertNotifyDescription(xmlDocument);
             AssertNotifyStatus(xmlDocument);
+        }
+
+        private XmlDocument TryGetXmlDocument(FileInfo notifyErrorFile)
+        {
+            try
+            {
+                var xmlDocument = new XmlDocument();
+                xmlDocument.Load(notifyErrorFile.FullName);
+                return xmlDocument;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private void AssertNotifyStatus(XmlDocument xmlDocument)
