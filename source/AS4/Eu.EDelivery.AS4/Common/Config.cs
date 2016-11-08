@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
@@ -17,19 +18,16 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public sealed class Config : IConfig
     {
-        // TODO: to many fields?
         private static readonly IConfig Singleton = new Config();
         private readonly ILogger _logger;
 
         private readonly IDictionary<string, string> _configuration;
-
         private readonly ConcurrentDictionary<string, SendingProcessingMode> _concurrentSendingPModes;
         private readonly ConcurrentDictionary<string, ReceivingProcessingMode> _concurrentReceivingPModes;
 
         private Settings _settings;
         private List<SettingsAgent> _agents;
 
-        // Singleton
         public static Config Instance => (Config)Singleton;
         public bool IsInitialized { get; private set; }
 
@@ -39,8 +37,10 @@ namespace Eu.EDelivery.AS4.Common
 
             this._configuration = new Dictionary
                 <string, string>(StringComparer.CurrentCultureIgnoreCase);
+
             this._concurrentSendingPModes = new ConcurrentDictionary
                 <string, SendingProcessingMode>(StringComparer.CurrentCultureIgnoreCase);
+
             this._concurrentReceivingPModes = new ConcurrentDictionary
                 <string, ReceivingProcessingMode>(StringComparer.CurrentCultureIgnoreCase);
         }
@@ -55,6 +55,7 @@ namespace Eu.EDelivery.AS4.Common
             {
                 this.IsInitialized = true;
                 RetrieveLocalConfiguration();
+                LoadExternalAssemblies();
 
                 new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._concurrentReceivingPModes);
                 new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._concurrentSendingPModes);
@@ -62,6 +63,16 @@ namespace Eu.EDelivery.AS4.Common
             catch (Exception exception)
             {
                 this._logger.Error(exception.Message);
+            }
+        }
+
+        private void LoadExternalAssemblies()
+        {
+            var externalDictionary = new DirectoryInfo(Properties.Resources.externalfolder);
+            foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
+            {
+                Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                AppDomain.CurrentDomain.Load(assembly.GetName());
             }
         }
 
@@ -151,7 +162,6 @@ namespace Eu.EDelivery.AS4.Common
                 throw new AS4Exception("Given Sending PMode key is null");
 
             SendingProcessingMode pmode = null;
-            //this._sendingPModes.TryGetValue(id, out pmode);
             this._concurrentSendingPModes.TryGetValue(id, out pmode);
 
             if (pmode == null)
@@ -166,7 +176,6 @@ namespace Eu.EDelivery.AS4.Common
                 throw new AS4Exception("Given Receiving PMode key is null");
 
             ReceivingProcessingMode pmode = null;
-            //this._receivingPmodes.TryGetValue(id, out pmode);
             this._concurrentReceivingPModes.TryGetValue(id, out pmode);
 
             if (pmode == null)

@@ -70,6 +70,15 @@ namespace Eu.EDelivery.AS4.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to external.
+        /// </summary>
+        public static string externalfolder {
+            get {
+                return ResourceManager.GetString("externalfolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to receive-pmodes.
         /// </summary>
         public static string receivepmodefolder {
