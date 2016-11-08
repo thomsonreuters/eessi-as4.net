@@ -25,8 +25,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 output/
-!output/config
-!output/messages
+!output/config/
+!output/messages/
+!output/database/
 
 # Visual Studio 2015 cache/options directory
 .vs/
