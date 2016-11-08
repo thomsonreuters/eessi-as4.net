@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Common
         private Settings _settings;
         private List<SettingsAgent> _agents;
 
-        public static Config Instance => (Config)Singleton;
+        public static Config Instance => (Config) Singleton;
         public bool IsInitialized { get; private set; }
 
         internal Config()
@@ -55,10 +55,11 @@ namespace Eu.EDelivery.AS4.Common
             {
                 this.IsInitialized = true;
                 RetrieveLocalConfiguration();
-                LoadExternalAssemblies();
 
                 new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._concurrentReceivingPModes);
                 new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._concurrentSendingPModes);
+
+                LoadExternalAssemblies();
             }
             catch (Exception exception)
             {
@@ -68,11 +69,25 @@ namespace Eu.EDelivery.AS4.Common
 
         private void LoadExternalAssemblies()
         {
-            var externalDictionary = new DirectoryInfo(Properties.Resources.externalfolder);
+            DirectoryInfo externalDictionary = TryGetExternalDirectory();
+            if (externalDictionary == null) return;
+
             foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
             {
                 Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
                 AppDomain.CurrentDomain.Load(assembly.GetName());
+            }
+        }
+
+        private DirectoryInfo TryGetExternalDirectory()
+        {
+            try
+            {
+                return new DirectoryInfo(Properties.Resources.externalfolder);
+            }
+            catch
+            {
+                return null;
             }
         }
 
