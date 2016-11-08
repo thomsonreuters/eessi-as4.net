@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
@@ -7,6 +8,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
+using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Common
@@ -24,6 +26,9 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IDictionary<string, SendingProcessingMode> _sendingPModes;
         private readonly IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
 
+        private readonly ConcurrentDictionary<string, SendingProcessingMode> _concurrentSendingPModes;
+        private readonly ConcurrentDictionary<string, ReceivingProcessingMode> _concurrentReceivingPModes;
+
         private Settings _settings;
         private List<SettingsAgent> _agents;
 
@@ -38,6 +43,11 @@ namespace Eu.EDelivery.AS4.Common
             this._receivingPmodes = new Dictionary<string, ReceivingProcessingMode>();
             this._configuration = new Dictionary<string, string>(
                 StringComparer.CurrentCultureIgnoreCase);
+
+            this._concurrentSendingPModes = new ConcurrentDictionary<string, SendingProcessingMode>(
+                StringComparer.CurrentCultureIgnoreCase);
+            this._concurrentReceivingPModes = new ConcurrentDictionary<string, ReceivingProcessingMode>(
+                StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -50,12 +60,13 @@ namespace Eu.EDelivery.AS4.Common
             {
                 this.IsInitialized = true;
                 RetrieveLocalConfiguration();
-                RetrievePModes(GetSendPModeFolder(), x => AssignPModeToDictionary(x, this._sendingPModes, new SendingProcessingModeValidator()));
-                RetrievePModes(GetReceivePModeFolder(), x => AssignPModeToDictionary(x, this._receivingPmodes, new ReceivingProcessingModeValidator()));
+
+                new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._concurrentReceivingPModes);
+                new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._concurrentSendingPModes);
             }
             catch (Exception exception)
             {
-               this._logger.Error(exception.Message);
+                this._logger.Error(exception.Message);
             }
         }
 
@@ -81,9 +92,9 @@ namespace Eu.EDelivery.AS4.Common
                 Properties.Resources.receivepmodefolder);
         }
 
-        private void AssignPModeToDictionary<T>(FileSystemInfo file, IDictionary<string, T> dictionary, IValidator<T> validator) where T : class
+        private void AssignPModeToDictionary<T>(FileSystemInfo file, IDictionary<string, T> dictionary, IValidator<T> validator) where T : class, IPMode
         {
-            dynamic pmode = TryDeserialize<T>(file.FullName);
+            var pmode = TryDeserialize<T>(file.FullName);
             if (pmode == null) return;
             validator.Validate(pmode);
 
@@ -115,7 +126,7 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception)
             {
-               this._logger.Error($"Cannot Deserialize PMode on location: {path}");
+                this._logger.Error($"Cannot Deserialize PMode on location: {path}");
                 return null;
             }
         }
@@ -161,11 +172,12 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
-            if(id == null)
+            if (id == null)
                 throw new AS4Exception("Given Sending PMode key is null");
 
             SendingProcessingMode pmode = null;
-            this._sendingPModes.TryGetValue(id, out pmode);
+            //this._sendingPModes.TryGetValue(id, out pmode);
+            this._concurrentSendingPModes.TryGetValue(id, out pmode);
 
             if (pmode == null)
                 throw new AS4Exception("Multiple keys found for Sending Processing Mode");
@@ -179,9 +191,10 @@ namespace Eu.EDelivery.AS4.Common
                 throw new AS4Exception("Given Receiving PMode key is null");
 
             ReceivingProcessingMode pmode = null;
-            this._receivingPmodes.TryGetValue(id, out pmode);
+            //this._receivingPmodes.TryGetValue(id, out pmode);
+            this._concurrentReceivingPModes.TryGetValue(id, out pmode);
 
-            if(pmode == null)
+            if (pmode == null)
                 throw new AS4Exception("Multiple keys found for Receiving Processing Mode");
 
             return pmode;
@@ -205,6 +218,6 @@ namespace Eu.EDelivery.AS4.Common
         /// Return all the configured <see cref="ReceivingProcessingMode"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => this._receivingPmodes.Values;
+        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => this._concurrentReceivingPModes.Values;
     }
 }

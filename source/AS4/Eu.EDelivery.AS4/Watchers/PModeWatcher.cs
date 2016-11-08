@@ -17,12 +17,22 @@ namespace Eu.EDelivery.AS4.Watchers
         public PModeWatcher(string path, ConcurrentDictionary<string, T> pmodes)
         {
             this._pmodes = pmodes;
-            var watcher = new FileSystemWatcher(path, "*.xml");
 
+            var watcher = new FileSystemWatcher(path, "*.xml");
             watcher.Changed += OnChanged;
             watcher.Created += OnCreated;
             watcher.EnableRaisingEvents = true;
             watcher.NotifyFilter = GetNotifyFilters();
+
+            RetrievePModes(watcher.Path);
+        }
+
+        private void RetrievePModes(string pmodeFolder)
+        {
+            var startDir = new DirectoryInfo(pmodeFolder);
+
+            FileInfo[] files = startDir.GetFiles("*.xml", SearchOption.AllDirectories);
+            foreach (FileInfo file in files) AddOrUpdatePMode(file.FullName);
         }
 
         private NotifyFilters GetNotifyFilters()
@@ -32,18 +42,18 @@ namespace Eu.EDelivery.AS4.Watchers
 
         private void OnCreated(object sender, FileSystemEventArgs e)
         {
-            AddOrUpdatePMode(e);
+            AddOrUpdatePMode(e.FullPath);
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
-            AddOrUpdatePMode(e);
+            AddOrUpdatePMode(e.FullPath);
         }
 
-        private void AddOrUpdatePMode(FileSystemEventArgs e)
+        private void AddOrUpdatePMode(string fullPath)
         {
-            T pmode = TryDeserialize(e.FullPath);
-            this._pmodes.AddOrUpdate(pmode.Id, s => pmode, (s, t) => pmode);
+            T pmode = TryDeserialize(fullPath);
+            if (pmode != null) this._pmodes.AddOrUpdate(pmode.Id, s => pmode, (s, t) => pmode);
         }
 
         private T TryDeserialize(string path)
