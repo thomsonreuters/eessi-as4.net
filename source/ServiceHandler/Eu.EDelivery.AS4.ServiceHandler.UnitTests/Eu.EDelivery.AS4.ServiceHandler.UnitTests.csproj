@@ -74,6 +74,9 @@
   <ItemGroup>
     <Compile Include="Agents\GivenAgentBaseFacts.cs" />
     <Compile Include="Agents\StubAgent.cs" />
+    <Compile Include="Builder\GivenGenericTypeBuilderFacts.cs" />
+    <Compile Include="Builder\GivenReceiverBuilderFacts.cs" />
+    <Compile Include="Builder\GivenStepBuilderFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +87,14 @@
     <ProjectReference Include="..\..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj">
       <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
       <Name>Eu.EDelivery.AS4</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
+      <Project>{B0BE265A-8190-415C-8E46-2B85FE6BDBE7}</Project>
+      <Name>Eu.EDelivery.AS4.Receivers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Steps\Eu.EDelivery.AS4.Steps\Eu.EDelivery.AS4.Steps.csproj">
+      <Project>{9208D4FA-018E-4DB4-A60D-EE475F5EC421}</Project>
+      <Name>Eu.EDelivery.AS4.Steps</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Transformers\Eu.EDelivery.AS4.Transformers\Eu.EDelivery.AS4.Transformers.csproj">
       <Project>{51C92C72-60F5-4DCE-B129-045640CA6D96}</Project>
