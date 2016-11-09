@@ -18,17 +18,17 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
     /// Agent Provider/Manager Resposibility:
     /// manage the registered Agents (default and extendible)
     /// </summary>
-    public class AgentProvider
+    public class AgentFactory
     {
         private readonly IConfig _config;
         private readonly ICollection<IAgent> _agents;
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Create a <see cref="AgentProvider" />
+        /// Create a <see cref="AgentFactory" />
         /// with the Core and Custom Agents
         /// </summary>
-        public AgentProvider(IConfig config)
+        public AgentFactory(IConfig config)
         {
             this._config = config;
             this._logger = LogManager.GetCurrentClassLogger();
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         /// Return all the Registered <see cref="IAgent" /> Implementations
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<IAgent> GetAgents()
+        public IEnumerable<IAgent> CreateAgents()
         {
             return this._agents;
         }
