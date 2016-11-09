@@ -202,6 +202,7 @@
     <Compile Include="Model\Core\Service.cs" />
     <Compile Include="Model\Internal\ReceivedEntityMessage.cs" />
     <Compile Include="Model\Internal\ReceivedMessageEntityMessage.cs" />
+    <Compile Include="Model\PMode\ConfiguredPMode.cs" />
     <Compile Include="Model\PMode\IPMode.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha384SignatureAlgorithm.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha512SignatureAlgorithm.cs" />
