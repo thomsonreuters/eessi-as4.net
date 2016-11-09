@@ -206,7 +206,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private SymmetricAlgorithm CreateSymmetricEncryptionAlgorithm(byte[] symmetricKey)
         {
             var symmetricEncryptionAlgorithm =
-                (SymmetricAlgorithm)CryptoConfig.CreateFromName(this._configuration.Data.EncryptionMethod);
+                (SymmetricAlgorithm) CryptoConfig.CreateFromName(this._configuration.Data.EncryptionMethod);
             symmetricEncryptionAlgorithm.Key = symmetricKey;
 
             return symmetricEncryptionAlgorithm;
@@ -252,10 +252,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         }
 
         private void AssemblyEncryptedData(EncryptedData encryptedData, Attachment attachment)
-        {   
+        {
             encryptedData.CipherData.CipherReference = new CipherReference("cid:" + attachment.Id);
             encryptedData.CipherData.CipherReference.TransformChain.Add(new AttachmentCiphertextTransform());
-            encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference { ReferenceId = this._encryptedKey.Id });
+            encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference {ReferenceId = this._encryptedKey.Id});
         }
 
         /// <summary>
@@ -276,9 +276,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
             int ivLength;
 
-            if (symmetricAlgorithmUri == "http://www.w3.org/2009/xmlenc11#aes128-gcm")
-                ivLength = 12;
-
+            if (symmetricAlgorithmUri == "http://www.w3.org/2009/xmlenc11#aes128-gcm") ivLength = 12;
             else
             {
                 if (symmetricAlgorithmUri != "http://www.w3.org/2001/04/xmlenc#des-cbc" &&
@@ -290,8 +288,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                         throw new CryptographicException("Uri not supported");
                     ivLength = 16;
                 }
-                else
-                    ivLength = 8;
+                else ivLength = 8;
             }
             var iv = new byte[ivLength];
             Buffer.BlockCopy(encryptedData.CipherData.CipherValue, srcOffset: 0, dst: iv, dstOffset: 0, count: iv.Length);
