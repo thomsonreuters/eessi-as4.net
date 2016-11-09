@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
-using System.Text.RegularExpressions;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -22,16 +21,22 @@ using Org.BouncyCastle.Security;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
 {
+    /// <summary>
+    /// An <see cref="IEncryptionStrategy"/> implementation
+    /// responsible for the Encryption of the <see cref="AS4Message"/>
+    /// </summary>
     public class EncryptionStrategy : EncryptedXml, IEncryptionStrategy
     {
         private readonly XmlDocument _document;
-        private readonly List<Attachment> _attachments = new List<Attachment>();
+        private readonly List<Attachment> _attachments;
 
-        internal EncryptionConfiguration Configuration { get; } = new EncryptionConfiguration();
+        private readonly EncryptionConfiguration _configuration;
+        private readonly List<EncryptedData> _encryptedDatas;
+        private EncryptedKey _encryptedKey;
 
-        public List<EncryptedData> EncryptedDatas { get; } = new List<EncryptedData>();
-        public EncryptedKey EncryptedKey { get; set; }
-
+        /// <summary>
+        /// Run once Crypto Configuration
+        /// </summary>
         static EncryptionStrategy()
         {
             CryptoConfig.AddAlgorithm(typeof(AttachmentCiphertextTransform), AttachmentCiphertextTransform.Url);
@@ -41,41 +46,19 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes256-gcm");
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EncryptionStrategy"/> class
+        /// </summary>
+        /// <param name="document"></param>
         internal EncryptionStrategy(XmlDocument document) : base(document)
         {
             if (document == null)
                 throw new ArgumentNullException(nameof(document));
 
             this._document = document;
-        }
-
-        /// <summary>
-        /// Decrypts the <see cref="AS4Message"/>, replacing the encrypted content with the decrypted content.
-        /// </summary>
-        public void DecryptMessage()
-        {
-            IEnumerable<XmlElement> encryptedDataElements = SelectEncryptedDataElements();
-            DecryptEncryptedDataElements(encryptedDataElements);
-        }
-
-        private IEnumerable<XmlElement> SelectEncryptedDataElements()
-        {
-            var namespaceManager = new XmlNamespaceManager(this._document.NameTable);
-            namespaceManager.AddNamespace("enc", "http://www.w3.org/2001/04/xmlenc#");
-
-            IEnumerable<XmlElement> encryptedDataElements = this._document
-                .SelectNodes("//enc:EncryptedData", namespaceManager)?.OfType<XmlElement>();
-
-            if (encryptedDataElements == null)
-                throw new AS4Exception("No EncryptedData elements found to decrypt");
-
-            return encryptedDataElements;
-        }
-
-        private void DecryptEncryptedDataElements(IEnumerable<XmlElement> encryptedDataElements)
-        {
-            foreach (XmlElement encryptedDataElement in encryptedDataElements)
-                TryDecryptEncryptedDataElement(encryptedDataElement, this.Configuration.Certificate, this._attachments);
+            this._configuration = new EncryptionConfiguration();
+            this._attachments = new List<Attachment>();
+            this._encryptedDatas = new List<EncryptedData>();
         }
 
         /// <summary>
@@ -88,7 +71,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         }
 
         /// <summary>
-        /// Appends all encryption elements, such as <see cref="EncryptedKey"/> and <see cref="EncryptedData"/> elements.
+        /// Appends all encryption elements, such as <see cref="_encryptedKey"/> and <see cref="EncryptedData"/> elements.
         /// </summary>
         /// <param name="securityElement"></param>
         public void AppendEncryptionElements(XmlElement securityElement)
@@ -102,7 +85,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             XmlDocument securityDocument = securityElement.OwnerDocument;
 
             // Add additional elements such as certificate references
-            this.Configuration.Key.SecurityTokenReference.AddSecurityTokenTo(securityElement, securityDocument);
+            this._configuration.Key.SecurityTokenReference.AddSecurityTokenTo(securityElement, securityDocument);
 
             AppendEncryptedKeyElement(securityElement, securityDocument);
             AppendEncryptedDataElements(securityElement, securityDocument);
@@ -114,9 +97,26 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             securityElement.AppendChild(securityDocument.ImportNode(encryptedKeyElement, deep: true));
         }
 
+        private XmlElement GetEncryptedKeyElement()
+        {
+            XmlElement encryptedKeyElement = this._encryptedKey.GetXml();
+            AppendDigestMethod(encryptedKeyElement.SelectSingleNode("//*[local-name()='EncryptionMethod']"));
+
+            return encryptedKeyElement;
+        }
+
+        private void AppendDigestMethod(XmlNode encryptionMethodNode)
+        {
+            XmlElement digestMethod = encryptionMethodNode.OwnerDocument
+                .CreateElement("DigestMethod", "http://www.w3.org/2000/09/xmldsig#");
+            digestMethod.SetAttribute("Algorithm", "http://www.w3.org/2001/04/xmlenc#sha256");
+
+            encryptionMethodNode.AppendChild(digestMethod);
+        }
+
         private void AppendEncryptedDataElements(XmlElement securityElement, XmlDocument securityDocument)
         {
-            foreach (EncryptedData encryptedData in this.EncryptedDatas)
+            foreach (EncryptedData encryptedData in this._encryptedDatas)
             {
                 XmlElement encryptedDataElement = encryptedData.GetXml();
                 XmlNode importedEncryptedDataNode = securityDocument.ImportNode(encryptedDataElement, deep: true);
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="encryptionAlgorithm"></param>
         public void SetEncryptionAlgorithm(string encryptionAlgorithm)
         {
-            this.Configuration.Data.EncryptionMethod = encryptionAlgorithm;
+            this._configuration.Data.EncryptionMethod = encryptionAlgorithm;
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="certificate"></param>
         public void SetCertificate(X509Certificate2 certificate)
         {
-            this.Configuration.Certificate = certificate;
+            this._configuration.Certificate = certificate;
         }
 
         /// <summary>
@@ -148,29 +148,114 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         public void EncryptMessage()
         {
-            this.EncryptedDatas.Clear();
+            this._encryptedDatas.Clear();
 
             OaepEncoding encoding = CreateOaepEncoding();
             byte[] encryptionKey = GenerateSymmetricKey(encoding.GetOutputBlockSize());
-            this.EncryptedKey = EncryptKey(encryptionKey, encoding);
+            this._encryptedKey = GetEncryptKey(encryptionKey, encoding);
 
             SymmetricAlgorithm encryptionAlgorithm = CreateSymmetricEncryptionAlgorithm(encryptionKey);
             EncryptAttachmentsWithAlgorithm(encryptionAlgorithm);
+        }
+
+        private OaepEncoding CreateOaepEncoding()
+        {
+            RSA rsaPublicKey = this._configuration.Certificate.GetRSAPublicKey();
+            RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(rsaPublicKey);
+            IDigest digestFromUri = GetDigestWithAlgorithm();
+
+            var encoding = new OaepEncoding(
+                cipher: new RsaEngine(), hash: digestFromUri, mgf1Hash: new Sha1Digest(), encodingParams: new byte[0]);
+
+            encoding.Init(forEncryption: true, param: publicKey);
+
+            return encoding;
+        }
+
+        private IDigest GetDigestWithAlgorithm()
+        {
+            string keyDigestMethod = this._configuration.Key.DigestMethod;
+            return DigestUtilities.GetDigest(keyDigestMethod.Substring(keyDigestMethod.IndexOf('#') + 1));
+        }
+
+        private byte[] GenerateSymmetricKey(int keySize)
+        {
+            using (var rijn = new RijndaelManaged {KeySize = keySize}) return rijn.Key;
+        }
+
+        private EncryptedKey GetEncryptKey(byte[] symmetricKey, OaepEncoding encoding)
+        {
+            EncryptedKey encryptedKey = CreateEncryptedKey();
+            encryptedKey.CipherData.CipherValue = encoding.ProcessBlock(
+                symmetricKey, inOff: 0, inLen: symmetricKey.Length);
+            encryptedKey.KeyInfo.AddClause(this._configuration.Key.SecurityTokenReference);
+
+            return encryptedKey;
+        }
+
+        private EncryptedKey CreateEncryptedKey()
+        {
+            return new EncryptedKey
+            {
+                Id = "ek-" + Guid.NewGuid(),
+                EncryptionMethod = new EncryptionMethod(EncryptedXml.XmlEncRSAOAEPUrl),
+                CipherData = new CipherData()
+            };
+        }
+
+        private SymmetricAlgorithm CreateSymmetricEncryptionAlgorithm(byte[] symmetricKey)
+        {
+            var symmetricEncryptionAlgorithm =
+                (SymmetricAlgorithm)CryptoConfig.CreateFromName(this._configuration.Data.EncryptionMethod);
+            symmetricEncryptionAlgorithm.Key = symmetricKey;
+
+            return symmetricEncryptionAlgorithm;
         }
 
         private void EncryptAttachmentsWithAlgorithm(SymmetricAlgorithm encryptionAlgorithm)
         {
             foreach (Attachment attachment in this._attachments)
             {
-                EncryptedData encryptedData = EncryptAttachment(attachment, encryptionAlgorithm);
-
-                this.EncryptedDatas.Add(encryptedData);
-                // Add a reference in the key to this encryptedData element
-                this.EncryptedKey.ReferenceList.Add(new DataReference(encryptedData.Id));
-
+                EncryptedData encryptedData = CreateEncryptedData();
                 encryptedData.MimeType = attachment.ContentType;
+
+                EncryptAttachmentContents(attachment, encryptionAlgorithm);
+                AssemblyEncryptedData(encryptedData, attachment);
+
+                this._encryptedDatas.Add(encryptedData);
+                // Add a reference in the key to this encryptedData element
+                this._encryptedKey.ReferenceList.Add(new DataReference(encryptedData.Id));
+            }
+        }
+
+        private void EncryptAttachmentContents(Attachment attachment, SymmetricAlgorithm algorithm)
+        {
+            using (var attachmentContents = new MemoryStream())
+            {
+                attachment.Content.CopyTo(attachmentContents);
+                byte[] encryptedBytes = base.EncryptData(attachmentContents.ToArray(), algorithm);
+
+                attachment.Content = new MemoryStream(encryptedBytes);
                 attachment.ContentType = "application/octet-stream";
             }
+        }
+
+        private EncryptedData CreateEncryptedData()
+        {
+            return new EncryptedData
+            {
+                Id = "ed-" + Guid.NewGuid(),
+                Type = this._configuration.Data.EncryptionType,
+                EncryptionMethod = new EncryptionMethod(this._configuration.Data.EncryptionMethod),
+                CipherData = new CipherData()
+            };
+        }
+
+        private void AssemblyEncryptedData(EncryptedData encryptedData, Attachment attachment)
+        {   
+            encryptedData.CipherData.CipherReference = new CipherReference("cid:" + attachment.Id);
+            encryptedData.CipherData.CipherReference.TransformChain.Add(new AttachmentCiphertextTransform());
+            encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference { ReferenceId = this._encryptedKey.Id });
         }
 
         /// <summary>
@@ -214,125 +299,46 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return iv;
         }
 
-        private OaepEncoding CreateOaepEncoding()
+        /// <summary>
+        /// Decrypts the <see cref="AS4Message"/>, replacing the encrypted content with the decrypted content.
+        /// </summary>
+        public void DecryptMessage()
         {
-            RSA rsaPublicKey = this.Configuration.Certificate.GetRSAPublicKey();
-            RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(rsaPublicKey);
-
-            IDigest digestFromUri = CreateDigestFromUri(this.Configuration.Key.DigestMethod);
-            var encoding = new OaepEncoding(
-                cipher: new RsaEngine(), hash: digestFromUri, mgf1Hash: new Sha1Digest(), encodingParams: new byte[0]);
-
-            encoding.Init(forEncryption: true, param: publicKey);
-
-            return encoding;
+            IEnumerable<XmlElement> encryptedDataElements = SelectEncryptedDataElements();
+            DecryptEncryptedDataElements(encryptedDataElements);
         }
 
-        private SymmetricAlgorithm CreateSymmetricEncryptionAlgorithm(byte[] symmetricKey)
+        private IEnumerable<XmlElement> SelectEncryptedDataElements()
         {
-            var symmetricEncryptionAlgorithm =
-                (SymmetricAlgorithm) CryptoConfig.CreateFromName(this.Configuration.Data.EncryptionMethod);
-            symmetricEncryptionAlgorithm.Key = symmetricKey;
+            var namespaceManager = new XmlNamespaceManager(this._document.NameTable);
+            namespaceManager.AddNamespace("enc", "http://www.w3.org/2001/04/xmlenc#");
 
-            return symmetricEncryptionAlgorithm;
+            IEnumerable<XmlElement> encryptedDataElements = this._document
+                .SelectNodes("//enc:EncryptedData", namespaceManager)?.OfType<XmlElement>();
+
+            if (encryptedDataElements == null)
+                throw new AS4Exception("No EncryptedData elements found to decrypt");
+
+            return encryptedDataElements;
         }
 
-        private byte[] GenerateSymmetricKey(int keySize)
+        private void DecryptEncryptedDataElements(IEnumerable<XmlElement> encryptedDataElements)
         {
-            using (var rijn = new RijndaelManaged {KeySize = keySize}) return rijn.Key;
+            foreach (XmlElement encryptedDataElement in encryptedDataElements)
+                TryDecryptEncryptedDataElement(encryptedDataElement);
         }
 
-        private EncryptedKey EncryptKey(byte[] symmetricKey, OaepEncoding encoding)
-        {
-            EncryptedKey encryptedKey = CreateEncryptedKey();
-            encryptedKey.CipherData.CipherValue = encoding.ProcessBlock(
-                symmetricKey, inOff: 0, inLen: symmetricKey.Length);
-            encryptedKey.KeyInfo.AddClause(this.Configuration.Key.SecurityTokenReference);
-
-            return encryptedKey;
-        }
-
-        private EncryptedKey CreateEncryptedKey()
-        {
-            return new EncryptedKey
-            {
-                Id = "ek-" + Guid.NewGuid(),
-                EncryptionMethod = new EncryptionMethod(XmlEncRSAOAEPUrl),
-                CipherData = new CipherData()
-            };
-        }
-
-        private XmlElement GetEncryptedKeyElement()
-        {
-            XmlElement encryptedKeyElement = this.EncryptedKey.GetXml();
-            AppendDigestMethod(encryptedKeyElement.SelectSingleNode("//*[local-name()='EncryptionMethod']"));
-
-            return encryptedKeyElement;
-        }
-
-        private void AppendDigestMethod(XmlNode encryptionMethodNode)
-        {
-            XmlElement digestMethod = encryptionMethodNode.OwnerDocument
-                .CreateElement("DigestMethod", "http://www.w3.org/2000/09/xmldsig#");
-            digestMethod.SetAttribute("Algorithm", "http://www.w3.org/2001/04/xmlenc#sha256");
-
-            encryptionMethodNode.AppendChild(digestMethod);
-        }
-
-        private EncryptedData EncryptAttachment(Attachment attachment, SymmetricAlgorithm algorithm)
-        {
-            EncryptAttachmentContents(attachment, algorithm);
-            EncryptedData encryptedData = CreateAttachmentEncryptedDataElement(attachment);
-
-            return encryptedData;
-        }
-
-        private void EncryptAttachmentContents(Attachment attachment, SymmetricAlgorithm algorithm)
-        {
-            using (var attachmentContents = new MemoryStream())
-            {
-                attachment.Content.CopyTo(attachmentContents);
-                byte[] encryptedBytes = EncryptData(attachmentContents.ToArray(), algorithm);
-                attachment.Content = new MemoryStream(encryptedBytes);
-            }
-        }
-
-        private EncryptedData CreateAttachmentEncryptedDataElement(Attachment attachment)
-        {
-            EncryptedData encryptedData = CreateEncryptedData();
-            encryptedData.CipherData.CipherReference = new CipherReference("cid:" + attachment.Id);
-            encryptedData.CipherData.CipherReference.TransformChain.Add(new AttachmentCiphertextTransform());
-            encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference {ReferenceId = this.EncryptedKey.Id});
-
-            return encryptedData;
-        }
-
-        private EncryptedData CreateEncryptedData()
-        {
-            return new EncryptedData
-            {
-                Id = "ed-" + Guid.NewGuid(),
-                Type = this.Configuration.Data.EncryptionType,
-                EncryptionMethod = new EncryptionMethod(this.Configuration.Data.EncryptionMethod),
-                CipherData = new CipherData()
-            };
-        }
-
-        private IDigest CreateDigestFromUri(string uri)
-        {
-            return DigestUtilities.GetDigest(uri.Substring(uri.IndexOf('#') + 1));
-        }
-
-        private void TryDecryptEncryptedDataElement(
-            XmlElement encryptedDataElement, X509Certificate2 decryptCertificate, ICollection<Attachment> attachments)
+        private void TryDecryptEncryptedDataElement(XmlElement encryptedDataElement)
         {
             try
             {
                 EncryptedData encryptedData = LoadEncryptedData(encryptedDataElement);
                 LoadEncryptedKey();
-                SymmetricAlgorithm decryptAlgorithm = this.GetDecryptionAlgorithm(encryptedData, decryptCertificate);
+
+                SymmetricAlgorithm decryptAlgorithm = GetDecryptionAlgorithm(encryptedData);
+
                 string uri = encryptedData.CipherData.CipherReference.Uri;
-                Attachment attachment = attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
+                Attachment attachment = this._attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
 
                 using (var attachmentInMemoryStream = new MemoryStream())
                 {
@@ -340,7 +346,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     encryptedData.CipherData = new CipherData(attachmentInMemoryStream.ToArray());
                 }
 
-                byte[] decryptedData = this.DecryptData(encryptedData, decryptAlgorithm);
+                byte[] decryptedData = base.DecryptData(encryptedData, decryptAlgorithm);
                 attachment.Content.Dispose();
                 attachment.Content = new MemoryStream(decryptedData);
                 attachment.ContentType = encryptedData.MimeType;
@@ -361,14 +367,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void LoadEncryptedKey()
         {
-            this.EncryptedKey = new EncryptedKey();
-            this.EncryptedKey.LoadXml(this._document.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement);
+            this._encryptedKey = new EncryptedKey();
+            this._encryptedKey.LoadXml(this._document.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement);
         }
 
-        private SymmetricAlgorithm GetDecryptionAlgorithm(
-            EncryptedData encryptedData, X509Certificate2 decryptCertificate)
+        private SymmetricAlgorithm GetDecryptionAlgorithm(EncryptedData encryptedData)
         {
-            byte[] key = this.DecryptEncryptedKey(this.EncryptedKey, decryptCertificate);
+            byte[] key = DecryptEncryptedKey();
 
             var decryptionAlgorithm =
                 (SymmetricAlgorithm) CryptoConfig.CreateFromName(encryptedData.EncryptionMethod.KeyAlgorithm);
@@ -377,26 +382,26 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return decryptionAlgorithm;
         }
 
-        private byte[] DecryptEncryptedKey(EncryptedKey encryptedKey, X509Certificate2 decryptCertificate)
+        private byte[] DecryptEncryptedKey()
         {
-            OaepEncoding encoding = CreateDecryptEncoding(encryptedKey);
+            OaepEncoding encoding = CreateDecryptEncoding();
 
             // We do not look at the KeyInfo element in here, but rather decrypt it with the certificate provided as argument.
             AsymmetricCipherKeyPair encryptionCertificateKeyPair =
-                DotNetUtilities.GetRsaKeyPair(decryptCertificate.GetRSAPrivateKey());
+                DotNetUtilities.GetRsaKeyPair(this._configuration.Certificate.GetRSAPrivateKey());
 
             encoding.Init(false, encryptionCertificateKeyPair.Private);
 
             return encoding.ProcessBlock(
-                inBytes: encryptedKey.CipherData.CipherValue,
+                inBytes: this._encryptedKey.CipherData.CipherValue,
                 inOff: 0,
-                inLen: encryptedKey.CipherData.CipherValue.Length);
+                inLen: this._encryptedKey.CipherData.CipherValue.Length);
         }
 
-        private OaepEncoding CreateDecryptEncoding(EncryptedKey encryptedKey)
+        private OaepEncoding CreateDecryptEncoding()
         {
             string xpath = $"//*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
-            var digestMethodNode = encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+            var digestMethodNode = this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
             IDigest digestMethod = RetrieveDigestMethod(digestMethodNode);
             var engine = new RsaEngine();
