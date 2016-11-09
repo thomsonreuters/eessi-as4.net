@@ -45,8 +45,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             registry.CertificateRepository = new CertificateRepository(config);
             registry.DatastoreRepository = new DatastoreRepository(() => new DatastoreContext(config));
 
-            var agentProvider = new AgentFactory(config);
-            return new Kernel(agentProvider.CreateAgents());
+            var agentProvider = new AgentProvider(config);
+            return new Kernel(agentProvider.GetAgents());
         }
     }
 }
