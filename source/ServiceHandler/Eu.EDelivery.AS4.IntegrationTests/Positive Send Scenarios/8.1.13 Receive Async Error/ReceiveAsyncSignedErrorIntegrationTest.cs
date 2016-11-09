@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
@@ -17,7 +18,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
         private readonly string _as4OutputPath;
 
         private readonly StubSender _sender;
-        private string _sharedMessageId;
+        private static string _sharedMessageId;
 
         public ReceiveAsyncSignedErrorIntegrationTest()
         {
@@ -37,8 +38,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             xmlDocument.Load(this._as4MessagesPath);
 
             XmlNode messageIdNode = xmlDocument.SelectSingleNode("//*[local-name()='MessageId']");
-            this._sharedMessageId = Guid.NewGuid().ToString();
-            messageIdNode.InnerText = this._sharedMessageId;
+            _sharedMessageId = Guid.NewGuid().ToString();
+            messageIdNode.InnerText = _sharedMessageId;
 
             xmlDocument.Save(this._as4MessagesPath);
         }
@@ -55,12 +56,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
 
             // Arrange
             File.Copy(this._as4MessagesPath, this._as4OutputPath);
+            Thread.Sleep(5000);
             base.CopyPModeToHolodeckB("8.1.13-pmode.xml");
 
             // Act
             string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_callback_message;
             messageWrongSigned = messageWrongSigned
-                .Replace("2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131", this._sharedMessageId);
+                .Replace("2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131", _sharedMessageId);
 
             await this._sender.SendAsync(messageWrongSigned, Constants.ContentTypes.Soap);
 
