@@ -206,6 +206,7 @@
     <Compile Include="Model\PMode\IPMode.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha384SignatureAlgorithm.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha512SignatureAlgorithm.cs" />
+    <Compile Include="Security\Encryption\AS4EncryptedKey.cs" />
     <Compile Include="Security\Encryption\DataEncryptionConfiguration.cs" />
     <Compile Include="Security\Encryption\EncryptionConfiguration.cs" />
     <Compile Include="Security\Encryption\KeyEncryptionConfiguration.cs" />
