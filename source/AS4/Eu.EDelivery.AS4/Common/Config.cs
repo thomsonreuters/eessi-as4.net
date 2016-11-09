@@ -139,7 +139,8 @@ namespace Eu.EDelivery.AS4.Common
             this._configuration["IdFormat"] = this._settings.IdFormat;
             this._configuration["Provider"] = this._settings.Database.Provider;
             this._configuration["ConnectionString"] = this._settings.Database.ConnectionString;
-            this._configuration["CertificateStore"] = this._settings.CertificateStoreName;
+            this._configuration["CertificateStore"] = this._settings.CertificateStore.StoreName;
+            this._configuration["CertificateRepository"] = this._settings.CertificateStore?.Repository?.Type;
         }
 
         private void AddCustomSettings()

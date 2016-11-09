@@ -12,9 +12,26 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         public string IdFormat { get; set; }
         public SettingsDatabase Database { get; set; }
-        [XmlElement(ElementName = "CertificateStore")] public string CertificateStoreName { get; set; }
+        public CertificateStore CertificateStore { get; set; }
         public CustomSettings CustomSettings { get; set; }
         public SettingsAgents Agents { get; set; }
+    }
+
+    [Serializable]
+    [DesignerCategory("code")]
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class CertificateStore
+    {
+        public string StoreName { get; set; }
+        public Repository Repository { get; set; }
+    }
+
+    [Serializable]
+    [DesignerCategory("code")]
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class Repository
+    {
+        [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
     }
 
     [Serializable]

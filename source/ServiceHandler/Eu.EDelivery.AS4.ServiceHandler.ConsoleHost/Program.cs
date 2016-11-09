@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
+using Eu.EDelivery.AS4.ServiceHandler.Builder;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 {
@@ -42,7 +44,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             Registry registry = Registry.Instance;
 
             config.Initialize();
-            registry.CertificateRepository = new CertificateRepository(config);
+
+            string certificateTypeRepository = config.GetSetting("CertificateRepository");
+            registry.CertificateRepository = new GenericTypeBuilder().SetType(certificateTypeRepository).Build<ICertificateRepository>();
             registry.DatastoreRepository = new DatastoreRepository(() => new DatastoreContext(config));
 
             var agentProvider = new AgentProvider(config);

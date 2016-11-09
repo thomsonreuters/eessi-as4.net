@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
     /// <summary>
     /// Factory implementation to create instance from a given <see cref="Type"/>
     /// </summary>
-    internal class GenericTypeBuilder
+    public class GenericTypeBuilder
     {
         private Type _type;
         private object[] _args;

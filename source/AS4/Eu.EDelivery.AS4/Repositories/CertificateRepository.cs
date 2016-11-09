@@ -12,6 +12,15 @@ namespace Eu.EDelivery.AS4.Repositories
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CertificateRepository"/> class
+        /// with default Configuration
+        /// </summary>
+        public CertificateRepository()
+        {
+            this._config = Config.Instance;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CertificateRepository"/> class
         /// Create a Certificate Repository with a given Configuration
         /// </summary>
         /// <param name="config">
