@@ -409,8 +409,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private IDigest RetrieveDigestMethod(XmlElement digestMethodNode)
         {
             IDigest digestMethod = new Sha256Digest();
-            string algorithm = digestMethodNode?.GetAttribute("Algorithm");
 
+            string algorithm = digestMethodNode?.GetAttribute("Algorithm");
             if (algorithm != null)
                 digestMethod = DigestUtilities.GetDigest(algorithm.Substring(algorithm.IndexOf('#') + 1));
 
