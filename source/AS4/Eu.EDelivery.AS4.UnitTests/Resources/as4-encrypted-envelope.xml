@@ -1,0 +1,79 @@
+﻿<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope" xmlns:xsd="http://www.w3.org/1999/XMLSchema" xmlns:eb3="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/" xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance/">
+  <soapenv:Header>
+    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soapenv:mustUnderstand="true">
+      <wsse:BinarySecurityToken EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" wsu:Id="Gf92c7932-8b5b-4587-991f-25ff8e8fcaf0">MIIC0jCCAjugAwIBAgIJANNfu0hCsLclMA0GCSqGSIb3DQEBCwUAMIGBMQswCQYDVQQGEwJFWDEVMBMGA1UECAwMRXhhbXBsZVN0YXRlMRgwFgYDVQQHDA9FeGFtcGxlTG9jYXRpb24xHTAbBgNVBAoMFEhvbG9kZWNrX0IyQl9wcm9qZWN0MREwDwYDVQQLDAhFeGFtcGxlczEPMA0GA1UEAwwGUGFydHlDMB4XDTE1MDUwMTEyMDAzOVoXDTIwMDQyOTEyMDAzOVowgYExCzAJBgNVBAYTAkVYMRUwEwYDVQQIDAxFeGFtcGxlU3RhdGUxGDAWBgNVBAcMD0V4YW1wbGVMb2NhdGlvbjEdMBsGA1UECgwUSG9sb2RlY2tfQjJCX3Byb2plY3QxETAPBgNVBAsMCEV4YW1wbGVzMQ8wDQYDVQQDDAZQYXJ0eUMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMhn8e0TfJ7HG50KkC5JwboeL/SE8avUGnvCS4ra5+RKqTSkRRaPoAXol8HMbKB+z+AAIX+YSEd1n0pcp2MquhsYGU6gPzlvG86mpPCLIKOlxnNOFvxY4O5V9jINcVCvunxcBf5VqSwBHCJQ8DlYtLepKd5vnS2gtRPLEazxE6l9AgMBAAGjUDBOMB0GA1UdDgQWBBRJh4mUu0g+j8ZgrO18pOik8omgNDAfBgNVHSMEGDAWgBRJh4mUu0g+j8ZgrO18pOik8omgNDAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBACsjnq4bTc25WpcXF29q6sbfEwi/SL7AoAhFBCG8vGrb1g4n7LKE85ZzqFNKqT/A9j0r1dNDn/LQMGrCzoNgerOPVHYqb3bc6gImGl6bwCdr9owWyAzmoiwZ4B6AkQcZv16oKFbIT6eVodZljWWNM3SHgYzRQYaTHPL6wQaaPVOP</wsse:BinarySecurityToken>
+      <xenc:EncryptedKey xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" Id="EK-501d4b2b-5d8459ed-c0c0-45a5-a0c4-4bde7cf06a38">
+        <xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">
+          <ds:DigestMethod xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+        </xenc:EncryptionMethod>
+        <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+          <wsse:SecurityTokenReference>
+            <wsse:Reference URI="#Gf92c7932-8b5b-4587-991f-25ff8e8fcaf0" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/>
+          </wsse:SecurityTokenReference>
+        </ds:KeyInfo>
+        <xenc:CipherData>
+          <xenc:CipherValue>WSRxV/CFWifiv9/xLgSB6O3ABD4z656n/B2IG6JBwUCeDcNJMy99OGVV4rZ7uM9visaetTdyrTc5tPhRx30lQeHoHZ8mR6VsKAn8K+ROWd6LlD+afLJnA5Cl8FAiP0gTajYlOo0+O981ft2ABHMyTerMpkd1/i6MHz11hIbkHzU=</xenc:CipherValue>
+        </xenc:CipherData>
+        <xenc:ReferenceList>
+          <xenc:DataReference URI="#ED-501d4b2b-ff9ebf62-8299-4c42-ab0c-8b7f7c50cd56"/>
+          <xenc:DataReference URI="#ED-501d4b2b-4f5da6ec-53ef-4e33-81ab-a0bdbc049f11"/>
+        </xenc:ReferenceList>
+      </xenc:EncryptedKey>
+      <xenc:EncryptedData xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" Id="ED-501d4b2b-4f5da6ec-53ef-4e33-81ab-a0bdbc049f11" MimeType="image/jpeg" Type="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only">
+        <xenc:EncryptionMethod Algorithm="http://www.w3.org/2009/xmlenc11#aes128-gcm"/>
+        <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+          <wsse:SecurityTokenReference xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" wsse11:TokenType="http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#EncryptedKey">
+            <wsse:Reference URI="#EK-501d4b2b-5d8459ed-c0c0-45a5-a0c4-4bde7cf06a38"/>
+          </wsse:SecurityTokenReference>
+        </ds:KeyInfo>
+        <xenc:CipherData>
+          <xenc:CipherReference URI="cid:30392f3c-bc9c-4a1f-ba5e-5d4d81382ee-1136335733@CLT-SNEIRINCK">
+            <xenc:Transforms>
+              <ds:Transform xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Ciphertext-Transform"/>
+            </xenc:Transforms>
+          </xenc:CipherReference>
+        </xenc:CipherData>
+      </xenc:EncryptedData>
+      <xenc:EncryptedData xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" Id="ED-501d4b2b-ff9ebf62-8299-4c42-ab0c-8b7f7c50cd56" MimeType="image/jpeg" Type="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only">
+        <xenc:EncryptionMethod Algorithm="http://www.w3.org/2009/xmlenc11#aes128-gcm"/>
+        <xenc:CipherData>
+          <xenc:CipherReference URI="cid:30392f3c-bc9c-4a1f-ba5e-5d4d81382ee-1427821804@CLT-SNEIRINCK">
+            <xenc:Transforms>
+              <ds:Transform xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Algorithm="http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Ciphertext-Transform"/>
+            </xenc:Transforms>
+          </xenc:CipherReference>
+        </xenc:CipherData>
+      </xenc:EncryptedData>
+    </wsse:Security>
+    <eb3:Messaging soapenv:mustUnderstand="true">
+      <eb3:UserMessage>
+        <eb3:MessageInfo>
+          <eb3:Timestamp>2016-10-05T16:16:49.068Z</eb3:Timestamp>
+          <eb3:MessageId>30392f3c-bc9c-4a1f-ba5e-5d4d81382eef@CLT-SNEIRINCK</eb3:MessageId>
+        </eb3:MessageInfo>
+        <eb3:PartyInfo>
+          <eb3:From>
+            <eb3:PartyId>org:holodeckb2b:example:company:A</eb3:PartyId>
+            <eb3:Role>Sender</eb3:Role>
+          </eb3:From>
+          <eb3:To>
+            <eb3:PartyId>org:holodeckb2b:example:company:B</eb3:PartyId>
+            <eb3:Role>Receiver</eb3:Role>
+          </eb3:To>
+        </eb3:PartyInfo>
+        <eb3:CollaborationInfo>
+          <eb3:AgreementRef>http://agreements.holodeckb2b.org/examples/agreement0</eb3:AgreementRef>
+          <eb3:Service type="org:holodeckb2b:services">Examples</eb3:Service>
+          <eb3:Action>StoreMessage</eb3:Action>
+          <eb3:ConversationId>org:holodeckb2b:test:conversation</eb3:ConversationId>
+        </eb3:CollaborationInfo>
+        <eb3:PayloadInfo>
+          <eb3:PartInfo href="cid:30392f3c-bc9c-4a1f-ba5e-5d4d81382ee-1427821804@CLT-SNEIRINCK"/>
+          <eb3:PartInfo href="cid:30392f3c-bc9c-4a1f-ba5e-5d4d81382ee-1136335733@CLT-SNEIRINCK"/>
+        </eb3:PayloadInfo>
+      </eb3:UserMessage>
+    </eb3:Messaging>
+  </soapenv:Header>
+  <soapenv:Body/>
+</soapenv:Envelope>
