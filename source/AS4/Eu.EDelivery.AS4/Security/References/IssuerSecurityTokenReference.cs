@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="element"></param>
         /// <param name="document"></param>
         /// <returns></returns>
-        public override XmlElement AddSecurityTokenTo(XmlElement element, XmlDocument document)
+        public override XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {
             var nodeKeyInfo = (XmlElement) element.SelectSingleNode("//*[local-name()='KeyInfo']");
             nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, this._keyInfoId);

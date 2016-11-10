@@ -179,6 +179,8 @@
     <Compile Include="Builders\Entities\OutExceptionBuilder.cs" />
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
+    <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
+    <Compile Include="Security\Builders\EncryptedKeyBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
     <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />
     <Compile Include="Common\IRegistry.cs" />
@@ -206,10 +208,13 @@
     <Compile Include="Model\PMode\IPMode.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha384SignatureAlgorithm.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha512SignatureAlgorithm.cs" />
+    <Compile Include="Security\Encryption\AS4EncryptedKey.cs" />
     <Compile Include="Security\Encryption\DataEncryptionConfiguration.cs" />
     <Compile Include="Security\Encryption\EncryptionConfiguration.cs" />
     <Compile Include="Security\Encryption\KeyEncryptionConfiguration.cs" />
+    <Compile Include="Security\Factories\EncodingFactory.cs" />
     <Compile Include="Security\References\ReferenceSecurityTokenReference.cs" />
+    <Compile Include="Security\Serializers\EncryptedDataSerializer.cs" />
     <Compile Include="Security\Signing\VerifyConfig.cs" />
     <Compile Include="Security\Algorithms\AesGcmAlgorithm.cs" />
     <Compile Include="Security\Strategies\EncryptionStrategy.cs" />
