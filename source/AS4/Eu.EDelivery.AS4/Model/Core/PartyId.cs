@@ -7,10 +7,16 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string Id { get; set; }
         public string Type { get; set; }
 
-        public PartyId()
-        {
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PartyId"/> class
+        /// </summary>
+        public PartyId() {}
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PartyId"/> class
+        /// with a given <paramref name="id"/>
+        /// </summary>
+        /// <param name="id"></param>
         public PartyId(string id)
         {
             this.Id = id;
@@ -45,7 +51,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
 
-            return obj.GetType() == GetType() && Equals((PartyId)obj);
+            return obj.GetType() == GetType() && Equals((PartyId) obj);
         }
 
         /// <summary>
@@ -59,7 +65,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             unchecked
             {
                 return
-                    ((this.Id != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Id) : 0) * 397) ^
+                    ((this.Id != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Id) : 0)*397) ^
                     (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
             }
         }
