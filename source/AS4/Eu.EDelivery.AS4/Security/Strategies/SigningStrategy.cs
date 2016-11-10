@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="hashFunction"></param>
         public void AddXmlReference(string id, string hashFunction)
         {
-            var reference = new CryptoReference("#" + id) { DigestMethod = hashFunction };
+            var reference = new CryptoReference("#" + id) {DigestMethod = hashFunction};
             Transform transform = new XmlDsigExcC14NTransform();
             reference.AddTransform(transform);
             base.AddReference(reference);

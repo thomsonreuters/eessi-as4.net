@@ -255,24 +255,29 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 SymmetricAlgorithm decryptAlgorithm = CreateSymmetricAlgorithm(
                     encryptedData.EncryptionMethod.KeyAlgorithm, key);
 
-                string uri = encryptedData.CipherData.CipherReference.Uri;
-                Attachment attachment = this._attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
-
-                using (var attachmentInMemoryStream = new MemoryStream())
-                {
-                    attachment.Content.CopyTo(attachmentInMemoryStream);
-                    encryptedData.CipherData = new CipherData(attachmentInMemoryStream.ToArray());
-                }
-
-                byte[] decryptedData = base.DecryptData(encryptedData, decryptAlgorithm);
-                attachment.Content.Dispose();
-                attachment.Content = new MemoryStream(decryptedData);
-                attachment.ContentType = encryptedData.MimeType;
+                DecryptAttachment(encryptedData, decryptAlgorithm);
             }
             catch (Exception)
             {
                 throw new AS4Exception($"Failed to decrypt data element");
             }
+        }
+
+        private void DecryptAttachment(EncryptedData encryptedData, SymmetricAlgorithm decryptAlgorithm)
+        {
+            string uri = encryptedData.CipherData.CipherReference.Uri;
+            Attachment attachment = this._attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
+
+            using (var attachmentInMemoryStream = new MemoryStream())
+            {
+                attachment.Content.CopyTo(attachmentInMemoryStream);
+                encryptedData.CipherData = new CipherData(attachmentInMemoryStream.ToArray());
+            }
+
+            byte[] decryptedData = base.DecryptData(encryptedData, decryptAlgorithm);
+            attachment.Content.Dispose();
+            attachment.Content = new MemoryStream(decryptedData);
+            attachment.ContentType = encryptedData.MimeType;
         }
 
         private byte[] DecryptEncryptedKey()
