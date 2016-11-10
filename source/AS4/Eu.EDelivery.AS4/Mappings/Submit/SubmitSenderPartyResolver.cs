@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 return MapPartyFromSubmitMessage(submitMessage);
 
             if (IsPModeFromPartyNotNull(submitMessage))
-                return Mapper.Map<Party>(submitMessage.PMode.MessagePackaging.PartyInfo.FromParty);
+                return submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
 
             return CreateDefaultParty();
         }

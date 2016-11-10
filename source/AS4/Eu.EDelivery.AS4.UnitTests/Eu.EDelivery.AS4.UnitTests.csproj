@@ -167,7 +167,10 @@
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeReceiverResolverFacts.cs" />
+    <Compile Include="Mappings\PMode\GivenPModeSenderResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitActionResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
     <Compile Include="Model\GivenCollaborationInfoFacts.cs" />
@@ -322,9 +325,7 @@
     <None Include="Resources\flower2.jpg" />
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Mappings\Submit\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

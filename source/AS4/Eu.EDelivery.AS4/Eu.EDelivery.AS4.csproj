@@ -184,7 +184,7 @@
     <Compile Include="Mappings\PMode\PModeActionResolver.cs" />
     <Compile Include="Mappings\PMode\PModeAgreementRefResolver.cs" />
     <Compile Include="Mappings\PMode\PModeReceiverResolver.cs" />
-    <Compile Include="Mappings\PMode\PModeSenderPartyResolver.cs" />
+    <Compile Include="Mappings\PMode\PModeSenderResolver.cs" />
     <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Security\Builders\EncryptedKeyBuilder.cs" />
