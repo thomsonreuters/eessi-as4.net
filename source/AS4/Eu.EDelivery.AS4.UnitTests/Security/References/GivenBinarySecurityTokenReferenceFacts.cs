@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 XmlElement securityHeaderElement = base.GetSecurityHeaderElement(xmlDocument);
                 base._reference.Certificate = base._dummyCertificate;
                 // Act
-                XmlElement xmlElement = base._reference.AddSecurityTokenTo(securityHeaderElement, xmlDocument);
+                XmlElement xmlElement = base._reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
                 // Assert
                 Assert.Equal(xmlDocument, xmlElement.OwnerDocument);
             }
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 XmlElement securityHeaderElement = base.GetSecurityHeaderElement(xmlDocument);
                 base._reference.Certificate = base._dummyCertificate;
                 // Act
-                XmlElement xmlElement = base._reference.AddSecurityTokenTo(securityHeaderElement, xmlDocument);
+                XmlElement xmlElement = base._reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.Equal("BinarySecurityToken", xmlElement.FirstChild.Name);
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 XmlElement securityHeaderElement = base.GetSecurityHeaderElement(xmlDocument);
                 base._reference.Certificate = base._dummyCertificate;
                 // Act
-                XmlElement xmlElement = base._reference.AddSecurityTokenTo(securityHeaderElement, xmlDocument);
+                XmlElement xmlElement = base._reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.NotNull(xmlElement.FirstChild.Attributes);
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 XmlElement securityHeaderElement = base.GetSecurityHeaderElement(xmlDocument);
                 base._reference.Certificate = base._dummyCertificate;
                 // Act
-                XmlElement xmlElement = base._reference.AddSecurityTokenTo(securityHeaderElement, xmlDocument);
+                XmlElement xmlElement = base._reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.NotNull(xmlElement.FirstChild.Attributes);
@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 XmlDocument xmlDocument = base.CreateSecurityHeaderDocument();
                 base._reference.Certificate = base._dummyCertificate;
                 // Act
-                XmlElement xmlElement = base._reference.AddSecurityTokenTo(xmlDocument.FirstChild as XmlElement, xmlDocument);
+                XmlElement xmlElement = base._reference.AppendSecurityTokenTo(xmlDocument.FirstChild as XmlElement, xmlDocument);
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.NotNull(xmlElement.FirstChild.Attributes);
@@ -235,7 +235,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             {
                 base._reference.Certificate = base._dummyCertificate;
                 XmlElement securityHeaderElement = base.GetSecurityHeaderElement(xmlDocument);
-                XmlElement securityHeader = base._reference.AddSecurityTokenTo(securityHeaderElement, xmlDocument);
+                XmlElement securityHeader = base._reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument);
                 base._reference.Certificate = null;
                 return securityHeader;
             }
@@ -277,7 +277,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
                 // Act / Assert
                 Assert.Throws<NullReferenceException>(() 
-                    => base._reference.AddSecurityTokenTo(securityHeaderElement, xmlDocument));
+                    => base._reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument));
             }
         }
     }

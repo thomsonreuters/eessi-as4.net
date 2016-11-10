@@ -192,6 +192,7 @@
       <DependentUpon>Samples.resx</DependentUpon>
     </Compile>
     <Compile Include="Security\Algorithms\GivenSignatureAlgorithmProviderFacts.cs" />
+    <Compile Include="Security\Encryption\GivenAS4EncryptedKeyFacts.cs" />
     <Compile Include="Security\GivenImpersonationFacts.cs" />
     <Compile Include="Security\Strategies\GivenEncryptionStrategyFacts.cs" />
     <Compile Include="Serialization\GivenMimeMessageSerializerFacts.cs" />
@@ -305,6 +306,7 @@
     <None Include="Resources\as4message.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\as4-encrypted-envelope.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\as4-soap-wrong-encrypted-message" />

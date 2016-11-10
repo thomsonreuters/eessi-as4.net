@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// </summary>
         public string ReferenceId { get; set; } = "cert-" + Guid.NewGuid();
 
-        public virtual XmlElement AddSecurityTokenTo(XmlElement element, XmlDocument document)
+        public virtual XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {
             return element;
         }

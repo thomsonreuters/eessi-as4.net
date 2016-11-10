@@ -229,7 +229,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void AppendSecurityTokenElements(XmlElement securityElement)
         {
             foreach (SecurityTokenReference reference in this.KeyInfo.OfType<SecurityTokenReference>())
-                reference.AddSecurityTokenTo(securityElement, securityElement.OwnerDocument);
+                reference.AppendSecurityTokenTo(securityElement, securityElement.OwnerDocument);
         }
 
         /// <summary>
