@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
 
@@ -8,8 +9,18 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// <summary>
     /// Resolve <see cref="Party"/>
     /// </summary>
-    public class SubmitReceiverPartyResolver : ISubmitResolver<Party>
+    public class SubmitReceiverResolver : ISubmitResolver<Party>
     {
+        private readonly IPModeResolver<Party> _pmodeResolver;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubmitReceiverResolver"/> class
+        /// </summary>
+        public SubmitReceiverResolver()
+        {
+            this._pmodeResolver = new PModeReceiverResolver();
+        }
+
         /// <summary>
         /// Resolve <see cref="Party"/>
         /// 1. SubmitMessage / PartyInfo / ToParty
@@ -25,10 +36,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             if (IsSubmitMessageToPartyNotNull(submitMessage))
                 return MapToPartyFromSubmitMessage(submitMessage);
 
-            if (IsPModeToPartyNotNull(submitMessage))
-                return Mapper.Map<Party>(submitMessage.PMode.MessagePackaging.PartyInfo.ToParty);
-
-            return CreateDefaultParty();
+            return this._pmodeResolver.Resolve(submitMessage.PMode);
         }
 
         private bool IsSubmitMessageToPartyNotNull(SubmitMessage submitMessage)

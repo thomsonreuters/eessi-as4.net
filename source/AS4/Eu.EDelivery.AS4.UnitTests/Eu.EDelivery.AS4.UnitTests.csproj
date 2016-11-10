@@ -164,6 +164,15 @@
     <Compile Include="Common\StubConfig.cs" />
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
+    <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
+    <Compile Include="Mappings\PMode\GivenPModeAgreemenRefResolverFacts.cs" />
+    <Compile Include="Mappings\PMode\GivenPModeReceiverResolverFacts.cs" />
+    <Compile Include="Mappings\PMode\GivenPModeSenderResolverFacts.cs" />
+    <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitActionResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitReceiverResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
     <Compile Include="Model\GivenCollaborationInfoFacts.cs" />

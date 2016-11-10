@@ -13,6 +13,11 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     {
         private const string NotAllowedByTheSendingPMode = "Submit Message is not allowed by the Sending PMode ";
 
+        /// <summary>
+        /// 1.SubmitMessage / CollaborationInfo / Agreement
+        /// </summary>
+        /// <param name="submitMessage"></param>
+        /// <param name="userMessage"></param>
         public void Map(SubmitMessage submitMessage, UserMessage userMessage)
         {
             Agreement submitMessageRef = submitMessage.Collaboration.AgreementRef;

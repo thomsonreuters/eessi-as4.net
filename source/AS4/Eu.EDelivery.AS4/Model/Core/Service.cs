@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public Service()
         {
-            this.Name = "http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/service";
+            this.Name = Constants.Namespaces.TestService;
         }
 
         /// <summary>

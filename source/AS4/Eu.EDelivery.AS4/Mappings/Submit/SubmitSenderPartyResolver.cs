@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
 
@@ -10,6 +11,16 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// </summary>
     public class SubmitSenderPartyResolver : ISubmitResolver<Party>
     {
+        private readonly IPModeResolver<Party> _pmodeResolver;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SubmitSenderPartyResolver"/> class
+        /// </summary>
+        public SubmitSenderPartyResolver()
+        {
+            this._pmodeResolver = new PModeSenderResolver();
+        }
+
         /// <summary>
         /// Resolve <see cref="Party"/>
         /// 1. SubmitMessage / PartyInfo / FromParty
@@ -25,26 +36,12 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             if (IsSubmitMessageFromPartyNotNull(submitMessage))
                 return MapPartyFromSubmitMessage(submitMessage);
 
-            if (IsPModeFromPartyNotNull(submitMessage))
-                return Mapper.Map<Party>(submitMessage.PMode.MessagePackaging.PartyInfo.FromParty);
-
-            return CreateDefaultParty();
-        }
-
-        private bool IsPModeFromPartyNotNull(SubmitMessage submitMessage)
-        {
-            return submitMessage?.PMode.MessagePackaging.PartyInfo?.FromParty != null;
+            return this._pmodeResolver.Resolve(submitMessage.PMode);
         }
 
         private bool IsSubmitMessageFromPartyNotNull(SubmitMessage submitMessage)
         {
             return submitMessage?.PartyInfo?.FromParty != null;
-        }
-
-        private Party CreateDefaultParty()
-        {
-            var partyId = new PartyId {Id = Constants.Namespaces.EbmsDefaultFrom};
-            return new Party(partyId) {Role = Constants.Namespaces.EbmsDefaultRole};
         }
 
         private Party MapPartyFromSubmitMessage(SubmitMessage submitMessage)
