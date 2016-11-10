@@ -6,19 +6,16 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.Builders;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Factories;
-using Eu.EDelivery.AS4.Security.References;
+using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Security.Transforms;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Encodings;
-using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
@@ -43,7 +40,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         static EncryptionStrategy()
         {
             CryptoConfig.AddAlgorithm(typeof(AttachmentCiphertextTransform), AttachmentCiphertextTransform.Url);
-
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes128-gcm");
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes192-gcm");
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes256-gcm");
@@ -165,14 +161,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this._as4EncryptedKey.SetEncryptedKey(builder.Build());
         }
 
-        private SymmetricAlgorithm CreateSymmetricAlgorithm(string name, byte[] key)
-        {
-            var symmetricAlgorithm = (SymmetricAlgorithm)CryptoConfig.CreateFromName(name);
-            symmetricAlgorithm.Key = key;
-
-            return symmetricAlgorithm;
-        }
-
         private void EncryptAttachmentsWithAlgorithm(SymmetricAlgorithm encryptionAlgorithm)
         {
             foreach (Attachment attachment in this._attachments)
@@ -250,35 +238,17 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         public void DecryptMessage()
         {
-            IEnumerable<XmlElement> encryptedDataElements = SelectEncryptedDataElements();
-            DecryptEncryptedDataElements(encryptedDataElements);
+            IEnumerable<EncryptedData> encryptedDatas =
+                new EncryptedDataSerializer(this._document).SerializeEncryptedDatas();
+
+            foreach (EncryptedData encryptedData in encryptedDatas)
+                TryDecryptEncryptedData(encryptedData);
         }
 
-        private IEnumerable<XmlElement> SelectEncryptedDataElements()
-        {
-            var namespaceManager = new XmlNamespaceManager(this._document.NameTable);
-            namespaceManager.AddNamespace("enc", "http://www.w3.org/2001/04/xmlenc#");
-
-            IEnumerable<XmlElement> encryptedDataElements = this._document
-                .SelectNodes("//enc:EncryptedData", namespaceManager)?.OfType<XmlElement>();
-
-            if (encryptedDataElements == null)
-                throw new AS4Exception("No EncryptedData elements found to decrypt");
-
-            return encryptedDataElements;
-        }
-
-        private void DecryptEncryptedDataElements(IEnumerable<XmlElement> encryptedDataElements)
-        {
-            foreach (XmlElement encryptedDataElement in encryptedDataElements)
-                TryDecryptEncryptedDataElement(encryptedDataElement);
-        }
-
-        private void TryDecryptEncryptedDataElement(XmlElement encryptedDataElement)
+        private void TryDecryptEncryptedData(EncryptedData encryptedData)
         {
             try
             {
-                EncryptedData encryptedData = LoadEncryptedData(encryptedDataElement);
                 this._as4EncryptedKey.LoadEncryptedKey(this._document);
 
                 byte[] key = DecryptEncryptedKey();
@@ -305,14 +275,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private EncryptedData LoadEncryptedData(XmlElement encryptedDataElement)
-        {
-            var encryptedData = new EncryptedData();
-            encryptedData.LoadXml(encryptedDataElement);
-
-            return encryptedData;
-        }
-
         private byte[] DecryptEncryptedKey()
         {
             OaepEncoding encoding = EncodingFactory.Instance
@@ -327,6 +289,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             CipherData cipherData = this._as4EncryptedKey.GetCipherData();
             return encoding.ProcessBlock(
                 inBytes: cipherData.CipherValue, inOff: 0, inLen: cipherData.CipherValue.Length);
+        }
+
+        private SymmetricAlgorithm CreateSymmetricAlgorithm(string name, byte[] key)
+        {
+            var symmetricAlgorithm = (SymmetricAlgorithm)CryptoConfig.CreateFromName(name);
+            symmetricAlgorithm.Key = key;
+
+            return symmetricAlgorithm;
         }
     }
 }

@@ -214,6 +214,7 @@
     <Compile Include="Security\Encryption\KeyEncryptionConfiguration.cs" />
     <Compile Include="Security\Factories\EncodingFactory.cs" />
     <Compile Include="Security\References\ReferenceSecurityTokenReference.cs" />
+    <Compile Include="Security\Serializers\EncryptedDataSerializer.cs" />
     <Compile Include="Security\Signing\VerifyConfig.cs" />
     <Compile Include="Security\Algorithms\AesGcmAlgorithm.cs" />
     <Compile Include="Security\Strategies\EncryptionStrategy.cs" />
