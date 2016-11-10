@@ -50,10 +50,12 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// Get the DigestMethod Element from the <see cref="EncryptedKey"/>
         /// </summary>
         /// <returns></returns>
-        public XmlElement GetDigestMethod()
+        public string GetDigestAlgorithm()
         {
             string xpath = $"//*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
-            return this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+            var digestNode = this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+
+            return digestNode?.GetAttribute("Algorithm");
         }
 
         /// <summary>
