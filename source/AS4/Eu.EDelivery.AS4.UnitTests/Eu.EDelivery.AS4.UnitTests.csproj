@@ -193,7 +193,9 @@
     </Compile>
     <Compile Include="Security\Algorithms\GivenSignatureAlgorithmProviderFacts.cs" />
     <Compile Include="Security\Encryption\GivenAS4EncryptedKeyFacts.cs" />
+    <Compile Include="Security\Factories\GivenEncodingFactoryFacts.cs" />
     <Compile Include="Security\GivenImpersonationFacts.cs" />
+    <Compile Include="Security\Serializers\GivenEncryptedDataSerializerFacts.cs" />
     <Compile Include="Security\Strategies\GivenEncryptionStrategyFacts.cs" />
     <Compile Include="Serialization\GivenMimeMessageSerializerFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeSerializerFacts.cs" />
