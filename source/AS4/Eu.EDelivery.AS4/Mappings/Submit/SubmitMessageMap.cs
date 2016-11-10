@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 .ForMember(dest => dest.Timestamp, src => src.Ignore())
 
                 .ForMember(dest => dest.Sender, src => src.ResolveUsing(new SubmitSenderPartyResolver().Resolve))
-                .ForMember(dest => dest.Receiver, src => src.ResolveUsing(new SubmitReceiverPartyResolver().Resolve))
+                .ForMember(dest => dest.Receiver, src => src.ResolveUsing(new SubmitReceiverResolver().Resolve))
                 .ForMember(dest => dest.MessageProperties, src => src.ResolveUsing(new SubmitMessagePropertiesResolver().Resolve))
                 .ForMember(dest => dest.PayloadInfo, src => src.ResolveUsing(new SubmitPayloadInfoResolver().Resolve))
 

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -18,6 +17,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
     /// </summary>
     public class GivenSubmitSenderPartyResolverFacts
     {
+        public GivenSubmitSenderPartyResolverFacts()
+        {
+            MapInitialization.InitializeMapper();
+        }
+
         public class GivenValidArguments : GivenSubmitSenderPartyResolverFacts
         {
             [Fact]
@@ -26,15 +30,66 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Arrange
                 var submitMessage = new SubmitMessage();
                 submitMessage.PartyInfo.FromParty = base.CreatePopulatedCommonParty();
+                submitMessage.PMode = new SendingProcessingMode {AllowOverride = true};
+                var resolver = new SubmitSenderPartyResolver();
+                // Act
+                CoreParty party = resolver.Resolve(submitMessage);
+                // Assert
+                CommonParty fromParty = submitMessage.PartyInfo.FromParty;
+                Assert.Equal(fromParty.Role, party.Role);
+                Assert.Equal(fromParty.PartyIds.First().Id, party.PartyIds.First().Id);
+                Assert.Equal(fromParty.PartyIds.First().Type, party.PartyIds.First().Type);
+            }
+
+            [Fact]
+            public void ThenResolverGetsPartyFromPMode()
+            {
+                // Arrange
+                var submitMessage = new SubmitMessage();
+                var pmode = new SendingProcessingMode();
+                pmode.MessagePackaging.PartyInfo = new AS4.Model.PMode.PartyInfo();
+                pmode.MessagePackaging.PartyInfo.FromParty = base.CreatePopulatedCoreParty();
+                submitMessage.PMode = pmode;
+                var resolver = new SubmitSenderPartyResolver();
+                // Act
+                CoreParty party = resolver.Resolve(submitMessage);
+                // Assert
+                Assert.Equal(submitMessage.PMode.MessagePackaging.PartyInfo.FromParty, party);
+            }
+
+            [Fact]
+            public void ThenResolverGetsDefaultParty()
+            {
+                // Arrange
+                var submitMessage = new SubmitMessage();
                 submitMessage.PMode = new SendingProcessingMode();
                 var resolver = new SubmitSenderPartyResolver();
                 // Act
                 CoreParty party = resolver.Resolve(submitMessage);
                 // Assert
-                Party fromParty = submitMessage.PartyInfo.FromParty;
-                Assert.Equal(fromParty.Role, party.Role);
-                Assert.Equal(fromParty.PartyIds.First().Id, party.PartyIds.First().Id);
-                Assert.Equal(fromParty.PartyIds.First().Type, party.PartyIds.First().Type);
+                Assert.Equal(Constants.Namespaces.EbmsDefaultFrom, party.PartyIds.First().Id);
+                Assert.Equal(Constants.Namespaces.EbmsDefaultRole, party.Role);
+            }
+        }
+
+        public class GivenInvalidArguments : GivenSubmitSenderPartyResolverFacts
+        {
+            [Fact]
+            public void ThenResolverFailsWhenOverrideIsNotAllowed()
+            {
+                // Arrange
+                var submitMessage = new SubmitMessage();
+                submitMessage.PartyInfo.FromParty = base.CreatePopulatedCommonParty();
+
+                var pmode = new SendingProcessingMode();
+                pmode.AllowOverride = false;
+                pmode.MessagePackaging.PartyInfo = new AS4.Model.PMode.PartyInfo();
+                pmode.MessagePackaging.PartyInfo.FromParty = base.CreatePopulatedCoreParty();
+                submitMessage.PMode = pmode;
+                var resolver = new SubmitSenderPartyResolver();
+                
+                // Act / Assert
+                Assert.Throws<AS4Exception>(() => resolver.Resolve(submitMessage));
             }
         }
 

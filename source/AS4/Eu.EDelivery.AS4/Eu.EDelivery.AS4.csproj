@@ -204,7 +204,7 @@
     <Compile Include="Mappings\Submit\SubmitSenderPartyResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessageAgreementMapper.cs" />
     <Compile Include="Mappings\Submit\SubmitPayloadInfoResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitReceiverPartyResolver.cs" />
+    <Compile Include="Mappings\Submit\SubmitReceiverResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitServiceResolver.cs" />
     <Compile Include="Model\Core\AgreementReference.cs" />
     <Compile Include="Model\Core\MessageProperty.cs" />
