@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
+using Eu.EDelivery.AS4.Security.Repositories;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Transforms;
 using MimeKit.IO;
@@ -29,7 +30,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
     {
         private const string CidPrefix = "cid:";
         private readonly string _securityTokenReferenceNamespace;
-        private readonly string[] _allowedIdNodeNames;
         private readonly XmlDocument _document;
 
         public ArrayList References => base.Signature.SignedInfo.References;
@@ -44,7 +44,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         internal SigningStrategy(XmlDocument document) : base(document)
         {
             this._document = document;
-            this._allowedIdNodeNames = new[] { "Id", "id", "ID" };
             this._securityTokenReferenceNamespace = $"{Constants.Namespaces.WssSecuritySecExt} SecurityTokenReference";
             this.SignedInfo.CanonicalizationMethod = XmlDsigExcC14NTransformUrl;
         }
@@ -64,10 +63,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
         {
-            var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
+            var cspParams = new CspParameters(24) {KeyContainerName = "XML_DISG_RSA_KEY"};
             var key = new RSACryptoServiceProvider(cspParams);
             using (certificate.GetRSAPrivateKey()) { }
-            string keyXml = certificate.PrivateKey.ToXmlString(true);
+            string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
             key.FromXmlString(keyXml);
 
             return key;
@@ -82,34 +81,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public override XmlElement GetIdElement(XmlDocument document, string idValue)
         {
             XmlElement idElement = base.GetIdElement(document, idValue);
-            if (idElement != null) return idElement;
-
-            foreach (string idNodeName in this._allowedIdNodeNames)
-            {
-                List<XmlElement> matchingNodes = FindIdElements(document, idValue, idNodeName);
-                if (MatchingNodesIsNotPopulated(matchingNodes)) continue;
-                idElement = matchingNodes.Single();
-                break;
-            }
-
-            return idElement;
-        }
-
-        private List<XmlElement> FindIdElements(XmlNode document, string idValue, string idNodeName)
-        {
-            string xpath = $"//*[@*[local-name()='{idNodeName}' and " +
-                           $"namespace-uri()='{Constants.Namespaces.WssSecurityUtility}' and .='{idValue}']]";
-
-            return document.SelectNodes(xpath).Cast<XmlElement>().ToList();
-        }
-
-        private bool MatchingNodesIsNotPopulated(IReadOnlyCollection<XmlElement> matchingNodes)
-        {
-            if (matchingNodes.Count <= 0) return true;
-            if (matchingNodes.Count >= 2)
-                throw new CryptographicException("Malformed reference element.");
-
-            return false;
+            return idElement ?? new XmlReferenceRepository(document).GetReferenceIdElement(idValue);
         }
 
         /// <summary>
@@ -132,9 +104,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="digestMethod"></param>
         public void AddAttachmentReference(Attachment attachment, string digestMethod)
         {
-            var attachmentReference = new CryptoReference(uri: CidPrefix + attachment.Id) { DigestMethod = digestMethod };
+            var attachmentReference = new CryptoReference(uri: CidPrefix + attachment.Id) {DigestMethod = digestMethod};
             attachmentReference.AddTransform(new AttachmentSignatureTransform());
             base.AddReference(attachmentReference);
+
             SetReferenceStream(attachmentReference, attachment);
             SetAttachmentTransformContentType(attachmentReference, attachment);
             ResetReferenceStreamPosition(attachmentReference);
@@ -240,29 +213,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             AsymmetricAlgorithm publicKey = base.GetPublicKey();
             if (publicKey != null) return publicKey;
 
-            X509Certificate2 signingCertificate = RetrieveSigningCertificate();
+            X509Certificate2 signingCertificate = new KeyInfoRepository(this.KeyInfo).GetCertificate();
             if (signingCertificate != null)
                 publicKey = signingCertificate.PublicKey.Key;
 
             return publicKey;
-        }
-
-        private X509Certificate2 RetrieveSigningCertificate()
-        {
-            if (this.KeyInfo == null) return null;
-            foreach (object keyInfo in this.KeyInfo)
-            {
-                // Embedded (is this actually allowed?)
-                var embeddedCertificate = keyInfo as KeyInfoX509Data;
-                if (embeddedCertificate != null && embeddedCertificate.Certificates.Count > 0)
-                    return embeddedCertificate.Certificates[0] as X509Certificate2;
-
-                // Reference
-                var securityTokenReference = keyInfo as SecurityTokenReference;
-                if (securityTokenReference != null)
-                    return securityTokenReference.Certificate;
-            }
-            return null;
         }
 
         /// <summary>
@@ -331,7 +286,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void AddUnreconizedAttachmentReferences(ICollection<Attachment> attachments)
         {
-            foreach (CryptoReference reference in SecurityHeaderReferences())
+            IEnumerable<CryptoReference> references = this.SignedInfo
+                .References.Cast<CryptoReference>().Where(ReferenceIsCicReference());
+
+            foreach (CryptoReference reference in references)
             {
                 string pureReferenceId = reference.Uri.Substring(CidPrefix.Length);
                 Attachment attachment = attachments.FirstOrDefault(x => x.Id.Equals(pureReferenceId));
@@ -340,18 +298,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private IEnumerable<CryptoReference> SecurityHeaderReferences()
-        {
-            return this.SignedInfo.References
-                .Cast<CryptoReference>()
-                .Where(ReferenceIsCicReference());
-        }
-
         private Func<CryptoReference, bool> ReferenceIsCicReference()
         {
-            return x => x?.Uri != null &&
-                        x.Uri.StartsWith(CidPrefix) &&
-                        x.Uri.Length > CidPrefix.Length;
+            return x => x?.Uri != null && x.Uri.StartsWith(CidPrefix) && x.Uri.Length > CidPrefix.Length;
         }
     }
 }
