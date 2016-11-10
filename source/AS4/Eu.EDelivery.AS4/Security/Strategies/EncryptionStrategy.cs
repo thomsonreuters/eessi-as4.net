@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
+using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Algorithms;
@@ -129,7 +130,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             OaepEncoding encoding = CreateOaepEncoding();
             byte[] encryptionKey = GenerateSymmetricKey(encoding.GetOutputBlockSize());
-            this._as4EncryptedKey.SetEncryptedKey(GetEncryptKey(encryptionKey, encoding));
+            BuildEncryptedKey(encoding, encryptionKey);
 
             SymmetricAlgorithm encryptionAlgorithm = CreateSymmetricEncryptionAlgorithm(encryptionKey);
             EncryptAttachmentsWithAlgorithm(encryptionAlgorithm);
@@ -160,24 +161,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             using (var rijn = new RijndaelManaged {KeySize = keySize}) return rijn.Key;
         }
 
-        private EncryptedKey GetEncryptKey(byte[] symmetricKey, OaepEncoding encoding)
+        private void BuildEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
         {
-            EncryptedKey encryptedKey = CreateEncryptedKey();
-            encryptedKey.CipherData.CipherValue = encoding.ProcessBlock(
-                symmetricKey, inOff: 0, inLen: symmetricKey.Length);
-            encryptedKey.KeyInfo.AddClause(this._configuration.Key.SecurityTokenReference);
+            var builder = new EncryptedKeyBuilder()
+                .WithEncoding(encoding)
+                .WithSymmetricKey(symmetricKey)
+                .WithSecurityTokenReference(this._configuration.Key.SecurityTokenReference);
 
-            return encryptedKey;
-        }
-
-        private EncryptedKey CreateEncryptedKey()
-        {
-            return new EncryptedKey
-            {
-                Id = "ek-" + Guid.NewGuid(),
-                EncryptionMethod = new EncryptionMethod(EncryptedXml.XmlEncRSAOAEPUrl),
-                CipherData = new CipherData()
-            };
+            this._as4EncryptedKey.SetEncryptedKey(builder.Build());
         }
 
         private SymmetricAlgorithm CreateSymmetricEncryptionAlgorithm(byte[] symmetricKey)
