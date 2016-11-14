@@ -103,6 +103,7 @@
       <HintPath>..\..\ServiceHandler\packages\System.Interactive.Async.3.0.0\lib\net45\System.Interactive.Async.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -117,6 +118,7 @@
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />
+    <Compile Include="Deliver\ZipAttachmentsStep.cs" />
     <Compile Include="Notify\CreateNotifyMessageStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateInExceptionDatastoreStep.cs" />
