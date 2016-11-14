@@ -1,5 +1,4 @@
 ﻿using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -9,28 +8,28 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// 2. PMode / Message Packaging / Mpc
     /// 3. No mpc attribute
     /// </summary>
-    public class SubmitMpcMapper : ISubmitMapper
+    public class SubmitMpcResolver : ISubmitResolver<string>
     {
         /// <summary>
-        /// Map to add the Mpc to the <paramref name="userMessage"/>
+        /// Resolve the Mpc from the <paramref name="submitMessage"/>
         /// </summary>
         /// <param name="submitMessage"></param>
-        /// <param name="userMessage"></param>
-        public void Map(SubmitMessage submitMessage, UserMessage userMessage)
+        /// <returns></returns>
+        public string Resolve(SubmitMessage submitMessage)
         {
             if (DoesSubmitMessageTriesToOverridePModeMpc(submitMessage))
                 throw new AS4Exception($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Mpc");
 
             if (submitMessage.PMode.AllowOverride && submitMessage.MessageInfo.Mpc != null)
-                userMessage.Mpc = submitMessage.MessageInfo.Mpc;
+                return submitMessage.MessageInfo.Mpc;
 
-            else userMessage.Mpc = submitMessage.PMode.MessagePackaging.Mpc;
+            return submitMessage.PMode.MessagePackaging.Mpc;
         }
 
         private bool DoesSubmitMessageTriesToOverridePModeMpc(SubmitMessage submitMessage)
         {
-            return 
-                submitMessage.PMode.AllowOverride == false && 
+            return
+                submitMessage.PMode.AllowOverride == false &&
                 !string.IsNullOrEmpty(submitMessage.MessageInfo.Mpc) &&
                 !string.IsNullOrEmpty(submitMessage.PMode.MessagePackaging.Mpc);
         }

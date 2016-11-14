@@ -200,7 +200,7 @@
     <Compile Include="Mappings\Submit\SubmitActionResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitConversationIdResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessagePropertiesResolver.cs" />
-    <Compile Include="Mappings\Submit\SubmitMpcMapper.cs" />
+    <Compile Include="Mappings\Submit\SubmitMpcResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitSenderPartyResolver.cs" />
     <Compile Include="Mappings\Submit\SubmitMessageAgreementMapper.cs" />
     <Compile Include="Mappings\Submit\SubmitPayloadInfoResolver.cs" />

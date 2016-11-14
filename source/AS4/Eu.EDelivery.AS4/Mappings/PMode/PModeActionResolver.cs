@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.PMode;
+﻿using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.Mappings.PMode
 {
@@ -14,8 +15,10 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
         /// <returns></returns>
         public string Resolve(SendingProcessingMode pmode)
         {
-            if (!string.IsNullOrEmpty(pmode.MessagePackaging.CollaborationInfo?.Action))
-                return pmode.MessagePackaging.CollaborationInfo.Action;
+            CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
+
+            if (!string.IsNullOrEmpty(pmodeCollaboration?.Action))
+                return pmodeCollaboration.Action;
 
             return GetTestAction();
         }
