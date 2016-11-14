@@ -55,9 +55,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             base.CleanUpFiles(AS4ErrorsPath);
 
             // Arrange
+            base.CopyPModeToHolodeckB("8.1.13-pmode.xml");
             File.Copy(this._as4MessagesPath, this._as4OutputPath);
             Thread.Sleep(5000);
-            base.CopyPModeToHolodeckB("8.1.13-pmode.xml");
 
             // Act
             string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_callback_message;
