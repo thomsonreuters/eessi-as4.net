@@ -14,10 +14,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <see cref="IStep"/> implementation 
     /// to create a default configured <see cref="AS4Message"/>
     /// </summary>
-    public class CreateDefaultAS4MessageStep : IStep
+    public class CreateDefaultAS4MessageStep : IConfigStep
     {
         private readonly ILogger _logger;
         private readonly IConfig _config;
+        private IDictionary<string, string> _properties;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateDefaultAS4MessageStep"/>
@@ -26,6 +27,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             this._config = Config.Instance;
             this._logger = LogManager.GetCurrentClassLogger();
+        }
+
+        /// <summary>
+        /// Configure the step with a given Property Dictionary
+        /// </summary>
+        /// <param name="properties"></param>
+        public void Configure(IDictionary<string, string> properties)
+        {
+            this._properties = properties;
         }
 
         /// <summary>
@@ -44,12 +54,18 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private void AddDefaultAS4Message(InternalMessage internalMessage)
         {
-            SendingProcessingMode pmode = this._config.GetSendingPMode("default-pmode");
+            SendingProcessingMode pmode = GetDefaultPMode();
 
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
             internalMessage.AS4Message.UserMessages.Add(userMessage);
             internalMessage.AS4Message.SendingPMode = pmode;
             AddPartInfos(internalMessage.AS4Message);
+        }
+
+        private SendingProcessingMode GetDefaultPMode()
+        {
+            string pmodeKey = this._properties?["default-pmode"];
+            return this._config.GetSendingPMode(pmodeKey);
         }
 
         private void AddPartInfos(AS4Message as4Message)
