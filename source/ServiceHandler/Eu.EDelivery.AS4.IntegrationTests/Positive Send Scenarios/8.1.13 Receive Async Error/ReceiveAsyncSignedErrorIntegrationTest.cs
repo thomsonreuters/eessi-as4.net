@@ -68,17 +68,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
 
             // Assert
             bool areFilesFound = AreFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Receive Async Error Integration Test succeeded!");
-            else Retry();
-        }
-
-        private void Retry()
-        {
-            var startDir = new DirectoryInfo(AS4FullInputPath);
-            FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
-
-            ValidatePolledFiles(files);
+            if (areFilesFound) Console.WriteLine(@"Receive Async Error Integration Test succeeded!");  
         }
 
         private bool AreFilesFound()

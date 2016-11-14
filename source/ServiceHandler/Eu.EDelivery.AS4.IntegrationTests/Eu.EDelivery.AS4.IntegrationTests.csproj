@@ -177,7 +177,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Resources\as4-soap-wrong-signed-callback-message.xml" />
+    <Content Include="Resources\as4-soap-wrong-signed-callback-message.txt" />
     <Content Include="Resources\as4-soap-wrong-signed-message.txt" />
     <Content Include="Resources\as4-soap-wrong-encrypted-message.txt" />
     <None Include="Resources\as4message_external_payloads.txt" />
