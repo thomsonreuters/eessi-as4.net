@@ -27,26 +27,27 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private Entities.ReceptionAwareness _receptionAwareness;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class. 
-        /// Create a <see cref="IStep"/> implementation
-        /// for the AS4 Reception Awareness
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
+        /// </summary>
+        public ReceptionAwarenessUpdateDatastoreStep()
+        {
+            this._repository = Registry.Instance.DatastoreRepository;
+            this._service = new InMessageService(this._repository);
+            this._logger = LogManager.GetCurrentClassLogger();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
+        /// Create a <see cref="IStep"/> implementation  for the AS4 Reception Awareness
         /// </summary>
         /// <param name="repository">
         /// </param>
         /// <param name="service">
         /// </param>
-        public ReceptionAwarenessUpdateDatastoreStep(
-            IDatastoreRepository repository, IInMessageService service)
+        public ReceptionAwarenessUpdateDatastoreStep(IDatastoreRepository repository, IInMessageService service)
         {
             this._repository = repository;
             this._service = service;
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
-
-        public ReceptionAwarenessUpdateDatastoreStep()
-        {
-            this._repository = Registry.Instance.DatastoreRepository;
-            this._service = new InMessageService(this._repository);
             this._logger = LogManager.GetCurrentClassLogger();
         }
 

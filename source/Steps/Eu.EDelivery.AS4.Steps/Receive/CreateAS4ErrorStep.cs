@@ -86,8 +86,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private string GetMessageId()
         {
-            return this._originalAS4Message.PrimaryUserMessage?.MessageId 
-                ?? this._originalAS4Message.PrimarySignalMessage.MessageId;
+            return this._originalAS4Message.PrimaryUserMessage?.MessageId ??
+                   this._originalAS4Message.PrimarySignalMessage.MessageId;
         }
     }
 }

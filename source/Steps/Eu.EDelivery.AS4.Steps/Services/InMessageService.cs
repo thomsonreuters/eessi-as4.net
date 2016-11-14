@@ -51,7 +51,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public bool ContainsSignalMessageWithReferenceToMessageId(string refToMessageId)
         {
             this._logger.Debug($"Find SignalMessage for RefToEbmsMessageId: {refToMessageId}");
-            return this._repository.GetInMessage(inMessage => inMessage.EbmsRefToMessageId?.Equals(refToMessageId) == true) != null;
+            return
+                this._repository.GetInMessage(inMessage => inMessage.EbmsRefToMessageId?.Equals(refToMessageId) == true) !=
+                null;
         }
 
         /// <summary>
@@ -81,8 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .Build(cancellationToken);
 
             if (!NeedUserMessageBeDelivered(as4Message.ReceivingPMode, userMessage)) return inMessage;
-            inMessage.Operation = Operation.ToBeDelivered;
-            inMessage.OperationMethod = "to be determined";
+            AddOperationDelivered(inMessage);
 
             return inMessage;
         }
@@ -90,6 +91,12 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
+        }
+
+        private void AddOperationDelivered(MessageEntity inMessage)
+        {
+            inMessage.Operation = Operation.ToBeDelivered;
+            inMessage.OperationMethod = "to be determined";
         }
 
         /// <summary>
@@ -119,8 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .Build(cancellationToken);
 
             if (ReceiptDoesNotNeedToBeNotified(as4Message) || signalMessage.IsDuplicated) return inMessage;
-            inMessage.Operation = Operation.ToBeNotified;
-            inMessage.OperationMethod = "To be determined";
+            AddOperationNotified(inMessage);
 
             return inMessage;
         }
@@ -157,8 +163,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .Build(cancellationToken);
 
             if (ErrorDontNeedToBeNotified(as4Message) || signalMessage.IsDuplicated) return inMessage;
-            inMessage.Operation = Operation.ToBeNotified;
-            inMessage.OperationMethod = "To be determined";
+            AddOperationNotified(inMessage);
 
             return inMessage;
         }
@@ -166,6 +171,12 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private bool ErrorDontNeedToBeNotified(AS4Message as4Message)
         {
             return !as4Message.SendingPMode.ErrorHandling.NotifyMessageProducer;
+        }
+
+        private void AddOperationNotified(MessageEntity inMessage)
+        {
+            inMessage.Operation = Operation.ToBeNotified;
+            inMessage.OperationMethod = "To be determined";
         }
 
         /// <summary>

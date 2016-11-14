@@ -114,16 +114,21 @@ namespace Eu.EDelivery.AS4.Common
         {
             try
             {
-                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    var serializer = new XmlSerializer(typeof(T));
-                    return serializer.Deserialize(fileStream) as T;
-                }
+                return Deserialize<T>(path);
             }
             catch (Exception)
             {
                 this._logger.Error($"Cannot Deserialize PMode on location: {path}");
                 return null;
+            }
+        }
+
+        private T Deserialize<T>(string path) where T : class
+        {
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                return serializer.Deserialize(fileStream) as T;
             }
         }
 
@@ -154,7 +159,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             this._agents = new List<SettingsAgent>();
             this._agents.AddRange(this._settings.Agents.ReceiveAgents);
-            this._agents.AddRange(this._settings.Agents.SubtmitAgents);
+            this._agents.AddRange(this._settings.Agents.SubmitAgents);
             this._agents.AddRange(this._settings.Agents.SendAgents);
             this._agents.AddRange(this._settings.Agents.DeliverAgents);
             this._agents.AddRange(this._settings.Agents.NotifyAgents);
