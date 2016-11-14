@@ -179,6 +179,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private void WithImpersonation(Action action)
         {
             object impersonationContext = null;
+
             try
             {
                 impersonationContext = ImpersonateWhenRequired();
