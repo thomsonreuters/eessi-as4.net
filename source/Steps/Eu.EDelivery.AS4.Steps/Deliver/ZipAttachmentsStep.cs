@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 CreateAttachmentEntries(archive);
 
             Attachment zipAttachment = CreateZippedAttachment(memoryStream);
-            AddZippedAttachment(zipAttachment);
+            OverrideAS4MessageAttachments(zipAttachment);
         }
 
         private void CreateAttachmentEntries(ZipArchive archive)
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             };
         }
 
-        private void AddZippedAttachment(Attachment zipAttachment)
+        private void OverrideAS4MessageAttachments(Attachment zipAttachment)
         {
             this._as4Message.Attachments.Clear();
             this._as4Message.Attachments.Add(zipAttachment);
