@@ -34,20 +34,20 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             var internalMessage = new InternalMessage();
 
-            Attachment attachment = CreateAttachmentWithStream(message.RequestStream);
+            Attachment attachment = CreateAttachmentFromReceivedMessage(message);
             internalMessage.AS4Message.Attachments.Add(attachment);
 
             this._logger.Info("Transform the given Payload to a AS4 Attachment");
             return Task.FromResult(internalMessage);
         }
 
-        private Attachment CreateAttachmentWithStream(Stream requestStream)
+        private Attachment CreateAttachmentFromReceivedMessage(ReceivedMessage receivedMessage)
         {
             return new Attachment
             {
                 Id = IdGenerator.Generate(),
-                Content = requestStream,
-                ContentType = "application/octet-stream"
+                Content = receivedMessage.RequestStream,
+                ContentType = receivedMessage.ContentType
             };
         }
     }
