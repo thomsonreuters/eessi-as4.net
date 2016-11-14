@@ -48,13 +48,32 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         {
             IStep[] decoratedSteps = settingsSteps.Step
                 .Where(s => s.UnDecorated == false)
-                .Select(settingStep => CreateInstance<IStep>(settingStep.Type))
+                .Select(CreateInstance)
                 .ToArray();
 
             var compositeStep = new CompositeStep(decoratedSteps);
             return settingsSteps.Decorator != null
                 ? CreateInstance<IStep>(settingsSteps.Decorator, compositeStep)
                 : compositeStep;
+        }
+
+        private IStep CreateInstance(Step settingStep)
+        {
+            return settingStep.Setting != null
+                ? CreateConfigurableStep(settingStep)
+                : CreateInstance<IStep>(settingStep.Type);
+        }
+
+        private IConfigStep CreateConfigurableStep(Step settingStep)
+        {
+            var step = CreateInstance<IConfigStep>(settingStep.Type);
+
+            Dictionary<string, string> dictionary = settingStep.Setting
+                .ToDictionary(setting => setting.Key, setting => setting.Value);
+
+            step.Configure(dictionary);
+
+            return step;
         }
 
         private T CreateInstance<T>(string typeString, params object[] args) where T : class

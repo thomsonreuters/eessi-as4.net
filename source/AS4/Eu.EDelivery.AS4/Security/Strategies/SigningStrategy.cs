@@ -114,60 +114,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         }
 
         /// <summary>
-        /// Sets the stream of a SignedInfo reference.
-        /// </summary>
-        /// <param name="reference"></param>
-        /// <param name="attachment"></param>
-        private void SetReferenceStream(CryptoReference reference, Attachment attachment)
-        {
-            // We need reflection to set these 2 types. They are implicitly set to Xml references, 
-            // but this causes problems with cid: references, since they're not part of the original stream.
-            // If performance is slow on this, we can investigate the Delegate.CreateDelegate method to speed things up, 
-            // however keep in mind that the reference object changes with every call, so we can't just keep the same delegate and call that.
-            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            FieldInfo fieldInfo = typeof(CryptoReference).GetField("m_refTargetType", bindingFlags);
-
-            const int streamReferenceTargetType = 0;
-            fieldInfo?.SetValue(reference, streamReferenceTargetType);
-
-            fieldInfo = typeof(CryptoReference).GetField("m_refTarget", bindingFlags);
-            fieldInfo?.SetValue(reference, new NonCloseableStream(attachment.Content));
-        }
-
-        private void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
-        {
-            foreach (object transform in reference.TransformChain)
-            {
-                var attachmentTransform = transform as AttachmentSignatureTransform;
-                if (attachmentTransform != null)
-                    attachmentTransform.ContentType = attachment.ContentType;
-            }
-        }
-
-        /// <summary>
-        /// Resets the reference stream position to 0.
-        /// </summary>
-        /// <param name="reference"></param>
-        private void ResetReferenceStreamPosition(CryptoReference reference)
-        {
-            FieldInfo fieldInfo = typeof(CryptoReference).GetField(
-                "m_refTarget",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            if (fieldInfo == null) return;
-            var referenceStream = fieldInfo.GetValue(reference) as Stream;
-
-            Stream streamToWorkOn = referenceStream;
-            if (streamToWorkOn != null)
-            {
-                streamToWorkOn.Position = 0;
-                if (referenceStream is NonCloseableStream)
-                    streamToWorkOn = (referenceStream as NonCloseableStream).InnerStream;
-            }
-            if (referenceStream is FilteredStream)
-                (referenceStream as FilteredStream).Source.Position = 0;
-        }
-
-        /// <summary>
         /// Gets the full security XML element.
         /// </summary>
         /// <param name="securityElement"></param>
@@ -301,6 +247,60 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private Func<CryptoReference, bool> ReferenceIsCicReference()
         {
             return x => x?.Uri != null && x.Uri.StartsWith(CidPrefix) && x.Uri.Length > CidPrefix.Length;
+        }
+
+        /// <summary>
+        /// Sets the stream of a SignedInfo reference.
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <param name="attachment"></param>
+        private void SetReferenceStream(CryptoReference reference, Attachment attachment)
+        {
+            // We need reflection to set these 2 types. They are implicitly set to Xml references, 
+            // but this causes problems with cid: references, since they're not part of the original stream.
+            // If performance is slow on this, we can investigate the Delegate.CreateDelegate method to speed things up, 
+            // however keep in mind that the reference object changes with every call, so we can't just keep the same delegate and call that.
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+            FieldInfo fieldInfo = typeof(CryptoReference).GetField("m_refTargetType", bindingFlags);
+
+            const int streamReferenceTargetType = 0;
+            fieldInfo?.SetValue(reference, streamReferenceTargetType);
+
+            fieldInfo = typeof(CryptoReference).GetField("m_refTarget", bindingFlags);
+            fieldInfo?.SetValue(reference, new NonCloseableStream(attachment.Content));
+        }
+
+        private void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
+        {
+            foreach (object transform in reference.TransformChain)
+            {
+                var attachmentTransform = transform as AttachmentSignatureTransform;
+                if (attachmentTransform != null)
+                    attachmentTransform.ContentType = attachment.ContentType;
+            }
+        }
+
+        /// <summary>
+        /// Resets the reference stream position to 0.
+        /// </summary>
+        /// <param name="reference"></param>
+        private void ResetReferenceStreamPosition(CryptoReference reference)
+        {
+            FieldInfo fieldInfo = typeof(CryptoReference).GetField(
+                "m_refTarget",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            if (fieldInfo == null) return;
+            var referenceStream = fieldInfo.GetValue(reference) as Stream;
+
+            Stream streamToWorkOn = referenceStream;
+            if (streamToWorkOn != null)
+            {
+                streamToWorkOn.Position = 0;
+                if (referenceStream is NonCloseableStream)
+                    streamToWorkOn = (referenceStream as NonCloseableStream).InnerStream;
+            }
+            if (referenceStream is FilteredStream)
+                (referenceStream as FilteredStream).Source.Position = 0;
         }
     }
 }

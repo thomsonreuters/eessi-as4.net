@@ -78,7 +78,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             if (securityElement == null)
                 throw new ArgumentNullException(nameof(securityElement));
-
             if (securityElement.OwnerDocument == null)
                 throw new ArgumentException(@"SecurityHeader needs to have an OwnerDocument", nameof(securityElement));
 
@@ -128,7 +127,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             OaepEncoding encoding = CreateOaepEncoding();
             byte[] encryptionKey = GenerateSymmetricKey(encoding.GetOutputBlockSize());
-            BuildEncryptedKey(encoding, encryptionKey);
+            SetEncryptedKey(encoding, encryptionKey);
 
             SymmetricAlgorithm encryptionAlgorithm = CreateSymmetricAlgorithm(this._configuration.Data.EncryptionMethod, encryptionKey);
             EncryptAttachmentsWithAlgorithm(encryptionAlgorithm);
@@ -151,7 +150,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             using (var rijn = new RijndaelManaged {KeySize = keySize}) return rijn.Key;
         }
 
-        private void BuildEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
+        private void SetEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
         {
             var builder = new EncryptedKeyBuilder()
                 .WithEncoding(encoding)

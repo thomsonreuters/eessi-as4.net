@@ -93,6 +93,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
         [XmlAttribute(AttributeName = "undecorated")] public bool UnDecorated { get; set; }
+        [XmlElement("Setting")] public Setting[] Setting { get; set; }
     }
 
     [Serializable]
