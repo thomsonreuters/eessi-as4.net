@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
                 // 1. SubmitMessage / MessageInfo / MessageId
                 // 2. Generated according to Settings / GuidFormat
-                .ForMember(dest => dest.MessageId, src => src.MapFrom(s => s.MessageInfo.MessageId ?? IdGenerator.Generate()))
+                .ForMember(dest => dest.MessageId, src => src.Ignore())
 
                 // 1. SubmitMessage / MessageInfo / EbmsRefToMessageId 
                 // 2. No EbmsRefToMessageId element
@@ -32,6 +32,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 .AfterMap(
                     (submitMessage, userMessage) =>
                     {
+                        userMessage.MessageId = submitMessage.MessageInfo?.MessageId ?? IdGenerator.Generate();
+
                         new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
 
                         userMessage.Mpc = new SubmitMpcResolver().Resolve(submitMessage);
