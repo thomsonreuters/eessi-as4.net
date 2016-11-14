@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsAgents
     {
-        [XmlElement("SubmitAgent", IsNullable = false)] public SettingsAgent[] SubtmitAgents { get; set; }
+        [XmlElement("SubmitAgent", IsNullable = false)] public SettingsAgent[] SubmitAgents { get; set; }
         [XmlElement("ReceiveAgent", IsNullable = false)] public SettingsAgent[] ReceiveAgents { get; set; }
         [XmlElement("SendAgent", IsNullable = false)] public SettingsAgent[] SendAgents { get; set; }
         [XmlElement("DeliverAgent", IsNullable = false)] public SettingsAgent[] DeliverAgents { get; set; }

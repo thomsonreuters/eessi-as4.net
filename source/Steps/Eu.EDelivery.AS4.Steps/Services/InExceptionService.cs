@@ -37,16 +37,17 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public async Task InsertAS4ExceptionAsync(AS4Exception exception)
         {
             foreach (string messageId in exception.MessageIds)
-                await TryInserIncomingAS4ExceptionAsync(exception, messageId);
+                await TryStoreIncomingAS4ExceptionAsync(exception, messageId);
         }
 
-        private async Task TryInserIncomingAS4ExceptionAsync(AS4Exception as4Exception, string messageId)
+        private async Task TryStoreIncomingAS4ExceptionAsync(AS4Exception as4Exception, string messageId)
         {
             try
             {
                 this._logger.Info($"Store InException: {as4Exception.Message}");
+
                 InException inException = CreateInException(as4Exception, messageId);
-                await this._repository.InsertInExceptionAsync(inException);
+                await InsertInException(inException);
             }
             catch (Exception exception)
             {
@@ -61,6 +62,11 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithAS4Exception(exception)
                 .WithEbmsMessageId(messageId)
                 .Build();
+        }
+
+        private async Task InsertInException(InException inException)
+        {
+            await this._repository.InsertInExceptionAsync(inException);
         }
     }
 

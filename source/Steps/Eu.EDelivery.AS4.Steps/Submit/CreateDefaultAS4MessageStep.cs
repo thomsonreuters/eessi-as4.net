@@ -36,15 +36,20 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            AddDefaultAS4Message(internalMessage);
+            this._logger.Info($"{internalMessage.Prefix} Default AS4 Message is created");
+
+            return StepResult.SuccessAsync(internalMessage);
+        }
+
+        private void AddDefaultAS4Message(InternalMessage internalMessage)
+        {
             SendingProcessingMode pmode = this._config.GetSendingPMode("default-pmode");
 
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
             internalMessage.AS4Message.UserMessages.Add(userMessage);
             internalMessage.AS4Message.SendingPMode = pmode;
             AddPartInfos(internalMessage.AS4Message);
-
-            this._logger.Info($"{internalMessage.Prefix} Default AS4 Message is created");
-            return StepResult.SuccessAsync(internalMessage);
         }
 
         private void AddPartInfos(AS4Message as4Message)

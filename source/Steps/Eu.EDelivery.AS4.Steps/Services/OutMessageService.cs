@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private OutMessage CreateOutMessage(string messageId, MessageType messageType)
         {
             OutMessage outMessage = CreateDefaultOutMessage(messageId, messageType);
-            AdaptToOutMessage(outMessage);
+            AdaptToSignalOutMessage(outMessage);
             AssignRightReplyPattern(outMessage);
 
             return outMessage;
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .Build(CancellationToken.None);
         }
 
-        private void AdaptToOutMessage(OutMessage outMessage)
+        private void AdaptToSignalOutMessage(MessageEntity outMessage)
         {
             outMessage.EbmsRefToMessageId = outMessage.EbmsMessageId;
             outMessage.EbmsMessageId = string.Empty;
