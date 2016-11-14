@@ -61,6 +61,7 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception exception)
             {
+                this.IsInitialized = false;
                 this._logger.Error(exception.Message);
             }
         }
@@ -69,12 +70,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
             if (externalDictionary == null) return;
-
-            foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
-            {
-                Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
-                AppDomain.CurrentDomain.Load(assembly.GetName());
-            }
+            LoadExternalAssemblies(externalDictionary);
         }
 
         private DirectoryInfo GetExternalDirectory()
@@ -84,6 +80,15 @@ namespace Eu.EDelivery.AS4.Common
                 directory = new DirectoryInfo(Properties.Resources.externalfolder);
 
             return directory;
+        }
+
+        private void LoadExternalAssemblies(DirectoryInfo externalDictionary)
+        {
+            foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
+            {
+                Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                AppDomain.CurrentDomain.Load(assembly.GetName());
+            }
         }
 
         private string GetSendPModeFolder()
@@ -107,6 +112,7 @@ namespace Eu.EDelivery.AS4.Common
                 Properties.Resources.settingsfilename);
 
             this._settings = TryDeserialize<Settings>(path);
+            if(this._settings == null) throw new AS4Exception("Invalid Settings file");
             AssignSettingsToGlobalConfiguration();
         }
 
@@ -118,7 +124,7 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception)
             {
-                this._logger.Error($"Cannot Deserialize PMode on location: {path}");
+                this._logger.Error($"Cannot Deserialize file on location: {path}");
                 return null;
             }
         }

@@ -72,8 +72,12 @@ namespace Eu.EDelivery.AS4.Common
             {
                 this._logger.Debug("Create Datastore");
                 base.Database.EnsureCreated();
+            }
+            catch (AS4Exception exception)
+            {
+                this._logger.Error(exception.Message);
             }   
-            catch (Exception)
+            catch (Exception exception)
             {
                 this._logger.Debug("Datastore failed to create or already created");
             }
@@ -101,7 +105,10 @@ namespace Eu.EDelivery.AS4.Common
 
             string connectionString = this._config.GetSetting("connectionstring");
             ConfigureProviders(optionsBuilder);
-            this._providers[this._config.GetSetting("Provider")](connectionString);
+
+            string providerKey = this._config.GetSetting("Provider");
+            if(!this._providers.ContainsKey(providerKey)) throw new AS4Exception($"No Database provider found for key: {providerKey}");
+            this._providers[providerKey](connectionString);
         }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)

@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var internalMessage = new InternalMessage();
 
             Attachment attachment = CreateAttachmentFromReceivedMessage(message);
-            internalMessage.AS4Message.Attachments.Add(attachment);
+            internalMessage.AS4Message.AddAttachment(attachment);
 
             this._logger.Info("Transform the given Payload to a AS4 Attachment");
             return Task.FromResult(internalMessage);

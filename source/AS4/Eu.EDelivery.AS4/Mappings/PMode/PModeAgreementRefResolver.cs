@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Mappings.PMode
                 agreementRef = new AgreementReference(pmode.Id);
 
             AgreementReference pmodeRef = pmode.MessagePackaging
-                .CollaborationInfo.AgreementReference;
+                .CollaborationInfo?.AgreementReference;
 
             agreementRef.Name = pmodeRef?.Name;
             agreementRef.Type = pmodeRef?.Type;

@@ -14,6 +14,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         public static void Main()
         {
             Kernel kernel = CreateKernel();
+            if (kernel == null)
+            {
+                Console.ReadLine();
+                return;
+            }
 
             var cancellationTokenSource = new CancellationTokenSource();
             Task task = kernel.StartAsync(cancellationTokenSource.Token);
@@ -44,6 +49,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             Registry registry = Registry.Instance;
 
             config.Initialize();
+            if (!config.IsInitialized) return null;
 
             string certificateTypeRepository = config.GetSetting("CertificateRepository");
             registry.CertificateRepository = new GenericTypeBuilder().SetType(certificateTypeRepository).Build<ICertificateRepository>();

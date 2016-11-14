@@ -78,6 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private bool IsReceptionAwarenessNotSet()
         {
             string[] messageIds = this._internalMessage.AS4Message.MessageIds;
+
             for (int i = 0, l = messageIds.Length; i < l; i++)
                 if (DoesDatastoreContainsReceptionAwareness(i))
                     this._messageIds.Add(messageIds[i]);
@@ -96,9 +97,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             this._logger.Info($"{this._internalMessage.Prefix} Set Reception Awareness");
             string[] messageIds = this._internalMessage.AS4Message.MessageIds;
 
-            for (int i = 0, l = messageIds.Length; i < l; i++)
+            foreach(string messageId in messageIds)
             {
-                Entities.ReceptionAwareness receptionAwareness = CreateReceptionAwareness(messageIds[i]);
+                Entities.ReceptionAwareness receptionAwareness = CreateReceptionAwareness(messageId);
                 await this._repository.InsertReceptionAwarenessAsync(receptionAwareness);
             }
         }
