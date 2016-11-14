@@ -83,13 +83,28 @@ namespace Eu.EDelivery.AS4.Agents
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
-            InternalMessage internalMessage = await this._transformer.TransformAsync(message, cancellationToken);
+            InternalMessage internalMessage = await TryTransform(message, cancellationToken);
+            if (internalMessage.Exception != null) return internalMessage;
+
             StepResult result = this._step.ExecuteAsync(internalMessage, cancellationToken).GetAwaiter().GetResult();
 
             if (result.Exception != null)
                 this._logger.Warn($"Executing {this.AgentConfig.Name} Step failed: {result.Exception.Message}");
 
             return result.InternalMessage;
+        }
+
+        private async Task<InternalMessage> TryTransform(ReceivedMessage message, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await this._transformer.TransformAsync(message, cancellationToken);
+            }
+            catch (AS4Exception exception)
+            {
+                this._logger.Error(exception.Message);
+                return new InternalMessage(exception);
+            }
         }
     }
 }

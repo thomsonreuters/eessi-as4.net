@@ -61,6 +61,7 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception exception)
             {
+                this.IsInitialized = false;
                 this._logger.Error(exception.Message);
             }
         }
@@ -107,6 +108,7 @@ namespace Eu.EDelivery.AS4.Common
                 Properties.Resources.settingsfilename);
 
             this._settings = TryDeserialize<Settings>(path);
+            if(this._settings == null) throw new AS4Exception("Invalid Settings file");
             AssignSettingsToGlobalConfiguration();
         }
 
@@ -118,7 +120,7 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception)
             {
-                this._logger.Error($"Cannot Deserialize PMode on location: {path}");
+                this._logger.Error($"Cannot Deserialize file on location: {path}");
                 return null;
             }
         }

@@ -21,9 +21,9 @@
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
       <RetryCount>5</RetryCount>
-      <RetryInterval />
+      <RetryInterval>00:00:05</RetryInterval>
     </ReceptionAwareness>
   </Reliability>
   <ReceiptHandling>
