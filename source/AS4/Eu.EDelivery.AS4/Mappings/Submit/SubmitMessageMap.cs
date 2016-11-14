@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 .AfterMap(
                     (submitMessage, userMessage) =>
                     {
-                        userMessage.MessageId = submitMessage.MessageInfo.MessageId ?? IdGenerator.Generate();
+                        userMessage.MessageId = submitMessage.MessageInfo?.MessageId ?? IdGenerator.Generate();
 
                         new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
 
