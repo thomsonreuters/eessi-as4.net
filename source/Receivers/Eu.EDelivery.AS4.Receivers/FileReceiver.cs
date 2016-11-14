@@ -5,6 +5,7 @@ using System.Threading;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security;
 using NLog;
 
@@ -20,6 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class FileReceiver : PollingTemplate<FileInfo, ReceivedMessage>, IReceiver
     {
+        private readonly IMimeTypeRepository _repository;
         private IDictionary<string, string> _properties;
         private string FilePath => this._properties.ReadMandatoryProperty("FilePath");
         private string FileMask => this._properties.ReadOptionalProperty("FileMask", "*.*");
@@ -35,6 +37,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public FileReceiver()
         {
+            this._repository = new MimeTypeRepository();
             this.Logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -105,13 +108,15 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private async void OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
+            string contentType = this._repository.GetMimeTypeFromExtension(fileInfo.Extension);
+
             MoveFile(fileInfo, "processing");
 
             InternalMessage internalMessage;
             using (Stream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
             {
                 fileStream.Seek(0, SeekOrigin.Begin);
-                var receivedMessage = new ReceivedMessage(fileStream);
+                var receivedMessage = new ReceivedMessage(fileStream, contentType);
                 internalMessage = await messageCallback(receivedMessage, token);
             }
 

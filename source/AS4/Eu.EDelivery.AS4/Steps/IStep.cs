@@ -13,6 +13,10 @@ namespace Eu.EDelivery.AS4.Steps
         Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken);
     }
 
+    /// <summary>
+    /// Versioned interface for the <see cref="IStep"/> interface
+    /// to make the <see cref="IStep"/> implementation configurable
+    /// </summary>
     public interface IConfigStep : IStep
     {
         /// <summary>
