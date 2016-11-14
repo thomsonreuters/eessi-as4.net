@@ -348,9 +348,6 @@
   <data name="as4message_external_payloads" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4message_external_payloads.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="as4_soap_wrong_signed_callback_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\as4-soap-wrong-signed-callback-message.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
-  </data>
   <data name="as4_component_errors_path" xml:space="preserve">
     <value>\messages\errors</value>
   </data>
@@ -359,5 +356,8 @@
   </data>
   <data name="holodeck_xml_payload_path" xml:space="preserve">
     <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_out\payloads\simple_document.xml</value>
+  </data>
+  <data name="as4_soap_wrong_signed_callback_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-soap-wrong-signed-callback-message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
 </root>
