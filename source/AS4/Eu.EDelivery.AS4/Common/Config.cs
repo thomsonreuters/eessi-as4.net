@@ -70,12 +70,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
             if (externalDictionary == null) return;
-
-            foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
-            {
-                Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
-                AppDomain.CurrentDomain.Load(assembly.GetName());
-            }
+            LoadExternalAssemblies(externalDictionary);
         }
 
         private DirectoryInfo GetExternalDirectory()
@@ -85,6 +80,15 @@ namespace Eu.EDelivery.AS4.Common
                 directory = new DirectoryInfo(Properties.Resources.externalfolder);
 
             return directory;
+        }
+
+        private void LoadExternalAssemblies(DirectoryInfo externalDictionary)
+        {
+            foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
+            {
+                Assembly assembly = Assembly.LoadFrom(assemblyFile.FullName);
+                AppDomain.CurrentDomain.Load(assembly.GetName());
+            }
         }
 
         private string GetSendPModeFolder()
