@@ -37,14 +37,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             SendingProcessingMode pmode = this._config.GetSendingPMode("default-pmode");
+
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
             internalMessage.AS4Message.UserMessages.Add(userMessage);
             internalMessage.AS4Message.SendingPMode = pmode;
-
             AddPartInfos(internalMessage.AS4Message);
 
             this._logger.Info($"{internalMessage.Prefix} Default AS4 Message is created");
-
             return StepResult.SuccessAsync(internalMessage);
         }
 
@@ -52,11 +51,21 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             as4Message.PrimaryUserMessage.PayloadInfo = new List<PartInfo>();
             foreach (Attachment attachment in as4Message.Attachments)
+                AddPartInfo(as4Message, attachment);
+        }
+
+        private void AddPartInfo(AS4Message as4Message, Attachment attachment)
+        {
+            PartInfo partInfo = CreateAttachmentPartInfo(attachment);
+            as4Message.PrimaryUserMessage.PayloadInfo.Add(partInfo);
+        }
+
+        private PartInfo CreateAttachmentPartInfo(Attachment attachment)
+        {
+            return new PartInfo("cid:" + attachment.Id)
             {
-                var partInfo = new PartInfo("cid:" + attachment.Id);
-                partInfo.Properties = new Dictionary<string, string> {["MimeType"] = attachment.ContentType};
-                as4Message.PrimaryUserMessage.PayloadInfo.Add(partInfo);
-            }
+                Properties = new Dictionary<string, string> {["MimeType"] = attachment.ContentType}
+            };
         }
     }
 }

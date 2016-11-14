@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -13,7 +14,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class PayloadTransformer : ITransformer
     {
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PayloadTransformer"/>
@@ -29,20 +30,25 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             var internalMessage = new InternalMessage();
 
-            var attachment = new Attachment()
-            {
-                Id = IdGenerator.Generate(),
-                Content = message.RequestStream,
-                ContentType = "application/octet-stream"
-            };
-
+            Attachment attachment = CreateAttachmentWithStream(message.RequestStream);
             internalMessage.AS4Message.Attachments.Add(attachment);
 
-            return internalMessage;
+            this._logger.Info("Transform the given Payload to a AS4 Attachment");
+            return Task.FromResult(internalMessage);
+        }
+
+        private Attachment CreateAttachmentWithStream(Stream requestStream)
+        {
+            return new Attachment
+            {
+                Id = IdGenerator.Generate(),
+                Content = requestStream,
+                ContentType = "application/octet-stream"
+            };
         }
     }
 }
