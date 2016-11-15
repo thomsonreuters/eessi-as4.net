@@ -148,7 +148,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void AppendSecurityTokenElements(XmlElement securityElement)
         {
             foreach (SecurityTokenReference reference in this.KeyInfo.OfType<SecurityTokenReference>())
+            {
+                if(reference.Certificate == null) reference.LoadXml(this._document);
                 reference.AppendSecurityTokenTo(securityElement, securityElement.OwnerDocument);
+            }
         }
 
         /// <summary>
