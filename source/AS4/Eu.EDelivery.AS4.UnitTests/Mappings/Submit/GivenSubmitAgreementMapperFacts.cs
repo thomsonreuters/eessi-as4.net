@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 AgreementReference pmodeAgreementRef =
                     submitMessage.PMode.MessagePackaging.CollaborationInfo.AgreementReference;
 
-                Assert.Equal(pmodeAgreementRef.Name, userMessageAgreementRef.Name);
+                Assert.Equal(pmodeAgreementRef.Value, userMessageAgreementRef.Value);
                 Assert.Equal(pmodeAgreementRef.Type, userMessageAgreementRef.Type);
             }
 
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 AgreementReference userMessageAgreement = userMessage.CollaborationInfo.AgreementReference;
                 Agreement submitAgreementRef = submitMessage.Collaboration.AgreementRef;
 
-                Assert.Equal(submitAgreementRef.Value, userMessageAgreement.Name);
+                Assert.Equal(submitAgreementRef.Value, userMessageAgreement.Value);
                 Assert.Equal(submitAgreementRef.RefType, userMessageAgreement.Type);
             }
 
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
                 // Assert
                 AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference;
-                Assert.Null(userMessageAgreementRef.Name);
+                Assert.Null(userMessageAgreementRef.Value);
                 Assert.Null(userMessageAgreementRef.Type);
             }
         }
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
         private AgreementReference CreateDefaultAgreementReference()
         {
-            return new AgreementReference {Name = "pmode-name", Type = "pmode-type"};
+            return new AgreementReference {Value = "pmode-name", Type = "pmode-type"};
         }
     }
 }

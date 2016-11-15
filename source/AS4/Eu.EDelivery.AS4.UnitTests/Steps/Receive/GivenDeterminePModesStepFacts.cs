@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var toParty = new Party(toId, new PartyId(toId));
 
                 PMode pmode = CreatePModeWithParties(fromParty, toParty);
-                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Name = "not-equal";
+                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new PMode());
 
                 InternalMessage internalMessage = new InternalMessageBuilder()
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private PMode ArrangePModeThenPartyInfoNotDefined(string service, string action)
             {
                 PMode pmode = base.CreatePModeWithActionService(service, action);
-                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Name = "not-equal";
+                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new PMode());
                 return pmode;
             }
@@ -148,7 +148,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private PMode ArrangePModeThenPModeWinsOverPartyInfo(string sharedId, Party fromParty, Party toParty)
             {
                 PMode partyInfoPMode = CreatePModeWithParties(fromParty, toParty);
-                partyInfoPMode.MessagePackaging.CollaborationInfo.AgreementReference.Name = "not-equal";
+                partyInfoPMode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 var idPMode = new PMode {Id = sharedId};
                 SetupPModes(partyInfoPMode, idPMode);
                 return idPMode;
@@ -237,7 +237,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private void ArrangePModeThenServiceAndActionIsNotEnough(string action, string service)
             {
                 PMode pmode = CreatePModeWithActionService(service, action);
-                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Name = "not-equal";
+                pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 base.DifferntiatePartyInfo(pmode);
                 SetupPModes(pmode, new PMode());
             }
@@ -246,7 +246,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenAgreementRefIsNotEnoughAsync(string name, string type)
             {
                 // Arrange
-                var agreementRef = new AgreementReference {Name = name, Type = type};
+                var agreementRef = new AgreementReference {Value = name, Type = type};
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
                 InternalMessage internalMessage = new InternalMessageBuilder()

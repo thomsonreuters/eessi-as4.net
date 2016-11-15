@@ -75,8 +75,8 @@
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>false</IncludePModeId>
     <CollaborationInfo>
-    <AgreementReference>
-        <Name>http://agreements.europa.org/agreement</Name>
+      <AgreementReference>
+        <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
       <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
       <Action>eu:sample:02</Action>

@@ -70,7 +70,7 @@
     </PartyInfo>
     <CollaborationInfo>
       <AgreementReference>
-        <Name>http://agreements.europa.org/agreement</Name>
+        <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
       <Action>eu:sample:02</Action>
       <Service>

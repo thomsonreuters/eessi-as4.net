@@ -63,14 +63,14 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             if (!IsAgreementReferenceEmpty(modelInfo)) return;
 
             modelInfo.AgreementReference = modelInfo.AgreementReference ?? new Model.Core.AgreementReference();
-            modelInfo.AgreementReference.Name = xmlInfo.AgreementRef?.Value;
+            modelInfo.AgreementReference.Value = xmlInfo.AgreementRef?.Value;
             modelInfo.AgreementReference.PModeId = xmlInfo.AgreementRef?.pmode;
             modelInfo.AgreementReference.Type = xmlInfo.AgreementRef?.type;
         }
 
         private static bool IsAgreementReferenceEmpty(Model.Core.CollaborationInfo modelCollaboration)
         {
-            return modelCollaboration != null && string.IsNullOrEmpty(modelCollaboration.AgreementReference?.Name);
+            return modelCollaboration != null && string.IsNullOrEmpty(modelCollaboration.AgreementReference?.Value);
         }
     }
 }
