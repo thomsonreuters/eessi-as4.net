@@ -4,7 +4,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public class AgreementReference : IEquatable<AgreementReference>
     {
-        public string Name { get; set; }
+        public string Value { get; set; }
         public string Type { get; set; }
         public string PModeId { get; set; }
 
@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             if (ReferenceEquals(this, other)) return true;
 
             return
-                string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.Value, other.Value, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(this.Type, other.Type, StringComparison.OrdinalIgnoreCase);
         }
     }

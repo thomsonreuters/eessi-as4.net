@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             userMessageRef.PModeId = this._pmode.MessagePackaging.IncludePModeId ? this._pmode.Id : null;
             AllowOverridePrecondition(submitMessage);
 
-            userMessageRef.Name = submitMessageRef.Value ?? pmodeRef?.Name;
+            userMessageRef.Value = submitMessageRef.Value ?? pmodeRef?.Value;
             userMessageRef.Type = submitMessageRef.RefType ?? pmodeRef?.Type;
         }
 
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             Agreement submitMessageRef = submitMessage.Collaboration.AgreementRef;
             AgreementReference pmodeRef = this._pmode.MessagePackaging.CollaborationInfo?.AgreementReference;
 
-            if (DoesSubmitMessageTriesToOverridePModeValues(submitMessageRef.Value, pmodeRef?.Name))
+            if (DoesSubmitMessageTriesToOverridePModeValues(submitMessageRef.Value, pmodeRef?.Value))
                 throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +
                                        " to override Agreement Ref Value");
 

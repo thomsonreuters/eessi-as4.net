@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 AgreementReference agreementRef = resolver.Resolve(pmode);
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;
-                Assert.Equal(pmodeRef.Name, agreementRef.Name);
+                Assert.Equal(pmodeRef.Value, agreementRef.Value);
                 Assert.Equal(pmodeRef.Type, agreementRef.Type);
                 Assert.NotEqual(pmode.Id, agreementRef.PModeId);
             }
@@ -45,14 +45,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 AgreementReference agreementRef = resolver.Resolve(pmode);
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;
-                Assert.Equal(pmodeRef.Name, agreementRef.Name);
+                Assert.Equal(pmodeRef.Value, agreementRef.Value);
                 Assert.Equal(pmodeRef.Type, agreementRef.Type);
                 Assert.Equal(pmode.Id, agreementRef.PModeId);
             }
 
             private AgreementReference CreateDefaultAgreementRef()
             {
-                return new AgreementReference { Name = "name", Type = "type" };
+                return new AgreementReference { Value = "name", Type = "type" };
             }
         }
     }

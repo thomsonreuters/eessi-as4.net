@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Action = "StoreMessage",
                 Service = {Name = "Test", Type = "org:holodeckb2b:services"},
                 ConversationId = "org:holodeckb2b:test:conversation",
-                AgreementReference = new AgreementReference {Name = "http://agreements.holodeckb2b.org/examples/agreement0", PModeId = "Id"}
+                AgreementReference = new AgreementReference {Value = "http://agreements.holodeckb2b.org/examples/agreement0", PModeId = "Id"}
             };
         }
 

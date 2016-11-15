@@ -78,7 +78,7 @@
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>
     <AgreementReference>
-        <Name>http://agreements.europa.org/agreement</Name>
+        <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
       <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
       <Action>eu:sample:03</Action>

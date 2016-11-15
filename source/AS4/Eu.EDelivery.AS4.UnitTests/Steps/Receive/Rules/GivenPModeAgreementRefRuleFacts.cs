@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Name = name;
+                userMessage.CollaborationInfo.AgreementReference.Value = name;
                 userMessage.CollaborationInfo.AgreementReference.Type = type;
 
                 ReceivingProcessingMode receivingPMode =
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Name = "not-equal";
+                userMessage.CollaborationInfo.AgreementReference.Value = "not-equal";
                 userMessage.CollaborationInfo.AgreementReference.Type = type;
 
                 ReceivingProcessingMode receivingPMode =
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Name = name;
+                userMessage.CollaborationInfo.AgreementReference.Value = name;
                 userMessage.CollaborationInfo.AgreementReference.Type = "not-equal";
 
                 ReceivingProcessingMode receivingPMode =
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Name = name;
+                userMessage.CollaborationInfo.AgreementReference.Value = name;
                 userMessage.CollaborationInfo.AgreementReference.Type = type;
 
                 var receivingPMode = new ReceivingProcessingMode
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: "message-id");
-                userMessage.CollaborationInfo.AgreementReference.Name = name;
+                userMessage.CollaborationInfo.AgreementReference.Value = name;
                 userMessage.CollaborationInfo.AgreementReference.Type = type;
 
                 var receivingPMode = new ReceivingProcessingMode
@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
             {
                 MessagePackaging =
                 {
-                    CollaborationInfo = new CollaborationInfo {AgreementReference = {Name = name, Type = type}}
+                    CollaborationInfo = new CollaborationInfo {AgreementReference = {Value = name, Type = type}}
                 }
             };
         }
