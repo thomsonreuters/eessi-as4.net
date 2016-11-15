@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Xunit;
 

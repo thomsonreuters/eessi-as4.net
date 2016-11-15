@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -31,6 +30,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 TaskContinuationOptions.OnlyOnFaulted);
 
             Console.ReadLine();
+
             Console.WriteLine("Stopping...");
             cancellationTokenSource.Cancel();
 

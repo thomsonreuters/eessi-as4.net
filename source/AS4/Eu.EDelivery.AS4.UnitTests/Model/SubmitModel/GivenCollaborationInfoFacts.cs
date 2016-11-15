@@ -1,5 +1,4 @@
 ﻿using Eu.EDelivery.AS4.Model.Common;
-using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model.SubmitModel

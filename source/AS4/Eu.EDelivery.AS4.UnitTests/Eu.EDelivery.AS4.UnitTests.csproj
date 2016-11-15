@@ -170,6 +170,7 @@
     <Compile Include="Mappings\PMode\GivenPModeSenderResolverFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeServiceResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitActionResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitAgreementMapperFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitReceiverResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
@@ -218,6 +219,7 @@
     <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
+    <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenCreateNotifyMessageStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyOutUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyInUpdateDatastoreStepFacts.cs" />

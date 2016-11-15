@@ -25,12 +25,12 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             this._pmode = submitMessage.PMode;
 
             Agreement submitMessageRef = submitMessage.Collaboration.AgreementRef;
-            AgreementReference pmodeRef = submitMessage.PMode.MessagePackaging.CollaborationInfo?.AgreementReference;
+            AgreementReference pmodeRef = this._pmode.MessagePackaging.CollaborationInfo?.AgreementReference;
             AgreementReference userMessageRef = userMessage.CollaborationInfo.AgreementReference;
 
             // 1. IF (PMode / Message Packaging / IncludePModeId = true) > PMode / Id
             // 2. ELSE > No pmode attribute
-            userMessageRef.PModeId = submitMessage.PMode.MessagePackaging.IncludePModeId ? submitMessage.PMode.Id : null;
+            userMessageRef.PModeId = this._pmode.MessagePackaging.IncludePModeId ? this._pmode.Id : null;
             AllowOverridePrecondition(submitMessage);
 
             userMessageRef.Name = submitMessageRef.Value ?? pmodeRef?.Name;
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         private void AllowOverridePrecondition(SubmitMessage submitMessage)
         {
             Agreement submitMessageRef = submitMessage.Collaboration.AgreementRef;
-            AgreementReference pmodeRef = submitMessage.PMode.MessagePackaging.CollaborationInfo?.AgreementReference;
+            AgreementReference pmodeRef = this._pmode.MessagePackaging.CollaborationInfo?.AgreementReference;
 
             if (DoesSubmitMessageTriesToOverridePModeValues(submitMessageRef.Value, pmodeRef?.Name))
                 throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +

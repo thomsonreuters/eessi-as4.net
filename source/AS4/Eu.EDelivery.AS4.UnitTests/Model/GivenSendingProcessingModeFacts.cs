@@ -1,5 +1,4 @@
-﻿using System;
-using Eu.EDelivery.AS4.Model.PMode;
+﻿using Eu.EDelivery.AS4.Model.PMode;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model

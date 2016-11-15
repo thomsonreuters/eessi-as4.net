@@ -1,5 +1,4 @@
-﻿using Eu.EDelivery.AS4.Model;
-using Eu.EDelivery.AS4.Model.Core;
+﻿using Eu.EDelivery.AS4.Model.Core;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
