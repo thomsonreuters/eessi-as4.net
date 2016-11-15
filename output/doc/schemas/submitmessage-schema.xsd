@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="urn:cef:edelivery:eu:as4:messages" elementFormDefault="qualified" targetNamespace="urn:cef:edelivery:eu:as4:messages" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="SubmitMessage" nillable="true" type="tns:SubmitMessage" />
+  <xs:complexType name="SubmitMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="MessageInfo" type="tns:MessageInfo" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PartyInfo" type="tns:PartyInfo" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Collaboration" type="tns:CollaborationInfo" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MessageProperties" type="tns:ArrayOfMessageProperty" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Payloads" type="tns:ArrayOfPayload" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MessageInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="MessageId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RefToMessageId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Mpc" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PartyInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="FromParty" type="tns:Party" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ToParty" type="tns:Party" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Party">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Role" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PartyIds" type="tns:ArrayOfPartyId" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPartyId">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PartyId" nillable="true" type="tns:PartyId" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PartyId">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CollaborationInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ConversationId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AgreementRef" type="tns:Agreement" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Agreement">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="RefType" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PModeId" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Service">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfMessageProperty">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="MessageProperty" nillable="true" type="tns:MessageProperty" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="MessageProperty">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPayload">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Payload" nillable="true" type="tns:Payload" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Payload">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MimeType" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CharacterSet" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Location" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Schemas" type="tns:ArrayOfSchema" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PayloadProperties" type="tns:ArrayOfPayloadProperty" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfSchema">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Schema" nillable="true" type="tns:Schema" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Schema">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Location" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Version" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Namespace" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ArrayOfPayloadProperty">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PayloadProperty" nillable="true" type="tns:PayloadProperty" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PayloadProperty">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
