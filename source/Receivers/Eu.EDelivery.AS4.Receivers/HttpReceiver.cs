@@ -142,9 +142,22 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             LogInformation(internalMessage);
-            Stream responseStream = context.Response.OutputStream;
-            ISerializer serializer = this._provider.Get(internalMessage.AS4Message.ContentType);
-            serializer.Serialize(internalMessage.AS4Message, responseStream, token);
+            TrySerializeResponseContent(context, internalMessage, token);
+        }
+
+        private void TrySerializeResponseContent(
+            HttpListenerContext context, InternalMessage internalMessage, CancellationToken token)
+        {
+            try
+            {
+                Stream responseStream = context.Response.OutputStream;
+                ISerializer serializer = this._provider.Get(internalMessage.AS4Message.ContentType);
+                serializer.Serialize(internalMessage.AS4Message, responseStream, token);
+            }
+            catch (System.Exception exception)
+            {
+                this._logger.Error(exception.Message);
+            }
         }
 
         private void LogInformation(InternalMessage internalMessage)

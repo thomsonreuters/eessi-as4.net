@@ -150,8 +150,8 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-                envelopeDocument.Validate((sender, args)
-                    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
+               // envelopeDocument.Validate((sender, args)
+                 //   => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
             }
             catch (XmlSchemaValidationException exception)
             {

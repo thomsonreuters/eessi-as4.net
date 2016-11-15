@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,7 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             OutMessage outMessage = this._repository.GetOutMessageById(refToMessageId);
 
             if (outMessage == null)
-                throw ThrowDeterminePModesException(
+                throw ThrowAS4Exception(
                     $"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
 
             var pmode = AS4XmlSerializer.Deserialize<SendPMode>(outMessage.PMode);
@@ -135,7 +136,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             if (winningParticipant == null)
-                throw ThrowDeterminePModesException(
+                throw ThrowAS4Exception(
                     $"No Receiving PMode was found with for UserMessage with Message Id: {this._as4Message.PrimaryUserMessage.MessageId}");
 
             if (TheresMoreThanOwnWinningParticipant(participants, winningParticipant))
@@ -146,17 +147,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             return participants.Count(p => p.Points == winningParticipant.Points) > 1;
-        }
-
-        private AS4Exception ThrowDeterminePModesException(string description)
-        {
-            this._logger.Error(description);
-
-            return new AS4ExceptionBuilder()
-                .WithDescription(description)
-                .WithErrorCode(ErrorCode.Ebms0001)
-                .WithMessageIds(this._as4Message.MessageIds)
-                .Build();
         }
 
         private AS4Exception ThrowToManyPModeFoundException()
@@ -174,7 +164,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             string pmodeId = this._as4Message.ReceivingPMode.ReceiptHandling.SendingPMode;
             this._logger.Info("PMode Id: " + pmodeId);
-            return this._config.GetSendingPMode(pmodeId);
+            return TryGetSendingPMode(pmodeId);
+        }
+
+        private SendPMode TryGetSendingPMode(string pmodeId)
+        {
+            try
+            {
+                return this._config.GetSendingPMode(pmodeId);
+            }
+            catch (Exception)
+            {
+                throw ThrowAS4Exception("Receiving PMode references a non-existing Sending PMode");
+            }
+        }
+
+        private AS4Exception ThrowAS4Exception(string description)
+        {
+            this._logger.Error(description);
+
+            return new AS4ExceptionBuilder()
+                .WithDescription(description)
+                .WithErrorCode(ErrorCode.Ebms0001)
+                .WithMessageIds(this._as4Message.MessageIds)
+                .Build();
         }
     }
 }

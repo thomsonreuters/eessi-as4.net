@@ -24,10 +24,10 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-output/
+output/*
 !output/config/
 !output/messages/
-!output/database/
+!output/samples/
 
 # Visual Studio 2015 cache/options directory
 .vs/

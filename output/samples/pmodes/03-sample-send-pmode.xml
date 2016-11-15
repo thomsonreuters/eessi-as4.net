@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>8.1.9-pmode</Id>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>03-sample-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://10.124.29.131:9090/msh</Url>
+      <Url>http://localhost:9090/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -21,9 +24,9 @@
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
       <RetryCount>5</RetryCount>
-      <RetryInterval />
+      <RetryInterval>00:00:05</RetryInterval>
     </ReceptionAwareness>
   </Reliability>
   <ReceiptHandling>
@@ -36,12 +39,22 @@
     </NotifyMethod>
   </ReceiptHandling>
   <ErrorHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod />
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\errors\" />
+      </Parameters>
+    </NotifyMethod>
   </ErrorHandling>
   <ExceptionHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod />
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\exceptions\" />
+      </Parameters>
+    </NotifyMethod>
   </ExceptionHandling>
   <Security>
     <Signing>
@@ -55,31 +68,42 @@
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>PartyA</PublicKeyFindValue>
+      <PublicKeyFindValue>AccessPointA</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
   <MessagePackaging>
-    <UseAS4Compression>false</UseAS4Compression>
+    <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
-	<PartyInfo>
-			<FromParty>
-				<PartyIds>
-					<PartyId>
-						<Id>org:eu:europa:as4:example</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Sender</Role>
-			</FromParty>
-			<ToParty>
-				<PartyIds>
-					<PartyId>
-						<Id>org:holodeckb2b:example:company:B</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Receiver</Role>
-			</ToParty>
-		</PartyInfo>
+    <CollaborationInfo>
+    <AgreementReference>
+        <Name>http://agreements.europa.org/agreement</Name>
+      </AgreementReference>
+      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+      <Action>eu:sample:03</Action>
+      <Service>
+        <Value>getting:started</Value>
+        <Type>org:europa:services</Type>
+      </Service>
+    </CollaborationInfo>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example:accesspoint:B</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
   </MessagePackaging>
 </PMode>

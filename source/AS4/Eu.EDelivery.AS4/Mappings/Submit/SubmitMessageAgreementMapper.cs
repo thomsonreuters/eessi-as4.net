@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -12,6 +13,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     public class SubmitMessageAgreementMapper : ISubmitMapper
     {
         private const string NotAllowedByTheSendingPMode = "Submit Message is not allowed by the Sending PMode ";
+        private SendingProcessingMode _pmode;
 
         /// <summary>
         /// 1.SubmitMessage / CollaborationInfo / Agreement
@@ -20,6 +22,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// <param name="userMessage"></param>
         public void Map(SubmitMessage submitMessage, UserMessage userMessage)
         {
+            this._pmode = submitMessage.PMode;
+
             Agreement submitMessageRef = submitMessage.Collaboration.AgreementRef;
             AgreementReference pmodeRef = submitMessage.PMode.MessagePackaging.CollaborationInfo?.AgreementReference;
             AgreementReference userMessageRef = userMessage.CollaborationInfo.AgreementReference;
@@ -38,24 +42,20 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             Agreement submitMessageRef = submitMessage.Collaboration.AgreementRef;
             AgreementReference pmodeRef = submitMessage.PMode.MessagePackaging.CollaborationInfo?.AgreementReference;
 
-            if (DoesSubmitMessageTriesToOverridePModeValues(submitMessage, submitMessageRef.Value, pmodeRef?.Name))
-                throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id + " to override Agreement Ref Value");
+            if (DoesSubmitMessageTriesToOverridePModeValues(submitMessageRef.Value, pmodeRef?.Name))
+                throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +
+                                       " to override Agreement Ref Value");
 
-            if (DoesSubmitMessageTriesToOverridePModeValues(submitMessage, submitMessageRef.RefType, pmodeRef?.Type))
-                throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id + " to override Agreement Ref Type");
+            if (DoesSubmitMessageTriesToOverridePModeValues(submitMessageRef.RefType, pmodeRef?.Type))
+                throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +
+                                       " to override Agreement Ref Type");
         }
 
-        private bool DoesSubmitMessageTriesToOverridePModeValues(SubmitMessage submitMessage, params string[] values)
+        private bool DoesSubmitMessageTriesToOverridePModeValues(string submitValue, string pmodeValue)
         {
-            return submitMessage.PMode.AllowOverride == false && IsNotNullOrEmpty(values);
-        }
-
-        private bool IsNotNullOrEmpty(params string[] values)
-        {
-            var isNotNullOrEmpty = true;
-            values.ForEach(v => isNotNullOrEmpty = !string.IsNullOrEmpty(v));
-
-            return isNotNullOrEmpty;
+            return this._pmode.AllowOverride == false &&
+                   !string.IsNullOrEmpty(pmodeValue) &&
+                   !string.IsNullOrEmpty(submitValue);
         }
     }
 }

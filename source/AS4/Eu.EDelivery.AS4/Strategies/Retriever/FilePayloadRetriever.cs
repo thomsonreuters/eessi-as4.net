@@ -67,7 +67,10 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
         private Stream RetrievePayloadAtlocation(string location)
         {
-            var uri = new Uri(location);
+            string relativePath = location.Replace("file:///", string.Empty);
+            string absolutePath = Path.GetFullPath(relativePath);
+            var uri = new Uri(absolutePath);
+
             return new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read);
         }
     }

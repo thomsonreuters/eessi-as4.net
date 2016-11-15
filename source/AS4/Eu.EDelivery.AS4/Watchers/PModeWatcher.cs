@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -27,26 +28,44 @@ namespace Eu.EDelivery.AS4.Watchers
             this._logger = LogManager.GetCurrentClassLogger();
 
             var watcher = new FileSystemWatcher(path, "*.xml");
+            AssemblyWatcher(watcher);
+            RetrievePModes(watcher.Path);
+        }
+
+        private void AssemblyWatcher(FileSystemWatcher watcher)
+        {
             watcher.Changed += OnChanged;
             watcher.Created += OnCreated;
             watcher.Deleted += OnDeleted;
             watcher.EnableRaisingEvents = true;
             watcher.NotifyFilter = GetNotifyFilters();
-
-            RetrievePModes(watcher.Path);
         }
 
         private void RetrievePModes(string pmodeFolder)
         {
             var startDir = new DirectoryInfo(pmodeFolder);
+            IEnumerable<FileInfo> files = TryGetFiles(startDir);
 
-            FileInfo[] files = startDir.GetFiles("*.xml", SearchOption.AllDirectories);
-            foreach (FileInfo file in files) AddOrUpdateConfiguredPMode(file.FullName);
+            foreach (FileInfo file in files)
+                AddOrUpdateConfiguredPMode(file.FullName);
+        }
+
+        private IEnumerable<FileInfo> TryGetFiles(DirectoryInfo startDir)
+        {
+            try
+            {
+                return startDir.GetFiles("*.xml", SearchOption.AllDirectories);
+            }
+            catch (Exception)
+            {
+                return new List<FileInfo>();
+            }
         }
 
         private NotifyFilters GetNotifyFilters()
         {
-            return NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            return NotifyFilters.LastAccess | NotifyFilters.LastWrite | 
+                    NotifyFilters.FileName | NotifyFilters.DirectoryName;
         }
 
         private void OnCreated(object sender, FileSystemEventArgs e)
@@ -61,16 +80,16 @@ namespace Eu.EDelivery.AS4.Watchers
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            string key = this._pmodes.FirstOrDefault(p => p.Value.Filename.Equals(e.FullPath)).Key;
+            ConfiguredPMode pmode;
 
-            ConfiguredPMode pmode = null;
-            this._pmodes.TryRemove(key, out pmode);
+            string key = this._pmodes.FirstOrDefault(p => p.Value.Filename.Equals(e.FullPath)).Key;
+            if (key != null) this._pmodes.TryRemove(key, out pmode);
         }
 
         private void AddOrUpdateConfiguredPMode(string fullPath)
         {
             IPMode pmode = TryDeserialize(fullPath);
-            if(pmode == null) return;
+            if (pmode == null) return;
 
             var configuredPMode = new ConfiguredPMode(fullPath, pmode);
             this._pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
@@ -80,15 +99,20 @@ namespace Eu.EDelivery.AS4.Watchers
         {
             try
             {
-                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    var serializer = new XmlSerializer(typeof(T));
-                    return serializer.Deserialize(fileStream) as T;
-                }
+                return Deserialize(path);
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        private static T Deserialize(string path)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                return serializer.Deserialize(fileStream) as T;
             }
         }
     }
