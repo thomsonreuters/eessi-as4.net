@@ -37,10 +37,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             this._as4Message = internalMessage.AS4Message;
 
-            ZipAttachments();
+            if (HasAS4MessageMultipleAttachments()) ZipAttachments();
 
             this._logger.Info($"{internalMessage.Prefix} Zip the Attachments to a single file");
             return Task.FromResult(StepResult.Success(internalMessage));
+        }
+
+        private bool HasAS4MessageMultipleAttachments()
+        {
+            return this._as4Message.Attachments.Count > 1;
         }
 
         private void ZipAttachments()

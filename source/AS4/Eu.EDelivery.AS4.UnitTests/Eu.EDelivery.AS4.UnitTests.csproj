@@ -219,6 +219,7 @@
     <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
+    <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenCreateNotifyMessageStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyOutUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyInUpdateDatastoreStepFacts.cs" />
