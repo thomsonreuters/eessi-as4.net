@@ -28,6 +28,7 @@ output/*
 !output/config/
 !output/messages/
 !output/samples/
+!output/doc/
 
 # Visual Studio 2015 cache/options directory
 .vs/
