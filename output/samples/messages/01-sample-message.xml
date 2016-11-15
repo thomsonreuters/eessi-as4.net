@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <Collaboration>
+    <AgreementRef>
+      <PModeId>01-sample-pmode</PModeId>
+    </AgreementRef>
+  </Collaboration>
+  
+  <Payloads>
+    <Payload>
+      <Id>earth</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location>file:///messages\attachments\earth.jpg</Location>
+      <PayloadProperties/>
+    </Payload>
+  </Payloads>
+</SubmitMessage>
