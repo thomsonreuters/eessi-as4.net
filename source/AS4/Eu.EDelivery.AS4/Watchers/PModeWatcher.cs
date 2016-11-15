@@ -61,16 +61,16 @@ namespace Eu.EDelivery.AS4.Watchers
 
         private void OnDeleted(object sender, FileSystemEventArgs e)
         {
-            string key = this._pmodes.FirstOrDefault(p => p.Value.Filename.Equals(e.FullPath)).Key;
+            ConfiguredPMode pmode;
 
-            ConfiguredPMode pmode = null;
-            this._pmodes.TryRemove(key, out pmode);
+            string key = this._pmodes.FirstOrDefault(p => p.Value.Filename.Equals(e.FullPath)).Key;
+            if (key != null) this._pmodes.TryRemove(key, out pmode);
         }
 
         private void AddOrUpdateConfiguredPMode(string fullPath)
         {
             IPMode pmode = TryDeserialize(fullPath);
-            if(pmode == null) return;
+            if (pmode == null) return;
 
             var configuredPMode = new ConfiguredPMode(fullPath, pmode);
             this._pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
@@ -80,15 +80,20 @@ namespace Eu.EDelivery.AS4.Watchers
         {
             try
             {
-                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    var serializer = new XmlSerializer(typeof(T));
-                    return serializer.Deserialize(fileStream) as T;
-                }
+                return Deserialize(path);
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        private static T Deserialize(string path)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                var serializer = new XmlSerializer(typeof(T));
+                return serializer.Deserialize(fileStream) as T;
             }
         }
     }
