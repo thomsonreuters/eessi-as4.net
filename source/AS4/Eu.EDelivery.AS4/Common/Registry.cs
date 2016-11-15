@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Common
         private void RegisterPayloadStrategyProvider()
         {
             this.PayloadRetrieverProvider = new PayloadRetrieverProvider();
-            this.PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("file://") || p.Location.StartsWith("..\\"), new FilePayloadRetriever());
+            this.PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("file://"), new FilePayloadRetriever());
             this.PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("ftp://"), new FtpPayloadRetriever());
             this.PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("http"), new WebPayloadRetriever());
         }
