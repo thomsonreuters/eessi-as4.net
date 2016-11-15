@@ -9,15 +9,9 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Specifications;
 using NLog;
 
-using Expression = System.Linq.Expressions.Expression<System.Func<
-    Eu.EDelivery.AS4.Common.DatastoreContext,
-    System.Collections.Generic.IEnumerable<Eu.EDelivery.AS4.Entities.Entity>>>;
-
 using Function = System.Func<
     Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
     System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.InternalMessage>>;
-
-
 
 namespace Eu.EDelivery.AS4.Receivers
 {
@@ -158,11 +152,11 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
         {
-            var entityMessage = new ReceivedMessageEntityMessage(messageEntity: messageEntity);
-            entityMessage.RequestStream = stream;
-            entityMessage.ContentType = messageEntity.ContentType;
-
-            return entityMessage;
+            return new ReceivedMessageEntityMessage(messageEntity: messageEntity)
+            {
+                RequestStream = stream,
+                ContentType = messageEntity.ContentType
+            };
         }
 
         private void ReveiveEntity(Entity entity, Function messageCallback, CancellationToken token)
