@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -27,26 +28,44 @@ namespace Eu.EDelivery.AS4.Watchers
             this._logger = LogManager.GetCurrentClassLogger();
 
             var watcher = new FileSystemWatcher(path, "*.xml");
+            AssemblyWatcher(watcher);
+            RetrievePModes(watcher.Path);
+        }
+
+        private void AssemblyWatcher(FileSystemWatcher watcher)
+        {
             watcher.Changed += OnChanged;
             watcher.Created += OnCreated;
             watcher.Deleted += OnDeleted;
             watcher.EnableRaisingEvents = true;
             watcher.NotifyFilter = GetNotifyFilters();
-
-            RetrievePModes(watcher.Path);
         }
 
         private void RetrievePModes(string pmodeFolder)
         {
             var startDir = new DirectoryInfo(pmodeFolder);
+            IEnumerable<FileInfo> files = TryGetFiles(startDir);
 
-            FileInfo[] files = startDir.GetFiles("*.xml", SearchOption.AllDirectories);
-            foreach (FileInfo file in files) AddOrUpdateConfiguredPMode(file.FullName);
+            foreach (FileInfo file in files)
+                AddOrUpdateConfiguredPMode(file.FullName);
+        }
+
+        private IEnumerable<FileInfo> TryGetFiles(DirectoryInfo startDir)
+        {
+            try
+            {
+                return startDir.GetFiles("*.xml", SearchOption.AllDirectories);
+            }
+            catch (Exception)
+            {
+                return new List<FileInfo>();
+            }
         }
 
         private NotifyFilters GetNotifyFilters()
         {
-            return NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            return NotifyFilters.LastAccess | NotifyFilters.LastWrite | 
+                    NotifyFilters.FileName | NotifyFilters.DirectoryName;
         }
 
         private void OnCreated(object sender, FileSystemEventArgs e)
