@@ -269,5 +269,53 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
                 return ResourceManager.GetString("send_01", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;PMode xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns=&quot;eu:edelivery:as4:pmode&quot;&gt;
+        ///  &lt;Id&gt;01-sample-pmode&lt;/Id&gt;
+        ///  &lt;AllowOverride&gt;false&lt;/AllowOverride&gt;
+        ///  &lt;Mep&gt;OneWay&lt;/Mep&gt;
+        ///  &lt;MepBinding&gt;Push&lt;/MepBinding&gt;
+        ///  &lt;PushConfiguration&gt;
+        ///    &lt;Protocol&gt;
+        ///      &lt;Url&gt;http://localhost:9090/msh&lt;/Url&gt;
+        ///      &lt;UseChunking&gt;false&lt;/UseChunking&gt;
+        ///      &lt;UseHttpCompression&gt;false&lt;/UseHttpCompression&gt;
+        ///    &lt;/Protocol&gt;
+        ///    &lt;TlsConfigura [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string sendingprocessingmode {
+            get {
+                return ResourceManager.GetString("sendingprocessingmode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;Collaboration&gt;
+        ///    &lt;AgreementRef&gt;
+        ///      &lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;
+        ///    &lt;/AgreementRef&gt;
+        ///  &lt;/Collaboration&gt;
+        ///
+        ///  &lt;Payloads&gt;
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;earth&lt;/Id&gt;
+        ///      &lt;MimeType&gt;image/jpeg&lt;/MimeType&gt;
+        ///      &lt;Location&gt;file:///messages\attachments\earth.jpg&lt;/Location&gt;
+        ///      &lt;PayloadProperties/&gt;
+        ///    &lt;/Payload&gt;
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;xml-sample&lt;/Id&gt;
+        ///      &lt;MimeType&gt;application/xml&lt;/MimeType&gt;
+        ///      &lt;Location&gt;file:/ [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage {
+            get {
+                return ResourceManager.GetString("submitmessage", resourceCulture);
+            }
+        }
     }
 }

@@ -32,7 +32,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly string _securityTokenReferenceNamespace;
         private readonly XmlDocument _document;
 
-        public ArrayList References => base.Signature.SignedInfo.References;
         public SecurityTokenReference SecurityTokenReference { get; internal set; }
 
         /// <summary>
@@ -46,6 +45,15 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this._document = document;
             this._securityTokenReferenceNamespace = $"{Constants.Namespaces.WssSecuritySecExt} SecurityTokenReference";
             this.SignedInfo.CanonicalizationMethod = XmlDsigExcC14NTransformUrl;
+        }
+
+        /// <summary>
+        /// Get the signed references from the Signature
+        /// </summary>
+        /// <returns></returns>
+        public ArrayList GetSignedReferences()
+        {
+            return base.Signature.SignedInfo.References;
         }
 
         /// <summary>
@@ -128,7 +136,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void LoadSignature()
         {
-            if (this.References == null || this.References.Count == 0)
+            ArrayList references = GetSignedReferences();
+            if (references == null || references.Count == 0)
                 this.LoadXml(GetSignatureElement());
         }
 

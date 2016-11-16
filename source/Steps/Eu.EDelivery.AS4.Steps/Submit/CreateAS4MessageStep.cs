@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -54,7 +55,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private AS4Exception ThrowNewAS4Exception(Exception innerException)
         {
-            string generatedMessageId = Guid.NewGuid().ToString();
+            string generatedMessageId = IdentifierFactory.Instance.Create();
             string description = $"[generated: {generatedMessageId}] Unable to Create AS4 Message from Submit Message";
             this._logger.Error(description);
 

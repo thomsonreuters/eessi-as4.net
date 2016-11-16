@@ -66,7 +66,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 ISigningStrategy signingStrategy = base._builder.Build();
                 
                 // Assert
-                Assert.IsType<BinarySecurityTokenReference>(signingStrategy.SecurityTokenReference);
+                var concreteStrategy = signingStrategy as SigningStrategy;
+                Assert.IsType<BinarySecurityTokenReference>(concreteStrategy?.SecurityTokenReference);
 
                 var signedXml = signingStrategy as SignedXml;
                 Assert.NotNull(signedXml);
@@ -85,7 +86,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
                 // Assert
                 Assert.NotNull(signingStrategy);
-                Assert.NotNull(signingStrategy.SecurityTokenReference);
+                var concreteStrategy = signingStrategy as SigningStrategy;
+                Assert.NotNull(concreteStrategy?.SecurityTokenReference);
             }
 
             [Fact]
@@ -120,7 +122,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                     .Build();
                 
                 // Assert
-                Assert.NotNull(signingStrategy.SecurityTokenReference.Certificate);
+                var concreteStrategy = signingStrategy as SigningStrategy;
+                Assert.NotNull(concreteStrategy?.SecurityTokenReference.Certificate);
             }
 
             [Fact]
@@ -137,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                     .WithAttachment(attachment, hashFunction).Build();
                 
                 // Assert
-                IEnumerable<CryptoReference> references = signingStrategy.References.Cast<CryptoReference>();
+                IEnumerable<CryptoReference> references = signingStrategy.GetSignedReferences().Cast<CryptoReference>();
                 AssertReference("cid:" + attachment.Id, references);
             }
 
@@ -154,7 +157,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                     .WithSigningId(signingId, hashFunction).Build();
                 
                 // Assert
-                IEnumerable<CryptoReference> references = signingStrategy.References.Cast<CryptoReference>();
+                IEnumerable<CryptoReference> references = signingStrategy.GetSignedReferences().Cast<CryptoReference>();
                 AssertReference("#" + signingId.HeaderSecurityId, references);
                 AssertReference("#" + signingId.BodySecurityId, references);
             }

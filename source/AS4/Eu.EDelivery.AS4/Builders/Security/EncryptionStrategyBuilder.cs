@@ -16,11 +16,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
     public class EncryptionStrategyBuilder
     {
         private readonly ILogger _logger;
-        private readonly IEncryptionStrategy _strategy;
+        private readonly EncryptionStrategy _strategy;
 
         private EncryptionStrategyBuilder()
         {
-            _logger = LogManager.GetCurrentClassLogger();
+            this._logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
