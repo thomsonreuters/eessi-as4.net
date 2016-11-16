@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Agents
     public class Agent : IAgent
     {
         private readonly ILogger _logger;
-        private readonly IReceiver _receiver;
+        private IReceiver _receiver;
         private readonly IStep _step;
         private readonly ITransformer _transformer;
 
@@ -57,6 +57,18 @@ namespace Eu.EDelivery.AS4.Agents
 
             this._logger.Debug($"{this.AgentConfig.Name} Started!");
             return task;
+        }
+
+        /// <summary>
+        /// Reset the <see cref="IReceiver"/> implementation inside the <see cref="Agent"/>
+        /// </summary>
+        /// <param name="receiver"></param>
+        /// <param name="cancellationToken"></param>
+        public void ResetReceiver(IReceiver receiver, CancellationToken cancellationToken)
+        {
+            this._receiver = receiver;
+            this._logger.Info("Restarting Receiver...");
+            StartReceiver(cancellationToken);
         }
 
         private void StartReceiver(CancellationToken cancellationToken)
