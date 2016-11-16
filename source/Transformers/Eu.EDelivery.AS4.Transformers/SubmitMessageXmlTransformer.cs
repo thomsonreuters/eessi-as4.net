@@ -43,28 +43,27 @@ namespace Eu.EDelivery.AS4.Transformers
             ValidateSubmitMessage(submitMessage);
 
             var internalMessage = new InternalMessage(submitMessage);
-
             LogTransformedInformation();
-            return Task.FromResult(internalMessage);
-        }
 
-        private void ValidateSubmitMessage(SubmitMessage submitMessage)
-        {
-            if(this._validator.Validate(submitMessage))
-                this._logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid");
+            return Task.FromResult(internalMessage);
         }
 
         private SubmitMessage TryDeserializeSubmitMessage(Stream stream)
         {
             try
             {
-                var serializer = new XmlSerializer(typeof(SubmitMessage));
-                return serializer.Deserialize(stream) as SubmitMessage;
+                return DeserializeSubmitMessage(stream);
             }
             catch (Exception exception)
             {
                 throw ThrowDeserializeAS4Exception(exception);
             }
+        }
+
+        private SubmitMessage DeserializeSubmitMessage(Stream stream)
+        {
+            var serializer = new XmlSerializer(typeof(SubmitMessage));
+            return serializer.Deserialize(stream) as SubmitMessage;
         }
 
         private AS4Exception ThrowDeserializeAS4Exception(Exception exception)
@@ -76,6 +75,12 @@ namespace Eu.EDelivery.AS4.Transformers
                 .WithInnerException(exception)
                 .WithDescription(description)
                 .Build();
+        }
+
+        private void ValidateSubmitMessage(SubmitMessage submitMessage)
+        {
+            if (this._validator.Validate(submitMessage))
+                this._logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid");
         }
 
         private void LogTransformedInformation()
