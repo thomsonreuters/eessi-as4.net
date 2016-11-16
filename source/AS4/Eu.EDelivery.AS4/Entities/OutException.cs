@@ -11,9 +11,6 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped] public Operation Operation { get; set; }
         public string OperationMethod { get; set; }
 
-        public DateTimeOffset InsertionTime { get; set; }
-        public DateTimeOffset ModificationTime { get; set; }
-
         [Column("Operation")]
         public string OperationString
         {

@@ -158,7 +158,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId"></param>
         /// <param name="updateAction"></param>
         /// <returns></returns>
-        public async Task UpdateOutMessage(string messageId, Action<OutMessage> updateAction)
+        public async Task UpdateOutMessageAsync(string messageId, Action<OutMessage> updateAction)
         {
             using (DatastoreContext context = this._datastore())
             {
@@ -254,7 +254,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="refToMessageId"></param>
         /// <param name="updateAction"></param>
         /// <returns></returns>
-        public async Task UpdateReceptionAwareness(string refToMessageId, Action<ReceptionAwareness> updateAction)
+        public async Task UpdateReceptionAwarenessAsync(string refToMessageId, Action<ReceptionAwareness> updateAction)
         {
             using (DatastoreContext context = this._datastore())
             {
@@ -283,10 +283,10 @@ namespace Eu.EDelivery.AS4.Repositories
         Task InsertReceptionAwarenessAsync(ReceptionAwareness receptionAwareness);
 
         Task UpdateInMessageAsync(string messageId, Action<InMessage> updateAction);
-        Task UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
+        Task UpdateOutMessageAsync(string messageId, Action<OutMessage> updateAction);
         Task UpdateInExceptionAsync(string refToMessageId, Action<InException> updateAction);
         Task UpdateOutExceptionAsync(string refToMessageId, Action<OutException> updateAction);
-        Task UpdateReceptionAwareness(string messageId, Action<ReceptionAwareness> updateAction);
+        Task UpdateReceptionAwarenessAsync(string messageId, Action<ReceptionAwareness> updateAction);
 
         InMessage GetInMessage(Func<InMessage, bool> predicate);
         

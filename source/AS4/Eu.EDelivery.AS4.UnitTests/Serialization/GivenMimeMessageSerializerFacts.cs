@@ -105,7 +105,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         public void Dispose()
         {
-            this.MemoryStream.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+                this.MemoryStream.Dispose();
         }
     }
 }

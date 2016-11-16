@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public async Task UpdateSignalMessage(
             SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken)
         {
-            await this._repository.UpdateOutMessage(signalMessage.RefToMessageId,
+            await this._repository.UpdateOutMessageAsync(signalMessage.RefToMessageId,
                 outMessage =>
                 {
                     outMessage.Operation = Operation.Sent;

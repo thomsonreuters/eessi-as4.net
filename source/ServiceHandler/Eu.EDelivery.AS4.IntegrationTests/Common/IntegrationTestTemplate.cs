@@ -174,5 +174,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             if (!this._process.HasExited)
                 this._process.Kill();
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) Dispose();
+        }
     }
 }

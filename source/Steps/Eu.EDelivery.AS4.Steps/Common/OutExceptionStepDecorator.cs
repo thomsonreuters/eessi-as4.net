@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
             {
                 OutException outException = CreateOutException(exception, messageId);
                 await this._repository.InsertOutExceptionAsync(outException);
-                await this._repository.UpdateOutMessage(messageId, UpdateOutMessageType);
+                await this._repository.UpdateOutMessageAsync(messageId, UpdateOutMessageType);
             }
             catch (Exception)
             {
