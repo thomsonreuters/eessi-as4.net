@@ -28,14 +28,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuilderBreaksDownTheCollectedInfo()
             {
                 // Arrange
-                var userMessage = new UserMessage();
+                var userMessage = new UserMessage("message-id");
                 AS4Message as4MessageWithUserMessage = this._builder
-                    .WithUserMessage(userMessage)
-                    .Build();
+                    .WithUserMessage(userMessage).Build();
                 // Act
                 AS4Message as4MessageWithoutUserMessage = this._builder
-                    .BreakDown()
-                    .Build();
+                    .BreakDown().Build();
                 // Assert
                 Assert.False(
                     as4MessageWithUserMessage.UserMessages.Count ==
@@ -46,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildMultipleTimesUniqueMessagesEveryTimeSucceeds()
             {
                 // Arrange 
-                AS4MessageBuilder builder = this._builder.WithUserMessage(new UserMessage());
+                AS4MessageBuilder builder = this._builder.WithUserMessage(new UserMessage("message-id"));
                 // Act
                 AS4Message firstMessage = builder.Build();
                 AS4Message secondMessage = builder.Build();
@@ -58,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildSimpleUserMessageSucceeds()
             {
                 // Arrange
-                var userMessage = new UserMessage();
+                var userMessage = new UserMessage("message-id");
                 // Act
                 AS4Message message = this._builder.WithUserMessage(userMessage).Build();
                 // Assert

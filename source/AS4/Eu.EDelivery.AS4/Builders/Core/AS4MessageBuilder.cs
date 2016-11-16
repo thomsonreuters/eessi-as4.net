@@ -112,18 +112,6 @@ namespace Eu.EDelivery.AS4.Builders.Core
         }
 
         /// <summary>
-        /// Add a <see cref="Attachment" /> to the <see cref="AS4Message" />
-        /// </summary>
-        /// <param name="attachmentContents">RequestStream of the <see cref="Attachment" /> Contents</param>
-        /// <returns></returns>
-        public AS4MessageBuilder WithAttachment(Stream attachmentContents)
-        {
-            var attachment = new Attachment {Content = attachmentContents};
-
-            return WithAttachment(attachment);
-        }
-
-        /// <summary>
         /// Build the <see cref="AS4Message" />
         /// </summary>
         /// <returns></returns>

@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             public async Task ThenExecuteStepSucceedsWithValidReceiptForMessageInfoAsync()
             {
                 // Arrange
-                var receipt = new Receipt();
+                var receipt = new Receipt("message-id");
                 InternalMessage internalMessage = CreateDefaultInternalMessage(receipt);
                 // Act
                 StepResult result = await base._step
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             public async Task ThenExecuteStepSucceedsWithValidReceiptForStatusInfoAsync()
             {
                 // Arrange
-                var receipt = new Receipt();
+                var receipt = new Receipt("message-id");
                 InternalMessage internalMessage = CreateDefaultInternalMessage(receipt);
                 // Act
                 StepResult result = await base._step
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             public async Task ThenExecuteStepSucceedsWithValidReceiptForCopiedReceiptAsync()
             {
                 // Arrange
-                var receipt = new Receipt();
+                var receipt = new Receipt("message-id");
                 InternalMessage internalMessage = CreateDefaultInternalMessage(receipt);
                 // Act
                 StepResult result = await base._step

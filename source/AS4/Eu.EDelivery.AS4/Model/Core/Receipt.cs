@@ -7,6 +7,10 @@ namespace Eu.EDelivery.AS4.Model.Core
     {
         public UserMessage UserMessage { get; set; }
         public NonRepudiationInformation NonRepudiationInformation { get; set; }
+
+        public Receipt() {}
+
+        public Receipt(string messageId) : base(messageId) {}
     }
 
     public class NonRepudiationInformation

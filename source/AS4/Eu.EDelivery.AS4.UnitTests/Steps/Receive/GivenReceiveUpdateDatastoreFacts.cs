@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -11,9 +10,9 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Services;
-using Eu.EDelivery.AS4.UnitTests.Builders;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
@@ -29,6 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenReceiveUpdateDatastoreFacts()
         {
+            IdGenerator.SetContext(StubConfig.Instance);
             this._userMessageId = Guid.NewGuid().ToString();
             var registry = new Registry();
 
@@ -40,9 +40,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected UserMessage GetUserMessage()
         {
-            return new UserMessage
+            return new UserMessage(this._userMessageId)
             {
-                MessageId = this._userMessageId,
                 RefToMessageId = this._userMessageId
             };
         }

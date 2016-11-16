@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Steps.Participant;
+using Eu.EDelivery.AS4.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
@@ -28,20 +29,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private readonly DbContextOptions<DatastoreContext> _options;
         private readonly DeterminePModesStep _step;
 
-        protected PMode CreateDefaultPMode()
-        {
-            return new PMode
-            {
-                MessagePackaging = new MessagePackaging
-                {
-                    CollaborationInfo = new CollaborationInfo(),
-                    PartyInfo = new PartyInfo()
-                }
-            };
-        }
-
         public GivenDeterminePModesStepFacts()
         {
+            IdGenerator.SetContext(StubConfig.Instance);
             var stubVisitor = new StubPModeRuleVisitor();
             this._mockedConfig = new Mock<IConfig>();
             this._options = CreateNewContextOptions();
@@ -104,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 PMode pmode = ArrangePModeThenPartyInfoNotDefined(service, action);
 
                 InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithUserMessage(new UserMessage())
+                    .WithUserMessage(new UserMessage("message-id"))
                     .WithServiceAction(service, action)
                     .Build();
 
@@ -266,6 +256,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 base.DifferntiatePartyInfo(pmode);
                 SetupPModes(pmode, new PMode());
             }
+        }
+
+        protected PMode CreateDefaultPMode()
+        {
+            return new PMode
+            {
+                MessagePackaging = new MessagePackaging
+                {
+                    CollaborationInfo = new CollaborationInfo(),
+                    PartyInfo = new PartyInfo()
+                }
+            };
         }
 
         protected void SetupPModes(params PMode[] pmodes)

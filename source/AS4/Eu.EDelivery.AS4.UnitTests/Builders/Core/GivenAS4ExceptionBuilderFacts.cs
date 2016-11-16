@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                     .WithDescription("New Description")
                     .WithErrorCode(ErrorCode.Ebms0002)
                     .WithExceptionType(ExceptionType.ExternalPayloadError)
-                    .WithMessageIds(new string[] {"message-id-2"})
+                    .WithMessageIds("message-id-2")
                     .WithPModeString("<PMode></PMode>")
                     .WithInnerException(existingAS4Exception)
                     .Build();

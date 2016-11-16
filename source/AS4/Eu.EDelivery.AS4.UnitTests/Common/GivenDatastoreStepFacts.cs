@@ -31,27 +31,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         protected Receipt GetReceipt()
         {
-            return new Receipt
+            return new Receipt(this.ReceiptMessageId)
             {
-                MessageId = this.ReceiptMessageId,
                 RefToMessageId = this.ReceiptMessageId
             };
         }
 
         protected Error GetError()
         {
-            return new Error
+            return new Error(this.ErrorMessageId)
             {
-                MessageId = this.ErrorMessageId,
                 RefToMessageId = this.ErrorMessageId
             };
         }
 
         protected SignalMessage GetSignalMessage()
         {
-            return new SignalMessage
+            return new SignalMessage(this.SignalMessageId)
             {
-                MessageId = this.SignalMessageId,
                 RefToMessageId = this.SignalMessageId
             };
         }

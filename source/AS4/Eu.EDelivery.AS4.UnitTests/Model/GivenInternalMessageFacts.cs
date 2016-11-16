@@ -5,6 +5,8 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
@@ -19,6 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public GivenInternalMessageFacts()
         {
             this._internalMessage = new InternalMessage();
+            IdGenerator.SetContext(StubConfig.Instance);
         }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
                 var as4Message = new AS4Message();
-                as4Message.UserMessages.Add(new UserMessage {MessageId = messageId});
+                as4Message.UserMessages.Add(new UserMessage(messageId));
                 base._internalMessage = new InternalMessage(as4Message);
                 // Act
                 string[] messageIds = base._internalMessage.AS4Message.MessageIds;
@@ -120,7 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenInternalMessageHasPrefixFromUserMessage()
             {
                 // Arrange
-                var userMessage = new UserMessage() {MessageId = "message-Id"};
+                var userMessage = new UserMessage("message-Id");
                 var as4Message = new AS4Message();
                 as4Message.UserMessages.Add(userMessage);
                 var internalMessage = new InternalMessage(as4Message);
@@ -134,7 +137,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenInternalMessageHasPrefixFromSignalMessage()
             {
                 // Arrange
-                var signalMessage = new SignalMessage() { MessageId = "message-Id" };
+                var signalMessage = new SignalMessage("message-Id");
                 var as4Message = new AS4Message();
                 as4Message.SignalMessages.Add(signalMessage);
                 var internalMessage = new InternalMessage(as4Message);

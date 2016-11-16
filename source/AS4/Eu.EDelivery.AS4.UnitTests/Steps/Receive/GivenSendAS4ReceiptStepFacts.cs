@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private InternalMessage CreateDefaultInternalMessage()
             {
-                var receipt = new Receipt {RefToMessageId = this._sharedId};
+                var receipt = new Receipt("message-id") {RefToMessageId = this._sharedId};
                 AS4Message receiptMessage = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
                 return new InternalMessage(receiptMessage);
             }

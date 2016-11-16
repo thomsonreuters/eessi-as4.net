@@ -6,6 +6,8 @@ using System.Threading;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Deliver;
+using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
@@ -15,6 +17,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// </summary>
     public class GivenZipAttachmentsStepFacts
     {
+        public GivenZipAttachmentsStepFacts()
+        {
+            IdGenerator.SetContext(StubConfig.Instance);
+        }
+
         public class GivenValidArguments : GivenZipAttachmentsStepFacts
         {
             [Fact]
@@ -23,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Arrange
                 var as4Message = new AS4Message();
                 const string contentType = "image/png";
-                as4Message.AddAttachment(new Attachment {ContentType = contentType});
+                as4Message.AddAttachment(new Attachment(id: "attachment-id") {ContentType = contentType});
                 var internalMessage = new InternalMessage(as4Message);
                 // Act
                 new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -50,8 +57,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes("Plain Dummy Text"));
                 const string contentType = "text/plain";
-                as4Message.AddAttachment(new Attachment { Content = memoryStream, ContentType = contentType });
-                as4Message.AddAttachment(new Attachment { Content = memoryStream, ContentType = contentType });
+                as4Message.AddAttachment(new Attachment(id: "attachment-id") { Content = memoryStream, ContentType = contentType });
+                as4Message.AddAttachment(new Attachment(id: "attachment-id") { Content = memoryStream, ContentType = contentType });
             }
         }
     }

@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {
                 // Arrange
-                base._as4Message.UserMessages = new[] {new UserMessage()};
+                base._as4Message.UserMessages = new[] {new UserMessage("message-id")};
                 MemoryStream memoryStream = base.WriteAS4MessageToStream(base._as4Message);
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
                 // Act / Assert

@@ -9,7 +9,9 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Steps.Send;
+using Eu.EDelivery.AS4.Utilities;
 using Moq;
 using Xunit;
 
@@ -24,6 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         public GivenExceptionTransformerFacts()
         {
+            IdGenerator.SetContext(StubConfig.Instance);
             this._mockekdProvider = new Mock<ISerializerProvider>();
             this._mockekdProvider.Setup(p => p.Get(It.IsAny<string>())).Returns(new SoapEnvelopeSerializer());
         }
