@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Model.Common
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
 
-            return (obj.GetType() == GetType()) && Equals((Party) obj);
+            return obj.GetType() == GetType() && Equals((Party) obj);
         }
 
         /// <summary>

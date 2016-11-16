@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
@@ -137,7 +136,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 CollaborationInfo = CreateCollaborationInfo(),
                 Receiver = CreateParty("Receiver", "org:eu:europa:as4:example"),
                 Sender = CreateParty("Sender", "org:holodeckb2b:example:company:A"),
-                MessageProperties = new List<AS4.Model.Core.MessageProperty> {new AS4.Model.Core.MessageProperty("Name", "Type", "Value")}
+                MessageProperties = CreateMessageProperties()
+            };
+        }
+
+        private List<AS4.Model.Core.MessageProperty> CreateMessageProperties()
+        {
+            return new List<AS4.Model.Core.MessageProperty>
+            {
+                new AS4.Model.Core.MessageProperty("Name", "Type", "Value")
             };
         }
 
@@ -148,13 +155,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Action = "StoreMessage",
                 Service = {Name = "Test", Type = "org:holodeckb2b:services"},
                 ConversationId = "org:holodeckb2b:test:conversation",
-                AgreementReference = new AgreementReference {Value = "http://agreements.holodeckb2b.org/examples/agreement0", PModeId = "Id"}
+                AgreementReference = CreateAgreementReference()
+            };
+        }
+
+        private AgreementReference CreateAgreementReference()
+        {
+            return new AgreementReference
+            {
+                Value = "http://agreements.holodeckb2b.org/examples/agreement0",
+                PModeId = "Id"
             };
         }
 
         private AS4.Model.Core.Party CreateParty(string role, string partyId)
         {
-            return new AS4.Model.Core.Party {Role = role, PartyIds = new List<PartyId> {new PartyId(partyId)}};
+            var partyIds = new List<PartyId> {new PartyId(partyId)};
+            return new AS4.Model.Core.Party {Role = role, PartyIds = partyIds};
         }
     }
 }

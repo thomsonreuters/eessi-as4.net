@@ -1,6 +1,4 @@
-﻿using System;
-using AutoMapper;
-using Eu.EDelivery.AS4.Model.Common;
+﻿using AutoMapper;
 
 namespace Eu.EDelivery.AS4.Mappings.Deliver
 {
@@ -27,7 +25,7 @@ namespace Eu.EDelivery.AS4.Mappings.Deliver
                     deliverMessage.CollaborationInfo.ConversationId = userMessage.CollaborationInfo.ConversationId;
                     deliverMessage.CollaborationInfo.Action = userMessage.CollaborationInfo.Action;
 
-                    deliverMessage.CollaborationInfo.Service = deliverMessage.CollaborationInfo.Service ?? new Service();
+                    deliverMessage.CollaborationInfo.Service = deliverMessage.CollaborationInfo.Service ?? new Model.Common.Service();
                     deliverMessage.CollaborationInfo.Service.Value = userMessage.CollaborationInfo.Service?.Name;
                     deliverMessage.CollaborationInfo.Service.Type = userMessage.CollaborationInfo.Service?.Type;
                 })
