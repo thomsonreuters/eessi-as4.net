@@ -265,7 +265,7 @@
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
     <Compile Include="Transformers\GivenReceptionAwarenessTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
-    <Compile Include="Utilities\IdGeneratorTest.cs" />
+    <Compile Include="Utilities\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
   </ItemGroup>

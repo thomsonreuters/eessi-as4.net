@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -24,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public GivenAS4MessageFacts()
         {
             this._builder = new AS4MessageBuilder();
-            IdGenerator.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
         protected UserMessage CreateUserMessage()

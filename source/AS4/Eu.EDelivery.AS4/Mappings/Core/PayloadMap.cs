@@ -2,6 +2,7 @@
 using AutoMapper;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             return new AS4ExceptionBuilder()
                 .WithDescription($"AS4Message only support embedded Payloads and: '{modelPartInfo.Href}' was given")
                 .WithErrorCode(ErrorCode.Ebms0011)
-                .WithMessageIds(IdGenerator.Generate())
+                .WithMessageIds(IdentifierFactory.Instance.Create())
                 .WithExceptionType(ExceptionType.ExternalPayloadError)
                 .Build();
         }

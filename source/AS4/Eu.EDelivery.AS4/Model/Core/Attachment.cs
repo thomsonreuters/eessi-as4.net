@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public Attachment()
         {
-            this.Id = IdGenerator.Generate();
+            this.Id = IdentifierFactory.Instance.Create();
             InitializeDefaults();
         }
 

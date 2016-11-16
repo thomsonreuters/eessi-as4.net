@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -25,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
         public GivenReceptionAwarenessUpdateDatastoreStepFacts()
         {
-            IdGenerator.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             this._repository = new DatastoreRepository(() => new DatastoreContext(base.Options));
             this._service = new InMessageService(this._repository);
         }

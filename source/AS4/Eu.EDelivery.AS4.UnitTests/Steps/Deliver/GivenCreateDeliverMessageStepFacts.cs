@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         public GivenCreateDeliverMessageStepFacts()
         {
             this._step = new CreateDeliverMessageStep();
-            IdGenerator.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
         public class GivenValidArguments : GivenCreateDeliverMessageStepFacts

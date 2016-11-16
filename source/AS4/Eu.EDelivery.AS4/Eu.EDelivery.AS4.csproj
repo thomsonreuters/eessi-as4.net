@@ -373,7 +373,7 @@
     <Compile Include="Strategies\Retriever\IPayloadRetriever.cs" />
     <Compile Include="Strategies\Retriever\WebPayloadRetriever.cs" />
     <Compile Include="Utilities\ContentTypeSupporter.cs" />
-    <Compile Include="Utilities\IdGenerator.cs" />
+    <Compile Include="Factories\IdentifierFactory.cs" />
     <Compile Include="Validators\DeliverMessageValidator.cs" />
     <Compile Include="Validators\IValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
