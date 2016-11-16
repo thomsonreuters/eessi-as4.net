@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 };
                 InsertInMessage(inMessage);
                 // Act
-                await base._repository.UpdateInMessageAsync(inMessage.EbmsMessageId,
+                await base._repository.UpdateAsync(inMessage.EbmsMessageId,
                         m => m.Operation = Operation.Delivered);
                 // Assert
                 AssertInMessage(inMessage.EbmsMessageId, 
@@ -150,7 +150,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 };
                 InsertOutMessage(outMessage);
                 // Act
-                await base._repository.UpdateOutMessage(outMessage.EbmsMessageId,
+                await base._repository.UpdateOutMessageAsync(outMessage.EbmsMessageId,
                     m => m.Operation = Operation.Sent);
                 // Assert
                 AssertOutMessage(outMessage.EbmsMessageId, 

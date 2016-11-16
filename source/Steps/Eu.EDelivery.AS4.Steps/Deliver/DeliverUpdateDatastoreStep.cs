@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -60,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             string messageId = deliverMessage.MessageInfo.MessageId;
             this._logger.Info($"{this._internalMessage.Prefix} Update InMessage with Delivered Status and Operation");
 
-            await this._repository.UpdateInMessageAsync(messageId, UpdateNotifiedInMessage);
+            await this._repository.UpdateAsync(messageId, (Action<Entities.ReceptionAwareness>) UpdateNotifiedInMessage);
         }
 
         private void UpdateNotifiedInMessage(InMessage inMessage)

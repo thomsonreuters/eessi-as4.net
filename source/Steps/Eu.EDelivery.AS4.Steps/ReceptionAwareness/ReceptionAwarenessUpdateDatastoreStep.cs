@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             string messageId = this._receptionAwareness.InternalMessageId;
             this._logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend");
-            this._repository.UpdateOutMessage(messageId, x => x.Operation = Operation.ToBeSent);
+            this._repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.ToBeSent);
 
             UpdateReceptionAwareness(awareness =>
             {
@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private void UpdateReceptionAwareness(Action<Entities.ReceptionAwareness> updateAction)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._repository.UpdateReceptionAwareness(messageId, updateAction);
+            this._repository.UpdateAsync(messageId, updateAction);
         }
 
         private void WaitRetryInterval(string description)

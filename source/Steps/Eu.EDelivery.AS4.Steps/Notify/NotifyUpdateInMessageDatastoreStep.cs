@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -58,8 +59,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private async Task UpdateDatastoreAync(NotifyMessage notifyMessage)
         {
-            await this._repository.UpdateInMessageAsync(
-                notifyMessage.MessageInfo.MessageId, UpdateNotifiedInMessage);
+            await this._repository.UpdateAsync(
+                notifyMessage.MessageInfo.MessageId, (Action<Entities.ReceptionAwareness>) UpdateNotifiedInMessage);
         }
 
         private void UpdateNotifiedInMessage(InMessage inMessage)
