@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
         private PartInfo CreatePartInfo(SubmitMessage submitMessage, Payload submitPayload)
         {
-            string href = submitPayload.Id ?? IdGenerator.Generate();
+            string href = submitPayload.Id ?? IdentifierFactory.Instance.Create();
 
             var returnPayload = new PartInfo(href.StartsWith("cid:") ? href : $"cid:{href}");
             if (submitPayload.Schemas != null)

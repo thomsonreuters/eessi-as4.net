@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -15,7 +16,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         protected MessageUnit()
         {
             this.Timestamp = DateTimeOffset.UtcNow;
-            this.MessageId = IdGenerator.Generate();
+            this.MessageId = IdentifierFactory.Instance.Create();
         }
 
         protected MessageUnit(string messageid)

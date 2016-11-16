@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         public GivenExceptionTransformerFacts()
         {
-            IdGenerator.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             this._mockekdProvider = new Mock<ISerializerProvider>();
             this._mockekdProvider.Setup(p => p.Get(It.IsAny<string>())).Returns(new SoapEnvelopeSerializer());
         }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Transformers;
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     {
         public GivenPayloadTransformerFacts()
         {
-            IdGenerator.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
         public class GivenValidArguments : GivenPayloadTransformerFacts

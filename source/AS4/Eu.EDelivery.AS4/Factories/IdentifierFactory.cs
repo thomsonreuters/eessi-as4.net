@@ -7,31 +7,45 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Eu.EDelivery.AS4.Common;
 
-namespace Eu.EDelivery.AS4.Utilities
+namespace Eu.EDelivery.AS4.Factories
 {
     /// <summary>
-    /// Static Generator of ID's
+    /// Factory to create Entity ID's
     /// </summary>
-    public static class IdGenerator
+    public class IdentifierFactory
     {
-        private static readonly Regex MacroMatchRegex = new Regex(@"\{([^\}]+)\}");
-        private static readonly Dictionary<string, Func<string>> Macros = new Dictionary<string, Func<string>>
-        {
-            {"GUID", () => Guid.NewGuid().ToString()},
-            {"MACHINENAME", Dns.GetHostName},
-            {
-                "IPADDRESS", () => Dns.GetHostEntry(Dns.GetHostName()).AddressList
-                    .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork)?.ToString()
-            }
-        };
+        private static readonly Regex MacroMatchRegex;
+        private static readonly Dictionary<string, Func<string>> Macros;
+        private static readonly IdentifierFactory Signalton = new IdentifierFactory();
 
         private static IConfig _config;
+        public static IdentifierFactory Instance = Signalton;
+
+        static IdentifierFactory()
+        {
+            MacroMatchRegex = new Regex(@"\{([^\}]+)\}");
+            Macros = new Dictionary<string, Func<string>>
+            {
+                {"GUID", () => Guid.NewGuid().ToString()},
+                {"MACHINENAME", Dns.GetHostName},
+                {"IPADDRESS", GetHostIpAddress}
+            };
+        }
+
+        private static string GetHostIpAddress()
+        {
+            string hostName = Dns.GetHostName();
+            IPAddress[] addressList = Dns.GetHostEntry(hostName).AddressList;
+            Func<IPAddress, bool> whereIpIsInterNetwork = ip => ip.AddressFamily == AddressFamily.InterNetwork;
+
+            return addressList.FirstOrDefault(whereIpIsInterNetwork)?.ToString();
+        }
 
         /// <summary>
         /// Generate ID with default format
         /// </summary>
         /// <returns></returns>
-        public static string Generate()
+        public string Create()
         {
             _config = _config ?? Config.Instance;
 
@@ -42,7 +56,7 @@ namespace Eu.EDelivery.AS4.Utilities
             if (string.IsNullOrEmpty(defaultFormat))
                 defaultFormat = "{GUID}@{IPADDRESS}";
 
-            return Generate(defaultFormat);
+            return Create(defaultFormat);
         }
 
         /// <summary>
@@ -50,9 +64,9 @@ namespace Eu.EDelivery.AS4.Utilities
         /// to use when generating the Id
         /// </summary>
         /// <param name="config"></param>
-        public static void SetContext(IConfig config)
+        public void SetContext(IConfig config)
         {
-            IdGenerator._config = config;
+            IdentifierFactory._config = config;
         }
 
         /// <summary>
@@ -60,7 +74,7 @@ namespace Eu.EDelivery.AS4.Utilities
         /// </summary>
         /// <param name="idFormat"></param>
         /// <returns></returns>
-        internal static string Generate(string idFormat)
+        internal string Create(string idFormat)
         {
             if (idFormat == null)
                 throw new ArgumentNullException(nameof(idFormat));
@@ -76,13 +90,14 @@ namespace Eu.EDelivery.AS4.Utilities
             return idBuilder.ToString();
         }
 
-        private static StringBuilder ReplaceValueWithMacro(StringBuilder idBuilder, Match match)
+        private StringBuilder ReplaceValueWithMacro(StringBuilder idBuilder, Match match)
         {
             string valueToReplace = match.Groups[0].Value;
             string macroName = match.Groups[1].Value;
 
             if (Macros.ContainsKey(macroName))
                 idBuilder = idBuilder.Replace(valueToReplace, Macros[macroName]());
+
             return idBuilder;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -32,7 +33,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 .AfterMap(
                     (submitMessage, userMessage) =>
                     {
-                        userMessage.MessageId = submitMessage.MessageInfo?.MessageId ?? IdGenerator.Generate();
+                        userMessage.MessageId = submitMessage.MessageInfo?.MessageId ?? IdentifierFactory.Instance.Create();
 
                         new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
 

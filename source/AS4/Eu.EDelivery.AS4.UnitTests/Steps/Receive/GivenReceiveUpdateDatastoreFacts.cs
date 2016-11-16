@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenReceiveUpdateDatastoreFacts()
         {
-            IdGenerator.SetContext(StubConfig.Instance);
+            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             this._userMessageId = Guid.NewGuid().ToString();
             var registry = new Registry();
 
