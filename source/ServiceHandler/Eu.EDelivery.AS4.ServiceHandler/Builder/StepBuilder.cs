@@ -31,17 +31,21 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         public IStep Build()
         {
             IStep decoratedStep = CreateDecoratorStep(this._settingSteps);
-
-            IList<IStep> unDecoratedSteps = this._settingSteps.Step
-                .Where(s => s.UnDecorated == true)
-                .Select(settingStep => CreateInstance<IStep>(settingStep.Type))
-                .ToList();
+            IList<IStep> unDecoratedSteps = CreateUndecoratedSteps();
 
             if (unDecoratedSteps.Count == 0)
                 return decoratedStep;
 
             unDecoratedSteps.Insert(0, decoratedStep);
             return new CompositeStep(unDecoratedSteps.ToArray());
+        }
+
+        private IList<IStep> CreateUndecoratedSteps()
+        {
+            return this._settingSteps.Step
+                .Where(s => s.UnDecorated == true)
+                .Select(settingStep => CreateInstance<IStep>(settingStep.Type))
+                .ToList();
         }
 
         private IStep CreateDecoratorStep(Model.Internal.Steps settingsSteps)
