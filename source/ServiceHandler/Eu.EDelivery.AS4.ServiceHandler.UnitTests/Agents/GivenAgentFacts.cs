@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.Agents;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Steps;
@@ -19,13 +18,13 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Agents
     /// <summary>
     /// Testing <see cref="Agent" />
     /// </summary>
-    public class GivenAgentBaseFacts
+    public class GivenAgentFacts
     {
         private readonly Mock<ITransformer> _transformer;
         private readonly Mock<IReceiver> _receiver;
         private readonly Mock<IStep> _transmitter;
 
-        public GivenAgentBaseFacts()
+        public GivenAgentFacts()
         {
             this._transformer = new Mock<ITransformer>();
             this._receiver = new Mock<IReceiver>();
@@ -35,7 +34,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Agents
         /// <summary>
         /// Testing if the Channel succeeds
         /// </summary>
-        public class GivenAgentBaseSuccess : GivenAgentBaseFacts
+        public class GivenAgentSuccess : GivenAgentFacts
         {
             [Fact]
             public void ThenChannelTransmitsSuccessfullyMessages()
@@ -91,7 +90,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Agents
         /// <summary>
         /// Testing if the Channel fails
         /// </summary>
-        public class GivenAgentBaseFails : GivenAgentBaseFacts
+        public class GivenAgentFails : GivenAgentFacts
         {
             /// <summary>
             /// Helper method to create Channel
