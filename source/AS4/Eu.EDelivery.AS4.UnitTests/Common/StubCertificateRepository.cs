@@ -31,7 +31,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         public void Dispose()
         {
-            this._dummyCertificate.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+                this._dummyCertificate.Dispose();
         }
 
         public X509Certificate2 GetCertificate(X509FindType findType, string privateKeyReference)

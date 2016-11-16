@@ -111,7 +111,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         public void Dispose()
         {
-            this._memoryStream.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if(disposing)
+                this._memoryStream.Dispose();
         }
     }
 }
