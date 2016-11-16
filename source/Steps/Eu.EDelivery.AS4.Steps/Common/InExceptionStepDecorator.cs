@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
 
         private async Task UpdateInMessageAsync(string messageId, ExceptionType exceptionType)
         {
-            await this._repository.UpdateAsync(messageId,
+            await this._repository.UpdateInMessageAsync(messageId,
                 message =>
                 {
                     message.Status = InStatus.Exception;

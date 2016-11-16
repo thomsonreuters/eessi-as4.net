@@ -1,4 +1,6 @@
-﻿namespace Eu.EDelivery.AS4.Entities
+﻿using System;
+
+namespace Eu.EDelivery.AS4.Entities
 {
     /// <summary>
     /// Entity for Exceptions
@@ -8,5 +10,8 @@
         public string EbmsRefToMessageId { get; set; }
         public string Exception { get; set; }
         public string PMode { get; set; }
+
+        public DateTimeOffset ModificationTime { get; set; }
+        public DateTimeOffset InsertionTime { get; set; }
     }
 }

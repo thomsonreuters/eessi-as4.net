@@ -15,9 +15,6 @@ namespace Eu.EDelivery.AS4.Entities
         public ExceptionType ExceptionType { get; set; }
         public string OperationMethod { get; set; }
 
-        public DateTimeOffset InsertionTime { get; set; }
-        public DateTimeOffset ModificationTime { get; set; }
-
         [Column("Operation")]
         public string OperationString
         {

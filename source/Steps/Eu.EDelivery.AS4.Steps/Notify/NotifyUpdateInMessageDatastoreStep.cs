@@ -59,8 +59,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private async Task UpdateDatastoreAync(NotifyMessage notifyMessage)
         {
-            await this._repository.UpdateAsync(
-                notifyMessage.MessageInfo.MessageId, (Action<Entities.ReceptionAwareness>) UpdateNotifiedInMessage);
+            await this._repository.UpdateInMessageAsync(
+                notifyMessage.MessageInfo.MessageId, UpdateNotifiedInMessage);
         }
 
         private void UpdateNotifiedInMessage(InMessage inMessage)

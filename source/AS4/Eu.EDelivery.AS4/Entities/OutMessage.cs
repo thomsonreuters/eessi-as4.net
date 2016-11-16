@@ -14,9 +14,6 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped] public OutStatus Status { get; set; }
         [NotMapped] public ExceptionType ExceptionType { get; set; }
 
-        public DateTimeOffset InsertionTime { get; set; }
-        public DateTimeOffset ModificationTime { get; set; }
-
         [Column("Status")]
         public string OutOutStatusString
         {

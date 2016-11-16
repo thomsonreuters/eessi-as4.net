@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 };
                 InsertInMessage(inMessage);
                 // Act
-                await base._repository.UpdateAsync(inMessage.EbmsMessageId,
+                await base._repository.UpdateInMessageAsync(inMessage.EbmsMessageId,
                         m => m.Operation = Operation.Delivered);
                 // Assert
                 AssertInMessage(inMessage.EbmsMessageId, 

@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private async Task UpdateDatastoreAsync(NotifyMessage notifyMessage)
         {
-            await this._respository.UpdateAsync(
+            await this._respository.UpdateOutExceptionAsync(
                 notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedOutException);
         }
 

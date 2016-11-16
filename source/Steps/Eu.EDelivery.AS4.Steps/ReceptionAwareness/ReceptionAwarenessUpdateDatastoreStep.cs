@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private void UpdateReceptionAwareness(Action<Entities.ReceptionAwareness> updateAction)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._repository.UpdateAsync(messageId, updateAction);
+            this._repository.UpdateReceptionAwarenessAsync(messageId, updateAction);
         }
 
         private void WaitRetryInterval(string description)

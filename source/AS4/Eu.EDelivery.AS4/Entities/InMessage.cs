@@ -13,9 +13,7 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped] public MessageType EbmsMessageType { get; set; }
         [NotMapped] public InStatus Status { get; set; }
         [NotMapped] public ExceptionType ExceptionType { get; set; }
-        
-        public DateTimeOffset InsertionTime { get; set; }
-        public DateTimeOffset ModificationTime { get; set; }
+
         public string Attachments { get; set; }
 
         [Column("Status")]

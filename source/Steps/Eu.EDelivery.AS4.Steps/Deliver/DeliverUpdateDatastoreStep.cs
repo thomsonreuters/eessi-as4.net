@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             string messageId = deliverMessage.MessageInfo.MessageId;
             this._logger.Info($"{this._internalMessage.Prefix} Update InMessage with Delivered Status and Operation");
 
-            await this._repository.UpdateAsync(messageId, (Action<Entities.ReceptionAwareness>) UpdateNotifiedInMessage);
+            await this._repository.UpdateInMessageAsync(messageId, UpdateNotifiedInMessage);
         }
 
         private void UpdateNotifiedInMessage(InMessage inMessage)
