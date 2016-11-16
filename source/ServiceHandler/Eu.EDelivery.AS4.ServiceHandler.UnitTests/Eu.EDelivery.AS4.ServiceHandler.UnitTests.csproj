@@ -72,7 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Agents\GivenAgentBaseFacts.cs" />
+    <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\StubAgent.cs" />
     <Compile Include="Builder\GivenGenericTypeBuilderFacts.cs" />
     <Compile Include="Builder\GivenReceiverBuilderFacts.cs" />
