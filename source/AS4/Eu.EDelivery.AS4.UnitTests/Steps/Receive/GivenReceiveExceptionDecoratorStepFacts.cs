@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Services;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Moq;
 using Xunit;
 
@@ -31,6 +32,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenReceiveExceptionDecoratorStepFacts()
         {
+            IdGenerator.SetContext(StubConfig.Instance);
+
             SetupMockedCatchedStep();
 
             var datastoreRepository = new DatastoreRepository(() => new DatastoreContext(base.Options));
@@ -214,7 +217,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected UserMessage GetUserMessage()
         {
-            return new UserMessage();
+            return new UserMessage("message-id");
         }
 
         protected void SetupCatchedStepWithException(string messageId = "dummy-message-id")

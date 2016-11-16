@@ -118,9 +118,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         private Attachment CreateAttachmentFromPayload(Payload payload)
         {
-            return new Attachment
+            return new Attachment(id: payload.Id)
             {
-                Id = payload.Id,
                 ContentType = payload.MimeType,
                 Location = payload.Location
             };

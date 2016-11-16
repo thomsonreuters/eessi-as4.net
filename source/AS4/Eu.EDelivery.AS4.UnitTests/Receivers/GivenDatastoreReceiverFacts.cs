@@ -87,17 +87,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 var source = new CancellationTokenSource();
                 // Act
                 base._receiver.StartReceiving(
-                    (ReceivedMessage message, CancellationToken token) =>
-                    {
-                        // Assert
-                        Assert.NotNull(message);
-                        Assert.IsType<ReceivedMessageEntityMessage>(message);
-                        Assert.NotNull(message.RequestStream);
+                    (message, token) => AssertOnReceivedMessage(message, source), source.Token);
+            }
 
-                        source.Cancel();
-                        return Task.FromResult(NullInternalMessage.Instance);
-                    },
-                    source.Token);
+            private Task<InternalMessage> AssertOnReceivedMessage(
+                ReceivedMessage message, CancellationTokenSource source)
+            {
+                // Assert
+                Assert.NotNull(message);
+                Assert.IsType<ReceivedMessageEntityMessage>(message);
+                Assert.NotNull(message.RequestStream);
+
+                source.Cancel();
+                return Task.FromResult(NullInternalMessage.Instance);
             }
         }
     }

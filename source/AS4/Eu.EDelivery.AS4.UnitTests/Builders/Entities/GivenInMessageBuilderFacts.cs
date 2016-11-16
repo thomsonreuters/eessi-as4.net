@@ -103,9 +103,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
         protected MessageUnit CreateDefaultMessageUnit()
         {
-            return new Receipt()
+            return new Receipt(Guid.NewGuid().ToString())
             {
-                MessageId = Guid.NewGuid().ToString(),
                 RefToMessageId = Guid.NewGuid().ToString()
             };
         }

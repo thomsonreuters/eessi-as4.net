@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
@@ -30,6 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public GivenCreateAS4ReceiptStepFacts()
         {
             this._step = new CreateAS4ReceiptStep();
+            IdGenerator.SetContext(StubConfig.Instance);
         }
 
         public class GivenValidArguments : GivenCreateAS4ReceiptStepFacts
@@ -166,7 +168,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected UserMessage GetUserMessage()
         {
-            return new UserMessage();
+            return new UserMessage("message-id");
         }
     }
 }

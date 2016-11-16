@@ -1,9 +1,7 @@
-﻿using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -45,7 +43,6 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             return new Attachment
             {
-                Id = IdGenerator.Generate(),
                 Content = receivedMessage.RequestStream,
                 ContentType = receivedMessage.ContentType
             };

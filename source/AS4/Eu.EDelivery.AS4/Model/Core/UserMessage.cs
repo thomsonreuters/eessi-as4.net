@@ -28,11 +28,8 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         private void InitializeFields()
         {
-            const string fromNamespace = "http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/defaultFrom";
-            const string toNamespace = "http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/defaultTo";
-
-            this.Sender = new Party(new PartyId {Id = fromNamespace});
-            this.Receiver = new Party(new PartyId {Id = toNamespace});
+            this.Sender = new Party(new PartyId {Id = Constants.Namespaces.EbmsDefaultFrom});
+            this.Receiver = new Party(new PartyId {Id = Constants.Namespaces.EbmsDefaultTo});
             this.CollaborationInfo = new CollaborationInfo();
         }
 

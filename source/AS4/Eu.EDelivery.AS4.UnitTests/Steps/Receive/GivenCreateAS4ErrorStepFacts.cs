@@ -9,6 +9,8 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -18,6 +20,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenCreateAS4ErrorStepFacts
     {
+        public GivenCreateAS4ErrorStepFacts()
+        {
+            IdGenerator.SetContext(StubConfig.Instance);
+        }
+
         public class GivenValidArguments : GivenCreateAS4ErrorStepFacts
         {
             [Fact]

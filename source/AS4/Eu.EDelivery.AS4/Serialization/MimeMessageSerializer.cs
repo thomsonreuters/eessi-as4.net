@@ -244,9 +244,8 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private Attachment CreateDefaultAttachment(MimePart bodyPart)
         {
-            return new Attachment
+            return new Attachment(id: bodyPart.ContentId)
             {
-                Id = bodyPart.ContentId,
                 Content = bodyPart.ContentObject.Stream,
                 ContentType = bodyPart.ContentType.MimeType,
             };

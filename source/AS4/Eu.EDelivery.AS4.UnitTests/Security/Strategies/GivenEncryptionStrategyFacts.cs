@@ -53,8 +53,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 byte[] attachmentContents = Encoding.UTF8.GetBytes("hi!");
+                var attachment = new Attachment(id: "attachment-id") {Content=new MemoryStream(attachmentContents)};
+
                 AS4Message as4Message = new AS4MessageBuilder()
-                    .WithAttachment(new MemoryStream(attachmentContents)).Build();
+                    .WithAttachment(attachment).Build();
 
                 IEncryptionStrategy encryptionStrategy = CreateEncryptionStrategyForEncrypting(as4Message);
 

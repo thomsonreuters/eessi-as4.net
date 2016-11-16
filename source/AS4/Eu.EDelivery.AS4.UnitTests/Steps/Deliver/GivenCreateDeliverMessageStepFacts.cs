@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
+using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using MessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
@@ -22,11 +22,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// </summary>
     public class GivenCreateDeliverMessageStepFacts
     {
-        private CreateDeliverMessageStep _step;
+        private readonly CreateDeliverMessageStep _step;
 
         public GivenCreateDeliverMessageStepFacts()
         {
             this._step = new CreateDeliverMessageStep();
+            IdGenerator.SetContext(StubConfig.Instance);
         }
 
         public class GivenValidArguments : GivenCreateDeliverMessageStepFacts
@@ -128,9 +129,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage
+            return new UserMessage(messageId: "c2eee028-e27d-4960-98a6-f5b3d9cd152-639668164@CLT-SMOREELS.ad.codit.eu")
             {
-                MessageId = "c2eee028-e27d-4960-98a6-f5b3d9cd152-639668164@CLT-SMOREELS.ad.codit.eu",
                 Mpc = "mpc",
                 RefToMessageId = "b2eee028-e27d-4960-98a6-f5b3d9cd152-639668164@CLT-SMOREELS.ad.codit.eu",
                 CollaborationInfo = CreateCollaborationInfo(),

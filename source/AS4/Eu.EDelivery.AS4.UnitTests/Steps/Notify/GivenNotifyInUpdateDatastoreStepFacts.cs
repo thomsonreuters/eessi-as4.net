@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Repositories;
@@ -19,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     /// </summary>
     public class GivenNotifyInUpdateDatastoreStepFacts : GivenDatastoreFacts
     {
-        private NotifyUpdateInMessageDatastoreStep _step;
+        private readonly NotifyUpdateInMessageDatastoreStep _step;
 
         public GivenNotifyInUpdateDatastoreStepFacts()
         {

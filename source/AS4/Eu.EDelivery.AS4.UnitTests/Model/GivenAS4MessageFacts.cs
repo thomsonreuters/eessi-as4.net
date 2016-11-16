@@ -6,7 +6,9 @@ using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
+using Eu.EDelivery.AS4.Utilities;
 using MimeKit;
 using Xunit;
 
@@ -22,11 +24,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public GivenAS4MessageFacts()
         {
             this._builder = new AS4MessageBuilder();
+            IdGenerator.SetContext(StubConfig.Instance);
         }
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage { CollaborationInfo = { AgreementReference = new AgreementReference() } };
+            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference() } };
         }
 
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)
@@ -106,12 +109,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Arrange
                 var attachmentStream = new MemoryStream(
                     Encoding.UTF8.GetBytes(messageContents));
+                var attachment = new Attachment(id: "attachment-id") {Content = attachmentStream};
 
                 UserMessage userMessage = base.CreateUserMessage();
 
                 AS4Message message = new AS4MessageBuilder()
                     .WithUserMessage(userMessage)
-                    .WithAttachment(attachmentStream)
+                    .WithAttachment(attachment)
                     .Build();
 
                 // Act

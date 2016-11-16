@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var properties = new Dictionary<string, string>() {["MimeType"] = "html/text"};
             var partInfo = new PartInfo("cid:" + this._attachmentId) {Properties = properties};
-            var userMessage = new UserMessage {PayloadInfo = new List<PartInfo> {partInfo}};
+            var userMessage = new UserMessage("message-id") {PayloadInfo = new List<PartInfo> {partInfo}};
 
             as4Message.UserMessages.Add(userMessage);
         }

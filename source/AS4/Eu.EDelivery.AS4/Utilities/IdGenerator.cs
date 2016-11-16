@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Utilities
         /// </summary>
         /// <param name="idFormat"></param>
         /// <returns></returns>
-        public static string Generate(string idFormat)
+        internal static string Generate(string idFormat)
         {
             if (idFormat == null)
                 throw new ArgumentNullException(nameof(idFormat));

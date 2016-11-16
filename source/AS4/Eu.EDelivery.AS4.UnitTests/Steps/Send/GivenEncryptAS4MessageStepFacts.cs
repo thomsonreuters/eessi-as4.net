@@ -95,8 +95,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         protected AS4Message CreateEncryptedAS4Message()
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));
+            var attachment = new Attachment(id:  "attachment-id") {Content = attachmentStream};
             AS4Message as4Message = new AS4MessageBuilder()
-                .WithAttachment(attachmentStream).Build();
+                .WithAttachment(attachment).Build();
 
             as4Message.SendingPMode = new SendingProcessingMode();
             as4Message.SendingPMode.Security.Encryption.IsEnabled = true;

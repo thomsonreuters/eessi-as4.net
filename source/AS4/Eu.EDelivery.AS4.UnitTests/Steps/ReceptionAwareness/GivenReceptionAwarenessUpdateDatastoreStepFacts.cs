@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.ReceptionAwareness;
 using Eu.EDelivery.AS4.Steps.Services;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
@@ -24,6 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
         public GivenReceptionAwarenessUpdateDatastoreStepFacts()
         {
+            IdGenerator.SetContext(StubConfig.Instance);
             this._repository = new DatastoreRepository(() => new DatastoreContext(base.Options));
             this._service = new InMessageService(this._repository);
         }

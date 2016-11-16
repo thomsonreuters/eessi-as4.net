@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             this._configuration = new Dictionary<string, string>(
                 StringComparer.CurrentCultureIgnoreCase);
-            this._configuration["IdFormat"] = "{GUID}@{IPADDRESS}";
+            this._configuration["IdFormat"] = "{GUID}";
             this._configuration["Provider"] = "Sqlite";
             this._configuration["ConnectionString"] = @"Filename=database\messages.db";
             this._configuration["CertificateStore"] = "My";

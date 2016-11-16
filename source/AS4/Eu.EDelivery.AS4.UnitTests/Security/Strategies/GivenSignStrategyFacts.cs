@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
@@ -67,9 +68,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
             private XmlDocument CreateXmlDocument()
             {
-                string xml = Properties.Resources.as4_soap_signed_message;
                 var xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(xml);
+                xmlDocument.LoadXml(Properties.Resources.as4_soap_signed_message);
 
                 return xmlDocument;
             }
@@ -128,9 +128,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             public void ThenVerifySignatureFailsWithInvalidXmlDocument()
             {
                 // Arrange
-                string xml = Properties.Resources.as4_soap_signed_message;
                 var xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(xml);
+                xmlDocument.LoadXml(Properties.Resources.as4_soap_signed_message);
                 var signStrategy = new SigningStrategy(base.CreateSecurityElement().OwnerDocument);
 
                 ConfigureDefaultSignStrategy(xmlDocument, signStrategy);
@@ -147,11 +146,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             public void ThenVerifySignatureFailsWithUntrustedCertificate()
             {
                 // Arrange
-                string xml = Properties.Resources.as4_soap_untrusted_signed_message;
                 var xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(xml);
-                var signStrategy = new SigningStrategy(xmlDocument);
+                xmlDocument.LoadXml(Properties.Resources.as4_soap_untrusted_signed_message);
 
+                var signStrategy = new SigningStrategy(xmlDocument);
                 ConfigureDefaultSignStrategy(xmlDocument, signStrategy);
 
                 VerifyConfig options = base.CreateVerifyConfig();
