@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             return Type.GetType(type, throwOnError: false) ?? Type.GetType(type, name =>
             {
                 Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                return assemblies.FirstOrDefault(z => z.FullName == name.FullName);
+                return assemblies.FirstOrDefault(a => a.FullName == name.FullName);
             }, typeResolver: null, throwOnError: false);
         }
 
@@ -52,7 +52,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// Create an instance of type <see cref="T"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="args"></param>
         /// <returns></returns>
         public T Build<T>() where T : class
         {

@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -128,7 +129,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (WebException exception)
             {
-                throw ThrowFailedSendAS4Exception(this._internalMessage, exception);
+                if (exception.Response != null && ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
+                    await PrepareStepResult(exception.Response as HttpWebResponse, cancellationToken);
+
+                else throw ThrowFailedSendAS4Exception(this._internalMessage, exception);
             }
         }
 

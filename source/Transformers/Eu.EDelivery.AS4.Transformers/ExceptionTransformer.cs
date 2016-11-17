@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             var memoryStream = new MemoryStream();
             ISerializer serializer = this._provider.Get(Constants.ContentTypes.Soap);
-            serializer.Serialize(as4Message, memoryStream, CancellationToken.None);
+            serializer.Serialize(as4Message, memoryStream, cancellationToken);
 
             var xmlDocument = new XmlDocument();
             memoryStream.Position = 0;

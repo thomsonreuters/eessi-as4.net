@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                         .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
-                    Assert.Equal(ServiceNamespace, userMessage.CollaborationInfo.Service.Name);
+                    Assert.Equal(ServiceNamespace, userMessage.CollaborationInfo.Service.Value);
                     Assert.Equal(ActionNamespace, userMessage.CollaborationInfo.Action);
                     Assert.Equal("eu:edelivery:as4:sampleconversation", userMessage.CollaborationInfo.ConversationId);
                 }

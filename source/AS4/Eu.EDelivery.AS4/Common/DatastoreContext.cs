@@ -70,7 +70,6 @@ namespace Eu.EDelivery.AS4.Common
 
             try
             {
-                this._logger.Debug("Create Datastore");
                 base.Database.EnsureCreated();
             }
             catch (AS4Exception exception)

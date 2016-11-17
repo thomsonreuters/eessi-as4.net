@@ -100,7 +100,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public ArrayList GetReferences()
         {
-            return this._signingStrategy == null ? new ArrayList() : this._signingStrategy.References;
+            return this._signingStrategy == null ? new ArrayList() : this._signingStrategy.GetSignedReferences();
         }
 
         /// <summary>

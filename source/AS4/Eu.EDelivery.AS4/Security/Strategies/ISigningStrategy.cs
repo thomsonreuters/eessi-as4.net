@@ -1,8 +1,5 @@
 using System.Collections;
-using System.Security.Cryptography.X509Certificates;
 using System.Xml;
-using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 
@@ -10,16 +7,28 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 {
     public interface ISigningStrategy
     {
-        ArrayList References { get; }
-        SecurityTokenReference SecurityTokenReference { get; }
+        /// <summary>
+        /// Get the signed references from the Signature
+        /// </summary>
+        /// <returns></returns>
+        ArrayList GetSignedReferences();
 
-        void AddAlgorithm(SignatureAlgorithm algorithm);
-        void AddAttachmentReference(Attachment attachment, string digestMethod);
-        void AddCertificate(X509Certificate2 certificate);
-        void AddXmlReference(string id, string hashFunction);
-
+        /// <summary>
+        /// Gets the full security XML element.
+        /// </summary>
+        /// <param name="securityElement"></param>
         void AppendSignature(XmlElement securityElement);
-        bool VerifySignature(VerifyConfig options);
+
+        /// <summary>
+        /// Sign the Signature of the <see cref="ISigningStrategy"/>
+        /// </summary>
         void SignSignature();
+
+        /// <summary>
+        /// Verify the Signature of the <see cref="ISigningStrategy"/>
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        bool VerifySignature(VerifyConfig options);       
     }
 }

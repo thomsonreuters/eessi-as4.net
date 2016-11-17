@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private void AddTestableDataToUserMessage(UserMessage userMessage)
             {
                 userMessage.CollaborationInfo.Action = Constants.Namespaces.TestAction;
-                userMessage.CollaborationInfo.Service.Name = Constants.Namespaces.TestService;
+                userMessage.CollaborationInfo.Service.Value = Constants.Namespaces.TestService;
             }
 
             private async Task InsertDuplicateUserMessage(UserMessage userMessage)

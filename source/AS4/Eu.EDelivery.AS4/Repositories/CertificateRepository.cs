@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Common;
 
 namespace Eu.EDelivery.AS4.Repositories
@@ -42,14 +43,25 @@ namespace Eu.EDelivery.AS4.Repositories
             X509Store certificateStore = GetCertificateStore();
             certificateStore.Open(OpenFlags.ReadOnly);
 
-            return certificateStore.Certificates
-                .Find(findType, privateKeyReference, validOnly: false)[0];
+            X509Certificate2Collection certificateCollection = certificateStore.Certificates
+                .Find(findType, privateKeyReference, validOnly: false);
+
+            if (certificateCollection.Count <= 0)
+                throw new CryptographicException(
+                    $"Could not find Certificate in store: {GetCertificateStoreName()} where {findType} is {privateKeyReference}");
+
+            return certificateCollection[0];
         }
 
         private X509Store GetCertificateStore()
         {
-            return new X509Store(
-                this._config.GetSetting("certificatestore"), StoreLocation.LocalMachine);
+            string storeName = GetCertificateStoreName();
+            return new X509Store(storeName, StoreLocation.LocalMachine);
+        }
+
+        private string GetCertificateStoreName()
+        {
+            return this._config.GetSetting("certificatestore");
         }
     }
 

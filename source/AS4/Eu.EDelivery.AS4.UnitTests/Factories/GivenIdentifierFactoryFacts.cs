@@ -1,7 +1,7 @@
 ﻿using Eu.EDelivery.AS4.Factories;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.UnitTests.Utilities
+namespace Eu.EDelivery.AS4.UnitTests.Factories
 {
     /// <summary>
     /// Testing <seealso cref="IdentifierFactory" />

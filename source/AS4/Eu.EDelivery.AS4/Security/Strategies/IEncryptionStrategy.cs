@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
+﻿using System.Security.Cryptography.Xml;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 
@@ -18,27 +17,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         void EncryptMessage();
 
         /// <summary>
-        /// Adds an attachment to the strategy
-        /// </summary>
-        /// <param name="attachment"></param>
-        void AddAttachment(Attachment attachment);
-
-        /// <summary>
         /// Appends all encryption elements, such as <see cref="EncryptedKey"/> and <see cref="EncryptedData"/> elements.
         /// </summary>
         /// <param name="securityElement"></param>
         void AppendEncryptionElements(XmlElement securityElement);
-
-        /// <summary>
-        /// Sets the encryption algorithm to use.
-        /// </summary>
-        /// <param name="encryptionAlgorithm"></param>
-        void SetEncryptionAlgorithm(string encryptionAlgorithm);
-
-        /// <summary>
-        /// Sets the certificate to use when encrypting/decrypting.
-        /// </summary>
-        /// <param name="certificate"></param>
-        void SetCertificate(X509Certificate2 certificate);
     }
 }

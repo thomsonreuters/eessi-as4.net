@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using AutoMapper;
 
@@ -54,16 +55,12 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation));
 
             CreateMap<Xml.MessagePartNRInformation, Model.Core.MessagePartNRInformation>()
-                .ForMember(dest => dest.Reference, src => src.MapFrom(t => t.Item))
-                .AfterMap((modelInfo, xmlInfo) =>
-                {
-                        
-                });
+                .ForMember(dest => dest.Reference, src => src.MapFrom(t => t.Item));
 
             CreateMap<Xml.ReferenceType, Model.Core.Reference>()
                 .ForMember(dest => dest.Transforms, src => src.MapFrom(t => t.Transforms))
                 .ForMember(dest => dest.DigestMethod, src => src.MapFrom(t => t.DigestMethod))
-                .ForMember(dest => dest.DigestValue, src => src.MapFrom(t => t.DigestValue))
+                .ForMember(dest => dest.DigestValue, src => src.MapFrom(t => Convert.ToBase64String(t.DigestValue)))
                 .ForMember(dest => dest.URI, src => src.MapFrom(t => t.URI))
                 .ForAllOtherMembers(x => x.Ignore());
 

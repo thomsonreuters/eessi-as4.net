@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return 
                 message.PMode.AllowOverride == false && 
                 message.Collaboration.Service?.Value != null && 
-                message.PMode.MessagePackaging.CollaborationInfo?.Service?.Name != null;
+                message.PMode.MessagePackaging.CollaborationInfo?.Service?.Value != null;
         }
     }
 }

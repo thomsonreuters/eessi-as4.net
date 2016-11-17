@@ -366,4 +366,10 @@
   <data name="as4_encrypted_envelope" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4-encrypted-envelope.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="sendingprocessingmode" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\sendingprocessingmode.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="submitmessage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\submitmessage.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>

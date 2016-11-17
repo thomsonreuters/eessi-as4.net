@@ -153,6 +153,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 Stream responseStream = context.Response.OutputStream;
                 ISerializer serializer = this._provider.Get(internalMessage.AS4Message.ContentType);
                 serializer.Serialize(internalMessage.AS4Message, responseStream, token);
+                responseStream.Close();
             }
             catch (System.Exception exception)
             {

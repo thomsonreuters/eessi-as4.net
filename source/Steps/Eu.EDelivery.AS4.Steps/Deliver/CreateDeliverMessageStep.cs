@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using Eu.EDelivery.AS4.Mappings.Common;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -52,10 +54,26 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private DeliverMessage CreateDeliverMessage(AS4Message as4Message)
         {
             MapInitialization.InitializeMapper();
+
             var deliverMessage = Mapper.Map<DeliverMessage>(as4Message.PrimaryUserMessage);
-            deliverMessage.CollaborationInfo.AgreementRef.PModeId = as4Message.SendingPMode.Id ?? string.Empty;
+            AssignSendingPModeId(as4Message, deliverMessage);
+            AssignAttachmentLocations(as4Message, deliverMessage);
 
             return deliverMessage;
+        }
+
+        private void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)
+        {
+            deliverMessage.CollaborationInfo.AgreementRef.PModeId = as4Message.SendingPMode.Id ?? string.Empty;
+        }
+
+        private void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)
+        {
+            foreach (Attachment attachment in as4Message.Attachments)
+            {
+                Payload partInfo = deliverMessage.Payloads.FirstOrDefault(p => p.Id.Contains(attachment.Id));
+                if (partInfo != null) partInfo.Location = attachment.Location;
+            }
         }
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage)

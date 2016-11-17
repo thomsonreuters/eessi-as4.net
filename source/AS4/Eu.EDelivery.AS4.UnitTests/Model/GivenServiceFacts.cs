@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenGetHashCodeSucceeds()
             {
                 // Arrange
-                this._service.Name = "Service Name";
+                this._service.Value = "Service Name";
                 this._service.Type = "Service Type";
                 // Act
                 int hashCode = this._service.GetHashCode();
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 var serviceA = new Service();
                 Service serviceB = serviceA;
 
-                serviceA.Name = serviceB.Name = "Service Name";
+                serviceA.Value = serviceB.Value = "Service Name";
                 serviceA.Type = serviceB.Type = "Service Type";
 
                 // Act
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Arrange
                 var serviceA = new Service
                 {
-                    Name = "Service Name",
+                    Value = "Service Name",
                     Type = "Service Type"
                 };
 

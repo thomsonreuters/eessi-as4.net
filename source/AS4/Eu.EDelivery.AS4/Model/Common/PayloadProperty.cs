@@ -8,6 +8,21 @@ namespace Eu.EDelivery.AS4.Model.Common
         public string Value { get; set; }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="PayloadProperty"/> class
+        /// </summary>
+        public PayloadProperty() {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PayloadProperty"/> class
+        /// with a given <paramref name="name"/>
+        /// </summary>
+        /// <param name="name"></param>
+        public PayloadProperty(string name)
+        {
+            this.Name = name;
+        }
+
+        /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
         /// <returns>
@@ -49,7 +64,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                return ((this.Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name) : 0) * 397)
+                return ((this.Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name) : 0)*397)
                        ^ (this.Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Value) : 0);
             }
         }

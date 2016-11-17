@@ -69,10 +69,8 @@ namespace Eu.EDelivery.AS4.Model.Common
             unchecked
             {
                 int hashCode = this.Location != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Location) : 0;
-                hashCode = (hashCode * 397)
-                           ^ (this.Version != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Version) : 0);
-                hashCode = (hashCode * 397)
-                           ^ (this.Namespace != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Namespace) : 0);
+                hashCode = (hashCode * 397) ^ (this.Version != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Version) : 0);
+                hashCode = (hashCode * 397) ^ (this.Namespace != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Namespace) : 0);
 
                 return hashCode;
             }
