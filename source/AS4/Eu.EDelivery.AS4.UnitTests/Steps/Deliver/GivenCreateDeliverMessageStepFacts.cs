@@ -153,7 +153,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             return new CollaborationInfo
             {
                 Action = "StoreMessage",
-                Service = {Name = "Test", Type = "org:holodeckb2b:services"},
+                Service = {Value = "Test", Type = "org:holodeckb2b:services"},
                 ConversationId = "org:holodeckb2b:test:conversation",
                 AgreementReference = CreateAgreementReference()
             };

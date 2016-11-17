@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 // Arrange
                 ReceivingProcessingMode receivingPMode = 
                     CreateServiceActionReceivingPMode(serviceName, serviceType, action);
-                receivingPMode.MessagePackaging.CollaborationInfo.Service.Name = "not-equal";
+                receivingPMode.MessagePackaging.CollaborationInfo.Service.Value = "not-equal";
 
                 UserMessage userMessage = CreateServiceActionUserMesage(serviceName, serviceType, action);
                 var rule = new PModeServiceActionRule();
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 
         protected Service CreateService(string name, string type)
         {
-            return new Service() {Name = name, Type = type};
+            return new Service() {Value = name, Type = type};
         }
 
         protected ReceivingProcessingMode CreateServiceActionReceivingPMode(

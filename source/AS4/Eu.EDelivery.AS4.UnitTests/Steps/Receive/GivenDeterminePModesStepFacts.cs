@@ -304,7 +304,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             PMode pmode = CreateDefaultPMode();
             pmode.MessagePackaging.CollaborationInfo.Action = action;
-            pmode.MessagePackaging.CollaborationInfo.Service.Name = service;
+            pmode.MessagePackaging.CollaborationInfo.Service.Value = service;
             return pmode;
         }
 

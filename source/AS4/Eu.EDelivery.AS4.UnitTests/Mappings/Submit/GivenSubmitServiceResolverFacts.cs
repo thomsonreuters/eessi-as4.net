@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
                 // Assert
-                Assert.Equal(submitMessage.Collaboration.Service.Value, service.Name);
+                Assert.Equal(submitMessage.Collaboration.Service.Value, service.Value);
                 Assert.Equal(submitMessage.Collaboration.Service.Type, service.Type);
             }
 
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
                 // Assert
-                Assert.Equal(Constants.Namespaces.TestService, service.Name);
+                Assert.Equal(Constants.Namespaces.TestService, service.Value);
             }
         }
 
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         {
             return new CoreService
             {
-                Name = "pmode-name",
+                Value = "pmode-name",
                 Type = "pmode-type"
             };
         }

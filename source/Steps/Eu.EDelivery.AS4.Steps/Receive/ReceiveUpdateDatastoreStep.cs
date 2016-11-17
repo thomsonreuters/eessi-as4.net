@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             CollaborationInfo collaborationInfo = userMessage.CollaborationInfo;
 
             bool isTestMessage =
-                collaborationInfo.Service.Name.Equals(Constants.Namespaces.TestService) &&
+                collaborationInfo.Service.Value.Equals(Constants.Namespaces.TestService) &&
                 collaborationInfo.Action.Equals(Constants.Namespaces.TestAction);
 
             if (isTestMessage)

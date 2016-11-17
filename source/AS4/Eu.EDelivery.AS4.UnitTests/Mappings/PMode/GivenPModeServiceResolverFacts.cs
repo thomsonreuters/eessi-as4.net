@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 {
                     MessagePackaging =
                     {
-                        CollaborationInfo = new CollaborationInfo {Service = new Service {Name = "name", Type = "type"}}
+                        CollaborationInfo = new CollaborationInfo {Service = new Service {Value = "name", Type = "type"}}
                     }
                 };
             }
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 // Act
                 Service service = resolver.Resolve(pmode);
                 // Assert
-                Assert.Equal("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service", service.Name);
+                Assert.Equal("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service", service.Value);
             }
         }
     }

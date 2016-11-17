@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         {
             UserMessage userMessage = this._internalMessage.AS4Message.UserMessages.First();
             userMessage.CollaborationInfo.Action = action;
-            userMessage.CollaborationInfo.Service.Name = service;
+            userMessage.CollaborationInfo.Service.Value = service;
 
             return this;
         }

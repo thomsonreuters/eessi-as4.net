@@ -86,7 +86,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (Exception exception)
             {
-                string description = $"{this._internalMessage.Prefix} Problems with Computing Signature";
+                this._logger.Error(exception.Message);
+                string description = $"{this._internalMessage.Prefix} Problems with signing AS4 Message";
                 throw ThrowCommonSigningException(description, exception);
             }
         }
@@ -105,7 +106,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .GetCertificate(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
 
             if (!certificate.HasPrivateKey)
-                throw ThrowCommonSigningException($"{this._internalMessage.Prefix} Failed Authentication");
+                throw ThrowCommonSigningException($"{this._internalMessage.Prefix} Certificate hasn't a private key");
 
             return certificate;
         }

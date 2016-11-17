@@ -62,11 +62,43 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private void SendNotifyMessage(NotifyMessage notifyMessage, string locationFolder)
         {
             string locationFile = $"{locationFolder}{notifyMessage.MessageInfo.MessageId}.xml";
+
+            TryCreateMissingDirectoriesIfNotExists(locationFolder);
+            TrySendNotifyMessageFile(notifyMessage, locationFile);
+        }
+
+        private void TrySendNotifyMessageFile(NotifyMessage notifyMessage, string locationFile)
+        {
+            try
+            {
+                SendNotifyMessageFile(notifyMessage, locationFile);
+            }
+            catch (Exception exception)
+            {
+                this._logger.Error(exception.Message);
+            }
+        }
+
+        private void SendNotifyMessageFile(NotifyMessage notifyMessage, string locationFile)
+        {
             using (FileStream fileStream = File.Create(locationFile))
             {
                 var serializer = new XmlSerializer(typeof(NotifyMessage));
                 serializer.Serialize(fileStream, notifyMessage);
                 this._logger.Info($"NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully send to: {locationFile}");
+            }
+        }
+
+        private void TryCreateMissingDirectoriesIfNotExists(string locationFolder)
+        {
+            try
+            {
+                if (!Directory.Exists(locationFolder))
+                    Directory.CreateDirectory(locationFolder);
+            }
+            catch(Exception exception)
+            {
+               this._logger.Error(exception.Message);
             }
         }
 
