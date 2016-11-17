@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -72,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             foreach (Attachment attachment in as4Message.Attachments)
             {
                 Payload partInfo = deliverMessage.Payloads.FirstOrDefault(p => p.Id.Contains(attachment.Id));
-                if (partInfo != null) partInfo.Location = attachment.Location;
+                if (partInfo != null) partInfo.Location = Path.GetFullPath(attachment.Location);
             }
         }
 
