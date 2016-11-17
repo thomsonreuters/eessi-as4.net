@@ -40,14 +40,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             return new CompositeStep(unDecoratedSteps.ToArray());
         }
 
-        private IList<IStep> CreateUndecoratedSteps()
-        {
-            return this._settingSteps.Step
-                .Where(s => s.UnDecorated == true)
-                .Select(settingStep => CreateInstance<IStep>(settingStep.Type))
-                .ToList();
-        }
-
+        
         private IStep CreateDecoratorStep(Model.Internal.Steps settingsSteps)
         {
             IStep[] decoratedSteps = settingsSteps.Step
@@ -78,6 +71,14 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             step.Configure(dictionary);
 
             return step;
+        }
+
+        private IList<IStep> CreateUndecoratedSteps()
+        {
+            return this._settingSteps.Step
+                .Where(s => s.UnDecorated == true)
+                .Select(settingStep => CreateInstance<IStep>(settingStep.Type))
+                .ToList();
         }
 
         private T CreateInstance<T>(string typeString, params object[] args) where T : class
