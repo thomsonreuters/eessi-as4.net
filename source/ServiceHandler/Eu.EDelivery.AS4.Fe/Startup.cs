@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Runtime.Loader;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
@@ -61,7 +62,7 @@ namespace Eu.EDelivery.AS4.Fe
                 .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "modules"), "*.dll")
                 .Select(asm => AssemblyLoadContext.Default.LoadFromAssemblyPath(asm));
 
-            scanner.Register(services, moduleAssemblies.ToList(), serviceProvider.GetService<IOptions<ApplicationSettings>>().Value.Modules);            
+            scanner.Register(services, Assembly.GetEntryAssembly(), moduleAssemblies.ToList(), serviceProvider.GetService<IOptions<ApplicationSettings>>().Value.Modules);            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

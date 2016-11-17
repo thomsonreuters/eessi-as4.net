@@ -9,13 +9,12 @@ namespace Eu.EDelivery.AS4.Fe.Modules
 {
     public class Scanner
     {
-        public void Register(IServiceCollection services, IList<Assembly> modules, IDictionary<string, string> settings)
+        public void Register(IServiceCollection services, Assembly baseAssembly, IList<Assembly> modules, IDictionary<string, string> settings)
         {
             var localModuleImplementations = GetModuleImplementations();
             var moduleTypes = GetModuleTypes(modules);
 
-            var localModules = Assembly
-                .GetEntryAssembly()
+            var localModules = baseAssembly
                 .DefinedTypes
                 .Where(x => typeof(IModular).IsAssignableFrom(x.AsType()) && x.IsInterface && x.AsType() != typeof(IModular))
                 .Select(x => new
@@ -50,7 +49,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             }
         }
 
-        private static List<TypeInfo> GetModuleTypes(IList<Assembly> modules)
+        private static List<TypeInfo> GetModuleTypes(IEnumerable<Assembly> modules)
         {
             return modules.Select(asm => asm.DefinedTypes.GetImplementation(typeof(IModular))).ToList();
         }
