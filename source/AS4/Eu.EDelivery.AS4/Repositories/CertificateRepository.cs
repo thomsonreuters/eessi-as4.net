@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (certificateCollection.Count <= 0)
                 throw new CryptographicException(
-                    $"Could not find Certificate in store: {GetCertificateStoreName()} where {findType} is {privateKeyReference}");
+                    $"Could not find Certificate in store: '{GetCertificateStoreName()}' where '{findType}' is '{privateKeyReference}'");
 
             return certificateCollection[0];
         }

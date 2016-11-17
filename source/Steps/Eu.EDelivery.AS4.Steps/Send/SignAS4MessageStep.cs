@@ -87,8 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 this._logger.Error(exception.Message);
-                string description = $"{this._internalMessage.Prefix} Problems with signing AS4 Message";
-                throw ThrowCommonSigningException(description, exception);
+                throw ThrowCommonSigningException(exception.Message, exception);
             }
         }
 
