@@ -1,56 +1,32 @@
-﻿using System;
+﻿using System.Linq;
 using System.IO;
-using System.Reflection;
+using System.Net;
 using System.Runtime.Loader;
-using Eu.EDelivery.AS4.Fe.Services;
+using Eu.EDelivery.AS4.Fe.Logging;
+using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Start;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 using Microsoft.Extensions.PlatformAbstractions;
+using NLog.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Fe
 {
-    public class Scanner
-    {
-        private readonly Func<AssemblyName, Assembly> assemblyLoader = (name) => Assembly.Load(name);
-
-        public void RegisterAssembly(IServiceCollection services, AssemblyName assemblyName)
-        {
-            var assembly = assemblyLoader(assemblyName);
-            foreach (var type in assembly.DefinedTypes)
-            {
-                //var dependencyAttributes = type.GetCustomAttributes<DependencyAttribute>();
-                //// Each dependency can be registered as various types
-                //foreach (var dependencyAttribute in dependencyAttributes)
-                //{
-                //    var serviceDescriptor = dependencyAttribute.BuildServiceDescriptor(type);
-                //    services.Add(serviceDescriptor);
-                //}
-            }
-        }
-
-        public void Register(IServiceCollection services, Assembly assembly)
-        {
-            foreach (var type in assembly.DefinedTypes)
-            {
-                
-            }
-        }
-    }
-
     public class Startup
     {
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath);
-                //.AddJsonFile("appsettings.json", true, true)
-                //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", true, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
 
             //if (env.IsEnvironment("Development"))
             //    builder.AddApplicationInsightsSettings(true);
@@ -68,22 +44,24 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddApplicationInsightsTelemetry(Configuration);
 
             services.AddMvc();
-            services.AddTransient<IAs4SettingsService, As4SettingsService>();
             services.AddSwaggerGen();
             services.AddAutoMapper();
             services.AddSingleton<Scanner>();
+            services.AddSingleton<ILogging, Logging.Logging>();
+            services.AddOptions();
 
+            services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
+
+            // Setup modular implementations
             var scanner = services
                 .BuildServiceProvider()
                 .GetService<Scanner>();
-            string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            foreach (string dll in Directory.GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "modules"), "*.dll"))
-            {
-                scanner.Register(services, AssemblyLoadContext.Default.LoadFromAssemblyPath(dll));
-            }
-                
-            
-            //.RegisterAssembly(services, );
+
+            var moduleAssemblies = Directory
+                .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "modules"), "*.dll")
+                .Select(asm => AssemblyLoadContext.Default.LoadFromAssemblyPath(asm));
+
+            scanner.Register(services, moduleAssemblies);            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -91,9 +69,33 @@ namespace Eu.EDelivery.AS4.Fe
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            loggerFactory.AddNLog();
+
+            env.ConfigureNLog("nlog.config");
+
+            var logger = app.ApplicationServices.GetService<ILogging>();
+            var settings = app.ApplicationServices.GetService<IOptions<ApplicationSettings>>();
+            app.UseExceptionHandler(options =>
+            {
+                options.Run(async context =>
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.ContentType = "application/json";
+                    var ex = context.Features.Get<IExceptionHandlerFeature>();
+                    if (ex != null)
+                    {
+                        var response = new
+                        {
+                            IsError = true,
+                            Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace
+                        };
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
+                        logger.Error(ex.Error);
+                    }
+                });
+            });
 
             app.UseApplicationInsightsRequestTelemetry();
-
             app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseMvc();

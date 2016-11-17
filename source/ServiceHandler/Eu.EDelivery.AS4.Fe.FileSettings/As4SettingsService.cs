@@ -5,8 +5,9 @@ using System.Xml.Serialization;
 using AutoMapper;
 using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Models;
+using Eu.EDelivery.AS4.Fe.Services;
 
-namespace Eu.EDelivery.AS4.Fe.Services
+namespace Eu.EDelivery.AS4.Fe.FileSettings
 {
     public class As4SettingsService : IAs4SettingsService
     {

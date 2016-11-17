@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Models;
 using Microsoft.Extensions.DependencyInjection;
 

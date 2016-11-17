@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
-namespace Eu.EDelivery.AS4.Fe
+namespace Eu.EDelivery.AS4.Fe.AS4Model
 {
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     [XmlRoot(Namespace = "eu:edelivery:as4", IsNullable = false)]
     public class Settings

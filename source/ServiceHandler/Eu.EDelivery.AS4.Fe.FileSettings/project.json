@@ -2,6 +2,7 @@
   "version": "1.0.0-*",
 
   "dependencies": {
+    "Eu.EDelivery.AS4.Fe": "1.0.0-*"
   },
 
   "frameworks": {
