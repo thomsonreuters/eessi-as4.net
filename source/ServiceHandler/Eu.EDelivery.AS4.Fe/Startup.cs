@@ -16,6 +16,7 @@ using NLog.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Eu.EDelivery.AS4.Fe.Settings;
 
 namespace Eu.EDelivery.AS4.Fe
 {
@@ -53,15 +54,14 @@ namespace Eu.EDelivery.AS4.Fe
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
 
             // Setup modular implementations
-            var scanner = services
-                .BuildServiceProvider()
-                .GetService<Scanner>();
+            var serviceProvider = services.BuildServiceProvider();
+            var scanner = serviceProvider.GetService<Scanner>();
 
             var moduleAssemblies = Directory
                 .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "modules"), "*.dll")
                 .Select(asm => AssemblyLoadContext.Default.LoadFromAssemblyPath(asm));
 
-            scanner.Register(services, moduleAssemblies);            
+            scanner.Register(services, moduleAssemblies.ToList(), serviceProvider.GetService<IOptions<ApplicationSettings>>().Value.Modules);            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

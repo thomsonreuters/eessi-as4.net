@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Fe.Services
             this.mapper = mapper;
         }
 
-        public async Task<Settings> GetSettings()
+        public async Task<AS4Model.Settings> GetSettings()
         {
             return await GetFromXml();
         }
@@ -43,23 +43,23 @@ namespace Eu.EDelivery.AS4.Fe.Services
             await SaveToXml(file);
         }
 
-        private async Task<Settings> GetFromXml()
+        private async Task<AS4Model.Settings> GetFromXml()
         {
             return await Task.Factory.StartNew(() =>
             {
                 using (var reader = new FileStream(@"settings.xml", FileMode.Open))
                 {
-                    var xml = new XmlSerializer(typeof(Settings));
-                    return (Settings) xml.Deserialize(reader);
+                    var xml = new XmlSerializer(typeof(AS4Model.Settings));
+                    return (AS4Model.Settings) xml.Deserialize(reader);
                 }
             });
         }
 
-        private async Task SaveToXml(Settings applicationSettings)
+        private async Task SaveToXml(AS4Model.Settings applicationSettings)
         {
             await Task.Factory.StartNew(() =>
             {
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(Settings));
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(AS4Model.Settings));
 
                 using (StringWriter textWriter = new StringWriter())
                 {

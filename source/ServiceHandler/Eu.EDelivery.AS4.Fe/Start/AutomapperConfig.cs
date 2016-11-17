@@ -11,9 +11,9 @@ namespace Eu.EDelivery.AS4.Fe.Start
         {
             var config = new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<BaseSettings, Settings>();
-                cfg.CreateMap<Settings, BaseSettings>();
-                cfg.CreateMap<CustomSettings, Settings>();
+                cfg.CreateMap<BaseSettings, AS4Model.Settings>();
+                cfg.CreateMap<AS4Model.Settings, BaseSettings>();
+                cfg.CreateMap<CustomSettings, AS4Model.Settings>();
                 cfg.CreateMap<CustomSettings, CustomSettings>();
                 cfg.CreateMap<SettingsDatabase, SettingsDatabase>();
             });

@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.Fe.Services
 {
     public interface IAs4SettingsService : IModular
     {
-        Task<Settings> GetSettings();
+        Task<AS4Model.Settings> GetSettings();
         Task SaveBaseSettings(BaseSettings settings);
         Task SaveCustomSettings(CustomSettings settings);
         Task SaveDatabaseSettings(SettingsDatabase settings);

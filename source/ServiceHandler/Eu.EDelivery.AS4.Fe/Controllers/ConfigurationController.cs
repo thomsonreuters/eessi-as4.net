@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         [HttpGet]
-        public async Task<Settings> Get()
+        public async Task<AS4Model.Settings> Get()
         {
             return await settingsService.GetSettings();
         }
