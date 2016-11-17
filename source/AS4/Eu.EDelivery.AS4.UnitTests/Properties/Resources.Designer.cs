@@ -211,6 +211,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;eb:Receipt&gt;
+        ///  &lt;eb:NonRepudiationInformation&gt;
+        ///    &lt;MessagePartNRInformation xmlns=&quot;http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0&quot;&gt;
+        ///      &lt;Reference URI=&quot;#header-23848796-df22-46e9-b508-f37be2331312&quot; xmlns=&quot;http://www.w3.org/2000/09/xmldsig#&quot;&gt;
+        ///        &lt;Transforms&gt;
+        ///          &lt;Transform Algorithm=&quot;http://www.w3.org/2001/10/xml-exc-c14n#&quot; /&gt;
+        ///        &lt;/Transforms&gt;
+        ///        &lt;DigestMethod Algorithm=&quot;http://www.w3.org/2001/04/xmlenc#sha256&quot; /&gt;
+        ///        &lt;DigestValue&gt;c1Y1Qm05d3RXYW [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string receipt {
+            get {
+                return ResourceManager.GetString("receipt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;
         ///  &lt;s12:Header&gt;
@@ -294,23 +312,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
         ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;MessageInfo&gt;
+        ///    &lt;MessageId&gt;F4840B69-8057-40C9-8530-EC91F946C3BF&lt;/MessageId&gt;
+        ///  &lt;/MessageInfo&gt;
+        ///  
         ///  &lt;Collaboration&gt;
         ///    &lt;AgreementRef&gt;
         ///      &lt;PModeId&gt;sample-pmode&lt;/PModeId&gt;
         ///    &lt;/AgreementRef&gt;
         ///  &lt;/Collaboration&gt;
         ///
+        ///  &lt;MessageProperties&gt;
+        ///    &lt;MessageProperty&gt;
+        ///      &lt;Name&gt;Payloads&lt;/Name&gt;
+        ///      &lt;Type&gt;Metadata&lt;/Type&gt;
+        ///      &lt;Value&gt;2&lt;/Value&gt;
+        ///    &lt;/MessageProperty&gt;
+        ///  &lt;/MessageProperties&gt;
+        ///  
         ///  &lt;Payloads&gt;
-        ///    &lt;Payload&gt;
-        ///      &lt;Id&gt;earth&lt;/Id&gt;
-        ///      &lt;MimeType&gt;image/jpeg&lt;/MimeType&gt;
-        ///      &lt;Location&gt;file:///messages\attachments\earth.jpg&lt;/Location&gt;
-        ///      &lt;PayloadProperties/&gt;
-        ///    &lt;/Payload&gt;
-        ///    &lt;Payload&gt;
-        ///      &lt;Id&gt;xml-sample&lt;/Id&gt;
-        ///      &lt;MimeType&gt;application/xml&lt;/MimeType&gt;
-        ///      &lt;Location&gt;file:/ [rest of string was truncated]&quot;;.
+        ///    &lt;Payloa [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string submitmessage {
             get {

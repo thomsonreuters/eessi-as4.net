@@ -24,16 +24,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             return this;
         }
 
-        private void ConfigureReceiverWithSettings(IReceiver receiver, Receiver settingsReceiver)
-        {
-            if (settingsReceiver.Setting == null) return;
-
-            Dictionary<string, string> dictionary = settingsReceiver.Setting
-                .ToDictionary(setting => setting.Key, setting => setting.Value);
-
-            receiver.Configure(dictionary);
-        }
-
         /// <summary>
         /// Build the <see cref="IReceiver"/> implementation
         /// </summary>
@@ -44,6 +34,16 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             ConfigureReceiverWithSettings(receiver, this._settingReceiver);
 
             return receiver;
+        }
+
+        private void ConfigureReceiverWithSettings(IReceiver receiver, Receiver settingsReceiver)
+        {
+            if (settingsReceiver.Setting == null) return;
+
+            Dictionary<string, string> dictionary = settingsReceiver.Setting
+                .ToDictionary(setting => setting.Key, setting => setting.Value);
+
+            receiver.Configure(dictionary);
         }
     }
 }

@@ -14,6 +14,18 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         private object[] _args;
 
         /// <summary>
+        /// Set the <paramref name="args"/>
+        /// which has to be send as arguments
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public GenericTypeBuilder SetArgs(params object[] args)
+        {
+            this._args = args;
+            return this;
+        }
+
+        /// <summary>
         /// Set the <paramref name="typeString"/>
         /// which has to be created
         /// </summary>
@@ -24,18 +36,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             this._type = ResolveType(typeString);
             if (this._type == null) throw new AS4Exception($"Not given class found for given Type: {typeString}");
 
-            return this;
-        }
-
-        /// <summary>
-        /// Set the <paramref name="args"/>
-        /// which has to be send as arguments
-        /// </summary>
-        /// <param name="args"></param>
-        /// <returns></returns>
-        public GenericTypeBuilder SetArgs(params object[] args)
-        {
-            this._args = args;
             return this;
         }
 
