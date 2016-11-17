@@ -101,6 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (Exception exception)
             {
+                this._logger.Error(exception.Message);
                 throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101, exception);
             }
         }
