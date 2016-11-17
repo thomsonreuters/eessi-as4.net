@@ -329,6 +329,7 @@
     <Content Include="Resources\as4-encrypted-envelope.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
+    <Content Include="Resources\receipt.xml" />
     <Content Include="Resources\sendingprocessingmode.xml" />
     <Content Include="Resources\submitmessage.xml" />
     <None Include="Resources\as4-soap-wrong-encrypted-message" />
