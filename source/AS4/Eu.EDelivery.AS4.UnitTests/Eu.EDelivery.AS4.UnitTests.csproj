@@ -211,6 +211,8 @@
     <Compile Include="Security\Encryption\GivenAS4EncryptedKeyFacts.cs" />
     <Compile Include="Security\Factories\GivenEncodingFactoryFacts.cs" />
     <Compile Include="Security\GivenImpersonationFacts.cs" />
+    <Compile Include="Security\Repositories\GivenKeyInfoRepositoryFacts.cs" />
+    <Compile Include="Security\Repositories\GivenSignedXmlRepositoryFacts.cs" />
     <Compile Include="Security\Serializers\GivenEncryptedDataSerializerFacts.cs" />
     <Compile Include="Security\Strategies\GivenEncryptionStrategyFacts.cs" />
     <Compile Include="Serialization\GivenMimeMessageSerializerFacts.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -8,6 +9,8 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
@@ -21,6 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     {
         private readonly ILogger _logger;
         private readonly ISerializerProvider _provider;
+        private ICertificateRepository _repository;
 
         private AS4Message _as4Message;
         private InternalMessage _internalMessage;
@@ -32,6 +36,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         public SendAS4MessageStep()
         {
             this._provider = Registry.Instance.SerializerProvider;
+            this._repository = Registry.Instance.CertificateRepository;
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -92,9 +97,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
             request.KeepAlive = false;
             request.Connection = "Open";
             request.ProtocolVersion = HttpVersion.Version11;
+
+            //AssignClientCertificate(request);
             ServicePointManager.Expect100Continue = false;
 
             return request;
+        }
+
+        private void AssignClientCertificate(HttpWebRequest request)
+        {
+            TlsConfiguration configuration = this._as4Message.SendingPMode.PushConfiguration.TlsConfiguration;
+            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null) return;
+
+            ClientCertificateReference certificateReference = configuration.ClientCertificateReference;
+            this._repository.GetCertificate(certificateReference.ClientCertifcateFindType,
+                certificateReference.ClientCertificateFindValue);
+
+            request.ClientCertificates.Add(new CertificateRepository().GetCertificate(X509FindType.FindBySubjectName,
+                "PartyA"));
         }
 
         private async Task TryHandleHttpRequestAsync(WebRequest request, CancellationToken cancellationToken)
@@ -129,7 +149,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (WebException exception)
             {
-                if (exception.Response != null && ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
+                if (exception.Response != null &&
+                    ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
                     await PrepareStepResult(exception.Response as HttpWebResponse, cancellationToken);
 
                 else throw ThrowFailedSendAS4Exception(this._internalMessage, exception);

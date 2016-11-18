@@ -224,7 +224,7 @@
     <Compile Include="Security\References\ReferenceSecurityTokenReference.cs" />
     <Compile Include="Security\Repositories\AttachmentReferenceRepository.cs" />
     <Compile Include="Security\Repositories\KeyInfoRepository.cs" />
-    <Compile Include="Security\Repositories\XmlReferenceRepository.cs" />
+    <Compile Include="Security\Repositories\SignedXmlRepository.cs" />
     <Compile Include="Security\Serializers\EncryptedDataSerializer.cs" />
     <Compile Include="Security\Signing\VerifyConfig.cs" />
     <Compile Include="Security\Algorithms\AesGcmAlgorithm.cs" />

@@ -168,13 +168,19 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public bool IsEnabled { get; set; }
         public TlsVersion TlsVersion { get; set; }
-        public string ClientCertificateReference { get; set; }
+        public ClientCertificateReference ClientCertificateReference { get; set; }
 
         public TlsConfiguration()
         {
             this.IsEnabled = false;
             this.TlsVersion = TlsVersion.Tls12;
         }
+    }
+
+    public class ClientCertificateReference
+    {
+        public X509FindType ClientCertifcateFindType { get; set; }
+        public string ClientCertificateFindValue { get; set; }
     }
 
     public class SendMessagePackaging : MessagePackaging
