@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(x => x.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(x => x.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(x => x.MessageInfo.Timestamp))
-                .ForMember(x => x.Errors, x => x.MapFrom(t => t.Error))
+                .ForMember(dest => dest.Errors, src => src.MapFrom(t => t.Error))
                 .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.Error, ErrorDetail>()

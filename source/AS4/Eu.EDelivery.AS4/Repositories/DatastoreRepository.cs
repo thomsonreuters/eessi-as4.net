@@ -17,9 +17,7 @@ namespace Eu.EDelivery.AS4.Repositories
     /// </summary>
     public class DatastoreRepository : IDatastoreRepository
     {
-        private readonly ILogger _logger;
         private readonly Func<DatastoreContext> _datastore;
-        private RetryPolicy _policy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreRepository"/> class. 
@@ -31,8 +29,6 @@ namespace Eu.EDelivery.AS4.Repositories
         public DatastoreRepository(Func<DatastoreContext> datastore)
         {
             this._datastore = datastore;
-            this._policy = Policy.Handle<DbUpdateException>().RetryAsync();
-            this._logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
