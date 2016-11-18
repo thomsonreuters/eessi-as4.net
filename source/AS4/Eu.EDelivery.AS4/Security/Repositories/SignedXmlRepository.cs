@@ -10,23 +10,24 @@ namespace Eu.EDelivery.AS4.Security.Repositories
     /// <summary>
     /// Respository to navigate the Reference ID Xml Elements
     /// </summary>
-    public class XmlReferenceRepository
+    public class SignedXmlRepository
     {
         private readonly XmlDocument _document;
         private readonly string[] _allowedIdNodeNames;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="XmlReferenceRepository"/> class
+        /// Initializes a new instance of the <see cref="SignedXmlRepository"/> class
         /// </summary>
         /// <param name="document"></param>
-        public XmlReferenceRepository(XmlDocument document)
+        public SignedXmlRepository(XmlDocument document)
         {
             this._document = document;
             this._allowedIdNodeNames = new[] {"Id", "id", "ID"};
         }
 
         /// <summary>
-        /// Get the <see cref="X"/>
+        /// Get the <see cref="XmlElement"/> which
+        /// contains the Signature
         /// </summary>
         /// <returns></returns>
         public XmlElement GetSignatureElement()

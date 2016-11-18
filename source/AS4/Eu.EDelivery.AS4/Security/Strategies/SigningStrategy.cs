@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public override XmlElement GetIdElement(XmlDocument document, string idValue)
         {
             XmlElement idElement = base.GetIdElement(document, idValue);
-            return idElement ?? new XmlReferenceRepository(document).GetReferenceIdElement(idValue);
+            return idElement ?? new SignedXmlRepository(document).GetReferenceIdElement(idValue);
         }
 
         /// <summary>
