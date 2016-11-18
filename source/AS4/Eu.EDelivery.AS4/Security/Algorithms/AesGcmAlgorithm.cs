@@ -14,13 +14,13 @@ namespace Eu.EDelivery.AS4.Security.Algorithms
         /// Gets the block sizes, in bits, that are supported by the symmetric algorithm.
         /// </summary>
         /// <returns>An array that contains the block sizes supported by the algorithm.</returns>
-        public override KeySizes[] LegalBlockSizes => new[] {new KeySizes(96, 96, 0)};
+        public override KeySizes[] LegalBlockSizes => new[] {new KeySizes(minSize: 96, maxSize: 96, skipSize: 0)};
 
         /// <summary>
         /// Gets the key sizes, in bits, that are supported by the symmetric algorithm.
         /// </summary>
         /// <returns>An array that contains the key sizes supported by the algorithm.</returns>
-        public override KeySizes[] LegalKeySizes => new[] {new KeySizes(96, 256, 32)};
+        public override KeySizes[] LegalKeySizes => new[] {new KeySizes(minSize: 96, maxSize: 256, skipSize: 32)};
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AesGcmAlgorithm"/> class

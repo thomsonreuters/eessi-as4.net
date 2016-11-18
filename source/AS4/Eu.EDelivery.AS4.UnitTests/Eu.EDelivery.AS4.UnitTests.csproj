@@ -165,6 +165,7 @@
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
+    <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenErrorToNotifyMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />

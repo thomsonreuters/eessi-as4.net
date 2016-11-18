@@ -200,6 +200,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <returns>A byte array that contains the decryption initialization vector (IV).</returns>
         /// <param name="encryptedData"></param>
         /// <param name="symmetricAlgorithmUri"></param>
+        /// TODO: refactor this method!
         public override byte[] GetDecryptionIV(EncryptedData encryptedData, string symmetricAlgorithmUri)
         {
             if (encryptedData == null)

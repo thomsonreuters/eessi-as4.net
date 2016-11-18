@@ -1,0 +1,22 @@
+# AS4.NET #
+
+AS4.NET is an open-source application that implements the OASIS AS4 specification.
+It supports the e-SENS e-Delivery profile as an ebMS endpoint.
+This software is licensed under the [EUPL License](https://joinup.ec.europa.eu/community/eupl/og_page/european-union-public-licence-eupl-v11)
+
+**Version 1.0 contains the following features:**
+
+- One-Way/Push message exchange pattern
+- XML based configuration
+- XML based PMode configuration
+- Dynamic PMode override
+- Multiple submit, notify and deliver agents
+- FILE based receivers and senders
+- Signing and encryption using WS-Security
+- AS4 Compression
+- AS4 Reception Awareness and Retry
+- AS4 Duplicate Detection and Elimination
+
+
+
+

@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Xml;
+using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Security.Repositories
 {
@@ -21,6 +23,28 @@ namespace Eu.EDelivery.AS4.Security.Repositories
         {
             this._document = document;
             this._allowedIdNodeNames = new[] {"Id", "id", "ID"};
+        }
+
+        /// <summary>
+        /// Get the <see cref="X"/>
+        /// </summary>
+        /// <returns></returns>
+        public XmlElement GetSignatureElement()
+        {
+            XmlNode nodeSignature = this._document.SelectSingleNode("//*[local-name()='Signature'] ");
+            var xmlSignature = nodeSignature as XmlElement;
+            if (nodeSignature == null || xmlSignature == null)
+                throw ThrowAS4SignException("Invalid Signature: Signature Tag not found");
+
+            return xmlSignature;
+        }
+
+        private AS4Exception ThrowAS4SignException(string description)
+        {
+            return new AS4ExceptionBuilder()
+                .WithDescription(description)
+                .WithErrorCode(ErrorCode.Ebms0101)
+                .Build();
         }
 
         /// <summary>

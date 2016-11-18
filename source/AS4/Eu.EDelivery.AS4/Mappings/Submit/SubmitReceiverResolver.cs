@@ -44,11 +44,6 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return submitMessage?.PartyInfo?.ToParty != null;
         }
 
-        private bool IsPModeToPartyNotNull(SubmitMessage submitMessage)
-        {
-            return submitMessage?.PMode.MessagePackaging.PartyInfo?.ToParty != null;
-        }
-
         private Party MapToPartyFromSubmitMessage(SubmitMessage message)
         {
             var toParty = Mapper.Map<Party>(message.PartyInfo.ToParty);
@@ -56,12 +51,6 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             toParty.Role = message.PartyInfo.ToParty.Role;
 
             return toParty;
-        }
-
-        private Party CreateDefaultParty()
-        {
-            var partyId = new PartyId {Id = Constants.Namespaces.EbmsDefaultTo};
-            return new Party(partyId) {Role = Constants.Namespaces.EbmsDefaultRole};
         }
 
         private void PreConditionAllowOverride(SubmitMessage message)
