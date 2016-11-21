@@ -54,6 +54,9 @@ namespace Eu.EDelivery.AS4
             public const string XmlDsig = "http://www.w3.org/2000/09/xmldsig#";
             public const string Addressing = "http://www.w3.org/2005/08/addressing";
 
+            public const string EbmsDefaultMpc =
+                "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC.response";
+
             public const string ICloud = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/icloud";
 
             /// <summary>

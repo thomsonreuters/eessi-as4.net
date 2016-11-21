@@ -18,7 +18,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Exception = System.Exception;
 
@@ -102,7 +101,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private void SetToHeader()
         {
-            var to = new Xml.To { Role = Constants.Namespaces.EbmsNextMsh };
+            var to = new Xml.To {Role = Constants.Namespaces.EbmsNextMsh};
             this._builder.SetToHeader(to);
         }
 
@@ -118,6 +117,10 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 UserMessage = AS4Mapper.Map<Xml.RoutingInputUserMessage>(as4Message.PrimaryUserMessage)
             };
+
+            if (string.IsNullOrEmpty(routingInput.UserMessage.mpc))
+                routingInput.UserMessage.mpc = Constants.Namespaces.EbmsDefaultMpc;
+
             this._builder.SetRoutingInput(routingInput);
         }
 

@@ -91,6 +91,10 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
                         if (modelUserMessage.PayloadInfo?.Count == 0)
                             xmlUserMessage.PayloadInfo = null;
+
+
+                        xmlUserMessage.PartyInfo.From = Mapper.Map<Xml.From>(modelUserMessage.Receiver);
+                        xmlUserMessage.PartyInfo.To = Mapper.Map<Xml.To>(modelUserMessage.Sender);
                     })
                 .ForAllOtherMembers(x => x.Ignore());
         }
