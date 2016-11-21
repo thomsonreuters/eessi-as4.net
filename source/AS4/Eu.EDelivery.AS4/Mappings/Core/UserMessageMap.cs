@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Eu.EDelivery.AS4.Xml;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -92,11 +93,25 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         if (modelUserMessage.PayloadInfo?.Count == 0)
                             xmlUserMessage.PayloadInfo = null;
 
-
                         xmlUserMessage.PartyInfo.From = Mapper.Map<Xml.From>(modelUserMessage.Receiver);
                         xmlUserMessage.PartyInfo.To = Mapper.Map<Xml.To>(modelUserMessage.Sender);
+
+                        AssignAction(xmlUserMessage);
+                        AssignMpc(xmlUserMessage);
                     })
                 .ForAllOtherMembers(x => x.Ignore());
+        }
+
+        private void AssignAction(RoutingInputUserMessage xmlUserMessage)
+        {
+            if (xmlUserMessage.CollaborationInfo?.Action != null)
+                xmlUserMessage.CollaborationInfo.Action = $"{xmlUserMessage.CollaborationInfo.Action}.response";
+        }
+
+        private void AssignMpc(RoutingInputUserMessage xmlUserMessage)
+        {
+            if (string.IsNullOrEmpty(xmlUserMessage.mpc))
+                xmlUserMessage.mpc = Constants.Namespaces.EbmsDefaultMpc;
         }
     }
 }

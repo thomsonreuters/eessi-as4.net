@@ -118,9 +118,6 @@ namespace Eu.EDelivery.AS4.Serialization
                 UserMessage = AS4Mapper.Map<Xml.RoutingInputUserMessage>(as4Message.PrimaryUserMessage)
             };
 
-            if (string.IsNullOrEmpty(routingInput.UserMessage.mpc))
-                routingInput.UserMessage.mpc = Constants.Namespaces.EbmsDefaultMpc;
-
             this._builder.SetRoutingInput(routingInput);
         }
 
