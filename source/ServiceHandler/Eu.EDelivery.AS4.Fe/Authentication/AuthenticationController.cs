@@ -1,62 +1,61 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Fe.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Eu.EDelivery.AS4.Fe.Authentication
 {
+    [Route("api/[controller]")]
     public class AuthenticationController : Controller
     {
+        private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly ITokenService tokenService;
+        private readonly UserManager<ApplicationUser> userManager;
+
+        public AuthenticationController(ITokenService tokenService, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        {
+            this.tokenService = tokenService;
+            this.signInManager = signInManager;
+            this.userManager = userManager;
+        }
+
         [HttpPost]
         [AllowAnonymous]
-        public Task Login(LoginModel login)
+        public async Task<ActionResult> Login([FromBody] LoginModel login)
         {
-            return null;
+            var user = await userManager.FindByNameAsync(login.Username);
+            var result = await userManager.CheckPasswordAsync(user, login.Password);
+            if (result)
+                return new OkObjectResult(new
+                {
+                    access_token = tokenService.GenerateToken()
+                });
+
+            return new UnauthorizedResult();
         }
-    }
 
-    public class LoginModel
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
-
-    public static class Authentication
-    {
-        public static void SetupAuthentication(IApplicationBuilder app)
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("externallogin")]
+        public async Task<IActionResult> ExternalLogin(string provider = null)
         {
-            var secretKey = "mysupersecret_secretkey!123";
-            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+            await HttpContext.Authentication.ChallengeAsync(provider, new AuthenticationProperties {RedirectUri = "http://localhost:3000/#/login?callback=true"});
+            return new OkResult();
+        }
 
-            var tokenValidationParameters = new TokenValidationParameters
+        [HttpGet]
+        [Authorize]
+        [Route("externallogincallback")]
+        public async Task<IActionResult> ExternalLoginCallback(string provider)
+        {
+            var isAuthenticated = await HttpContext.Authentication.GetAuthenticateInfoAsync(provider);
+            if (isAuthenticated.Principal?.Identity?.IsAuthenticated != true) return new UnauthorizedResult();
+            await HttpContext.Authentication.SignOutAsync("Cookies");
+            return new OkObjectResult(new
             {
-                // The signing key must match!
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = signingKey,
-
-                // Validate the JWT Issuer (iss) claim
-                ValidateIssuer = true,
-                ValidIssuer = "ExampleIssuer",
-
-                // Validate the JWT Audience (aud) claim
-                ValidateAudience = true,
-                ValidAudience = "ExampleAudience",
-
-                // Validate the token expiry
-                ValidateLifetime = true,
-
-                // If you want to allow a certain amount of clock drift, set that here:
-                ClockSkew = TimeSpan.Zero
-            };
-
-            app.UseJwtBearerAuthentication(new JwtBearerOptions
-            {
-                AutomaticAuthenticate = true,
-                AutomaticChallenge = true,
-                TokenValidationParameters = tokenValidationParameters
+                access_token = tokenService.GenerateToken()
             });
         }
     }

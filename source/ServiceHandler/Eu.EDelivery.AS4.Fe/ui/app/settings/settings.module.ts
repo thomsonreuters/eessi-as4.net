@@ -3,6 +3,7 @@ import { Component, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AUTH_PROVIDERS } from 'angular2-jwt';
 
 import { As4ComponentsModule } from '../common';
 
@@ -14,6 +15,7 @@ import { AgentSettingsComponent } from './agent.component';
 import { ReceiverComponent } from './receiver.component';
 import { DecoratorComponent } from './decorator.component';
 import { SettingsStore, StoreHelper } from './settings.store';
+import { ROUTES } from './settings.routes';
 
 @NgModule({
     declarations: [
@@ -28,12 +30,14 @@ import { SettingsStore, StoreHelper } from './settings.store';
     providers: [
         SettingsStore,
         SettingsService,
-        StoreHelper
+        StoreHelper,
+        AUTH_PROVIDERS
     ],
     imports: [
         CommonModule,
         As4ComponentsModule,
-        FormsModule
+        FormsModule,
+        RouterModule.forChild(ROUTES)
     ],
     exports: [
         SettingsComponent,

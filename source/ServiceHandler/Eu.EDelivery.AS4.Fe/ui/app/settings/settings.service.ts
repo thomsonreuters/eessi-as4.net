@@ -1,5 +1,5 @@
-import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
+import { AuthHttp } from 'angular2-jwt';
 
 import { SettingsStore, StoreHelper } from './settings.store';
 import { Base } from './../api/Base';
@@ -8,7 +8,7 @@ import { SettingsDatabase } from './../api/SettingsDatabase';
 
 @Injectable()
 export class SettingsService {
-    constructor(private http: Http, private settingsStore: SettingsStore, private storeHelper: StoreHelper) {
+    constructor(private http: AuthHttp, private settingsStore: SettingsStore, private storeHelper: StoreHelper) {
 
     }
     public getSettings() {

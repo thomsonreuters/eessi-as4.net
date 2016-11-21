@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { removeNgStyles, createNewHosts, createInputTransfer } from '@angularclass/hmr';
+import { JwtHelper } from 'angular2-jwt';
 
 /*
  * Platform and Environment providers/directives/pipes
@@ -22,6 +23,7 @@ import { HeaderComponent } from './header.component';
 import { SidebarComponent } from './sidebar.component';
 
 import { As4ComponentsModule } from './common';
+import { AuthenticationModule } from './authentication';
 
 // Application wide providers
 const APP_PROVIDERS = [
@@ -54,11 +56,13 @@ type StoreType = {
         CommonModule,
         RouterModule.forRoot(ROUTES, { useHash: true }),
         SettingsModule,
-        As4ComponentsModule
+        As4ComponentsModule,
+        AuthenticationModule
     ],
     providers: [ // expose our Services and Providers into Angular's dependency injection
         ENV_PROVIDERS,
-        APP_PROVIDERS
+        APP_PROVIDERS,
+        { provide: JwtHelper, useValue: () => new JwtHelper() }
     ]
 })
 export class AppModule {

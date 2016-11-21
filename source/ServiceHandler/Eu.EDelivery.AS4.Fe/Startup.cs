@@ -1,26 +1,40 @@
-﻿using System.Linq;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
+using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Fe.Start;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.PlatformAbstractions;
-using NLog.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json;
-using Eu.EDelivery.AS4.Fe.Settings;
+using NLog.Extensions.Logging;
 
 namespace Eu.EDelivery.AS4.Fe
 {
+    // Add profile data for application users by adding properties to the ApplicationUser class
+
     public class Startup
     {
         public Startup(IHostingEnvironment env)
@@ -43,26 +57,32 @@ namespace Eu.EDelivery.AS4.Fe
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
+            services.AddAuthentication(options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+
             services.AddApplicationInsightsTelemetry(Configuration);
 
             services.AddMvc();
             services.AddSwaggerGen();
             services.AddAutoMapper();
-            services.AddSingleton<Scanner>();
             services.AddSingleton<ILogging, Logging.Logging>();
+            services.AddSingleton<ITokenService, TokenService>();
             services.AddOptions();
-
+            services.Configure<JwtOptions>(Configuration.GetSection("JwtOptions"));
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
 
-            // Setup modular implementations
-            var serviceProvider = services.BuildServiceProvider();
-            var scanner = serviceProvider.GetService<Scanner>();
+            // Setup Identity
+            var connectionStringBuilder = new SqliteConnectionStringBuilder {DataSource = "test.sqlite"};
+            var connectionString = connectionStringBuilder.ToString();
+            var connection = new SqliteConnection(connectionString);
 
-            var moduleAssemblies = Directory
-                .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "modules"), "*.dll")
-                .Select(asm => AssemblyLoadContext.Default.LoadFromAssemblyPath(asm));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
+            services
+                .AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
-            scanner.Register(services, Assembly.GetEntryAssembly(), moduleAssemblies.ToList(), serviceProvider.GetService<IOptions<ApplicationSettings>>().Value.Modules);            
+            var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
+            services.AddModules(moduleMappings);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -72,6 +92,42 @@ namespace Eu.EDelivery.AS4.Fe
             loggerFactory.AddDebug();
             loggerFactory.AddNLog();
 
+            app.SetupAuthentication();
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                ExpireTimeSpan = TimeSpan.FromSeconds(5)
+            });
+            var facebookOptions = new FacebookOptions
+            {
+                AppId = "1827549694196393",
+                AppSecret = "e8d815e06e16fed295b5889265e6f543",
+                AuthenticationScheme = FacebookDefaults.AuthenticationScheme,
+                //SignInScheme = "Test",
+                AutomaticAuthenticate = false,
+                AutomaticChallenge = false,
+                BackchannelHttpHandler = new HttpClientHandler(),
+                CallbackPath = "/api/authentication/externallogincallback?provider=Facebook",
+                Events = new OAuthEvents
+                {
+                    OnTicketReceived = ctx =>
+                    {
+                        var options = new JwtOptions();
+
+                        var jwt = new JwtSecurityToken(
+                            options.Issuer,
+                            options.Audience,
+                            null,
+                            options.NotBefore,
+                            options.Expiration,
+                            options.SigningCredentials);
+
+                        var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                        ctx.Response.Redirect("http://localhost:3000/#/login?token=" + encodedJwt);
+                        return Task.FromResult(0);
+                    }
+                }
+            };
+
             env.ConfigureNLog("nlog.config");
 
             var logger = app.ApplicationServices.GetService<ILogging>();
@@ -80,7 +136,7 @@ namespace Eu.EDelivery.AS4.Fe
             {
                 options.Run(async context =>
                 {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
                     var ex = context.Features.Get<IExceptionHandlerFeature>();
                     if (ex != null)
@@ -102,6 +158,18 @@ namespace Eu.EDelivery.AS4.Fe
             app.UseMvc();
             app.UseSwagger();
             app.UseSwaggerUi();
+
+            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+                context.Database.EnsureCreated();
+                context.SaveChanges();
+
+                var db = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
+                db.CreateAsync(new ApplicationUser {UserName = "test"}, "k1342hT*98").Wait();
+            }
+
+            app.ExecuteStartupServices();
         }
     }
 }

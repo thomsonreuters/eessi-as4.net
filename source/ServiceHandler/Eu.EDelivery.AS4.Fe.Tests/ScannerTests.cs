@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,8 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             [Fact]
             public void Loads_Internal_Implementation_When_No_Config_Is_Set()
             {
-                scanner.Register(serviceCollection, typeof(As4SettingsService).GetTypeInfo().Assembly, new [] { localAssembly }, new Dictionary<string, string>());
+                // Act
+                scanner.Register<IModular>(serviceCollection, typeof(As4SettingsService).GetTypeInfo().Assembly.DefinedTypes.ToList(), Enumerable.Empty<TypeInfo>().ToList());
 
                 // Assert
                 serviceCollection.Add(Arg.Is<ServiceDescriptor>(x => x.ServiceType == typeof(IAs4SettingsService) && x.ImplementationType == typeof(As4SettingsService)));
@@ -36,10 +38,30 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 };
                     
                 // Act
-                scanner.Register(serviceCollection, typeof(As4SettingsService).GetTypeInfo().Assembly, new[] { localAssembly }, config);
+                scanner.Register<IModular>(serviceCollection, typeof(As4SettingsService).GetTypeInfo().Assembly.DefinedTypes.ToList(), localAssembly.DefinedTypes.ToList(), config);
 
                 // Assert
                 serviceCollection.Add(Arg.Is<ServiceDescriptor>(x => x.ServiceType == typeof(IAs4SettingsService) && x.ImplementationType == typeof(TestSettings)));
+            }
+
+            [Fact]
+            public void Loads_IRunAtServicesStartup()
+            {
+                // Setup
+                var config = new Dictionary<string, string>();
+
+                // Act
+                scanner.Register<IRunAtServicesStartup>(serviceCollection, typeof(IRunAtServicesStartup).GetTypeInfo().Assembly.DefinedTypes.ToList(), localAssembly.DefinedTypes.ToList(), config);
+
+                // Assert
+                serviceCollection.Add(Arg.Is<ServiceDescriptor>(x => x.ServiceType == typeof(IRunAtServicesStartup) && x.ImplementationType == typeof(TestRunAtStartup)));
+            }
+        }
+
+        public class TestRunAtStartup : IRunAtServicesStartup
+        {
+            public void Run(IServiceCollection services)
+            {
             }
         }
     }

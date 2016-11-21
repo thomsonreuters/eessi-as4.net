@@ -5,11 +5,13 @@ using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eu.EDelivery.AS4.Fe.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class ConfigurationController : Controller
     {
         private readonly IMapper mapper;
@@ -17,6 +19,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         public ConfigurationController(IAs4SettingsService settingsService, IMapper mapper, ILogging logging)
         {
+            
             this.settingsService = settingsService;
             this.mapper = mapper;
         }
