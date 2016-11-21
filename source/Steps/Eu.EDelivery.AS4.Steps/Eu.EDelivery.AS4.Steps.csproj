@@ -153,6 +153,7 @@
     <Compile Include="Common\OutExceptionStepDecorator.cs" />
     <Compile Include="Receive\DeterminePModesStep.cs" />
     <Compile Include="Submit\CreateDefaultAS4MessageStep.cs" />
+    <Compile Include="Submit\MinderAssembleWithMessagePropertiesStep.cs" />
     <Compile Include="Submit\RetrievePayloadsStep.cs" />
     <Compile Include="Submit\RetrieveSendingPModeStep.cs" />
     <Compile Include="Send\SendAS4MessageStep.cs" />
