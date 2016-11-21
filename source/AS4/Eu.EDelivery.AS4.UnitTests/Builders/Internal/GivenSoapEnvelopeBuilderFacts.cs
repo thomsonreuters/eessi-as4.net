@@ -114,6 +114,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
                 Assert.NotNull(envelope);
                 Assert.Equal(securityNode, envelope.FirstChild.FirstChild.ChildNodes[1]);
             }
+
+            [Fact]
+            public void ThenResultContainsRoutingInput()
+            {
+                // Arrange
+                var messaging = new Messaging();
+                var routingInput = new RoutingInput {UserMessage = CreatePopulatedUserMessage()};
+                // Act
+                XmlDocument envelope = base._builder
+                    .SetMessagingHeader(messaging)
+                    .SetRoutingInput(routingInput)
+                    .Build();
+                // Assert
+                Assert.NotNull(envelope);
+                XmlNode routingInputNode = envelope.SelectSingleNode("//*[local-name()='RoutingInput']");
+                Assert.NotNull(routingInputNode);
+
+            }
+
+            private RoutingInputUserMessage CreatePopulatedUserMessage()
+            {
+                return new RoutingInputUserMessage
+                {
+                    MessageInfo = new MessageInfo(),
+                    CollaborationInfo = new CollaborationInfo(),
+                    PartyInfo = new PartyInfo()
+                };
+            }
         }
     }
 }
