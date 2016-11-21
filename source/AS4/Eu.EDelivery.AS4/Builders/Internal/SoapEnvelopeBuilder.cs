@@ -164,11 +164,6 @@ namespace Eu.EDelivery.AS4.Builders.Internal
             return this;
         }
 
-        private XmlElement CreateElement(SoapNamespace soapNamespace, string elementName)
-        {
-            return this._document.CreateElement(Prefixes[soapNamespace], elementName, Namespaces[soapNamespace]);
-        }
-
         /// <summary>
         /// Set the To Node to the Envelope
         /// </summary>
@@ -179,7 +174,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
             XmlNode toNode = this._document.CreateElement("wsa", "To", Constants.Namespaces.Addressing);
             toNode.InnerText = Constants.Namespaces.ICloud;
 
-            XmlAttribute roleAttribute = this._document.CreateAttribute("s12", "role", Constants.Namespaces.Soap12);
+            XmlAttribute roleAttribute = this._document.CreateAttribute(Prefixes[SoapNamespace.Soap], "role", Namespaces[SoapNamespace.Soap]);
             roleAttribute.Value = to.Role;
             toNode.Attributes.Append(roleAttribute);
 
@@ -199,6 +194,11 @@ namespace Eu.EDelivery.AS4.Builders.Internal
 
             this._headerElement.AppendChild(actionNode);
             return this;
+        }
+
+        private XmlElement CreateElement(SoapNamespace soapNamespace, string elementName)
+        {
+            return this._document.CreateElement(Prefixes[soapNamespace], elementName, Namespaces[soapNamespace]);
         }
 
         /// <summary>
