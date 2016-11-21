@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     {
         private readonly ILogger _logger;
         private readonly ISerializerProvider _provider;
-        private ICertificateRepository _repository;
+        private readonly ICertificateRepository _repository;
 
         private AS4Message _as4Message;
         private InternalMessage _internalMessage;
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             request.Connection = "Open";
             request.ProtocolVersion = HttpVersion.Version11;
 
-            //AssignClientCertificate(request);
+            AssignClientCertificate(request);
             ServicePointManager.Expect100Continue = false;
 
             return request;
@@ -109,14 +109,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             TlsConfiguration configuration = this._as4Message.SendingPMode.PushConfiguration.TlsConfiguration;
             if (!configuration.IsEnabled || configuration.ClientCertificateReference == null) return;
 
-            ClientCertificateReference certificateReference = configuration.ClientCertificateReference;
-            this._repository.GetCertificate(certificateReference.ClientCertifcateFindType,
-                certificateReference.ClientCertificateFindValue);
+            ClientCertificateReference certReference = configuration.ClientCertificateReference;
+            X509Certificate2 certificate = this._repository
+                .GetCertificate(certReference.ClientCertificateFindType, certReference.ClientCertificateFindValue);
 
-            request.ClientCertificates.Add(new CertificateRepository().GetCertificate(X509FindType.FindBySubjectName,
-                "PartyA"));
+            request.ClientCertificates.Add(certificate);
         }
-
+        
         private async Task TryHandleHttpRequestAsync(WebRequest request, CancellationToken cancellationToken)
         {
             try
@@ -173,14 +172,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return;
             }
 
+            await DeserializeHttpResponse(webResponse, cancellationToken);
+            AddExtraInfoToReceivedAS4Message();
+        }
+
+        private async Task DeserializeHttpResponse(HttpWebResponse webResponse, CancellationToken cancellationToken)
+        {
             string contentType = webResponse.ContentType;
             Stream responseStream = webResponse.GetResponseStream();
 
             ISerializer serializer = this._provider.Get(contentType: contentType);
             this._stepResult.InternalMessage.AS4Message = await serializer
                 .DeserializeAsync(responseStream, contentType, cancellationToken);
-
-            AddExtraInfoToReceivedAS4Message();
         }
 
         private void AddExtraInfoToReceivedAS4Message()
