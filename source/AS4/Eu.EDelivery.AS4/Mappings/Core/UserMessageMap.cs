@@ -8,6 +8,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         {
             MapUserMessageToXml();
             MapXmlToUserMessage();
+            MapUserMessageToRoutingInputUserMessage();
         }
 
         private void MapUserMessageToXml()
@@ -71,6 +72,27 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         private static bool IsAgreementReferenceEmpty(Model.Core.CollaborationInfo modelCollaboration)
         {
             return modelCollaboration != null && string.IsNullOrEmpty(modelCollaboration.AgreementReference?.Value);
+        }
+
+        private void MapUserMessageToRoutingInputUserMessage()
+        {
+            CreateMap<Model.Core.UserMessage, Xml.RoutingInputUserMessage>()
+                .ForMember(dest => dest.MessageInfo, src => src.MapFrom(t => t))
+                .ForMember(dest => dest.PartyInfo, src => src.MapFrom(t => t))
+                .ForMember(dest => dest.CollaborationInfo, src => src.MapFrom(t => t.CollaborationInfo))
+                .ForMember(dest => dest.mpc, src => src.MapFrom(t => t.Mpc))
+                .ForMember(dest => dest.PayloadInfo, src => src.MapFrom(t => t.PayloadInfo))
+                .ForMember(dest => dest.MessageProperties, src => src.MapFrom(t => t.MessageProperties))
+                .AfterMap(
+                    (modelUserMessage, xmlUserMessage) =>
+                    {
+                        if (modelUserMessage.MessageProperties?.Count == 0)
+                            xmlUserMessage.MessageProperties = null;
+
+                        if (modelUserMessage.PayloadInfo?.Count == 0)
+                            xmlUserMessage.PayloadInfo = null;
+                    })
+                .ForAllOtherMembers(x => x.Ignore());
         }
     }
 }

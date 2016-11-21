@@ -43,6 +43,7 @@ namespace Eu.EDelivery.AS4
             public const string EbmsXmlSignals = "http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0";
             public const string EbmsXmlAdvanced = "http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/";
             public const string EbmsMultiHop = "http://docs.oasis-open.org/ebxml-msg/ns/ebms/v3.0/multihop/200902/";
+            public const string EbmsNextMsh = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh";
 
             public const string EbmsSchema =
                 "https://docs.oasis-open.org/ebxml-msg/ebms/v3.0/core/ebms-header-3_0-200704.xsd";
@@ -52,6 +53,8 @@ namespace Eu.EDelivery.AS4
             public const string Xml = "http://www.w3.org/XML/1998/namespace";
             public const string XmlDsig = "http://www.w3.org/2000/09/xmldsig#";
             public const string Addressing = "http://www.w3.org/2005/08/addressing";
+
+            public const string ICloud = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/icloud";
 
             /// <summary>
             /// Collaboration Constants
