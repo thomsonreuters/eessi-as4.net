@@ -6,8 +6,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <!--<Url>https://localhost/holodeck/msh</Url>-->
-      <Url>http://localhost:8080/msh</Url>
+      <Url>http://localhost:9090/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -62,7 +61,7 @@
   </Security>
   <MessagePackaging>
     <UseAS4Compression>false</UseAS4Compression>
-    <IsMultiHop>false</IsMultiHop>
+    <IsMultiHop>true</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
 	<PartyInfo>
 			<FromParty>

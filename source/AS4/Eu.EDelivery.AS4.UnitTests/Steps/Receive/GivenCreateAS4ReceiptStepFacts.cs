@@ -48,7 +48,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.NotNull(result.InternalMessage.AS4Message);
                 Assert.NotEqual(result.InternalMessage, internalMessage);
                 Assert.IsType(typeof(Receipt), result.InternalMessage.AS4Message.PrimarySignalMessage);
-                Assert.Empty(result.InternalMessage.AS4Message.UserMessages);
             }
 
             [Fact]
@@ -63,7 +62,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var receiptMessage = result.InternalMessage.AS4Message.PrimarySignalMessage as Receipt;
                 Assert.IsType(typeof(Receipt), receiptMessage);
                 Assert.Null(receiptMessage.NonRepudiationInformation);
-                Assert.Empty(result.InternalMessage.AS4Message.UserMessages);
             }
 
             [Fact]

@@ -11,6 +11,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         public Receipt() {}
 
         public Receipt(string messageId) : base(messageId) {}
+
+        public override string GetActionValue()
+        {
+            return "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt";
+        }
     }
 
     public class NonRepudiationInformation

@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Xml;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -8,5 +10,10 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public SignalMessage() {}
         public SignalMessage(string messageId) : base(messageId) {}
+
+        public virtual string GetActionValue()
+        {
+            return string.Empty;
+        }
     }
 }

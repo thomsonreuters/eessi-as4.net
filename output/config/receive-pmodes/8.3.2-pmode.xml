@@ -11,7 +11,7 @@
   <ReceiptHandling>
     <UseNNRFormat>false</UseNNRFormat>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>pmode</SendingPMode>
+    <SendingPMode>pmode-multihop</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>

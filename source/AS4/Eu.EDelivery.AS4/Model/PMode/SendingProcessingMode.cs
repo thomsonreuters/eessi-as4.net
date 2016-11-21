@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ClientCertificateReference
     {
-        public X509FindType ClientCertifcateFindType { get; set; }
+        public X509FindType ClientCertificateFindType { get; set; }
         public string ClientCertificateFindValue { get; set; }
     }
 

@@ -13,10 +13,13 @@ using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
+using Exception = System.Exception;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -50,6 +53,8 @@ namespace Eu.EDelivery.AS4.Serialization
 
             this._builder.BreakDown();
             SetSecurityHeader(message);
+            SetMultiHopHeaders(message);
+
             this._builder.SetMessagingHeader(messagingHeader);
             this._builder.SetMessagingBody(message.SigningId.BodySecurityId);
 
@@ -59,22 +64,61 @@ namespace Eu.EDelivery.AS4.Serialization
         private Xml.Messaging CreateMessagingHeader(Model.Core.AS4Message message)
         {
             MapInitialization.InitializeMapper();
-            var messagingHeader = new Xml.Messaging
-            {
-                SignalMessage = AS4Mapper.Map<Xml.SignalMessage[]>(message.SignalMessages),
-                UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages),
-                SecurityId = message.SigningId.HeaderSecurityId
-            };
+            var messagingHeader = new Xml.Messaging {SecurityId = message.SigningId.HeaderSecurityId};
+
+            if (message.IsSignalMessage)
+                messagingHeader.SignalMessage = AS4Mapper.Map<Xml.SignalMessage[]>(message.SignalMessages);
+            else messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
+
+            if (IsMultiHop(message.SendingPMode))
+                messagingHeader.role = Constants.Namespaces.EbmsNextMsh;
+
             return messagingHeader;
         }
 
-        private void SetSecurityHeader(Model.Core.AS4Message message)
+        private bool IsMultiHop(SendingProcessingMode pmode)
+        {
+            return pmode?.MessagePackaging.IsMultiHop == true;
+        }
+
+        private void SetSecurityHeader(AS4Message message)
         {
             if (message.SecurityHeader.IsSigned == false && message.SecurityHeader.IsEncrypted == false) return;
 
             XmlNode securityNode = message.SecurityHeader?.GetXml();
             if (securityNode != null)
                 this._builder.SetSecurityHeader(securityNode);
+        }
+
+        private void SetMultiHopHeaders(AS4Message as4Message)
+        {
+            if (!IsMultiHop(as4Message.SendingPMode) || !as4Message.IsSignalMessage) return;
+
+            SetToHeader();
+            SetActionHeader(as4Message);
+            SetRoutingInputHeader(as4Message);
+        }
+
+        private void SetToHeader()
+        {
+            var to = new Xml.To {Role = Constants.Namespaces.EbmsNextMsh};
+            this._builder.SetToHeader(to);
+        }
+
+        private void SetActionHeader(AS4Message as4Message)
+        {
+            string actionValue = as4Message.PrimarySignalMessage.GetActionValue();
+            this._builder.SetActionHeader(actionValue);
+        }
+
+        private void SetRoutingInputHeader(AS4Message as4Message)
+        {
+            var routingInput = new Xml.RoutingInput
+            {
+                UserMessage = AS4Mapper.Map<Xml.RoutingInputUserMessage>(as4Message.PrimaryUserMessage)
+            };
+
+            this._builder.SetRoutingInput(routingInput);
         }
 
         private void WriteSoapEnvelopeTo(Stream stream)
@@ -125,6 +169,7 @@ namespace Eu.EDelivery.AS4.Serialization
             Stream stream = new MemoryStream();
             envelopeStream.CopyTo(stream);
             stream.Position = 0;
+
             return stream;
         }
 
@@ -150,8 +195,8 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-               // envelopeDocument.Validate((sender, args)
-                 //   => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
+                envelopeDocument.Validate((sender, args)
+                    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
             }
             catch (XmlSchemaValidationException exception)
             {
@@ -207,7 +252,6 @@ namespace Eu.EDelivery.AS4.Serialization
             ISigningStrategy signingStrategy = null;
             IEncryptionStrategy encryptionStrategy = null;
 
-            // Read until SecurityHeader end element
             while (reader.Read() && !IsReadersNameSecurityHeader(reader))
             {
                 if (IsReadersNameEncryptedData(reader) && encryptionStrategy == null)
@@ -220,11 +264,14 @@ namespace Eu.EDelivery.AS4.Serialization
             as4Message.SecurityHeader = new Model.Core.SecurityHeader(signingStrategy, encryptionStrategy);
         }
 
-        private bool IsReadersNameSignature(XmlReader reader) => reader.LocalName == "Signature" && reader.NodeType == XmlNodeType.Element;
+        private bool IsReadersNameSignature(XmlReader reader)
+            => reader.LocalName == "Signature" && reader.NodeType == XmlNodeType.Element;
 
-        private bool IsReadersNameEncryptedData(XmlReader reader) => reader.LocalName == "EncryptedData" && reader.NodeType == XmlNodeType.Element;
+        private bool IsReadersNameEncryptedData(XmlReader reader)
+            => reader.LocalName == "EncryptedData" && reader.NodeType == XmlNodeType.Element;
 
-        private bool IsReadersNameSecurityHeader(XmlReader reader) => reader.LocalName.Equals("Security");
+        private bool IsReadersNameSecurityHeader(XmlReader reader)
+            => reader.LocalName.Equals("Security");
 
         private void DeserializeMessagingHeader(XmlReader reader, Model.Core.AS4Message as4Message)
         {
@@ -279,7 +326,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 return AS4Mapper.Map<IEnumerable<Model.Core.UserMessage>>(header.UserMessage);
             }
-            catch (Exception exception) when(exception.GetBaseException() is AS4Exception)
+            catch (Exception exception) when (exception.GetBaseException() is AS4Exception)
             {
                 throw exception.GetBaseException();
             }

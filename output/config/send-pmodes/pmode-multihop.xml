@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>pmode</Id>
+  <Id>pmode-multihop</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -56,7 +56,7 @@
   </Security>
   <MessagePackaging>
     <UseAS4Compression>true</UseAS4Compression>
-    <IsMultiHop>false</IsMultiHop>
+    <IsMultiHop>true</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>
       <Service>
@@ -83,6 +83,7 @@
       </ToParty>
     </PartyInfo>
     <MessageProperties>
+      <IsMultiHop>true</IsMultiHop>
       <MessageProperty>
         <Name>OriginalSender</Name>
         <Value>organization:A1</Value>
