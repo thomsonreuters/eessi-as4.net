@@ -6,7 +6,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://13.81.109.44:15001/as4Interceptor/<Url>
+      <Url>http://13.81.109.44:15001/as4Interceptor/</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>

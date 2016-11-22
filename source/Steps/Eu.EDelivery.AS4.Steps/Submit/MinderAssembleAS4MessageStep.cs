@@ -53,9 +53,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private void RemoveAllInfoMessageProperties()
         {
-            foreach (MessageProperty property in this._properties)
-                if (!property.Name.Equals("originalSender") && !property.Name.Equals("finalRecipient"))
-                    this._properties.Remove(property);
+            this._properties = this._properties.Where(WherePropertyIsInWhiteList).ToList();
+        }
+
+        private static bool WherePropertyIsInWhiteList(MessageProperty property)
+        {
+            return property.Name.Equals("originalSender") || property.Name.Equals("finalRecipient");
         }
     }
 }

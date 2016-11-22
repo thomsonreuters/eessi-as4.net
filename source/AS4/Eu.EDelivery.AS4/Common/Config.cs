@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             string path = Path.Combine(
                 Properties.Resources.configurationfolder,
-                Properties.Resources.settingsfilename);
+                Properties.Resources.mindersettingsfilename);
 
             this._settings = TryDeserialize<Settings>(path);
             if(this._settings == null) throw new AS4Exception("Invalid Settings file");
