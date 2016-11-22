@@ -82,7 +82,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             var receipt = new Receipt {RefToMessageId = messageId};
             AS4Message receiptMessage = new AS4MessageBuilder()
-                .WithUserMessage(this._originalAS4Message.PrimaryUserMessage).WithSignalMessage(receipt).Build();
+                .WithUserMessage(this._originalAS4Message.PrimaryUserMessage)
+                .WithSignalMessage(receipt)
+                .Build();
 
             receiptMessage.SigningId = this._originalAS4Message.SigningId;
             AdaptReceiptMessage(receipt);
