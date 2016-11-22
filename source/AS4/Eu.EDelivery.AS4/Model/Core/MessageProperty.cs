@@ -8,6 +8,12 @@
 
         public MessageProperty() {}
 
+        public MessageProperty(string name, string value)
+        {
+            this.Name = name;
+            this.Value = value;
+        }
+
         public MessageProperty(string name, string type, string value)
         {
             this.Name = name;

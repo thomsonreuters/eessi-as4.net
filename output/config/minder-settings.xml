@@ -1,0 +1,151 @@
+<!-- Sample Global Settings File -->
+<Settings 
+  xmlns="eu:edelivery:as4">
+  <!-- Format of the message ID -->
+  <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
+  <!-- Specify the storage of the messages -->
+  <!-- Available Providers: Microsoft SQL Server, SQLite, Npgsql (PostgreSQL), Microsoft SQL Server Compact Edition, IBM Data Servers, InMemory (for Testing), Devart (MySQL, Oracle, PostgreSQL, SQLite, DB2, SQL Server, and more) -->
+  <Database>
+    <Provider>Sqlite</Provider>
+    <ConnectionString>Filename=database\messages.db</ConnectionString>
+    <!--<ConnectionString>Data Source=.;Initial Catalog=testas4;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</ConnectionString>-->
+  </Database>
+  <!-- Certificate Store on the Local Machine -->
+  <!-- Specify the Subject of the Certificate and the Certificate Store Name on the Local Machine -->
+  <CertificateStore>
+    <StoreName>My</StoreName>
+    <Repository type="Eu.EDelivery.AS4.Repositories.CertificateRepository, Eu.EDelivery.AS4, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"/>
+  </CertificateStore>
+  <!-- Specify the agents -->
+  <!-- Each Agent has a "Receiver", "Transformer" and one or many "Steps" which are decorated by a Exception Handling Step -->
+  <Agents>
+    <SubmitAgent name="Minder Submit Agent">
+     <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Url">http://localhost:8080/msh/</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Submit.MinderRetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Submit.MinderAssembleAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </SubmitAgent>
+    <SendAgent name="Send Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">OutMessages</Setting>
+        <Setting key="Field">Operation</Setting>
+        <Setting key="Value">ToBeSent</Setting>
+        <Setting key="Update">Sending</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.SendAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.SendUpdateDataStoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </SendAgent>
+    <ReceiveAgent name="Receive Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Url">http://localhost:8080/msh/</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Receive.ReceiveExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.DeterminePModesStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.VerifySignatureAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.DecompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.ReceiveUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ReceiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.StoreAS4ReiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.SendAS4ReceiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step undecorated="true" type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ErrorStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step undecorated="true" type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </ReceiveAgent>
+    <DeliverAgent name="InMessage Deliver Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">InMessages</Setting>
+        <Setting key="Field">Operation</Setting>
+        <Setting key="Value">ToBeDelivered</Setting>
+        <Setting key="Update">Delivering</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Deliver.MinderCreateDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Deliver.DeliverUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </DeliverAgent>
+    <NotifyAgent name="InMessages Notify Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">InMessages</Setting>
+        <Setting key="Field">Operation</Setting>
+        <Setting key="Value">ToBeNotified</Setting>
+        <Setting key="Update">Notifying</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.MinderCreateNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </NotifyAgent>
+    <NotifyAgent name="OutMessages Notify Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">OutMessages</Setting>
+        <Setting key="Field">Operation</Setting>
+        <Setting key="Value">ToBeNotified</Setting>
+        <Setting key="Update">Notifying</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.MinderCreateNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </NotifyAgent>
+    <NotifyAgent name="InExceptions Notify Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">InExceptions</Setting>
+        <Setting key="Field">Operation</Setting>
+        <Setting key="Value">ToBeNotified</Setting>
+        <Setting key="Update">Notifying</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.MinderCreateNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </NotifyAgent>
+    <NotifyAgent name="OutExceptions Notify Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">OutExceptions</Setting>
+        <Setting key="Field">Operation</Setting>
+        <Setting key="Value">ToBeNotified</Setting>
+        <Setting key="Update">Notifying</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.MinderCreateNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </NotifyAgent>
+    <ReceptionAwarenessAgent name="Reception Awareness Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">ReceptionAwareness</Setting>
+        <Setting key="Field">IsCompleted</Setting>
+        <Setting key="Value">false</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ReceptionAwarenessTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Steps>
+        <Step type="Eu.EDelivery.AS4.Steps.ReceptionAwareness.ReceptionAwarenessUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      </Steps>
+    </ReceptionAwarenessAgent>
+  </Agents>
+</Settings>

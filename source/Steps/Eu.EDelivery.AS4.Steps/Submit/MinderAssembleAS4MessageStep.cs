@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <see cref="IStep"/> implementation to assemble the <see cref="AS4Message"/>
     /// with the given Message Properties
     /// </summary>
-    public class MinderAssembleWithMessagePropertiesStep : IStep
+    public class MinderAssembleAS4MessageStep : IStep
     {
         private IList<MessageProperty> _properties;
 
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             this._properties = userMessage.MessageProperties;
 
             AssignMessageProperties(userMessage);
-            userMessage.CollaborationInfo.AgreementReference = null;
+            RemoveUnusedAgreementRef(userMessage);
             RemoveAllInfoMessageProperties();
 
             return StepResult.SuccessAsync(internalMessage);
@@ -39,6 +39,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             userMessage.Receiver.Role = GetMessageProperty("ToPartyRole");
             userMessage.CollaborationInfo.Service.Value = GetMessageProperty("Service");
             userMessage.CollaborationInfo.Action = GetMessageProperty("Action");
+        }
+
+        private void RemoveUnusedAgreementRef(UserMessage userMessage)
+        {
+            userMessage.CollaborationInfo.AgreementReference = null;
         }
 
         private string GetMessageProperty(string propertyName)
