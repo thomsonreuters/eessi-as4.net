@@ -116,10 +116,12 @@
     <Compile Include="Common\InExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
+    <Compile Include="Deliver\MinderCreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />
     <Compile Include="Deliver\ZipAttachmentsStep.cs" />
     <Compile Include="Notify\CreateNotifyMessageStep.cs" />
+    <Compile Include="Notify\MinderCreateNotifyMessageStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateInExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutMessageDatastoreStep.cs" />
@@ -153,6 +155,8 @@
     <Compile Include="Common\OutExceptionStepDecorator.cs" />
     <Compile Include="Receive\DeterminePModesStep.cs" />
     <Compile Include="Submit\CreateDefaultAS4MessageStep.cs" />
+    <Compile Include="Submit\MinderAssembleAS4MessageStep.cs" />
+    <Compile Include="Submit\MinderRetrieveSendingPModeStep.cs" />
     <Compile Include="Submit\RetrievePayloadsStep.cs" />
     <Compile Include="Submit\RetrieveSendingPModeStep.cs" />
     <Compile Include="Send\SendAS4MessageStep.cs" />

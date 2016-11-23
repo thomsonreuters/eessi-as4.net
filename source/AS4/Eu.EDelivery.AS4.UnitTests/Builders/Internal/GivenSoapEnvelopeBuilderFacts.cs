@@ -114,6 +114,68 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
                 Assert.NotNull(envelope);
                 Assert.Equal(securityNode, envelope.FirstChild.FirstChild.ChildNodes[1]);
             }
+
+            [Fact]
+            public void ThenResultContainsRoutingInput()
+            {
+                // Arrange
+                var messaging = new Messaging();
+                var routingInput = new RoutingInput {UserMessage = CreatePopulatedUserMessage()};
+                // Act
+                XmlDocument envelope = base._builder
+                    .SetMessagingHeader(messaging)
+                    .SetRoutingInput(routingInput)
+                    .Build();
+                // Assert
+                Assert.NotNull(envelope);
+                XmlNode routingInputNode = envelope.SelectSingleNode("//*[local-name()='RoutingInput']");
+                Assert.NotNull(routingInputNode);
+            }
+
+            [Theory]
+            [InlineData("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt")]
+            [InlineData("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.error")]
+            public void ThenResultContainsAction(string action)
+            {
+                // Arrange
+                var messaging = new Messaging();
+                // Act
+                XmlDocument envelope = base._builder
+                    .SetMessagingHeader(messaging)
+                    .SetActionHeader(action)
+                    .Build();
+                // Assert
+                XmlNode actionNode = envelope.SelectSingleNode("//*[local-name()='Action']");
+                Assert.NotNull(actionNode);
+                Assert.Equal(action, actionNode.InnerText);
+            }
+
+            [Fact]
+            public void ThenResultContainsTo()
+            {
+                // Arrange
+                var messaging = new Messaging();
+                var to = new To {Role = Constants.Namespaces.ICloud};
+                // Act
+                XmlDocument envelope = base._builder
+                    .SetMessagingHeader(messaging)
+                    .SetToHeader(to)
+                    .Build();
+                // Assert
+                XmlNode toNode = envelope.SelectSingleNode("//*[local-name()='To']");
+                Assert.NotNull(toNode);
+                Assert.Equal(to.Role, toNode.InnerText);
+            }
+
+            private RoutingInputUserMessage CreatePopulatedUserMessage()
+            {
+                return new RoutingInputUserMessage
+                {
+                    MessageInfo = new MessageInfo(),
+                    CollaborationInfo = new CollaborationInfo(),
+                    PartyInfo = new PartyInfo()
+                };
+            }
         }
     }
 }
