@@ -7,7 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
+using System.Xml.XPath;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
@@ -240,7 +242,7 @@ namespace Eu.EDelivery.AS4.Serialization
             XmlDocument envelopeDocument, Model.Core.AS4Message as4Message, XmlReader reader)
         {
             DeserializeSecurityHeader(reader, envelopeDocument, as4Message);
-            DeserializeMessagingHeader(reader, as4Message);
+            DeserializeMessagingHeader(reader, as4Message, envelopeDocument);
             DeserializeBody(reader, as4Message);
         }
 
@@ -252,32 +254,25 @@ namespace Eu.EDelivery.AS4.Serialization
             ISigningStrategy signingStrategy = null;
             IEncryptionStrategy encryptionStrategy = null;
 
-            while (reader.Read() && !IsReadersNameSecurityHeader(reader))
-            {
-                if (IsReadersNameEncryptedData(reader) && encryptionStrategy == null)
-                    encryptionStrategy = new EncryptionStrategyBuilder(envelopeDocument).Build();
+            if (envelopeDocument.SelectSingleNode("//*[local-name()='EncryptedData']") != null)
+                encryptionStrategy = new EncryptionStrategyBuilder(envelopeDocument).Build();
 
-                if (IsReadersNameSignature(reader))
-                    signingStrategy = new SigningStrategyBuilder(envelopeDocument).Build();
-            }
+            if (envelopeDocument.SelectSingleNode("//*[local-name()='Signature']") != null)
+                signingStrategy = new SigningStrategyBuilder(envelopeDocument).Build();
 
             as4Message.SecurityHeader = new Model.Core.SecurityHeader(signingStrategy, encryptionStrategy);
         }
 
-        private bool IsReadersNameSignature(XmlReader reader)
-            => reader.LocalName == "Signature" && reader.NodeType == XmlNodeType.Element;
-
-        private bool IsReadersNameEncryptedData(XmlReader reader)
-            => reader.LocalName == "EncryptedData" && reader.NodeType == XmlNodeType.Element;
-
         private bool IsReadersNameSecurityHeader(XmlReader reader)
             => reader.LocalName.Equals("Security");
 
-        private void DeserializeMessagingHeader(XmlReader reader, Model.Core.AS4Message as4Message)
+        private void DeserializeMessagingHeader(XmlReader reader, Model.Core.AS4Message as4Message,
+            XmlDocument envelopeDocument)
         {
             if (!IsReadersNameMessaging(reader)) return;
 
-            var messagingHeader = AS4XmlSerializer.Deserialize<Xml.Messaging>(reader);
+            XmlNode messagingNode = envelopeDocument.SelectSingleNode("//*[local-name()='Messaging']");
+            var messagingHeader = AS4XmlSerializer.Deserialize<Xml.Messaging>(messagingNode?.OuterXml);
             as4Message.SignalMessages = GetSignalMessagesFromHeader(messagingHeader);
             as4Message.UserMessages = GetUserMessagesFromHeader(messagingHeader);
             as4Message.SigningId.HeaderSecurityId = messagingHeader.SecurityId;

@@ -32,14 +32,14 @@
   <Signing>
       <IsEnabled>false</IsEnabled>
       <KeyReferenceMethod>IssuerSerial</KeyReferenceMethod>
-      <PrivateKeyFindValue>as4-net-cs2</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Decryption>
       <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>as4-net-cs2</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
     </Decryption>
   </Security>
@@ -48,7 +48,7 @@
         <FromParty>
           <PartyIds>
             <PartyId>
-              <Id>org:holodeckb2b:example:company:A</Id>
+              <Id>as4-net-cs2</Id>
             </PartyId>
           </PartyIds>
           <Role>Sender</Role>
@@ -56,7 +56,7 @@
         <ToParty>
           <PartyIds>
             <PartyId>
-              <Id>org:eu:europa:as4:example</Id>
+              <Id>as4-net-cs3</Id>
             </PartyId>
           </PartyIds>
           <Role>Receiver</Role>
@@ -65,7 +65,7 @@
       <CollaborationInfo>
         <Action>ACT_SIMPLE_TWOWAY</Action>
         <Service>
-          <Name>SRV_SIMPLE_TWOWAY</Name>
+          <Value>SRV_SIMPLE_TWOWAY</Value>
         </Service>
     </CollaborationInfo>
   </MessagePackaging>

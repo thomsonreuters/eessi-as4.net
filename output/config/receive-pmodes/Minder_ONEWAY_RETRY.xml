@@ -48,7 +48,7 @@
         <FromParty>
           <PartyIds>
             <PartyId>
-              <Id>org:holodeckb2b:example:company:A</Id>
+              <Id>as4-net-c2</Id>
             </PartyId>
           </PartyIds>
           <Role>Sender</Role>
@@ -56,7 +56,7 @@
         <ToParty>
           <PartyIds>
             <PartyId>
-              <Id>org:eu:europa:as4:example</Id>
+              <Id>as4-net-c3</Id>
             </PartyId>
           </PartyIds>
           <Role>Receiver</Role>
@@ -65,7 +65,7 @@
       <CollaborationInfo>
         <Action>ACT_ONEWAY_RETRY</Action>
         <Service>
-          <Name>SRV_ONEWAY_RETRY</Name>
+          <Value>SRV_ONEWAY_RETRY</Value>
         </Service>
     </CollaborationInfo>
   </MessagePackaging>

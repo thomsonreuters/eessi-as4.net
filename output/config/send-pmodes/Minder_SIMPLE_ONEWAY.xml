@@ -73,7 +73,7 @@
 			<FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>org:eu:europa:as4:example</Id>
+						<Id>as4-net-cs2</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Sender</Role>
@@ -81,7 +81,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-						<Id>org:holodeckb2b:example:company:B</Id>
+						<Id>as4-net-cs3</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Receiver</Role>
