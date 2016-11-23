@@ -5,9 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { LoginComponent } from './login.component';
 import { AuthenticationService, AuthenticationStore } from './authentication.service';
 
-export const routes: Routes = [
-    { path: 'login', component: LoginComponent }
-];
+import { routes } from './authentication.routes'
 
 @NgModule({
     imports: [

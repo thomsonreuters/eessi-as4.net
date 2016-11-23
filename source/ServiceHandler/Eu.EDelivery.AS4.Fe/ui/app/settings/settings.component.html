@@ -1,14 +1,3 @@
-<!--<div class="col-md-12">
-                <as4-base-settings [settings]="settings"></as4-base-settings>
-                <as4-custom-settings [settings]="settings.customSettings?.setting"></as4-custom-settings>
-                <as4-database-settings [settings]="settings.database"></as4-database-settings>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.subtmitAgents" [settings]="agent" [title]="'Submit agents'"></as4-agent-settings>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.receiveAgents" [settings]="agent" [title]="'Receive agents'"></as4-agent-settings>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.sendAgents" [settings]="agent" [title]="'Send agents'"></as4-agent-settings>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.deliverAgents" [settings]="agent" [title]="'Deliver agents'"></as4-agent-settings>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.notifyAgents" [settings]="agent" [title]="'Notify agents'"></as4-agent-settings>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.receptionAwarenessAgents" [settings]="agent" [title]="'Reception awareness agents'"></as4-agent-settings>
-            </div>-->
 <div class="row">
     <div class="col-xs-12">
         <as4-box [title]="'Basic settings'" [collapsed]="false">
@@ -32,48 +21,6 @@
                 <as4-database-settings [settings]="settings.database" #databaseSettings></as4-database-settings>
             </div>
             <button action type="button" class="btn btn-box-tool" (click)="databaseSettings.save()"><i class="fa fa-save"></i></button>
-        </as4-box>
-    </div>
-    <div class="col-xs-12">
-        <as4-box [title]="'Submit agent settings'">
-            <div class="col-md-12" content>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.subtmitAgents" [settings]="agent" [title]="'Submit agents'"></as4-agent-settings>
-            </div>
-        </as4-box>
-    </div>
-    <div class="col-xs-12">
-        <as4-box [title]="'Receive agent settings'">
-            <div class="col-md-12" content>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.receiveAgents" [settings]="agent" [title]="'Receive agents'"></as4-agent-settings>
-            </div>
-        </as4-box>
-    </div>
-    <div class="col-xs-12">
-        <as4-box [title]="'Send agent settings'">
-            <div class="col-md-12" content>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.sendAgents" [settings]="agent" [title]="'Send agents'"></as4-agent-settings>
-            </div>
-        </as4-box>
-    </div>
-    <div class="col-xs-12">
-        <as4-box [title]="'Deliver agent settings'">
-            <div class="col-md-12" content>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.deliverAgents" [settings]="agent" [title]="'Deliver agents'"></as4-agent-settings>
-            </div>
-        </as4-box>
-    </div>
-    <div class="col-xs-12">
-        <as4-box [title]="'Notify agent settings'">
-            <div class="col-md-12" content>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.notifyAgents" [settings]="agent" [title]="'Notify agents'"></as4-agent-settings>
-            </div>
-        </as4-box>
-    </div>
-    <div class="col-xs-12">
-        <as4-box [title]="'Reception awareness agent settings'">
-            <div class="col-md-12" content>
-                <as4-agent-settings *ngFor="let agent of settings.agents?.receptionAwarenessAgents" [settings]="agent" [title]="'Reception awareness agents'"></as4-agent-settings>
-            </div>
         </as4-box>
     </div>
 </div>

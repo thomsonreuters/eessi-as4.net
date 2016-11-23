@@ -25,11 +25,15 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             var serviceProvider = services.BuildServiceProvider();
             var scanner = serviceProvider.GetService<Scanner>();
 
-            var moduleAssemblies = Directory
-                .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, folderToScan), "*.dll")
-                .Select(asm => AssemblyLoadContext.Default.LoadFromAssemblyPath(asm))
-                .SelectMany(asm => asm.DefinedTypes)
-                .ToList();
+            List<TypeInfo> moduleAssemblies = Enumerable.Empty<TypeInfo>().ToList();
+            if (Directory.Exists(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, folderToScan)))
+            {
+                moduleAssemblies = Directory
+                    .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, folderToScan), "*.dll")
+                    .Select(asm => AssemblyLoadContext.Default.LoadFromAssemblyPath(asm))
+                    .SelectMany(asm => asm.DefinedTypes)
+                    .ToList();
+            }
 
             var baseTypes = Assembly.GetEntryAssembly().DefinedTypes.ToList();
 

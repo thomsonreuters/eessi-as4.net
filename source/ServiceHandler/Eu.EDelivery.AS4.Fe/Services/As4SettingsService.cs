@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using AutoMapper;
 using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Models;
+using System.Linq;
 
 namespace Eu.EDelivery.AS4.Fe.Services
 {
@@ -40,6 +41,22 @@ namespace Eu.EDelivery.AS4.Fe.Services
         {
             var file = await GetSettings();
             mapper.Map(settings, file.Database);
+            await SaveToXml(file);
+        }
+
+        public async Task UpdateOrCreateSubmitAgent(SettingsAgent settingsAgent)
+        {
+            var file = await GetSettings();
+            
+            var existing = file.Agents.SubtmitAgents.FirstOrDefault(agent => agent.Name == settingsAgent.Name);
+            if (existing == null)
+            {
+                var list = file.Agents.SubtmitAgents.ToList();
+                list.Add(settingsAgent);
+                file.Agents.SubtmitAgents = list.ToArray();
+            }
+            else mapper.Map(settingsAgent, existing);
+
             await SaveToXml(file);
         }
 

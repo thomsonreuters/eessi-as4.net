@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AutoMapper;
 using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
@@ -14,14 +13,12 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
     [Authorize]
     public class ConfigurationController : Controller
     {
-        private readonly IMapper mapper;
         private readonly IAs4SettingsService settingsService;
 
-        public ConfigurationController(IAs4SettingsService settingsService, IMapper mapper, ILogging logging)
+        public ConfigurationController(IAs4SettingsService settingsService, ILogging logging)
         {
             
             this.settingsService = settingsService;
-            this.mapper = mapper;
         }
 
         [HttpGet]
@@ -51,6 +48,14 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         public async Task<OkResult> SaveDatabaseSettings([FromBody] SettingsDatabase settings)
         {
             await settingsService.SaveDatabaseSettings(settings);
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("submitagents")]
+        public async Task<OkResult> UpdateOrCreateSubmitAgent([FromBody] SettingsAgent settingsAgent)
+        {
+            await settingsService.UpdateOrCreateSubmitAgent(settingsAgent);
             return Ok();
         }
 

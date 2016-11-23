@@ -120,15 +120,8 @@ module.exports = function(options) {
                     loader: 'json-loader'
                 },
 
-                /*
-                 * to string and css loader support for *.css files
-                 * Returns file content as string
-                 *
-                 */
-                {
-                    test: /\.css$/,
-                    loaders: ['to-string-loader', 'css-loader']
-                },
+                { test: /\.css$/, loaders: ['to-string-loader', 'css-loader'] },
+                { test: /\.scss$/, loaders: ['to-string-loader', 'css-loader!sass-loader'] },
 
                 /* Raw loader support for *.html
                  * Returns file content as string

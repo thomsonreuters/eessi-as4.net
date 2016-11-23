@@ -19,8 +19,6 @@ import { AppState, InternalStateType } from './app.service';
 import { NoContentComponent } from './no-content';
 import { HomeComponent } from './home';
 import { SettingsModule } from './settings';
-import { HeaderComponent } from './header.component';
-import { SidebarComponent } from './sidebar.component';
 
 import { As4ComponentsModule } from './common';
 import { AuthenticationModule } from './authentication';
@@ -45,9 +43,7 @@ type StoreType = {
     declarations: [
         AppComponent,
         NoContentComponent,
-        HomeComponent,
-        HeaderComponent,
-        SidebarComponent
+        HomeComponent
     ],
     imports: [ // import Angular's modules
         BrowserModule,

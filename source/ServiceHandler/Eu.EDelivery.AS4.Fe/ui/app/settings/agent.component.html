@@ -1,0 +1,36 @@
+<form [formGroup]="form">
+    <div class="flex-container">
+        <p>{{currentAgent | json}}</p>
+        <as4-box [collapsed]="false" [title]="title" [fullWidth]="true">
+            <button action type="button" class="btn btn-box-tool"><i class="fa fa-save"></i></button>
+            <div content>
+                <select (change)="selectAgent($event.target.value)" class="form-control">
+                    <option>Select an option</option>
+                    <option *ngFor="let agent of settings">{{agent.name}}</option>
+                </select>
+                <button type="button" class="btn" (click)="addAgent()"><i class="fa fa-plus"></i></button>
+                <button type="button" class="btn" (click)="save()" [class.btn-primary]="form.dirty" [class.disabled]="!form.dirty"><i class="fa fa-save"></i></button>
+                <button type="button" class="btn" (click)="reset()" [class.btn-primary]="form.dirty" [class.disabled]="!form.dirty"><i class="fa fa-trash-o"></i></button>
+            </div>
+        </as4-box>
+
+        <as4-box [title]="'Common'" [collapsed]="false">
+            <div content>
+                <p>Name: <input type="text" class="form-control" formControlName="name" /></p>
+                <p>Receiver: <input type="text" class="form-control" formcontrolName="receiver" /></p>
+            </div>
+        </as4-box>
+
+        <!--<as4-box [title]="'Transformer'" [collapsed]="false">
+            <div content>
+                <p>Transformer: <input type="text" class="form-control" name="transformer" [(ngModel)]="currentAgent && currentAgent.transformer && currentAgent.transformer.type" /></p>
+            </div>
+        </as4-box>-->
+
+        <as4-box [title]="'Receiver'" [collapsed]="false">
+            <div content>
+                <as4-receiver [group]="form.controls.receiver"></as4-receiver>
+            </div>
+        </as4-box>
+    </div>
+</form>

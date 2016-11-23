@@ -11,7 +11,7 @@ interface State {
     Settings: Settings;
 }
 
-const store = new BehaviorSubject<any>(state);
+const store = new BehaviorSubject<State>(state);
 
 @Injectable()
 export class SettingsStore {
@@ -41,12 +41,12 @@ export class StoreHelper {
         const currentState = this.store.getState();
         const collection = currentState[prop];
         this.store.setState(Object.assign({}, currentState, {
-        [prop]: collection.map(item => {
-            if (item.id !== state.id) {
-                return item;
-            }
-            return Object.assign({}, item, state)
-        })
+            [prop]: collection.map(item => {
+                if (item.id !== state.id) {
+                    return item;
+                }
+                return Object.assign({}, item, state)
+            })
         }))
     }
     findAndDelete(prop, id) {

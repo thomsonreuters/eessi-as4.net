@@ -2,17 +2,15 @@ import { Http, Headers, RequestOptions } from '@angular/http';
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
-import {
-    JwtHelper
-} from 'angular2-jwt';
+import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
 
 const state = {
-    loggedin: false
+    loggedin: tokenNotExpired()
 }
 interface State {
     loggedin: boolean
 }
-const store = new BehaviorSubject<any>(state);
+const store = new BehaviorSubject<State>(state);
 
 @Injectable()
 export class AuthenticationStore {
@@ -42,7 +40,7 @@ export class AuthenticationService {
             .subscribe(result => {
                 obs.next(true);
                 var state = {
-                    loggedin: false
+                    loggedin: true
                 }
                 localStorage.setItem(TOKENSTORE, result.json().access_token);
                 this.router.navigate(['/settings']);
@@ -51,6 +49,9 @@ export class AuthenticationService {
             }, () => {
                 obs.next(false);
                 localStorage.removeItem(TOKENSTORE);
+                var state = {
+                    loggedin: false
+                }
                 this.authenticationStore.setState(Object.assign({}, state));
             });
         return obs.asObservable();

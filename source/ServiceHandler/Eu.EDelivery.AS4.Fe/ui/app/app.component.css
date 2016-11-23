@@ -1,12 +1,18 @@
 @import '../assets/theme/css/AdminLTE.css';
 @import '../assets/theme/css/skins/skin-blue.css';
 @import '../../node_modules/bootstrap/dist/css/bootstrap.css';
+@import './site.scss';
 html,
 body {
     height: 100%;
-    font-family: Arial, Helvetica, sans-serif
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 span.active {
     background-color: gray;
+}
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
 }

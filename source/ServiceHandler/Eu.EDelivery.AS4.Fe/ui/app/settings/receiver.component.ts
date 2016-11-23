@@ -1,18 +1,29 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, forwardRef } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 
 import { Receiver } from './../api/Receiver';
 
 @Component({
     selector: 'as4-receiver',
     template: `
-        <p>Type: {{settings?.type}}</p>
-        <h3>Receiver</h3>
-        <div *ngFor="let setting of settings?.setting">
-            <p>Value: {{setting?.value}}</p>
-            <p>Key: {{setting?.key}}</p>
-        </div>
+        <div [formGroup]="group">
+            <h3>Receiver</h3>
+            <p>Type: <input type="text" class="form-control" formControlName="type"/></p>
+            <p>Text: <input type="text" class="form-control" formControlName="text" /></p>
+            <h3>Settings</h3>
+            <table class="table table-striped" formArrayName="setting">
+                <tbody>
+                    <tr *ngFor="let set of group.controls.setting.controls; let i = index" [formGroupName]="i">
+                        <td>{{set.value.key}}</td>
+                        <td><input type="text" class="form-control" formControlName="value"/><td>
+                    </tr>
+                </tbody>
+            </table>             
+        </div>    
     `
 })
 export class ReceiverComponent {
-    @Input() settings: Receiver;
+    @Input() group: FormGroup;
+    constructor() {
+    }
 }

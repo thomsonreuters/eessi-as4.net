@@ -1,32 +1,17 @@
+import { AuthenticationStore } from './authentication/authentication.service';
 import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 
 import { AppState } from './app.service';
 
-// <nav>
-//       <span>
-//         <a [routerLink]=" ['./'] ">
-//           Index
-//         </a>
-//       </span>
-//       |
-//       <span>
-//         <a [routerLink]=" ['./home'] ">
-//           Home
-//         </a>
-//       </span>
-//       |
-//       <span>
-//         <a [routerLink]=" ['./detail'] ">
-//           Detail
-//         </a> 
-//       </span>
-//       |
-//       <span>
-//         <a [routerLink]=" ['./about'] ">
-//           About
-//         </a>
-//       </span>
-//     </nav>
+// <div class="wrapper">
+//         <as4-header></as4-header>
+//         <as4-sidebar></as4-sidebar>
+//         <section class="content-wrapper">
+//             <section class="content">
+//                 <router-outlet></router-outlet>
+//             </section>
+//         </section>
+//     </div>
 
 @Component({
     selector: 'as4-app',
@@ -35,25 +20,13 @@ import { AppState } from './app.service';
         './app.component.css'
     ],
     template: `
-  <div class="wrapper">
-    <as4-header></as4-header>
-    <as4-sidebar></as4-sidebar>
-    <section class="content-wrapper">
-        <section class="content">
-            <router-outlet></router-outlet>
-        </section>
-    </section>
-  </div>
+        <router-outlet></router-outlet>
   `
 })
 export class AppComponent implements OnInit {
-    angularclassLogo = 'assets/img/angularclass-avatar.png';
-    name = 'Angular 2 Webpack Starter';
-    url = 'https://twitter.com/AngularClass';
-
-    constructor(
-        public appState: AppState) {
-
+    public isLoggedIn: boolean;
+    constructor(public appState: AppState, private authenticationStore: AuthenticationStore) {
+        this.authenticationStore.changes.subscribe(result => this.isLoggedIn = result.loggedin);
     }
 
     ngOnInit() {

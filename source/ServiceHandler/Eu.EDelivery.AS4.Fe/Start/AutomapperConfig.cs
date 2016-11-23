@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Eu.EDelivery.AS4.Fe.Start
 {
-    public static class AutomapperConfig
+    public static class autoAutomapperConfig
     {
         public static void AddAutoMapper(this IServiceCollection services)
         {
@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.Fe.Start
                 cfg.CreateMap<CustomSettings, AS4Model.Settings>();
                 cfg.CreateMap<CustomSettings, CustomSettings>();
                 cfg.CreateMap<SettingsDatabase, SettingsDatabase>();
+                cfg.CreateMap<SettingsAgent, SettingsAgent>();
             });
 
             services.AddSingleton(config.CreateMapper());

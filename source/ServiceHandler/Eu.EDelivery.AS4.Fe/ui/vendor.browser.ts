@@ -27,6 +27,7 @@ import 'jquery';
 import 'bootstrap/dist/js/bootstrap.js';
 import './assets/theme/js/app.js';
 
+declare var ENV: any;
 if ('production' === ENV) {
     // Production
 

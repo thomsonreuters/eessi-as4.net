@@ -2,7 +2,7 @@ import { SettingsService } from './settings.service';
 import { Component, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AUTH_PROVIDERS } from 'angular2-jwt';
 
 import { As4ComponentsModule } from '../common';
@@ -37,6 +37,7 @@ import { ROUTES } from './settings.routes';
         CommonModule,
         As4ComponentsModule,
         FormsModule,
+        ReactiveFormsModule,
         RouterModule.forChild(ROUTES)
     ],
     exports: [

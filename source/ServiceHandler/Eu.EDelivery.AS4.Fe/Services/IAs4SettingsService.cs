@@ -10,5 +10,6 @@ namespace Eu.EDelivery.AS4.Fe.Services
         Task SaveBaseSettings(BaseSettings settings);
         Task SaveCustomSettings(CustomSettings settings);
         Task SaveDatabaseSettings(SettingsDatabase settings);
+        Task UpdateOrCreateSubmitAgent(SettingsAgent settingsAgent);
     }
 }
