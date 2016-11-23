@@ -97,7 +97,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
             internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
 
-
             // Act
             await this.Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
