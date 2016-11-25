@@ -60,6 +60,11 @@ namespace Eu.EDelivery.AS4.Fe.Services
             await SaveToXml(file);
         }
 
+        public Task GetByInterface<TInterface>()
+        {
+            return Task.FromResult(0);
+        }
+
         private async Task<AS4Model.Settings> GetFromXml()
         {
             return await Task.Factory.StartNew(() =>
@@ -78,7 +83,7 @@ namespace Eu.EDelivery.AS4.Fe.Services
             {
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(AS4Model.Settings));
 
-                using (StringWriter textWriter = new StringWriter())
+                using (var textWriter = new StringWriter())
                 {
                     xmlSerializer.Serialize(textWriter, applicationSettings);
                     File.WriteAllText(@"settings.xml", textWriter.ToString(), Encoding.Unicode);

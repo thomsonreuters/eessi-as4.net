@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -8,13 +9,15 @@ import { WrapperComponent } from './wrapper.component';
 import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
 import { AuthenticationModule } from './../authentication/authentication.module';
+import { InputComponent } from './input.component';
 
 @NgModule({
     declarations: [
         BoxComponent,
         WrapperComponent,
         SidebarComponent,
-        HeaderComponent
+        HeaderComponent,
+        InputComponent
     ],
     providers: [
         MustBeAuthorizedGuard
@@ -23,12 +26,15 @@ import { AuthenticationModule } from './../authentication/authentication.module'
         BoxComponent,
         WrapperComponent,
         SidebarComponent,
-        HeaderComponent
+        HeaderComponent,
+        InputComponent
     ],
     imports: [
         AuthenticationModule,
         RouterModule,
-        CommonModule
+        CommonModule,
+        ReactiveFormsModule,
+        FormsModule
     ]
 })
 export class As4ComponentsModule {

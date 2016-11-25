@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
@@ -57,13 +56,6 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         {
             await settingsService.UpdateOrCreateSubmitAgent(settingsAgent);
             return Ok();
-        }
-
-        [HttpGet]
-        [Route("test")]
-        public void Test()
-        {
-            throw new Exception("test");
         }
     }
 }

@@ -36,7 +36,8 @@
     "Microsoft.Net.Http": "2.2.22",
     "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.0",
     "Microsoft.EntityFrameworkCore.Sqlite": "1.1.0",
-    "AspNet.Security.OAuth.Validation": "1.0.0-alpha3-0188"
+    "AspNet.Security.OAuth.Validation": "1.0.0-alpha3-0188",
+    "Mono.Cecil": "0.10.0-beta1-v2"
   },
   "frameworks": {
     "netcoreapp1.0": {

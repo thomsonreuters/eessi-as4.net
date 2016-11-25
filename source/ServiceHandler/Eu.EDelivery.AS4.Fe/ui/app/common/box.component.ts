@@ -2,34 +2,7 @@ import { Component, OnInit, Input, ElementRef, Renderer } from '@angular/core';
 
 @Component({
     selector: 'as4-box',
-    templateUrl: './box.component.html',
-    styles: [
-        `
-            :host {
-                display: flex;
-                flex-direction: column;
-                width: calc(50vw - 160px);         
-                margin-right: 10px;
-                background-color: white;
-                margin-bottom: 10px;
-                border-radius: 3px;           
-            }     
-
-            @media (max-width: 960px) {
-                :host {
-                    width: 100vh;
-                }
-            }       
-
-            .box-footer {
-                border-top: 0 !important;
-            }
-
-            .box-primary {
-                border-top: 2px solid green;
-            }
-        `
-    ]
+    templateUrl: './box.component.html'
 })
 export class BoxComponent implements OnInit {
     @Input() title: string;

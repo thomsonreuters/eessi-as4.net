@@ -27,5 +27,10 @@ namespace Eu.EDelivery.AS4.Fe.Tests
         {
             throw new NotImplementedException();
         }
+
+        public Task UpdateOrCreateSubmitAgent(SettingsAgent settingsAgent)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

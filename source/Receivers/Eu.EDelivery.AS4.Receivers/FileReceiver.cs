@@ -25,6 +25,8 @@ namespace Eu.EDelivery.AS4.Receivers
         private string FileMask => this._properties.ReadOptionalProperty("FileMask", "*.*");
         private string Username => this._properties.ReadOptionalProperty("Username");
         private string Password => this._properties.ReadOptionalProperty("Password");
+        [Info("File receiver", "string", "")]
+        public string Name { get; set; }
 
         protected override ILogger Logger { get; }
 

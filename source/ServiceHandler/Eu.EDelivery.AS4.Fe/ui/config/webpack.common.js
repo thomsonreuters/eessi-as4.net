@@ -18,6 +18,7 @@ const HtmlElementsPlugin = require('./html-elements-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 /*
  * Webpack Constants
@@ -38,7 +39,7 @@ module.exports = function(options) {
     isProd = options.env === 'production';
     return {
 
-        /*
+        /*  
          * Cache generated modules and chunks to improve performance for multiple incremental builds.
          * This is enabled by default in watch mode.
          * You can pass false to disable it.
@@ -120,8 +121,11 @@ module.exports = function(options) {
                     loader: 'json-loader'
                 },
 
-                { test: /\.css$/, loaders: ['to-string-loader', 'css-loader'] },
-                { test: /\.scss$/, loaders: ['to-string-loader', 'css-loader!sass-loader'] },
+                { test: /\.css$/, loaders: ['to-string-loader', 'css-loader'], include: helpers.root('ui/app/') },
+                { test: /\.scss$/, loaders: ['to-string-loader', 'css-loader', 'sass-loader'], include: helpers.root('ui/app/') },
+
+                { test: /\.scss$/, loaders: ExtractTextPlugin.extract({ fallbackLoader: 'to-string', loader: 'css-loader!sass-loader' }), exclude: helpers.root('ui/app/') },
+                { test: /\.css$/, loaders: ExtractTextPlugin.extract({ fallbackLoader: 'to-string', loader: 'css-loader' }), exclude: helpers.root('ui/app/') },
 
                 /* Raw loader support for *.html
                  * Returns file content as string
@@ -270,6 +274,7 @@ module.exports = function(options) {
                 'window.jQuery': 'jquery',
                 'window.jquery': 'jquery'
             }),
+            new ExtractTextPlugin("[name].css")
         ],
 
         /*

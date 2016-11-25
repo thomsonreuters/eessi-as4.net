@@ -1,6 +1,13 @@
-import { Setting } from "./Setting"
+/* tslint:disable */
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Setting } from './Setting'
 
 export class CustomSettings {
+	setting: Setting[];
 
-		setting: Setting[];
+	static getForm(formBuilder: FormBuilder, current: CustomSettings): FormGroup {
+		return formBuilder.group({
+				setting: formBuilder.array((current && current.setting) === null ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))),
+		});
+	}
 }

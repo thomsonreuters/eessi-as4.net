@@ -16,9 +16,7 @@ import { AppState } from './app.service';
 @Component({
     selector: 'as4-app',
     encapsulation: ViewEncapsulation.None,
-    styleUrls: [
-        './app.component.css'
-    ],
+    styles: [require('./app.component.scss').toString()],
     template: `
         <router-outlet></router-outlet>
   `

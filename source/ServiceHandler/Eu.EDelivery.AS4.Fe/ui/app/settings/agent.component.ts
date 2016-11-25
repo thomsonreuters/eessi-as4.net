@@ -1,12 +1,20 @@
-import { ReceiverComponent } from './receiver.component';
 import { ActivatedRoute } from '@angular/router';
 import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
+import { RuntimeStore } from './runtime.store';
+import { RuntimeService, ItemType } from './runtime.service';
+import { Setting } from './../api/Setting';
+import { Decorator } from './../api/Decorator';
+import { Steps } from './../api/Steps';
+import { Step } from './../api/Step';
+import { Transformer } from './../api/Transformer';
+import { Receiver } from './../api/Receiver';
+import { ReceiverComponent } from './receiver.component';
 import { SettingsAgent } from '../api/SettingsAgent';
-import { SettingsStore } from './settings.store';
 import { SettingsService } from './settings.service';
+import { SettingsStore } from './settings.store';
 
 @Component({
     selector: 'as4-agent-settings',
@@ -16,6 +24,7 @@ export class AgentSettingsComponent implements OnDestroy {
     public settings: SettingsAgent[];
     public collapsed: boolean = true;
     public currentAgent: SettingsAgent;
+    public transformers: ItemType[];
 
     public isDirty: boolean = false;
     public form: FormGroup;
@@ -25,35 +34,18 @@ export class AgentSettingsComponent implements OnDestroy {
     private storeSubscr: Subscription;
     private _originalAgent: SettingsAgent | undefined;
 
-    private initSettings() {
-        // return this.currentAgent.receiver.setting.map(set => this.formBuilder.group({
-        //     key: [''],
-        //     value: ['']
-        // }));
-
-        return this.formBuilder.group({
-            key: [''],
-            value: ['']
-        })
-    }
-
-    constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder) {
-        this.form = this.formBuilder.group({
-            name: [''],
-            receiver: this.formBuilder.group({
-                type: [''],
-                text: this.formBuilder.control(null),
-                setting: this.formBuilder.array([
-
-                ])
-            }),
-            transformer: [''],
-            steps: [''],
-            decorator: ['']
-        });
+    constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder,
+        private runtimeStore: RuntimeStore, private runtimeService: RuntimeService) {
+        this.runtimeStore.changes
+            .filter(x => x != null)
+            .subscribe(result => {
+                this.transformers = result.transformers;
+            });
+        this.runtimeService.getTransformers();
+        this.form = SettingsAgent.getForm(this.formBuilder, null)
 
         if (!!this.activatedRoute.snapshot.data['type']) {
-            this.title = this.activatedRoute.snapshot.data['title'];
+            this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
             this.collapsed = false;
         }
         this.storeSubscr = this.settingsStore.changes.subscribe(result => {
@@ -61,7 +53,6 @@ export class AgentSettingsComponent implements OnDestroy {
             if (!!this.activatedRoute.snapshot.data['type']) {
                 agent = this.activatedRoute.snapshot.data['type'];
             }
-            console.log(agent);
             this.settings = result && result.Settings && result.Settings.agents && result.Settings.agents[agent];
         });
     }
@@ -73,34 +64,22 @@ export class AgentSettingsComponent implements OnDestroy {
 
     public selectAgent(selectedAgent: string) {
         this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
-        this.currentAgent.receiver.setting.forEach(recv => (<FormArray>(<FormGroup>this.form.controls['receiver']).controls['setting']).push(this.formBuilder.group({
-            key: [''],
-            value: ['']
-        })));
-
-        this.form.setValue(this.currentAgent);
-        console.log(this.currentAgent);
-        this.setPristine();
+        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
     }
 
     public save() {
-        // this.settingsService
-        //     .updateOrCreateSubmitAgent(this.currentAgent)
-        //     .subscribe(() => this.form.control.markAsPristine());
+        this.settingsService
+            .updateOrCreateSubmitAgent(this.form.value)
+            .subscribe(result => {
+                if (result) {
+                    alert('Saved');
+                    this.form.markAsPristine();
+                }
+            });
     }
 
     public reset() {
-        this.form.reset(this.currentAgent);
-        // if (!!this._originalAgent) {
-        //     var agent = this.settings.find(agent => agent.name === this._originalAgent.name);
-        //     this.selectAgent(Object.assign(agent, this._originalAgent));
-        //     this.setPristine();
-        // }
-    }
-    public setPristine() {
-        // setTimeout(() => {
-        //     this.form.control.markAsPristine();
-        // });
+        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
     }
 
     ngOnDestroy() {

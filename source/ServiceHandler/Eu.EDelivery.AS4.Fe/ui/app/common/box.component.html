@@ -1,15 +1,10 @@
-<div>
-    <div class="box-primary" [class.collapsed-box]="collapsed">
-        <div class="box-header with-border">
-            <h3 class="box-title">{{title}}</h3>
-        </div>
-        <form role="form">
-            <div class="box-body">
-                <ng-content select="[content]"></ng-content>
-            </div>
-            <div class="box-footer">
-                <ng-content select="[footer]"></ng-content>
-            </div>
-        </form>
+<div class="box box-primary" [class.collapsed-box]="collapsed">
+    <div class="box-header with-border" *ngIf="!!title">
+        <h3 class="box-title">{{title}}</h3>
     </div>
+    <form role="form">
+        <div class="box-body">
+            <ng-content select="[content]"></ng-content>
+        </div>
+    </form>
 </div>

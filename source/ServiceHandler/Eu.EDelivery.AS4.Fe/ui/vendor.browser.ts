@@ -24,8 +24,13 @@ import 'rxjs/add/operator/mergeMap';
 
 // Theme
 import 'jquery';
+
 import 'bootstrap/dist/js/bootstrap.js';
 import './assets/theme/js/app.js';
+import '../node_modules/bootstrap/dist/css/bootstrap.css';
+import './assets/theme/css/AdminLTE.css';
+import './assets/theme/css/skins/_all-skins.min.css';
+import './assets/css/site.scss';
 
 declare var ENV: any;
 if ('production' === ENV) {
