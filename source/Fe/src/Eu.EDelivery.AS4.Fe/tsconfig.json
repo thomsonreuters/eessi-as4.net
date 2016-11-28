@@ -8,21 +8,22 @@
         "allowSyntheticDefaultImports": true,
         "sourceMap": true,
         "noEmitHelpers": true,
-        "strictNullChecks": false
-            // "lib": [
-            //         "dom",
-            //         "es6"
-            //     ]
-            // "types": [
-            //     "hammerjs",
-            //     "jasmine",
-            //     "node",
-            //     "protractor",
-            //     "selenium-webdriver",
-            //     "source-map",
-            //     "uglify-js",
-            //     "webpack"
-            // ]
+        "strictNullChecks": false,
+        "baseUrl": "./ui",
+        "paths": {},
+        "lib": [
+            "dom",
+            "es6"
+        ],
+        "types": [
+            "hammerjs",
+            "jasmine",
+            "node",
+            "selenium-webdriver",
+            "source-map",
+            "uglify-js",
+            "webpack"
+        ]
     },
     "exclude": [
         "node_modules",

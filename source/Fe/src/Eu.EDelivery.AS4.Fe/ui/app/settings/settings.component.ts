@@ -14,7 +14,9 @@ export class SettingsComponent implements OnDestroy {
 
     private storeSubscr: Subscription;
     constructor(appStore: SettingsStore, private settingsService: SettingsService) {
-        this.storeSubscr = appStore.changes.subscribe(result => this.settings = result.Settings);
+        this.storeSubscr = appStore.changes
+            .filter(result => result != null)
+            .subscribe(result => this.settings = result.Settings);
     }
 
     public ngOnDestroy() {

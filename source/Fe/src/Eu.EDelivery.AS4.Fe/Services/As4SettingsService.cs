@@ -29,11 +29,11 @@ namespace Eu.EDelivery.AS4.Fe.Services
             mapper.Map(settings, file);
             await SaveToXml(file);
         }
-
+            
         public async Task SaveCustomSettings(CustomSettings settings)
         {
             var file = await GetSettings();
-            mapper.Map(settings, file.CustomSettings);
+            file.CustomSettings = settings;
             await SaveToXml(file);
         }
 

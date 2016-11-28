@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Eu.EDelivery.AS4.Fe.Start
 {
-    public static class autoAutomapperConfig
+    public static class AutomapperConfig
     {
         public static void AddAutoMapper(this IServiceCollection services)
         {

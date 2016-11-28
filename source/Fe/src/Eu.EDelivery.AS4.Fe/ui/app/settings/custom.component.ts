@@ -1,23 +1,39 @@
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Component, Input } from '@angular/core';
 
 import { CustomSettings } from './../api/CustomSettings';
 import { SettingsService } from './settings.service';
+import { Setting } from './../api/Setting';
 
 @Component({
     selector: 'as4-custom-settings',
     template: `
-        <div class="form-group" *ngFor="let setting of settings?.setting">
-            <label>{{setting.key}}</label>
-            <input type="text" class="form-control pull-right" [(ngModel)]="setting.value" (keydown.enter)="save()"/>
-        </div>
+        <form [formGroup]="form">
+            <p><button type="button" class="btn btn-flat" (click)="addSetting()"><i class="fa fa-plus"></i></button></p>
+            <table class="table table-condensed" formArrayName="setting">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                <tr *ngFor="let step of form.controls.setting.controls; let i = index" [formGroupName]="i">
+                    <td><input type="text" class="form-control" formControlName="key"/></td>
+                    <td><input type="text" class="form-control" formControlName="value"/></td>
+                </tr>
+            </table>
+        </form>
     `
 })
 export class CommonSettingsComponent {
     @Input() public settings: CustomSettings;
-    constructor(private settingsService: SettingsService) {
-
+    public form: FormGroup;
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder) {
+        this.form = CustomSettings.getForm(this.formBuilder, this.settings);
     }
     public save() {
         this.settingsService.saveCustomSettings(this.settings);
+    }
+    public addSetting() {
+        let settings = <FormArray>this.form.controls['setting'];
+        settings.push(Setting.getForm(this.formBuilder, new Setting()));
     }
 }

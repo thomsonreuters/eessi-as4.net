@@ -8,11 +8,11 @@ import { SettingsService } from './settings.service';
     template: `
         <div class="form-group">
             <label>Id format</label>
-            <input type="text" class="form-control pull-right" id="idFormat" [(ngModel)]="settings.idFormat"/>
+            <input type="text" class="form-control pull-right" id="idFormat" [(ngModel)]="settings && settings.idFormat"/>
         </div>
         <div class="form-group">
             <label>Certificate store name</label>
-            <input type="text" class="form-control pull-right" id="certificateStoreName" (keydown.enter)="save()" [(ngModel)]="settings.certificateStoreName"/>
+            <input type="text" class="form-control pull-right" id="certificateStoreName" (keydown.enter)="save()" [(ngModel)]="settings && settings.certificateStoreName"/>
         </div>
     `
 })
@@ -22,8 +22,7 @@ export class BaseSettingsComponent {
 
     }
     public save() {
-        console.log(this.settings);
-        var setting = new Base();
+        let setting = new Base();
         setting.idFormat = this.settings.idFormat;
         setting.certificateStoreName = this.settings.certificateStoreName;
         this.settingsService.saveBaseSettings(setting);

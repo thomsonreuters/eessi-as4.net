@@ -1,6 +1,9 @@
 <div class="box box-primary" [class.collapsed-box]="collapsed">
     <div class="box-header with-border" *ngIf="!!title">
         <h3 class="box-title">{{title}}</h3>
+        <div class="pull-right">
+            <ng-content select="[action]"></ng-content>
+        </div>
     </div>
     <form role="form">
         <div class="box-body">

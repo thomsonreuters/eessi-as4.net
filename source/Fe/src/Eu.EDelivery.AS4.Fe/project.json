@@ -6,6 +6,9 @@
       "exclude": [ "node_modules", "**/*.ts" ]
     }
   },
+  "commands": {
+    "web": "Microsoft.AspNet.Server.Kestrel --server.urls=http://localhost:3000"
+  },
   "dependencies": {
     "Microsoft.NETCore.App": {
       "version": "1.0.1",
