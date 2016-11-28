@@ -52,10 +52,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Eu.EDelivery.AS4.Fe, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Eu.EDelivery.AS4.Fe\bin\Debug\netcoreapp1.0\win8-x64\Eu.EDelivery.AS4.Fe.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.EntityFrameworkCore.1.0.0\lib\net451\Microsoft.EntityFrameworkCore.dll</HintPath>
       <Private>True</Private>
