@@ -10,7 +10,7 @@
     <div class="col-xs-12">
         <as4-box [title]="'Custom settings'">
             <div class="col-md-12" content>
-                <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings></as4-custom-settings>
+                <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings #test></as4-custom-settings>
             </div>
             <button action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save"></i></button>
         </as4-box>

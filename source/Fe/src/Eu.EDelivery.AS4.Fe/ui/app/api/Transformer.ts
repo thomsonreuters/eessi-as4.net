@@ -8,7 +8,7 @@ export class Transformer {
 
 	static getForm(formBuilder: FormBuilder, current: Transformer): FormGroup {
 		return formBuilder.group({
-			type: [''],
+			type: [current && current.type],
 		});
 	}
 }

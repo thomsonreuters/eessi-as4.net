@@ -19,7 +19,7 @@ export class SettingsAgents {
 			sendAgents: formBuilder.array(!!!(current && current.sendAgents) ? [] : current.sendAgents.map(item => SettingsAgent.getForm(formBuilder, item))),
 			deliverAgents: formBuilder.array(!!!(current && current.deliverAgents) ? [] : current.deliverAgents.map(item => SettingsAgent.getForm(formBuilder, item))),
 			notifyAgents: formBuilder.array(!!!(current && current.notifyAgents) ? [] : current.notifyAgents.map(item => SettingsAgent.getForm(formBuilder, item))),
-			receptionAwarenessAgent: SettingsAgent.getForm(formBuilder, current.receptionAwarenessAgent),
+			receptionAwarenessAgent: SettingsAgent.getForm(formBuilder, current && current.receptionAwarenessAgent),
 		});
 	}
 }

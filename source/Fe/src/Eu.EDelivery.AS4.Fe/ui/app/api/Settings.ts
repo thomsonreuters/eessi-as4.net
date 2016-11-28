@@ -15,11 +15,11 @@ export class Settings {
 
 	static getForm(formBuilder: FormBuilder, current: Settings): FormGroup {
 		return formBuilder.group({
-			idFormat: [''],
-			certificateStoreName: [''],
-			database: SettingsDatabase.getForm(formBuilder, current.database),
-			customSettings: CustomSettings.getForm(formBuilder, current.customSettings),
-			agents: SettingsAgents.getForm(formBuilder, current.agents),
+			idFormat: [current && current.idFormat],
+			certificateStoreName: [current && current.certificateStoreName],
+			database: SettingsDatabase.getForm(formBuilder, current && current.database),
+			customSettings: CustomSettings.getForm(formBuilder, current && current.customSettings),
+			agents: SettingsAgents.getForm(formBuilder, current && current.agents),
 		});
 	}
 }

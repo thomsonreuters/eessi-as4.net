@@ -9,8 +9,8 @@ export class Step {
 
 	static getForm(formBuilder: FormBuilder, current: Step): FormGroup {
 		return formBuilder.group({
-			type: [''],
-			unDecorated: [''],
+			type: [current && current.type],
+			unDecorated: [current && current.unDecorated],
 		});
 	}
 }

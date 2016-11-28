@@ -10,7 +10,7 @@ export class Steps {
 
 	static getForm(formBuilder: FormBuilder, current: Steps): FormGroup {
 		return formBuilder.group({
-			decorator: [''],
+			decorator: [current && current.decorator],
 			step: formBuilder.array(!!!(current && current.step) ? [] : current.step.map(item => Step.getForm(formBuilder, item))),
 		});
 	}

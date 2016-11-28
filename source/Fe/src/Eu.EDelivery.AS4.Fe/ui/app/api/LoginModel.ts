@@ -9,8 +9,8 @@ export class LoginModel {
 
 	static getForm(formBuilder: FormBuilder, current: LoginModel): FormGroup {
 		return formBuilder.group({
-			username: [''],
-			password: [''],
+			username: [current && current.username],
+			password: [current && current.password],
 		});
 	}
 }

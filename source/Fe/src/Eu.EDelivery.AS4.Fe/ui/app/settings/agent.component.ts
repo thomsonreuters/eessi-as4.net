@@ -42,7 +42,7 @@ export class AgentSettingsComponent implements OnDestroy {
             .subscribe(result => {
                 this.transformers = result.transformers;
             });
-        this.form = SettingsAgent.getForm(this.formBuilder, null)
+        this.form = SettingsAgent.getForm(this.formBuilder, null);
 
         if (!!this.activatedRoute.snapshot.data['type']) {
             this.title = `${this.activatedRoute.snapshot.data['title']} agent`;

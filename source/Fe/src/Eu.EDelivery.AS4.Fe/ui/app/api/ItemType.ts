@@ -10,7 +10,7 @@ export class ItemType {
 
 	static getForm(formBuilder: FormBuilder, current: ItemType): FormGroup {
 		return formBuilder.group({
-			name: [''],
+			name: [current && current.name],
 			properties: formBuilder.array(!!!(current && current.properties) ? [] : current.properties.map(item => Property.getForm(formBuilder, item))),
 		});
 	}

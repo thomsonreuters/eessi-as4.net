@@ -9,8 +9,8 @@ export class SettingsDatabase {
 
 	static getForm(formBuilder: FormBuilder, current: SettingsDatabase): FormGroup {
 		return formBuilder.group({
-			provider: [''],
-			connectionString: [''],
+			provider: [current && current.provider],
+			connectionString: [current && current.connectionString],
 		});
 	}
 }

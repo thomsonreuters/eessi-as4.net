@@ -16,11 +16,11 @@ export class SettingsAgent {
 
 	static getForm(formBuilder: FormBuilder, current: SettingsAgent): FormGroup {
 		return formBuilder.group({
-			name: [''],
-			receiver: Receiver.getForm(formBuilder, current.receiver),
-			transformer: Transformer.getForm(formBuilder, current.transformer),
-			steps: Steps.getForm(formBuilder, current.steps),
-			decorator: Decorator.getForm(formBuilder, current.decorator),
+			name: [current && current.name],
+			receiver: Receiver.getForm(formBuilder, current && current.receiver),
+			transformer: Transformer.getForm(formBuilder, current && current.transformer),
+			steps: Steps.getForm(formBuilder, current && current.steps),
+			decorator: Decorator.getForm(formBuilder, current && current.decorator),
 		});
 	}
 }

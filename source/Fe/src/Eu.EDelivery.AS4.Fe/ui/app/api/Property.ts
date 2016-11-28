@@ -11,10 +11,10 @@ export class Property {
 
 	static getForm(formBuilder: FormBuilder, current: Property): FormGroup {
 		return formBuilder.group({
-			friendlyName: [''],
-			type: [''],
-			regex: [''],
-			description: [''],
+			friendlyName: [current && current.friendlyName],
+			type: [current && current.type],
+			regex: [current && current.regex],
+			description: [current && current.description],
 		});
 	}
 }

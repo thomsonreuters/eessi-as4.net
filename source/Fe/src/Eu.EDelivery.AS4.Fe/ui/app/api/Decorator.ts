@@ -10,8 +10,8 @@ export class Decorator {
 
 	static getForm(formBuilder: FormBuilder, current: Decorator): FormGroup {
 		return formBuilder.group({
-			type: [''],
-			steps: Steps.getForm(formBuilder, current.steps),
+			type: [current && current.type],
+			steps: Steps.getForm(formBuilder, current && current.steps),
 		});
 	}
 }
