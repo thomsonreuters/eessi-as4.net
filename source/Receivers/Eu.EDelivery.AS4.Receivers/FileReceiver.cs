@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,11 +25,15 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private readonly IMimeTypeRepository _repository;
         private IDictionary<string, string> _properties;
+        [Info("File path")]
+        [Description("Path to the folder to poll for new files")]
         private string FilePath => this._properties.ReadMandatoryProperty("FilePath");
+        [Info("File mask")]
         private string FileMask => this._properties.ReadOptionalProperty("FileMask", "*.*");
+        [Info("Username")]
         private string Username => this._properties.ReadOptionalProperty("Username");
+        [Info("Password")]
         private string Password => this._properties.ReadOptionalProperty("Password");
-
         protected override ILogger Logger { get; }
 
         protected override TimeSpan PollingInterval => FromProperties();
@@ -142,7 +147,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             string fileName = fileInfo.FullName + ".details";
             this.Logger.Info($"Exception Details are stored at: {fileName}");
-            
+
             using (var streamWriter = new StreamWriter(fileName))
                 streamWriter.WriteLine(as4Exception.ToString());
         }

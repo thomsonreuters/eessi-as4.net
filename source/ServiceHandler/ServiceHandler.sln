@@ -93,44 +93,4 @@ Global
 		{F82AAC30-6DDC-442C-849D-5DDD0478893B} = {B7CE89EC-46E6-4131-A156-421DF4A98CD6}
 		{51C92C72-60F5-4DCE-B129-045640CA6D96} = {6C17BD44-465B-4BA3-B10E-B69BA03F921A}
 	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 10
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://codit.visualstudio.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Eu.EDelivery.AS4.ServiceHandler\\Eu.EDelivery.AS4.ServiceHandler.csproj
-		SccProjectName1 = Eu.EDelivery.AS4.ServiceHandler
-		SccLocalPath1 = Eu.EDelivery.AS4.ServiceHandler
-		SccProjectUniqueName2 = Eu.EDelivery.AS4.ServiceHandler.ConsoleHost\\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.csproj
-		SccProjectName2 = Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
-		SccLocalPath2 = Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
-		SccProjectUniqueName3 = Eu.EDelivery.AS4.ServiceHandler.UnitTests\\Eu.EDelivery.AS4.ServiceHandler.UnitTests.csproj
-		SccProjectTopLevelParentUniqueName3 = ServiceHandler.sln
-		SccProjectName3 = Eu.EDelivery.AS4.ServiceHandler.UnitTests
-		SccLocalPath3 = Eu.EDelivery.AS4.ServiceHandler.UnitTests
-		SccProjectUniqueName4 = ..\\AS4\\Eu.EDelivery.AS4\\Eu.EDelivery.AS4.csproj
-		SccProjectTopLevelParentUniqueName4 = ServiceHandler.sln
-		SccProjectName4 = ../AS4/Eu.EDelivery.AS4
-		SccLocalPath4 = ..\\AS4\\Eu.EDelivery.AS4
-		SccProjectUniqueName5 = ..\\AS4\\Eu.EDelivery.AS4.UnitTests\\Eu.EDelivery.AS4.UnitTests.csproj
-		SccProjectTopLevelParentUniqueName5 = ServiceHandler.sln
-		SccProjectName5 = ../AS4/Eu.EDelivery.AS4.UnitTests
-		SccLocalPath5 = ..\\AS4\\Eu.EDelivery.AS4.UnitTests
-		SccProjectUniqueName6 = ..\\Steps\\Eu.EDelivery.AS4.Steps\\Eu.EDelivery.AS4.Steps.csproj
-		SccProjectTopLevelParentUniqueName6 = ServiceHandler.sln
-		SccProjectName6 = ../Steps/Eu.EDelivery.AS4.Steps
-		SccLocalPath6 = ..\\Steps\\Eu.EDelivery.AS4.Steps
-		SccProjectUniqueName7 = ..\\Receivers\\Eu.EDelivery.AS4.Receivers\\Eu.EDelivery.AS4.Receivers.csproj
-		SccProjectTopLevelParentUniqueName7 = ServiceHandler.sln
-		SccProjectName7 = ../Receivers/Eu.EDelivery.AS4.Receivers
-		SccLocalPath7 = ..\\Receivers\\Eu.EDelivery.AS4.Receivers
-		SccProjectUniqueName8 = Eu.EDelivery.AS4.IntegrationTests\\Eu.EDelivery.AS4.IntegrationTests.csproj
-		SccProjectTopLevelParentUniqueName8 = ServiceHandler.sln
-		SccProjectName8 = Eu.EDelivery.AS4.IntegrationTests
-		SccLocalPath8 = Eu.EDelivery.AS4.IntegrationTests
-		SccProjectUniqueName9 = ..\\Transformers\\Eu.EDelivery.AS4.Transformers\\Eu.EDelivery.AS4.Transformers.csproj
-		SccProjectTopLevelParentUniqueName9 = ServiceHandler.sln
-		SccProjectName9 = ../Transformers/Eu.EDelivery.AS4.Transformers
-		SccLocalPath9 = ..\\Transformers\\Eu.EDelivery.AS4.Transformers
-	EndGlobalSection
 EndGlobal

@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Eu.EDelivery.AS4.Fe": "1.0.0-*",
+    "NETStandard.Library": "1.6.1",
+    "xunit": "2.2.0-beta4-build3444",
+    "NSubstitute": "2.0.0-rc",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "xunit.runner.visualstudio": "2.2.0-beta4-build1194"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.1",
+          "type": "default"
+        }
+      },
+      "imports": [
+        "dotnet5.6",
+        "portable-net45+win8",
+        "netstandard1.6"
+      ]
+    }
+  },
+  "tools": {
+    "Microsoft.DotNet.Watcher.Tools": "1.0.0-preview2-final"
+  },
+  "testRunner": "xunit",
+  "runtimes": {
+    "win8-x64": {},
+    "win": {}
+  }
+}
