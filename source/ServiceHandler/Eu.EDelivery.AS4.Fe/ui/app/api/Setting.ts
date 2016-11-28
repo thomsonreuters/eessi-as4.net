@@ -7,8 +7,8 @@ export class Setting {
 
 	static getForm(formBuilder: FormBuilder, current: Setting): FormGroup {
 		return formBuilder.group({
-				key: [current && current.key],
-				value: [current && current.value],
+			key: [current && current.key],
+			value: [current && current.value]
 		});
 	}
 }

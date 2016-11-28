@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 Assert.True(loader.Receivers.Any(type => type.Name == "FileReceiver"));
             }
 
-            [Fact]
+            [Fact(Skip = "This is not the case anymore")]
             public void When_No_InfoAttribute_Present_Property_Info_Should_Be_Used()
             {
                 // Setup
@@ -51,23 +51,35 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 var types = loader.LoadTypesFromAssemblies();
 
                 // Act
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.Tests.ITestReceiver");
+                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.Tests.TestData.ITestReceiver");
 
                 // Assert
                 var first = result.First();
                 Assert.True(first.Name == "TestReceiver");
                 Assert.True(first.Properties.Any(x => x.FriendlyName == "Name"));
             }
+
+            [Fact]
+            public void When_InfoAttribute_Or_DescriptionAttribute_Is_Present_They_Should_Be_Used()
+            {
+                // Setup
+                var loader = new Runtime.RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "bin/debug/netcoreapp1.0/"));
+
+                var types = loader.LoadTypesFromAssemblies();
+
+                // Act
+                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.Tests.TestData.ITestReceiver");
+
+                // Assert
+                var first = result.First();
+                Assert.True(first.Name == "TestReceiver");
+
+                var info = first.Properties.FirstOrDefault(prop => prop.FriendlyName == "FRIENDLYNAME");
+                Assert.NotNull(info);
+                Assert.True(info.Regex == "REGEX");
+                Assert.True(info.Type == "TYPE");
+                Assert.True(info.Description == "DESCRIPTION");
+            }
         }
-    }
-
-    public interface ITestReceiver
-    {
-        string Name { get; set; }
-    }
-
-    public class TestReceiver : ITestReceiver
-    {
-        public string Name { get; set; }
     }
 }

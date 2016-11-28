@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 import { RuntimeStore } from './runtime.store';
-import { RuntimeService, ItemType } from './runtime.service';
+import { ItemType } from './runtime.service';
 import { Setting } from './../api/Setting';
 import { Decorator } from './../api/Decorator';
 import { Steps } from './../api/Steps';
@@ -31,24 +31,24 @@ export class AgentSettingsComponent implements OnDestroy {
     @Input() public title: string;
     @Input() public agent: string;
 
-    private storeSubscr: Subscription;
+    private _settingsStoreSubscription: Subscription;
+    private _runtimeStoreSubscription: Subscription;
     private _originalAgent: SettingsAgent | undefined;
 
     constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder,
-        private runtimeStore: RuntimeStore, private runtimeService: RuntimeService) {
-        this.runtimeStore.changes
+        private runtimeStore: RuntimeStore) {
+        this._runtimeStoreSubscription = this.runtimeStore.changes
             .filter(x => x != null)
             .subscribe(result => {
                 this.transformers = result.transformers;
             });
-        this.runtimeService.getTransformers();
         this.form = SettingsAgent.getForm(this.formBuilder, null)
 
         if (!!this.activatedRoute.snapshot.data['type']) {
             this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
             this.collapsed = false;
         }
-        this.storeSubscr = this.settingsStore.changes.subscribe(result => {
+        this._settingsStoreSubscription = this.settingsStore.changes.subscribe(result => {
             let agent = this.agent;
             if (!!this.activatedRoute.snapshot.data['type']) {
                 agent = this.activatedRoute.snapshot.data['type'];
@@ -83,6 +83,7 @@ export class AgentSettingsComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.storeSubscr.unsubscribe();
+        this._settingsStoreSubscription.unsubscribe();
+        this._runtimeStoreSubscription.unsubscribe();
     }
 }

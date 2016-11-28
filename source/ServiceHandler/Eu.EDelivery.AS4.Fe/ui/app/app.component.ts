@@ -2,16 +2,7 @@ import { AuthenticationStore } from './authentication/authentication.service';
 import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 
 import { AppState } from './app.service';
-
-// <div class="wrapper">
-//         <as4-header></as4-header>
-//         <as4-sidebar></as4-sidebar>
-//         <section class="content-wrapper">
-//             <section class="content">
-//                 <router-outlet></router-outlet>
-//             </section>
-//         </section>
-//     </div>
+import { RuntimeService } from './settings/runtime.service';
 
 @Component({
     selector: 'as4-app',
@@ -23,11 +14,13 @@ import { AppState } from './app.service';
 })
 export class AppComponent implements OnInit {
     public isLoggedIn: boolean;
-    constructor(public appState: AppState, private authenticationStore: AuthenticationStore) {
+    constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService) {
         this.authenticationStore.changes.subscribe(result => this.isLoggedIn = result.loggedin);
     }
 
     ngOnInit() {
-
+        this.runtimeService.getReceivers();
+        this.runtimeService.getSteps();
+        this.runtimeService.getTransformers();
     }
 }

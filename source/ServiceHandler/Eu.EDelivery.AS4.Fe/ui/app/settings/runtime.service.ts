@@ -38,4 +38,5 @@ export class Property {
     friendlyName: string;
     type: string;
     regex: string;
+    description: string;
 }

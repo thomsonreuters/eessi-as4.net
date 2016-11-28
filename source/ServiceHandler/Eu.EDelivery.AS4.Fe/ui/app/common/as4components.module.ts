@@ -10,6 +10,8 @@ import { SidebarComponent } from './sidebar.component';
 import { HeaderComponent } from './header.component';
 import { AuthenticationModule } from './../authentication/authentication.module';
 import { InputComponent } from './input.component';
+import { InfoComponent } from './info.component';
+import { TooltipDirective } from './tooltip.directive';
 
 @NgModule({
     declarations: [
@@ -17,7 +19,9 @@ import { InputComponent } from './input.component';
         WrapperComponent,
         SidebarComponent,
         HeaderComponent,
-        InputComponent
+        InputComponent,
+        InfoComponent,
+        TooltipDirective
     ],
     providers: [
         MustBeAuthorizedGuard
@@ -27,7 +31,9 @@ import { InputComponent } from './input.component';
         WrapperComponent,
         SidebarComponent,
         HeaderComponent,
-        InputComponent
+        InputComponent,
+        InfoComponent,
+        TooltipDirective
     ],
     imports: [
         AuthenticationModule,

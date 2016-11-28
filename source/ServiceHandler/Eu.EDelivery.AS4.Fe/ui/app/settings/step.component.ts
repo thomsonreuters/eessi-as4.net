@@ -1,8 +1,9 @@
 import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/forms';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
+
 import { RuntimeService, ItemType } from './runtime.service';
 import { RuntimeStore } from './runtime.store';
-
 import { Step } from './../api/Step';
 
 @Component({
@@ -11,7 +12,7 @@ import { Step } from './../api/Step';
         <div [formGroup]="group">
             <as4-input [label]="'Decorator'">
                 <select class="form-control" formControlName="decorator" (change)="decoratorChanged($event.target.value)">
-                    <option *ngFor="let step of steps">{{step.name}}</option>
+                    <option *ngFor="let step of decorators" [value]="step.name">{{step.name}}</option>
                 </select>
             </as4-input>
             <p><button type="button" class="btn btn-flat" (click)="addStep()">Add</button></p>
@@ -23,7 +24,11 @@ import { Step } from './../api/Step';
                         <th></th>
                     </tr>
                     <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
-                        <td><input type="text" class="form-control" formControlName="type"/></td>
+                        <td>
+                            <select class="form-control" formControlName="type">
+                                <option *ngFor="let step of steps" [value]="step.name">{{step.name}}</option>
+                            </select>
+                        </td>
                         <td><input type="checkbox" formControlName="unDecorated"></td>
                         <td><button type="button" class="btn btn-flat" (click)="removeStep(i)">Remove</button></td>                        
                     </tr>
@@ -32,17 +37,19 @@ import { Step } from './../api/Step';
         </div>
     `
 })
-export class StepSettingsComponent {
+export class StepSettingsComponent implements OnDestroy {
     @Input() group: FormGroup;
     public steps: ItemType[];
-    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private runtimeService: RuntimeService) {
-        this.runtimeStore
+    public decorators: ItemType[];
+    private _runtimeStoreSubscription: Subscription;
+    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore) {
+        this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => result != null)
             .subscribe(result => {
                 this.steps = result.steps;
+                this.decorators = result.steps.filter(step => step.name.toLowerCase().indexOf('decorator') > 0);
             });
-        this.runtimeService.getSteps();
     }
     public addStep() {
         (<FormArray>this.group.controls['step']).push(Step.getForm(this.formBuilder, null));
@@ -55,5 +62,8 @@ export class StepSettingsComponent {
     public decoratorChanged(value: string) {
         var step = this.runtimeStore.getState().steps.filter(step => step.name == value);
         console.log(step);
+    }
+    public ngOnDestroy() {
+        this._runtimeStoreSubscription.unsubscribe();
     }
 }

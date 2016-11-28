@@ -8,7 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
         <as4-sidebar></as4-sidebar>
         <section class="content-wrapper">
             <section class="content-header">
-                {{breadCrumb}}
+                <h2>{{breadCrumb}}</h2>
             </section>
             <section class="content">
                 <router-outlet></router-outlet>
@@ -33,15 +33,23 @@ export class WrapperComponent implements OnInit {
     private getPath(activatedRoute: ActivatedRoute): string {
         let path = activatedRoute && activatedRoute.data && (<any>activatedRoute.data).value['title'];
         if (!!activatedRoute.firstChild) {
-            path += this.getPath(activatedRoute.children[0]);
+            return this.getPath(activatedRoute.children[0]);
         }
 
-        console.log(activatedRoute.parent);
-        if (!!!(<any>activatedRoute.parent.data).value['title']) {
-            return path;
-        }
-        return ` > ${path}`;
+        return path;
     }
+    // private getPath(activatedRoute: ActivatedRoute): string {
+    //     let path = activatedRoute && activatedRoute.data && (<any>activatedRoute.data).value['title'];
+    //     if (!!activatedRoute.firstChild) {
+    //         path += this.getPath(activatedRoute.children[0]);
+    //     }
+
+    //     console.log(activatedRoute.parent);
+    //     if (!!!(<any>activatedRoute.parent.data).value['title']) {
+    //         return path;
+    //     }
+    //     return ` > ${path}`;
+    // }
     ngOnInit() {
     }
 }
