@@ -16,6 +16,7 @@ import { Setting } from './../api/Setting';
                     <th>Value</th>
                 </tr>
                 <tr *ngFor="let step of form.controls.setting.controls; let i = index" [formGroupName]="i">
+                    <td class="action"><button type="button" class="btn btn-flat" (click)="removeSetting(i)"><i class="fa fa-trash-o"></i></button></td>
                     <td><input type="text" class="form-control" formControlName="key"/></td>
                     <td><input type="text" class="form-control" formControlName="value"/></td>
                 </tr>
@@ -45,5 +46,9 @@ export class CommonSettingsComponent {
     public addSetting() {
         let settings = <FormArray>this.form.controls['setting'];
         settings.push(Setting.getForm(this.formBuilder, new Setting()));
+    }
+    public removeSetting(index: number) {
+        (<FormArray>this.form.controls['setting']).removeAt(index);
+        this.form.markAsDirty();
     }
 }

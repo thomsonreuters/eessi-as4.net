@@ -60,7 +60,7 @@ export class StepSettingsComponent implements OnDestroy {
         this.group.markAsDirty();
     }
     public decoratorChanged(value: string) {
-        var step = this.runtimeStore.getState().steps.filter(step => step.name == value);
+        let step = this.runtimeStore.getState().steps.filter(step => step.name == value);
         console.log(step);
     }
     public ngOnDestroy() {
