@@ -496,6 +496,7 @@ namespace Eu.EDelivery.AS4.Xml
         private string hrefField;
 
         /// <remarks/>
+        [XmlElement("Schema")]
         public Schema[] Schemas
         {
             get
