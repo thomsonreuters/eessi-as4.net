@@ -40,5 +40,17 @@ namespace Eu.EDelivery.AS4.Model.Core
                 string.Equals(this.Value, other.Value, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(this.Type, other.Type, StringComparison.OrdinalIgnoreCase);
         }
+
+        /// <summary>
+        /// Indicates wheter the curent Agreement Ref is empty
+        /// </summary>
+        /// <returns></returns>
+        public bool IsEmpty()
+        {
+            return
+                string.IsNullOrEmpty(this.Value) &&
+                string.IsNullOrEmpty(this.Type) &&
+                string.IsNullOrEmpty(this.PModeId);
+        }
     }
 }
