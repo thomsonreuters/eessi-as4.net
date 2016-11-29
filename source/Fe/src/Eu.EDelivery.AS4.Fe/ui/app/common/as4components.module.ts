@@ -28,7 +28,7 @@ import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
     providers: [
         MustBeAuthorizedGuard,
         DialogService,
-        LOGGING_ERROR_HANDLER_PROVIDER
+        // LOGGING_ERROR_HANDLER_PROVIDER
     ],
     exports: [
         BoxComponent,

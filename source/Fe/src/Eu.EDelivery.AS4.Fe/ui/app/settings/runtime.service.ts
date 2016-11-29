@@ -28,15 +28,3 @@ export class RuntimeService {
         return `api/runtime/${action}`;
     }
 }
-
-export class ItemType {
-    name: string;
-    properties: Property[];
-}
-
-export class Property {
-    friendlyName: string;
-    type: string;
-    regex: string;
-    description: string;
-}

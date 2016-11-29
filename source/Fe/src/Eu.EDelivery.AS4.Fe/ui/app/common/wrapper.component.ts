@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -23,7 +23,7 @@ import { Router, ActivatedRoute } from '@angular/router';
         `
     ]
 })
-export class WrapperComponent implements OnInit {
+export class WrapperComponent {
     public breadCrumb: string;
     constructor(private activatedRoute: ActivatedRoute) {
         activatedRoute.url.subscribe(result => {
@@ -50,6 +50,4 @@ export class WrapperComponent implements OnInit {
     //     }
     //     return ` > ${path}`;
     // }
-    ngOnInit() {
-    }
 }

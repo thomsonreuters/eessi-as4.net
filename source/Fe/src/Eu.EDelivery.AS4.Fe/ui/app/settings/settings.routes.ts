@@ -14,7 +14,7 @@ export const ROUTES: Routes = [
             {
                 path: 'agents', data: { title: 'Agents' }, children: [
                     { path: '', redirectTo: 'submit', pathMatch: 'full' },
-                    { path: 'submit', component: AgentSettingsComponent, data: { title: 'Submit', type: 'subtmitAgents' } },
+                    { path: 'submit', component: AgentSettingsComponent, data: { title: 'Submit', type: 'submitAgents' } },
                     { path: 'receive', component: AgentSettingsComponent, data: { title: 'Receive', type: 'receiveAgents' } },
                     { path: 'send', component: AgentSettingsComponent, data: { title: 'Send', type: 'sendAgents' } },
                     { path: 'deliver', component: AgentSettingsComponent, data: { title: 'Deliver', type: 'deliverAgents' } },
@@ -26,4 +26,4 @@ export const ROUTES: Routes = [
         data: { title: 'Settings' },
         canActivate: [MustBeAuthorizedGuard]
     }
-]
+];

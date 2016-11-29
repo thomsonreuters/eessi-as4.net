@@ -15,7 +15,6 @@ import { CommonSettingsComponent } from './custom.component';
 import { DatabaseSettingsComponent } from './database.component';
 import { AgentSettingsComponent } from './agent.component';
 import { ReceiverComponent } from './receiver.component';
-import { DecoratorComponent } from './decorator.component';
 import { Store } from '../common/store';
 import { SettingsStore } from './settings.store';
 import { RuntimeStore } from './runtime.store';
@@ -30,7 +29,6 @@ import { ROUTES } from './settings.routes';
         DatabaseSettingsComponent,
         AgentSettingsComponent,
         ReceiverComponent,
-        DecoratorComponent,
         StepSettingsComponent
     ],
     providers: [
@@ -56,8 +54,7 @@ import { ROUTES } from './settings.routes';
         CommonSettingsComponent,
         DatabaseSettingsComponent,
         AgentSettingsComponent,
-        ReceiverComponent,
-        DecoratorComponent
+        ReceiverComponent
     ]
 })
 export class SettingsModule {

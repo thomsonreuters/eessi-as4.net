@@ -4,7 +4,6 @@ import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 import { RuntimeStore } from './runtime.store';
-import { ItemType } from './runtime.service';
 import { Setting } from './../api/Setting';
 import { Decorator } from './../api/Decorator';
 import { Steps } from './../api/Steps';
@@ -16,6 +15,8 @@ import { SettingsAgent } from '../api/SettingsAgent';
 import { SettingsService } from './settings.service';
 import { SettingsStore } from './settings.store';
 import { DialogService } from './../common/dialog.service';
+import { ItemType } from './../api/ItemType';
+import { Property } from './../api/Property';
 
 @Component({
     selector: 'as4-agent-settings',
@@ -84,6 +85,9 @@ export class AgentSettingsComponent implements OnDestroy {
             this.currentAgent.name = name;
             this.form.markAsDirty();
         }
+    }
+    public delete() {
+
     }
 
     ngOnDestroy() {

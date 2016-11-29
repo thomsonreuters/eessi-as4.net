@@ -1,9 +1,11 @@
 /* tslint:disable */
 import { FormBuilder, FormGroup } from '@angular/forms';
 
-import { SettingsDatabase } from "./SettingsDatabase"
-import { CustomSettings } from "./CustomSettings"
-import { SettingsAgents } from "./SettingsAgents"
+import { SettingsDatabase } from "./SettingsDatabase";
+import { CustomSettings } from "./CustomSettings";
+import { SettingsAgents } from "./SettingsAgents";
+import { Repository } from './Repository';
+import { CertificateStore } from './CertificateStore';
 
 export class Settings {
 	idFormat: string;
@@ -11,6 +13,7 @@ export class Settings {
 	database: SettingsDatabase;
 	customSettings: CustomSettings;
 	agents: SettingsAgents;
+	certificateStore: CertificateStore;
 
 	static FIELD_idFormat: string = 'idFormat';
 	static FIELD_certificateStoreName: string = 'certificateStoreName';

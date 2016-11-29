@@ -6,5 +6,6 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
     {
         public string Name { get; set; }
         public IEnumerable<Property> Properties { get; set; }
+        public string TechnicalName { get; internal set; }
     }
 }

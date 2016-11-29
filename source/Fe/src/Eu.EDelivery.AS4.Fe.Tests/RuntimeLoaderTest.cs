@@ -73,6 +73,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 // Assert
                 var first = result.First();
                 Assert.True(first.Name == "TestReceiver");
+                Assert.True(first.TechnicalName == "Eu.EDelivery.AS4.Fe.Tests.TestData.TestReceiver, Eu.EDelivery.AS4.Fe.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null");
 
                 var info = first.Properties.FirstOrDefault(prop => prop.FriendlyName == "FRIENDLYNAME");
                 Assert.NotNull(info);

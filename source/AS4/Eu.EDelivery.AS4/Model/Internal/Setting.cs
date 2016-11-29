@@ -72,7 +72,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("Receiver")] public Receiver Receiver { get; set; }
         [XmlElement("Transformer")] public Transformer Transformer { get; set; }
         [XmlElement("Steps")] public Steps Steps { get; set; }
-        [XmlElement("Decorator")] public Decorator Decorator { get; set; }
         [XmlAttribute(AttributeName = "name")] public string Name { get; set; }
     }
 
@@ -93,15 +92,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
         [XmlAttribute(AttributeName = "undecorated")] public bool UnDecorated { get; set; }
         [XmlElement("Setting")] public Setting[] Setting { get; set; }
-    }
-
-    [Serializable]
-    [DesignerCategory("code")]
-    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
-    public class Decorator
-    {
-        [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
-        [XmlElement("Steps")] public Steps Steps { get; set; }
     }
 
     [Serializable]

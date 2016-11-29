@@ -30,7 +30,7 @@ export class Store<T> {
                 if (item.id !== state.id) {
                     return item;
                 }
-                return Object.assign({}, item, state)
+                return Object.assign({}, item, state);
             })
         }));
     }

@@ -5,19 +5,16 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { Receiver } from './../api/Receiver';
 import { Setting } from './../api/Setting';
-import { ItemType } from './runtime.service';
+import { ItemType } from './../api/ItemType';
 
 @Component({
     selector: 'as4-receiver',
     template: `
-        <div [formGroup]="group">
+        <div [formGroup]="group">    
             <as4-input [label]="'Type'">
                 <select class="form-control" formControlName="type" (change)="receiverChanged($event.target.value)">
-                    <option *ngFor="let type of types">{{type.name}}</option>
+                    <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
                 </select>
-            </as4-input>
-            <as4-input [label]="'Text'">
-                <input type="text" class="form-control" formControlName="text" />
             </as4-input>
             <div *ngIf="group.controls.setting.controls.length > 0">
                 <h4>Settings</h4>
@@ -42,13 +39,10 @@ export class ReceiverComponent implements OnDestroy {
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => result != null)
-            .subscribe(result => {
-                console.log('RECEIVERS DATA');
-                this.types = result.receivers;
-            });
+            .subscribe(result => this.types = result.receivers);
     }
     public receiverChanged(value: string) {
-        this.currentReceiver = this.types.find(receiver => receiver.name === value);
+        this.currentReceiver = this.types.find(receiver => receiver.technicalName === value);
         this.group.removeControl('setting');
 
         if (!!!this.currentReceiver || !!!this.currentReceiver.properties) return;

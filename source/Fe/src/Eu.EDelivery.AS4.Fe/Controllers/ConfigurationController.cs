@@ -57,5 +57,12 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
             await settingsService.UpdateOrCreateSubmitAgent(settingsAgent);
             return Ok();
         }
+
+        [HttpDelete]
+        [Route("submitagents")]
+        public async Task<OkResult> DeleteSubmitAgent([FromBody] SettingsAgent settingsAgent)
+        {
+            return Ok();
+        }
     }
 }

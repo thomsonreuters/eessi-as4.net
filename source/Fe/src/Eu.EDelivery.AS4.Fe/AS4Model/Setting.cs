@@ -8,14 +8,25 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
     {
         public string IdFormat { get; set; }
         public SettingsDatabase Database { get; set; }
-        [XmlElement(ElementName = "CertificateStore")]
-        public string CertificateStoreName { get; set; }
+        public CertificateStore CertificateStore { get; set; }
         public CustomSettings CustomSettings { get; set; }
         public SettingsAgents Agents { get; set; }
     }
 
-    
-    
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class CertificateStore
+    {
+        public string StoreName { get; set; }
+        public Repository Repository { get; set; }
+    }
+
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class Repository
+    {
+        [XmlAttribute(AttributeName = "type")]
+        public string Type { get; set; }
+    }
+
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class CustomSettings
     {
@@ -23,13 +34,11 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public Setting[] Setting { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsAgents
     {
         [XmlElement("SubmitAgent", IsNullable = false)]
-        public SettingsAgent[] SubtmitAgents { get; set; }
+        public SettingsAgent[] SubmitAgents { get; set; }
         [XmlElement("ReceiveAgent", IsNullable = false)]
         public SettingsAgent[] ReceiveAgents { get; set; }
         [XmlElement("SendAgent", IsNullable = false)]
@@ -42,8 +51,6 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public SettingsAgent ReceptionAwarenessAgent { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsDatabase
     {
@@ -51,8 +58,6 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public string ConnectionString { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsAgent
     {
@@ -62,15 +67,10 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public Transformer Transformer { get; set; }
         [XmlElement("Steps")]
         public Steps Steps { get; set; }
-        // TODO: define decorator strategy for the .xml document
-        [XmlElement("Decorator")]
-        public Decorator Decorator { get; set; }
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Steps
     {
@@ -80,8 +80,6 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public Step[] Step { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Step
     {
@@ -89,21 +87,10 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public string Type { get; set; }
         [XmlAttribute(AttributeName = "undecorated")]
         public bool UnDecorated { get; set; }
+        [XmlElement("Setting")]
+        public Setting[] Setting { get; set; }
     }
 
-    
-    
-    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
-    public class Decorator
-    {
-        [XmlAttribute(AttributeName = "type")]
-        public string Type { get; set; }
-        [XmlElement("Steps")]
-        public Steps Steps { get; set; }
-    }
-
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class ReceiveAgent
     {
@@ -113,21 +100,15 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public Transformer Transformer { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Receiver
     {
         [XmlElement("Setting")]
         public Setting[] Setting { get; set; }
-        [XmlText]
-        public string[] Text { get; set; }
         [XmlAttribute(AttributeName = "type")]
         public string Type { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Setting
     {
@@ -137,8 +118,6 @@ namespace Eu.EDelivery.AS4.Fe.AS4Model
         public string Value { get; set; }
     }
 
-    
-    
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Transformer
     {

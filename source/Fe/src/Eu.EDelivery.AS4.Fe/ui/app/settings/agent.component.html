@@ -12,14 +12,15 @@
                         <button type="button" class="btn btn-flat" (click)="rename()" [class.disabled]="!!!currentAgent"><i class="fa fa-edit"></i></button>
                         <button type="button" class="btn btn-flat" (click)="addAgent()"><i class="fa fa-plus"></i></button>
                         <button type="button" class="btn btn-flat" (click)="save()" [class.btn-primary]="form.dirty" [class.disabled]="!form.dirty"><i class="fa fa-save"></i></button>
+                        <button type="button" class="btn btn-flat" (click)="delete()" [class.disabled]="!!!currentAgent"><i class="fa fa-trash-o"></i></button>
                         <button type="button" class="btn btn-flat" (click)="reset()" [class.btn-primary]="form.dirty" [class.disabled]="!form.dirty"><i class="fa fa-undo"></i></button>
                     </div>
                 </div>
             </as4-input>
             <div formGroupName="transformer">
                 <as4-input [label]="'Transformer'">
-                    <select (change)="transformerChanged($event.target.value)" class="form-control">
-                        <option *ngFor="let transformer of transformers">{{transformer.name}}</option>
+                    <select class="form-control" formControlName="type">
+                        <option *ngFor="let transformer of transformers" [value]="transformer.technicalName">{{transformer.name}}</option>
                     </select>
                 </as4-input>
             </div>

@@ -19,12 +19,12 @@ export class LoginComponent implements OnInit {
         activatedRoute
             .queryParams
             .subscribe(result => {
-                var callback = result['callback'];
+                let callback = result['callback'];
                 if (!!callback) {
                     this.http
                         .get('api/authentication/externallogin?provider=Facebook&callback=true')
-                        .subscribe(result => {
-                            console.log(`Callback result token ${result.json().access_token}`);
+                        .subscribe(authenticationResult => {
+                            console.log(`Callback result token ${authenticationResult.json().access_token}`);
                         });
                 }
             });

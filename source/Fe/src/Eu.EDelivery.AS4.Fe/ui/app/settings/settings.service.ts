@@ -57,20 +57,12 @@ export class SettingsService {
                 subj.complete();
             }, () => {
                 subj.next(false);
-                subj.complete()
+                subj.complete();
             });
         return subj.asObservable();
     }
     public updateOrCreateSubmitAgent(settings: SettingsAgent): Observable<boolean> {
         let subject = new Subject<boolean>();
-        if (!Array.isArray(settings.receiver.text)) {
-            let fixup = new Array<string>();
-            if (!!settings.receiver.text) {
-                fixup.push(settings.receiver.text);
-            }
-            <any>settings.receiver.text = fixup;
-        }
-
         this.http
             .post(this.getUrl('submitagents'), settings)
             .subscribe(() => {

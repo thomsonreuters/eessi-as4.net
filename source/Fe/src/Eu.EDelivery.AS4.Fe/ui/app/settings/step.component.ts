@@ -2,7 +2,8 @@ import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/for
 import { Component, Input, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
-import { RuntimeService, ItemType } from './runtime.service';
+import { RuntimeService } from './runtime.service';
+import { ItemType } from './../api/ItemType';
 import { RuntimeStore } from './runtime.store';
 import { Step } from './../api/Step';
 
@@ -12,7 +13,7 @@ import { Step } from './../api/Step';
         <div [formGroup]="group">
             <as4-input [label]="'Decorator'">
                 <select class="form-control" formControlName="decorator" (change)="decoratorChanged($event.target.value)">
-                    <option *ngFor="let step of decorators" [value]="step.name">{{step.name}}</option>
+                    <option *ngFor="let step of decorators" [value]="step.technicalName">{{step.name}}</option>
                 </select>
             </as4-input>
             <div *ngIf="group.controls.step.controls.length > 0">
@@ -28,7 +29,7 @@ import { Step } from './../api/Step';
                             <td class="action"><button type="button" class="btn btn-flat" (click)="removeSetting(i)"><i class="fa fa-trash-o"></i></button></td>
                             <td>
                                 <select class="form-control" formControlName="type">
-                                    <option *ngFor="let step of steps" [value]="step.name">{{step.name}}</option>
+                                    <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                                 </select>
                             </td>
                             <td><input type="checkbox" formControlName="unDecorated"></td>
@@ -62,8 +63,7 @@ export class StepSettingsComponent implements OnDestroy {
         this.group.markAsDirty();
     }
     public decoratorChanged(value: string) {
-        let step = this.runtimeStore.getState().steps.filter(step => step.name === value);
-        console.log(step);
+        // let step = this.runtimeStore.getState().steps.filter(step => step.technicalName === value);
     }
     public ngOnDestroy() {
         this._runtimeStoreSubscription.unsubscribe();

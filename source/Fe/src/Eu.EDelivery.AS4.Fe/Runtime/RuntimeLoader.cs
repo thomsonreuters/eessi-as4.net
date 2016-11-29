@@ -52,6 +52,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             return new ItemType()
             {
                 Name = itemType.Name,
+                TechnicalName = $"{itemType.FullName}, {itemType.Module.Assembly.FullName}",
                 Properties = properties
             };
         }
