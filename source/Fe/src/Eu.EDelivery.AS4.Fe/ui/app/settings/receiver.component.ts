@@ -19,15 +19,17 @@ import { ItemType } from './runtime.service';
             <as4-input [label]="'Text'">
                 <input type="text" class="form-control" formControlName="text" />
             </as4-input>
-            <h4>Settings</h4>
-            <table class="table table-condensed" formArrayName="setting">
-                <tbody>
-                    <tr *ngFor="let set of group.controls.setting.controls; let i = index" [formGroupName]="i">
-                        <td>{{set.value.key}}&nbsp;<as4-info [tooltip]="currentReceiver && currentReceiver.properties[i] && currentReceiver.properties[i].description"></as4-info></td>
-                        <td><input type="text" class="form-control" formControlName="value"/><td>
-                    </tr>
-                </tbody>
-            </table>             
+            <div *ngIf="group.controls.setting.controls.length > 0">
+                <h4>Settings</h4>
+                <table class="table table-condensed" formArrayName="setting">
+                    <tbody>
+                        <tr *ngFor="let set of group.controls.setting.controls; let i = index" [formGroupName]="i">
+                            <td>{{set.value.key}}&nbsp;<as4-info [tooltip]="currentReceiver && currentReceiver.properties[i] && currentReceiver.properties[i].description"></as4-info></td>
+                            <td><input type="text" class="form-control" formControlName="value"/><td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>             
         </div>    
     `
 })

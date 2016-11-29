@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
@@ -9,6 +8,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 {
     public class RuntimeLoader : IRuntimeLoader
     {
+        private const string INFOATTRIBUTE = "InfoAttribute";
+        private const string DESCRIPTIONATTRIBUTE = "DescriptionAttribute";
         private readonly string folder;
         public IEnumerable<ItemType> Receivers { get; private set; }
         public IEnumerable<ItemType> Steps { get; private set; }
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             return Directory
                 .GetFiles(folder)
                 .Where(file => Path.GetExtension(file) == ".dll")
-                .SelectMany(file => AssemblyDefinition.ReadAssembly(file).MainModule.Types )
+                .SelectMany(file => AssemblyDefinition.ReadAssembly(file).MainModule.Types)
                 .ToList();
         }
 
@@ -61,17 +62,17 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 //.Where(prop => prop.GetMethod.IsPublic)
                 .Select(prop =>
                 {
-                    var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == "InfoAttribute");
-                    var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == "DescriptionAttribute");
+                    var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == INFOATTRIBUTE);
+                    var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DESCRIPTIONATTRIBUTE);
                     if (customAttr == null)
                     {
                         return null;
                         // No CustomAttribute found, use defaults which mean using the property info
-                        return new Property()
-                        {
-                            FriendlyName = prop.Name,
-                            Type = prop.PropertyType.Name
-                        };
+                        //return new Property()
+                        //{
+                        //    FriendlyName = prop.Name,
+                        //    Type = prop.PropertyType.Name
+                        //};
                     }
                     else
                     {
@@ -84,11 +85,11 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                             Regex = count > 2 ? arguments[1].Value as string : "",
                             Type = count > 1 ? arguments[2].Value as string : "",
                             Description = descriptionArgs?.Count > 0 ? descriptionArgs[0].Value as string : ""
-                    };
-                }
+                        };
+                    }
                 });
 
             return runtimeProperties.Where(x => x != null);
         }
-}
+    }
 }

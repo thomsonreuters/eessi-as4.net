@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Fe.Services
         public async Task SaveDatabaseSettings(SettingsDatabase settings)
         {
             var file = await GetSettings();
-            mapper.Map(settings, file.Database);
+            mapper.Map(settings, file.Database);    
             await SaveToXml(file);
         }
 

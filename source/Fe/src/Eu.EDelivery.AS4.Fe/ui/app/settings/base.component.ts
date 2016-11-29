@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 import { Base } from './../api/Base';
 import { SettingsService } from './settings.service';
@@ -6,25 +7,35 @@ import { SettingsService } from './settings.service';
 @Component({
     selector: 'as4-base-settings',
     template: `
-        <div class="form-group">
-            <label>Id format</label>
-            <input type="text" class="form-control pull-right" id="idFormat" [(ngModel)]="settings && settings.idFormat"/>
-        </div>
-        <div class="form-group">
-            <label>Certificate store name</label>
-            <input type="text" class="form-control pull-right" id="certificateStoreName" (keydown.enter)="save()" [(ngModel)]="settings && settings.certificateStoreName"/>
-        </div>
+        <form [formGroup]="form" class="form-horizontal">
+            <as4-input [label]="'Id format'">
+                <input type="text" class="form-control pull-right" id="idFormat" formControlName="idFormat"/>
+            </as4-input>
+            <as4-input [label]="'Certificate store name'">
+                <input type="text" class="form-control pull-right" id="certificateStoreName" (keydown.enter)="save()" formControlName="certificateStoreName"/>
+            </as4-input>
+        </form>
     `
 })
 export class BaseSettingsComponent {
-    @Input() settings: Base;
-    constructor(private settingsService: SettingsService) {
+    private _settings: Base;
+    private form: FormGroup;
+    @Input() public get settings(): Base {
+        return this._settings;
+    }
+    public set settings(baseSetting: Base) {
+        this.form = Base.getForm(this.formBuilder, baseSetting);
+        this._settings = baseSetting;
+    }
+    @Output() public get isDirty(): boolean {
+        return this.form.dirty;
+    }
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder) {
 
     }
     public save() {
-        let setting = new Base();
-        setting.idFormat = this.settings.idFormat;
-        setting.certificateStoreName = this.settings.certificateStoreName;
-        this.settingsService.saveBaseSettings(setting);
+        this.settingsService
+            .saveBaseSettings(this.form.value)
+            .subscribe(result => this.form.markAsPristine());
     }
 }

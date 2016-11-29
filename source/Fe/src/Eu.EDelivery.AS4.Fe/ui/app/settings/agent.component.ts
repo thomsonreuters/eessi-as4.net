@@ -15,6 +15,7 @@ import { ReceiverComponent } from './receiver.component';
 import { SettingsAgent } from '../api/SettingsAgent';
 import { SettingsService } from './settings.service';
 import { SettingsStore } from './settings.store';
+import { DialogService } from './../common/dialog.service';
 
 @Component({
     selector: 'as4-agent-settings',
@@ -26,7 +27,6 @@ export class AgentSettingsComponent implements OnDestroy {
     public currentAgent: SettingsAgent;
     public transformers: ItemType[];
 
-    public isDirty: boolean = false;
     public form: FormGroup;
     @Input() public title: string;
     @Input() public agent: string;
@@ -36,7 +36,7 @@ export class AgentSettingsComponent implements OnDestroy {
     private _originalAgent: SettingsAgent | undefined;
 
     constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder,
-        private runtimeStore: RuntimeStore) {
+        private runtimeStore: RuntimeStore, private dialogService: DialogService) {
         this._runtimeStoreSubscription = this.runtimeStore.changes
             .filter(x => x != null)
             .subscribe(result => {
@@ -56,17 +56,14 @@ export class AgentSettingsComponent implements OnDestroy {
             this.settings = result && result.Settings && result.Settings.agents && result.Settings.agents[agent];
         });
     }
-
     public addAgent() {
         this.currentAgent = new SettingsAgent();
-        this.form.setValue(this.currentAgent);
+        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
     }
-
     public selectAgent(selectedAgent: string) {
         this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
         this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
     }
-
     public save() {
         this.settingsService
             .updateOrCreateSubmitAgent(this.form.value)
@@ -77,9 +74,16 @@ export class AgentSettingsComponent implements OnDestroy {
                 }
             });
     }
-
     public reset() {
         this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+    }
+    public rename() {
+        let name = this.dialogService.prompt('Enter new name');
+        // TODO: find a better way to be able to do a revert, since we're directly changing the currentAgent name value
+        if (!!this.currentAgent) {
+            this.currentAgent.name = name;
+            this.form.markAsDirty();
+        }
     }
 
     ngOnDestroy() {

@@ -22,33 +22,53 @@ export class SettingsService {
                 this.settingsStore.update('Settings', result.json());
             });
     }
-    public saveBaseSettings(base: Base) {
+    public saveBaseSettings(base: Base): Observable<boolean> {
+        let subj = new Subject<boolean>();
         this.http
             .post(this.getUrl('basesettings'), base)
             .subscribe(() => {
-                alert('Saved');
+                subj.next(true);
+                subj.complete();
+            }, () => {
+                subj.next(false);
+                subj.complete();
             });
+        return subj.asObservable();
     }
-    public saveCustomSettings(custom: CustomSettings) {
+    public saveCustomSettings(custom: CustomSettings): Observable<boolean> {
+        let subj = new Subject<boolean>();
         this.http
             .post(this.getUrl('customsettings'), custom)
             .subscribe(() => {
-                alert('saved');
+                subj.next(true);
+                subj.complete();
+            }, () => {
+                subj.next(false);
+                subj.complete();
             });
+        return subj.asObservable();
     }
-    public saveDatabaseSettings(settings: SettingsDatabase) {
+    public saveDatabaseSettings(settings: SettingsDatabase): Observable<boolean> {
+        let subj = new Subject<boolean>();
         this.http
             .post(this.getUrl('databasesettings'), settings)
             .subscribe(() => {
-                alert('Saved');
+                subj.next(true);
+                subj.complete();
+            }, () => {
+                subj.next(false);
+                subj.complete()
             });
+        return subj.asObservable();
     }
     public updateOrCreateSubmitAgent(settings: SettingsAgent): Observable<boolean> {
-        var subject = new Subject<boolean>();
+        let subject = new Subject<boolean>();
         if (!Array.isArray(settings.receiver.text)) {
-            var fixup = new Array<string>();
-            fixup.push(settings.receiver.text);
-            settings.receiver.text = fixup;
+            let fixup = new Array<string>();
+            if (!!settings.receiver.text) {
+                fixup.push(settings.receiver.text);
+            }
+            <any>settings.receiver.text = fixup;
         }
 
         this.http

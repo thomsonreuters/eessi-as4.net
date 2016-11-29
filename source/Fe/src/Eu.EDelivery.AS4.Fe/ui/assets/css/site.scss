@@ -1,13 +1,25 @@
+$color:#3c8dbc; 
+
 .clickable {
     cursor: pointer;
 }
 
 .as4-tooltip {
-    color: #3c8dbc;
+    color: $color;
 }
 
-.table {
-    .action {
+table {
+    tr > td.action {
         width: 1%;
+    }
+}
+
+i.active {
+    color: $color;
+}
+
+.btn-box-tool {
+    i {
+        font-size: 15px;
     }
 }

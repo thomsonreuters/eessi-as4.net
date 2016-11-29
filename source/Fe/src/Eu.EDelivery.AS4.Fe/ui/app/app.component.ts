@@ -1,5 +1,5 @@
 import { AuthenticationStore } from './authentication/authentication.service';
-import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 import { AppState } from './app.service';
 import { RuntimeService } from './settings/runtime.service';
@@ -12,15 +12,16 @@ import { RuntimeService } from './settings/runtime.service';
         <router-outlet></router-outlet>
   `
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
     public isLoggedIn: boolean;
     constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService) {
-        this.authenticationStore.changes.subscribe(result => this.isLoggedIn = result.loggedin);
-    }
-
-    ngOnInit() {
-        this.runtimeService.getReceivers();
-        this.runtimeService.getSteps();
-        this.runtimeService.getTransformers();
+        this.authenticationStore.changes.subscribe(result => {
+            this.isLoggedIn = result.loggedin;
+            if (this.isLoggedIn) {
+                this.runtimeService.getReceivers();
+                this.runtimeService.getSteps();
+                this.runtimeService.getTransformers();
+            }
+        });
     }
 }

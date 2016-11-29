@@ -1,26 +1,26 @@
 <div class="row">
     <div class="col-xs-12">
         <as4-box [title]="'Basic settings'">
-            <div class="col-md-12" content>
+            <div class="col-xs-12 col-md-6" content>
                 <as4-base-settings [settings]="settings" #baseSettings></as4-base-settings>
             </div>
-            <button action type="<button" class="btn btn-box-tool" (click)="baseSettings.save()"><i class="fa fa-save"></i></button>
+            <button [class.disabled]="!baseSettings.isDirty" action type="<button" class="btn btn-box-tool" (click)="baseSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty"></i></button>
         </as4-box>
     </div>
     <div class="col-xs-12">
         <as4-box [title]="'Custom settings'">
-            <div class="col-md-12" content>
-                <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings #test></as4-custom-settings>
+            <div class="col-xs-12 col-md-6" content>
+                <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings></as4-custom-settings>
             </div>
-            <button action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save"></i></button>
+            <button [class.disabled]="!customSettings.isDirty" action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty"></i></button>
         </as4-box>
     </div>
     <div class="col-xs-12">
         <as4-box [title]="'Database settings'">
-            <div class="col-md-12" content>
-                <as4-database-settings [settings]="settings && settings.database" #databaseSettings></as4-database-settings>
+            <div class="col-xs-12 col-md-6" content>
+                <as4-database-settings [settings]="settings && settings.database" #databaseSettings #databaseSettings></as4-database-settings>
             </div>
-            <button action type="button" class="btn btn-box-tool" (click)="databaseSettings.save()"><i class="fa fa-save"></i></button>
+            <button [class.disabled]="!databaseSettings.isDirty" action type="button" class="btn btn-box-tool" (click)="databaseSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty"></i></button>
         </as4-box>
     </div>
 </div>

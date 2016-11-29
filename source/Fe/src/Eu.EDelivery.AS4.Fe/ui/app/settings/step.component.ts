@@ -15,25 +15,27 @@ import { Step } from './../api/Step';
                     <option *ngFor="let step of decorators" [value]="step.name">{{step.name}}</option>
                 </select>
             </as4-input>
-            <p><button type="button" class="btn btn-flat" (click)="addStep()">Add</button></p>
-            <table formArrayName="step" class="table table-condensed">
-                <tbody>
-                    <tr>
-                        <th class="col-md-10">Name</th>
-                        <th class="col-md-2">Is undecorated?</th>
-                        <th></th>
-                    </tr>
-                    <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
-                        <td>
-                            <select class="form-control" formControlName="type">
-                                <option *ngFor="let step of steps" [value]="step.name">{{step.name}}</option>
-                            </select>
-                        </td>
-                        <td><input type="checkbox" formControlName="unDecorated"></td>
-                        <td><button type="button" class="btn btn-flat" (click)="removeStep(i)">Remove</button></td>                        
-                    </tr>
-                </tbody>
-            </table>
+            <div *ngIf="group.controls.step.controls.length > 0">
+                <p><button type="button" class="btn btn-flat" (click)="addStep()">Add</button></p>
+                <table formArrayName="step" class="table table-condensed">
+                    <tbody>
+                        <tr>
+                            <th></th>
+                            <th class="col-md-10">Name</th>
+                            <th class="col-md-2">Is undecorated?</th>
+                        </tr>
+                        <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
+                            <td class="action"><button type="button" class="btn btn-flat" (click)="removeSetting(i)"><i class="fa fa-trash-o"></i></button></td>
+                            <td>
+                                <select class="form-control" formControlName="type">
+                                    <option *ngFor="let step of steps" [value]="step.name">{{step.name}}</option>
+                                </select>
+                            </td>
+                            <td><input type="checkbox" formControlName="unDecorated"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     `
 })
@@ -60,7 +62,7 @@ export class StepSettingsComponent implements OnDestroy {
         this.group.markAsDirty();
     }
     public decoratorChanged(value: string) {
-        let step = this.runtimeStore.getState().steps.filter(step => step.name == value);
+        let step = this.runtimeStore.getState().steps.filter(step => step.name === value);
         console.log(step);
     }
     public ngOnDestroy() {

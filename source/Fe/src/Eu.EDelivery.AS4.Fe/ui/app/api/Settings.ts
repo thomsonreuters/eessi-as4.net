@@ -6,12 +6,17 @@ import { CustomSettings } from "./CustomSettings"
 import { SettingsAgents } from "./SettingsAgents"
 
 export class Settings {
-		idFormat: string;
-		certificateStoreName: string;
+	idFormat: string;
+	certificateStoreName: string;
+	database: SettingsDatabase;
+	customSettings: CustomSettings;
+	agents: SettingsAgents;
 
-		database: SettingsDatabase;
-		customSettings: CustomSettings;
-		agents: SettingsAgents;
+	static FIELD_idFormat: string = 'idFormat';
+	static FIELD_certificateStoreName: string = 'certificateStoreName';
+	static FIELD_database: string = 'database';
+	static FIELD_customSettings: string = 'customSettings';
+	static FIELD_agents: string = 'agents';
 
 	static getForm(formBuilder: FormBuilder, current: Settings): FormGroup {
 		return formBuilder.group({

@@ -4,9 +4,11 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Property } from "./Property"
 
 export class ItemType {
-		name: string;
+	name: string;
+	properties: Property[];
 
-		properties: Property[];
+	static FIELD_name: string = 'name';
+	static FIELD_properties: string = 'properties';
 
 	static getForm(formBuilder: FormBuilder, current: ItemType): FormGroup {
 		return formBuilder.group({

@@ -4,13 +4,19 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { SettingsAgent } from "./SettingsAgent"
 
 export class SettingsAgents {
-
 	subtmitAgents: SettingsAgent[];
 	receiveAgents: SettingsAgent[];
 	sendAgents: SettingsAgent[];
 	deliverAgents: SettingsAgent[];
 	notifyAgents: SettingsAgent[];
 	receptionAwarenessAgent: SettingsAgent;
+
+	static FIELD_subtmitAgents: string = 'subtmitAgents';
+	static FIELD_receiveAgents: string = 'receiveAgents';
+	static FIELD_sendAgents: string = 'sendAgents';
+	static FIELD_deliverAgents: string = 'deliverAgents';
+	static FIELD_notifyAgents: string = 'notifyAgents';
+	static FIELD_receptionAwarenessAgent: string = 'receptionAwarenessAgent';
 
 	static getForm(formBuilder: FormBuilder, current: SettingsAgents): FormGroup {
 		return formBuilder.group({

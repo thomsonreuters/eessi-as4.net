@@ -12,6 +12,8 @@ import { AuthenticationModule } from './../authentication/authentication.module'
 import { InputComponent } from './input.component';
 import { InfoComponent } from './info.component';
 import { TooltipDirective } from './tooltip.directive';
+import { DialogService } from './dialog.service';
+import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
 
 @NgModule({
     declarations: [
@@ -24,7 +26,9 @@ import { TooltipDirective } from './tooltip.directive';
         TooltipDirective
     ],
     providers: [
-        MustBeAuthorizedGuard
+        MustBeAuthorizedGuard,
+        DialogService,
+        LOGGING_ERROR_HANDLER_PROVIDER
     ],
     exports: [
         BoxComponent,

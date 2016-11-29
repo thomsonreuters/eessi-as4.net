@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output } from '@angular/core';
+import { FormGroup, FormBuilder } from '@angular/forms';
 
 import { SettingsService } from './settings.service';
 import { SettingsDatabase } from './../api/SettingsDatabase';
@@ -6,22 +7,37 @@ import { SettingsDatabase } from './../api/SettingsDatabase';
 @Component({
     selector: 'as4-database-settings',
     template: `
-        <div class="form-group">
-            <label>Provider</label>
-            <input type="text" class="form-control pull-right" id="provider" (keydown.enter)="save()" [(ngModel)]="settings && settings.provider"/>
-        </div>
-        <div class="form-group">
-            <label>Connectionstring</label>
-            <input type="text" class="form-control pull-right" id="provider" (keydown.enter)="save()" [(ngModel)]="settings && settings.connectionString"/>
-        </div>
+        <form [formGroup]="form" class="form-horizontal">
+            <as4-input [label]="'Provider'">
+                <input type="text" class="form-control pull-right" id="provider" (keydown.enter)="save()" formControlName="provider"/>
+            </as4-input>
+            <as4-input [label]="'Connectionstring'">
+                <input type="text" class="form-control pull-right" id="provider" (keydown.enter)="save()" formControlName="connectionString"/>
+            </as4-input>
+        </form>
     `
 })
 export class DatabaseSettingsComponent {
-    @Input() settings: SettingsDatabase;
-    constructor(private settingsService: SettingsService) {
+    @Input() public get settings(): SettingsDatabase {
+        return this._settings;
+    }
+    public set settings(settingsDatabase: SettingsDatabase) {
+        this.form = SettingsDatabase.getForm(this.formBuilder, settingsDatabase);
+        this._settings = settingsDatabase;
+    }
+    @Output() get isDirty(): boolean {
+        return this.form.dirty;
+    }
+    private form: FormGroup;
+    private _settings: SettingsDatabase;
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder) {
 
     }
     public save() {
-        this.settingsService.saveDatabaseSettings(this.settings);
+        this.settingsService
+            .saveDatabaseSettings(this.settings)
+            .subscribe(result => {
+                if (result) this.form.markAsPristine();
+            });
     }
 }

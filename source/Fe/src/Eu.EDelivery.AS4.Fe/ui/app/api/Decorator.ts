@@ -4,9 +4,11 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Steps } from "./Steps"
 
 export class Decorator {
-		type: string;
+	type: string;
+	steps: Steps;
 
-		steps: Steps;
+	static FIELD_type: string = 'type';
+	static FIELD_steps: string = 'steps';
 
 	static getForm(formBuilder: FormBuilder, current: Decorator): FormGroup {
 		return formBuilder.group({

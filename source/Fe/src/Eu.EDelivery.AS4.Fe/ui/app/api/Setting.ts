@@ -3,9 +3,11 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 
 
 export class Setting {
-		key: string;
-		value: string;
+	key: string;
+	value: string;
 
+	static FIELD_key: string = 'key';
+	static FIELD_value: string = 'value';
 
 	static getForm(formBuilder: FormBuilder, current: Setting): FormGroup {
 		return formBuilder.group({

@@ -7,12 +7,17 @@ import { Steps } from "./Steps"
 import { Decorator } from "./Decorator"
 
 export class SettingsAgent {
-		name: string;
+	name: string;
+	receiver: Receiver;
+	transformer: Transformer;
+	steps: Steps;
+	decorator: Decorator;
 
-		receiver: Receiver;
-		transformer: Transformer;
-		steps: Steps;
-		decorator: Decorator;
+	static FIELD_name: string = 'name';
+	static FIELD_receiver: string = 'receiver';
+	static FIELD_transformer: string = 'transformer';
+	static FIELD_steps: string = 'steps';
+	static FIELD_decorator: string = 'decorator';
 
 	static getForm(formBuilder: FormBuilder, current: SettingsAgent): FormGroup {
 		return formBuilder.group({

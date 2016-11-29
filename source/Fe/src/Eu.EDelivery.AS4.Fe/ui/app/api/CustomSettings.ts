@@ -4,8 +4,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Setting } from "./Setting"
 
 export class CustomSettings {
+	setting: Setting[];
 
-		setting: Setting[];
+	static FIELD_setting: string = 'setting';
 
 	static getForm(formBuilder: FormBuilder, current: CustomSettings): FormGroup {
 		return formBuilder.group({

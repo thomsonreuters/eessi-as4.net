@@ -11,6 +11,6 @@ export class SettingsStore extends Store<ISettingsState> {
     constructor() {
         super({
             Settings: new Settings()
-        })
+        });
     }
 }

@@ -41,9 +41,14 @@ export class CommonSettingsComponent {
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder) {
     }
     public save() {
-        this.settingsService.saveCustomSettings(this.settings);
+        this.settingsService
+            .saveCustomSettings(this.settings)
+            .subscribe(result => {
+                if (result) this.form.markAsPristine();
+            });
     }
     public addSetting() {
+        this.form.markAsDirty();
         let settings = <FormArray>this.form.controls['setting'];
         settings.push(Setting.getForm(this.formBuilder, new Setting()));
     }
