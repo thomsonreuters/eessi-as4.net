@@ -119,7 +119,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class Receiver
     {
         [XmlElement("Setting")] public Setting[] Setting { get; set; }
-        [XmlText] public string[] Text { get; set; }
         [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
     }
 
