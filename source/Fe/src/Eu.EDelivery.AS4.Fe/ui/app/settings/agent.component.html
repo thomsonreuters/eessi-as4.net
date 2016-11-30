@@ -4,16 +4,17 @@
         <div content class="col-md-6 col-xs-12">
             <as4-input [label]="'Name'">
                 <div class="input-group">
-                    <select (change)="selectAgent($event.target.value)" class="form-control" formControlName="name">
+                    <select (change)="selectAgent($event.target.value, $event)" [value]="currentAgent && currentAgent.name" class="form-control"
+                        #dropdown>
                         <option>Select an option</option>
                         <option *ngFor="let agent of settings">{{agent.name}}</option>
                     </select>
                     <div class="input-group-btn">
-                        <button type="button" class="btn btn-flat" (click)="rename()" [class.disabled]="!!!currentAgent"><i class="fa fa-edit"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="addAgent()"><i class="fa fa-plus"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="save()" [class.btn-primary]="form.dirty" [class.disabled]="!form.dirty"><i class="fa fa-save"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="delete()" [class.disabled]="!!!currentAgent"><i class="fa fa-trash-o"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="reset()" [class.btn-primary]="form.dirty" [class.disabled]="!form.dirty"><i class="fa fa-undo"></i></button>
+                        <button type="button" class="btn btn-flat" (click)="rename()" [disabled]="!!!currentAgent"><i class="fa fa-edit"></i></button>
+                        <button type="button" class="btn btn-flat" (click)="addAgent()" [disabled]="isNewMode"><i class="fa fa-plus"></i></button>
+                        <button type="button" class="btn btn-flat" (click)="save()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-save"></i></button>
+                        <button type="button" class="btn btn-flat" (click)="delete()" [disabled]="!!!currentAgent"><i class="fa fa-trash-o"></i></button>
+                        <button type="button" class="btn btn-flat" (click)="reset()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-undo"></i></button>
                     </div>
                 </div>
             </as4-input>

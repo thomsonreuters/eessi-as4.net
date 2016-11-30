@@ -17,9 +17,9 @@ import { Step } from './../api/Step';
                     <option *ngFor="let step of decorators" [value]="step.technicalName">{{step.name}}</option>
                 </select>
             </as4-input>
-            <div *ngIf="group.controls.step.controls.length > 0">
+            <div>
                 <p><button type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
-                <table formArrayName="step" class="table table-condensed">
+                <table formArrayName="step" class="table table-condensed" *ngIf="group.controls.step.controls.length > 0">
                     <tbody [sortablejs]="group.controls.step" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved}">
                         <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>

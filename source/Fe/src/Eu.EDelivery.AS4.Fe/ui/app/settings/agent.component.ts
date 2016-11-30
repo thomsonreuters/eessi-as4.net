@@ -1,11 +1,11 @@
+import { removeNgStyles } from '@angularclass/hmr';
 import { ActivatedRoute } from '@angular/router';
-import { Component, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 import { RuntimeStore } from './runtime.store';
 import { Setting } from './../api/Setting';
-import { Decorator } from './../api/Decorator';
 import { Steps } from './../api/Steps';
 import { Step } from './../api/Step';
 import { Transformer } from './../api/Transformer';
@@ -25,16 +25,18 @@ import { Property } from './../api/Property';
 export class AgentSettingsComponent implements OnDestroy {
     public settings: SettingsAgent[];
     public collapsed: boolean = true;
+
     public currentAgent: SettingsAgent;
     public transformers: ItemType[];
+    public isNewMode: boolean = false;
 
     public form: FormGroup;
     @Input() public title: string;
     @Input() public agent: string;
+    @ViewChild('dropdown') private dropdown: ElementRef;
 
     private _settingsStoreSubscription: Subscription;
     private _runtimeStoreSubscription: Subscription;
-    private _originalAgent: SettingsAgent | undefined;
 
     constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder,
         private runtimeStore: RuntimeStore, private dialogService: DialogService) {
@@ -48,6 +50,7 @@ export class AgentSettingsComponent implements OnDestroy {
                 this.agent = this.activatedRoute.snapshot.data['type'];
             }
             this.settings = result && result.Settings && result.Settings.agents && result.Settings.agents[this.agent];
+            if (!!!this.settings) this.settings = new Array<SettingsAgent>();
             this.form = SettingsAgent.getForm(this.formBuilder, null);
         });
         if (!!this.activatedRoute.snapshot.data['type']) {
@@ -56,12 +59,30 @@ export class AgentSettingsComponent implements OnDestroy {
         }
     }
     public addAgent() {
-        this.currentAgent = new SettingsAgent();
-        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+        let newName = this.dialogService.prompt('Please enter a new for the agent');
+        if (!!!newName) return;
+        let newAgent = new SettingsAgent();
+        newAgent.name = newName;
+        if (!this.selectAgent(newAgent.name)) return;
+        this.settings.push(this.currentAgent);
+        this.currentAgent = newAgent;
+        this.isNewMode = true;
     }
-    public selectAgent(selectedAgent: string) {
+    public selectAgent(selectedAgent: string = null, $event: Event = null): boolean {
+        if (this.form.dirty) {
+            if (this.dialogService.confirm('There are unsaved changes, are you sure you want to cancel the changes?')) {
+                if (this.isNewMode) this.settings = this.settings.filter(agent => agent !== this.currentAgent);
+                else this.form.reset();
+            }
+            else {
+                this.dropdown.nativeElement.value = this.currentAgent.name;
+                return false;
+            }
+        }
+        this.isNewMode = false;
         this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
         this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+        return true;
     }
     public save() {
         if (!this.form.valid) {
@@ -91,6 +112,12 @@ export class AgentSettingsComponent implements OnDestroy {
     }
     public delete() {
         if (this.dialogService.confirm('Are you sure you want to delete the agent')) {
+            if (this.isNewMode) {
+                this.settings = this.settings.filter(agent => agent.name !== this.currentAgent.name);
+                this.selectAgent();
+                return;
+            }
+
             this.settingsService.deleteAgent(this.currentAgent, this.agent);
         }
     }
