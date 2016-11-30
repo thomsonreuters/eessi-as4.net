@@ -42,7 +42,7 @@ export class CommonSettingsComponent {
     }
     public save() {
         this.settingsService
-            .saveCustomSettings(this.settings)
+            .saveCustomSettings(this.form.value)
             .subscribe(result => {
                 if (result) this.form.markAsPristine();
             });

@@ -19,7 +19,7 @@ import { Store } from '../common/store';
 import { SettingsStore } from './settings.store';
 import { RuntimeStore } from './runtime.store';
 import { ROUTES } from './settings.routes';
-
+import { SortablejsModule } from 'angular-sortablejs';
 
 @NgModule({
     declarations: [
@@ -46,7 +46,8 @@ import { ROUTES } from './settings.routes';
         As4ComponentsModule,
         FormsModule,
         ReactiveFormsModule,
-        RouterModule.forChild(ROUTES)
+        RouterModule.forChild(ROUTES),
+        SortablejsModule
     ],
     exports: [
         SettingsComponent,

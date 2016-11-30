@@ -6,4 +6,7 @@ export class DialogService {
         let result = prompt(message, '');
         return result;
     }
+    public confirm(message: string): boolean {
+        return confirm(message);
+    }
 }

@@ -1,4 +1,10 @@
-$color:#3c8dbc; 
+@import 'grippy.scss';
+
+/* Variables */
+
+$color:#3c8dbc;
+ 
+/* EOF Variables */
 
 .clickable {
     cursor: pointer;
@@ -22,4 +28,10 @@ i.active {
     i {
         font-size: 15px;
     }
+
+    margin-top: -4px;
+}
+
+.col-small {
+    width: 2px;
 }

@@ -21,6 +21,7 @@ export class AppComponent {
                 this.runtimeService.getReceivers();
                 this.runtimeService.getSteps();
                 this.runtimeService.getTransformers();
+                this.runtimeService.getCertificateRepositories();
             }
         });
     }

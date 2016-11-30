@@ -2,6 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Tests.TestData
 {
+    [Info("Test receiver")]
     public class TestReceiver : ITestReceiver
     {
         public string Name { get; set; }

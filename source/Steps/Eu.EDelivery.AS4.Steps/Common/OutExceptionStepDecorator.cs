@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
+using Eu.EDelivery.AS4.Receivers;
 
 namespace Eu.EDelivery.AS4.Steps.Common
 {
@@ -16,6 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
     /// Exception Handling Step: acts as Decorator for the <see cref="CompositeStep"/>
     /// Responsibility: describes what to do in case an exception occurs within a AS4 Send/Submit operation
     /// </summary>
+    [Info("Out exception decorator")]
     public class OutExceptionStepDecorator : IStep
     {
         private readonly IStep _step;

@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Models;
-using Eu.EDelivery.AS4.Fe.Services;
+using Eu.EDelivery.AS4.Fe.Settings;
 
-namespace Eu.EDelivery.AS4.Fe.Tests
+namespace Eu.EDelivery.AS4.Fe.Tests.TestData
 {
     public class TestSettings : IAs4SettingsService
     {
@@ -28,7 +28,12 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             throw new NotImplementedException();
         }
 
-        public Task UpdateOrCreateSubmitAgent(SettingsAgent settingsAgent)
+        public Task UpdateOrCreateAgent(SettingsAgent settingsAgent, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteAgent(string name, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {
             throw new NotImplementedException();
         }

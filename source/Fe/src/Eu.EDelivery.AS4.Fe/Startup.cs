@@ -61,6 +61,7 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddSwaggerGen();
             services.AddAutoMapper();
             services.AddSingleton<ILogging, Logging.Logging>();
+            services.AddSingleton<ISettingsSource, FileSettingsSource>();
             services.AddSingleton<ITokenService, TokenService>();
             services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader)new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
           

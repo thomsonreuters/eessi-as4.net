@@ -24,6 +24,11 @@ export class RuntimeService {
             .get(this.getBaseUrl('gettransformers'))
             .subscribe(type => this.runtimeStore.update('transformers', type.json()));
     }
+    public getCertificateRepositories() {
+        this.http
+            .get(this.getBaseUrl('getcertificaterepositories'))
+            .subscribe(type => this.runtimeStore.update('certificateRepositories', type.json()));
+    }
     private getBaseUrl(action: string) {
         return `api/runtime/${action}`;
     }

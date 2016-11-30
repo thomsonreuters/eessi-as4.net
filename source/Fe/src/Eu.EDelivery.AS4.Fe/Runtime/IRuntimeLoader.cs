@@ -8,6 +8,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         IEnumerable<ItemType> Receivers { get; }
         IEnumerable<ItemType> Steps { get; }
         IEnumerable<ItemType> Transformers { get; }
+        IEnumerable<ItemType> CertificateRepositories { get; }
         IRuntimeLoader Initialize();
     }
 }

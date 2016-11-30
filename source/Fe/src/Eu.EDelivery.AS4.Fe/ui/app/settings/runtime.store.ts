@@ -8,6 +8,7 @@ interface State {
     receivers: Array<ItemType>;
     steps: Array<ItemType>;
     transformers: Array<ItemType>;
+    certificateRepositories: Array<ItemType>;
 }
 
 @Injectable()
@@ -16,7 +17,8 @@ export class RuntimeStore extends Store<State> {
         super({
             receivers: Array<ItemType>(),
             steps: Array<ItemType>(),
-            transformers: Array<ItemType>()
+            transformers: Array<ItemType>(),
+            certificateRepositories: Array<ItemType>()
         });
     }
 }

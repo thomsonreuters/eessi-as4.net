@@ -33,5 +33,12 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             return runtimeLoader.Transformers;
         }
+
+        [HttpGet]
+        [Route("getcertificaterepositories")]
+        public IEnumerable<ItemType> GetCertificateRepositories()
+        {
+            return runtimeLoader.CertificateRepositories;
+        }
     }
 }

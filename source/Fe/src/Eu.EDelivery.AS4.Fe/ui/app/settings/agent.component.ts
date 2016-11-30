@@ -43,19 +43,17 @@ export class AgentSettingsComponent implements OnDestroy {
             .subscribe(result => {
                 this.transformers = result.transformers;
             });
-        this.form = SettingsAgent.getForm(this.formBuilder, null);
-
+        this._settingsStoreSubscription = this.settingsStore.changes.subscribe(result => {
+            if (!!this.activatedRoute.snapshot.data['type']) {
+                this.agent = this.activatedRoute.snapshot.data['type'];
+            }
+            this.settings = result && result.Settings && result.Settings.agents && result.Settings.agents[this.agent];
+            this.form = SettingsAgent.getForm(this.formBuilder, null);
+        });
         if (!!this.activatedRoute.snapshot.data['type']) {
             this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
             this.collapsed = false;
         }
-        this._settingsStoreSubscription = this.settingsStore.changes.subscribe(result => {
-            let agent = this.agent;
-            if (!!this.activatedRoute.snapshot.data['type']) {
-                agent = this.activatedRoute.snapshot.data['type'];
-            }
-            this.settings = result && result.Settings && result.Settings.agents && result.Settings.agents[agent];
-        });
     }
     public addAgent() {
         this.currentAgent = new SettingsAgent();
@@ -67,7 +65,7 @@ export class AgentSettingsComponent implements OnDestroy {
     }
     public save() {
         this.settingsService
-            .updateOrCreateSubmitAgent(this.form.value)
+            .updateOrCreateAgent(this.form.value, this.agent)
             .subscribe(result => {
                 if (result) {
                     alert('Saved');
@@ -87,7 +85,9 @@ export class AgentSettingsComponent implements OnDestroy {
         }
     }
     public delete() {
-
+        if (this.dialogService.confirm('Are you sure you want to delete the agent')) {
+            this.settingsService.deleteAgent(this.currentAgent, this.agent);
+        }
     }
 
     ngOnDestroy() {

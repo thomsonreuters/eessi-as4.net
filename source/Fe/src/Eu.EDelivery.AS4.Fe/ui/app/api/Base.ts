@@ -8,7 +8,7 @@ export class Base {
     static getForm(formBuilder: FormBuilder, current: Base): FormGroup {
         return formBuilder.group({
             idFormat: [current && current.idFormat],
-            certificateStoreName: CertificateStore.getForm(formBuilder, current && current.certificateStore)
+            certificateStore: CertificateStore.getForm(formBuilder, current && current.certificateStore)
         });
     }
 }

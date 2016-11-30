@@ -14,6 +14,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         public IEnumerable<ItemType> Receivers { get; private set; }
         public IEnumerable<ItemType> Steps { get; private set; }
         public IEnumerable<ItemType> Transformers { get; private set; }
+        public IEnumerable<ItemType> CertificateRepositories { get; private set; }
 
         public RuntimeLoader(string folder)
         {
@@ -28,6 +29,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             Receivers = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Receivers.IReceiver");
             Steps = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Steps.IStep");
             Transformers = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Transformers.ITransformer");
+            CertificateRepositories = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Repositories.ICertificateRepository");
+
             return this;
         }
         public List<TypeDefinition> LoadTypesFromAssemblies()
@@ -49,9 +52,13 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 
         private ItemType BuildItemType(TypeDefinition itemType, IEnumerable<Property> properties)
         {
+
+            // Get class info attribute
+            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == INFOATTRIBUTE);
+
             return new ItemType()
             {
-                Name = itemType.Name,
+                Name = infoAttribute == null ? itemType.Name : infoAttribute.ConstructorArguments[0].Value as string,
                 TechnicalName = $"{itemType.FullName}, {itemType.Module.Assembly.FullName}",
                 Properties = properties
             };

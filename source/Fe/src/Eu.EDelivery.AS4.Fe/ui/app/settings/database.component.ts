@@ -35,7 +35,7 @@ export class DatabaseSettingsComponent {
     }
     public save() {
         this.settingsService
-            .saveDatabaseSettings(this.settings)
+            .saveDatabaseSettings(this.form.value)
             .subscribe(result => {
                 if (result) this.form.markAsPristine();
             });

@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
-    [AttributeUsage(AttributeTargets.Property)]
     public class InfoAttribute : Attribute
     {
         public string FriendlyName { get; private set; }

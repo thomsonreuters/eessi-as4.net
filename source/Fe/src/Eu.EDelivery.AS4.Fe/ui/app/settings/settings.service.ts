@@ -61,10 +61,10 @@ export class SettingsService {
             });
         return subj.asObservable();
     }
-    public updateOrCreateSubmitAgent(settings: SettingsAgent): Observable<boolean> {
+    public updateOrCreateAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
         let subject = new Subject<boolean>();
         this.http
-            .post(this.getUrl('submitagents'), settings)
+            .post(this.getUrl(agent), settings)
             .subscribe(() => {
                 subject.next(true);
                 subject.complete();
@@ -74,6 +74,10 @@ export class SettingsService {
             });
         return subject.asObservable();
     }
+    public deleteAgent(settings: SettingsAgent, agent: string) {
+        this.http.delete(`${this.getUrl(agent)}?name=${settings.name}`, settings).subscribe(() => this.getSettings());
+    }
+
     private getUrl(path?: string): string {
         if (path === undefined) return '/api/configuration';
         else return `/api/configuration/${path}`;

@@ -20,6 +20,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// <see cref="IReceiver" /> Implementation to receive Files
     /// </summary>
+    [Info("File receiver")]
     public class FileReceiver : PollingTemplate<FileInfo, ReceivedMessage>, IReceiver
     {
         private readonly IMimeTypeRepository _repository;
