@@ -59,10 +59,9 @@ export class StepSettingsComponent implements OnDestroy {
         this.group.markAsDirty();
     }
     public removeStep(index: number) {
-        if (this.dialogService.confirm('Are you sure you want to delete the step ?')) {
-            (<FormArray>this.group.controls['step']).removeAt(index);
-            this.group.markAsDirty();
-        }
+        if (!this.dialogService.confirm('Are you sure you want to delete the step ?')) return;
+        (<FormArray>this.group.controls['step']).removeAt(index);
+        this.group.markAsDirty();
     }
     public ngOnDestroy() {
         this._runtimeStoreSubscription.unsubscribe();

@@ -58,6 +58,9 @@ export class CommonSettingsComponent {
         settings.push(Setting.getForm(this.formBuilder, new Setting()));
     }
     public removeSetting(index: number) {
+        if (!this.dialogService.confirm('Please confirm that you want to delete the setting')) {
+            return;
+        }
         (<FormArray>this.form.controls['setting']).removeAt(index);
         this.form.markAsDirty();
     }
