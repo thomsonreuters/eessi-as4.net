@@ -1,6 +1,7 @@
 import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
+import { DialogService } from './../common/dialog.service';
 import { RuntimeStore } from './runtime.store';
 import { Base } from './../api/Base';
 import { SettingsService } from './settings.service';
@@ -40,7 +41,7 @@ export class BaseSettingsComponent {
     @Output() public get isDirty(): boolean {
         return this.form.dirty;
     }
-    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private runtimeStore: RuntimeStore) {
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
         runtimeStore.changes
             .filter(result => !!(result && result.certificateRepositories))
             .subscribe(result => {
@@ -48,6 +49,10 @@ export class BaseSettingsComponent {
             });
     }
     public save() {
+        if (!this.form.valid) {
+            this.dialogService.incorrectForm();
+            return;
+        }
         this.settingsService
             .saveBaseSettings(this.form.value)
             .subscribe(result => this.form.markAsPristine());

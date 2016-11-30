@@ -1,6 +1,7 @@
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Component, Input, Output } from '@angular/core';
 
+import { DialogService } from './../common/dialog.service';
 import { CustomSettings } from './../api/CustomSettings';
 import { SettingsService } from './settings.service';
 import { Setting } from './../api/Setting';
@@ -38,9 +39,13 @@ export class CommonSettingsComponent {
         this._settings = settings;
     }
     private _settings: CustomSettings;
-    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder) {
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
     }
     public save() {
+        if (!this.form.valid) {
+            this.dialogService.incorrectForm();
+            return;
+        }
         this.settingsService
             .saveCustomSettings(this.form.value)
             .subscribe(result => {

@@ -1,6 +1,5 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup } from '@angular/forms';
-
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 export class SettingsDatabase {
 	provider: string;
@@ -11,8 +10,8 @@ export class SettingsDatabase {
 
 	static getForm(formBuilder: FormBuilder, current: SettingsDatabase): FormGroup {
 		return formBuilder.group({
-			provider: [current && current.provider],
-			connectionString: [current && current.connectionString],
+			provider: [current && current.provider, Validators.required],
+			connectionString: [current && current.connectionString, Validators.required],
 		});
 	}
 }

@@ -1,0 +1,11 @@
+$invalidColor: #dd4b39;
+
+form {
+    select.ng-invalid {
+        border: 1px solid $invalidColor;
+    }
+
+    input.ng-invalid {
+        border: 1px solid $invalidColor;
+    }
+}

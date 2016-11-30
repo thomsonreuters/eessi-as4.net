@@ -64,6 +64,11 @@ export class AgentSettingsComponent implements OnDestroy {
         this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
     }
     public save() {
+        if (!this.form.valid) {
+            this.dialogService.message('Input is not valid, please correct the invalid fields');
+            return;
+        }
+
         this.settingsService
             .updateOrCreateAgent(this.form.value, this.agent)
             .subscribe(result => {

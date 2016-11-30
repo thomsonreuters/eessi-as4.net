@@ -1,6 +1,7 @@
 import { Component, Input, Output } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 
+import { DialogService } from './../common/dialog.service';
 import { SettingsService } from './settings.service';
 import { SettingsDatabase } from './../api/SettingsDatabase';
 
@@ -30,10 +31,14 @@ export class DatabaseSettingsComponent {
     }
     private form: FormGroup;
     private _settings: SettingsDatabase;
-    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder) {
+    constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
 
     }
     public save() {
+        if (!this.form.valid) {
+            this.dialogService.incorrectForm();
+            return;
+        }
         this.settingsService
             .saveDatabaseSettings(this.form.value)
             .subscribe(result => {

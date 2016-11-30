@@ -1,6 +1,5 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup } from '@angular/forms';
-
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 export class Step {
 	type: string;
@@ -11,8 +10,8 @@ export class Step {
 
 	static getForm(formBuilder: FormBuilder, current: Step): FormGroup {
 		return formBuilder.group({
-			type: [current && current.type],
-			unDecorated: [current && current.unDecorated],
+			type: [current && current.type, Validators.required],
+			unDecorated: [current && current.unDecorated, Validators.required],
 		});
 	}
 }
