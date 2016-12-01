@@ -236,7 +236,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private bool VerifyCertificate(X509Certificate2 certificate)
         {
-            return certificate.Verify();
+            X509Chain chain = new X509Chain();
+            chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
+            return chain.Build(certificate);
         }
 
         private AS4Exception ThrowAS4SignException(string description)
