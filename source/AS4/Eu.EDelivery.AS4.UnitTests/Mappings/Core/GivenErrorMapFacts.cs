@@ -39,15 +39,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                var signalMessage = new Eu.EDelivery.AS4.Xml.SignalMessage()
-                {
-                    MessageInfo = new Eu.EDelivery.AS4.Xml.MessageInfo()
-                    {
-                        MessageId = messageId,
-                        Timestamp = DateTime.UtcNow
-                    },
-                    Error = new[] { new Eu.EDelivery.AS4.Xml.Error() }
-                };
+                Xml.SignalMessage signalMessage = GetPopulatedXmlError();
+                signalMessage.MessageInfo.MessageId = messageId;
 
                 // Act
                 var error = Mapper.Map<AS4.Model.Core.Error>(signalMessage);
@@ -56,15 +49,50 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
                 Assert.Equal(messageId, error.MessageId);
             }
 
+            [Fact]
+            public void ThenErrorDescriptionIsCorreclyMapped()
+            {
+                // Arrange
+                string descriptionValue = Guid.NewGuid().ToString();
+                string languageValue = Guid.NewGuid().ToString();
+
+                Xml.SignalMessage signalMessage = GetPopulatedXmlError();
+                signalMessage.Error[0].Description.Value = descriptionValue;
+                signalMessage.Error[0].Description.lang = languageValue;
+
+                // Act
+                var error = Mapper.Map<AS4.Model.Core.Error>(signalMessage);
+
+                // Assert
+                Assert.Equal(descriptionValue, error.Errors[0].Description.Value);
+                Assert.Equal(languageValue, error.Errors[0].Description.Language);
+            }
+
         }
 
-        protected async Task<AS4Message> GetPopulatedModelReceipt()
+        protected Xml.SignalMessage GetPopulatedXmlError()
         {
-            var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.receipt));
-            var serializer = new SoapEnvelopeSerializer();
-
-            return await serializer.DeserializeAsync(
-                memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
+            return new Eu.EDelivery.AS4.Xml.SignalMessage()
+            {
+                MessageInfo = new Eu.EDelivery.AS4.Xml.MessageInfo()
+                {
+                    MessageId = Guid.NewGuid().ToString(),
+                    Timestamp = DateTime.UtcNow
+                },
+                Error = new[] {
+                    new Eu.EDelivery.AS4.Xml.Error
+                    {
+                        category = "myCategory",
+                        Description = new Description { lang = "en", Value = "this is a long description" },
+                        errorCode = "errorCode",
+                        ErrorDetail = "errorDetail",
+                        origin = "origin",
+                        refToMessageInError = "refToMessageInError",
+                        severity = "severity",
+                        shortDescription = "shortDescription"
+                    }
+                }
+            };
         }
     }
 }
