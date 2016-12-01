@@ -230,8 +230,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this.SecurityTokenReference.CertificateRepository = certificateRepository;
             this.SecurityTokenReference.LoadXml(this._document);
 
-            if (!this.SecurityTokenReference.Certificate.Verify())
+            if (!VerifyCertificate(this.SecurityTokenReference.Certificate))
                 throw ThrowAS4SignException("The signing certificate is not trusted");
+        }
+
+        private bool VerifyCertificate(X509Certificate2 certificate)
+        {
+            return certificate.Verify();
         }
 
         private AS4Exception ThrowAS4SignException(string description)
