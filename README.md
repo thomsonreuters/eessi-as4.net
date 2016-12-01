@@ -14,6 +14,9 @@ It supports the e-SENS e-Delivery profile as an ebMS endpoint.
 - AS4 Reception Awareness and Retry (v1.0)
 - AS4 Duplicate Detection and Elimination (v1.0)
 
+# Installation
+AS4.NET v1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.0/eessi_as4.net-1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of package.
+
 # Third Party software
 The following third party libraries are used by AS4.NET:
 - [Automapper](https://github.com/AutoMapper/AutoMapper) ([MIT License](https://opensource.org/licenses/MIT))
