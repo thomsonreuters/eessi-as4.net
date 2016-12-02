@@ -29,15 +29,14 @@ import { Step } from './../api/Step';
                                 <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                                 </select>
-                                <div *ngIf="step.controls.setting.controls.length > 0">
-                                    <table class="table table-condensed" formArrayName="setting">
-                                        <tbody>
-                                            <tr *ngFor="let set of step.controls.setting.controls; let i = index" [formGroupName]="i">
-                                                <td>{{set.value.key}}</td>
-                                                <td><input type="text" class="form-control" formControlName="value"/></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <div *ngIf="step.controls.setting.controls.length > 0" formArrayName="setting">
+                                    <ul class="settings">
+                                        <li>
+                                            <as4-input [label]="set.value.key" *ngFor="let set of step.controls.setting.controls; let i = index" [formGroupName]="i">
+                                                <input type="text" class="form-control" formControlName="value"/>
+                                            </as4-input>
+                                        </li>
+                                    </ul>
                                 </div>
                             </td>
                             <td><input type="checkbox" formControlName="unDecorated"></td>
@@ -46,7 +45,15 @@ import { Step } from './../api/Step';
                 </table>
             </div>
         </div>
-    `
+    `,
+    styles: [
+        `
+            .settings {
+                list-style-type: none;
+                padding-top: 10px;
+            }
+        `
+    ]
 })
 export class StepSettingsComponent implements OnDestroy {
     @Input() group: FormGroup;
