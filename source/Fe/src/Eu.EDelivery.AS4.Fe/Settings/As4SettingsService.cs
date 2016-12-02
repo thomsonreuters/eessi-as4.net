@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using EnsureThat;
 using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Models;
 
@@ -20,6 +21,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
         public async Task SaveBaseSettings(BaseSettings settings)
         {
+            EnsureArg.IsNotNull(settings, nameof(settings));
             var file = await GetSettings();
             mapper.Map(settings, file);
             await settingsSource.Save(file);
@@ -27,6 +29,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
         public async Task SaveCustomSettings(CustomSettings settings)
         {
+            EnsureArg.IsNotNull(settings, nameof(settings));
             var file = await GetSettings();
             file.CustomSettings = settings;
             await settingsSource.Save(file);
@@ -34,6 +37,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
         public async Task SaveDatabaseSettings(SettingsDatabase settings)
         {
+            EnsureArg.IsNotNull(settings, nameof(settings));
             var file = await GetSettings();
             mapper.Map(settings, file.Database);
             await settingsSource.Save(file);
@@ -41,9 +45,9 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
         public async Task CreateAgent(SettingsAgent settingsAgent, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {
-            if (settingsAgent == null) throw new ArgumentNullException(nameof(SettingsAgent), $"Parameter {nameof(SettingsAgent)} cannot be null");
-            if (getAgents == null) throw new ArgumentNullException(nameof(getAgents), $"Parameter {nameof(getAgents)} cannot be null");
-            if (setAgents == null) throw new ArgumentNullException(nameof(setAgents), $"Paramter {nameof(setAgents)} cannot be null");
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNull(getAgents, nameof(getAgents));
+            EnsureArg.IsNotNull(setAgents, nameof(setAgents));
 
             var file = await GetSettings();
             var agents = getAgents(file.Agents).ToList();
@@ -59,10 +63,10 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
         public async Task UpdateAgent(SettingsAgent settingsAgent, string originalAgentName, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {
-            if (settingsAgent == null) throw new ArgumentNullException(nameof(settingsAgent), $"Parameter {nameof(settingsAgent)} cannot be null");
-            if (originalAgentName == null) throw new ArgumentNullException(nameof(originalAgentName), $"Parameter {nameof(originalAgentName)} cannot be null");
-            if (getAgents == null) throw new ArgumentNullException(nameof(getAgents), $"Parameter {nameof(getAgents)} cannot be null");
-            if (setAgents == null) throw new ArgumentNullException(nameof(setAgents), $"Parameter {nameof(setAgents)} cannot be null");
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNullOrEmpty(originalAgentName, nameof(originalAgentName));
+            EnsureArg.IsNotNull(getAgents, nameof(getAgents));
+            EnsureArg.IsNotNull(setAgents, nameof(setAgents));
 
             var file = await GetSettings();
             var agents = getAgents(file.Agents);
@@ -81,9 +85,9 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
         public async Task DeleteAgent(string name, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name), "Parameter name cannot be empty");
-            if (getAgents == null) throw new ArgumentNullException(nameof(getAgents), $"{nameof(getAgents)} cannot be null");
-            if (setAgents == null) throw new ArgumentNullException(nameof(setAgents), $"{nameof(setAgents)} cannot be null");
+            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
+            EnsureArg.IsNotNull(getAgents, nameof(getAgents));
+            EnsureArg.IsNotNull(setAgents, nameof(setAgents));
 
             var file = await GetSettings();
             var agents = getAgents(file.Agents);
