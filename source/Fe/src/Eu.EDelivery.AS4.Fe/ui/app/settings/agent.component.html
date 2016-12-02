@@ -4,7 +4,7 @@
         <div content class="col-md-6 col-xs-12">
             <as4-input [label]="'Name'">
                 <div class="input-group">
-                    <select (change)="selectAgent($event.target.value, $event)" class="form-control" #dropdown>
+                    <select (change)="selectAgent($event.target.value, $event)" class="form-control">
                         <option>Select an option</option>
                         <option *ngFor="let agent of settings" [selected]="!!!currentAgent ? false : currentAgent.name == agent.name">{{currentAgent && (currentAgent.name == agent.name) && !!form && !!form.controls ? form.controls.name.value : agent.name}}</option>
                     </select>

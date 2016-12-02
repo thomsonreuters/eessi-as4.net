@@ -39,7 +39,6 @@ export class AgentSettingsComponent implements OnDestroy {
     public form: FormGroup;
     @Input() public title: string;
     @Input() public agent: string;
-    @ViewChild('dropdown') public dropdown: ElementRef;
 
     private _currentAgent: SettingsAgent;
     private _settingsStoreSubscription: Subscription;
