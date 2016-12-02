@@ -138,6 +138,7 @@ module.exports = function(options) {
                     loaders: ['to-string-loader', 'css-loader'],
                     exclude: [helpers.root('ui/index.html')]
                 },
+                { test: /\.scss$/, loaders: ['to-string-loader', 'css-loader', 'sass-loader'] },
 
                 /**
                  * Raw loader support for *.html

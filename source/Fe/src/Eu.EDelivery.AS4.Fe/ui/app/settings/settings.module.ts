@@ -20,6 +20,7 @@ import { SettingsStore } from './settings.store';
 import { RuntimeStore } from './runtime.store';
 import { ROUTES } from './settings.routes';
 import { SortablejsModule } from 'angular-sortablejs';
+import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent.component';
 
 @NgModule({
     declarations: [
@@ -29,7 +30,8 @@ import { SortablejsModule } from 'angular-sortablejs';
         DatabaseSettingsComponent,
         AgentSettingsComponent,
         ReceiverComponent,
-        StepSettingsComponent
+        StepSettingsComponent,
+        ReceptionAwarenessAgentComponent
     ],
     providers: [
         SettingsService,

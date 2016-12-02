@@ -23,7 +23,7 @@ describe('Home', () => {
       MockBackend,
       {
         provide: Http,
-        useFactory: function(backend: ConnectionBackend, defaultOptions: BaseRequestOptions) {
+        useFactory: function (backend: ConnectionBackend, defaultOptions: BaseRequestOptions) {
           return new Http(backend, defaultOptions);
         },
         deps: [MockBackend, BaseRequestOptions]
@@ -34,15 +34,15 @@ describe('Home', () => {
     ]
   }));
 
-  it('should have default data', inject([ HomeComponent ], (home: HomeComponent) => {
+  it('should have default data', inject([HomeComponent], (home: HomeComponent) => {
     expect(home.localState).toEqual({ value: '' });
   }));
 
-  it('should have a title', inject([ HomeComponent ], (home: HomeComponent) => {
+  it('should have a title', inject([HomeComponent], (home: HomeComponent) => {
     expect(!!home.title).toEqual(true);
   }));
 
-  it('should log ngOnInit', inject([ HomeComponent ], (home: HomeComponent) => {
+  it('should log ngOnInit', inject([HomeComponent], (home: HomeComponent) => {
     spyOn(console, 'log');
     expect(console.log).not.toHaveBeenCalled();
 

@@ -9,7 +9,13 @@ namespace Eu.EDelivery.AS4.Fe.Start
     {
         public static void AddAutoMapper(this IServiceCollection services)
         {
-            var config = new MapperConfiguration(cfg =>
+            var config = MapperConfiguration();
+            services.AddSingleton(config.CreateMapper());
+        }
+
+        public  static MapperConfiguration MapperConfiguration()
+        {
+            return new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<BaseSettings, AS4Model.Settings>();
                 cfg.CreateMap<AS4Model.Settings, BaseSettings>();
@@ -18,8 +24,6 @@ namespace Eu.EDelivery.AS4.Fe.Start
                 cfg.CreateMap<SettingsDatabase, SettingsDatabase>();
                 cfg.CreateMap<SettingsAgent, SettingsAgent>();
             });
-
-            services.AddSingleton(config.CreateMapper());
         }
     }
 }

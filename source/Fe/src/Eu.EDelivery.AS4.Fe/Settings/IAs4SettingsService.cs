@@ -13,7 +13,8 @@ namespace Eu.EDelivery.AS4.Fe.Settings
         Task SaveBaseSettings(BaseSettings settings);
         Task SaveCustomSettings(CustomSettings settings);
         Task SaveDatabaseSettings(SettingsDatabase settings);
-        Task UpdateOrCreateAgent(SettingsAgent settingsAgent, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents);
+        Task CreateAgent(SettingsAgent settingsAgent, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents);
         Task DeleteAgent(string name, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents);
+        Task UpdateAgent(SettingsAgent settingsAgent, string originalAgentName, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents);
     }
 }

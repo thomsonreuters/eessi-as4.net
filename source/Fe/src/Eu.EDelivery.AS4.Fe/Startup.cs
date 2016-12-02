@@ -1,18 +1,11 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
+﻿using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Fe.Start;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -42,7 +35,7 @@ namespace Eu.EDelivery.AS4.Fe
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
             //if (env.IsEnvironment("Development"))
             //    builder.AddApplicationInsightsSettings(true);
-            
+
             //builder.AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -53,7 +46,7 @@ namespace Eu.EDelivery.AS4.Fe
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddAuthentication(options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+            //services.AddAuthentication(options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
 
             services.AddApplicationInsightsTelemetry(Configuration);
 
@@ -63,8 +56,8 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddSingleton<ILogging, Logging.Logging>();
             services.AddSingleton<ISettingsSource, FileSettingsSource>();
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader)new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
-          
+            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader) new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
+
             services.AddOptions();
             services.Configure<JwtOptions>(Configuration.GetSection("JwtOptions"));
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
@@ -151,8 +144,8 @@ namespace Eu.EDelivery.AS4.Fe
                 });
             });
 
-            //app.UseApplicationInsightsRequestTelemetry();
-            //app.UseApplicationInsightsExceptionTelemetry();
+            app.UseApplicationInsightsRequestTelemetry();
+            app.UseApplicationInsightsExceptionTelemetry();
 
             app.UseMvc();
             app.UseSwagger();

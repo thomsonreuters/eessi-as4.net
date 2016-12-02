@@ -28,12 +28,17 @@ namespace Eu.EDelivery.AS4.Fe.Tests.TestData
             throw new NotImplementedException();
         }
 
-        public Task UpdateOrCreateAgent(SettingsAgent settingsAgent, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
+        public Task CreateAgent(SettingsAgent settingsAgent, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {
             throw new NotImplementedException();
         }
 
         public Task DeleteAgent(string name, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAgent(SettingsAgent settingsAgent, string originalAgentName, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {
             throw new NotImplementedException();
         }

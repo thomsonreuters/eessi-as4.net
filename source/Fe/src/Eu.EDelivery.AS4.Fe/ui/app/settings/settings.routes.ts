@@ -4,6 +4,7 @@ import { MustBeAuthorizedGuard } from '../common/common.guards';
 
 import { AgentSettingsComponent } from './agent.component';
 import { SettingsComponent } from './settings.component';
+import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent.component';
 import { WrapperComponent } from './../common/wrapper.component';
 
 export const ROUTES: Routes = [
@@ -19,7 +20,7 @@ export const ROUTES: Routes = [
                     { path: 'send', component: AgentSettingsComponent, data: { title: 'Send', type: 'sendAgents' } },
                     { path: 'deliver', component: AgentSettingsComponent, data: { title: 'Deliver', type: 'deliverAgents' } },
                     { path: 'notify', component: AgentSettingsComponent, data: { title: 'Notify', type: 'notifyAgents' } },
-                    { path: 'receptionawareness', component: AgentSettingsComponent, data: { title: 'Reception', type: 'receptionAwarenessAgents' } }
+                    { path: 'receptionawareness', component: ReceptionAwarenessAgentComponent, data: { title: 'Reception', type: 'receptionAwarenessAgent' } }
                 ]
             }
         ],

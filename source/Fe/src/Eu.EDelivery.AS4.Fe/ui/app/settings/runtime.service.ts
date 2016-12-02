@@ -4,8 +4,15 @@ import { Observable } from 'rxjs/Observable';
 
 import { RuntimeStore } from './runtime.store';
 
+export interface IRuntimeService {
+    getReceivers();
+    getSteps();
+    getTransformers();
+    getCertificateRepositories();
+}
+
 @Injectable()
-export class RuntimeService {
+export class RuntimeService implements IRuntimeService {
     constructor(private http: AuthHttp, private runtimeStore: RuntimeStore) {
 
     }

@@ -9,8 +9,18 @@ import { Base } from './../api/Base';
 import { CustomSettings } from './../api/CustomSettings';
 import { SettingsDatabase } from './../api/SettingsDatabase';
 
+export interface ISettingsService {
+    getSettings();
+    saveBaseSettings(base: Base);
+    saveCustomSettings(custom: CustomSettings): Observable<boolean>;
+    saveDatabaseSettings(settings: SettingsDatabase): Observable<boolean>;
+    createAgent(settings: SettingsAgent, agent: string): Observable<boolean>;
+    updateAgent(settings: SettingsAgent, originalName: string, agent: string): Observable<boolean>;
+    deleteAgent(settings: SettingsAgent, agent: string);
+}
+
 @Injectable()
-export class SettingsService {
+export class SettingsService implements ISettingsService {
     constructor(private http: AuthHttp, private settingsStore: SettingsStore) {
         this.getSettings();
     }
@@ -18,9 +28,7 @@ export class SettingsService {
         return this
             .http
             .get(this.getUrl())
-            .subscribe(result => {
-                this.settingsStore.update('Settings', result.json());
-            });
+            .subscribe(result => this.settingsStore.update('Settings', result.json()));
     }
     public saveBaseSettings(base: Base): Observable<boolean> {
         let subj = new Subject<boolean>();
@@ -61,11 +69,28 @@ export class SettingsService {
             });
         return subj.asObservable();
     }
-    public updateOrCreateAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
+    public createAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
         let subject = new Subject<boolean>();
         this.http
             .post(this.getUrl(agent), settings)
             .subscribe(() => {
+                subject.next(true);
+                subject.complete();
+            }, () => {
+                subject.next(false);
+                subject.complete();
+            });
+        return subject.asObservable();
+    }
+    public updateAgent(settings: SettingsAgent, originalName: string, agent: string): Observable<boolean> {
+        let subject = new Subject<boolean>();
+
+        // Make a copy of the SettingsAgent and swap the originalName with the new name
+        // This is done because the api expects the new name as a route parameter instead of the old name
+        this.http
+            .put(`${this.getUrl(agent)}/${originalName}`, settings)
+            .subscribe(() => {
+                this.settingsStore.updateAgent(agent, originalName, settings);
                 subject.next(true);
                 subject.complete();
             }, () => {
