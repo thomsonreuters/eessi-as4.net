@@ -33,11 +33,6 @@ describe('agent', () => {
     let otherAgent: SettingsAgent;
     let settings: Settings;
     let agents: Array<SettingsAgent>;
-    let nativeElement = {
-        nativeElement: {
-            value: ''
-        }
-    };
     beforeEach(() => {
         currentAgent = new SettingsAgent();
         currentAgent.name = currentAgentName;
@@ -153,7 +148,6 @@ describe('agent', () => {
         }));
         it('currentAgent should not be changed when user doesnt confirm when form is dirty', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
             agent.settings = agents;
-            agent.dropdown = nativeElement;
             agent.currentAgent = currentAgent;
 
             let dialogSpy = spyOn(dialogService, 'confirm').and.returnValue(false);
@@ -169,7 +163,6 @@ describe('agent', () => {
 
         it('when in new mode and the user confirms then the currentAgent should be removed from the list', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
             agent.settings = agents;
-            agent.dropdown = nativeElement;
             agent.currentAgent = currentAgent;
             agent.isNewMode = true;
             agent.form.markAsDirty();
@@ -276,7 +269,6 @@ describe('agent', () => {
         }));
         it('should revert the name back to its original value when it has been renamed', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
             agent.isNewMode = false;
-            agent.dropdown = nativeElement;
             agent.currentAgent = currentAgent;
 
             let dialogServiceSpy = spyOn(dialogService, 'prompt').and.returnValue('newName');

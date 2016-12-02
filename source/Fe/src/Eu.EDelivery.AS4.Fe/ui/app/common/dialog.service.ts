@@ -15,4 +15,7 @@ export class DialogService {
     public incorrectForm() {
         this.message('Input is invalid, please correct the red fields');
     }
+    public deleteConfirm(type: string): boolean {
+        return this.confirm(`Are you sure you want to delete the ${type}`);
+    }
 }

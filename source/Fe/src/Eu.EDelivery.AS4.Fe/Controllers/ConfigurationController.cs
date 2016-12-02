@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using EnsureThat;
 using Eu.EDelivery.AS4.Fe.AS4Model;
@@ -117,7 +118,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.SendAgents, (settings, agents) => settings.SendAgents = agents);
             return Ok();
-        }       
+        }
 
         [HttpDelete]
         [Route("sendagents")]
@@ -198,7 +199,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         public async Task<OkResult> CreateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.CreateAgent(settingsAgent, agents => new [] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
+            await settingsService.CreateAgent(settingsAgent, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
             return Ok();
         }
 
@@ -207,7 +208,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         public async Task<OkResult> DeleteReceptionAwarenessAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
-            await settingsService.DeleteAgent(name, agents => new [] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
+            await settingsService.DeleteAgent(name, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents.FirstOrDefault());
             return Ok();
         }
 
@@ -217,7 +218,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => new [] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
             return Ok();
         }
     }

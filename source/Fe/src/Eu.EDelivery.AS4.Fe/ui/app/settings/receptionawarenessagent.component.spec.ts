@@ -65,6 +65,9 @@ describe('receptionawarenessAgent', () => {
             expect(agent.currentAgent).toBe(currentAgent);
             expect(agent.form.value.name).toBe(currentAgent.name);
         }));
+        it('currentAgent should not be undefined', inject([ReceptionAwarenessAgentComponent], (agent: ReceptionAwarenessAgentComponent) => {
+            expect(agent.currentAgent).toBeDefined();
+        }));
         it('should load transformers', inject([ReceptionAwarenessAgentComponent, RuntimeStore], (agent: ReceptionAwarenessAgentComponent, runtimeStore: RuntimeStore) => {
             let transformers = new Array<ItemType>();
             // Act
@@ -80,10 +83,11 @@ describe('receptionawarenessAgent', () => {
         }));
     });
     describe('save', () => {
-        it('should call runtimeservice.updateAgent when already saved and form should be marked pristine', inject([ReceptionAwarenessAgentComponent, SettingsService], (agent: ReceptionAwarenessAgentComponent, settingsService: SettingsService) => {
+        it('should call runtimeservice.updateAgent when already saved and form should be marked pristine', inject([ReceptionAwarenessAgentComponent, SettingsService, SettingsStore], (agent: ReceptionAwarenessAgentComponent, settingsService: SettingsService, settingsStore: SettingsStore) => {
             let observable = Observable.of(true);
             let settingsServiceSpy = spyOn(settingsService, 'updateAgent').and.returnValue(observable);
-            agent.currentAgent = currentAgent;
+
+            settingsStore.setState({ Settings: settings });
 
             let form = {
                 valid: true,
@@ -136,6 +140,24 @@ describe('receptionawarenessAgent', () => {
             // Assert
             expect(agent.currentAgent.name).toBe('FDSQFDSQFDSQ');
         }));
+        it('should call createAgent when in new mode', inject([ReceptionAwarenessAgentComponent, SettingsService], (agent: ReceptionAwarenessAgentComponent, settingsService: SettingsService) => {
+            let observable = Observable.of(true);
+            let settingsSpy = spyOn(settingsService, 'createAgent').and.returnValue(observable);
+            let settingsUpdateSpy = spyOn(settingsService, 'updateAgent').and.throwError('I SHOULD NOT HAVE BEEN CALLED');
+            let form = {
+                valid: true,
+                markAsPristine: () => { }
+            };
+            agent.form = <any>form;
+            let formSpy = spyOn(form, 'markAsPristine');
+
+            // Act
+            agent.save();
+
+            // Assert
+            expect(settingsSpy).toHaveBeenCalledWith(agent.currentAgent, SettingsAgents.FIELD_receptionAwarenessAgent);
+            expect(formSpy).toHaveBeenCalled();
+        }));
     });
     describe('reset', () => {
         it('should revert the form value back to its original value', inject([ReceptionAwarenessAgentComponent, SettingsStore], (agent: ReceptionAwarenessAgentComponent, settingsStore: SettingsStore) => {
@@ -152,6 +174,32 @@ describe('receptionawarenessAgent', () => {
             // Assert
             expect(agent.currentAgent.name).toBe(currentAgentName);
             expect(agent.form.value.name).toBe(currentAgentName);
+        }));
+    });
+    describe('delete', () => {
+        it('should remove the agent', inject([ReceptionAwarenessAgentComponent, SettingsStore, SettingsService, DialogService], (agent: ReceptionAwarenessAgentComponent, settingsStore: SettingsStore, settingsService: SettingsService, dialogService: DialogService) => {
+            settingsStore.setState({ Settings: settings });
+            agent.currentAgent = currentAgent;
+
+            let dialogSpy = spyOn(dialogService, 'deleteConfirm').and.returnValue(true);
+            let serviceSpy = spyOn(settingsService, 'deleteAgent').and.callFake(() => settingsStore.deleteAgent(SettingsAgents.FIELD_receptionAwarenessAgent, currentAgent));
+
+            // Act
+            agent.delete();
+
+            // Assert
+            expect(serviceSpy).toHaveBeenCalled();
+            expect(agent.currentAgent).toBeDefined();
+            expect(agent.currentAgent.name).toBeUndefined();
+        }));
+        it('should ask for confirmation', inject([ReceptionAwarenessAgentComponent, DialogService], (agent: ReceptionAwarenessAgentComponent, dialogService: DialogService) => {
+            let dialogSpy = spyOn(dialogService, 'deleteConfirm');
+
+            // Act
+            agent.delete();
+
+            // Assert
+            expect(dialogSpy).toHaveBeenCalled();
         }));
     });
 });

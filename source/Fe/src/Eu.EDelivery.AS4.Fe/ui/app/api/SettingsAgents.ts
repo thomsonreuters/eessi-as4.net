@@ -11,7 +11,7 @@ export class SettingsAgents {
 	notifyAgents: SettingsAgent[];
 	receptionAwarenessAgent: SettingsAgent;
 
-	static FIELD_subtmitAgents: string = 'subtmitAgents';
+	static FIELD_submitAgents: string = 'submitAgents';
 	static FIELD_receiveAgents: string = 'receiveAgents';
 	static FIELD_sendAgents: string = 'sendAgents';
 	static FIELD_deliverAgents: string = 'deliverAgents';

@@ -8,6 +8,7 @@
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-flat" (click)="save()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-save"></i></button>
                         <button type="button" class="btn btn-flat" (click)="reset()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-undo"></i></button>
+                        <button type="button" class="btn btn-flat" (click)="delete()" [disabled]="isNew"><i class="fa fa-trash-o"></i></button>
                     </div>
                 </div>
             </as4-input>

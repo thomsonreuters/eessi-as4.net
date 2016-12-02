@@ -1,6 +1,8 @@
+import { SettingsAgents } from './../api/SettingsAgents';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Component, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
 
 import { DialogService } from './../common/dialog.service';
 import { RuntimeStore } from './runtime.store';
@@ -16,8 +18,9 @@ import { SettingsService } from './settings.service';
 })
 export class ReceptionAwarenessAgentComponent implements OnDestroy {
     public form: FormGroup;
-    public currentAgent: SettingsAgent;
+    public currentAgent: SettingsAgent = new SettingsAgent();
     public transformers: Array<ItemType>;
+    private isNew: boolean = true;
     private _settingsStoreSubscr: Subscription;
     private _runtimeStoreSubscr: Subscription;
     constructor(private formBuilder: FormBuilder, private settingStore: SettingsStore, private settingsService: SettingsService,
@@ -25,9 +28,11 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
         this.form = SettingsAgent.getForm(this.formBuilder, null);
         this._settingsStoreSubscr = this.settingStore
             .changes
-            .filter(result => !!result && !!result.Settings.agents.receptionAwarenessAgent)
+            .filter(result => !!result && !!result.Settings && !!result.Settings.agents)
+            .map(result => result.Settings.agents.receptionAwarenessAgent)
             .subscribe(result => {
-                this.currentAgent = result.Settings.agents.receptionAwarenessAgent;
+                this.isNew = !!!result;
+                this.currentAgent = !!!result ? new SettingsAgent() : result;
                 this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
             });
         this._runtimeStoreSubscr = this.runtimeStore
@@ -43,18 +48,23 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
             return;
         }
 
-        this.settingsService
-            .updateAgent(this.form.value, this.currentAgent.name, 'receptionAwarenessAgent')
-            .subscribe(result => {
-                if (result) {
-                    console.log('HALLO TEST');
-                    this.form.markAsPristine();
-                    this.currentAgent = <SettingsAgent>this.form.value;
-                }
-            });
+        let obs: Observable<boolean>;
+        if (this.isNew) obs = this.settingsService.createAgent(this.form.value, SettingsAgents.FIELD_receptionAwarenessAgent);
+        else obs = this.settingsService.updateAgent(this.form.value, this.currentAgent.name, SettingsAgents.FIELD_receptionAwarenessAgent);
+        obs.subscribe(result => {
+            if (result) {
+                console.log('HALLO TEST');
+                this.form.markAsPristine();
+                this.currentAgent = <SettingsAgent>this.form.value;
+            }
+        });
     }
     reset() {
         this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+    }
+    delete() {
+        if (!this.dialogService.deleteConfirm('agent')) return;
+        this.settingsService.deleteAgent(this.currentAgent, SettingsAgents.FIELD_receptionAwarenessAgent);
     }
     ngOnDestroy() {
         this._settingsStoreSubscr.unsubscribe();

@@ -74,6 +74,7 @@ export class SettingsService implements ISettingsService {
         this.http
             .post(this.getUrl(agent), settings)
             .subscribe(() => {
+                this.settingsStore.addAgent(agent, settings);
                 subject.next(true);
                 subject.complete();
             }, () => {
@@ -100,7 +101,9 @@ export class SettingsService implements ISettingsService {
         return subject.asObservable();
     }
     public deleteAgent(settings: SettingsAgent, agent: string) {
-        this.http.delete(`${this.getUrl(agent)}?name=${settings.name}`, settings).subscribe(() => this.getSettings());
+        this.http
+            .delete(`${this.getUrl(agent)}?name=${settings.name}`, settings)
+            .subscribe(() => this.settingsStore.deleteAgent(agent, settings));
     }
 
     private getUrl(path?: string): string {
