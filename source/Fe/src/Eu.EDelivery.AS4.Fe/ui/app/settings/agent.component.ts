@@ -31,6 +31,8 @@ export class AgentSettingsComponent implements OnDestroy {
         return this._currentAgent;
     }
     public set currentAgent(agent: SettingsAgent) {
+        if (!!!agent) this.form.disable();
+        else this.form.enable();
         this._currentAgent = agent;
     }
     public transformers: ItemType[];
@@ -47,6 +49,7 @@ export class AgentSettingsComponent implements OnDestroy {
     constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder,
         private runtimeStore: RuntimeStore, private dialogService: DialogService, private ngZone: NgZone) {
         this.form = SettingsAgent.getForm(this.formBuilder, null);
+        this.form.disable();
         if (!!this.activatedRoute.snapshot.data['type']) {
             this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
             this.collapsed = false;

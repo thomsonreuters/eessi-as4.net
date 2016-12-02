@@ -1,3 +1,4 @@
+import { Setting } from './../api/Setting';
 import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/forms';
 import { NgZone, Component, Input, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
@@ -18,16 +19,26 @@ import { Step } from './../api/Step';
                 </select>
             </as4-input>
             <div>
-                <p><button type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
+                <p><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
                 <table formArrayName="step" class="table table-condensed" *ngIf="group.controls.step.controls.length > 0">
                     <tbody [sortablejs]="group.controls.step" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved}">
                         <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>
-                            <td class="action"><button type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
+                            <td class="action"><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
                             <td>
-                                <select class="form-control" formControlName="type">
+                                <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                                 </select>
+                                <div *ngIf="step.controls.setting.controls.length > 0">
+                                    <table class="table table-condensed" formArrayName="setting">
+                                        <tbody>
+                                            <tr *ngFor="let set of step.controls.setting.controls; let i = index" [formGroupName]="i">
+                                                <td>{{set.value.key}}</td>
+                                                <td><input type="text" class="form-control" formControlName="value"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </td>
                             <td><input type="checkbox" formControlName="unDecorated"></td>
                         </tr>
@@ -42,7 +53,7 @@ export class StepSettingsComponent implements OnDestroy {
     public steps: ItemType[];
     public decorators: ItemType[];
     private _runtimeStoreSubscription: Subscription;
-    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private ngZone: NgZone, private dialogService: DialogService) {
+    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => result != null)
@@ -65,5 +76,17 @@ export class StepSettingsComponent implements OnDestroy {
     }
     public ngOnDestroy() {
         this._runtimeStoreSubscription.unsubscribe();
+    }
+    public stepChanged(formGroup: FormGroup, selectedStep: string) {
+        alert('step changed');
+        let stepProps = this.steps.find(st => st.technicalName === selectedStep);
+        formGroup.removeControl('setting');
+        formGroup
+            .addControl('setting', this.formBuilder.array(stepProps
+                .properties
+                .map(prop => Setting.getForm(this.formBuilder, {
+                    key: prop.friendlyName,
+                    value: ''
+                }))));
     }
 }

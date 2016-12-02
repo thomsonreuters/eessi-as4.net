@@ -110,8 +110,18 @@ describe('agent', () => {
         // Act
         settingsStore.setState({ Settings: settings });
 
-        // Assertw
+        // Assert
         expect(agent.currentAgent.name).toBe(currentAgent.name);
+    }));
+    it('should be disabled when no agent is selected', inject([AgentSettingsComponent], (agent: AgentSettingsComponent) => {
+        // Assert
+        expect(agent.form.disabled).toBeTruthy();
+
+        agent.currentAgent = currentAgent;
+        expect(agent.form.disabled).toBeFalsy();
+
+        agent.currentAgent = null;
+        expect(agent.form.disabled).toBeTruthy();
     }));
 
     describe('addAgent', () => {
@@ -200,7 +210,8 @@ describe('agent', () => {
             let form = {
                 valid: true,
                 value: currentAgent,
-                markAsPristine: () => { }
+                markAsPristine: () => { },
+                enable: () => { }
             };
             agent.form = <any>form;
             agent.isNewMode = false;
@@ -253,7 +264,8 @@ describe('agent', () => {
         }));
         it('should reset the form to the currentAgent value', inject([AgentSettingsComponent], (agent: AgentSettingsComponent) => {
             let form = {
-                value: Object.assign({}, currentAgent)
+                value: Object.assign({}, currentAgent),
+                enable: () => { }
             };
             agent.form = <any>form;
             agent.isNewMode = false;

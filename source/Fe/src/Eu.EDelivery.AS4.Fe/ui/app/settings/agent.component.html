@@ -26,16 +26,17 @@
             </div>
         </div>
     </as4-box>
+    <div class="disabled">
+        <as4-box [title]="'Receiver'" [collapsed]="false">
+            <div content class="col-md-6">
+                <as4-receiver [group]="form.controls.receiver"></as4-receiver>
+            </div>
+        </as4-box>
 
-    <as4-box [title]="'Receiver'" [collapsed]="false">
-        <div content class="col-md-6">
-            <as4-receiver [group]="form.controls.receiver"></as4-receiver>
-        </div>
-    </as4-box>
-
-    <as4-box [title]="'Steps'" [collapsed]="false">
-        <div content class="col-md-6">
-            <as4-step-settings [group]="form.controls.steps"></as4-step-settings>
-        </div>
-    </as4-box>
+        <as4-box [title]="'Steps'" [collapsed]="false">
+            <div content class="col-md-6">
+                <as4-step-settings [group]="form.controls.steps"></as4-step-settings>
+            </div>
+        </as4-box>
+    </div>
 </form>

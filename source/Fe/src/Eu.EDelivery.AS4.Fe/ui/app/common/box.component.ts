@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, Renderer } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, Renderer, ContentChildren, QueryList } from '@angular/core';
 
 @Component({
     selector: 'as4-box',
