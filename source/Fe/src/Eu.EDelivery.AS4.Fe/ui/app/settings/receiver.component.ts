@@ -1,8 +1,8 @@
-import { RuntimeStore } from './runtime.store';
 import { Component, Input, Output, forwardRef, OnDestroy } from '@angular/core';
 import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
+import { RuntimeStore } from './runtime.store';
 import { Receiver } from './../api/Receiver';
 import { Setting } from './../api/Setting';
 import { ItemType } from './../api/ItemType';
@@ -12,22 +12,12 @@ import { ItemType } from './../api/ItemType';
     template: `
         <div [formGroup]="group">    
             <as4-input [label]="'Type'">
-                <select class="form-control" formControlName="type" (change)="receiverChanged($event.target.value)">
+                <select class="form-control" formControlName="type" (change)="receiverChanged($event.target.value)" #type>
                     <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
                 </select>
             </as4-input>
-            <div *ngIf="group.controls.setting.controls.length > 0">
-                <h4>Settings</h4>
-                <table class="table table-condensed" formArrayName="setting">
-                    <tbody>
-                        <tr *ngFor="let set of group.controls.setting.controls; let i = index" [formGroupName]="i">
-                            <td>{{set.value.key}}&nbsp;<as4-info [tooltip]="currentReceiver && currentReceiver.properties[i] && currentReceiver.properties[i].description"></as4-info></td>
-                            <td><input type="text" class="form-control" formControlName="value"/><td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>             
-        </div>    
+            <as4-runtime-settings [form]="group" [types]="types" [itemType]="type.value"></as4-runtime-settings>      
+        </div>
     `
 })
 export class ReceiverComponent implements OnDestroy {

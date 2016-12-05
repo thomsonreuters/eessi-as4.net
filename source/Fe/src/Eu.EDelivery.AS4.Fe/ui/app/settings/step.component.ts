@@ -29,16 +29,7 @@ import { Step } from './../api/Step';
                                 <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                                 </select>
-                                <div *ngIf="step.controls.setting.controls.length > 0" formArrayName="setting">
-                                    <table class="table table-condensed">
-                                        <tbody>
-                                            <tr *ngFor="let set of step.controls.setting.controls; let i = index" [formGroupName]="i">
-                                                <td class="settings">{{set.value.key}}&nbsp;<as4-info [tooltip]="steps[selectedStep.selectedIndex] && steps[selectedStep.selectedIndex].properties[i] && steps[selectedStep.selectedIndex].description"></as4-info></td>
-                                                <td><input type="text" class="form-control" formControlName="value"/><td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.controls.type.value"></as4-runtime-settings>
                             </td>
                             <td><input type="checkbox" formControlName="unDecorated"></td>
                         </tr>

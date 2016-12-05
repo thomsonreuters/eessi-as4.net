@@ -36,6 +36,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private string Password => this._properties.ReadOptionalProperty("Password");
         protected override ILogger Logger { get; }
 
+        [Info("Polling interval", "", "int")]
         protected override TimeSpan PollingInterval => FromProperties();
 
         /// <summary>

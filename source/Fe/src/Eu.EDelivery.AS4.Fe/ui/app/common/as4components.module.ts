@@ -14,6 +14,7 @@ import { InfoComponent } from './info.component';
 import { TooltipDirective } from './tooltip.directive';
 import { DialogService } from './dialog.service';
 import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
+import { RuntimeSettingsComponent } from './runtimesettings.component';
 
 @NgModule({
     declarations: [
@@ -23,7 +24,8 @@ import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
         HeaderComponent,
         InputComponent,
         InfoComponent,
-        TooltipDirective
+        TooltipDirective,
+        RuntimeSettingsComponent
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -37,7 +39,8 @@ import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
         HeaderComponent,
         InputComponent,
         InfoComponent,
-        TooltipDirective
+        TooltipDirective,
+        RuntimeSettingsComponent
     ],
     imports: [
         AuthenticationModule,

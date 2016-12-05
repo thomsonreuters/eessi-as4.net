@@ -19,6 +19,7 @@ import { AppState, InternalStateType } from './app.service';
 import { NoContentComponent } from './no-content';
 import { HomeComponent } from './home';
 import { SettingsModule } from './settings';
+import { PmodesModule } from './pmodes/pmodes.module';
 
 import { As4ComponentsModule } from './common';
 import { AuthenticationModule } from './authentication';
@@ -52,6 +53,7 @@ type StoreType = {
         CommonModule,
         RouterModule.forRoot(ROUTES, { useHash: true }),
         SettingsModule,
+        PmodesModule,
         As4ComponentsModule,
         AuthenticationModule
     ],

@@ -87,7 +87,7 @@
     "angular2-template-loader": "^0.6.0",
     "awesome-typescript-loader": "^2.2.1",
     "bootstrap-loader": "^2.0.0-beta.14",
-    "codelyzer": "~1.0.0-beta.2",
+    "codelyzer": "~1.0.0-beta.4",
     "copy-webpack-plugin": "^4.0.0",
     "css-loader": "^0.25.0",
     "exports-loader": "^0.6.3",
