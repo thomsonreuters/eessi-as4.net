@@ -12,7 +12,7 @@ import { Step } from './../api/Step';
 import { Transformer } from './../api/Transformer';
 import { Receiver } from './../api/Receiver';
 import { ReceiverComponent } from './receiver.component';
-import { SettingsAgent, OriginalSettingsAgent } from '../api/SettingsAgent';
+import { SettingsAgent } from '../api/SettingsAgent';
 import { SettingsService } from './settings.service';
 import { SettingsStore } from './settings.store';
 import { DialogService } from './../common/dialog.service';
@@ -31,9 +31,11 @@ export class AgentSettingsComponent implements OnDestroy {
         return this._currentAgent;
     }
     public set currentAgent(agent: SettingsAgent) {
-        if (!!!agent) this.form.disable();
-        else this.form.enable();
         this._currentAgent = agent;
+        if (!!this.currentAgent) this.form.enable();
+        else this.form.disable();
+        // if (!!this.currentAgent) setTimeout(() => this.form.enable());
+        // else setTimeout(() => this.form.disable());
     }
     public transformers: ItemType[];
     public isNewMode: boolean = false;
@@ -72,7 +74,8 @@ export class AgentSettingsComponent implements OnDestroy {
                 this.settings = result;
                 this.currentAgent = this.settings.find(agt => agt.name === this.form.value.name);
                 if (!!this.currentAgent) {
-                    this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+                    SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+                    this.form.reset(this.currentAgent);
                 }
             });
     }
@@ -86,7 +89,8 @@ export class AgentSettingsComponent implements OnDestroy {
         this.currentAgent = newAgent;
         this.form.patchValue({ [SettingsAgent.name]: newName });
         this.isNewMode = true;
-        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+        SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+        this.form.reset(this.currentAgent);
     }
     public selectAgent(selectedAgent: string = null, $event: Event = null): boolean {
         if (this.form.dirty) {
@@ -98,7 +102,8 @@ export class AgentSettingsComponent implements OnDestroy {
         }
         this.isNewMode = false;
         this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
-        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+        SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+        this.form.reset(this.currentAgent);
         return true;
     }
     public save() {
@@ -120,7 +125,8 @@ export class AgentSettingsComponent implements OnDestroy {
         if (this.isNewMode) {
             this.settings = this.settings.filter(agent => agent !== this.currentAgent);
         }
-        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+        SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+        this.form.reset(this.currentAgent);
     }
     public rename() {
         let name = this.dialogService.prompt('Enter new name');

@@ -1,18 +1,22 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup } from '@angular/forms';
-
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { CertificateStore } from "./CertificateStore";
 
 export class BaseSettings {
 	idFormat: string;
-	certificateStoreName: string;
+	certificateStore: CertificateStore;
 
-	static FIELD_idFormat: string = 'idFormat';
-	static FIELD_certificateStoreName: string = 'certificateStoreName';
+	static FIELD_idFormat: string = 'idFormat';	
+	static FIELD_certificateStore: string = 'certificateStore';
 
 	static getForm(formBuilder: FormBuilder, current: BaseSettings): FormGroup {
 		return formBuilder.group({
 			idFormat: [current && current.idFormat],
-			certificateStoreName: [current && current.certificateStoreName],
+			certificateStore: CertificateStore.getForm(formBuilder, current && current.certificateStore),
 		});
+	}
+	/// Patch up all the formArray controls
+	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: BaseSettings) {
+		CertificateStore.patchFormArrays(formBuilder, <FormGroup>form.controls['certificateStore'], current && current.certificateStore);
 	}
 }

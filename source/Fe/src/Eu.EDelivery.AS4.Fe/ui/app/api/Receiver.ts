@@ -1,19 +1,23 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-import { Setting } from "./Setting"
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { Setting } from "./Setting";
 
 export class Receiver {
-    type: string;
-    setting: Setting[];
+	type: string;
+	setting: Setting[];
 
-    static FIELD_type: string = 'type';
-    static FIELD_setting: string = 'setting';
+	static FIELD_type: string = 'type';	
+	static FIELD_setting: string = 'setting';
 
-    static getForm(formBuilder: FormBuilder, current: Receiver): FormGroup {
-        return formBuilder.group({
-            type: [current && current.type, Validators.required],
-            setting: formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))),
-        });
-    }
+	static getForm(formBuilder: FormBuilder, current: Receiver): FormGroup {
+		return formBuilder.group({
+			type: [current && current.type],
+			setting: formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))),
+		});
+	}
+	/// Patch up all the formArray controls
+	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Receiver) {
+		form.removeControl('setting');
+		form.addControl('setting', formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))),);
+	}
 }

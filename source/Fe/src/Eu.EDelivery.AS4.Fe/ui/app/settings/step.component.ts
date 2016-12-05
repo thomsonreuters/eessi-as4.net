@@ -30,13 +30,14 @@ import { Step } from './../api/Step';
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                                 </select>
                                 <div *ngIf="step.controls.setting.controls.length > 0" formArrayName="setting">
-                                    <ul class="settings">
-                                        <li>
-                                            <as4-input [label]="set.value.key" *ngFor="let set of step.controls.setting.controls; let i = index" [formGroupName]="i">
-                                                <input type="text" class="form-control" formControlName="value"/>
-                                            </as4-input>
-                                        </li>
-                                    </ul>
+                                    <table class="table table-condensed">
+                                        <tbody>
+                                            <tr *ngFor="let set of step.controls.setting.controls; let i = index" [formGroupName]="i">
+                                                <td class="settings">{{set.value.key}}&nbsp;<as4-info [tooltip]="steps[selectedStep.selectedIndex] && steps[selectedStep.selectedIndex].properties[i] && steps[selectedStep.selectedIndex].description"></as4-info></td>
+                                                <td><input type="text" class="form-control" formControlName="value"/><td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </td>
                             <td><input type="checkbox" formControlName="unDecorated"></td>
@@ -49,7 +50,6 @@ import { Step } from './../api/Step';
     styles: [
         `
             .settings {
-                list-style-type: none;
                 padding-top: 10px;
             }
         `
@@ -85,7 +85,6 @@ export class StepSettingsComponent implements OnDestroy {
         this._runtimeStoreSubscription.unsubscribe();
     }
     public stepChanged(formGroup: FormGroup, selectedStep: string) {
-        alert('step changed');
         let stepProps = this.steps.find(st => st.technicalName === selectedStep);
         formGroup.removeControl('setting');
         formGroup

@@ -1,6 +1,5 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup } from '@angular/forms';
-
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 export class Property {
 	friendlyName: string;
@@ -8,10 +7,10 @@ export class Property {
 	regex: string;
 	description: string;
 
-	static FIELD_friendlyName: string = 'friendlyName';
-	static FIELD_type: string = 'type';
-	static FIELD_regex: string = 'regex';
-	static FIELD_description: string = 'description';
+	static FIELD_friendlyName: string = 'friendlyName';	
+	static FIELD_type: string = 'type';	
+	static FIELD_regex: string = 'regex';	
+	static FIELD_description: string = 'description';	
 
 	static getForm(formBuilder: FormBuilder, current: Property): FormGroup {
 		return formBuilder.group({
@@ -20,5 +19,8 @@ export class Property {
 			regex: [current && current.regex],
 			description: [current && current.description],
 		});
+	}
+	/// Patch up all the formArray controls
+	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Property) {
 	}
 }

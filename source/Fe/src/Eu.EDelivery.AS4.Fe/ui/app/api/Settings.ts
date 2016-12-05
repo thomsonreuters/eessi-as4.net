@@ -1,33 +1,37 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup } from '@angular/forms';
-
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { SettingsDatabase } from "./SettingsDatabase";
+import { CertificateStore } from "./CertificateStore";
 import { CustomSettings } from "./CustomSettings";
 import { SettingsAgents } from "./SettingsAgents";
-import { Repository } from './Repository';
-import { CertificateStore } from './CertificateStore';
 
 export class Settings {
 	idFormat: string;
-	certificateStoreName: string;
 	database: SettingsDatabase;
+	certificateStore: CertificateStore;
 	customSettings: CustomSettings;
 	agents: SettingsAgents;
-	certificateStore: CertificateStore;
 
-	static FIELD_idFormat: string = 'idFormat';
-	static FIELD_certificateStoreName: string = 'certificateStoreName';
+	static FIELD_idFormat: string = 'idFormat';	
 	static FIELD_database: string = 'database';
+	static FIELD_certificateStore: string = 'certificateStore';
 	static FIELD_customSettings: string = 'customSettings';
 	static FIELD_agents: string = 'agents';
 
 	static getForm(formBuilder: FormBuilder, current: Settings): FormGroup {
 		return formBuilder.group({
 			idFormat: [current && current.idFormat],
-			certificateStoreName: [current && current.certificateStoreName],
 			database: SettingsDatabase.getForm(formBuilder, current && current.database),
+			certificateStore: CertificateStore.getForm(formBuilder, current && current.certificateStore),
 			customSettings: CustomSettings.getForm(formBuilder, current && current.customSettings),
 			agents: SettingsAgents.getForm(formBuilder, current && current.agents),
 		});
+	}
+	/// Patch up all the formArray controls
+	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Settings) {
+		SettingsDatabase.patchFormArrays(formBuilder, <FormGroup>form.controls['database'], current && current.database);
+		CertificateStore.patchFormArrays(formBuilder, <FormGroup>form.controls['certificateStore'], current && current.certificateStore);
+		CustomSettings.patchFormArrays(formBuilder, <FormGroup>form.controls['customSettings'], current && current.customSettings);
+		SettingsAgents.patchFormArrays(formBuilder, <FormGroup>form.controls['agents'], current && current.agents);
 	}
 }
