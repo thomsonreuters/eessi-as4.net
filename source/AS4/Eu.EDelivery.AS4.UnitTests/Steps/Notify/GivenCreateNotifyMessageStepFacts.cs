@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.UnitTests.Builders;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Xunit;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {

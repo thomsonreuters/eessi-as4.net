@@ -37,8 +37,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoMapper, Version=5.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <HintPath>..\..\ServiceHandler\packages\AutoMapper.5.0.0\lib\net45\AutoMapper.dll</HintPath>
+    <Reference Include="AutoMapper, Version=5.0.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\ServiceHandler\packages\AutoMapper.5.0.2\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="BouncyCastle.Crypto">
@@ -165,6 +165,7 @@
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
+    <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenErrorToNotifyMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
@@ -280,7 +281,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">

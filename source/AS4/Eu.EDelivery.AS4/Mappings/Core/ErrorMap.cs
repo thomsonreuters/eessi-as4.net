@@ -28,8 +28,15 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.Category, src => src.MapFrom(t => t.category))
                 .ForMember(dest => dest.RefToMessageInError, src => src.MapFrom(t => t.refToMessageInError))
                 .ForMember(dest => dest.ShortDescription, src => src.MapFrom(t => t.shortDescription))
+                .ForMember(dest => dest.Description, src => src.MapFrom(t => t.Description))
                 .ForMember(dest => dest.Detail, src => src.MapFrom(t => t.ErrorDetail))
                 .ForAllOtherMembers(x => x.Ignore());
+
+            CreateMap<Xml.Description, ErrorDescription>()
+                .ForMember(dest => dest.Language, src => src.MapFrom(t => t.lang))
+                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value))
+                .ForAllOtherMembers(x => x.Ignore());
+
         }
 
         private Severity MapToSeverityEnum(Xml.Error xmlError)
@@ -53,8 +60,15 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.category, src => src.MapFrom(t => t.Category))
                 .ForMember(dest => dest.refToMessageInError, src => src.MapFrom(t => t.RefToMessageInError))
                 .ForMember(dest => dest.shortDescription, src => src.MapFrom(t => t.ShortDescription))
+                .ForMember(dest => dest.Description, src => src.MapFrom(t => t.Description))
                 .ForMember(dest => dest.ErrorDetail, src => src.MapFrom(t => t.Detail))
                 .ForAllOtherMembers(x => x.Ignore());
+
+            CreateMap<ErrorDescription, Xml.Description>()
+                .ForMember(dest => dest.lang, src => src.MapFrom(t => t.Language))
+                .ForMember(dest => dest.Value, src => src.MapFrom(t => t.Value))
+                .ForAllOtherMembers(x => x.Ignore());
+
         }
     }
 }
