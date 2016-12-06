@@ -8,19 +8,19 @@ import { ItemType } from './../api/ItemType';
     template: `
         <form [formGroup]="form">
             <div *ngIf="form.controls.setting.controls.length > 0">
-            <h4 *ngIf="showTitle === true">Settings</h4>
-            <table class="table table-condensed" formArrayName="setting">
-                <tbody>
-                    <tr *ngFor="let set of form.controls.setting.controls; let i = index" [formGroupName]="i">
-                        <td>{{set.value.key}}&nbsp;<as4-info [tooltip]="selectedType.properties[i].description"></as4-info></td>
-                        <td [ngSwitch]="selectedType.properties[i].type">
-                            <input *ngSwitchCase="'int'" type="number" class="form-control" formControlName="value"/>
-                            <input *ngSwitchDefault type="text" class="form-control" formControlName="value"/>
-                        <td>
-                    </tr>
-                </tbody>
-            </table>
-            </div>   
+                <h4 *ngIf="showTitle === true">Settings</h4>
+                <table class="table table-condensed" formArrayName="setting">
+                    <tbody>
+                        <tr *ngFor="let set of form.controls.setting.controls; let i = index" [formGroupName]="i">
+                            <td>{{set.value.key}}&nbsp;<as4-info [tooltip]="selectedType.properties[i].description"></as4-info></td>
+                            <td [ngSwitch]="selectedType.properties[i].type">
+                                <input *ngSwitchCase="'int'" type="number" class="form-control" formControlName="value"/>
+                                <input *ngSwitchDefault type="text" class="form-control" formControlName="value"/>
+                            <td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </form>
     `
 })

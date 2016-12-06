@@ -10,10 +10,10 @@ import { SettingsDatabase } from './../api/SettingsDatabase';
     template: `
         <form [formGroup]="form" class="form-horizontal">
             <as4-input [label]="'Provider'">
-                <input type="text" class="form-control pull-right" id="provider" (keydown.enter)="save()" formControlName="provider"/>
+                <input type="text" class="form-control pull-right" name="provider" (keydown.enter)="save()" formControlName="provider"/>
             </as4-input>
             <as4-input [label]="'Connectionstring'">
-                <input type="text" class="form-control pull-right" id="provider" (keydown.enter)="save()" formControlName="connectionString"/>
+                <input type="text" class="form-control pull-right" name="provider" (keydown.enter)="save()" formControlName="connectionString"/>
             </as4-input>
         </form>
     `

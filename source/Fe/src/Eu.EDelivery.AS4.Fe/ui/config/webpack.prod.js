@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @author: @AngularClass
  */
 
@@ -78,7 +78,7 @@ module.exports = function(env) {
              *
              * See: http://webpack.github.io/docs/configuration.html#output-chunkfilename
              */
-            chunkFilename: '[id].[chunkhash].chunk.js'
+            chunkFilename: '[name].[chunkhash].chunk.js'
 
         },
 
@@ -223,7 +223,7 @@ module.exports = function(env) {
                      *
                      * See: https://github.com/webpack/html-loader#advanced-options
                      */
-                    // TODO: Need to workaround Angular 2's html syntax => #id [bind] (event) *ngFor
+                    // TODO: Need to workaround Angular 2's html syntax => #name [bind] (event) *ngFor
                     htmlLoader: {
                         minimize: true,
                         removeAttributeQuotes: false,

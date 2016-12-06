@@ -6,7 +6,10 @@
         </div>
         <ul class="sidebar-menu">
             <ng-container *ngFor="let route of routes">
-                <li class="treeview" routerLinkActive="active">
+                <li *ngIf="!!!route.children" routerLinkActive="active">
+                    <a routerLink="/{{route.path}}"><i class="fa fa-book"></i>{{route.data.title}}</a>
+                </li>
+                <li class="treeview" routerLinkActive="active" *ngIf="!!(route && route.children && (route.children.length > 0))">
                     <a href="#">
                         <i class="fa fa-table"></i><span>{{route.data.title}}</span>
                         <span class="pull-right-container">
@@ -21,8 +24,8 @@
                                     <a href="#">
                                         <i class="fa fa-table"></i><span>{{childRoute.data.title}}</span>
                                         <span class="pull-right-container">
-                                        <i class="fa fa-angle-left pull-right"></i>
-                                    </span>
+                                            <i class="fa fa-angle-left pull-right"></i>
+                                        </span>
                                     </a>
                                     <ul class="treeview-menu">
                                         <ng-container *ngFor="let subRoute of childRoute.children">

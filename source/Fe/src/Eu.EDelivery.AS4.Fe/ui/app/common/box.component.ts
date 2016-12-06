@@ -8,8 +8,8 @@ export class BoxComponent implements OnInit {
     @Input() title: string;
     @Input() collapsed: boolean = false;
     @Input() fullWidth: boolean = false;
+    @Input() collapsible: boolean = false;
     constructor(private elementRef: ElementRef, private renderer: Renderer) {
-
     }
 
     ngOnInit() {

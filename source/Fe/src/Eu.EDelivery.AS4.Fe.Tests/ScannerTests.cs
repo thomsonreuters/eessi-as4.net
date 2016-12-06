@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Services;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Fe.Tests.TestData;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Xunit;
@@ -62,8 +63,9 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
         public class TestRunAtStartup : IRunAtServicesStartup
         {
-            public void Run(IServiceCollection services)
+            public void Run(IServiceCollection services, IConfigurationRoot configuration)
             {
+                throw new System.NotImplementedException();
             }
         }
     }

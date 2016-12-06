@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Fe
                 .AddDefaultTokenProviders();
 
             var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
-            services.AddModules(moduleMappings);
+            services.AddModules(moduleMappings, Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline

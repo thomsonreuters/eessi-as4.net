@@ -12,16 +12,6 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 {
     [Route("api/[controller]")]
     [Authorize]
-    public class PmodeController : Controller
-    {
-        public PmodeController()
-        {
-            
-        }        
-    }
-
-    [Route("api/[controller]")]
-    [Authorize]
     public class ConfigurationController : Controller
     {
         private readonly IAs4SettingsService settingsService;

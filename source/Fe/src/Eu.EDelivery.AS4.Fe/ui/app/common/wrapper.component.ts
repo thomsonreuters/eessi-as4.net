@@ -1,5 +1,6 @@
+import { Subscription } from 'rxjs/Subscription';
 import { Component } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, RoutesRecognized, ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'as4-wrapper',
@@ -25,29 +26,25 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class WrapperComponent {
     public breadCrumb: string;
-    constructor(private activatedRoute: ActivatedRoute) {
-        activatedRoute.url.subscribe(result => {
-            this.breadCrumb = this.getPath(this.activatedRoute);
-        });
+    private _routeSubscription: Subscription;
+    constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+        this.breadCrumb = this.getPath(this.activatedRoute.snapshot);
+        this._routeSubscription = this.router
+            .events
+            .filter(evt => evt instanceof RoutesRecognized)
+            .subscribe((result: RoutesRecognized) => {
+                this.breadCrumb = this.getPath(result.state.root);
+            });
     }
-    private getPath(activatedRoute: ActivatedRoute): string {
-        let path = activatedRoute && activatedRoute.data && (<any>activatedRoute.data).value['title'];
+    private getPath(activatedRoute: ActivatedRouteSnapshot): string {
+        let path = activatedRoute && activatedRoute.data && activatedRoute.data['title'];
         if (!!activatedRoute.firstChild) {
             return this.getPath(activatedRoute.children[0]);
         }
 
         return path;
     }
-    // private getPath(activatedRoute: ActivatedRoute): string {
-    //     let path = activatedRoute && activatedRoute.data && (<any>activatedRoute.data).value['title'];
-    //     if (!!activatedRoute.firstChild) {
-    //         path += this.getPath(activatedRoute.children[0]);
-    //     }
-
-    //     console.log(activatedRoute.parent);
-    //     if (!!!(<any>activatedRoute.parent.data).value['title']) {
-    //         return path;
-    //     }
-    //     return ` > ${path}`;
-    // }
+    private ngOnDestroy() {
+        if (!!this._routeSubscription) this._routeSubscription.unsubscribe();
+    }
 }

@@ -34,8 +34,6 @@ export class AgentSettingsComponent implements OnDestroy {
         this._currentAgent = agent;
         if (!!this.currentAgent) this.form.enable();
         else this.form.disable();
-        // if (!!this.currentAgent) setTimeout(() => this.form.enable());
-        // else setTimeout(() => this.form.disable());
     }
     public transformers: ItemType[];
     public isNewMode: boolean = false;

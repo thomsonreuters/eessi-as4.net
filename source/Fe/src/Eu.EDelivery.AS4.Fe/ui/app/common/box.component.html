@@ -4,7 +4,9 @@
             <ng-content select="[action]"></ng-content>
         </div>
         <h3 class="box-title">{{title}}</h3>
-
+        <div class="box-tools pull-right" *ngIf="collapsible">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [class.fa-plus]="collapsed" [class.fa-minu]="!collapsed"></i></button>
+        </div>
     </div>
     <form role="form">
         <div class="box-body">

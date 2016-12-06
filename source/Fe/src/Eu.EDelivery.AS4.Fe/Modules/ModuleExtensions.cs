@@ -6,6 +6,7 @@ using System.Runtime.Loader;
 using Eu.EDelivery.AS4.Fe.Services;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
         /// <param name="services"></param>
         /// <param name="mappings"></param>
         /// <param name="folderToScan"></param>
-        public static void AddModules(this IServiceCollection services, Dictionary<string, string> mappings, string folderToScan = "modules")
+        public static void AddModules(this IServiceCollection services, Dictionary<string, string> mappings, IConfigurationRoot configuration, string folderToScan = "modules")
         {
             services.AddSingleton<Scanner>();
 
@@ -44,7 +45,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
                 .Register<IRunAtAppStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient);
 
             foreach (var runat in services.BuildServiceProvider().GetServices<IRunAtServicesStartup>())
-                runat.Run(services);
+                runat.Run(services, configuration);
         }
 
         public static void ExecuteStartupServices(this IApplicationBuilder builder)

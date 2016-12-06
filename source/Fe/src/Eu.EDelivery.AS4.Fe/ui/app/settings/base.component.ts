@@ -12,10 +12,10 @@ import { ItemType } from './../api/ItemType';
     template: `
         <form [formGroup]="form" class="form-horizontal">
             <as4-input [label]="'Id format'">
-                <input type="text" class="form-control" id="idFormat" formControlName="idFormat"/>
+                <input type="text" class="form-control" name="idFormat" formControlName="idFormat"/>
             </as4-input>
             <as4-input [label]="'Store name'" formGroupName="certificateStore">
-                <input type="text" class="form-control" id="certificateStoreName" formControlName="storeName"/>
+                <input type="text" class="form-control" name="certificateStoreName" formControlName="storeName"/>
             </as4-input>
             <div formGroupName="certificateStore">
                 <as4-input [label]="'Repository type'" formGroupName="repository">
