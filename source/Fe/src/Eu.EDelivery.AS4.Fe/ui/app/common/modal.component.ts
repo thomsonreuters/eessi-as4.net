@@ -45,10 +45,12 @@ export class ModalComponent implements OnDestroy {
     @HostListener('document:keydown', ['$event'])
     public keyDown(event: KeyboardEvent) {
         if (!this.isVisible) return;
+        if (event.keyCode === 13 || event.keyCode === 27) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
         if (event.keyCode === 13) this.ok();
         else if (event.keyCode === 27) this.cancel();
-        // Call detectChanges to fix change detector errors
-        this.changeDetectorRef.markForCheck();
     }
     constructor(private modalService: ModalService, private changeDetectorRef: ChangeDetectorRef) {
         this.modalService.registerModal(this);
