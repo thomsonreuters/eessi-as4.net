@@ -1,3 +1,4 @@
+import { ModalService } from './common/modal.service';
 import {
     inject,
     TestBed
@@ -18,6 +19,7 @@ describe('App', () => {
             AppState,
             AppComponent,
             AuthenticationStore,
+            ModalService,
             { provide: RuntimeService, useClass: RuntimeServiceMock }
         ]
     }));
@@ -28,20 +30,14 @@ describe('App', () => {
 
     it('should be logged in when authenticationStore publishes', inject([AppComponent, AuthenticationStore, RuntimeService], (app: AppComponent, store: AuthenticationStore, runtimeService: RuntimeService) => {
         // Setup
-        spyOn(runtimeService, 'getReceivers');
-        spyOn(runtimeService, 'getCertificateRepositories');
-        spyOn(runtimeService, 'getSteps');
-        spyOn(runtimeService, 'getTransformers');
+        spyOn(runtimeService, 'getAll');
 
         // Act
         store.setState({ loggedin: true });
 
         // Assert
         expect(app.isLoggedIn).toBeTruthy();
-        expect(runtimeService.getReceivers).toHaveBeenCalled();
-        expect(runtimeService.getCertificateRepositories).toHaveBeenCalled();
-        expect(runtimeService.getSteps).toHaveBeenCalled();
-        expect(runtimeService.getTransformers).toHaveBeenCalled();
+        expect(runtimeService.getAll).toHaveBeenCalled();
     }));
 
     it('should not call runtimeservices on failed login', inject([AppComponent, AuthenticationStore, RuntimeService], (app: AppComponent, store: AuthenticationStore, runtimeService: RuntimeService) => {

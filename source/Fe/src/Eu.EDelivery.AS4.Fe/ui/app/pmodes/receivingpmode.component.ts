@@ -1,127 +1,133 @@
+import { ItemType } from './../api/ItemType';
+import { RuntimeStore } from './../settings/runtime.store';
+import { SendingPmode } from './../api/SendingPmode';
+import { ReceivingProcessingMode } from './../api/ReceivingProcessingMode';
 import { Subscription } from 'rxjs/Subscription';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { ReceivingPmode } from './../api/ReceivingPmode';
 import { PmodesModule } from './pmodes.module';
 import { PmodeStore } from './pmode.store';
 import { PmodeService } from './pmode.service';
+import { DialogService } from './../common/dialog.service';
 
 @Component({
     selector: 'as4-receiving-pmode',
-    template: `
-        <form [formGroup]="form" class="form-horizontal">
-            <div formGroupName="pmode">
-                <as4-box>
-                    <div content>
-                    <p>{{pmodes | json}}</p>
-                        <select class="form-control" (change)="pmodeChanged($event.target.value)">
-                            <option>Select an option</option>
-                            <option *ngFor="let pmode of pmodes">{{pmode}}</option>
-                        </select>
-                    </div>
-                </as4-box>
-                <as4-box>
-                    <div content class="col-md-6 col-xs-12">
-                        <as4-input label="Id">
-                            <input type="text" class="form-control" formControlName="id"/>
-                        </as4-input>
-                        <as4-input label="Message exchange pattern">
-                            <select formControlName="mep" class="form-control">
-                                <option value="0">One way</option>
-                                <option value="1">Two way</option>
-                            </select>
-                        </as4-input>
-                        <as4-input label="Mep binding">
-                            <select formControlName="mepBinding" class="form-control">
-                                <option value="0">Pull</option>
-                                <option value="1">Push</option>
-                            </select>
-                        </as4-input>
-                        <as4-input label="Reliability - duplicate elimination" formGroupName="reliability">
-                            <div formGroupName="duplicateElimination" class="checkbox">
-                                <input type="checkbox" formControlName="isEnabled"/>
-                            </div>
-                        </as4-input>
-                    </div>
-                </as4-box>
-                <as4-box title="Receipt handling">
-                    <div content formGroupName="receiptHandling" class="col-md-6 col-xs-12">
-                        <as4-input label="Use NNR format">
-                            <input type="checkbox" formControlName="useNNRFormat"/>
-                        </as4-input>
-                        <as4-input label="Reply patter">
-                            <select formControlName="replyPattern" class="form-control">
-                                <option value="0">Response</option>
-                                <option value="1">Callback</option>
-                            </select>
-                        </as4-input>
-                        <as4-input label="Callback url">
-                            <input type="text" class="form-control" formControlName="callbackUrl"/>
-                        </as4-input>
-                        <as4-input label="Sending PMode">
-                            <input type="text" class="form-control" formControlName="sendingPMode"/>
-                        </as4-input>
-                    </div>
-                </as4-box>
-                <as4-box title="Error handling">
-                    <div content formGroupName="errorHandling" class="col-md-6 col-xs-12">
-                        <as4-input label="Use soap fault">
-                            <input type="text" formControlName="useSoapFault" class="form-control">
-                        </as4-input>
-                        <as4-input label="Reply pattern">
-                            <select formControlName="replyPattern" class="form-control">
-                                <option value="0">Response</option>
-                                <option value="1">Callback</option>
-                            </select>
-                        </as4-input>
-                        <as4-input label="Callback url">
-                            <input type="text" formControlName="callbackUrl" class="form-control">
-                        </as4-input>
-                        <as4-input label="Response http code">
-                            <input type="text" formControlName="responseHttpCode" class="form-control">
-                        </as4-input>
-                        <as4-input label="Sending pmode">
-                            <input type="text" formControlName="sendingPMode" class="form-control">
-                        </as4-input>
-                    </div>
-                </as4-box>
-            </div>
-        </form>
-    `
+    templateUrl: './receivingpmode.component.html'
 })
-export class ReceivingPmodeComponent implements OnInit {
+export class ReceivingPmodeComponent {
     public form: FormGroup;
     public pmodes: string[];
-    private currentPmode: ReceivingPmode;
+    public isNewMode: boolean = false;
+    public deliverSenders: Array<ItemType>;
+    public get currentPmode(): ReceivingPmode | undefined {
+        return this._currentPmode;
+    }
+    public set currentPmode(pmode: ReceivingPmode | undefined) {
+        this._currentPmode = pmode;
+        if (!!!pmode) this.form.disable();
+        else this.form.enable();
+    }
     private _storeSubscription: Subscription;
     private _currentPmodeSubscription: Subscription;
-    constructor(private formBuilder: FormBuilder, private pmodeService: PmodeService, private pmodeStore: PmodeStore) {
+    private _runtimeStoreSubscription: Subscription;
+    private _currentPmode: ReceivingPmode | undefined;
+    constructor(private formBuilder: FormBuilder, private pmodeService: PmodeService, private pmodeStore: PmodeStore, private dialogService: DialogService, private runtimeStore: RuntimeStore) {
         this.form = ReceivingPmode.getForm(this.formBuilder, null);
+        this.form.disable();
+        this._runtimeStoreSubscription = this.runtimeStore
+            .changes
+            .filter(result => !!result)
+            .map(result => result.deliverSenders)
+            .distinctUntilChanged()
+            .subscribe(result => this.deliverSenders = result);
         this._storeSubscription = this.pmodeStore
             .changes
-            .filter(result => !!(result && result.ReceivingNames))
+            .filter(result => !!result)
             .map(result => result.ReceivingNames)
-            .subscribe(result => {
-                this.pmodes = result;
-            });
+            .distinctUntilChanged()
+            .subscribe(result => this.pmodes = result);
         this._currentPmodeSubscription = this.pmodeStore
             .changes
-            .filter(result => !!(result && result.Receiving))
+            .filter(result => !!result)
             .map(result => result.Receiving)
-            .subscribe(result => this.currentPmode = result);
+            .distinctUntilChanged()
+            .subscribe(result => {
+                ReceivingPmode.patchFormArrays(this.formBuilder, this.form, result);
+                if (!!result) this.form.reset(result);
+                else this.form.reset();
+                this.currentPmode = result;
+            });
         this.pmodeService.getAllReceiving();
     }
     public pmodeChanged(name: string) {
-        this.pmodeService.getReceiving(name);
+        let select = () => {
+            this.isNewMode = false;
+            let lookupPmode = this.pmodes.find(pmode => pmode === name);
+            if (!!lookupPmode) this.pmodeService.getReceiving(name);
+        };
+        if (this.form.dirty) {
+            this.dialogService
+                .confirmUnsavedChanges()
+                .filter(result => result)
+                .subscribe(() => {
+                    if (this.isNewMode) {
+                        this.pmodes = this.pmodes.filter(pmode => pmode !== this.currentPmode.name);
+                        this.isNewMode = false;
+                    }
+                    else select();
+                });
+            return false;
+        }
 
-        // this.currentPmode = this.pmodes.find(pmode => pmode.name === value);
-        // this.form = ReceivingPmode.getForm(this.formBuilder, this.currentPmode);
+        select();
+        return true;
     }
-    ngOnInit() {
+    public rename() {
+        let newName = this.dialogService.prompt('Please enter a new name');
+        if (!!!newName) return;
+        this.form.patchValue({ [ReceivingPmode.FIELD_name]: newName });
+        this.form.markAsDirty();
+    }
+    public reset() {
+        if (this.isNewMode) {
+            this.isNewMode = false;
+            this.pmodes = this.pmodes.filter(pmode => pmode !== this.currentPmode.name);
+            this.currentPmode = undefined;
+        }
+        ReceivingPmode.patchFormArrays(this.formBuilder, this.form, this.currentPmode);
+        this.form.reset(this.currentPmode);
+        this.form.markAsPristine();
+    }
+    public delete() {
+        if (!!!this.currentPmode) return;
+        this.dialogService
+            .deleteConfirm('pmode')
+            .filter(result => result)
+            .subscribe(result => this.pmodeService.deleteReceiving(this.currentPmode.name));
+    }
+    public add() {
+        this.dialogService
+            .prompt('Please enter a new name', 'New pmode')
+            .filter(result => !!result)
+            .subscribe(newName => {
+                if (!!!newName) return;
+                let newPmode = new ReceivingPmode();
+                newPmode.name = newName;
+                newPmode.pmode = new ReceivingProcessingMode();
+                newPmode.pmode.id = newName;
+                this.currentPmode = newPmode;
+                this.pmodes.push(newName);
+                this.isNewMode = true;
+                ReceivingPmode.patchFormArrays(this.formBuilder, this.form, this.currentPmode);
+                this.form.reset(this.currentPmode);
+                this.form.markAsDirty();
+            });
     }
     ngOnDestroy() {
         this._storeSubscription.unsubscribe();
         this._currentPmodeSubscription.unsubscribe();
+        this._runtimeStoreSubscription.unsubscribe();
     }
 }

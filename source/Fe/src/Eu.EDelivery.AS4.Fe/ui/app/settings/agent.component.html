@@ -1,20 +1,35 @@
+<as4-modal name="new-agent" title="Create a new pmode" (shown)="actionType = settings[0].name; newName = ''; nameInput.focus()">
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label class="col-xs-2">New name</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" #nameInput (keydown)="newName = $event.target.value" [value]="newName" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-2">Use</label>
+            <div class="col-xs-10">
+                <select class="form-control" (change)="actionType = $event.target.value" #select>
+                    <option *ngFor="let setting of settings" [selected]="actionType === setting.name" [ngValue]="setting.name">{{setting.name}}</option>
+                    <option value="-1" [selected]="actionType === -1">Custom</option>
+                </select>
+            </div>
+        </div>
+    </form>
+</as4-modal>
 <form [formGroup]="form" class="form-horizontal">
     <as4-box [collapsed]="false">
         <button action type="button" class="btn btn-box-tool"><i class="fa fa-save"></i></button>
         <div content class="col-md-6 col-xs-12">
             <as4-input [label]="'Name'">
                 <div class="input-group">
-                    <select (change)="selectAgent($event.target.value, $event)" class="form-control">
+                    <select (change)="selectAgent($event.target.value); agentSelect.value = currentAgent && currentAgent.name" [value]="currentAgent && currentAgent.name"
+                        class="form-control" #agentSelect>
                         <option>Select an option</option>
-                        <option *ngFor="let agent of settings" [selected]="!!!currentAgent ? false : currentAgent.name == agent.name">{{currentAgent && (currentAgent.name == agent.name) && !!form && !!form.controls ? form.controls.name.value : agent.name}}</option>
+                        <option *ngFor="let agent of settings">{{currentAgent && (currentAgent.name == agent.name) && !!form && !!form.controls ? form.controls.name.value : agent.name}}</option>
                     </select>
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-flat" (click)="rename()" [disabled]="!!!currentAgent"><i class="fa fa-edit"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="addAgent()" [disabled]="isNewMode"><i class="fa fa-plus"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="save()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-save"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="delete()" [disabled]="!!!currentAgent"><i class="fa fa-trash-o"></i></button>
-                        <button type="button" class="btn btn-flat" (click)="reset()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-undo"></i></button>
-                    </div>
+                    <div class="input-group-btn" crud-buttons [current]="currentAgent" [isNewMode]="isNewMode" [form]="form" (rename)="rename()"
+                        (add)="addAgent()" (save)="save()" (delete)="delete()" (reset)="reset()"></div>
                 </div>
             </as4-input>
             <div formGroupName="transformer">
@@ -32,7 +47,7 @@
         </div>
     </as4-box>
 
-    <as4-box title="Steps (Advanced)" collapsible="true" collapsed="true">
+    <as4-box title="Steps (Advanced)" collapsible="true" [collapsed]="!!!currentAgent || (currentAgent && !!currentAgent.steps)">
         <div content class="col-md-6">
             <as4-step-settings [group]="form.controls.steps"></as4-step-settings>
         </div>

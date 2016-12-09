@@ -1,3 +1,4 @@
+import { ModalService } from './../common/modal.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import {
@@ -52,6 +53,7 @@ describe('receptionawarenessAgent', () => {
             RuntimeStore,
             FormBuilder,
             DialogService,
+            ModalService,
             { provide: RuntimeService, useClass: RuntimeServiceMock },
             { provide: SettingsService, useClass: SettingsServiceMock }
         ]
@@ -75,7 +77,8 @@ describe('receptionawarenessAgent', () => {
                 receivers: new Array<ItemType>(),
                 steps: new Array<ItemType>(),
                 transformers: transformers,
-                certificateRepositories: new Array<ItemType>()
+                certificateRepositories: new Array<ItemType>(),
+                deliverSenders: new Array<ItemType>()
             });
 
             // Assert
@@ -108,7 +111,7 @@ describe('receptionawarenessAgent', () => {
                 valid: false
             };
             agent.form = <any>form;
-            let dialogServiceSpy = spyOn(dialogService, 'message');
+            let dialogServiceSpy = spyOn(dialogService, 'incorrectForm');
             let settingsServiceSpy = spyOn(settingsService, 'updateAgent').and.throwError('I SHOULD NOT HAVE BEEN CALLED');
 
             // Act

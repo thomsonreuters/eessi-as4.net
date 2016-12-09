@@ -80,9 +80,9 @@ namespace Eu.EDelivery.AS4.Fe
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-            loggerFactory.AddNLog();
+            //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            //loggerFactory.AddDebug();
+            //loggerFactory.AddNLog();
 
             app.SetupAuthentication();
             //app.UseCookieAuthentication(new CookieAuthenticationOptions
@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.Fe
             //    }
             //};
 
-            env.ConfigureNLog("nlog.config");
+            //env.ConfigureNLog("nlog.config");
 
             var logger = app.ApplicationServices.GetService<ILogging>();
             var settings = app.ApplicationServices.GetService<IOptions<ApplicationSettings>>();

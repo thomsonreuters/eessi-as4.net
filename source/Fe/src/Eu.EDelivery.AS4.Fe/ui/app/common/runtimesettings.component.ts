@@ -12,8 +12,8 @@ import { ItemType } from './../api/ItemType';
                 <table class="table table-condensed" formArrayName="setting">
                     <tbody>
                         <tr *ngFor="let set of form.controls.setting.controls; let i = index" [formGroupName]="i">
-                            <td>{{set.value.key}}&nbsp;<as4-info [tooltip]="selectedType.properties[i].description"></as4-info></td>
-                            <td [ngSwitch]="selectedType.properties[i].type">
+                            <td>{{set.value.key}}&nbsp;<as4-info [tooltip]="selectedType && selectedType.properties[i] && selectedType.properties[i].description"></as4-info></td>
+                            <td [ngSwitch]="selectedType && selectedType.properties[i] && selectedType.properties[i].type">
                                 <input *ngSwitchCase="'int'" type="number" class="form-control" formControlName="value"/>
                                 <input *ngSwitchDefault type="text" class="form-control" formControlName="value"/>
                             <td>

@@ -8,13 +8,14 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 {
     public class RuntimeLoader : IRuntimeLoader
     {
-        private const string INFOATTRIBUTE = "InfoAttribute";
-        private const string DESCRIPTIONATTRIBUTE = "DescriptionAttribute";
+        private const string Infoattribute = "InfoAttribute";
+        private const string Descriptionattribute = "DescriptionAttribute";
         private readonly string folder;
         public IEnumerable<ItemType> Receivers { get; private set; }
         public IEnumerable<ItemType> Steps { get; private set; }
         public IEnumerable<ItemType> Transformers { get; private set; }
         public IEnumerable<ItemType> CertificateRepositories { get; private set; }
+        public IEnumerable<ItemType> DeliverSenders { get; private set; }
 
         public RuntimeLoader(string folder)
         {
@@ -30,6 +31,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             Steps = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Steps.IStep");
             Transformers = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Transformers.ITransformer");
             CertificateRepositories = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Repositories.ICertificateRepository");
+            DeliverSenders = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender");
 
             return this;
         }
@@ -54,7 +56,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
 
             // Get class info attribute
-            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == INFOATTRIBUTE);
+            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute);
 
             return new ItemType()
             {
@@ -70,8 +72,8 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 //.Where(prop => prop.GetMethod.IsPublic)
                 .Select(prop =>
                 {
-                    var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == INFOATTRIBUTE);
-                    var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DESCRIPTIONATTRIBUTE);
+                    var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute);
+                    var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute);
                     if (customAttr == null)
                     {
                         return null;

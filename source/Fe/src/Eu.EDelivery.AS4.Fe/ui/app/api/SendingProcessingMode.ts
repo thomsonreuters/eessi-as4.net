@@ -21,7 +21,7 @@ export class SendingProcessingMode {
 	security: Security;
 	messagePackaging: SendMessagePackaging;
 
-	static FIELD_id: string = 'name';
+	static FIELD_id: string = 'id';
 	static FIELD_allowOverride: string = 'allowOverride';
 	static FIELD_mep: string = 'mep';
 	static FIELD_mepBinding: string = 'mepBinding';

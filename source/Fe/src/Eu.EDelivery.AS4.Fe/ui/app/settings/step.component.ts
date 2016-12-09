@@ -22,6 +22,12 @@ import { Step } from './../api/Step';
                 <p><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
                 <table formArrayName="step" class="table table-condensed" *ngIf="group.controls.step.controls.length > 0">
                     <tbody [sortablejs]="group.controls.step" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved}">
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th>Type</th>
+                            <th>Undecorated?</th>
+                        </tr>
                         <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>
                             <td class="action"><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>

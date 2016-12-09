@@ -22,11 +22,32 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             return await pmodeService.GetReceivingNames();
         }
 
+        [HttpPost]
+        [Route("receiving")]
+        public async Task CreateReceiving(ReceivingPmode pmode)
+        {
+            await pmodeService.CreateReceiving(pmode);
+        }
+
+        [HttpPut]
+        [Route("receiving/{originalName}")]
+        public async Task UpdateReceiving(ReceivingPmode pmode, string originalName)
+        {
+            await pmodeService.UpdateReceiving(pmode, originalName);
+        }
+
         [HttpGet]
         [Route("receiving/{name}")]
         public async Task<ReceivingPmode> GetReceiving(string name)
         {
             return await pmodeService.GetReceivingByName(name);
+        }
+
+        [HttpDelete]
+        [Route("receiving/{name}")]
+        public async Task DeleteReceiving(string name)
+        {
+            await pmodeService.DeleteReceiving(name);
         }
 
         [HttpGet]
@@ -36,11 +57,32 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             return await pmodeService.GetSendingNames();
         }
 
+        [HttpPost]
+        [Route("sending")]
+        public async Task CreateSending(SendingPmode pmode)
+        {
+            await pmodeService.CreateSending(pmode);
+        }
+
         [HttpGet]
         [Route("sending/{name}")]
         public async Task<SendingPmode> GetSending(string name)
         {
             return await pmodeService.GetSendingByName(name);
+        }
+
+        [HttpDelete]
+        [Route("sending/{name}")]
+        public async Task DeleteSending(string name)
+        {
+            await pmodeService.DeleteSending(name);
+        }
+
+        [HttpPut]
+        [Route("sending/{originalName}")]
+        public async Task UpdateSending(SendingPmode pmode, string originalName)
+        {
+            await pmodeService.UpdateSending(pmode, originalName);
         }
     }
 }

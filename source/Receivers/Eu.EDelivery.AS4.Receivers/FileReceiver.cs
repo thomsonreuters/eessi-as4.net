@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         /// <summary>
-        /// Start Receiving on the given File Location
+        /// Start Receiving on the given File LocationParameter
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>

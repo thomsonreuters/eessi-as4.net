@@ -1,3 +1,4 @@
+import { FocusDirective } from './focus.directive';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -15,6 +16,9 @@ import { TooltipDirective } from './tooltip.directive';
 import { DialogService } from './dialog.service';
 import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
 import { RuntimeSettingsComponent } from './runtimesettings.component';
+import { CrudButtonsComponent } from './crudbuttons.component';
+import { ModalService } from './modal.service';
+import { ModalComponent } from './modal.component';
 
 @NgModule({
     declarations: [
@@ -25,11 +29,15 @@ import { RuntimeSettingsComponent } from './runtimesettings.component';
         InputComponent,
         InfoComponent,
         TooltipDirective,
-        RuntimeSettingsComponent
+        RuntimeSettingsComponent,
+        CrudButtonsComponent,
+        ModalComponent,
+        FocusDirective
     ],
     providers: [
         MustBeAuthorizedGuard,
         DialogService,
+        ModalService
         // LOGGING_ERROR_HANDLER_PROVIDER
     ],
     exports: [
@@ -40,7 +48,10 @@ import { RuntimeSettingsComponent } from './runtimesettings.component';
         InputComponent,
         InfoComponent,
         TooltipDirective,
-        RuntimeSettingsComponent
+        RuntimeSettingsComponent,
+        CrudButtonsComponent,
+        ModalComponent,
+        FocusDirective
     ],
     imports: [
         AuthenticationModule,

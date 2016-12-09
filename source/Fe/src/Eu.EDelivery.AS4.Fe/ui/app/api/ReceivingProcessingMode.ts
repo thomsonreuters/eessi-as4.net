@@ -20,7 +20,7 @@ export class ReceivingProcessingMode {
 	messagePackaging: MessagePackaging;
 	deliver: Deliver;
 
-	static FIELD_id: string = 'name';	
+	static FIELD_id: string = 'id';	
 	static FIELD_mep: string = 'mep';	
 	static FIELD_mepBinding: string = 'mepBinding';	
 	static FIELD_reliability: string = 'reliability';

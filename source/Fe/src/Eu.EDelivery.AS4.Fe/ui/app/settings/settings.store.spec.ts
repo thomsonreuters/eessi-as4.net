@@ -1,3 +1,4 @@
+import { ModalService } from './../common/modal.service';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsAgents } from './../api/SettingsAgents';
 import { SettingsAgent } from './../api/SettingsAgent';
@@ -41,7 +42,8 @@ describe('settingsstore', () => {
     });
     beforeEach(() => TestBed.configureTestingModule({
         providers: [
-            SettingsStore
+            SettingsStore,
+            ModalService
         ]
     }));
 

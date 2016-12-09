@@ -29,196 +29,175 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("basesettings")]
-        public async Task<OkResult> SaveBaseSettings([FromBody] BaseSettings settings)
+        public async Task SaveBaseSettings([FromBody] BaseSettings settings)
         {
             EnsureArg.IsNotNull(settings, nameof(settings));
             await settingsService.SaveBaseSettings(settings);
-            return Ok();
         }
 
         [HttpPost]
         [Route("customsettings")]
-        public async Task<OkResult> SaveCustomSettings([FromBody] CustomSettings settings)
+        public async Task SaveCustomSettings([FromBody] CustomSettings settings)
         {
             EnsureArg.IsNotNull(settings, nameof(settings));
             await settingsService.SaveCustomSettings(settings);
-            return Ok();
         }
 
         [HttpPost]
         [Route("databasesettings")]
-        public async Task<OkResult> SaveDatabaseSettings([FromBody] SettingsDatabase settings)
+        public async Task SaveDatabaseSettings([FromBody] SettingsDatabase settings)
         {
             EnsureArg.IsNotNull(settings, nameof(settings));
             await settingsService.SaveDatabaseSettings(settings);
-            return Ok();
         }
 
         [HttpPost]
         [Route("submitagents")]
-        public async Task<OkResult> CreateSubmitAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateSubmitAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
-            return Ok();
         }
 
         [HttpDelete]
         [Route("submitagents")]
-        public async Task<OkResult> DeleteSubmitAgent(string name)
+        public async Task DeleteSubmitAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             await settingsService.DeleteAgent(name, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
-            return Ok();
         }
 
         [HttpPut]
         [Route("submitagents/{originalName}")]
-        public async Task<OkResult> UpdateSubmitAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateSubmitAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
-            return Ok();
         }
 
         [HttpPost]
         [Route("receiveagents")]
-        public async Task<OkResult> CreateReceiveAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateReceiveAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
-            return Ok();
         }
 
         [HttpDelete]
         [Route("receiveagents")]
-        public async Task<OkResult> DeleteReceiveAgent(string name)
+        public async Task DeleteReceiveAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             await settingsService.DeleteAgent(name, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
-            return Ok();
         }
 
         [HttpPut]
         [Route("receiveagents/{originalName}")]
-        public async Task<OkResult> UpdateReceiveAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateReceiveAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
-            return Ok();
         }
 
         [HttpPost]
         [Route("sendagents")]
-        public async Task<OkResult> CreateSendAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateSendAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.SendAgents, (settings, agents) => settings.SendAgents = agents);
-            return Ok();
         }
 
         [HttpDelete]
         [Route("sendagents")]
-        public async Task<OkResult> DeleteSendAgent(string name)
+        public async Task DeleteSendAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             await settingsService.DeleteAgent(name, agents => agents.SendAgents, (settings, agents) => settings.SendAgents = agents);
-            return Ok();
         }
 
         [HttpPut]
         [Route("sendagents/{originalName}")]
-        public async Task<OkResult> UpdateSendAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateSendAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.SendAgents, (settings, agents) => settings.SendAgents = agents);
-            return Ok();
         }
 
         [HttpPost]
         [Route("deliveragents")]
-        public async Task<OkResult> CreateDeliverAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateDeliverAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.DeliverAgents, (settings, agents) => settings.DeliverAgents = agents);
-            return Ok();
         }
 
         [HttpDelete]
         [Route("deliveragents")]
-        public async Task<OkResult> DeleteDeliverAgent(string name)
+        public async Task DeleteDeliverAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             await settingsService.DeleteAgent(name, agents => agents.DeliverAgents, (settings, agents) => settings.DeliverAgents = agents);
-            return Ok();
         }
 
         [HttpPut]
         [Route("deliveragents/{originalName}")]
-        public async Task<OkResult> UpdateDeliverAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateDeliverAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.DeliverAgents, (settings, agents) => settings.DeliverAgents = agents);
-            return Ok();
         }
 
         [HttpPost]
         [Route("notifyagents")]
-        public async Task<OkResult> CreateNotifyAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateNotifyAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
-            return Ok();
         }
 
         [HttpDelete]
         [Route("notifyagents")]
-        public async Task<OkResult> DeleteNotifyAgent(string name)
+        public async Task DeleteNotifyAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             await settingsService.DeleteAgent(name, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
-            return Ok();
         }
 
         [HttpPut]
         [Route("notifyagents/{originalName}")]
-        public async Task<OkResult> UpdateNotifyAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateNotifyAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
-            return Ok();
         }
 
         [HttpPost]
         [Route("receptionawarenessagent")]
-        public async Task<OkResult> CreateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
-            return Ok();
         }
 
         [HttpDelete]
         [Route("receptionawarenessagent")]
-        public async Task<OkResult> DeleteReceptionAwarenessAgent(string name)
+        public async Task DeleteReceptionAwarenessAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             await settingsService.DeleteAgent(name, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents.FirstOrDefault());
-            return Ok();
         }
 
         [HttpPut]
         [Route("receptionawarenessagent/{originalName}")]
-        public async Task<OkResult> UpdateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
-            return Ok();
         }
     }
 }

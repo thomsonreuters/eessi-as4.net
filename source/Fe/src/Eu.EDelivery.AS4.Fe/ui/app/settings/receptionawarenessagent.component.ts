@@ -53,7 +53,6 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
         else obs = this.settingsService.updateAgent(this.form.value, this.currentAgent.name, SettingsAgents.FIELD_receptionAwarenessAgent);
         obs.subscribe(result => {
             if (result) {
-                console.log('HALLO TEST');
                 this.form.markAsPristine();
                 this.currentAgent = <SettingsAgent>this.form.value;
             }

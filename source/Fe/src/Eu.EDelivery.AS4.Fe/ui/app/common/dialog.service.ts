@@ -1,21 +1,72 @@
+import { ModalComponent } from './modal.component';
+import { ModalService } from './modal.service';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
 @Injectable()
 export class DialogService {
-    public prompt(message: string): string {
-        let result = prompt(message, '');
-        return result;
+    constructor(private modalService: ModalService) {
+
     }
-    public confirm(message: string): boolean {
-        return confirm(message);
+    public prompt(message: string, title?: string): Observable<string> {
+        let obs = new Subject<string>();
+        let dialog: ModalComponent;
+        this.modalService
+            .show('prompt', (dlg) => {
+                dlg.message = message;
+                dlg.title = title;
+                dialog = dlg;
+            })
+            .filter(result => result)
+            .subscribe(() => {
+                obs.next(dialog.result);
+                obs.complete();
+            });
+        return obs.asObservable();
+    }
+    public confirm(message: string, title?: string): Observable<boolean> {
+        return Observable
+            .create(observer => {
+                this.modalService
+                    .show('default', (dlg) => {
+                        dlg.message = message;
+                    })
+                    .subscribe(result => {
+                        observer.next(result);
+                        observer.complete();
+                    });
+            });
+    }
+    public confirmUnsavedChanges(): Observable<boolean> {
+        return this.confirm('There are unsaved changes, are you sure you want to continue?', 'Unsaved changes');
     }
     public message(message: string) {
-        alert(message);
+        this.modalService
+            .show('default', (dlg) => {
+                dlg.message = message;
+            });
     }
     public incorrectForm() {
-        this.message('Input is invalid, please correct the red fields');
+        this.modalService
+            .show('default', (dlg) => {
+                dlg.message = 'Input is invalid, please correct the red fields';
+            });
     }
-    public deleteConfirm(type: string): boolean {
-        return this.confirm(`Are you sure you want to delete the ${type}`);
+    public deleteConfirm(type: string): Observable<boolean> {
+        return Observable
+            .create(observer => {
+                this.modalService
+                    .show('default', (dlg) => {
+                        dlg.title = `Delete ${type}`;
+                        dlg.message = `Are you sure you want to delete the ${type} ?`;
+                        dlg.buttonCancel = 'No';
+                        dlg.buttonOk = 'Yes';
+                    })
+                    .subscribe(result => {
+                        observer.next(result);
+                        observer.complete();
+                    });
+            });
     }
 }

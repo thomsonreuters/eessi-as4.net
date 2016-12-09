@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eu.EDelivery.AS4.Fe.Runtime
@@ -39,6 +40,27 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         public IEnumerable<ItemType> GetCertificateRepositories()
         {
             return runtimeLoader.CertificateRepositories;
+        }
+
+        [HttpGet]
+        [Route("getdeliversenders")]
+        public IEnumerable<ItemType> GetDeliverSenders()
+        {
+            return runtimeLoader.DeliverSenders;
+        }
+
+        [HttpGet]
+        [Route("getall")]
+        public IActionResult GetAll()
+        {
+            return new ObjectResult(new
+            {
+                Receivers = GetReceivers(),
+                Steps = GetSteps(),
+                Transformers = GetTransformers(),
+                CertificateRepositories = GetCertificateRepositories(),
+                DeliverSenders = GetDeliverSenders()
+            });
         }
     }
 }

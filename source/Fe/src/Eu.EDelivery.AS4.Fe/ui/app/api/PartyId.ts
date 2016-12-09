@@ -5,7 +5,7 @@ export class PartyId {
 	id: string;
 	type: string;
 
-	static FIELD_id: string = 'name';	
+	static FIELD_id: string = 'id';	
 	static FIELD_type: string = 'type';	
 
 	static getForm(formBuilder: FormBuilder, current: PartyId): FormGroup {

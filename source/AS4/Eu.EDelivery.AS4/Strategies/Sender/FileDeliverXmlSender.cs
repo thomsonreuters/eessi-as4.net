@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Receivers;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
@@ -11,10 +12,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// <summary>
     /// Deliver the message to the file system
     /// </summary>
+    [Info("FILE")]
     public class FileDeliverXmlSender : IDeliverSender
     {
         private readonly ILogger _logger;
-        private Method _method;
+
+        [Info("Location")]
+        public Parameter LocationParameter { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileDeliverXmlSender"/> class. 
@@ -33,7 +37,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="method"></param>
         public void Configure(Method method)
         {
-            this._method = method;
+            this.LocationParameter = method["location"];
         }
 
         /// <summary>
@@ -41,9 +45,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// </summary>
         /// <param name="deliverMessage"></param>
         public void Send(DeliverMessage deliverMessage)
-        {
-            Parameter locationParameter = this._method["location"];
-            TrySendDeliverMessage(deliverMessage, locationParameter.Value);
+        {            
+            TrySendDeliverMessage(deliverMessage, LocationParameter.Value);
         }
 
         private void TrySendDeliverMessage(DeliverMessage deliverMessage, string locationFolder)

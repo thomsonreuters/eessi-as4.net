@@ -5,6 +5,7 @@ import { Component, Input, OnDestroy, ViewChild, ElementRef, NgZone } from '@ang
 import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
+import { ModalService } from './../common/modal.service';
 import { RuntimeStore } from './runtime.store';
 import { Setting } from './../api/Setting';
 import { Steps } from './../api/Steps';
@@ -37,17 +38,19 @@ export class AgentSettingsComponent implements OnDestroy {
     }
     public transformers: ItemType[];
     public isNewMode: boolean = false;
+    public newName: string;
+    public actionType: string | number = 0;
 
     public form: FormGroup;
     @Input() public title: string;
     @Input() public agent: string;
-
+    s
     private _currentAgent: SettingsAgent;
     private _settingsStoreSubscription: Subscription;
     private _runtimeStoreSubscription: Subscription;
 
     constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder,
-        private runtimeStore: RuntimeStore, private dialogService: DialogService, private ngZone: NgZone) {
+        private runtimeStore: RuntimeStore, private dialogService: DialogService, private modalService: ModalService) {
         this.form = SettingsAgent.getForm(this.formBuilder, null);
         this.form.disable();
         if (!!this.activatedRoute.snapshot.data['type']) {
@@ -78,30 +81,46 @@ export class AgentSettingsComponent implements OnDestroy {
             });
     }
     public addAgent() {
-        let newName = this.dialogService.prompt('Please enter a new for the agent');
-        if (!!!newName) return;
-        let newAgent = new SettingsAgent();
-        newAgent.name = newName;
-        if (!this.selectAgent(newAgent.name)) return;
-        this.settings.push(newAgent);
-        this.currentAgent = newAgent;
-        this.form.patchValue({ [SettingsAgent.name]: newName });
-        this.isNewMode = true;
-        SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
-        this.form.reset(this.currentAgent);
+        this.modalService
+            .show('new-agent')
+            .filter(result => result)
+            .subscribe(() => {
+                if (!!this.newName) {
+                    let newAgent;
+                    if (this.actionType !== -1) newAgent = Object.assign({}, this.settings.find(agt => agt.name === this.actionType));
+                    else newAgent = new SettingsAgent();
+                    this.settings.push(newAgent);
+                    this.currentAgent = newAgent;
+                    this.currentAgent.name = this.newName;
+                    SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+                    this.isNewMode = true;
+                    this.form.reset(newAgent);
+                    this.form.patchValue({ [SettingsAgent.FIELD_name]: this.newName });
+                    this.form.markAsDirty();
+                }
+            });
     }
-    public selectAgent(selectedAgent: string = null, $event: Event = null): boolean {
+    public selectAgent(selectedAgent: string = null): boolean {
+        let select = () => {
+            this.isNewMode = false;
+            this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
+            SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+            this.form.reset(this.currentAgent);
+        };
+
         if (this.form.dirty) {
-            if (this.dialogService.confirm('There are unsaved changes, are you sure you want to cancel the changes?')) {
-                if (this.isNewMode) this.settings = this.settings.filter(agent => agent !== this.currentAgent);
-                else this.reset();
-            }
-            else return false;
+            this.dialogService
+                .confirmUnsavedChanges()
+                .filter(result => result)
+                .subscribe(() => {
+                    if (this.isNewMode) this.settings = this.settings.filter(agent => agent !== this.currentAgent);
+                    else select();
+                });
+
+            return false;
         }
-        this.isNewMode = false;
-        this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
-        SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
-        this.form.reset(this.currentAgent);
+
+        select();
         return true;
     }
     public save() {
@@ -122,16 +141,21 @@ export class AgentSettingsComponent implements OnDestroy {
     public reset() {
         if (this.isNewMode) {
             this.settings = this.settings.filter(agent => agent !== this.currentAgent);
+            this.currentAgent = undefined;
         }
+        this.isNewMode = false;
         SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
         this.form.reset(this.currentAgent);
     }
     public rename() {
-        let name = this.dialogService.prompt('Enter new name');
-        if (!!this.currentAgent && !!name) {
-            this.form.patchValue({ [SettingsAgent.FIELD_name]: name });
-            this.form.markAsDirty();
-        }
+        this.dialogService
+            .prompt('Please enter a new name', 'Rename')
+            .subscribe(name => {
+                if (!!this.currentAgent && !!name) {
+                    this.form.patchValue({ [SettingsAgent.FIELD_name]: name });
+                    this.form.markAsDirty();
+                }
+            });
     }
     public delete() {
         if (this.dialogService.confirm('Are you sure you want to delete the agent')) {

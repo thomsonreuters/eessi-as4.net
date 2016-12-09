@@ -1,3 +1,4 @@
+import { ItemType } from './../api/ItemType';
 import { Injectable } from '@angular/core';
 import { AuthHttp } from 'angular2-jwt';
 import { Observable } from 'rxjs/Observable';
@@ -9,6 +10,7 @@ export interface IRuntimeService {
     getSteps();
     getTransformers();
     getCertificateRepositories();
+    getAll();
 }
 
 @Injectable()
@@ -35,6 +37,20 @@ export class RuntimeService implements IRuntimeService {
         this.http
             .get(this.getBaseUrl('getcertificaterepositories'))
             .subscribe(type => this.runtimeStore.update('certificateRepositories', type.json()));
+    }
+    public getAll() {
+        this.http
+            .get(this.getBaseUrl('getall'))
+            .subscribe(result => {
+                let json = result.json();
+                this.runtimeStore.setState({
+                    receivers: json.receivers,
+                    steps: json.steps,
+                    transformers: json.transformers,
+                    certificateRepositories: json.certificateRepositories,
+                    deliverSenders: json.deliverSenders
+                });
+            });
     }
     private getBaseUrl(action: string) {
         return `api/runtime/${action}`;

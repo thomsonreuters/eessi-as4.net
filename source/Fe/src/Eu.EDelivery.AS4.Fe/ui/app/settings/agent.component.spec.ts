@@ -1,4 +1,5 @@
-import { Observable } from 'rxjs';
+import { ModalService } from './../common/modal.service';
+import { Observable } from 'rxjs/Observable';
 import {
     inject,
     TestBed
@@ -65,7 +66,8 @@ describe('agent', () => {
             },
             FormBuilder,
             RuntimeStore,
-            DialogService
+            DialogService,
+            ModalService
         ]
     }));
     it('should use the title property from the activatedRoute snapshot', inject([AgentSettingsComponent, RuntimeStore], (agent: AgentSettingsComponent) => {
@@ -95,7 +97,8 @@ describe('agent', () => {
             receivers: new Array<ItemType>(),
             steps: new Array<ItemType>(),
             transformers: transformers,
-            certificateRepositories: new Array<ItemType>()
+            certificateRepositories: new Array<ItemType>(),
+            deliverSenders: new Array<ItemType>()
         });
 
         // Assert
@@ -125,19 +128,32 @@ describe('agent', () => {
     }));
 
     describe('addAgent', () => {
-        it('should ask user for an agent name when he wants to create a new agent', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
-            const agentName = 'TESTAGENT';
-            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(agentName);
+        it('should ask user for an agent name when he wants to create a new agent and should use the correct actionType', inject([AgentSettingsComponent, ModalService], (agent: AgentSettingsComponent, ModalService: ModalService) => {
+            const newAgentName = 'NEWAGENT';
+            let dialogSpy = spyOn(ModalService, 'show').and.returnValue(Observable.of(true));
 
-            // Act
+            // Request a custom (= empty new agent)
+            agent.actionType = -1;
+            agent.newName = newAgentName;
             agent.addAgent();
+            expect(dialogSpy).toHaveBeenCalled();
+            expect(agent.currentAgent.name).toBe(newAgentName);
+            expect(agent.form.value.name).toBe(newAgentName);
+            expect(agent.currentAgent.receiver).toBeUndefined();
+            expect(agent.form.dirty).toBeTruthy();
 
-            // Assert
-            expect(dialogService.prompt).toHaveBeenCalled();
-            expect(agent.currentAgent.name).toBe(agentName);
-            let newAgentInSettings = agent.settings.filter(agt => agt.name === agentName);
-            expect(newAgentInSettings).toBeDefined();
-            expect(agent.isNewMode).toBeTruthy();
+            agent.reset();
+
+            // Request actionType = first agent (= clone agent except for the name)
+            let firstAgent = agents[0];
+            agent.actionType = firstAgent.name;
+            agent.newName = newAgentName;
+            agent.addAgent();
+            expect(dialogSpy).toHaveBeenCalled()
+            expect(agent.currentAgent.name).toBe(newAgentName);
+            expect(agent.form.value.name).toBe(newAgentName);
+            expect(agent.currentAgent.receiver).toBe(firstAgent.receiver);
+            expect(agent.form.dirty).toBeTruthy();
         }));
     });
 
@@ -145,7 +161,7 @@ describe('agent', () => {
         it('if the form is dirty then user should confirm and the currentAgent should be changed', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
             agent.settings = agents;
 
-            let dialogSpy = spyOn(dialogService, 'confirm').and.returnValue(true);
+            let dialogSpy = spyOn(dialogService, 'confirmUnsavedChanges').and.returnValue(Observable.of(true));
 
             agent.currentAgent = currentAgent;
             agent.form.markAsDirty();
@@ -160,7 +176,7 @@ describe('agent', () => {
             agent.settings = agents;
             agent.currentAgent = currentAgent;
 
-            let dialogSpy = spyOn(dialogService, 'confirm').and.returnValue(false);
+            let dialogSpy = spyOn(dialogService, 'confirmUnsavedChanges').and.returnValue(Observable.of(false));
             agent.form.markAsDirty();
 
             // Act
@@ -171,14 +187,13 @@ describe('agent', () => {
             expect(agent.isNewMode).toBeFalsy();
         }));
 
-        it('when in new mode and the user confirms then the currentAgent should be removed from the list', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
+        it('should prompt the user for a new nad be removed from the list', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
             agent.settings = agents;
             agent.currentAgent = currentAgent;
             agent.isNewMode = true;
             agent.form.markAsDirty();
 
-            let dialogSpy = spyOn(dialogService, 'confirm').and.returnValue(true);
-            let resetSpy = spyOn(agent, 'reset');
+            let dialogSpy = spyOn(dialogService, 'confirmUnsavedChanges').and.returnValue(Observable.of(true));
 
             // Act
             agent.selectAgent(otherAgent.name);
@@ -196,7 +211,6 @@ describe('agent', () => {
 
             agent.form = <any>form;
             let dialogSpy = spyOn(dialogService, 'message');
-            let settingsSpy = spyOn(settingsService, 'createAgent').and.throwError('I SHOULD NOT HAVE BEEN CALLED');
 
             // Act
             agent.save();
@@ -263,16 +277,11 @@ describe('agent', () => {
             expect(agent.settings.find(agt => agt === currentAgent)).toBeUndefined();
         }));
         it('should reset the form to the currentAgent value', inject([AgentSettingsComponent], (agent: AgentSettingsComponent) => {
-            let form = {
-                value: Object.assign({}, currentAgent),
-                enable: () => { }
-            };
-            agent.form = <any>form;
             agent.isNewMode = false;
             agent.currentAgent = currentAgent;
 
             // Act
-            form.value.name = 'test';
+            agent.form.value.name = 'test';
             expect(agent.form.value.name).toBe('test');
             agent.reset();
 
@@ -283,7 +292,7 @@ describe('agent', () => {
             agent.isNewMode = false;
             agent.currentAgent = currentAgent;
 
-            let dialogServiceSpy = spyOn(dialogService, 'prompt').and.returnValue('newName');
+            let dialogServiceSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of('newName'));
 
             // Act
             agent.rename();
@@ -299,7 +308,7 @@ describe('agent', () => {
         it('should prompt the user for a new name', inject([AgentSettingsComponent, DialogService, SettingsStore], (agent: AgentSettingsComponent, dialogService: DialogService, settingsStore: SettingsStore) => {
             settingsStore.setState({ Settings: settings });
             agent.currentAgent = currentAgent;
-            let dialogServiceSpy = spyOn(dialogService, 'prompt').and.returnValue('newName');
+            let dialogServiceSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of('newName'));
             let formSpy = spyOn(agent.form, 'markAsDirty');
 
             // Act
