@@ -44,7 +44,7 @@
                 <as4-input label="Use NNR format">
                     <input type="checkbox" formControlName="useNNRFormat" />
                 </as4-input>
-                <as4-input label="Reply patter">
+                <as4-input label="Reply pattern">
                     <select formControlName="replyPattern" class="form-control">
                         <option value="0">Response</option>
                         <option value="1">Callback</option>
@@ -85,8 +85,9 @@
                 <as4-input label="Notify message consumer">
                     <input type="checkbox" formControlName="notifyMessageConsumer" />
                 </as4-input>
-                <h3>Notify method</h3>
-                <as4-method [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>
+                <as4-input label="Notify method">
+                    <as4-method [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>
+                </as4-input>
             </div>
         </as4-box>
         <as4-box title="Security" collapsed="true" collapsible="true">

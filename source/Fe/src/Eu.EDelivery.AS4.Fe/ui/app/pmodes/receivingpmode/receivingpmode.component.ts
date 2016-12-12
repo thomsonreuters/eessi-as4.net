@@ -26,8 +26,8 @@ export class ReceivingPmodeComponent {
     }
     public set currentPmode(pmode: ReceivingPmode | undefined) {
         this._currentPmode = pmode;
-        if (!!!pmode) this.form.disable();
-        else this.form.enable();
+        if (!!!pmode) setTimeout(() => this.form.disable());
+        else setTimeout(() => this.form.enable());
     }
     private _storeSubscription: Subscription;
     private _currentPmodeSubscription: Subscription;
