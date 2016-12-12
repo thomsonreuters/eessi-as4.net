@@ -58,7 +58,12 @@ export class DialogService {
                 dlg.showCancel = false;
                 dlg.title = 'Error';
                 if (stackTrace instanceof Response)
-                    dlg.payload = stackTrace.json().Exception;
+                    try {
+                        dlg.payload = stackTrace.json().Exception;
+                    }
+                    catch (e) {
+
+                    }
             });
     }
     public incorrectForm() {

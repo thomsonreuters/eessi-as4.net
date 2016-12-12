@@ -20,13 +20,13 @@ declare var $: any;
             <input type="text" class="form-control" #input [value]="promptDialog.result" (keydown)="promptDialog.result = $event.target.value"/>             
         </as4-modal>
         <as4-modal name="error" showDefaultButtons="false" #errorDialog>
-            <div *ngIf="isShowDetails" [class.stack-trace]="isShowDetails">
+            <div *ngIf="isShowDetails && !!errorDialog.payload" [class.stack-trace]="isShowDetails">
                 <h3>Stack trace</h3>
                 <button type="button" class="btn btn-outline" [ngIIclipboard]="payload" (cbOnSuccess)="copiedToClipboard()">Copy</button>
                 <p #payload>{{errorDialog.payload}}</p>
             </div>
             <div buttons>
-                <button type="button" class="btn btn-outline" (click)="showDetails()">Details</button>
+                <button type="button" class="btn btn-outline" *ngIf="!!errorDialog.payload" (click)="showDetails()">Details</button>
                 <button type="button" class="btn btn-outline" (click)="errorDialog.ok()">Ok</button>
             </div>
         </as4-modal>
