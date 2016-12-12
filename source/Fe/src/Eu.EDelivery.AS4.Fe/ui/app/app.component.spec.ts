@@ -1,4 +1,3 @@
-import { ModalService } from './common/modal.service';
 import {
     inject,
     TestBed
@@ -10,6 +9,8 @@ import { AppState } from './app.service';
 import { AuthenticationStore } from './authentication/authentication.service';
 import { RuntimeService, IRuntimeService } from './settings/runtime.service';
 import { RuntimeServiceMock } from './settings/runtime.service.mock';
+import { DialogService } from './common/dialog.service';
+import { ModalService } from './common/modal.service';
 
 describe('App', () => {
 
@@ -20,6 +21,7 @@ describe('App', () => {
             AppComponent,
             AuthenticationStore,
             ModalService,
+            DialogService,
             { provide: RuntimeService, useClass: RuntimeServiceMock }
         ]
     }));

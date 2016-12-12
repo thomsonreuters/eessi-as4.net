@@ -8,17 +8,12 @@ import { RouterModule } from '@angular/router';
 import { removeNgStyles, createNewHosts, createInputTransfer } from '@angularclass/hmr';
 import { JwtHelper } from 'angular2-jwt';
 
-/*
- * Platform and Environment providers/directives/pipes
- */
 import { ENV_PROVIDERS } from './environment';
 import { ROUTES } from './app.routes';
-// App is our top level component
 import { AppComponent } from './app.component';
 import { APP_RESOLVER_PROVIDERS } from './app.resolver';
 import { AppState, InternalStateType } from './app.service';
 import { NoContentComponent } from './no-content';
-import { HomeComponent } from './home';
 import { SettingsModule } from './settings';
 import { PmodesModule } from './pmodes/pmodes.module';
 
@@ -44,8 +39,7 @@ type StoreType = {
     bootstrap: [AppComponent],
     declarations: [
         AppComponent,
-        NoContentComponent,
-        HomeComponent
+        NoContentComponent
     ],
     imports: [ // import Angular's modules
         BrowserModule,

@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 import { MustBeAuthorizedGuard } from '../common/common.guards';
 
-import { AgentSettingsComponent } from './agent.component';
-import { SettingsComponent } from './settings.component';
-import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent.component';
+import { AgentSettingsComponent } from './agent/agent.component';
+import { SettingsComponent } from './settings/settings.component';
+import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
 import { WrapperComponent } from './../common/wrapper.component';
 
 export const ROUTES: Routes = [

@@ -1,15 +1,15 @@
-import { PartyComponent } from './party.component';
+import { PartyComponent } from './party/party.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
 import { As4ComponentsModule } from './../common/as4components.module';
-import { ReceivingPmodeComponent } from './receivingpmode.component';
+import { ReceivingPmodeComponent } from './receivingpmode/receivingpmode.component';
 import { PmodeStore } from './pmode.store';
 import { PmodeService, pmodeService, ReceivingPmodeService, SendingPmodeService } from './pmode.service';
-import { MethodComponent } from './method.component';
-import { PmodeSelectComponent } from './pmodeselect.component';
+import { MethodComponent } from './method/method.component';
+import { PmodeSelectComponent } from './pmodeselect/pmodeselect.component';
 
 import { ROUTES } from './pmodes.routes';
 

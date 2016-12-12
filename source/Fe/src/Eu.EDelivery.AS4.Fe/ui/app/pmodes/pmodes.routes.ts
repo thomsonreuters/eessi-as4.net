@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
 
 import { WrapperComponent } from './../common/wrapper.component';
-import { ReceivingPmodeComponent } from './receivingpmode.component';
+import { ReceivingPmodeComponent } from './receivingpmode/receivingpmode.component';
 import { MustBeAuthorizedGuard } from './../common/common.guards';
 
 export const ROUTES: Routes = [

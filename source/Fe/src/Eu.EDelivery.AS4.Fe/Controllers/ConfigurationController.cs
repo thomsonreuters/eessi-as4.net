@@ -20,7 +20,6 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         public ConfigurationController(IAs4SettingsService settingsService, ILogging logging)
         {
             this.settingsService = settingsService;
-            throw new Exception("test");
         }
 
         [HttpGet]
