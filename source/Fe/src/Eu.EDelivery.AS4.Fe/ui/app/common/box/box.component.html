@@ -1,11 +1,9 @@
 <div class="box box-primary" [class.collapsed-box]="collapsed">
-    <div class="box-header with-border" *ngIf="!!title">
-        <div class="pull-left">
-            <ng-content select="[action]"></ng-content>
-        </div>
+    <div class="box-header with-border" *ngIf="!!title || showTitle">
         <h3 class="box-title">{{title}}</h3>
-        <div class="box-tools pull-right" *ngIf="collapsible">
-            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [class.fa-plus]="collapsed" [class.fa-minu]="!collapsed"></i></button>
+        <div class="box-tools pull-right">
+            <button *ngIf="collapsible" type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa" [class.fa-plus]="collapsed" [class.fa-minus]="!collapsed"></i></button>
+            <ng-content select="[action]"></ng-content>
         </div>
     </div>
     <form role="form">

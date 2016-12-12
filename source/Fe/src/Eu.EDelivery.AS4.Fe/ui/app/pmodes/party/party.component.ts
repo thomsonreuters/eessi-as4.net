@@ -8,8 +8,6 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     selector: 'as4-party',
     template: `
         <div [formGroup]="group">
-            <p>{{group.controls.role.enabled}}</p>
-            <p>{{group.controls.role.value}}</p>
             <select class="form-control" formControlName="role">
                 <option>Sender</option>
                 <option>Receiver</option>

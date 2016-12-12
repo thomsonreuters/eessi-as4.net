@@ -1,16 +1,17 @@
-import { ItemType } from './../../api/ItemType';
-import { RuntimeStore } from './../../settings/runtime.store';
-import { SendingPmode } from './../../api/SendingPmode';
-import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
+import { BoxComponent } from './../../common/box/box.component';
 import { Subscription } from 'rxjs/Subscription';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { Component } from '@angular/core';
+import { Component, ViewChildren, QueryList } from '@angular/core';
 
 import { ReceivingPmode } from './../../api/ReceivingPmode';
 import { PmodesModule } from '../pmodes.module';
 import { PmodeStore } from '../pmode.store';
 import { PmodeService, pmodeService } from '../pmode.service';
 import { DialogService } from './../../common/dialog.service';
+import { ItemType } from './../../api/ItemType';
+import { RuntimeStore } from './../../settings/runtime.store';
+import { SendingPmode } from './../../api/SendingPmode';
+import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
 
 @Component({
     selector: 'as4-receiving-pmode',
@@ -21,18 +22,25 @@ export class ReceivingPmodeComponent {
     public pmodes: string[];
     public isNewMode: boolean = false;
     public deliverSenders: Array<ItemType>;
+    @ViewChildren(BoxComponent) boxes: QueryList<BoxComponent>;
     public get currentPmode(): ReceivingPmode | undefined {
         return this._currentPmode;
     }
     public set currentPmode(pmode: ReceivingPmode | undefined) {
         this._currentPmode = pmode;
-        if (!!!pmode) setTimeout(() => this.form.disable());
-        else setTimeout(() => this.form.enable());
+        // if (!!!pmode) setTimeout(() => this.form.disable());
+        // else setTimeout(() => this.form.enable());
+        if (!!!pmode) this.form.disable();
+        else this.form.enable();
     }
     private _storeSubscription: Subscription;
     private _currentPmodeSubscription: Subscription;
     private _runtimeStoreSubscription: Subscription;
     private _currentPmode: ReceivingPmode | undefined;
+    public test() {
+        if (this.form.enabled) this.form.disable();
+        else this.form.enable();
+    }
     constructor(private formBuilder: FormBuilder, private pmodeService: PmodeService, private pmodeStore: PmodeStore, private dialogService: DialogService, private runtimeStore: RuntimeStore) {
         this.form = ReceivingPmode.getForm(this.formBuilder, null);
         this.form.disable();
@@ -54,11 +62,8 @@ export class ReceivingPmodeComponent {
             .map(result => result.Receiving)
             .distinctUntilChanged()
             .subscribe(result => {
-                // ReceivingPmode.patchFormArrays(this.formBuilder, this.form, result);
-                // if (!!result) this.form.reset(result);
-                // else this.form.reset();
-                ReceivingPmode.patchForm(this.formBuilder, this.form, result);
                 this.currentPmode = result;
+                ReceivingPmode.patchForm(this.formBuilder, this.form, result);
             });
         this.pmodeService.getAllReceiving();
     }
@@ -147,6 +152,12 @@ export class ReceivingPmodeComponent {
                 this.isNewMode = false;
                 this.form.markAsPristine();
             });
+    }
+    public expand() {
+        let index = 0;
+        this.boxes
+            .filter(box => box.collapsible && ++index > 0)
+            .forEach(box => box.collapsed = !box.collapsed);
     }
     ngOnDestroy() {
         this._storeSubscription.unsubscribe();

@@ -29,7 +29,13 @@ export class SettingsStore extends Store<ISettingsState> {
     }
     public addAgent(type: string, agent: SettingsAgent) {
         if (type === SettingsAgents.FIELD_receptionAwarenessAgent) this.state.Settings.agents.receptionAwarenessAgent = agent;
-        else this.state.Settings.agents[type] = [...this.state.Settings.agents[type], agent];
+        else {
+            if (!!!this.state.Settings.agents[type]) {
+                this.state.Settings.agents[type] = [agent];
+                return;
+            }
+            this.state.Settings.agents[type] = [...this.state.Settings.agents[type], agent];
+        }
         this.setState(this.state);
     }
     private setReceptionAwarenessAgent(settingsAgent: SettingsAgent) {

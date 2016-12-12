@@ -1,4 +1,4 @@
-import { ModalService } from './../../common/modal.service';
+import { ModalService } from './../../common/modal/modal.service';
 import { Property } from './../../api/Property';
 import { RuntimeStore } from './../../settings/runtime.store';
 import { Method } from './../../api/Method';

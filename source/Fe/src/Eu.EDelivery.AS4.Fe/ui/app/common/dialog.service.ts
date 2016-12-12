@@ -1,7 +1,7 @@
 import { Response } from '@angular/http';
 
-import { ModalComponent } from './modal.component';
-import { ModalService } from './modal.service';
+import { ModalComponent } from './modal/modal.component';
+import { ModalService } from './modal/modal.service';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';

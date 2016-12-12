@@ -1,4 +1,4 @@
-import { ModalService } from '../../common/modal.service';
+import { ModalService } from '../../common/modal/modal.service';
 import { RuntimeStore } from './../../settings/runtime.store';
 import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
 import { FormBuilder } from '@angular/forms';

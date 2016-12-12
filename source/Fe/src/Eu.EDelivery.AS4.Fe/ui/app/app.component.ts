@@ -1,5 +1,5 @@
 import { DialogService } from './common/dialog.service';
-import { ModalService } from './common/modal.service';
+import { ModalService } from './common/modal/modal.service';
 import { AuthenticationStore } from './authentication/authentication.service';
 import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 

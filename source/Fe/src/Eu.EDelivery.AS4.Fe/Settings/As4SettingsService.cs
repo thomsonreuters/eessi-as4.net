@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -50,7 +51,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             EnsureArg.IsNotNull(setAgents, nameof(setAgents));
 
             var file = await GetSettings();
-            var agents = getAgents(file.Agents).ToList();
+            var agents = GetAgents(getAgents, file);
             var existing = agents.FirstOrDefault(agent => agent.Name == settingsAgent.Name);
             if (existing != null)
                 throw new Exception($"Agent with name {settingsAgent.Name} already exists");
@@ -59,7 +60,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             setAgents(file.Agents, agents.ToArray());
 
             await settingsSource.Save(file);
-        }
+        }        
 
         public async Task UpdateAgent(SettingsAgent settingsAgent, string originalAgentName, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {
@@ -106,9 +107,15 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             return await settingsSource.Get();
         }
 
-        public Task GetByInterface<TInterface>()
+        public Task GetByInterface()
         {
             return Task.FromResult(0);
+        }
+
+        private IList<SettingsAgent> GetAgents(Func<SettingsAgents, SettingsAgent[]> getAgents, AS4Model.Settings settings)
+        {
+            var get = getAgents(settings.Agents);
+            return get == null ? Enumerable.Empty<SettingsAgent>().ToList() : get.ToList();
         }
     }
 }

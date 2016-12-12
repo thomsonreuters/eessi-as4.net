@@ -9,6 +9,7 @@ export class BoxComponent implements OnInit {
     @Input() collapsed: boolean = false;
     @Input() fullWidth: boolean = false;
     @Input() collapsible: boolean = false;
+    @Input() showTitle: boolean = false;
     constructor(private elementRef: ElementRef, private renderer: Renderer) {
     }
 

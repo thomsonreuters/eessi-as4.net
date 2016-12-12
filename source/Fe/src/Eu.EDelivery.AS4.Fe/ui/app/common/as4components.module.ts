@@ -17,8 +17,8 @@ import { DialogService } from './dialog.service';
 import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
 import { RuntimeSettingsComponent } from './runtimesettings/runtimesettings.component';
 import { CrudButtonsComponent } from './crudbuttons/crudbuttons.component';
-import { ModalService } from './modal.service';
-import { ModalComponent } from './modal.component';
+import { ModalService } from './modal/modal.service';
+import { ModalComponent } from './modal/modal.component';
 
 @NgModule({
     declarations: [
@@ -38,7 +38,7 @@ import { ModalComponent } from './modal.component';
         MustBeAuthorizedGuard,
         DialogService,
         ModalService,
-        LOGGING_ERROR_HANDLER_PROVIDER
+        // LOGGING_ERROR_HANDLER_PROVIDER
     ],
     exports: [
         BoxComponent,

@@ -33,7 +33,8 @@ import { ModalService } from './modal.service';
                 </div>
             </div>
         </div>
-   `
+   `,
+    styles: [require('./modal.component.scss').toString()]
 })
 export class ModalComponent implements OnDestroy {
     public isVisible: boolean = false;

@@ -1,4 +1,5 @@
-import { ModalService } from '../../common/modal.service';
+import { Observer } from 'rxjs/Observer';
+import { ModalService } from '../../common/modal/modal.service';
 import { Observable } from 'rxjs/Observable';
 import {
     inject,
@@ -323,7 +324,7 @@ describe('agent', () => {
     });
     describe('delete', () => {
         it('should ask the user for confirmation', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
-            let dialogServiceSpy = spyOn(dialogService, 'confirm');
+            let dialogServiceSpy = spyOn(dialogService, 'confirm').and.returnValue(Observable.of(true));
             agent.currentAgent = currentAgent;
 
             // Act
@@ -332,8 +333,17 @@ describe('agent', () => {
             // Assert
             expect(dialogServiceSpy).toHaveBeenCalled();
         }));
+        it('should do nothing when the uesr cancelled', inject([AgentSettingsComponent, SettingsService, DialogService], (cmp: AgentSettingsComponent, service: SettingsService, dialogService: DialogService) => {
+            let dialogSpy = spyOn(dialogService, 'confirm').and.returnValue(Observable.of(false));
+            let deleteAgentSpy = spyOn(service, 'deleteAgent');
+
+            cmp.delete();
+
+            expect(dialogSpy).toHaveBeenCalled();
+            expect(deleteAgentSpy).not.toHaveBeenCalled();
+        }));
         it('should remove the currentAgent when confirmed and in new mode', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
-            let dialogServiceSpy = spyOn(dialogService, 'confirm').and.returnValue(true);
+            let dialogServiceSpy = spyOn(dialogService, 'confirm').and.returnValue(Observable.of(true));
             agent.currentAgent = currentAgent;
             agent.settings = agents;
             agent.isNewMode = true;
@@ -345,7 +355,7 @@ describe('agent', () => {
             expect(agent.settings.find(agt => agt === currentAgent)).toBeUndefined();
         }));
         it('should call deleteAgent when confirmed and not in new mdoe', inject([AgentSettingsComponent, DialogService, SettingsService], (agent: AgentSettingsComponent, dialogService: DialogService, settingService: SettingsService) => {
-            let dialogServiceSpy = spyOn(dialogService, 'confirm').and.returnValue(true);
+            let dialogServiceSpy = spyOn(dialogService, 'confirm').and.returnValue(Observable.of(true));
             let serviceSpy = spyOn(settingService, 'deleteAgent');
             agent.currentAgent = currentAgent;
             agent.isNewMode = false;

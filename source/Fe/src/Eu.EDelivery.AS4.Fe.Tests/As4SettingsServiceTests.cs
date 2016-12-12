@@ -101,6 +101,28 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 // Act & Assert
                 await Assert.ThrowsAsync(typeof(Exception), () => service.CreateAgent(newAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
             }
+
+            [Fact]
+            public async Task Add_Agent_When_Original_List_Is_Empty()
+            {
+                // Setup
+                var newAgent = new SettingsAgent()
+                {
+                    Name = "newAgent"
+                };
+
+                var test = Setup();
+                test.settingsSource.Get().Returns(new AS4Model.Settings()
+                {
+                    Agents = new SettingsAgents()
+                });
+
+                // Act
+                await test.settingsService.CreateAgent(newAgent, agents => agents.ReceiveAgents, (settings, agt) => settings.ReceiveAgents = agt);
+
+                // Assert
+                await test.settingsSource.Received().Save(Arg.Is<AS4Model.Settings>(settings => settings.Agents.ReceiveAgents.Any(agent => agent.Name == newAgent.Name)));
+            }
         }
 
         public class UpdateAgent : As4SettingsServiceTests

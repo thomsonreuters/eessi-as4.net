@@ -5,7 +5,7 @@ import { Component, Input, OnDestroy, ViewChild, ElementRef, NgZone } from '@ang
 import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
-import { ModalService } from './../../common/modal.service';
+import { ModalService } from './../../common/modal/modal.service';
 import { RuntimeStore } from '../runtime.store';
 import { Setting } from './../../api/Setting';
 import { Steps } from './../../api/Steps';
@@ -68,12 +68,12 @@ export class AgentSettingsComponent implements OnDestroy {
 
         this._settingsStoreSubscription = this.settingsStore
             .changes
-            .filter(result => !!result && !!result.Settings && !!result.Settings.agents)
+            .filter(result => !!result && !!result.Settings && !!result.Settings.agents[this.agent])
             .map(result => result.Settings.agents[this.agent])
             .distinctUntilChanged()
             .subscribe(result => {
                 this.settings = result;
-                this.currentAgent = this.settings.find(agt => agt.name === this.form.value.name);
+                this.currentAgent = result.find(agt => agt.name === this.form.value.name);
                 if (!!this.currentAgent) {
                     SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
                     this.form.reset(this.currentAgent);
@@ -158,15 +158,18 @@ export class AgentSettingsComponent implements OnDestroy {
             });
     }
     public delete() {
-        if (this.dialogService.confirm('Are you sure you want to delete the agent')) {
-            if (this.isNewMode) {
-                this.settings = this.settings.filter(agent => agent.name !== this.currentAgent.name);
-                this.selectAgent();
-                return;
-            }
+        this.dialogService
+            .confirm('Are you sure you want to delete the agent')
+            .filter(result => result)
+            .subscribe(result => {
+                if (this.isNewMode) {
+                    this.settings = this.settings.filter(agent => agent.name !== this.currentAgent.name);
+                    this.selectAgent();
+                    return;
+                }
 
-            this.settingsService.deleteAgent(this.currentAgent, this.agent);
-        }
+                this.settingsService.deleteAgent(this.currentAgent, this.agent);
+            });
     }
 
     ngOnDestroy() {

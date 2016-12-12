@@ -1,4 +1,4 @@
-import { ModalService } from './../../common/modal.service';
+import { ModalService } from './../../common/modal/modal.service';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import {

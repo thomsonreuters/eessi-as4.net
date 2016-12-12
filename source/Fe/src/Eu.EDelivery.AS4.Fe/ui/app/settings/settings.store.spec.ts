@@ -1,4 +1,4 @@
-import { ModalService } from './../common/modal.service';
+import { ModalService } from './../common/modal/modal.service';
 import { ActivatedRoute } from '@angular/router';
 import { SettingsAgents } from './../api/SettingsAgents';
 import { SettingsAgent } from './../api/SettingsAgent';
@@ -71,6 +71,17 @@ describe('settingsstore', () => {
 
             // Assert
             expect(settingsStore.getState().Settings.agents.receptionAwarenessAgent.name === 'test').toBeTruthy();
+        }));
+        it('create new list when no agent exists', inject([SettingsStore], (settingsStore: SettingsStore) => {
+            settings.agents = new SettingsAgents();
+            settingsStore.setState({ Settings: settings });
+
+            let agent = new SettingsAgent();
+            agent.name = 'newAgent';
+
+            settingsStore.addAgent(SettingsAgents.FIELD_deliverAgents, agent);
+
+            expect(settingsStore.getState().Settings.agents.deliverAgents.find(agt => agt.name === agent.name)).toBeDefined();
         }));
     });
     describe('updateagent', () => {

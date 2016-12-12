@@ -1,6 +1,7 @@
 <form [formGroup]="form" class="form-horizontal">
     <div formGroupName="pmode">
-        <as4-box>
+        <as4-box showTitle="true">
+            <button action class="btn btn-box-tool" type="button" (click)="expand()"><i class="fa fa-expand"></i></button>
             <div content class="col-md-6 col-xs-12">
                 <as4-input label="Name">
                     <div class="input-group">

@@ -10,7 +10,7 @@ import { AuthenticationStore } from './authentication/authentication.service';
 import { RuntimeService, IRuntimeService } from './settings/runtime.service';
 import { RuntimeServiceMock } from './settings/runtime.service.mock';
 import { DialogService } from './common/dialog.service';
-import { ModalService } from './common/modal.service';
+import { ModalService } from './common/modal/modal.service';
 
 describe('App', () => {
 

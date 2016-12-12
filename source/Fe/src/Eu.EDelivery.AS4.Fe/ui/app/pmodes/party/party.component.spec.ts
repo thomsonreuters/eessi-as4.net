@@ -1,4 +1,4 @@
-import { ModalService } from './../../common/modal.service';
+import { ModalService } from './../../common/modal/modal.service';
 import { DialogService } from './../../common/dialog.service';
 import { By } from '@angular/platform-browser/src/dom/debug/by';
 import { ReactiveFormsModule, FormBuilder, FormArray } from '@angular/forms';
