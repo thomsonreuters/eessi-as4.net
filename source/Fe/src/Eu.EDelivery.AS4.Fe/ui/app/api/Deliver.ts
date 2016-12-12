@@ -19,8 +19,13 @@ export class Deliver {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Deliver) {
-		Method.patchFormArrays(formBuilder, <FormGroup>form.controls['payloadReferenceMethod'], current && current.payloadReferenceMethod);
-		Method.patchFormArrays(formBuilder, <FormGroup>form.controls['deliverMethod'], current && current.deliverMethod);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Deliver) {
+		form.removeControl('isEnabled');
+		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
+
+		form.removeControl('payloadReferenceMethod');
+		form.addControl('payloadReferenceMethod', Method.getForm(formBuilder, current && current.payloadReferenceMethod));
+		form.removeControl('deliverMethod');
+		form.addControl('deliverMethod', Method.getForm(formBuilder, current && current.deliverMethod));
 	}
 }

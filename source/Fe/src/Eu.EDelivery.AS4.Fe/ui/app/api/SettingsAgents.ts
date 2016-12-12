@@ -28,17 +28,19 @@ export class SettingsAgents {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SettingsAgents) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SettingsAgents) {
+
 		form.removeControl('submitAgents');
-		form.addControl('submitAgents', formBuilder.array(!!!(current && current.submitAgents) ? [] : current.submitAgents.map(item => SettingsAgent.getForm(formBuilder, item))),);
+		form.addControl('submitAgents', formBuilder.array(!!!(current && current.submitAgents) ? [] : current.submitAgents.map(item => SettingsAgent.getForm(formBuilder, item))));
 		form.removeControl('receiveAgents');
-		form.addControl('receiveAgents', formBuilder.array(!!!(current && current.receiveAgents) ? [] : current.receiveAgents.map(item => SettingsAgent.getForm(formBuilder, item))),);
+		form.addControl('receiveAgents', formBuilder.array(!!!(current && current.receiveAgents) ? [] : current.receiveAgents.map(item => SettingsAgent.getForm(formBuilder, item))));
 		form.removeControl('sendAgents');
-		form.addControl('sendAgents', formBuilder.array(!!!(current && current.sendAgents) ? [] : current.sendAgents.map(item => SettingsAgent.getForm(formBuilder, item))),);
+		form.addControl('sendAgents', formBuilder.array(!!!(current && current.sendAgents) ? [] : current.sendAgents.map(item => SettingsAgent.getForm(formBuilder, item))));
 		form.removeControl('deliverAgents');
-		form.addControl('deliverAgents', formBuilder.array(!!!(current && current.deliverAgents) ? [] : current.deliverAgents.map(item => SettingsAgent.getForm(formBuilder, item))),);
+		form.addControl('deliverAgents', formBuilder.array(!!!(current && current.deliverAgents) ? [] : current.deliverAgents.map(item => SettingsAgent.getForm(formBuilder, item))));
 		form.removeControl('notifyAgents');
-		form.addControl('notifyAgents', formBuilder.array(!!!(current && current.notifyAgents) ? [] : current.notifyAgents.map(item => SettingsAgent.getForm(formBuilder, item))),);
-		SettingsAgent.patchFormArrays(formBuilder, <FormGroup>form.controls['receptionAwarenessAgent'], current && current.receptionAwarenessAgent);
+		form.addControl('notifyAgents', formBuilder.array(!!!(current && current.notifyAgents) ? [] : current.notifyAgents.map(item => SettingsAgent.getForm(formBuilder, item))));
+		form.removeControl('receptionAwarenessAgent');
+		form.addControl('receptionAwarenessAgent', SettingsAgent.getForm(formBuilder, current && current.receptionAwarenessAgent));
 	}
 }

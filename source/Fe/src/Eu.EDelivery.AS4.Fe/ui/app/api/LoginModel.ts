@@ -15,6 +15,11 @@ export class LoginModel {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: LoginModel) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: LoginModel) {
+		form.removeControl('username');
+		form.addControl('username', formBuilder.control(current && current.username));
+		form.removeControl('password');
+		form.addControl('password', formBuilder.control(current && current.password));
+
 	}
 }

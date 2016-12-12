@@ -16,8 +16,11 @@ export class PartyInfo {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: PartyInfo) {
-		Party.patchFormArrays(formBuilder, <FormGroup>form.controls['fromParty'], current && current.fromParty);
-		Party.patchFormArrays(formBuilder, <FormGroup>form.controls['toParty'], current && current.toParty);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PartyInfo) {
+
+		form.removeControl('fromParty');
+		form.addControl('fromParty', Party.getForm(formBuilder, current && current.fromParty));
+		form.removeControl('toParty');
+		form.addControl('toParty', Party.getForm(formBuilder, current && current.toParty));
 	}
 }

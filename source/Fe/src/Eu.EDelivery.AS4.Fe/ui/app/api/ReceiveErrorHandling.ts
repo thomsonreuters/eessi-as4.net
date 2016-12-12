@@ -24,6 +24,17 @@ export class ReceiveErrorHandling {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: ReceiveErrorHandling) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveErrorHandling) {
+		form.removeControl('useSoapFault');
+		form.addControl('useSoapFault', formBuilder.control(current && current.useSoapFault));
+		form.removeControl('replyPattern');
+		form.addControl('replyPattern', formBuilder.control(current && current.replyPattern));
+		form.removeControl('callbackUrl');
+		form.addControl('callbackUrl', formBuilder.control(current && current.callbackUrl));
+		form.removeControl('responseHttpCode');
+		form.addControl('responseHttpCode', formBuilder.control(current && current.responseHttpCode));
+		form.removeControl('sendingPMode');
+		form.addControl('sendingPMode', formBuilder.control(current && current.sendingPMode));
+
 	}
 }

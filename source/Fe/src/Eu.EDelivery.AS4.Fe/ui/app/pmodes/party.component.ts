@@ -8,7 +8,7 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     selector: 'as4-party',
     template: `
         <div [formGroup]="group">
-            <select class="form-control" formControlName="role">
+            <select class="form-control" formControlName="role" [disabled]="group.disabled">
                 <option>Sender</option>
                 <option>Receiver</option>
             </select>

@@ -28,10 +28,17 @@ export class Settings {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Settings) {
-		SettingsDatabase.patchFormArrays(formBuilder, <FormGroup>form.controls['database'], current && current.database);
-		CertificateStore.patchFormArrays(formBuilder, <FormGroup>form.controls['certificateStore'], current && current.certificateStore);
-		CustomSettings.patchFormArrays(formBuilder, <FormGroup>form.controls['customSettings'], current && current.customSettings);
-		SettingsAgents.patchFormArrays(formBuilder, <FormGroup>form.controls['agents'], current && current.agents);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Settings) {
+		form.removeControl('idFormat');
+		form.addControl('idFormat', formBuilder.control(current && current.idFormat));
+
+		form.removeControl('database');
+		form.addControl('database', SettingsDatabase.getForm(formBuilder, current && current.database));
+		form.removeControl('certificateStore');
+		form.addControl('certificateStore', CertificateStore.getForm(formBuilder, current && current.certificateStore));
+		form.removeControl('customSettings');
+		form.addControl('customSettings', CustomSettings.getForm(formBuilder, current && current.customSettings));
+		form.removeControl('agents');
+		form.addControl('agents', SettingsAgents.getForm(formBuilder, current && current.agents));
 	}
 }

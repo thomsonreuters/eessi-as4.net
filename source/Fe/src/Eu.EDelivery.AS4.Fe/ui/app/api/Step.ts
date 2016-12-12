@@ -19,8 +19,13 @@ export class Step {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Step) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Step) {
+		form.removeControl('type');
+		form.addControl('type', formBuilder.control(current && current.type));
+		form.removeControl('unDecorated');
+		form.addControl('unDecorated', formBuilder.control(current && current.unDecorated));
+
 		form.removeControl('setting');
-		form.addControl('setting', formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))),);
+		form.addControl('setting', formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))));
 	}
 }

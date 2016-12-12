@@ -1,3 +1,4 @@
+import { ClipboardModule } from 'angular2-clipboard';
 import { CommonModule } from '@angular/common';
 import { NgModule, ApplicationRef } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -55,7 +56,8 @@ type StoreType = {
         SettingsModule,
         PmodesModule,
         As4ComponentsModule,
-        AuthenticationModule
+        AuthenticationModule,
+        ClipboardModule
     ],
     providers: [ // expose our Services and Providers into Angular's dependency injection
         ENV_PROVIDERS,

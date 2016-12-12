@@ -18,6 +18,13 @@ export class MessageProperty {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: MessageProperty) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: MessageProperty) {
+		form.removeControl('name');
+		form.addControl('name', formBuilder.control(current && current.name));
+		form.removeControl('type');
+		form.addControl('type', formBuilder.control(current && current.type));
+		form.removeControl('value');
+		form.addControl('value', formBuilder.control(current && current.value));
+
 	}
 }

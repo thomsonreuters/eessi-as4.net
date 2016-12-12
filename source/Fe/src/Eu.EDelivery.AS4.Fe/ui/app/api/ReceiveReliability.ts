@@ -13,7 +13,9 @@ export class ReceiveReliability {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReliability) {
-		DuplicateElimination.patchFormArrays(formBuilder, <FormGroup>form.controls['duplicateElimination'], current && current.duplicateElimination);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReliability) {
+
+		form.removeControl('duplicateElimination');
+		form.addControl('duplicateElimination', DuplicateElimination.getForm(formBuilder, current && current.duplicateElimination));
 	}
 }

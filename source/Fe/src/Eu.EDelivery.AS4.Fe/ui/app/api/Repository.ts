@@ -12,6 +12,9 @@ export class Repository {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Repository) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Repository) {
+		form.removeControl('type');
+		form.addControl('type', formBuilder.control(current && current.type));
+
 	}
 }

@@ -18,6 +18,13 @@ export class Decryption {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Decryption) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Decryption) {
+		form.removeControl('encryption');
+		form.addControl('encryption', formBuilder.control(current && current.encryption));
+		form.removeControl('privateKeyFindValue');
+		form.addControl('privateKeyFindValue', formBuilder.control(current && current.privateKeyFindValue));
+		form.removeControl('privateKeyFindType');
+		form.addControl('privateKeyFindType', formBuilder.control(current && current.privateKeyFindType));
+
 	}
 }

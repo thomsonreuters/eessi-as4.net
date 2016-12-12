@@ -12,6 +12,9 @@ export class PullConfiguration {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: PullConfiguration) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PullConfiguration) {
+		form.removeControl('subChannel');
+		form.addControl('subChannel', formBuilder.control(current && current.subChannel));
+
 	}
 }

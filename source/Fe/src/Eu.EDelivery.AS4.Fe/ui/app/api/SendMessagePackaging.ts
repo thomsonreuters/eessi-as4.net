@@ -33,10 +33,21 @@ export class SendMessagePackaging {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SendMessagePackaging) {
-		PartyInfo.patchFormArrays(formBuilder, <FormGroup>form.controls['partyInfo'], current && current.partyInfo);
-		CollaborationInfo.patchFormArrays(formBuilder, <FormGroup>form.controls['collaborationInfo'], current && current.collaborationInfo);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendMessagePackaging) {
+		form.removeControl('mpc');
+		form.addControl('mpc', formBuilder.control(current && current.mpc));
+		form.removeControl('useAS4Compression');
+		form.addControl('useAS4Compression', formBuilder.control(current && current.useAS4Compression));
+		form.removeControl('isMultiHop');
+		form.addControl('isMultiHop', formBuilder.control(current && current.isMultiHop));
+		form.removeControl('includePModeId');
+		form.addControl('includePModeId', formBuilder.control(current && current.includePModeId));
+
+		form.removeControl('partyInfo');
+		form.addControl('partyInfo', PartyInfo.getForm(formBuilder, current && current.partyInfo));
+		form.removeControl('collaborationInfo');
+		form.addControl('collaborationInfo', CollaborationInfo.getForm(formBuilder, current && current.collaborationInfo));
 		form.removeControl('messageProperties');
-		form.addControl('messageProperties', formBuilder.array(!!!(current && current.messageProperties) ? [] : current.messageProperties.map(item => MessageProperty.getForm(formBuilder, item))),);
+		form.addControl('messageProperties', formBuilder.array(!!!(current && current.messageProperties) ? [] : current.messageProperties.map(item => MessageProperty.getForm(formBuilder, item))));
 	}
 }

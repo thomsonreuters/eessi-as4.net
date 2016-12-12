@@ -24,9 +24,15 @@ export class SettingsAgent {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SettingsAgent) {
-		Receiver.patchFormArrays(formBuilder, <FormGroup>form.controls['receiver'], current && current.receiver);
-		Transformer.patchFormArrays(formBuilder, <FormGroup>form.controls['transformer'], current && current.transformer);
-		Steps.patchFormArrays(formBuilder, <FormGroup>form.controls['steps'], current && current.steps);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SettingsAgent) {
+		form.removeControl('name');
+		form.addControl('name', formBuilder.control(current && current.name));
+
+		form.removeControl('receiver');
+		form.addControl('receiver', Receiver.getForm(formBuilder, current && current.receiver));
+		form.removeControl('transformer');
+		form.addControl('transformer', Transformer.getForm(formBuilder, current && current.transformer));
+		form.removeControl('steps');
+		form.addControl('steps', Steps.getForm(formBuilder, current && current.steps));
 	}
 }

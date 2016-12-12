@@ -359,6 +359,19 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 // Assert
                 await test.Source.UpdateSending(Arg.Is<SendingPmode>(x => x.Name == "NEW"), Arg.Is(SendingPmode.Name));
             }
+
+            [Fact]
+            public async Task Update_Existing_When_Name_IsNot_Changed()
+            {
+                // Setup
+                var test = Setup();
+
+                // Act
+                await test.Service.UpdateSending(SendingPmode, SendingPmode.Name);
+
+                // Assert
+                await test.Source.UpdateSending(Arg.Is<SendingPmode>(x => x.Name == "NEW"), Arg.Is(SendingPmode.Name));
+            }
         }
 
         public class UpdateReceiving : As4PmodeServiceTests
@@ -400,6 +413,19 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Act
                 await test.Service.UpdateReceiving(newPmode, ReceivingPmode.Name);
+
+                // Assert
+                await test.Source.UpdateReceiving(Arg.Is<ReceivingPmode>(x => x.Name == "NEW"), Arg.Is(ReceivingPmode.Name));
+            }
+
+            [Fact]
+            public async Task Update_Existing_When_Name_IsNot_Changed()
+            {
+                // Setup
+                var test = Setup();
+
+                // Act
+                await test.Service.UpdateReceiving(ReceivingPmode, ReceivingPmode.Name);
 
                 // Assert
                 await test.Source.UpdateReceiving(Arg.Is<ReceivingPmode>(x => x.Name == "NEW"), Arg.Is(ReceivingPmode.Name));

@@ -15,6 +15,11 @@ export class Parameter {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Parameter) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Parameter) {
+		form.removeControl('name');
+		form.addControl('name', formBuilder.control(current && current.name));
+		form.removeControl('value');
+		form.addControl('value', formBuilder.control(current && current.value));
+
 	}
 }

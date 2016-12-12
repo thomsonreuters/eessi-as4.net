@@ -15,6 +15,11 @@ export class PartyId {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: PartyId) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PartyId) {
+		form.removeControl('id');
+		form.addControl('id', formBuilder.control(current && current.id));
+		form.removeControl('type');
+		form.addControl('type', formBuilder.control(current && current.type));
+
 	}
 }

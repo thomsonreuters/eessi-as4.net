@@ -51,14 +51,31 @@ export class SendingProcessingMode {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SendingProcessingMode) {
-		PushConfiguration.patchFormArrays(formBuilder, <FormGroup>form.controls['pushConfiguration'], current && current.pushConfiguration);
-		PullConfiguration.patchFormArrays(formBuilder, <FormGroup>form.controls['pullConfiguration'], current && current.pullConfiguration);
-		SendReliability.patchFormArrays(formBuilder, <FormGroup>form.controls['reliability'], current && current.reliability);
-		SendHandling.patchFormArrays(formBuilder, <FormGroup>form.controls['receiptHandling'], current && current.receiptHandling);
-		SendHandling.patchFormArrays(formBuilder, <FormGroup>form.controls['errorHandling'], current && current.errorHandling);
-		SendHandling.patchFormArrays(formBuilder, <FormGroup>form.controls['exceptionHandling'], current && current.exceptionHandling);
-		Security.patchFormArrays(formBuilder, <FormGroup>form.controls['security'], current && current.security);
-		SendMessagePackaging.patchFormArrays(formBuilder, <FormGroup>form.controls['messagePackaging'], current && current.messagePackaging);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendingProcessingMode) {
+		form.removeControl('id');
+		form.addControl('id', formBuilder.control(current && current.id));
+		form.removeControl('allowOverride');
+		form.addControl('allowOverride', formBuilder.control(current && current.allowOverride));
+		form.removeControl('mep');
+		form.addControl('mep', formBuilder.control(current && current.mep));
+		form.removeControl('mepBinding');
+		form.addControl('mepBinding', formBuilder.control(current && current.mepBinding));
+
+		form.removeControl('pushConfiguration');
+		form.addControl('pushConfiguration', PushConfiguration.getForm(formBuilder, current && current.pushConfiguration));
+		form.removeControl('pullConfiguration');
+		form.addControl('pullConfiguration', PullConfiguration.getForm(formBuilder, current && current.pullConfiguration));
+		form.removeControl('reliability');
+		form.addControl('reliability', SendReliability.getForm(formBuilder, current && current.reliability));
+		form.removeControl('receiptHandling');
+		form.addControl('receiptHandling', SendHandling.getForm(formBuilder, current && current.receiptHandling));
+		form.removeControl('errorHandling');
+		form.addControl('errorHandling', SendHandling.getForm(formBuilder, current && current.errorHandling));
+		form.removeControl('exceptionHandling');
+		form.addControl('exceptionHandling', SendHandling.getForm(formBuilder, current && current.exceptionHandling));
+		form.removeControl('security');
+		form.addControl('security', Security.getForm(formBuilder, current && current.security));
+		form.removeControl('messagePackaging');
+		form.addControl('messagePackaging', SendMessagePackaging.getForm(formBuilder, current && current.messagePackaging));
 	}
 }

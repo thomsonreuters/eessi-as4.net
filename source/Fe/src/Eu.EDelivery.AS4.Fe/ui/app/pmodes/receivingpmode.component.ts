@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
 import { ReceivingPmode } from './../api/ReceivingPmode';
 import { PmodesModule } from './pmodes.module';
 import { PmodeStore } from './pmode.store';
-import { PmodeService } from './pmode.service';
+import { PmodeService, pmodeService } from './pmode.service';
 import { DialogService } from './../common/dialog.service';
 
 @Component({
@@ -54,9 +54,10 @@ export class ReceivingPmodeComponent {
             .map(result => result.Receiving)
             .distinctUntilChanged()
             .subscribe(result => {
-                ReceivingPmode.patchFormArrays(this.formBuilder, this.form, result);
-                if (!!result) this.form.reset(result);
-                else this.form.reset();
+                // ReceivingPmode.patchFormArrays(this.formBuilder, this.form, result);
+                // if (!!result) this.form.reset(result);
+                // else this.form.reset();
+                ReceivingPmode.patchForm(this.formBuilder, this.form, result);
                 this.currentPmode = result;
             });
         this.pmodeService.getAllReceiving();
@@ -66,6 +67,7 @@ export class ReceivingPmodeComponent {
             this.isNewMode = false;
             let lookupPmode = this.pmodes.find(pmode => pmode === name);
             if (!!lookupPmode) this.pmodeService.getReceiving(name);
+            else this.pmodeStore.setReceiving(undefined);
         };
         if (this.form.dirty) {
             this.dialogService
@@ -85,10 +87,13 @@ export class ReceivingPmodeComponent {
         return true;
     }
     public rename() {
-        let newName = this.dialogService.prompt('Please enter a new name');
-        if (!!!newName) return;
-        this.form.patchValue({ [ReceivingPmode.FIELD_name]: newName });
-        this.form.markAsDirty();
+        this.dialogService
+            .prompt('Please enter a new name')
+            .filter(result => !!result)
+            .subscribe(newName => {
+                this.form.patchValue({ [ReceivingPmode.FIELD_name]: newName });
+                this.form.markAsDirty();
+            });
     }
     public reset() {
         if (this.isNewMode) {
@@ -96,7 +101,7 @@ export class ReceivingPmodeComponent {
             this.pmodes = this.pmodes.filter(pmode => pmode !== this.currentPmode.name);
             this.currentPmode = undefined;
         }
-        ReceivingPmode.patchFormArrays(this.formBuilder, this.form, this.currentPmode);
+        ReceivingPmode.patchForm(this.formBuilder, this.form, this.currentPmode);
         this.form.reset(this.currentPmode);
         this.form.markAsPristine();
     }
@@ -120,9 +125,26 @@ export class ReceivingPmodeComponent {
                 this.currentPmode = newPmode;
                 this.pmodes.push(newName);
                 this.isNewMode = true;
-                ReceivingPmode.patchFormArrays(this.formBuilder, this.form, this.currentPmode);
-                this.form.reset(this.currentPmode);
+                ReceivingPmode.patchForm(this.formBuilder, this.form, this.currentPmode);
                 this.form.markAsDirty();
+            });
+    }
+    public save() {
+        if (this.isNewMode) {
+            this.pmodeService
+                .createReceiving(this.currentPmode)
+                .subscribe(() => {
+                    this.isNewMode = false;
+                    this.form.markAsPristine();
+                });
+            return;
+        }
+
+        this.pmodeService
+            .updateReceiving(this.form.value, this.currentPmode.name)
+            .subscribe(() => {
+                this.isNewMode = false;
+                this.form.markAsPristine();
             });
     }
     ngOnDestroy() {

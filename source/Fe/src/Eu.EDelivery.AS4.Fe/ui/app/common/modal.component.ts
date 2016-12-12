@@ -2,15 +2,15 @@ import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs';
-import { Component, Input, Output, OnDestroy, EventEmitter, HostListener, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, OnDestroy, EventEmitter, HostListener, ViewContainerRef, ViewChild } from '@angular/core';
 
 import { ModalService } from './modal.service';
 
 @Component({
     selector: 'as4-modal',
     template: `
-        <div *ngIf="isVisible" class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" #modal [class.in]="isVisible" [class.show-modal]="isVisible">
-            <div class="modal-dialog" role="document">
+        <div *ngIf="isVisible" class="modal fade" [class.in]="isVisible" [class.show-modal]="isVisible" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" #modal>
+            <div class="modal-dialog" role="document" [ngClass]="{ 'modal-danger': !!type }">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" (click)="cancel()" data-dismiss="modal" aria-label="Close">
@@ -21,10 +21,14 @@ import { ModalService } from './modal.service';
                     <div class="modal-body" *ngIf="isVisible">
                         <b *ngIf="showDefaultMessage">{{message}}</b>
                         <ng-content></ng-content>
+                        <div #target></div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" (click)="ok()">{{buttonOk}}</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="cancel()">{{buttonCancel}}</button>
+                    <div class="modal-footer">                    
+                        <div *ngIf="showDefaultButtons === true">
+                            <button type="button" class="btn btn-flat" *ngIf="showCancel" data-dismiss="modal" (click)="cancel()">{{buttonCancel}}</button>
+                            <button type="button" class="btn btn-flat" *ngIf="showOk" (click)="ok()">{{buttonOk}}</button>
+                        </div>
+                        <ng-content select="[buttons]"></ng-content>
                     </div>
                 </div>
             </div>
@@ -34,6 +38,11 @@ import { ModalService } from './modal.service';
 export class ModalComponent implements OnDestroy {
     public isVisible: boolean = false;
     public result: any | null;
+    public type: string = '';
+    public showOk: boolean = true;
+    public showCancel: boolean = true;
+    @Input() payload: string;
+    @Input() showDefaultButtons: boolean = true;
     @Input() name: string;
     @Input() title: string;
     @Input() message: string;
@@ -41,6 +50,7 @@ export class ModalComponent implements OnDestroy {
     @Input() buttonOk: string = 'Ok';
     @Input() buttonCancel: string = 'Cancel';
     @Output() shown = new EventEmitter();
+    @ViewChild('target', { read: ViewContainerRef }) containerRef: ViewContainerRef;
     private obs: Subject<boolean>;
     @HostListener('document:keydown', ['$event'])
     public keyDown(event: KeyboardEvent) {
@@ -52,7 +62,7 @@ export class ModalComponent implements OnDestroy {
         if (event.keyCode === 13) this.ok();
         else if (event.keyCode === 27) this.cancel();
     }
-    constructor(private modalService: ModalService, private changeDetectorRef: ChangeDetectorRef) {
+    constructor(private modalService: ModalService, private _vr: ViewContainerRef) {
         this.modalService.registerModal(this);
     }
     public cancel() {
@@ -66,8 +76,7 @@ export class ModalComponent implements OnDestroy {
         this.obs.complete();
     }
     public show(): Observable<boolean> {
-        this.result = null;
-        this.isVisible = true;
+        this.reset();
         // Wrap the shown emit event in a timeout to make sure that the modal dialog has already been rendered
         setTimeout(() => this.shown.emit());
         this.obs = new Subject<boolean>();
@@ -76,5 +85,9 @@ export class ModalComponent implements OnDestroy {
     ngOnDestroy() {
         this.modalService.unregisterModal(this);
         console.log('destroyed');
+    }
+    private reset() {
+        this.result = null;
+        this.isVisible = true;
     }
 }

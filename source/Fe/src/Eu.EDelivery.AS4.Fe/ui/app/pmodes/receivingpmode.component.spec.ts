@@ -11,7 +11,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { ReceivingPmodeComponent } from './receivingpmode.component';
-import { PmodeService } from './pmode.service';
+import { PmodeService, pmodeService } from './pmode.service';
 import { Observable } from 'rxjs';
 import {
     inject,
@@ -65,8 +65,8 @@ describe('receiving pmode', () => {
         }));
         it('should set the currentPmode to undefined when selected name is "select an option" and form should be reset', inject([ReceivingPmodeComponent, PmodeStore, DialogService], (cmp: ReceivingPmodeComponent, store: PmodeStore, dialogService: DialogService) => {
             let dialogSpy = spyOn(dialogService, 'confirmUnsavedChanges').and.returnValue(Observable.of(true));
-            let storeSpy = spyOn(store, 'setReceiving');
             store.setReceiving(pmode1);
+            let storeSpy = spyOn(store, 'setReceiving');
             cmp.pmodes = pmodes;
             cmp.pmodeChanged('Select an option');
 
@@ -141,7 +141,7 @@ describe('receiving pmode', () => {
         it('should ask the user for a name and set the new name and mark the form as dirty', inject([ReceivingPmodeComponent, DialogService, PmodeStore], (cmp: ReceivingPmodeComponent, dialogService: DialogService, store: PmodeStore) => {
             store.setReceiving(pmode1);
             expect((<ReceivingPmode>cmp.form.value).name).toBe(pmode1.name);
-            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue('renamed');
+            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of('renamed'));
             let formSpy = spyOn(cmp.form, 'markAsDirty');
 
             cmp.rename();
@@ -153,7 +153,7 @@ describe('receiving pmode', () => {
         it('should do nothing when the user cancels', inject([ReceivingPmodeComponent, DialogService, PmodeStore], (cmp: ReceivingPmodeComponent, dialogService: DialogService, store: PmodeStore) => {
             store.setReceiving(pmode1);
             expect((<ReceivingPmode>cmp.form.value).name).toBe(pmode1.name);
-            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(undefined);
+            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of(undefined));
 
             cmp.rename();
 
@@ -163,7 +163,7 @@ describe('receiving pmode', () => {
     describe('reset', () => {
         it('should revert to the currentPmode value and mark the form as pristine', inject([ReceivingPmodeComponent, PmodeStore, DialogService], (cmp: ReceivingPmodeComponent, store: PmodeStore, dialogService: DialogService) => {
             store.setReceiving(pmode1);
-            let dialogServiceSpy = spyOn(dialogService, 'prompt').and.returnValue('renamed');
+            let dialogServiceSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of('renamed'));
             let formSpy = spyOn(cmp.form, 'markAsPristine');
 
             cmp.rename();
@@ -187,7 +187,7 @@ describe('receiving pmode', () => {
             expect(cmp.isNewMode).toBeFalsy();
             expect(cmp.pmodes.find(pmode => pmode === 'newPmode')).toBeUndefined();
             expect(cmp.currentPmode).toBeUndefined();
-            expect((<ReceivingPmode>cmp.form.value).name).toBeUndefined();
+            expect((<ReceivingPmode>cmp.form.value).name).toBeNull();
         }));
     });
     describe('delete', () => {
@@ -242,6 +242,30 @@ describe('receiving pmode', () => {
             expect(cmp.currentPmode.pmode.id).toBe('new');
             expect((<ReceivingPmode>cmp.form.value).name).toBe('new');
             expect(formSpy).toHaveBeenCalled();
+        }));
+    });
+    describe('save', () => {
+        it('should call pmodeservice.createreceiving when in newmode', inject([ReceivingPmodeComponent, PmodeService, PmodeStore, DialogService], (cmp: ReceivingPmodeComponent, pmodeService: PmodeService, pmodeStore: PmodeStore, dialogService: DialogService) => {
+            cmp.pmodes = pmodes;
+            let newName = 'newName';
+            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of(newName));
+            let serviceSpy = spyOn(pmodeService, 'createReceiving').and.returnValue(Observable.of(true));
+            cmp.add();
+
+            cmp.save();
+
+            expect(serviceSpy).toHaveBeenCalled();
+            expect(cmp.form.dirty).toBeFalsy();
+        }));
+        it('should call pmodeservice.updatereceiving when not in newmode', inject([ReceivingPmodeComponent, PmodeService, PmodeStore, DialogService], (cmp: ReceivingPmodeComponent, pmodeService: PmodeService, pmodeStore: PmodeStore, dialogService: DialogService) => {
+            cmp.pmodes = pmodes;
+            pmodeStore.setReceiving(pmode1);
+            let serviceSpy = spyOn(pmodeService, 'updateReceiving').and.returnValue(Observable.of(true));
+            cmp.form.markAsDirty();
+
+            cmp.save();
+
+            expect(cmp.form.dirty).toBeFalsy();
         }));
     });
 });

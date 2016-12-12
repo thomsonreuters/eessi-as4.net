@@ -18,6 +18,13 @@ export class Protocol {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Protocol) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Protocol) {
+		form.removeControl('url');
+		form.addControl('url', formBuilder.control(current && current.url));
+		form.removeControl('useChunking');
+		form.addControl('useChunking', formBuilder.control(current && current.useChunking));
+		form.removeControl('useHttpCompression');
+		form.addControl('useHttpCompression', formBuilder.control(current && current.useHttpCompression));
+
 	}
 }

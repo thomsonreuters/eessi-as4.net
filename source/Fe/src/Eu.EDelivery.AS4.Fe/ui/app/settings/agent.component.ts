@@ -75,7 +75,7 @@ export class AgentSettingsComponent implements OnDestroy {
                 this.settings = result;
                 this.currentAgent = this.settings.find(agt => agt.name === this.form.value.name);
                 if (!!this.currentAgent) {
-                    SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+                    SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
                     this.form.reset(this.currentAgent);
                 }
             });
@@ -92,7 +92,7 @@ export class AgentSettingsComponent implements OnDestroy {
                     this.settings.push(newAgent);
                     this.currentAgent = newAgent;
                     this.currentAgent.name = this.newName;
-                    SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+                    SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
                     this.isNewMode = true;
                     this.form.reset(newAgent);
                     this.form.patchValue({ [SettingsAgent.FIELD_name]: this.newName });
@@ -104,7 +104,7 @@ export class AgentSettingsComponent implements OnDestroy {
         let select = () => {
             this.isNewMode = false;
             this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
-            SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+            SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
             this.form.reset(this.currentAgent);
         };
 
@@ -144,7 +144,7 @@ export class AgentSettingsComponent implements OnDestroy {
             this.currentAgent = undefined;
         }
         this.isNewMode = false;
-        SettingsAgent.patchFormArrays(this.formBuilder, this.form, this.currentAgent);
+        SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
         this.form.reset(this.currentAgent);
     }
     public rename() {

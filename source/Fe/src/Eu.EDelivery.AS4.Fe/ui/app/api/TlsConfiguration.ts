@@ -19,7 +19,13 @@ export class TlsConfiguration {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: TlsConfiguration) {
-		ClientCertificateReference.patchFormArrays(formBuilder, <FormGroup>form.controls['clientCertificateReference'], current && current.clientCertificateReference);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: TlsConfiguration) {
+		form.removeControl('isEnabled');
+		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
+		form.removeControl('tlsVersion');
+		form.addControl('tlsVersion', formBuilder.control(current && current.tlsVersion));
+
+		form.removeControl('clientCertificateReference');
+		form.addControl('clientCertificateReference', ClientCertificateReference.getForm(formBuilder, current && current.clientCertificateReference));
 	}
 }

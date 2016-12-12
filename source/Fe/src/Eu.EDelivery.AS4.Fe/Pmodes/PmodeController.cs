@@ -24,14 +24,14 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
         [HttpPost]
         [Route("receiving")]
-        public async Task CreateReceiving(ReceivingPmode pmode)
+        public async Task CreateReceiving([FromBody] ReceivingPmode pmode)
         {
             await pmodeService.CreateReceiving(pmode);
         }
 
         [HttpPut]
         [Route("receiving/{originalName}")]
-        public async Task UpdateReceiving(ReceivingPmode pmode, string originalName)
+        public async Task UpdateReceiving([FromBody] ReceivingPmode pmode, string originalName)
         {
             await pmodeService.UpdateReceiving(pmode, originalName);
         }
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
         [HttpPost]
         [Route("sending")]
-        public async Task CreateSending(SendingPmode pmode)
+        public async Task CreateSending([FromBody] SendingPmode pmode)
         {
             await pmodeService.CreateSending(pmode);
         }
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
         [HttpPut]
         [Route("sending/{originalName}")]
-        public async Task UpdateSending(SendingPmode pmode, string originalName)
+        public async Task UpdateSending([FromBody] SendingPmode pmode, string originalName)
         {
             await pmodeService.UpdateSending(pmode, originalName);
         }

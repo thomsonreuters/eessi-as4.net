@@ -19,8 +19,13 @@ export class ItemType {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: ItemType) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ItemType) {
+		form.removeControl('name');
+		form.addControl('name', formBuilder.control(current && current.name));
+		form.removeControl('technicalName');
+		form.addControl('technicalName', formBuilder.control(current && current.technicalName));
+
 		form.removeControl('properties');
-		form.addControl('properties', formBuilder.array(!!!(current && current.properties) ? [] : current.properties.map(item => Property.getForm(formBuilder, item))),);
+		form.addControl('properties', formBuilder.array(!!!(current && current.properties) ? [] : current.properties.map(item => Property.getForm(formBuilder, item))));
 	}
 }

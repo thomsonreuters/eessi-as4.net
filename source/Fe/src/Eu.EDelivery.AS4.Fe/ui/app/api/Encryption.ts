@@ -24,6 +24,17 @@ export class Encryption {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Encryption) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Encryption) {
+		form.removeControl('isEnabled');
+		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
+		form.removeControl('algorithm');
+		form.addControl('algorithm', formBuilder.control(current && current.algorithm));
+		form.removeControl('publicKeyFindType');
+		form.addControl('publicKeyFindType', formBuilder.control(current && current.publicKeyFindType));
+		form.removeControl('publicKeyFindValue');
+		form.addControl('publicKeyFindValue', formBuilder.control(current && current.publicKeyFindValue));
+		form.removeControl('keyTransport');
+		form.addControl('keyTransport', formBuilder.control(current && current.keyTransport));
+
 	}
 }

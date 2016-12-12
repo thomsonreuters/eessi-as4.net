@@ -23,8 +23,15 @@ export class CollaborationInfo {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: CollaborationInfo) {
-		Agreement.patchFormArrays(formBuilder, <FormGroup>form.controls['agreementRef'], current && current.agreementRef);
-		Service.patchFormArrays(formBuilder, <FormGroup>form.controls['service'], current && current.service);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: CollaborationInfo) {
+		form.removeControl('action');
+		form.addControl('action', formBuilder.control(current && current.action));
+		form.removeControl('conversationId');
+		form.addControl('conversationId', formBuilder.control(current && current.conversationId));
+
+		form.removeControl('agreementRef');
+		form.addControl('agreementRef', Agreement.getForm(formBuilder, current && current.agreementRef));
+		form.removeControl('service');
+		form.addControl('service', Service.getForm(formBuilder, current && current.service));
 	}
 }

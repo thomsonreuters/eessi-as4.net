@@ -12,6 +12,9 @@ export class Transformer {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Transformer) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Transformer) {
+		form.removeControl('type');
+		form.addControl('type', formBuilder.control(current && current.type));
+
 	}
 }

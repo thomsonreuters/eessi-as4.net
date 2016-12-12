@@ -9,7 +9,7 @@
                             <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.name)">{{currentPmode && currentPmode.name === pmode && !!form && !!form.controls ? form.controls.name.value : pmode}}</option>
                         </select>
                         <div class="input-group-btn" crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()"
-                            [current]="currentPmode" [isNewMode]="isNewMode"></div>
+                            (save)="save()" [current]="currentPmode" [isNewMode]="isNewMode"></div>
                     </div>
                 </as4-input>
             </div>
@@ -60,7 +60,7 @@
         <as4-box title="Error handling" collapsed="true" collapsible="true">
             <div content formGroupName="errorHandling" class="col-md-6 col-xs-12">
                 <as4-input label="Use soap fault">
-                    <input type="text" formControlName="useSoapFault" class="form-control">
+                    <input type="checkbox" formControlName="useSoapFault">
                 </as4-input>
                 <as4-input label="Reply pattern">
                     <select formControlName="replyPattern" class="form-control">

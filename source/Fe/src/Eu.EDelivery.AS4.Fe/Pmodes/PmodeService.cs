@@ -94,8 +94,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             EnsureArg.IsNotNull(pmode, nameof(pmode));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
 
-            var newExists = await GetSendingByName(pmode.Name);
-            if (newExists != null) throw new Exception($"Pmode with {originalName} already exists");
+            if (pmode.Name != originalName)
+            {
+                var newExists = await GetSendingByName(pmode.Name);
+                if (newExists != null) throw new Exception($"Pmode with {originalName} already exists");
+            }
 
             await source.UpdateSending(pmode, originalName);
         }
@@ -105,8 +108,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             EnsureArg.IsNotNull(pmode, nameof(pmode));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
 
-            var newExists = await GetReceivingByName(pmode.Name);
-            if (newExists != null) throw new Exception($"Pmode with {originalName} already exists");
+            if (pmode.Name != originalName)
+            {
+                var newExists = await GetReceivingByName(pmode.Name);
+                if (newExists != null) throw new Exception($"Pmode with {originalName} already exists");
+            }
 
             await source.UpdateReceiving(pmode, originalName);
         }
@@ -204,7 +210,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             {
                 using (var textWriter = new StringWriter())
                 {
-                    xmlSerializer.Serialize(textWriter, settings);
+                    xmlSerializer.Serialize(textWriter, pmode.Pmode);
                     File.WriteAllText(path, textWriter.ToString(), Encoding.Unicode);
                 }
             });
@@ -237,7 +243,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             {
                 using (var textWriter = new StringWriter())
                 {
-                    xmlSerializer.Serialize(textWriter, settings);
+                    xmlSerializer.Serialize(textWriter, pmode.Pmode);
                     File.WriteAllText(path, textWriter.ToString(), Encoding.Unicode);
                 }
             });
@@ -245,16 +251,12 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
         public async Task UpdateSending(SendingPmode pmode, string originalName)
         {
-            var existing = await GetSendingByName(originalName);
-            mapper.Map(pmode.Pmode, existing);
-            await CreateSending(existing);
+            await CreateSending(pmode);
         }
 
         public async Task UpdateReceiving(ReceivingPmode pmode, string originalName)
         {
-            var existing = await GetReceivingByName(originalName);
-            mapper.Map(pmode.Pmode, existing);
-            await CreateReceiving(existing);
+            await CreateReceiving(pmode);
         }
     }
 

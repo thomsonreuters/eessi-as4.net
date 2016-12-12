@@ -13,7 +13,9 @@ export class SendReliability {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SendReliability) {
-		ReceptionAwareness.patchFormArrays(formBuilder, <FormGroup>form.controls['receptionAwareness'], current && current.receptionAwareness);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendReliability) {
+
+		form.removeControl('receptionAwareness');
+		form.addControl('receptionAwareness', ReceptionAwareness.getForm(formBuilder, current && current.receptionAwareness));
 	}
 }

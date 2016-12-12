@@ -15,6 +15,11 @@ export class SettingsDatabase {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SettingsDatabase) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SettingsDatabase) {
+		form.removeControl('provider');
+		form.addControl('provider', formBuilder.control(current && current.provider));
+		form.removeControl('connectionString');
+		form.addControl('connectionString', formBuilder.control(current && current.connectionString));
+
 	}
 }

@@ -17,8 +17,11 @@ export class PushConfiguration {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: PushConfiguration) {
-		Protocol.patchFormArrays(formBuilder, <FormGroup>form.controls['protocol'], current && current.protocol);
-		TlsConfiguration.patchFormArrays(formBuilder, <FormGroup>form.controls['tlsConfiguration'], current && current.tlsConfiguration);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PushConfiguration) {
+
+		form.removeControl('protocol');
+		form.addControl('protocol', Protocol.getForm(formBuilder, current && current.protocol));
+		form.removeControl('tlsConfiguration');
+		form.addControl('tlsConfiguration', TlsConfiguration.getForm(formBuilder, current && current.tlsConfiguration));
 	}
 }

@@ -46,13 +46,27 @@ export class ReceivingProcessingMode {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: ReceivingProcessingMode) {
-		ReceiveReliability.patchFormArrays(formBuilder, <FormGroup>form.controls['reliability'], current && current.reliability);
-		ReceiveReceiptHandling.patchFormArrays(formBuilder, <FormGroup>form.controls['receiptHandling'], current && current.receiptHandling);
-		ReceiveErrorHandling.patchFormArrays(formBuilder, <FormGroup>form.controls['errorHandling'], current && current.errorHandling);
-		Receivehandling.patchFormArrays(formBuilder, <FormGroup>form.controls['exceptionHandling'], current && current.exceptionHandling);
-		ReceiveSecurity.patchFormArrays(formBuilder, <FormGroup>form.controls['security'], current && current.security);
-		MessagePackaging.patchFormArrays(formBuilder, <FormGroup>form.controls['messagePackaging'], current && current.messagePackaging);
-		Deliver.patchFormArrays(formBuilder, <FormGroup>form.controls['deliver'], current && current.deliver);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingProcessingMode) {
+		form.removeControl('id');
+		form.addControl('id', formBuilder.control(current && current.id));
+		form.removeControl('mep');
+		form.addControl('mep', formBuilder.control(current && current.mep));
+		form.removeControl('mepBinding');
+		form.addControl('mepBinding', formBuilder.control(current && current.mepBinding));
+
+		form.removeControl('reliability');
+		form.addControl('reliability', ReceiveReliability.getForm(formBuilder, current && current.reliability));
+		form.removeControl('receiptHandling');
+		form.addControl('receiptHandling', ReceiveReceiptHandling.getForm(formBuilder, current && current.receiptHandling));
+		form.removeControl('errorHandling');
+		form.addControl('errorHandling', ReceiveErrorHandling.getForm(formBuilder, current && current.errorHandling));
+		form.removeControl('exceptionHandling');
+		form.addControl('exceptionHandling', Receivehandling.getForm(formBuilder, current && current.exceptionHandling));
+		form.removeControl('security');
+		form.addControl('security', ReceiveSecurity.getForm(formBuilder, current && current.security));
+		form.removeControl('messagePackaging');
+		form.addControl('messagePackaging', MessagePackaging.getForm(formBuilder, current && current.messagePackaging));
+		form.removeControl('deliver');
+		form.addControl('deliver', Deliver.getForm(formBuilder, current && current.deliver));
 	}
 }

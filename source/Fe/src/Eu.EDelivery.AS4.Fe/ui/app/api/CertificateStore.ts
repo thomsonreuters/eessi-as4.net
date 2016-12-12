@@ -16,7 +16,11 @@ export class CertificateStore {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: CertificateStore) {
-		Repository.patchFormArrays(formBuilder, <FormGroup>form.controls['repository'], current && current.repository);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: CertificateStore) {
+		form.removeControl('storeName');
+		form.addControl('storeName', formBuilder.control(current && current.storeName));
+
+		form.removeControl('repository');
+		form.addControl('repository', Repository.getForm(formBuilder, current && current.repository));
 	}
 }

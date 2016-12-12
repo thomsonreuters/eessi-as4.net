@@ -17,8 +17,11 @@ export class ReceiveSecurity {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: ReceiveSecurity) {
-		SigningVerification.patchFormArrays(formBuilder, <FormGroup>form.controls['signingVerification'], current && current.signingVerification);
-		Decryption.patchFormArrays(formBuilder, <FormGroup>form.controls['decryption'], current && current.decryption);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveSecurity) {
+
+		form.removeControl('signingVerification');
+		form.addControl('signingVerification', SigningVerification.getForm(formBuilder, current && current.signingVerification));
+		form.removeControl('decryption');
+		form.addControl('decryption', Decryption.getForm(formBuilder, current && current.decryption));
 	}
 }

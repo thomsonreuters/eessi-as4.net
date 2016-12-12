@@ -18,6 +18,13 @@ export class Agreement {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Agreement) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Agreement) {
+		form.removeControl('value');
+		form.addControl('value', formBuilder.control(current && current.value));
+		form.removeControl('refType');
+		form.addControl('refType', formBuilder.control(current && current.refType));
+		form.removeControl('pModeId');
+		form.addControl('pModeId', formBuilder.control(current && current.pModeId));
+
 	}
 }

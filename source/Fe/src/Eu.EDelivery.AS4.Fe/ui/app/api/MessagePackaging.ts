@@ -21,10 +21,13 @@ export class MessagePackaging {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: MessagePackaging) {
-		PartyInfo.patchFormArrays(formBuilder, <FormGroup>form.controls['partyInfo'], current && current.partyInfo);
-		CollaborationInfo.patchFormArrays(formBuilder, <FormGroup>form.controls['collaborationInfo'], current && current.collaborationInfo);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: MessagePackaging) {
+
+		form.removeControl('partyInfo');
+		form.addControl('partyInfo', PartyInfo.getForm(formBuilder, current && current.partyInfo));
+		form.removeControl('collaborationInfo');
+		form.addControl('collaborationInfo', CollaborationInfo.getForm(formBuilder, current && current.collaborationInfo));
 		form.removeControl('messageProperties');
-		form.addControl('messageProperties', formBuilder.array(!!!(current && current.messageProperties) ? [] : current.messageProperties.map(item => MessageProperty.getForm(formBuilder, item))),);
+		form.addControl('messageProperties', formBuilder.array(!!!(current && current.messageProperties) ? [] : current.messageProperties.map(item => MessageProperty.getForm(formBuilder, item))));
 	}
 }

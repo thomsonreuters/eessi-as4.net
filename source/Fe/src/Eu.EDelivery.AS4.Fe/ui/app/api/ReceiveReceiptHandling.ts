@@ -21,6 +21,15 @@ export class ReceiveReceiptHandling {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReceiptHandling) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReceiptHandling) {
+		form.removeControl('useNNRFormat');
+		form.addControl('useNNRFormat', formBuilder.control(current && current.useNNRFormat));
+		form.removeControl('replyPattern');
+		form.addControl('replyPattern', formBuilder.control(current && current.replyPattern));
+		form.removeControl('callbackUrl');
+		form.addControl('callbackUrl', formBuilder.control(current && current.callbackUrl));
+		form.removeControl('sendingPMode');
+		form.addControl('sendingPMode', formBuilder.control(current && current.sendingPMode));
+
 	}
 }

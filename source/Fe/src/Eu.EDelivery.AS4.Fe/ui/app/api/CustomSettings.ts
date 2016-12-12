@@ -13,8 +13,9 @@ export class CustomSettings {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: CustomSettings) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: CustomSettings) {
+
 		form.removeControl('setting');
-		form.addControl('setting', formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))),);
+		form.addControl('setting', formBuilder.array(!!!(current && current.setting) ? [] : current.setting.map(item => Setting.getForm(formBuilder, item))));
 	}
 }

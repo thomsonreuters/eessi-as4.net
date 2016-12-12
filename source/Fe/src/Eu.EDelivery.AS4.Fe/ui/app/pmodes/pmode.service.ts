@@ -17,6 +17,8 @@ export interface IPmodeService {
     getReceiving(name: string);
     deleteReceiving(name: string);
     deleteSending(name: string);
+    createReceiving(pmode: ReceivingPmode): Observable<boolean>;
+    createSending(pmode: SendingPmode): Observable<boolean>;
 }
 
 export let pmodeService = new OpaqueToken('pmodeService');
@@ -42,7 +44,7 @@ export class SendingPmodeService implements ITestPmodeService {
 
     }
     public patchFormArrays(formBuilder: FormBuilder, formGroup: FormGroup, current: SendingPmode) {
-        SendingPmode.patchFormArrays(formBuilder, formGroup, current);
+        // SendingPmode.patchFormArrays(formBuilder, formGroup, current);
     }
     private getBaseUrl(action: string): string {
         return `api/pmode/sending/${action}`;
@@ -71,7 +73,7 @@ export class ReceivingPmodeService implements ITestPmodeService {
 
     }
     public patchFormArrays(formBuilder: FormBuilder, formGroup: FormGroup, current: ReceivingPmode) {
-        ReceivingPmode.patchFormArrays(formBuilder, formGroup, current);
+        ReceivingPmode.patchForm(formBuilder, formGroup, current);
     }
     private getBaseUrl(): string {
         return `api/pmode/receiving`;
@@ -104,6 +106,28 @@ export class PmodeService implements IPmodeService {
                 this.pmodeStore.deleteReceiving(name);
             });
     }
+    public createReceiving(pmode: ReceivingPmode): Observable<boolean> {
+        let obs = new Subject<boolean>();
+        this.http
+            .post(`${this.getBaseUrl('receiving')}`, pmode)
+            .subscribe(result => {
+                this.pmodeStore.setReceiving(pmode);
+                obs.next();
+                obs.complete();
+            });
+        return obs.asObservable();
+    }
+    public updateReceiving(pmode: ReceivingPmode, originalName: string): Observable<boolean> {
+        let obs = new Subject<boolean>();
+        this.http
+            .put(`${this.getBaseUrl('receiving')}/${originalName}`, pmode)
+            .subscribe(result => {
+                this.pmodeStore.setReceiving(pmode);
+                obs.next(true);
+                obs.complete();
+            });
+        return obs.asObservable();
+    }
     public deleteSending(name: string) {
         this.http
             .delete(`${this.getBaseUrl('sending')}/${name}`)
@@ -120,6 +144,9 @@ export class PmodeService implements IPmodeService {
         this.http
             .get(`${this.getBaseUrl('receiving')}/${name}`)
             .subscribe(result => this.pmodeStore.update('Receiving', result.json()));
+    }
+    public createSending(pmode: SendingPmode): Observable<boolean> {
+        return null;
     }
     private getBaseUrl(action: string): string {
         return `api/pmode/${action}`;

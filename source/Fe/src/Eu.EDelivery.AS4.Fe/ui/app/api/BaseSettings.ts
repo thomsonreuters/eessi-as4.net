@@ -16,7 +16,11 @@ export class BaseSettings {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: BaseSettings) {
-		CertificateStore.patchFormArrays(formBuilder, <FormGroup>form.controls['certificateStore'], current && current.certificateStore);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: BaseSettings) {
+		form.removeControl('idFormat');
+		form.addControl('idFormat', formBuilder.control(current && current.idFormat));
+
+		form.removeControl('certificateStore');
+		form.addControl('certificateStore', CertificateStore.getForm(formBuilder, current && current.certificateStore));
 	}
 }

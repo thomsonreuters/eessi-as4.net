@@ -16,8 +16,11 @@ export class Method {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Method) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Method) {
+		form.removeControl('type');
+		form.addControl('type', formBuilder.control(current && current.type));
+
 		form.removeControl('parameters');
-		form.addControl('parameters', formBuilder.array(!!!(current && current.parameters) ? [] : current.parameters.map(item => Parameter.getForm(formBuilder, item))),);
+		form.addControl('parameters', formBuilder.array(!!!(current && current.parameters) ? [] : current.parameters.map(item => Parameter.getForm(formBuilder, item))));
 	}
 }

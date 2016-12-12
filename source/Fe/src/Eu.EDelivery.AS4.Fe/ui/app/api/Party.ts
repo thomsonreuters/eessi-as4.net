@@ -16,8 +16,11 @@ export class Party {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Party) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Party) {
+		form.removeControl('role');
+		form.addControl('role', formBuilder.control(current && current.role));
+
 		form.removeControl('partyIds');
-		form.addControl('partyIds', formBuilder.array(!!!(current && current.partyIds) ? [] : current.partyIds.map(item => PartyId.getForm(formBuilder, item))),);
+		form.addControl('partyIds', formBuilder.array(!!!(current && current.partyIds) ? [] : current.partyIds.map(item => PartyId.getForm(formBuilder, item))));
 	}
 }

@@ -16,7 +16,11 @@ export class SendHandling {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SendHandling) {
-		Method.patchFormArrays(formBuilder, <FormGroup>form.controls['notifyMethod'], current && current.notifyMethod);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendHandling) {
+		form.removeControl('notifyMessageProducer');
+		form.addControl('notifyMessageProducer', formBuilder.control(current && current.notifyMessageProducer));
+
+		form.removeControl('notifyMethod');
+		form.addControl('notifyMethod', Method.getForm(formBuilder, current && current.notifyMethod));
 	}
 }

@@ -19,7 +19,13 @@ export class SendingPmode {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: SendingPmode) {
-		SendingProcessingMode.patchFormArrays(formBuilder, <FormGroup>form.controls['pmode'], current && current.pmode);
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendingPmode) {
+		form.removeControl('type');
+		form.addControl('type', formBuilder.control(current && current.type));
+		form.removeControl('name');
+		form.addControl('name', formBuilder.control(current && current.name));
+
+		form.removeControl('pmode');
+		form.addControl('pmode', SendingProcessingMode.getForm(formBuilder, current && current.pmode));
 	}
 }

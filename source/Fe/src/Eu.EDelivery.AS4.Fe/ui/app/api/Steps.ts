@@ -16,8 +16,11 @@ export class Steps {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: Steps) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Steps) {
+		form.removeControl('decorator');
+		form.addControl('decorator', formBuilder.control(current && current.decorator));
+
 		form.removeControl('step');
-		form.addControl('step', formBuilder.array(!!!(current && current.step) ? [] : current.step.map(item => Step.getForm(formBuilder, item))),);
+		form.addControl('step', formBuilder.array(!!!(current && current.step) ? [] : current.step.map(item => Step.getForm(formBuilder, item))));
 	}
 }

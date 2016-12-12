@@ -1,3 +1,5 @@
+import { Response } from '@angular/http';
+
 import { ModalComponent } from './modal.component';
 import { ModalService } from './modal.service';
 import { Injectable } from '@angular/core';
@@ -45,6 +47,18 @@ export class DialogService {
         this.modalService
             .show('default', (dlg) => {
                 dlg.message = message;
+                dlg.showCancel = false;
+            });
+    }
+    public error(message: string, stackTrace: string | Response) {
+        this.modalService
+            .show('error', (dlg) => {
+                dlg.type = 'modal-danger';
+                dlg.message = message;
+                dlg.showCancel = false;
+                dlg.title = 'Error';
+                if (stackTrace instanceof Response)
+                    dlg.payload = stackTrace.json().Exception;
             });
     }
     public incorrectForm() {

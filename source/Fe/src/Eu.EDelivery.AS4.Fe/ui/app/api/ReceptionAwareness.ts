@@ -18,6 +18,13 @@ export class ReceptionAwareness {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: ReceptionAwareness) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceptionAwareness) {
+		form.removeControl('isEnabled');
+		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
+		form.removeControl('retryCount');
+		form.addControl('retryCount', formBuilder.control(current && current.retryCount));
+		form.removeControl('retryInterval');
+		form.addControl('retryInterval', formBuilder.control(current && current.retryInterval));
+
 	}
 }

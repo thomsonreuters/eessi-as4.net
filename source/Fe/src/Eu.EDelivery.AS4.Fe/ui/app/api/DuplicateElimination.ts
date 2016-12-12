@@ -12,6 +12,9 @@ export class DuplicateElimination {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchFormArrays(formBuilder: FormBuilder, form: FormGroup, current: DuplicateElimination) {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: DuplicateElimination) {
+		form.removeControl('isEnabled');
+		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
+
 	}
 }
