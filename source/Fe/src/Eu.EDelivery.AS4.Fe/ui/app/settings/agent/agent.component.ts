@@ -86,6 +86,7 @@ export class AgentSettingsComponent implements OnDestroy {
             .filter(result => result)
             .subscribe(() => {
                 if (!!this.newName) {
+                    if (this.messageIfExists(this.newName)) return;
                     let newAgent;
                     if (this.actionType !== -1) newAgent = Object.assign({}, this.settings.find(agt => agt.name === this.actionType));
                     else newAgent = new SettingsAgent();
@@ -151,6 +152,7 @@ export class AgentSettingsComponent implements OnDestroy {
         this.dialogService
             .prompt('Please enter a new name', 'Rename')
             .subscribe(name => {
+                if (this.messageIfExists(name)) return;
                 if (!!this.currentAgent && !!name) {
                     this.form.patchValue({ [SettingsAgent.FIELD_name]: name });
                     this.form.markAsDirty();
@@ -159,9 +161,10 @@ export class AgentSettingsComponent implements OnDestroy {
     }
     public delete() {
         this.dialogService
-            .confirm('Are you sure you want to delete the agent')
+            .confirm('Are you sure you want to delete the agent', 'Delete agent')
             .filter(result => result)
             .subscribe(result => {
+                this.form.markAsPristine();
                 if (this.isNewMode) {
                     this.settings = this.settings.filter(agent => agent.name !== this.currentAgent.name);
                     this.selectAgent();
@@ -171,9 +174,17 @@ export class AgentSettingsComponent implements OnDestroy {
                 this.settingsService.deleteAgent(this.currentAgent, this.agent);
             });
     }
-
     ngOnDestroy() {
         this._settingsStoreSubscription.unsubscribe();
         this._runtimeStoreSubscription.unsubscribe();
+    }
+    private messageIfExists(name: string): boolean {
+        let exists = !!this.settings.find(agent => agent.name === name);
+        if (exists) {
+            this.dialogService.message(`An agent with the name ${name} already exists`);
+            return true;
+        }
+
+        return false;
     }
 }

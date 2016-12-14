@@ -2,7 +2,7 @@ import { Subject } from 'rxjs/Subject';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs';
-import { Component, Input, Output, OnDestroy, EventEmitter, HostListener, ViewContainerRef, ViewChild } from '@angular/core';
+import { Component, Input, Output, OnDestroy, EventEmitter, HostListener, ViewChild, OnInit, ElementRef } from '@angular/core';
 
 import { ModalService } from './modal.service';
 
@@ -21,11 +21,10 @@ import { ModalService } from './modal.service';
                     <div class="modal-body" *ngIf="isVisible">
                         <b *ngIf="showDefaultMessage">{{message}}</b>
                         <ng-content></ng-content>
-                        <div #target></div>
                     </div>
                     <div class="modal-footer">                    
                         <div *ngIf="showDefaultButtons === true">
-                            <button type="button" class="btn btn-flat" *ngIf="showCancel" data-dismiss="modal" (click)="cancel()">{{buttonCancel}}</button>
+                            <button type="button" class="btn btn-flat" *ngIf="showCancel" data-dismiss="modal" (click)="cancel()" focus onlyWhenNoText="true">{{buttonCancel}}</button>
                             <button type="button" class="btn btn-flat" *ngIf="showOk" (click)="ok()">{{buttonOk}}</button>
                         </div>
                         <ng-content select="[buttons]"></ng-content>
@@ -51,19 +50,17 @@ export class ModalComponent implements OnDestroy {
     @Input() buttonOk: string = 'Ok';
     @Input() buttonCancel: string = 'Cancel';
     @Output() shown = new EventEmitter();
-    @ViewChild('target', { read: ViewContainerRef }) containerRef: ViewContainerRef;
     private obs: Subject<boolean>;
     @HostListener('document:keydown', ['$event'])
     public keyDown(event: KeyboardEvent) {
         if (!this.isVisible) return;
-        if (event.keyCode === 13 || event.keyCode === 27) {
+        if (event.keyCode === 27) {
             event.stopPropagation();
             event.preventDefault();
         }
-        if (event.keyCode === 13) this.ok();
-        else if (event.keyCode === 27) this.cancel();
+        if (event.keyCode === 27) this.cancel();
     }
-    constructor(private modalService: ModalService, private _vr: ViewContainerRef) {
+    constructor(private modalService: ModalService, private elementRef: ElementRef) {
         this.modalService.registerModal(this);
     }
     public cancel() {

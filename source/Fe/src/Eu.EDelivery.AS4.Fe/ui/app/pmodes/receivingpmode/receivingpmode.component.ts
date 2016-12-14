@@ -28,8 +28,6 @@ export class ReceivingPmodeComponent {
     }
     public set currentPmode(pmode: ReceivingPmode | undefined) {
         this._currentPmode = pmode;
-        // if (!!!pmode) setTimeout(() => this.form.disable());
-        // else setTimeout(() => this.form.enable());
         if (!!!pmode) this.form.disable();
         else this.form.enable();
     }
@@ -37,13 +35,9 @@ export class ReceivingPmodeComponent {
     private _currentPmodeSubscription: Subscription;
     private _runtimeStoreSubscription: Subscription;
     private _currentPmode: ReceivingPmode | undefined;
-    public test() {
-        if (this.form.enabled) this.form.disable();
-        else this.form.enable();
-    }
     constructor(private formBuilder: FormBuilder, private pmodeService: PmodeService, private pmodeStore: PmodeStore, private dialogService: DialogService, private runtimeStore: RuntimeStore) {
         this.form = ReceivingPmode.getForm(this.formBuilder, null);
-        this.form.disable();
+        // this.form.disable();
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)
@@ -64,6 +58,7 @@ export class ReceivingPmodeComponent {
             .subscribe(result => {
                 this.currentPmode = result;
                 ReceivingPmode.patchForm(this.formBuilder, this.form, result);
+                // this.form.reset(result);
             });
         this.pmodeService.getAllReceiving();
     }
@@ -163,5 +158,8 @@ export class ReceivingPmodeComponent {
         this._storeSubscription.unsubscribe();
         this._currentPmodeSubscription.unsubscribe();
         this._runtimeStoreSubscription.unsubscribe();
+    }
+    ngAfterViewInit() {
+        this.expand();
     }
 }

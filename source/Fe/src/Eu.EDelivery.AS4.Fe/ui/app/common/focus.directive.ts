@@ -1,15 +1,18 @@
-import { Directive, ElementRef, AfterViewInit } from '@angular/core';
+import { Directive, DoCheck, ElementRef, AfterViewInit, Input } from '@angular/core';
 
 @Directive({
-    selector: '[focus]'
+  selector: '[focus]'
 })
-export class FocusDirective implements AfterViewInit {
-    constructor(elementRef: ElementRef) {
-        console.log('Set focus');
-        console.log(elementRef);
-        elementRef.nativeElement.focus();
-    }
-    ngAfterViewInit() {
-        console.log('ngAfterViewInit');
-    }
+export class FocusDirective implements DoCheck {
+  @Input() onlyWhenNoText: boolean = false;
+  private initialised: boolean = false;
+  constructor(private el: ElementRef) { }
+  ngDoCheck() {
+    if (this.initialised) return;
+    setTimeout(() => {
+      if (this.onlyWhenNoText && (<any>document.activeElement).type === 'text') return;
+      this.el.nativeElement.focus();
+    });
+    this.initialised = true;
+  }
 }

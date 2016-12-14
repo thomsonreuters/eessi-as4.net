@@ -1,5 +1,4 @@
 import { Observer } from 'rxjs/Observer';
-import { ModalService } from '../../common/modal/modal.service';
 import { Observable } from 'rxjs/Observable';
 import {
     inject,
@@ -28,6 +27,7 @@ import { DialogService } from './../../common/dialog.service';
 import { RuntimeServiceMock } from '../runtime.service.mock';
 import { RuntimeStore } from '../runtime.store';
 import { RuntimeService } from '../runtime.service';
+import { ModalService } from '../../common/modal/modal.service';
 
 describe('agent', () => {
     const currentAgentName: string = 'currentAgent';
@@ -156,6 +156,19 @@ describe('agent', () => {
             expect(agent.currentAgent.receiver).toBe(firstAgent.receiver);
             expect(agent.form.dirty).toBeTruthy();
         }));
+        it('should only allow one agent with the same name', inject([AgentSettingsComponent, ModalService, DialogService, SettingsStore], (agent: AgentSettingsComponent, service: ModalService, dialogService: DialogService, store: SettingsStore) => {
+            store.setState({ Settings: settings });
+            agent.selectAgent(currentAgent.name);
+            agent.newName = currentAgent.name;
+            let dialogSpy = spyOn(service, 'show').and.returnValue(Observable.of(currentAgent.name));
+            let existsSpy = spyOn(dialogService, 'message').and.returnValue(Observable.of(true));
+            let agentCount = agent.settings.length;
+
+            agent.addAgent();
+
+            expect(agent.settings.length).toEqual(agentCount);
+            expect(existsSpy).toHaveBeenCalledWith(`An agent with the name ${agent.newName} already exists`);
+        }));
     });
 
     describe('selectAgent', () => {
@@ -188,7 +201,7 @@ describe('agent', () => {
             expect(agent.isNewMode).toBeFalsy();
         }));
 
-        it('should prompt the user for a new nad be removed from the list', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
+        it('should prompt the user for a new and remove the old one from the list', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
             agent.settings = agents;
             agent.currentAgent = currentAgent;
             agent.isNewMode = true;
@@ -321,6 +334,20 @@ describe('agent', () => {
             expect(agent.form.value.name).toBe('newName');
             expect(formSpy).toHaveBeenCalled();
         }));
+        it('should not be possible to rename an agent to the same name as another agent', inject([AgentSettingsComponent, DialogService, SettingsStore], (agent: AgentSettingsComponent, dialogService: DialogService, settingsStore: SettingsStore) => {
+            let currentName = currentAgent.name;
+            settingsStore.setState({ Settings: settings });
+            agent.selectAgent(currentAgent.name);
+            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of(otherAgent.name));
+            let existsDialogSpy = spyOn(dialogService, 'message').and.returnValue(Observable.of(true));
+
+            agent.rename();
+
+            expect(dialogSpy).toHaveBeenCalled();
+            expect(agent.currentAgent.name).toBe(currentName);
+            expect(agent.form.value.name).toBe(currentName);
+            expect(existsDialogSpy).toHaveBeenCalledWith(`An agent with the name ${otherAgent.name} already exists`);
+        }));
     });
     describe('delete', () => {
         it('should ask the user for confirmation', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
@@ -342,17 +369,20 @@ describe('agent', () => {
             expect(dialogSpy).toHaveBeenCalled();
             expect(deleteAgentSpy).not.toHaveBeenCalled();
         }));
-        it('should remove the currentAgent when confirmed and in new mode', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
+        it('should remove the currentAgent when confirmed and in new mode and mark the form as pristine', inject([AgentSettingsComponent, DialogService], (agent: AgentSettingsComponent, dialogService: DialogService) => {
             let dialogServiceSpy = spyOn(dialogService, 'confirm').and.returnValue(Observable.of(true));
             agent.currentAgent = currentAgent;
             agent.settings = agents;
             agent.isNewMode = true;
+            agent.form.markAsDirty();
+            expect(agent.form.dirty).toBeTruthy();
 
             // Act
             agent.delete();
 
             // Assert
             expect(agent.settings.find(agt => agt === currentAgent)).toBeUndefined();
+            expect(agent.form.pristine).toBeTruthy();
         }));
         it('should call deleteAgent when confirmed and not in new mdoe', inject([AgentSettingsComponent, DialogService, SettingsService], (agent: AgentSettingsComponent, dialogService: DialogService, settingService: SettingsService) => {
             let dialogServiceSpy = spyOn(dialogService, 'confirm').and.returnValue(Observable.of(true));

@@ -1,5 +1,5 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 
 export class Encryption {
 	isEnabled: boolean;
@@ -8,11 +8,11 @@ export class Encryption {
 	publicKeyFindValue: string;
 	keyTransport: string;
 
-	static FIELD_isEnabled: string = 'isEnabled';	
-	static FIELD_algorithm: string = 'algorithm';	
-	static FIELD_publicKeyFindType: string = 'publicKeyFindType';	
-	static FIELD_publicKeyFindValue: string = 'publicKeyFindValue';	
-	static FIELD_keyTransport: string = 'keyTransport';	
+	static FIELD_isEnabled: string = 'isEnabled';
+	static FIELD_algorithm: string = 'algorithm';
+	static FIELD_publicKeyFindType: string = 'publicKeyFindType';
+	static FIELD_publicKeyFindValue: string = 'publicKeyFindValue';
+	static FIELD_keyTransport: string = 'keyTransport';
 
 	static getForm(formBuilder: FormBuilder, current: Encryption): FormGroup {
 		return formBuilder.group({
@@ -35,6 +35,5 @@ export class Encryption {
 		form.addControl('publicKeyFindValue', formBuilder.control(current && current.publicKeyFindValue));
 		form.removeControl('keyTransport');
 		form.addControl('keyTransport', formBuilder.control(current && current.keyTransport));
-
 	}
 }

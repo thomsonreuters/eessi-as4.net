@@ -8,29 +8,45 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     selector: 'as4-party',
     template: `
         <div [formGroup]="group">
-            <select class="form-control" formControlName="role">
-                <option>Sender</option>
-                <option>Receiver</option>
-            </select>
-            <br/>
-            <p><button type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button></p>
-            <table class="table table-condensed" formArrayName="partyIds" *ngIf="group.controls.partyIds.controls.length > 0">
-                <tr>
-                    <th></th>
-                    <th>Id</th>
-                    <th>Type</th>
-                </tr>
-                <tr *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">
-                    <td class="action"><button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button></td>
-                    <td><input type="text" class="form-control" formControlName="id"/></td>
-                    <td><input type="text" class="form-control" formControlName="type"/></td>
-                </tr>
-            </table>
+            <as4-input [label]="label">
+                <table class="table table-condensed" formArrayName="partyIds">
+                    <tr>
+                        <th></th>
+                        <th>Id</th>
+                        <th>Type</th>
+                    </tr>
+                    <tr>
+                        <td class="party-actions" *ngIf="group.controls.partyIds.controls.length === 0">
+                            <button class="add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
+                        </td>
+                    </tr>
+                    <tr *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">
+                        <td class="party-actions">
+                            <button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
+                            <button class="add-button" *ngIf="i === (group.controls.partyIds.controls.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
+                        </td>
+                        <td><input type="text" class="form-control" formControlName="id"/></td>
+                        <td><input type="text" class="form-control" formControlName="type"/></td>
+                    </tr>
+                </table>
+            </as4-input>
+            <as4-input label="Role">
+                <input type="text" class="form-control" formControlName="role"/>
+            </as4-input>
         </div>
-    `
+    `,
+    styles: [
+        ` 
+        .party-actions {
+            width: 16%;
+        }
+
+        `
+    ]
 })
 export class PartyComponent {
     @Input() group: FormGroup;
+    @Input() label: string;
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) {
     }
     public addParty() {

@@ -38,7 +38,7 @@ import { ModalComponent } from './modal/modal.component';
         MustBeAuthorizedGuard,
         DialogService,
         ModalService,
-        // LOGGING_ERROR_HANDLER_PROVIDER
+        LOGGING_ERROR_HANDLER_PROVIDER
     ],
     exports: [
         BoxComponent,

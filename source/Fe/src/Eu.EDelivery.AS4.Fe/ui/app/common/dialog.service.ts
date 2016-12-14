@@ -33,6 +33,7 @@ export class DialogService {
                 this.modalService
                     .show('default', (dlg) => {
                         dlg.message = message;
+                        dlg.title = title;
                     })
                     .subscribe(result => {
                         observer.next(result);

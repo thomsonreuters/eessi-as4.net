@@ -3,7 +3,7 @@
         <div class="form-group">
             <label class="col-xs-2">New name</label>
             <div class="col-xs-10">
-                <input type="text" class="form-control" #nameInput (keydown)="newName = $event.target.value" [value]="newName" />
+                <input type="text" class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName" />
             </div>
         </div>
         <div class="form-group">

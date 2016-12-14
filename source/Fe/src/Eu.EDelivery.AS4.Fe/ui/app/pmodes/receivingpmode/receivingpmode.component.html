@@ -1,4 +1,4 @@
-<form [formGroup]="form" class="form-horizontal">
+<form [formGroup]="form" class="form-horizontal" disabled>
     <div formGroupName="pmode">
         <as4-box showTitle="true">
             <button action class="btn btn-box-tool" type="button" (click)="expand()"><i class="fa fa-expand"></i></button>
@@ -15,6 +15,7 @@
                     </div>
                 </as4-input>
             </div>
+
         </as4-box>
         <as4-box title="Message exchange pattern" collapsed="true" collapsible="true">
             <div content class="col-md-6 col-xs-12">
@@ -84,61 +85,62 @@
         <as4-box title="Exception handling" collapsed="true" collapsible="true">
             <div content formGroupName="exceptionHandling" class="col-md-6 col-xs-12">
                 <as4-input label="Notify message consumer">
-                    <input type="checkbox" formControlName="notifyMessageConsumer" />
+                    <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
                 </as4-input>
-                <as4-input label="Notify method">
-                    <as4-method [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>
-                </as4-input>
+                <as4-method label="Notify method" [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>
             </div>
         </as4-box>
         <as4-box title="Security" collapsed="true" collapsible="true">
             <div content formGroupName="security" class="col-md-6 col-xs-12">
                 <as4-input label="Signing verification" formGroupName="signingVerification">
-                    <input type="text" class="form-control" formControlName="signature" />
-                </as4-input>
-                <as4-input label="Decryption" formGroupName="decryption">
-                    <select class="form-control" formControlName="encryption">
+                    <select class="form-control" formControlName="signature">
                         <option value="0">Allowed</option>
                         <option value="1">Not allowed</option>
                         <option value="2">Required</option>
                         <option value="3">Ignored</option>
                     </select>
                 </as4-input>
-                <as4-input label="Private key find value" formGroupName="decryption">
-                    <input type="text" class="form-control" formControlName="privateKeyFindValue" />
-                </as4-input>
-                <as4-input label="Private key find type" formGroupName="decryption">
-                    <select class="form-control" formControlName="privateKeyFindType">
-                        <option value="0">Find by thumbprint</option>
-                        <option value="1">Find by subject name</option>
-                        <option value="2">Find by subject distinguished name</option>
-                        <option value="3">Find by issuer name</option>
-                        <option value="4">Find by issuer distinguished name</option>
-                        <option value="5">Find by serial number</option>
-                        <option value="6">Find by time valid</option>
-                        <option value="7">Find by time not yet valid</option>
-                        <option value="8">Find by time expired</option>
-                        <option value="9">Find by template name</option>
-                        <option value="10">Find by application policy</option>
-                        <option value="11">Find by certificate policy</option>
-                        <option value="12">Find by extension</option>
-                        <option value="13">Find by key usage</option>
-                        <option value="14">Find by subject key identifier</option>
+                <as4-input label="Decryption" formGroupName="decryption">
+                    <select class="form-control" formControlName="encryption" #selectedEncryption>
+                        <option value="0">Allowed</option>
+                        <option value="1">Not allowed</option>
+                        <option value="2">Required</option>
+                        <option value="3">Ignored</option>
                     </select>
                 </as4-input>
+                <div formGroupName="decryption">
+                    <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
+                        <input type="text" class="form-control" formControlName="privateKeyFindValue" />
+                    </as4-input>
+                    <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
+                        <select class="form-control" formControlName="privateKeyFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </as4-input>
+                </div>
             </div>
         </as4-box>
         <as4-box title="Message packaging" collapsed="true" collapsible="true">
             <div content class="col-md-6 col-xs-12" formGroupName="messagePackaging">
-                <h3>Party info</h3>
-                <as4-input label="From party">
-                    <as4-party [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.fromParty"></as4-party>
-                </as4-input>
-                <as4-input label="To party">
-                    <as4-party [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.toParty"></as4-party>
-                </as4-input>
+                <h5>Party info</h5>
+                <as4-party label="From party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.fromParty"></as4-party>
+                <as4-party label="To party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.toParty"></as4-party>
 
-                <h3>Collaboration info</h3>
+                <h5>Collaboration info</h5>
                 <div formGroupName="collaborationInfo">
                     <as4-input label="Action">
                         <input type="text" class="form-control" formControlName="action" />
@@ -146,7 +148,7 @@
                     <as4-input label="Conversation id">
                         <input type="text" class="form-control" formControlName="conversationId" />
                     </as4-input>
-                    <h4>Agreement reference</h4>
+                    <h5>Agreement reference</h5>
                     <as4-input label="Value" formGroupName="agreementRef">
                         <input type="text" class="form-control" formControlName="value" />
                     </as4-input>
@@ -156,7 +158,7 @@
                     <as4-input label="PmodeId" formGroupName="agreementRef">
                         <input type="text" class="form-control" formControlName="pModeId" />
                     </as4-input>
-                    <h4>Service</h4>
+                    <h5>Service</h5>
                     <as4-input label="Value" formGroupName="service">
                         <input type="text" class="form-control" formControlName="value" />
                     </as4-input>
@@ -172,10 +174,9 @@
                 <as4-input label="Is enabled">
                     <input type="checkbox" formControlName="isEnabled" />
                 </as4-input>
-                <h3>Payload reference method</h3>
-                <as4-method [group]="form.controls.pmode.controls.deliver.controls.payloadReferenceMethod" [types]="deliverSenders"></as4-method>
-                <h3>Deliver method</h3>
-                <as4-method [group]="form.controls.pmode.controls.deliver.controls.deliverMethod" [types]="deliverSenders"></as4-method>
+                <as4-method label="Payload reference method" [group]="form.controls.pmode.controls.deliver.controls.payloadReferenceMethod"
+                    [types]="deliverSenders"></as4-method>
+                <as4-method label="Deliver method" [group]="form.controls.pmode.controls.deliver.controls.deliverMethod" [types]="deliverSenders"></as4-method>
             </div>
         </as4-box>
     </div>

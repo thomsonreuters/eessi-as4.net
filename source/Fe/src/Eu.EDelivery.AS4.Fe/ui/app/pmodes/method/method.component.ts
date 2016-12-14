@@ -10,8 +10,9 @@ import { ItemType } from './../../api/ItemType';
     selector: 'as4-method',
     template: ` 
         <div [formGroup]="group">
-            <as4-input label="Type">
-                <select class="form-control" (change)="typeChanged($event.target.value)" #selectedType>
+            <as4-input [label]="label">
+                <select class="form-control" (change)="typeChanged($event.target.value)" formControlName="type">
+                    <option>Select a value</option>
                     <option *ngFor="let type of types" [value]="type.name">{{type.name}}</option>
                 </select>
             </as4-input>
@@ -23,7 +24,7 @@ import { ItemType } from './../../api/ItemType';
                     </tr>
                     <tr *ngFor="let setting of group.controls.parameters.controls; let i = index" [formGroupName]="i">
                         <td>{{group.controls.parameters.controls[i].value.name}}</td>
-                        <td><input type="text" name="value" class="value-inpt form-control" formControlName="value"/></td>
+                        <td><input type="text" name="value" class="value-input form-control" formControlName="value"/></td>
                     </tr>
                 </table>
             </as4-input>
@@ -33,6 +34,8 @@ import { ItemType } from './../../api/ItemType';
 export class MethodComponent {
     @Input() group: FormGroup;
     @Input() types: Array<ItemType>;
+    @Input() isDisabled: boolean = false;
+    @Input() label: string;
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) {
     }
     typeChanged(result: string) {
@@ -42,5 +45,8 @@ export class MethodComponent {
             name: prop.friendlyName,
             value: ''
         }))));
+    }
+    public forLoaded() {
+        alert('forLoaded');
     }
 }

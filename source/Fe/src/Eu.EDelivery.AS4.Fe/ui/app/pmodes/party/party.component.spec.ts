@@ -1,5 +1,3 @@
-import { ModalService } from './../../common/modal/modal.service';
-import { DialogService } from './../../common/dialog.service';
 import { By } from '@angular/platform-browser/src/dom/debug/by';
 import { ReactiveFormsModule, FormBuilder, FormArray } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -19,6 +17,9 @@ import { MockBackend } from '@angular/http/testing';
 
 import { PartyComponent } from './party.component';
 import { Party } from './../../api/Party';
+import { As4ComponentsModule } from './../../common/as4components.module';
+import { ModalService } from './../../common/modal/modal.service';
+import { DialogService } from './../../common/dialog.service';
 
 describe('party', () => {
     let fixture: ComponentFixture<PartyComponent>;
@@ -29,7 +30,8 @@ describe('party', () => {
             PartyComponent
         ],
         imports: [
-            ReactiveFormsModule
+            ReactiveFormsModule,
+            As4ComponentsModule
         ],
         providers: [
             FormBuilder,

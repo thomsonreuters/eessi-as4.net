@@ -5,7 +5,8 @@ import { AuthenticationService, AuthenticationStore } from '../../authentication
 @Component({
     selector: 'as4-header',
     encapsulation: ViewEncapsulation.None,
-    templateUrl: './header.component.html'
+    templateUrl: './header.component.html',
+    styles: [require('./header.component.scss').toString()]
 })
 export class HeaderComponent {
     public isLoggedIn: boolean;
