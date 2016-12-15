@@ -40,6 +40,14 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             return Directory
                 .GetFiles(folder)
                 .Where(file => Path.GetExtension(file) == ".dll")
+                .Where(path =>
+                {
+                    // BadImageFormatException is being thrown on the following dlls since the code base switched to net 461.
+                    // Since these dlls are not needed by the FE they're filtered out to avoid this exception.
+                    // TODO: Probably fixed when AS4 targets dotnet core.
+                    var file = Path.GetFileName(path) ?? string.Empty;
+                    return file != "libuv.dll" && !file.StartsWith("Microsoft") && !file.StartsWith("System") && file != "sqlite3.dll";
+                })
                 .SelectMany(file => AssemblyDefinition.ReadAssembly(file).MainModule.Types)
                 .ToList();
         }

@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             public void When_No_InfoAttribute_Present_Property_Info_Should_Be_Used()
             {
                 // Setup
-                var loader = new Runtime.RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "bin/debug/netcoreapp1.0/"));
+                var loader = new Runtime.RuntimeLoader(Directory.GetCurrentDirectory());
 
                 var types = loader.LoadTypesFromAssemblies();
 
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             public void When_InfoAttribute_Or_DescriptionAttribute_Is_Present_They_Should_Be_Used()
             {
                 // Setup
-                var loader = new Runtime.RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "bin/debug/netcoreapp1.0/"));
+                var loader = new Runtime.RuntimeLoader(Directory.GetCurrentDirectory());
 
                 var types = loader.LoadTypesFromAssemblies();
 

@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 var result = await test.Service.GetReceivingNames();
 
                 // Assert
-                test.Source.Received().GetReceivingNames();
+                await test.Source.Received().GetReceivingNames();
                 Assert.True(result.First() == ReceivingPmode.Name);
             }
 

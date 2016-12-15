@@ -4,7 +4,8 @@
     "preserveCompilationContext": true,
     "compile": {
       "exclude": [ "node_modules", "**/*.ts" ]
-    }
+    },
+    "platform": "anycpu"
   },
   "commands": {
     "web": "Microsoft.AspNet.Server.Kestrel --server.urls=http://localhost:3000"
@@ -68,10 +69,6 @@
     "configProperties": {
       "System.GC.Server": true
     }
-  },
-  "runtimes": {
-    "win8-x64": {},
-    "win": {}
   },
   "scripts": {
     "postpublish": [ "dotnet publish-iis --publish-folder %publish:OutputPath% --framework %publish:FullTargetFramework%" ]
