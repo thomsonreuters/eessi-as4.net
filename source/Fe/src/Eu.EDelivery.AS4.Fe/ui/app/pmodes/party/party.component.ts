@@ -23,7 +23,7 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
                     <tr *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">
                         <td class="party-actions">
                             <button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
-                            <button class="add-button" *ngIf="i === (group.controls.partyIds.controls.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
+                            <button [disabled]="group.disabled" class="add-button" *ngIf="i === (group.controls.partyIds.controls.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                         </td>
                         <td><input type="text" class="form-control" formControlName="id"/></td>
                         <td><input type="text" class="form-control" formControlName="type"/></td>

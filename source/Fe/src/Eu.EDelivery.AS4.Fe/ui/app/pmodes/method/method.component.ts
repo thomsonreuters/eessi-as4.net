@@ -16,7 +16,7 @@ import { ItemType } from './../../api/ItemType';
                     <option *ngFor="let type of types" [value]="type.name">{{type.name}}</option>
                 </select>
             </as4-input>
-            <as4-input label="Parameters" *ngIf="group.controls.parameters.controls.length > 0">
+            <as4-input *ngIf="group.controls.parameters.controls.length > 0">
                 <table class="table table-condensed" formArrayName="parameters">
                     <tr>
                         <th>Name</th>

@@ -15,7 +15,8 @@ import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
 
 @Component({
     selector: 'as4-receiving-pmode',
-    templateUrl: './receivingpmode.component.html'
+    templateUrl: './receivingpmode.component.html',
+    styles: [require('./receivingpmode.component.scss').toString()]
 })
 export class ReceivingPmodeComponent {
     public form: FormGroup;
@@ -37,7 +38,7 @@ export class ReceivingPmodeComponent {
     private _currentPmode: ReceivingPmode | undefined;
     constructor(private formBuilder: FormBuilder, private pmodeService: PmodeService, private pmodeStore: PmodeStore, private dialogService: DialogService, private runtimeStore: RuntimeStore) {
         this.form = ReceivingPmode.getForm(this.formBuilder, null);
-        // this.form.disable();
+        setTimeout(() => this.form.disable());
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)
