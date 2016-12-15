@@ -35,8 +35,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutoMapper, Version=5.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <HintPath>..\..\ServiceHandler\packages\AutoMapper.5.1.1\lib\net45\AutoMapper.dll</HintPath>
+    <Reference Include="AutoMapper, Version=5.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\..\ServiceHandler\packages\AutoMapper.5.0.0\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -92,8 +92,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\ServiceHandler\packages\System.Collections.Immutable.1.3.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="System.Collections.Immutable, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\ServiceHandler\packages\System.Collections.Immutable.1.2.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
@@ -116,12 +116,10 @@
     <Compile Include="Common\InExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
-    <Compile Include="Deliver\MinderCreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />
     <Compile Include="Deliver\ZipAttachmentsStep.cs" />
     <Compile Include="Notify\CreateNotifyMessageStep.cs" />
-    <Compile Include="Notify\MinderCreateNotifyMessageStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateInExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutMessageDatastoreStep.cs" />
@@ -155,8 +153,6 @@
     <Compile Include="Common\OutExceptionStepDecorator.cs" />
     <Compile Include="Receive\DeterminePModesStep.cs" />
     <Compile Include="Submit\CreateDefaultAS4MessageStep.cs" />
-    <Compile Include="Submit\MinderAssembleAS4MessageStep.cs" />
-    <Compile Include="Submit\MinderRetrieveSendingPModeStep.cs" />
     <Compile Include="Submit\RetrievePayloadsStep.cs" />
     <Compile Include="Submit\RetrieveSendingPModeStep.cs" />
     <Compile Include="Send\SendAS4MessageStep.cs" />
@@ -173,7 +169,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

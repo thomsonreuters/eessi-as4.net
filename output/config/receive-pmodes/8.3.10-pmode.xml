@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>8.3.13-pmode</Id>
+  <Id>8.3.10-pmode</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>
   <Reliability>
@@ -10,7 +10,7 @@
   </Reliability>
   <ReceiptHandling>
     <UseNNRFormat>false</UseNNRFormat>
-    <ReplyPattern>Callback</ReplyPattern>
+    <ReplyPattern>Response</ReplyPattern>
     <SendingPMode>pmode</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>

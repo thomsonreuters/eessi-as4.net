@@ -22,13 +22,13 @@
     <Payload>
       <Id>earth</Id>
       <MimeType>image/jpeg</MimeType>
-      <LocationParameter>file:///messages\attachments\earth.jpg</LocationParameter>
+      <Location>file:///messages\attachments\earth.jpg</Location>
       <PayloadProperties/>
     </Payload>
     <Payload>
       <Id>xml-sample</Id>
       <MimeType>application/xml</MimeType>
-      <LocationParameter>file:///messages\attachments\sample.xml</LocationParameter>
+      <Location>file:///messages\attachments\sample.xml</Location>
       <PayloadProperties>
         <PayloadProperty>
           <Name>Important</Name>

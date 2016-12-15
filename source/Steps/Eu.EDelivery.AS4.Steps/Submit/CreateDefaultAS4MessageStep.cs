@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Receivers;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -20,9 +19,6 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private readonly ILogger _logger;
         private readonly IConfig _config;
         private IDictionary<string, string> _properties;
-
-        [Info("Username")]
-        public string Username { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateDefaultAS4MessageStep"/>
