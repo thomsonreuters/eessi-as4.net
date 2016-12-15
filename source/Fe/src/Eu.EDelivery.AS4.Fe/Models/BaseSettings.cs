@@ -1,4 +1,4 @@
-﻿using Eu.EDelivery.AS4.Fe.AS4Model;
+﻿using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Fe.Models
 {

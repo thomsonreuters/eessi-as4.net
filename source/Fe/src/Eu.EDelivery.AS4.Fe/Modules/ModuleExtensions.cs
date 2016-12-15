@@ -2,13 +2,14 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Loader;
-using Eu.EDelivery.AS4.Fe.Services;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
+#if coreclr
+using System.Runtime.Loader;
+#endif
 
 namespace Eu.EDelivery.AS4.Fe.Modules
 {
@@ -27,15 +28,17 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             var serviceProvider = services.BuildServiceProvider();
             var scanner = serviceProvider.GetService<Scanner>();
 
-            List<TypeInfo> moduleAssemblies = Enumerable.Empty<TypeInfo>().ToList();
+            var moduleAssemblies = Enumerable.Empty<TypeInfo>().ToList();
             if (Directory.Exists(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, folderToScan)))
-            {
                 moduleAssemblies = Directory
                     .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, folderToScan), "*.dll")
+#if coreclr
                     .Select(asm => AssemblyLoadContext.Default.LoadFromAssemblyPath(asm))
+#else
+                    .Select(Assembly.LoadFile)
+#endif
                     .SelectMany(asm => asm.DefinedTypes)
                     .ToList();
-            }
 
             var baseTypes = Assembly.GetEntryAssembly().DefinedTypes.ToList();
 

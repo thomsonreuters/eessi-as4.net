@@ -7,23 +7,23 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 {
     public class FileSettingsSource : ISettingsSource
     {
-        public Task<AS4Model.Settings> Get()
+        public Task<Model.Internal.Settings> Get()
         {
             return Task.Factory.StartNew(() =>
             {
                 using (var reader = new FileStream(@"settings.xml", FileMode.Open))
                 {
-                    var xml = new XmlSerializer(typeof(AS4Model.Settings));
-                    return (AS4Model.Settings) xml.Deserialize(reader);
+                    var xml = new XmlSerializer(typeof(Model.Internal.Settings));
+                    return (Model.Internal.Settings) xml.Deserialize(reader);
                 }
             });
         }
 
-        public Task Save(AS4Model.Settings settings)
+        public Task Save(Model.Internal.Settings settings)
         {
             return Task.Factory.StartNew(() =>
             {
-                var xmlSerializer = new XmlSerializer(typeof(AS4Model.Settings));
+                var xmlSerializer = new XmlSerializer(typeof(Model.Internal.Settings));
 
                 using (var textWriter = new StringWriter())
                 {

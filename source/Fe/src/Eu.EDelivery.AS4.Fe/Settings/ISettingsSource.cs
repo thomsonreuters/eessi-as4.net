@@ -5,7 +5,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 {
     public interface ISettingsSource : IModular
     {
-        Task<AS4Model.Settings> Get();
-        Task Save(AS4Model.Settings settings);
+        Task<Model.Internal.Settings> Get();
+        Task Save(Model.Internal.Settings settings);
     }
 }

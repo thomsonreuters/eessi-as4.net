@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using EnsureThat;
-using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Models;
+using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Fe.Settings
 {
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             await settingsSource.Save(file);
         }
 
-        public async Task<AS4Model.Settings> GetSettings()
+        public async Task<Model.Internal.Settings> GetSettings()
         {
             return await settingsSource.Get();
         }
@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             return Task.FromResult(0);
         }
 
-        private IList<SettingsAgent> GetAgents(Func<SettingsAgents, SettingsAgent[]> getAgents, AS4Model.Settings settings)
+        private IList<SettingsAgent> GetAgents(Func<SettingsAgents, SettingsAgent[]> getAgents, Model.Internal.Settings settings)
         {
             var get = getAgents(settings.Agents);
             return get == null ? Enumerable.Empty<SettingsAgent>().ToList() : get.ToList();

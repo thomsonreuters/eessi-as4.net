@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Fe.Tests.TestData
 {
     public class TestSettings : IAs4SettingsService
     {
-        public Task<AS4Model.Settings> GetSettings()
+        public Task<Model.Internal.Settings> GetSettings()
         {
             throw new NotImplementedException();
         }

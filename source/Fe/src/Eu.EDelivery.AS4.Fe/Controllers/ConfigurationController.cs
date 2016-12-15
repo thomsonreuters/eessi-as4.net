@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using EnsureThat;
-using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Model.Internal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         [HttpGet]
-        public async Task<AS4Model.Settings> Get()
+        public async Task<Model.Internal.Settings> Get()
         {
             return await settingsService.GetSettings();
         }

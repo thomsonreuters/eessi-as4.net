@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using Eu.EDelivery.AS4.Fe.AS4Model;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Fe.Start;
+using Eu.EDelivery.AS4.Model.Internal;
 using NSubstitute;
 using Xunit;
 
@@ -18,7 +17,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
         private const string ReceiveAgentName = "receiveAgentName";
         private As4SettingsService settingsService;
         private ISettingsSource settingsSource;
-        private readonly AS4Model.Settings settingsList;
+        private readonly Model.Internal.Settings settingsList;
 
         private readonly SettingsAgent submitAgent = new SettingsAgent()
         {
@@ -27,7 +26,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
         public As4SettingsServiceTests()
         {
-            settingsList = new AS4Model.Settings
+            settingsList = new Model.Internal.Settings
             {
                 Agents = new SettingsAgents
                 {
@@ -84,10 +83,10 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Act & Assert
                 await service.CreateAgent(newAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
-                await settingsSource.Received().Save(Arg.Is<AS4Model.Settings>(settings => settings.Agents.SubmitAgents.Any(agent => agent.Name == newAgentName)));
+                await settingsSource.Received().Save(Arg.Is<Model.Internal.Settings>(settings => settings.Agents.SubmitAgents.Any(agent => agent.Name == newAgentName)));
 
                 await service.CreateAgent(newAgent, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
-                await settingsSource.Received().Save(Arg.Is<AS4Model.Settings>(settings => settings.Agents.ReceiveAgents.Any(agent => agent.Name == newAgentName)));
+                await settingsSource.Received().Save(Arg.Is<Model.Internal.Settings>(settings => settings.Agents.ReceiveAgents.Any(agent => agent.Name == newAgentName)));
             }
 
             [Fact]
@@ -112,7 +111,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 };
 
                 var test = Setup();
-                test.settingsSource.Get().Returns(new AS4Model.Settings()
+                test.settingsSource.Get().Returns(new Model.Internal.Settings()
                 {
                     Agents = new SettingsAgents()
                 });
@@ -121,7 +120,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 await test.settingsService.CreateAgent(newAgent, agents => agents.ReceiveAgents, (settings, agt) => settings.ReceiveAgents = agt);
 
                 // Assert
-                await test.settingsSource.Received().Save(Arg.Is<AS4Model.Settings>(settings => settings.Agents.ReceiveAgents.Any(agent => agent.Name == newAgent.Name)));
+                await test.settingsSource.Received().Save(Arg.Is<Model.Internal.Settings>(settings => settings.Agents.ReceiveAgents.Any(agent => agent.Name == newAgent.Name)));
             }
         }
 
@@ -155,7 +154,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Assert
                 Assert.True(settingsList.Agents.SubmitAgents.Any(agent => agent.Name == "NEW"));
-                await settingsSource.Received().Save(Arg.Is<AS4Model.Settings>(x => x.Agents.SubmitAgents.Any(agt => agt.Name == "NEW")));
+                await settingsSource.Received().Save(Arg.Is<Model.Internal.Settings>(x => x.Agents.SubmitAgents.Any(agt => agt.Name == "NEW")));
             }
 
             [Fact]
@@ -176,9 +175,9 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Act & Assert
                 await Setup().settingsService.DeleteAgent(SubmitAgentName, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
-                await settingsSource.Received().Save(Arg.Is<AS4Model.Settings>(x => x.Agents.SubmitAgents.All(agt => agt.Name != SubmitAgentName)));
+                await settingsSource.Received().Save(Arg.Is<Model.Internal.Settings>(x => x.Agents.SubmitAgents.All(agt => agt.Name != SubmitAgentName)));
                 await Setup().settingsService.DeleteAgent(ReceiveAgentName, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
-                await settingsSource.Received().Save(Arg.Is<AS4Model.Settings>(x => x.Agents.ReceiveAgents.All(agt => agt.Name != SubmitAgentName)));
+                await settingsSource.Received().Save(Arg.Is<Model.Internal.Settings>(x => x.Agents.ReceiveAgents.All(agt => agt.Name != SubmitAgentName)));
 
                 await settingsSource.Received().Get();
             }
@@ -192,7 +191,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 // Act & Assert
                 await Assert.ThrowsAsync(typeof(Exception), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
                 await Assert.ThrowsAsync(typeof(Exception), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents));
-                await settingsSource.DidNotReceive().Save(Arg.Any<AS4Model.Settings>());
+                await settingsSource.DidNotReceive().Save(Arg.Any<Model.Internal.Settings>());
             }
 
             [Fact]

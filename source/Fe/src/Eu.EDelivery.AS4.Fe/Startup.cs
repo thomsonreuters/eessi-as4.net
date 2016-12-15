@@ -19,7 +19,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using NLog.Extensions.Logging;
 
 namespace Eu.EDelivery.AS4.Fe
 {
