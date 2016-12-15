@@ -12,7 +12,10 @@
   },
   "buildOptions": {
     "platform": "anycpu",
-    "preserveCompilationContext": true
+    "preserveCompilationContext": true,
+    "copyToOutput": [
+      "Eu.EDelivery.AS4.Receivers.dll"
+    ]
   },
   "frameworks": {
     "net461": {

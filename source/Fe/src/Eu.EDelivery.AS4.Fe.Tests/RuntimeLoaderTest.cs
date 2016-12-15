@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Assert
                 Assert.True(loader.Receivers.Any());
-                Assert.True(loader.Receivers.Any(type => type.Name == "FileReceiver"));
+                Assert.True(loader.Receivers.Any(type => type.Name == "File receiver"));
             }
 
             [Fact(Skip = "This is not the case anymore")]

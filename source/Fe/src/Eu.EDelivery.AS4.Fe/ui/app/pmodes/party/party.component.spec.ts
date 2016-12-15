@@ -17,9 +17,11 @@ import { MockBackend } from '@angular/http/testing';
 
 import { PartyComponent } from './party.component';
 import { Party } from './../../api/Party';
+import { PartyId } from './../../api/PartyId';
 import { As4ComponentsModule } from './../../common/as4components.module';
 import { ModalService } from './../../common/modal/modal.service';
 import { DialogService } from './../../common/dialog.service';
+import { InputComponent } from './../../common/input/input.component';
 
 describe('party', () => {
     let fixture: ComponentFixture<PartyComponent>;
@@ -27,31 +29,32 @@ describe('party', () => {
     let party: Party;
     beforeEach(async(() => TestBed.configureTestingModule({
         declarations: [
+            InputComponent,
             PartyComponent
         ],
         imports: [
-            ReactiveFormsModule,
-            As4ComponentsModule
+            ReactiveFormsModule
         ],
         providers: [
             FormBuilder,
             DialogService,
             ModalService
         ]
-    }).compileComponents()));
+    })));
     beforeEach(() => {
         fixture = TestBed.createComponent(PartyComponent);
         instance = fixture.componentInstance;
 
         party = new Party();
+        party.partyIds = new Array<PartyId>();
     });
     afterEach(() => fixture.destroy());
 
     describe('add', () => {
         it('should add new item to the form', inject([FormBuilder], (formBuilder: FormBuilder) => {
             instance.group = Party.getForm(formBuilder, party);
-            fixture.debugElement.query(By.css('.add-button')).nativeElement.click();
             fixture.detectChanges();
+            fixture.debugElement.query(By.css('.add-button')).nativeElement.click();
 
             let form = <FormArray>instance.group.controls[Party.FIELD_partyIds];
             expect(form.length).toBe(1);
@@ -63,10 +66,12 @@ describe('party', () => {
             instance.group = Party.getForm(formBuilder, party);
             instance.group.markAsPristine();
             expect(instance.group.dirty).toBeFalsy();
+            fixture.detectChanges();
             fixture.debugElement.query(By.css('.add-button')).nativeElement.click();
             fixture.detectChanges();
 
             let remove = fixture.debugElement.query(By.css('.remove-button')).nativeElement.click();
+            fixture.detectChanges();
 
             let form = <FormArray>instance.group.controls[Party.FIELD_partyIds];
             expect(form.length).toBe(0);

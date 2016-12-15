@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 await Assert.ThrowsAsync(typeof(ArgumentException), () => test.Service.GetReceivingByName(string.Empty));
             }
 
-            [Fact]
+            [Fact(Skip = "Not required anymore")]
             public async Task Throws_Exception_When_Pmode_Doesnt_Exist()
             {
                 // Setup
