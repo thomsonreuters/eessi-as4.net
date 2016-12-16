@@ -11,7 +11,8 @@
     </title>
 
     <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+        crossorigin="anonymous">
     <!-- base url -->
     <base href="/">
 </head>
@@ -20,31 +21,10 @@
     <as4-app>
         Loading...
     </as4-app>
-
-    <!-- Google Analytics: change UA-71073175-1 to be your site's ID -->
-    <script>
-        (function(A, n, g, u, l, a, r) {
-            A.GoogleAnalyticsObject = r;
-            A[l] = A[l] || function() {
-                (A[l].q = A[l].q || []).push(arguments)
-            }, A[l].l = 1 * new Date();
-            a = n.createElement(g),
-                r = n.getElementsByTagName(g)[0];
-            a.async = 1;
-            a.src = u;
-            r.parentNode.insertBefore(a, r)
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-
-        ga('create', 'UA-71073175-1', 'auto');
-        ga('send', 'pageview');
-    </script>
-
     <% if (htmlWebpackPlugin.options.metadata.isDevServer && htmlWebpackPlugin.options.metadata.HMR !== true) { %>
         <!-- Webpack Dev Server reload -->
         <script src="/webpack-dev-server.js"></script>
         <% } %>
-
-
 </body>
 
 </html>

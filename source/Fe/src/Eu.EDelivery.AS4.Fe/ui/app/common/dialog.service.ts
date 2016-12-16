@@ -71,6 +71,7 @@ export class DialogService {
         this.modalService
             .show('default', (dlg) => {
                 dlg.message = 'Input is invalid, please correct the red fields';
+                dlg.showCancel = false;
             });
     }
     public deleteConfirm(type: string): Observable<boolean> {

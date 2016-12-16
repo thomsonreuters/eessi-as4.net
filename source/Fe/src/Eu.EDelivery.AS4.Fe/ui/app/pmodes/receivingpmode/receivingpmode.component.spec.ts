@@ -1,3 +1,5 @@
+import { Decryption } from './../../api/Decryption';
+import { ReceiveSecurity } from './../../api/ReceiveSecurity';
 import { ModalService } from '../../common/modal/modal.service';
 import { RuntimeStore } from './../../settings/runtime.store';
 import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
@@ -113,24 +115,14 @@ describe('receiving pmode', () => {
     });
     describe('form', () => {
         it('should be disabled when currentPmode is undefined', inject([ReceivingPmodeComponent], (cmp: ReceivingPmodeComponent) => {
-            let form = {
-                disable: () => { },
-                disabled: false
-            };
-            cmp.form = <any>form;
-            let formSpy = spyOn(form, 'disable');
+            let formSpy = spyOn(cmp.form, 'disable');
 
             cmp.currentPmode = undefined;
 
             expect(formSpy).toHaveBeenCalled();
         }));
         it('should be enabled when currentPmode is defined', inject([ReceivingPmodeComponent], (cmp: ReceivingPmodeComponent) => {
-            let form = {
-                enable: () => { },
-                disabled: false
-            };
-            cmp.form = <any>form;
-            let formSpy = spyOn(form, 'enable');
+            let formSpy = spyOn(cmp.form, 'enable');
 
             cmp.currentPmode = pmode1;
 
@@ -266,6 +258,23 @@ describe('receiving pmode', () => {
             cmp.save();
 
             expect(cmp.form.dirty).toBeFalsy();
+        }));
+        it('should not be possible to submit an invalid form', inject([ReceivingPmodeComponent, PmodeService, PmodeStore, DialogService], (cmp: ReceivingPmodeComponent, pmodeService: PmodeService, pmodeStore: PmodeStore, dialogService: DialogService) => {
+            pmode1.pmode.security = new ReceiveSecurity();
+            pmode1.pmode.security.decryption = new Decryption();
+            pmode1.pmode.security.decryption.encryption = 2;
+            pmodeStore.setReceiving(pmode1);
+            let createReceivingSpy = spyOn(pmodeService, 'createReceiving').and.returnValue(Observable.of(true));
+            let updateReceivingSpy = spyOn(pmodeService, 'updateReceiving').and.returnValue(Observable.of(true));
+            let dialogSpy = spyOn(dialogService, 'incorrectForm');
+            cmp.form.get('pmode.security.decryption.encryption').setValue(2);
+            expect(cmp.form.valid).toBeFalsy();
+
+            cmp.save();
+
+            expect(createReceivingSpy).not.toHaveBeenCalled();
+            expect(updateReceivingSpy).not.toHaveBeenCalled();
+            expect(dialogSpy).toHaveBeenCalled();
         }));
     });
 });

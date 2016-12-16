@@ -19,6 +19,8 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
                         <td class="party-actions" *ngIf="group.controls.partyIds.controls.length === 0">
                             <button class="add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                         </td>
+                        <td></td>
+                        <td></td>
                     </tr>
                     <tr *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">
                         <td class="party-actions">

@@ -1,6 +1,6 @@
 import { BoxComponent } from './../../common/box/box.component';
 import { Subscription } from 'rxjs/Subscription';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, FormArray, FormControl, AbstractControl } from '@angular/forms';
 import { Component, ViewChildren, QueryList } from '@angular/core';
 
 import { ReceivingPmode } from './../../api/ReceivingPmode';
@@ -12,6 +12,7 @@ import { ItemType } from './../../api/ItemType';
 import { RuntimeStore } from './../../settings/runtime.store';
 import { SendingPmode } from './../../api/SendingPmode';
 import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
+import { getRawFormValues } from './../../common/getRawFormValues';
 
 @Component({
     selector: 'as4-receiving-pmode',
@@ -132,9 +133,14 @@ export class ReceivingPmodeComponent {
             });
     }
     public save() {
+        if (this.form.invalid) {
+            this.dialogService.incorrectForm();
+            return;
+        }
+
         if (this.isNewMode) {
             this.pmodeService
-                .createReceiving(this.currentPmode)
+                .createReceiving(getRawFormValues(this.form))
                 .subscribe(() => {
                     this.isNewMode = false;
                     this.form.markAsPristine();
@@ -143,7 +149,7 @@ export class ReceivingPmodeComponent {
         }
 
         this.pmodeService
-            .updateReceiving(this.form.value, this.currentPmode.name)
+            .updateReceiving(getRawFormValues(this.form), this.currentPmode.name)
             .subscribe(() => {
                 this.isNewMode = false;
                 this.form.markAsPristine();

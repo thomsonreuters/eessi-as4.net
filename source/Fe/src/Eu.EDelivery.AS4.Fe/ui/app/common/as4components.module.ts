@@ -1,3 +1,5 @@
+import { TabItemComponent } from './tab/tabitem.component';
+import { TabComponent } from './tab/tab.component';
 import { FocusDirective } from './focus.directive';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -32,7 +34,9 @@ import { ModalComponent } from './modal/modal.component';
         RuntimeSettingsComponent,
         CrudButtonsComponent,
         ModalComponent,
-        FocusDirective
+        FocusDirective,
+        TabComponent,
+        TabItemComponent
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -51,7 +55,9 @@ import { ModalComponent } from './modal/modal.component';
         RuntimeSettingsComponent,
         CrudButtonsComponent,
         ModalComponent,
-        FocusDirective
+        FocusDirective,
+        TabComponent,
+        TabItemComponent
     ],
     imports: [
         AuthenticationModule,
