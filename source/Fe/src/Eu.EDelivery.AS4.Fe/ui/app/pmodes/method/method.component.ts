@@ -40,13 +40,9 @@ export class MethodComponent {
     }
     typeChanged(result: string) {
         let type = this.types.find(method => method.name === result);
-        this.group.removeControl(Method.FIELD_parameters);
-        this.group.addControl(Method.FIELD_parameters, this.formBuilder.array(type.properties.map(prop => Parameter.getForm(this.formBuilder, {
+        this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!type || !!!type.properties ? [] : type.properties.map(prop => Parameter.getForm(this.formBuilder, {
             name: prop.friendlyName,
             value: ''
         }))));
-    }
-    public forLoaded() {
-        alert('forLoaded');
     }
 }

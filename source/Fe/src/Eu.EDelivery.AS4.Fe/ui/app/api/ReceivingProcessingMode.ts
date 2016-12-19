@@ -7,6 +7,7 @@ import { Receivehandling } from "./Receivehandling";
 import { ReceiveSecurity } from "./ReceiveSecurity";
 import { MessagePackaging } from "./MessagePackaging";
 import { Deliver } from "./Deliver";
+import { IPmode } from './Pmode.interface';
 
 export class ReceivingProcessingMode {
     id: string;

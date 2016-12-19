@@ -16,18 +16,40 @@
             </div>
         </as4-box>
         <as4-tab>
+            <div tabitem title="Message exchange pattern">
+                <as4-input labelSize="2" controlSize="4" label="Id">
+                    <input type="text" formControlName="id" />
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern">
+                    <select formControlName="mep">
+                        <option value="0">One way</option>
+                        <option value="1">Two way</option>
+                    </select>
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern binding">
+                    <select formControlName="mepBinding">
+                        <option value="0">Pull</option>
+                        <option value="1">Push</option>
+                    </select>
+                </as4-input>
+                <div formGroupName="reliability">
+                    <as4-input labelSize="2" controlSize="4" label="Reliability - duplicate elimination" formGroupName="duplicateElimination">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                </div>
+            </div>
             <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.receiptHandling.valid">
                 <as4-input labelSize="2" controlSize="4" label="Use NNR format">
                     <input type="checkbox" formControlName="useNNRFormat" />
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Reply pattern">
-                    <select formControlName="replyPattern" class="form-control">
+                    <select formControlName="replyPattern">
                         <option value="0">Response</option>
                         <option value="1">Callback</option>
                     </select>
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Callback url">
-                    <input type="text" class="form-control" formControlName="callbackUrl" />
+                    <input type="text" formControlName="callbackUrl" />
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Sending PMode">
                     <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
@@ -38,16 +60,16 @@
                     <input type="checkbox" formControlName="useSoapFault">
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Reply pattern">
-                    <select formControlName="replyPattern" class="form-control">
+                    <select formControlName="replyPattern">
                         <option value="0">Response</option>
                         <option value="1">Callback</option>
                     </select>
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Callback url">
-                    <input type="text" formControlName="callbackUrl" class="form-control">
+                    <input type="text" formControlName="callbackUrl">
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Response http code">
-                    <input type="text" formControlName="responseHttpCode" class="form-control">
+                    <input type="text" formControlName="responseHttpCode">
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Sending pmode">
                     <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
@@ -59,9 +81,9 @@
                 </as4-input>
                 <as4-method label="Notify method" [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>
             </div>
-            <div title="Security" tabitem formGroupName="security" [isValid]="form.controls.pmode.controls.security.valid">
+            <div title="Security" tabitem formGroupName="security" [isValid]="!!!currentPmode || form.controls.pmode.controls.security.valid">
                 <as4-input labelSize="2" controlSize="4" label="Signing verification" formGroupName="signingVerification">
-                    <select class="form-control" formControlName="signature">
+                    <select formControlName="signature">
                         <option value="0">Allowed</option>
                         <option value="1">Not allowed</option>
                         <option value="2">Required</option>
@@ -69,7 +91,7 @@
                     </select>
                 </as4-input>
                 <as4-input labelSize="2" controlSize="4" label="Decryption" formGroupName="decryption">
-                    <select class="form-control" formControlName="encryption" #selectedEncryption>
+                    <select formControlName="encryption" #selectedEncryption>
                         <option value="0">Allowed</option>
                         <option value="1">Not allowed</option>
                         <option value="2">Required</option>
@@ -78,10 +100,10 @@
                 </as4-input>
                 <div formGroupName="decryption">
                     <as4-input labelSize="2" controlSize="4" label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
-                        <input type="text" class="form-control" formControlName="privateKeyFindValue" />
+                        <input type="text" formControlName="privateKeyFindValue" />
                     </as4-input>
                     <as4-input labelSize="2" controlSize="4" label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
-                        <select class="form-control" formControlName="privateKeyFindType">
+                        <select formControlName="privateKeyFindType">
                             <option value="0">Find by thumbprint</option>
                             <option value="1">Find by subject name</option>
                             <option value="2">Find by subject distinguished name</option>
@@ -109,27 +131,27 @@
                 <h5>Collaboration info</h5>
                 <div formGroupName="collaborationInfo">
                     <as4-input labelSize="2" controlSize="4" label="Action">
-                        <input type="text" class="form-control" formControlName="action" />
+                        <input type="text" formControlName="action" />
                     </as4-input>
                     <h5>Service</h5>
                     <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="service">
-                        <input type="text" class="form-control" formControlName="value" />
+                        <input type="text" formControlName="value" />
                     </as4-input>
                     <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="service">
-                        <input type="text" class="form-control" formControlName="type" />
+                        <input type="text" formControlName="type" />
                     </as4-input>
                     <as4-input labelSize="2" controlSize="4" label="Conversation id">
-                        <input type="text" class="form-control" formControlName="conversationId" />
+                        <input type="text" formControlName="conversationId" />
                     </as4-input>
                     <h5>Agreement reference</h5>
-                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="agreementRef">
-                        <input type="text" class="form-control" formControlName="value" />
+                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="agreementReference">
+                        <input type="text" formControlName="value" />
                     </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="agreementRef">
-                        <input type="text" class="form-control" formControlName="refType" />
+                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="agreementReference">
+                        <input type="text" formControlName="type" />
                     </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="PmodeId" formGroupName="agreementRef">
-                        <input type="text" class="form-control" formControlName="pModeId" />
+                    <as4-input labelSize="2" controlSize="4" label="PmodeId" formGroupName="agreementReference">
+                        <input type="text" formControlName="pModeId" />
                     </as4-input>
                 </div>
             </div>

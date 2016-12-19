@@ -1,8 +1,9 @@
 /* tslint:disable */
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { ReceivingProcessingMode } from "./ReceivingProcessingMode";
+import { IPmode } from './Pmode.interface';
 
-export class ReceivingPmode {
+export class ReceivingPmode implements IPmode {
 	type: number;
 	name: string;
 	pmode: ReceivingProcessingMode;

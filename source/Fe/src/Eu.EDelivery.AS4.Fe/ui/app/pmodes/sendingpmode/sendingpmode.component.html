@@ -1,0 +1,214 @@
+<form [formGroup]="form" class="form-horizontal">
+    <div formGroupName="pmode">
+        <as4-box>
+            <div content class="col-md-6 col-xs-12">
+                <as4-input label="Name">
+                    <div class="input-group">
+                        <select class="form-control select-pmode" (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name"
+                            #pmodeSelect>
+                            <option value="undefined">Select an option</option>
+                            <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.name)">{{currentPmode && currentPmode.name === pmode && !!form && !!form.controls ? form.controls.name.value : pmode}}</option>
+                        </select>
+                        <div class="input-group-btn" crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()"
+                            (save)="save()" [current]="currentPmode" [isNewMode]="isNewMode"></div>
+                    </div>
+                </as4-input>
+            </div>
+        </as4-box>
+        <as4-tab>
+            <div tabitem title="Common" [isValid]="!!!currentPmode || form.controls.pmode.controls.id.valid || form.controls.pmode.controls.allowOverride.valid || form.controls.pmode.controls.mep.valid || form.controls.pmode.controls.mepBinding.valid">
+                <as4-input labelSize="2" controlSize="4" label="id">
+                    <input type="text" formControlName="id" />
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Allow override">
+                    <input type="checkbox" formControlName="allowOverride" />
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern">
+                    <select formControlName="mep">
+                        <option value="0">One way</option>
+                        <option value="1">Two way</option>
+                    </select>
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern binding">
+                    <select formControlName="mepBinding">
+                        <option value="0">Pull</option>
+                        <option value="1">Push</option>
+                    </select>
+                </as4-input>
+            </div>
+            <div tabitem title="Push configuration" formGroupName="pushConfiguration" [isValid]="!!!currentPmode || form.controls.pmode.controls.pushConfiguration.valid">
+                <h5>Protocol</h5>
+                <as4-input label="Url" labelSize="2" controlSize="4" formGroupName="protocol">
+                    <input type="text" formControlName="url" />
+                </as4-input>
+                <as4-input label="Use chunking" labelSize="2" controlSize="4" formGroupName="protocol">
+                    <input type="checkbox" formControlName="useChunking" />
+                </as4-input>
+                <as4-input label="Use http compression" labelSize="2" controlSize="4" formGroupName="protocol">
+                    <input type="checkbox" formControlName="useHttpCompression" />
+                </as4-input>
+                <h5>Tls configuration</h5>
+                <as4-input label="Enabled" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                    <input type="checkbox" formControlName="isEnabled" />
+                </as4-input>
+                <as4-input label="Tls version" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                    <select formControlName="tlsVersion">
+                        <option value="0">Ssl30</option>
+                        <option value="1">Tls10</option>
+                        <option value="2">Tls11</option>
+                        <option value="3">Tls12</option>
+                    </select>
+                </as4-input>
+                <h5>Client certificate reference</h5>
+                <as4-input label="Enabled" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                    <div formGroupName="clientCertificateReference">
+                        <select formControlName="clientCertificateFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </div>
+                </as4-input>
+                <as4-input label="Certificate find value" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                    <div formGroupName="clientCertificateReference">
+                        <input type="text" formControlName="clientCertificateFindValue" />
+                    </div>
+                </as4-input>
+            </div>
+            <div tabitem title="Pull configuration" formGroupName="pullConfiguration" [isValid]="!!!currentPmode || form.controls.pmode.controls.pullConfiguration">
+                <as4-input label="Sub channel" labelSize="2" controlSize="4">
+                    <input type="text" formControlName="subChannel" />
+                </as4-input>
+            </div>
+            <div tabitem title="Reliability" formGroupName="reliability" [isValid]="!!!currentPmode || form.controls.pmode.controls.reliability">
+                <h5>Reception awareness</h5>
+                <div formGroupName="receptionAwareness">
+                    <as4-input label="Reception awareness" labelSize="2" controlSize="4">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="Retry count" labelSize="2" controlSize="4">
+                        <input type="text" formControlName="retryCount" />
+                    </as4-input>
+                </div>
+            </div>
+            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.receiptHandling">
+                <as4-input label="Notify message producer" labelSize="2" controlSize="4">
+                    <input type="checkbox" formControlName="notifyMessageProducer" />
+                </as4-input>
+                <as4-method label="Notify method" [group]=" form.controls.pmode.controls.receiptHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
+            </div>
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.errorHandling">
+                <as4-input label="Notify message producer" labelSize="2" controlSize="4">
+                    <input type="checkbox" formControlName="notifyMessageProducer" />
+                </as4-input>
+                <as4-method label="Notify method" [group]=" form.controls.pmode.controls.errorHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
+            </div>
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.exceptionHandling">
+                <as4-input label="Notify message producer" labelSize="2" controlSize="4">
+                    <input type="checkbox" formControlName="notifyMessageProducer" />
+                </as4-input>
+                <as4-method label="Notify method" [group]=" form.controls.pmode.controls.exceptionHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
+            </div>
+            <div tabitem title="Security" formGroupName="security" [isValid]="!!!currentPmode || form.controls.pmode.controls.security">
+                <h5>Signing</h5>
+                <div formGroupName="signing">
+                    <as4-input label="Enabled" labelSize="2" controlSize="4">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="Private key find value" labelSize="2" controlSize="4">
+                        <input type="text" formControlName="privateKeyFindValue" />
+                    </as4-input>
+                    <as4-input label="Enabled" labelSize="2" controlSize="4">
+                        <select formControlName="privateKeyFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </as4-input>
+                    <as4-input label="Key reference method" labelSize="2" controlSize="4">
+                        <select formControlName="keyReferenceMethod">
+                            <option value="0">BSTReference</option>
+                            <option value="1">KeyIdentifier</option>
+                            <option value="2">IssuerSerial</option>
+                        </select>
+                    </as4-input>
+                    <as4-input label="Algorithm" labelSize="2" controlSize="4">
+                        <input type="text" formControlName="algorithm" />
+                    </as4-input>
+                    <as4-input label="HashFunction" labelSize="2" controlSize="4">
+                        <input type="text" formControlName="hashFunction" />
+                    </as4-input>
+                </div>
+            </div>
+            <div tabitem title="Message packaging" formGroupName="messagePackaging" [isValid]="!!!currentPmode || form.controls.pmode.controls.messagePackaging">
+                <h5>Party info</h5>
+                <div formGroupName="partyInfo">
+                    <as4-party label="From party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.fromParty"></as4-party>
+                    <as4-party label="To party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.toParty"></as4-party>
+                </div>
+                <h5>Collaboration info</h5>
+                <div formGroupName="collaborationInfo">
+                    <as4-input labelSize="2" controlSize="4" label="Action">
+                        <input type="text" formControlName="action" />
+                    </as4-input>
+                    <h5>Service</h5>
+                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="service">
+                        <input type="text" formControlName="value" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="service">
+                        <input type="text" formControlName="type" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="Conversation id">
+                        <input type="text" formControlName="conversationId" />
+                    </as4-input>
+                    <h5>Agreement reference</h5>
+                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="agreementReference">
+                        <input type="text" formControlName="value" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="agreementReference">
+                        <input type="text" formControlName="type" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="PmodeId" formGroupName="agreementReference">
+                        <input type="text" formControlName="pModeId" />
+                    </as4-input>
+                </div>
+                <as4-input label="Mpc" labelSize="2" controlSize="4">
+                    <input type="text" formControlName="mpc" />
+                </as4-input>
+                <as4-input label="Use AS4 compression" labelSize="2" controlSize="4">
+                    <input type="checkbox" formControlName="useAS4Compression" />
+                </as4-input>
+                <as4-input label="Multi hop mpc" labelSize="2" controlSize="4">
+                    <input type="checkbox" formControlName="isMultiHop" />
+                </as4-input>
+                <as4-input label="Include pmode id" labelSize="2" controlSize="4">
+                    <input type="checkbox" formControlName="includePModeId" />
+                </as4-input>
+            </div>
+        </as4-tab>
+    </div>
+</form>

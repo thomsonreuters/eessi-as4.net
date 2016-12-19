@@ -1,3 +1,4 @@
+import { SendingPmodeComponent } from './sendingpmode/sendingpmode.component';
 import { PartyComponent } from './party/party.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -16,6 +17,7 @@ import { ROUTES } from './pmodes.routes';
 @NgModule({
     declarations: [
         ReceivingPmodeComponent,
+        SendingPmodeComponent,
         PmodeSelectComponent,
         MethodComponent,
         PartyComponent

@@ -18,7 +18,9 @@ export interface IPmodeService {
     deleteReceiving(name: string);
     deleteSending(name: string);
     createReceiving(pmode: ReceivingPmode): Observable<boolean>;
+    updateReceiving(pmode: ReceivingPmode, originalName: string): Observable<boolean>;
     createSending(pmode: SendingPmode): Observable<boolean>;
+    updateSending(pmode: SendingPmode, originalName: string): Observable<boolean>;
 }
 
 export let pmodeService = new OpaqueToken('pmodeService');
@@ -147,6 +149,17 @@ export class PmodeService implements IPmodeService {
     }
     public createSending(pmode: SendingPmode): Observable<boolean> {
         return null;
+    }
+    public updateSending(pmode: SendingPmode, originalName: string): Observable<boolean> {
+        let obs = new Subject<boolean>();
+        this.http
+            .put(`${this.getBaseUrl('sending')}/${originalName}`, pmode)
+            .subscribe(result => {
+                this.pmodeStore.setSending(pmode);
+                obs.next(true);
+                obs.complete();
+            });
+        return obs.asObservable();
     }
     private getBaseUrl(action: string): string {
         return `api/pmode/${action}`;

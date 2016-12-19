@@ -16,6 +16,8 @@ import { ReceivingPmodeComponent } from './receivingpmode.component';
 import { PmodeService, pmodeService } from '../pmode.service';
 import { Observable } from 'rxjs';
 import {
+    async,
+    fakeAsync,
     inject,
     TestBed
 } from '@angular/core/testing';
@@ -115,18 +117,22 @@ describe('receiving pmode', () => {
     });
     describe('form', () => {
         it('should be disabled when currentPmode is undefined', inject([ReceivingPmodeComponent], (cmp: ReceivingPmodeComponent) => {
-            let formSpy = spyOn(cmp.form, 'disable');
+            async(() => {
+                let formSpy = spyOn(cmp.form, 'disable');
 
-            cmp.currentPmode = undefined;
+                cmp.currentPmode = undefined;
 
-            expect(formSpy).toHaveBeenCalled();
+                expect(formSpy).toHaveBeenCalled();
+            });
         }));
         it('should be enabled when currentPmode is defined', inject([ReceivingPmodeComponent], (cmp: ReceivingPmodeComponent) => {
-            let formSpy = spyOn(cmp.form, 'enable');
+            async(() => {
+                let formSpy = spyOn(cmp.form, 'enable');
 
-            cmp.currentPmode = pmode1;
+                cmp.currentPmode = pmode1;
 
-            expect(formSpy).toHaveBeenCalled();
+                expect(formSpy).toHaveBeenCalled();
+            });
         }));
     });
     describe('rename', () => {
@@ -275,6 +281,14 @@ describe('receiving pmode', () => {
             expect(createReceivingSpy).not.toHaveBeenCalled();
             expect(updateReceivingSpy).not.toHaveBeenCalled();
             expect(dialogSpy).toHaveBeenCalled();
+        }));
+    });
+    describe('reopen', () => {
+        it('should enable the form when the user switches back to the pmode', inject([ReceivingPmodeComponent, PmodeStore], (cmp: ReceivingPmodeComponent, store: PmodeStore) => {
+            store.setReceiving(pmode1);
+            expect(cmp.form.enabled).toBeTruthy('Form should be enabled because of a setReceiving call (step1)');
+            cmp.init();
+            expect(cmp.form.enabled).toBeTruthy('Form should be enabled because init was called and setReceiving has a value!');
         }));
     });
 });

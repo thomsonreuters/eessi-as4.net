@@ -1,6 +1,3 @@
-import { TabItemComponent } from './tab/tabitem.component';
-import { TabComponent } from './tab/tab.component';
-import { FocusDirective } from './focus.directive';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -21,6 +18,11 @@ import { RuntimeSettingsComponent } from './runtimesettings/runtimesettings.comp
 import { CrudButtonsComponent } from './crudbuttons/crudbuttons.component';
 import { ModalService } from './modal/modal.service';
 import { ModalComponent } from './modal/modal.component';
+import { TextDirective } from './text.directive';
+import { TabItemComponent } from './tab/tabitem.component';
+import { TabComponent } from './tab/tab.component';
+import { FocusDirective } from './focus.directive';
+import { SelectDirective } from './selectdirective';
 
 @NgModule({
     declarations: [
@@ -36,7 +38,9 @@ import { ModalComponent } from './modal/modal.component';
         ModalComponent,
         FocusDirective,
         TabComponent,
-        TabItemComponent
+        TabItemComponent,
+        TextDirective,
+        SelectDirective
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -57,7 +61,9 @@ import { ModalComponent } from './modal/modal.component';
         ModalComponent,
         FocusDirective,
         TabComponent,
-        TabItemComponent
+        TabItemComponent,
+        TextDirective,
+        SelectDirective
     ],
     imports: [
         AuthenticationModule,

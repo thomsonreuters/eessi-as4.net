@@ -1,3 +1,4 @@
+import { InputComponent } from './../input/input.component';
 import { Directive, Input, ElementRef, Renderer } from '@angular/core';
 
 @Directive({

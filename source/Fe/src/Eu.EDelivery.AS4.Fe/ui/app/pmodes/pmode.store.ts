@@ -24,6 +24,9 @@ export class PmodeStore extends Store<IPmodeStore> {
     public setReceiving(pmode: ReceivingPmode | undefined) {
         this.update('Receiving', pmode);
     }
+    public setSending(pmode: SendingPmode | undefined) {
+        this.update('Sending', pmode);
+    }
     public setReceivingNames(names: string[] | undefined) {
         this.update('ReceivingNames', names);
     }
