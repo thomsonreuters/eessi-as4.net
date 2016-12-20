@@ -8,4 +8,15 @@ form {
     input.ng-invalid {
         border: 1px solid $invalidColor;
     }
+
+    .control-label {
+        font-weight: 100;        
+    }
+
+    h5 {
+        font-weight: bold;
+        padding-top: 10px;
+        padding-bottom: 1px;
+        margin-bottom: 1px;
+    }
 }
