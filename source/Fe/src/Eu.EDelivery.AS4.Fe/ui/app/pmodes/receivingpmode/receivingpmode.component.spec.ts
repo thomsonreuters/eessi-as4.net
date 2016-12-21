@@ -88,6 +88,19 @@ describe('receiving pmode', () => {
             expect(dialogSpy).toHaveBeenCalled();
             expect(cmp.isNewMode).toBeFalsy();
         }));
+        it('should ask the user for confirmation when the component is in new mode', inject([ReceivingPmodeComponent, DialogService], (cmp: ReceivingPmodeComponent, dialogService: DialogService) => {
+            let dialogSpy = spyOn(dialogService, 'confirmUnsavedChanges').and.returnValue(Observable.of(false));
+            cmp.pmodes = pmodes;
+            spyOn(dialogService, 'prompt').and.returnValue(Observable.of('new'));
+
+            cmp.add();
+            cmp.form.markAsPristine();
+
+            cmp.pmodeChanged(pmode1.name);
+
+            expect(dialogSpy).toHaveBeenCalled();
+            expect(cmp.currentPmode.name).toBe('new');
+        }));
     });
     describe('store events', () => {
         it('should update currentPmode on event', inject([ReceivingPmodeComponent, PmodeStore], (cmp: ReceivingPmodeComponent, store: PmodeStore) => {

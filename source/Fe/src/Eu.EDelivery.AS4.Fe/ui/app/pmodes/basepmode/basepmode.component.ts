@@ -49,7 +49,7 @@ export abstract class BasePmodeComponent<T extends IPmode> {
             else this.setPmode(undefined); // this.pmodeStore.setReceiving(undefined);
             this.form.markAsPristine();
         };
-        if (this.form.dirty) {
+        if (this.form.dirty || this.isNewMode) {
             this.dialogService
                 .confirmUnsavedChanges()
                 .filter(result => result)
@@ -58,7 +58,7 @@ export abstract class BasePmodeComponent<T extends IPmode> {
                         this.pmodes = this.pmodes.filter(pmode => pmode !== this.currentPmode.name);
                         this.isNewMode = false;
                     }
-                    else select();
+                    select();
                 });
             return false;
         }
@@ -149,6 +149,7 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     abstract createPmode(value: any): Observable<boolean>;
     abstract updatePmode(value: any, originalName: string): Observable<boolean>;
     abstract deletePmode(value: any);
+    abstract init();
     private checkIfExists(name: string): boolean {
         let exists = this.pmodes.findIndex(pmode => pmode.toLowerCase() === name.toLowerCase()) > -1;
         if (exists) this.dialogService.message(`Pmode with name ${name} already exists`);

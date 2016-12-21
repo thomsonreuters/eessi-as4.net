@@ -14,7 +14,7 @@ export class Decryption {
         let form = formBuilder.group({
             encryption: [(current == null || current.encryption == null) ? 0 : current.encryption],
             privateKeyFindValue: [current && current.privateKeyFindValue, this.validateKey],
-            privateKeyFindType: [(current == null || current.privateKeyFindType == null) ? 0 : current.privateKeyFindType, this.validateKeyType],
+            privateKeyFindType: [current && current.privateKeyFindType, this.validateKeyType],
         });
         Decryption.setupForm(form);
         return form;

@@ -57,6 +57,7 @@ export class DialogService {
                 dlg.type = 'modal-danger';
                 dlg.message = message;
                 dlg.showCancel = false;
+                dlg.buttonOk = 'Ok';
                 dlg.title = 'Error';
                 if (stackTrace instanceof Response)
                     try {

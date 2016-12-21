@@ -90,7 +90,7 @@ describe('crudbuttons', () => {
         });
     });
     describe('form dirty state', () => {
-        it('should disable save when not form is not dirty', () => {
+        it('should disable save when form is not dirty', () => {
             let instance = getInstance();
             instance.componentInstance.form.dirty = false;
 
@@ -104,6 +104,20 @@ describe('crudbuttons', () => {
         it('should enable save when form is dirty', () => {
             let instance = getInstance();
             instance.componentInstance.form.dirty = true;
+
+            let saveButton = instance.debugElement.query(By.css('.save-button'));
+            let resetButton = instance.debugElement.query(By.css('.reset-button'));
+            instance.detectChanges();
+
+            expect(saveButton.nativeNode.attributes['disabled']).toBeUndefined();
+            expect(resetButton.nativeNode.attributes['disabled']).toBeUndefined();
+        });
+    });
+    describe('isNewMode', () => {
+        it('should set correct buttons enabled', () => {
+            let instance = getInstance();
+            instance.componentInstance.isNewMode = true;
+            instance.detectChanges();
 
             let saveButton = instance.debugElement.query(By.css('.save-button'));
             let resetButton = instance.debugElement.query(By.css('.reset-button'));

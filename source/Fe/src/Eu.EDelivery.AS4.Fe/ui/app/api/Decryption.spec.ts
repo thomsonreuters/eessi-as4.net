@@ -26,16 +26,13 @@ describe('Decryption', () => {
         let form = Decryption.getForm(formBuilder, null);
 
         expect(form.get(Decryption.FIELD_encryption).value).toBe(0);
-        expect(+form.get(Decryption.FIELD_privateKeyFindType).value).toBe(0);
     }));
     it('should have the correct value when a value is used', inject([FormBuilder], (formBuilder: FormBuilder) => {
         let data = new Decryption();
         data.encryption = 3;
-        data.privateKeyFindType = 2;
         let form = Decryption.getForm(formBuilder, data);
 
         expect(form.get(Decryption.FIELD_encryption).value).toBe(3);
-        expect(+form.get(Decryption.FIELD_privateKeyFindType).value).toBe(2);
     }));
 });
 
