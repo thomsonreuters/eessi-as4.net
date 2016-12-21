@@ -16,10 +16,7 @@
             </div>
         </as4-box>
         <as4-tab>
-            <div tabitem title="Message exchange pattern">
-                <as4-input labelSize="2" controlSize="4" label="Id">
-                    <input type="text" formControlName="id" />
-                </as4-input>
+            <div tabitem title="Common">
                 <as4-input labelSize="2" controlSize="4" label="Message exchange pattern">
                     <select formControlName="mep">
                         <option value="0">One way</option>
@@ -38,48 +35,35 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.receiptHandling.valid">
-                <as4-input labelSize="2" controlSize="4" label="Use NNR format">
-                    <input type="checkbox" formControlName="useNNRFormat" />
-                </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Reply pattern">
-                    <select formControlName="replyPattern">
-                        <option value="0">Response</option>
-                        <option value="1">Callback</option>
-                    </select>
-                </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Callback url">
-                    <input type="text" formControlName="callbackUrl" />
-                </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Sending PMode">
-                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
-                </as4-input>
-            </div>
-            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.errorHandling.valid">
-                <as4-input labelSize="2" controlSize="4" label="Use soap fault">
-                    <input type="checkbox" formControlName="useSoapFault">
-                </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Reply pattern">
-                    <select formControlName="replyPattern">
-                        <option value="0">Response</option>
-                        <option value="1">Callback</option>
-                    </select>
-                </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Callback url">
-                    <input type="text" formControlName="callbackUrl">
-                </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Response http code">
-                    <input type="text" formControlName="responseHttpCode">
-                </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Sending pmode">
-                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
-                </as4-input>
-            </div>
-            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.exceptionHandling.valid">
-                <as4-input labelSize="2" controlSize="4" label="Notify message consumer">
-                    <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
-                </as4-input>
-                <as4-method label="Notify method" [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>
+            <div tabitem title="Message packaging" formGroupName="messagePackaging" [isValid]="!!!currentPmode || form.controls.pmode.controls.messagePackaging.valid">
+                <as4-party label="From party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.fromParty"></as4-party>
+                <as4-party label="To party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.toParty"></as4-party>
+
+                <h5>Service</h5>
+                <div formGroupName="collaborationInfo">
+                    <as4-input labelSize="2" controlSize="4" label="Action">
+                        <input type="text" formControlName="action" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="service">
+                        <input type="text" formControlName="value" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="service">
+                        <input type="text" formControlName="type" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="Conversation id">
+                        <input type="text" formControlName="conversationId" />
+                    </as4-input>
+                    <h5>Agreement reference</h5>
+                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="agreementReference">
+                        <input type="text" formControlName="value" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="agreementReference">
+                        <input type="text" formControlName="type" />
+                    </as4-input>
+                    <as4-input labelSize="2" controlSize="4" label="PmodeId" formGroupName="agreementReference">
+                        <input type="text" formControlName="pModeId" />
+                    </as4-input>
+                </div>
             </div>
             <div title="Security" tabitem formGroupName="security" [isValid]="!!!currentPmode || form.controls.pmode.controls.security.valid">
                 <as4-input labelSize="2" controlSize="4" label="Signing verification" formGroupName="signingVerification">
@@ -123,38 +107,6 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Message packaging" formGroupName="messagePackaging" [isValid]="!!!currentPmode || form.controls.pmode.controls.messagePackaging.valid">
-                <h5>Party info</h5>
-                <as4-party label="From party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.fromParty"></as4-party>
-                <as4-party label="To party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.toParty"></as4-party>
-
-                <h5>Collaboration info</h5>
-                <div formGroupName="collaborationInfo">
-                    <as4-input labelSize="2" controlSize="4" label="Action">
-                        <input type="text" formControlName="action" />
-                    </as4-input>
-                    <h5>Service</h5>
-                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="service">
-                        <input type="text" formControlName="value" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="service">
-                        <input type="text" formControlName="type" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Conversation id">
-                        <input type="text" formControlName="conversationId" />
-                    </as4-input>
-                    <h5>Agreement reference</h5>
-                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="agreementReference">
-                        <input type="text" formControlName="value" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="agreementReference">
-                        <input type="text" formControlName="type" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="PmodeId" formGroupName="agreementReference">
-                        <input type="text" formControlName="pModeId" />
-                    </as4-input>
-                </div>
-            </div>
             <div title="Deliver" tabitem formGroupName="deliver" [isValid]="!!!currentPmode || form.controls.pmode.controls.deliver.valid">
                 <as4-input labelSize="2" controlSize="4" label="Is enabled">
                     <input type="checkbox" formControlName="isEnabled" />
@@ -162,6 +114,49 @@
                 <as4-method label="Payload reference method" [group]="form.controls.pmode.controls.deliver.controls.payloadReferenceMethod"
                     [types]="deliverSenders"></as4-method>
                 <as4-method label="Deliver method" [group]="form.controls.pmode.controls.deliver.controls.deliverMethod" [types]="deliverSenders"></as4-method>
+            </div>
+            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.receiptHandling.valid">
+                <as4-input labelSize="2" controlSize="4" label="Use NNR format">
+                    <input type="checkbox" formControlName="useNNRFormat" />
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Reply pattern">
+                    <select formControlName="replyPattern">
+                        <option value="0">Response</option>
+                        <option value="1">Callback</option>
+                    </select>
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Callback url" *ngIf="form.controls.pmode.controls.receiptHandling.controls.callbackUrl.enabled">
+                    <input type="text" formControlName="callbackUrl" />
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Sending PMode">
+                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
+                </as4-input>
+            </div>
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.errorHandling.valid">
+                <as4-input labelSize="2" controlSize="4" label="Use soap fault">
+                    <input type="checkbox" formControlName="useSoapFault">
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Reply pattern">
+                    <select formControlName="replyPattern">
+                        <option value="0">Response</option>
+                        <option value="1">Callback</option>
+                    </select>
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Callback url">
+                    <input type="text" formControlName="callbackUrl">
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Response http code">
+                    <input type="text" formControlName="responseHttpCode">
+                </as4-input>
+                <as4-input labelSize="2" controlSize="4" label="Sending pmode">
+                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
+                </as4-input>
+            </div>
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.exceptionHandling.valid">
+                <as4-input labelSize="2" controlSize="4" label="Notify message consumer">
+                    <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
+                </as4-input>
+                <as4-method label="Notify method" [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>
             </div>
         </as4-tab>
     </div>

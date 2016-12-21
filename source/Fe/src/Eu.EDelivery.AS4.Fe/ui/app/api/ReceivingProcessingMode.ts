@@ -35,8 +35,8 @@ export class ReceivingProcessingMode {
     static getForm(formBuilder: FormBuilder, current: ReceivingProcessingMode): FormGroup {
         return formBuilder.group({
             [this.FIELD_id]: [current && current.id, Validators.required],
-            [this.FIELD_mep]: [current && current.mep, Validators.required],
-            [this.FIELD_mepBinding]: [current && current.mepBinding, Validators.required],
+            [this.FIELD_mep]: [(current == null || current.mep == null) ? 0 : current.mep, Validators.required],
+            [this.FIELD_mepBinding]: [(current == null || current.mepBinding == null) ? 1 : current.mepBinding, Validators.required],
             [this.FIELD_reliability]: ReceiveReliability.getForm(formBuilder, current && current.reliability),
             [this.FIELD_receiptHandling]: ReceiveReceiptHandling.getForm(formBuilder, current && current.receiptHandling),
             [this.FIELD_errorHandling]: ReceiveErrorHandling.getForm(formBuilder, current && current.errorHandling),

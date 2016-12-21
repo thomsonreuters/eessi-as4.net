@@ -9,26 +9,21 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     template: `
         <div [formGroup]="group">
             <as4-input [label]="label" labelSize="2" controlSize="4">
-                <table class="table table-condensed" formArrayName="partyIds">
-                    <tr>
-                        <th></th>
-                        <th>Id</th>
-                        <th>Type</th>
-                    </tr>
-                    <tr>
-                        <td class="party-actions" *ngIf="group.controls.partyIds.controls.length === 0">
+                <table class="table table-condensed" formArrayName="partyIds">                   
+                    <tr *ngIf="group.controls.partyIds.controls.length === 0">
+                        <td class="party-actions padding-fix">
                             <button class="add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                         </td>
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">
+                    <tr *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">                       
+                        <td><input type="text" class="form-control" formControlName="id"/></td>
+                        <td><input type="text" class="form-control" formControlName="type"/></td>
                         <td class="party-actions">
                             <button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
                             <button [disabled]="group.disabled" *ngIf="i === (group.controls.partyIds.controls.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button spacing"><i class="fa fa-plus"></i></button>
                         </td>
-                        <td><input type="text" class="form-control" formControlName="id"/></td>
-                        <td><input type="text" class="form-control" formControlName="type"/></td>
                     </tr>
                 </table>
             </as4-input>
@@ -40,11 +35,21 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     styles: [
         `
         .party-actions {
-            width: 16%;
+            width: 2à%;
         }
 
-        .spacing {
-            margin-top: 8px;
+        table {
+            margin-bottom: 0;
+        }
+
+        tr > td {
+            padding: 0;
+            padding-right: 5px;
+            border-top: 0;
+        }
+    
+        tr:not(:last-child) > td {
+            padding-bottom: 5px;
         }
     `]
 })

@@ -148,7 +148,15 @@ export class PmodeService implements IPmodeService {
             .subscribe(result => this.pmodeStore.update('Receiving', result.json()));
     }
     public createSending(pmode: SendingPmode): Observable<boolean> {
-        return null;
+        let obs = new Subject<boolean>();
+        this.http
+            .post(`${this.getBaseUrl('sending')}`, pmode)
+            .subscribe(result => {
+                this.pmodeStore.setSending(pmode);
+                obs.next();
+                obs.complete();
+            });
+        return obs.asObservable();
     }
     public updateSending(pmode: SendingPmode, originalName: string): Observable<boolean> {
         let obs = new Subject<boolean>();

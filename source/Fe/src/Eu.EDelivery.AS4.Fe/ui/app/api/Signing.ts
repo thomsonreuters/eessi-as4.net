@@ -1,4 +1,5 @@
 /* tslint:disable */
+import { Validators } from '@angular/forms';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 
 export class Signing {
@@ -19,11 +20,11 @@ export class Signing {
 	static getForm(formBuilder: FormBuilder, current: Signing): FormGroup {
 		let form = formBuilder.group({
 			[this.FIELD_isEnabled]: [!!(current && current.isEnabled)],
-			[this.FIELD_privateKeyFindValue]: [current && current.privateKeyFindValue],
-			[this.FIELD_privateKeyFindType]: [current && current.privateKeyFindType],
-			[this.FIELD_keyReferenceMethod]: [current && current.keyReferenceMethod],
-			[this.FIELD_algorithm]: [current && current.algorithm],
-			[this.FIELD_hashFunction]: [current && current.hashFunction],
+			[this.FIELD_privateKeyFindValue]: [current && current.privateKeyFindValue, Validators.required],
+			[this.FIELD_privateKeyFindType]: [current && current.privateKeyFindType, Validators.required],
+			[this.FIELD_keyReferenceMethod]: [current && current.keyReferenceMethod, Validators.required],
+			[this.FIELD_algorithm]: [(current == null || current.algorithm == null) ? 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256' : current.algorithm, Validators.required],
+			[this.FIELD_hashFunction]: [(current == null || current.hashFunction == null) ? 'http://www.w3.org/2001/04/xmlenc#sha256' : current.hashFunction, Validators.required],
 		});
 		setTimeout(() => this.setupForm(form));
 		return form;

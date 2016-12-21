@@ -38,8 +38,8 @@ export class SendingProcessingMode {
 		return formBuilder.group({
 			id: [current && current.id],
 			allowOverride: [!!(current && current.allowOverride)],
-			mep: [current && current.mep],
-			mepBinding: [current && current.mepBinding],
+			mep: [(current == null || current.mep == null) ? 0 : current.mep],
+			mepBinding: [(current == null || current.mepBinding == null) ? 1 : current.mepBinding],
 			pushConfiguration: PushConfiguration.getForm(formBuilder, current && current.pushConfiguration),
 			pullConfiguration: PullConfiguration.getForm(formBuilder, current && current.pullConfiguration),
 			reliability: SendReliability.getForm(formBuilder, current && current.reliability),

@@ -1,6 +1,7 @@
 /* tslint:disable */
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Parameter } from "./Parameter";
+import { Validators } from '@angular/forms';
 
 export class Method {
 	type: string;
@@ -11,7 +12,7 @@ export class Method {
 
 	static getForm(formBuilder: FormBuilder, current: Method): FormGroup {
 		let form = formBuilder.group({
-			[this.FIELD_type]: [current && current.type],
+			[this.FIELD_type]: [current && current.type, Validators.required],
 			[this.FIELD_parameters]: formBuilder.array(!!!(current && current.parameters) ? [] : current.parameters.map(item => Parameter.getForm(formBuilder, item))),
 		});
 		setTimeout(() => this.setupForm(form));

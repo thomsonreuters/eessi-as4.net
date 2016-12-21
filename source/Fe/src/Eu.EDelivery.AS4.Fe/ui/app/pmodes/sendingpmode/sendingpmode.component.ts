@@ -20,6 +20,7 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
         newPmode.name = newName;
         newPmode.pmode = new SendingProcessingMode();
         newPmode.pmode.id = newName;
+        newPmode.type = 1;
         return newPmode;
     }
     init() {
@@ -54,10 +55,13 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
     setPmode(pmode: string | undefined) {
         this.pmodeStore.setSending(<any>pmode);
     }
-    create(value: any): Observable<boolean> {
+    createPmode(value: any): Observable<boolean> {
         return this.pmodeService.createSending(value);
     }
-    update(value: any, originalName: string): Observable<boolean> {
+    updatePmode(value: any, originalName: string): Observable<boolean> {
         return this.pmodeService.updateSending(value, originalName);
+    }
+    deletePmode(value: any) {
+        this.pmodeService.deleteSending(value);
     }
 }

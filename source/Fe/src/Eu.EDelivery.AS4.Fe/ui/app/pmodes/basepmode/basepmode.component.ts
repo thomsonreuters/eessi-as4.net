@@ -71,6 +71,7 @@ export abstract class BasePmodeComponent<T extends IPmode> {
             .prompt('Please enter a new name')
             .filter(result => !!result)
             .subscribe(newName => {
+                if (this.checkIfExists(newName)) return;
                 this.form.patchValue({ [ReceivingPmode.FIELD_name]: newName });
                 this.form.markAsDirty();
             });
@@ -90,13 +91,14 @@ export abstract class BasePmodeComponent<T extends IPmode> {
         this.dialogService
             .deleteConfirm('pmode')
             .filter(result => result)
-            .subscribe(result => this.pmodeService.deleteReceiving(this.currentPmode.name));
+            .subscribe(result => this.deletePmode(this.currentPmode.name));
     }
     public add() {
         this.dialogService
             .prompt('Please enter a new name', 'New pmode')
             .filter(result => !!result)
             .subscribe(newName => {
+                if (this.checkIfExists(newName)) return;
                 if (!!!newName) return;
                 this.currentPmode = this.newPmode(newName);
                 this.pmodes.push(newName);
@@ -112,7 +114,7 @@ export abstract class BasePmodeComponent<T extends IPmode> {
         }
 
         if (this.isNewMode) {
-            this.create(getRawFormValues(this.form))
+            this.createPmode(getRawFormValues(this.form))
                 .subscribe(() => {
                     this.isNewMode = false;
                     this.form.markAsPristine();
@@ -120,7 +122,7 @@ export abstract class BasePmodeComponent<T extends IPmode> {
             return;
         }
 
-        this.update(getRawFormValues(this.form), this.currentPmode.name)
+        this.updatePmode(getRawFormValues(this.form), this.currentPmode.name)
             .subscribe(() => {
                 this.isNewMode = false;
                 this.form.markAsPristine();
@@ -140,11 +142,16 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     ngAfterViewInit() {
         this.expand();
     }
-    abstract init();
     protected abstract patchForm(formBuilder: FormBuilder, form: FormGroup, pmode: T);
     protected abstract newPmode(newName: string): T;
     protected abstract getPmode(pmode: string);
     protected abstract setPmode(pmode: string | undefined);
-    abstract create(value: any): Observable<boolean>;
-    abstract update(value: any, originalName: string): Observable<boolean>;
+    abstract createPmode(value: any): Observable<boolean>;
+    abstract updatePmode(value: any, originalName: string): Observable<boolean>;
+    abstract deletePmode(value: any);
+    private checkIfExists(name: string): boolean {
+        let exists = this.pmodes.findIndex(pmode => pmode.toLowerCase() === name.toLowerCase()) > -1;
+        if (exists) this.dialogService.message(`Pmode with name ${name} already exists`);
+        return exists;
+    }
 }

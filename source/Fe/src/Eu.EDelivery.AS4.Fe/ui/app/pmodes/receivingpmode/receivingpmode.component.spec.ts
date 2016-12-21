@@ -157,6 +157,16 @@ describe('receiving pmode', () => {
 
             expect((<ReceivingPmode>cmp.form.value).name).toBe(pmode1.name);
         }));
+        it('should not allow a pmode to be renamed to an existing one', inject([ReceivingPmodeComponent, DialogService, PmodeStore], (cmp: ReceivingPmodeComponent, dialogService: DialogService, pmodeStore: PmodeStore) => {
+            pmodeStore.setReceiving(pmode1);
+            cmp.pmodes = pmodes;
+            spyOn(dialogService, 'prompt').and.returnValue(Observable.of(pmode2.name.toUpperCase()));
+            let alreadyExistsDialog = spyOn(dialogService, 'message');
+            cmp.rename();
+
+            expect(cmp.form.get('name').value).toBe(pmode1.name);
+            expect(alreadyExistsDialog).toHaveBeenCalledWith(`Pmode with name ${pmode2.name.toUpperCase()} already exists`);
+        }));
     });
     describe('reset', () => {
         it('should revert to the currentPmode value and mark the form as pristine', inject([ReceivingPmodeComponent, PmodeStore, DialogService], (cmp: ReceivingPmodeComponent, store: PmodeStore, dialogService: DialogService) => {
@@ -230,7 +240,6 @@ describe('receiving pmode', () => {
     describe('add', () => {
         it('should ask the user for a name and set currentPmode and isNew', inject([ReceivingPmodeComponent, DialogService], (cmp: ReceivingPmodeComponent, dialogService: DialogService) => {
             let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of('new'));
-            let formSpy = spyOn(cmp.form, 'markAsDirty');
             cmp.pmodes = pmodes;
 
             cmp.add();
@@ -239,7 +248,17 @@ describe('receiving pmode', () => {
             expect(cmp.currentPmode.name).toBe('new');
             expect(cmp.currentPmode.pmode.id).toBe('new');
             expect((<ReceivingPmode>cmp.form.value).name).toBe('new');
-            expect(formSpy).toHaveBeenCalled();
+            expect(cmp.form.dirty).toBeTruthy();
+        }));
+        it('should not allow a pmode with an already existing name', inject([ReceivingPmodeComponent, DialogService], (cmp: ReceivingPmodeComponent, dialogService: DialogService) => {
+            let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of(pmode1.name.toUpperCase()));
+            let existsSpy = spyOn(dialogService, 'message');
+            cmp.pmodes = pmodes;
+
+            cmp.add();
+
+            expect(cmp.isNewMode).toBeFalsy();
+            expect(existsSpy).toHaveBeenCalledWith(`Pmode with name ${pmode1.name.toUpperCase()} already exists`);
         }));
     });
     describe('save', () => {
@@ -249,6 +268,13 @@ describe('receiving pmode', () => {
             let dialogSpy = spyOn(dialogService, 'prompt').and.returnValue(Observable.of(newName));
             let serviceSpy = spyOn(pmodeService, 'createReceiving').and.returnValue(Observable.of(true));
             cmp.add();
+            let formSpy = {
+                invalid: false,
+                markAsPristine: () => { },
+                disable: () => { },
+                enable: () => { }
+            };
+            cmp.form = <any>formSpy;
 
             cmp.save();
 
@@ -259,7 +285,13 @@ describe('receiving pmode', () => {
             cmp.pmodes = pmodes;
             pmodeStore.setReceiving(pmode1);
             let serviceSpy = spyOn(pmodeService, 'updateReceiving').and.returnValue(Observable.of(true));
-            cmp.form.markAsDirty();
+            let formSpy = {
+                invalid: false,
+                markAsPristine: () => { },
+                disable: () => { },
+                enable: () => { }
+            };
+            cmp.form = <any>formSpy;
 
             cmp.save();
 

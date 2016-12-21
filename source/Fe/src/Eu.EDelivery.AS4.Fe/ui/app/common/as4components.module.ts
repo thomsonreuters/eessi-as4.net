@@ -46,7 +46,7 @@ import { SelectDirective } from './selectdirective';
         MustBeAuthorizedGuard,
         DialogService,
         ModalService,
-        LOGGING_ERROR_HANDLER_PROVIDER
+        // LOGGING_ERROR_HANDLER_PROVIDER
     ],
     exports: [
         BoxComponent,

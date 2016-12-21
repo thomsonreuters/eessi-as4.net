@@ -49,7 +49,11 @@ namespace Eu.EDelivery.AS4.Fe
 
             services.AddApplicationInsightsTelemetry(Configuration);
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                //options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Ignore;
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+            });
             services.AddSwaggerGen();
             services.AddAutoMapper();
             services.AddSingleton<ILogging, Logging.Logging>();

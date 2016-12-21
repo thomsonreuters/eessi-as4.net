@@ -28,6 +28,7 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
         newPmode.name = newName;
         newPmode.pmode = new ReceivingProcessingMode();
         newPmode.pmode.id = newName;
+        newPmode.type = 0;
         return newPmode;
     }
     init() {
@@ -62,10 +63,13 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
     setPmode(pmode: string | undefined) {
         this.pmodeStore.setReceiving(<any>pmode);
     }
-    create(value: any): Observable<boolean> {
+    createPmode(value: any): Observable<boolean> {
         return this.pmodeService.createReceiving(value);
     }
-    update(value: any, originalName: string): Observable<boolean> {
+    updatePmode(value: any, originalName: string): Observable<boolean> {
         return this.pmodeService.updateReceiving(value, originalName);
+    }
+    deletePmode(value: any) {
+        this.pmodeService.deleteReceiving(value);
     }
 }
