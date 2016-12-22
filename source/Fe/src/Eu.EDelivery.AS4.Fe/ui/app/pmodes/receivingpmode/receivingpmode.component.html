@@ -1,36 +1,50 @@
 <form [formGroup]="form" class="form-horizontal">
     <div formGroupName="pmode">
         <as4-box>
-            <div content class="col-md-6 col-xs-12">
-                <as4-input label="Name">
-                    <div class="input-group">
+            <!--<div content class="col-md-6 col-xs-12">
+                <div class="form-group">
+                    <label class="control-label col-xs-6"><b>Name</b></label>
+                    <div class="input-group col-xs-12 col-md-6">
                         <select class="form-control select-pmode" (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name"
                             #pmodeSelect>
                             <option value="undefined">Select an option</option>
                             <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.name)">{{currentPmode && currentPmode.name === pmode && !!form && !!form.controls ? form.controls.name.value : pmode}}</option>
                         </select>
-                        <div class="input-group-btn" crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()"
-                            (save)="save()" [current]="currentPmode" [isNewMode]="isNewMode"></div>
+                        <div class="input-group-btn col-xs-12 col-md-6" crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()"
+                            (delete)="delete()" (save)="save()" [current]="currentPmode" [isNewMode]="isNewMode"></div>
                     </div>
+                </div>
+            </div>-->
+            <div content>
+                <as4-input label="Name">
+                    <as4-columns noMargin="true">
+                        <select class="form-control select-pmode" (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name"
+                            #pmodeSelect>
+                            <option value="undefined">Select an option</option>
+                            <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.name)">{{currentPmode && currentPmode.name === pmode && !!form && !!form.controls ? form.controls.name.value : pmode}}</option>
+                        </select>
+                        <div crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()" (save)="save()" [current]="currentPmode"
+                            [isNewMode]="isNewMode"></div>
+                    </as4-columns>
                 </as4-input>
             </div>
         </as4-box>
         <as4-tab>
             <div tabitem title="Common">
-                <as4-input label="Message exchange pattern" labelSize="2" controlSize="4">
+                <as4-input label="Message exchange pattern">
                     <select formControlName="mep">
                         <option value="0">One way</option>
                         <option value="1">Two way</option>
                     </select>
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern binding">
+                <as4-input label="Message exchange pattern binding">
                     <select formControlName="mepBinding">
                         <option value="0">Pull</option>
                         <option value="1">Push</option>
                     </select>
                 </as4-input>
                 <div formGroupName="reliability">
-                    <as4-input labelSize="2" controlSize="4" label="Reliability - duplicate elimination" formGroupName="duplicateElimination">
+                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
                 </div>
@@ -39,7 +53,7 @@
                 <as4-message-packaging [form]="form.controls.pmode.controls.messagePackaging"></as4-message-packaging>
             </div>
             <div title="Security" tabitem formGroupName="security" [isValid]="!!!currentPmode || form.controls.pmode.controls.security.valid">
-                <as4-input labelSize="2" controlSize="4" label="Signing verification" formGroupName="signingVerification">
+                <as4-input label="Signing verification" formGroupName="signingVerification">
                     <select formControlName="signature">
                         <option value="0">Allowed</option>
                         <option value="1">Not allowed</option>
@@ -47,7 +61,7 @@
                         <option value="3">Ignored</option>
                     </select>
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Decryption" formGroupName="decryption">
+                <as4-input label="Decryption" formGroupName="decryption">
                     <select formControlName="encryption" #selectedEncryption>
                         <option value="0">Allowed</option>
                         <option value="1">Not allowed</option>
@@ -56,10 +70,10 @@
                     </select>
                 </as4-input>
                 <div formGroupName="decryption">
-                    <as4-input labelSize="2" controlSize="4" label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
+                    <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
                         <input type="text" formControlName="privateKeyFindValue" />
                     </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
+                    <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'">
                         <select formControlName="privateKeyFindType">
                             <option value="0">Find by thumbprint</option>
                             <option value="1">Find by subject name</option>
@@ -81,7 +95,7 @@
                 </div>
             </div>
             <div title="Deliver" tabitem formGroupName="deliver" [isValid]="!!!currentPmode || form.controls.pmode.controls.deliver.valid">
-                <as4-input labelSize="2" controlSize="4" label="Is enabled">
+                <as4-input label="Is enabled">
                     <input type="checkbox" formControlName="isEnabled" />
                 </as4-input>
                 <as4-method label="Payload reference method" [group]="form.controls.pmode.controls.deliver.controls.payloadReferenceMethod"
@@ -89,44 +103,44 @@
                 <as4-method label="Deliver method" [group]="form.controls.pmode.controls.deliver.controls.deliverMethod" [types]="deliverSenders"></as4-method>
             </div>
             <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.receiptHandling.valid">
-                <as4-input labelSize="2" controlSize="4" label="Use NNR format">
+                <as4-input label="Use NNR format">
                     <input type="checkbox" formControlName="useNNRFormat" />
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Reply pattern">
+                <as4-input label="Reply pattern">
                     <select formControlName="replyPattern">
                         <option value="0">Response</option>
                         <option value="1">Callback</option>
                     </select>
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Callback url" *ngIf="form.controls.pmode.controls.receiptHandling.controls.callbackUrl.enabled">
+                <as4-input label="Callback url" *ngIf="form.controls.pmode.controls.receiptHandling.controls.callbackUrl.enabled">
                     <input type="text" formControlName="callbackUrl" />
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Sending PMode">
+                <as4-input label="Sending PMode">
                     <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
                 </as4-input>
             </div>
             <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.errorHandling.valid">
-                <as4-input labelSize="2" controlSize="4" label="Use soap fault">
+                <as4-input label="Use soap fault">
                     <input type="checkbox" formControlName="useSoapFault">
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Reply pattern">
+                <as4-input label="Reply pattern">
                     <select formControlName="replyPattern">
                         <option value="0">Response</option>
                         <option value="1">Callback</option>
                     </select>
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Callback url">
+                <as4-input label="Callback url">
                     <input type="text" formControlName="callbackUrl">
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Response http code">
+                <as4-input label="Response http code">
                     <input type="text" formControlName="responseHttpCode">
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Sending pmode">
+                <as4-input label="Sending pmode">
                     <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
                 </as4-input>
             </div>
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.exceptionHandling.valid">
-                <as4-input labelSize="2" controlSize="4" label="Notify message consumer">
+                <as4-input label="Notify message consumer">
                     <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
                 </as4-input>
                 <as4-method label="Notify method" [group]="form.controls.pmode.controls.exceptionHandling.controls.notifyMethod" [types]="deliverSenders"></as4-method>

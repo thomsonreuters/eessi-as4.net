@@ -8,7 +8,7 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     selector: 'as4-party',
     template: `
         <div [formGroup]="group">
-            <as4-input [label]="label" labelSize="2" controlSize="4" formArrayName="partyIds">
+            <as4-input [label]="label" formArrayName="partyIds">
                 <div class="item-container" *ngIf="group.controls.partyIds.controls.length === 0">
                     <button class="action add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                 </div>
@@ -21,7 +21,7 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
                     </div>
                 </div>
             </as4-input>
-            <as4-input label="Role" labelSize="2" controlSize="4">
+            <as4-input label="Role">
                 <input type="text" formControlName="role"/>
             </as4-input>
         </div>

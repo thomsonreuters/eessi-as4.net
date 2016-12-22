@@ -10,13 +10,13 @@ import { ItemType } from './../../api/ItemType';
     selector: 'as4-method',
     template: ` 
         <div [formGroup]="group">
-            <as4-input [label]="label" labelSize="2" controlSize="4">
+            <as4-input [label]="label">
                 <select class="form-control" (change)="typeChanged($event.target.value)" formControlName="type">
                     <option>Select a value</option>
                     <option *ngFor="let type of types" [value]="type.name">{{type.name}}</option>
                 </select>
             </as4-input>
-            <as4-input label="Method parameters" labelSize="2" controlSize="4" *ngIf="group.controls.parameters.controls.length > 0">
+            <as4-input label="Method parameters" *ngIf="group.controls.parameters.controls.length > 0">
                 <table class="table table-condensed" formArrayName="parameters">
                     <tr>
                         <th>Name</th>

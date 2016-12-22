@@ -17,16 +17,16 @@
         </as4-box>
         <as4-tab>
             <div tabitem title="Common" [isValid]="!!!currentPmode || form.controls.pmode.controls.id.valid || form.controls.pmode.controls.allowOverride.valid || form.controls.pmode.controls.mep.valid || form.controls.pmode.controls.mepBinding.valid || form.controls.pmode.controls.messagePackaging.valid">
-                <as4-input labelSize="2" controlSize="4" label="Allow override">
+                <as4-input label="Allow override">
                     <input type="checkbox" formControlName="allowOverride" />
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern">
+                <as4-input label="Message exchange pattern">
                     <select formControlName="mep">
                         <option value="0">One way</option>
                         <option value="1">Two way</option>
                     </select>
                 </as4-input>
-                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern binding">
+                <as4-input label="Message exchange pattern binding">
                     <select formControlName="mepBinding">
                         <option value="0">Pull</option>
                         <option value="1">Push</option>
@@ -34,33 +34,33 @@
                 </as4-input>
 
                 <div formGroupName="messagePackaging">
-                    <as4-input label="Use AS4 compression" labelSize="2" controlSize="4">
+                    <as4-input label="Use AS4 compression">
                         <input type="checkbox" formControlName="useAS4Compression" />
                     </as4-input>
-                    <as4-input label="Multi hop mpc" labelSize="2" controlSize="4">
+                    <as4-input label="Multi hop mpc">
                         <input type="checkbox" formControlName="isMultiHop" />
                     </as4-input>
-                    <as4-input label="Include pmode id" labelSize="2" controlSize="4">
+                    <as4-input label="Include pmode id">
                         <input type="checkbox" formControlName="includePModeId" />
                     </as4-input>
                 </div>
             </div>
             <div tabitem title="Push" formGroupName="pushConfiguration" [isValid]="!!!currentPmode || form.controls.pmode.controls.pushConfiguration.valid">
                 <h5>Protocol</h5>
-                <as4-input label="Url" labelSize="2" controlSize="4" formGroupName="protocol">
+                <as4-input label="Url" formGroupName="protocol">
                     <input type="text" formControlName="url" />
                 </as4-input>
-                <as4-input label="Use chunking" labelSize="2" controlSize="4" formGroupName="protocol">
+                <as4-input label="Use chunking" formGroupName="protocol">
                     <input type="checkbox" formControlName="useChunking" />
                 </as4-input>
-                <as4-input label="Use http compression" labelSize="2" controlSize="4" formGroupName="protocol">
+                <as4-input label="Use http compression" formGroupName="protocol">
                     <input type="checkbox" formControlName="useHttpCompression" />
                 </as4-input>
                 <h5>Tls configuration</h5>
-                <as4-input label="Enabled" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                <as4-input label="Enabled" formGroupName="tlsConfiguration">
                     <input type="checkbox" formControlName="isEnabled" />
                 </as4-input>
-                <as4-input label="Tls version" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                <as4-input label="Tls version" formGroupName="tlsConfiguration">
                     <select formControlName="tlsVersion">
                         <option value="0">Ssl30</option>
                         <option value="1">Tls10</option>
@@ -69,7 +69,7 @@
                     </select>
                 </as4-input>
                 <h5>Tls client certificate</h5>
-                <as4-input label="Client certificate find type" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                <as4-input label="Client certificate find type" formGroupName="tlsConfiguration">
                     <div formGroupName="clientCertificateReference">
                         <select formControlName="clientCertificateFindType">
                             <option value="0">Find by thumbprint</option>
@@ -90,14 +90,14 @@
                         </select>
                     </div>
                 </as4-input>
-                <as4-input label="Certificate find value" labelSize="2" controlSize="4" formGroupName="tlsConfiguration">
+                <as4-input label="Certificate find value" formGroupName="tlsConfiguration">
                     <div formGroupName="clientCertificateReference">
                         <input type="text" formControlName="clientCertificateFindValue" />
                     </div>
                 </as4-input>
             </div>
             <div tabitem title="Pull" formGroupName="pullConfiguration" [isValid]="!!!currentPmode || form.controls.pmode.controls.pullConfiguration.valid">
-                <as4-input label="Sub channel" labelSize="2" controlSize="4">
+                <as4-input label="Sub channel">
                     <input type="text" formControlName="subChannel" />
                 </as4-input>
             </div>
@@ -106,13 +106,13 @@
             </div>
             <div tabitem title="Security" formGroupName="security" [isValid]="!!!currentPmode || form.controls.pmode.controls.security.controls.signing.valid">
                 <div formGroupName="signing">
-                    <as4-input label="Enabled" labelSize="2" controlSize="4">
+                    <as4-input label="Enabled">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
-                    <as4-input label="Private key find value" labelSize="2" controlSize="4">
+                    <as4-input label="Private key find value">
                         <input type="text" formControlName="privateKeyFindValue" />
                     </as4-input>
-                    <as4-input label="Private key find type" labelSize="2" controlSize="4">
+                    <as4-input label="Private key find type">
                         <select formControlName="privateKeyFindType">
                             <option value="0">Find by thumbprint</option>
                             <option value="1">Find by subject name</option>
@@ -131,48 +131,48 @@
                             <option value="14">Find by subject key identifier</option>
                         </select>
                     </as4-input>
-                    <as4-input label="Key reference method" labelSize="2" controlSize="4">
+                    <as4-input label="Key reference method">
                         <select formControlName="keyReferenceMethod">
                             <option value="0">BSTReference</option>
                             <option value="1">KeyIdentifier</option>
                             <option value="2">IssuerSerial</option>
                         </select>
                     </as4-input>
-                    <as4-input label="Algorithm" labelSize="2" controlSize="4">
+                    <as4-input label="Algorithm">
                         <input type="text" formControlName="algorithm" />
                     </as4-input>
-                    <as4-input label="HashFunction" labelSize="2" controlSize="4">
+                    <as4-input label="HashFunction">
                         <input type="text" formControlName="hashFunction" />
                     </as4-input>
                 </div>
             </div>
             <div tabitem title="Reliability" formGroupName="reliability" [isValid]="!!!currentPmode || form.controls.pmode.controls.reliability.valid">
                 <div formGroupName="receptionAwareness">
-                    <as4-input label="Reception awareness" labelSize="2" controlSize="4">
+                    <as4-input label="Reception awareness">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
-                    <as4-input label="Retry count" labelSize="2" controlSize="4">
+                    <as4-input label="Retry count">
                         <input type="number" formControlName="retryCount" />
                     </as4-input>
-                    <as4-input label="Retry interval" labelSize="2" controlSize="4">
+                    <as4-input label="Retry interval">
                         <input type="number" formControlName="retryInterval" />
                     </as4-input>
                 </div>
             </div>
             <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.receiptHandling.valid">
-                <as4-input label="Notify message producer" labelSize="2" controlSize="4">
+                <as4-input label="Notify message producer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" [group]=" form.controls.pmode.controls.receiptHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
             </div>
             <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.errorHandling.valid">
-                <as4-input label="Notify message producer" labelSize="2" controlSize="4">
+                <as4-input label="Notify message producer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" [group]=" form.controls.pmode.controls.errorHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
             </div>
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.exceptionHandling.valid">
-                <as4-input label="Notify message producer" labelSize="2" controlSize="4">
+                <as4-input label="Notify message producer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" [group]=" form.controls.pmode.controls.exceptionHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
