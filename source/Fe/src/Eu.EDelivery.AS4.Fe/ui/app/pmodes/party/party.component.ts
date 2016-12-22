@@ -8,48 +8,47 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     selector: 'as4-party',
     template: `
         <div [formGroup]="group">
-            <as4-input [label]="label" labelSize="2" controlSize="4">
-                <table class="table table-condensed" formArrayName="partyIds">                   
-                    <tr *ngIf="group.controls.partyIds.controls.length === 0">
-                        <td class="party-actions padding-fix">
-                            <button class="add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">                       
-                        <td><input type="text" class="form-control" formControlName="id"/></td>
-                        <td><input type="text" class="form-control" formControlName="type"/></td>
-                        <td class="party-actions">
-                            <button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
-                            <button [disabled]="group.disabled" *ngIf="i === (group.controls.partyIds.controls.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button spacing"><i class="fa fa-plus"></i></button>
-                        </td>
-                    </tr>
-                </table>
+            <as4-input [label]="label" labelSize="2" controlSize="4" formArrayName="partyIds">
+                <div class="item-container" *ngIf="group.controls.partyIds.controls.length === 0">
+                    <button class="action add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
+                </div>
+                <div class="item-container" *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">
+                    <div class="item input"><input type="text" placeholder="id" formControlName="id"/></div>
+                    <div class="item input"><input type="text" placeholder="type" formControlName="type"/></div>
+                    <div class="item actions">
+                        <button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
+                        <button [disabled]="group.disabled" *ngIf="i === (group.controls.partyIds.controls.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button spacing"><i class="fa fa-plus"></i></button>
+                    </div>
+                </div>
             </as4-input>
             <as4-input label="Role" labelSize="2" controlSize="4">
-                <input type="text" class="form-control" formControlName="role"/>
+                <input type="text" formControlName="role"/>
             </as4-input>
         </div>
     `,
     styles: [
         `
-        .party-actions {
-            width: 2à%;
+        @media screen and (max-width: 959px) {
+            .item {
+                margin-top: 9px;
+            }
         }
-
-        table {
-            margin-bottom: 0;
-        }
-
-        tr > td {
-            padding: 0;
-            padding-right: 5px;
-            border-top: 0;
-        }
-    
-        tr:not(:last-child) > td {
-            padding-bottom: 5px;
+        @media screen and (min-width: 960px) {
+            .item-container {
+                display: flex;
+                padding-left: 0;
+                margin-top: 5px;
+            }
+            .item {
+                margin-right: 11px;
+                flex: 1;
+            }
+            .actions {
+                text-align: right;
+                margin-right: 0;
+                flex: 0 auto;
+                min-width: 77px;
+            }
         }
     `]
 })

@@ -19,4 +19,22 @@ form {
         padding-bottom: 1px;
         margin-bottom: 1px;
     }
+
+    .table {
+        margin-bottom: 0;
+        tr > td {
+            padding: 0;
+            padding-right: 5px;
+            border-top: 0;
+        }
+
+        tr > td:last-child {
+            padding-right: 0;
+            text-align: right;
+        }
+    
+        tr:not(:last-child) > td {
+            padding-bottom: 5px;
+        }
+    }
 }

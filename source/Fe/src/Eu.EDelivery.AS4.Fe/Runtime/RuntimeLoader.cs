@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         public IEnumerable<ItemType> Transformers { get; private set; }
         public IEnumerable<ItemType> CertificateRepositories { get; private set; }
         public IEnumerable<ItemType> DeliverSenders { get; private set; }
+        public IEnumerable<ItemType> ReceivingPmode { get; private set; }
 
         public RuntimeLoader(string folder)
         {
@@ -32,6 +33,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             Transformers = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Transformers.ITransformer");
             CertificateRepositories = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Repositories.ICertificateRepository");
             DeliverSenders = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender");
+            ReceivingPmode = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Model.PMode.IPMode");
 
             return this;
         }
@@ -62,7 +64,6 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 
         private ItemType BuildItemType(TypeDefinition itemType, IEnumerable<Property> properties)
         {
-
             // Get class info attribute
             var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute);
 
@@ -76,38 +77,45 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 
         private IEnumerable<Property> BuildProperties(Collection<PropertyDefinition> properties)
         {
-            var runtimeProperties = properties
-                //.Where(prop => prop.GetMethod.IsPublic)
-                .Select(prop =>
+            foreach (var prop in properties)
+            {
+                var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute);
+                var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute);
+                Property property = null;
+                if (customAttr == null)
                 {
-                    var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute);
-                    var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute);
-                    if (customAttr == null)
+                    property = new Property
                     {
-                        return null;
-                        // No CustomAttribute found, use defaults which mean using the property info
-                        //return new Property()
-                        //{
-                        //    FriendlyName = prop.Name,
-                        //    Type = prop.PropertyType.Name
-                        //};
-                    }
-                    else
+                        FriendlyName = prop.Name,
+                        Type = prop.PropertyType.Name
+                    };
+                }
+                else
+                {
+                    var arguments = customAttr.ConstructorArguments;
+                    var descriptionArgs = descriptionAttr?.ConstructorArguments;
+                    var count = arguments.Count;
+                    property = new Property()
                     {
-                        var arguments = customAttr.ConstructorArguments;
-                        var descriptionArgs = descriptionAttr?.ConstructorArguments;
-                        var count = arguments.Count;
-                        return new Property()
-                        {
-                            FriendlyName = arguments[0].Value as string,
-                            Regex = count > 2 ? arguments[1].Value as string : "",
-                            Type = count > 1 ? arguments[2].Value as string : "",
-                            Description = descriptionArgs?.Count > 0 ? descriptionArgs[0].Value as string : ""
-                        };
-                    }
-                });
+                        FriendlyName = arguments[0].Value as string,
+                        Regex = count > 2 ? arguments[1].Value as string : "",
+                        Type = count > 1 ? arguments[2].Value as string : "",
+                        Description = descriptionArgs?.Count > 0 ? descriptionArgs[0].Value as string : ""
+                    };
+                }
 
-            return runtimeProperties.Where(x => x != null);
+                if (prop.PropertyType.Namespace != "System")
+                {
+                    var typeDef = prop.PropertyType as TypeDefinition;
+                    if (typeDef != null)
+                    {
+                        // Go through the properties
+                        property.Properties = BuildProperties(typeDef.Properties);
+                    }
+                }
+
+                yield return property;
+            }
         }
     }
 }

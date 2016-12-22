@@ -1,3 +1,4 @@
+import { MessagePackagingComponent } from './messagepackaging/messagepackaging.component';
 import { SendingPmodeComponent } from './sendingpmode/sendingpmode.component';
 import { PartyComponent } from './party/party.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -20,7 +21,8 @@ import { ROUTES } from './pmodes.routes';
         SendingPmodeComponent,
         PmodeSelectComponent,
         MethodComponent,
-        PartyComponent
+        PartyComponent,
+        MessagePackagingComponent
     ],
     providers: [
         PmodeStore,

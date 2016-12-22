@@ -17,7 +17,7 @@
         </as4-box>
         <as4-tab>
             <div tabitem title="Common">
-                <as4-input labelSize="2" controlSize="4" label="Message exchange pattern">
+                <as4-input label="Message exchange pattern" labelSize="2" controlSize="4">
                     <select formControlName="mep">
                         <option value="0">One way</option>
                         <option value="1">Two way</option>
@@ -35,35 +35,8 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Message packaging" formGroupName="messagePackaging" [isValid]="!!!currentPmode || form.controls.pmode.controls.messagePackaging.valid">
-                <as4-party label="From party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.fromParty"></as4-party>
-                <as4-party label="To party" [group]="form.controls.pmode.controls.messagePackaging.controls.partyInfo.controls.toParty"></as4-party>
-
-                <h5>Service</h5>
-                <div formGroupName="collaborationInfo">
-                    <as4-input labelSize="2" controlSize="4" label="Action">
-                        <input type="text" formControlName="action" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="service">
-                        <input type="text" formControlName="value" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="service">
-                        <input type="text" formControlName="type" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Conversation id">
-                        <input type="text" formControlName="conversationId" />
-                    </as4-input>
-                    <h5>Agreement reference</h5>
-                    <as4-input labelSize="2" controlSize="4" label="Value" formGroupName="agreementReference">
-                        <input type="text" formControlName="value" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="Type" formGroupName="agreementReference">
-                        <input type="text" formControlName="type" />
-                    </as4-input>
-                    <as4-input labelSize="2" controlSize="4" label="PmodeId" formGroupName="agreementReference">
-                        <input type="text" formControlName="pModeId" />
-                    </as4-input>
-                </div>
+            <div tabitem title="Message packaging" [isValid]="!!!currentPmode || form.controls.pmode.controls.messagePackaging.valid">
+                <as4-message-packaging [form]="form.controls.pmode.controls.messagePackaging"></as4-message-packaging>
             </div>
             <div title="Security" tabitem formGroupName="security" [isValid]="!!!currentPmode || form.controls.pmode.controls.security.valid">
                 <as4-input labelSize="2" controlSize="4" label="Signing verification" formGroupName="signingVerification">

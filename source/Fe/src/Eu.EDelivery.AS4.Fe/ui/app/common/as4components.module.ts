@@ -1,3 +1,4 @@
+import { ColumnsComponent } from './columns/columns.component';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -40,7 +41,8 @@ import { SelectDirective } from './selectdirective';
         TabComponent,
         TabItemComponent,
         TextDirective,
-        SelectDirective
+        SelectDirective,
+        ColumnsComponent
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -63,7 +65,8 @@ import { SelectDirective } from './selectdirective';
         TabComponent,
         TabItemComponent,
         TextDirective,
-        SelectDirective
+        SelectDirective,
+        ColumnsComponent
     ],
     imports: [
         AuthenticationModule,

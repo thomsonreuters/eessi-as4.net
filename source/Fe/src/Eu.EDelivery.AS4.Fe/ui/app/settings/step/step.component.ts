@@ -26,7 +26,7 @@ import { Step } from './../../api/Step';
                             <th></th>
                             <th></th>
                             <th>Type</th>
-                            <th>Undecorated?</th>
+                            <th class="col-md-1">Undecorated?</th>
                         </tr>
                         <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>
@@ -35,7 +35,9 @@ import { Step } from './../../api/Step';
                                 <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                                 </select>
-                                <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.controls.type.value"></as4-runtime-settings>
+                                <div class="settings">
+                                    <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.controls.type.value"></as4-runtime-settings>
+                                </div>
                             </td>
                             <td><input type="checkbox" formControlName="unDecorated"></td>
                         </tr>
