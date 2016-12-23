@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.ComponentModel;
+using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -46,6 +47,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class DuplicateElimination
     {
+        [Description("Do not allow duplicate messages")]
         public bool IsEnabled { get; set; }
 
         public DuplicateElimination()

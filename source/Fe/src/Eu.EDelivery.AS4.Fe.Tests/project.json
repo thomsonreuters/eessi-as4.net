@@ -14,7 +14,11 @@
     "platform": "anycpu",
     "preserveCompilationContext": true,
     "copyToOutput": [
-      "Eu.EDelivery.AS4.Receivers.dll"
+      "Eu.EDelivery.AS4.Receivers.dll",
+      "metadata_sendingprocessingmode.json",
+      "metadata_sendingprocessingmode_noprops.json",
+      "metadata_sendingprocessingmode_flatten.json"
+
     ]
   },
   "frameworks": {

@@ -1,3 +1,4 @@
+import { TooltipDirective } from './tooltip.directive';
 import { ColumnsComponent } from './columns/columns.component';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -12,7 +13,6 @@ import { HeaderComponent } from './header/header.component';
 import { AuthenticationModule } from './../authentication/authentication.module';
 import { InputComponent } from './input/input.component';
 import { InfoComponent } from './info/info.component';
-import { TooltipDirective } from './tooltip.directive';
 import { DialogService } from './dialog.service';
 import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
 import { RuntimeSettingsComponent } from './runtimesettings/runtimesettings.component';
@@ -33,7 +33,6 @@ import { SelectDirective } from './selectdirective';
         HeaderComponent,
         InputComponent,
         InfoComponent,
-        TooltipDirective,
         RuntimeSettingsComponent,
         CrudButtonsComponent,
         ModalComponent,
@@ -42,7 +41,8 @@ import { SelectDirective } from './selectdirective';
         TabItemComponent,
         TextDirective,
         SelectDirective,
-        ColumnsComponent
+        ColumnsComponent,
+        TooltipDirective
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -57,7 +57,6 @@ import { SelectDirective } from './selectdirective';
         HeaderComponent,
         InputComponent,
         InfoComponent,
-        TooltipDirective,
         RuntimeSettingsComponent,
         CrudButtonsComponent,
         ModalComponent,
@@ -66,7 +65,8 @@ import { SelectDirective } from './selectdirective';
         TabItemComponent,
         TextDirective,
         SelectDirective,
-        ColumnsComponent
+        ColumnsComponent,
+        TooltipDirective
     ],
     imports: [
         AuthenticationModule,

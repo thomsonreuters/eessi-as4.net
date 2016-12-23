@@ -10,6 +10,7 @@ interface State {
     transformers: Array<ItemType>;
     certificateRepositories: Array<ItemType>;
     deliverSenders: Array<ItemType>;
+    runtimeMetaData: Array<any>;
 }
 
 @Injectable()
@@ -20,7 +21,8 @@ export class RuntimeStore extends Store<State> {
             steps: Array<ItemType>(),
             transformers: Array<ItemType>(),
             certificateRepositories: Array<ItemType>(),
-            deliverSenders: Array<ItemType>()
+            deliverSenders: Array<ItemType>(),
+            runtimeMetaData: Array<ItemType>()
         });
     }
 }

@@ -8,7 +8,6 @@ export class TooltipDirective implements OnInit {
     constructor(private renderer: Renderer, private elementRef: ElementRef) {
         renderer.setElementAttribute(elementRef.nativeElement, 'data-toggle', 'tooltip');
         renderer.setElementClass(elementRef.nativeElement, 'as4-tooltip', true);
-
     }
     public ngOnInit() {
         this.renderer.setElementAttribute(this.elementRef.nativeElement, 'title', this.input);

@@ -1,10 +1,12 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, AfterViewInit, SimpleChanges } from '@angular/core';
+
+import { RuntimeStore } from './../../settings/runtime.store';
 
 @Component({
     selector: 'as4-input',
     template: `
         <div class="form-group" [class.isBoldLabel]="isLabelBold">
-            <label class="control-label col-xs-12 col-md-{{labelSize}}" *ngIf="showLabel">{{label}}<ng-content select="[label]"></ng-content></label>
+            <label class="control-label col-xs-12 col-md-{{labelSize}}" *ngIf="showLabel">{{label}}<as4-info class="tooltip-info" [tooltip]="tooltip"></as4-info><ng-content select="[label]"></ng-content></label>
             <div class="col-xs-12 col-md-{{controlSize}}">
                 <ng-content></ng-content>
             </div>
@@ -14,6 +16,9 @@ import { Component, Input } from '@angular/core';
         .isBoldLabel > label {
             font-weight: bold;
         }
+        .tooltip-info {
+            margin-left: 5px;
+        }
     `]
 })
 export class InputComponent {
@@ -22,4 +27,26 @@ export class InputComponent {
     @Input() labelSize: number = 3;
     @Input() controlSize: number = 5;
     @Input() showLabel: boolean = true;
+    @Input() tooltip: string;
+    @Input() runtimeTooltip: string;
+    constructor(private _runtimeStore: RuntimeStore) {
+
+    }
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['runtimeTooltip'] && changes['runtimeTooltip'].currentValue) {
+            this._runtimeStore
+                .changes
+                .filter(state => !!state && !!state.runtimeMetaData)
+                .map(state => state.runtimeMetaData)
+                .subscribe(result => {
+                    this.tooltip = this.resolve(`${this.runtimeTooltip}.description`, result);
+                });
+        }
+    }
+
+    private resolve(path: string, obj: any) {
+        return path.split('.').reduce(function (prev, curr) {
+            return prev ? prev[curr] : undefined;
+        }, obj || self);
+    }
 }

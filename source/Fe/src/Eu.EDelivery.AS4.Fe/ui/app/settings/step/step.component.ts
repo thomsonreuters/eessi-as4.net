@@ -18,7 +18,7 @@ import { Step } from './../../api/Step';
                     <option *ngFor="let step of decorators" [value]="step.technicalName">{{step.name}}</option>
                 </select>
             </as4-input>
-            <div>
+            <as4-input showLabel="false">
                 <p><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
                 <table formArrayName="step" class="table table-condensed" *ngIf="group.controls.step.controls.length > 0">
                     <tbody [sortablejs]="group.controls.step" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved}">
@@ -43,7 +43,7 @@ import { Step } from './../../api/Step';
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </as4-input>
         </div>
     `,
     styles: [

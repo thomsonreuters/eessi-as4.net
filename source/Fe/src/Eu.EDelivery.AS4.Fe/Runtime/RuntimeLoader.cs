@@ -64,12 +64,13 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 
         private ItemType BuildItemType(TypeDefinition itemType, IEnumerable<Property> properties)
         {
-            // Get class info attribute
-            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute);
+            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute)?.ConstructorArguments;
+            var descriptionAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute)?.ConstructorArguments;
 
             return new ItemType()
             {
-                Name = infoAttribute == null ? itemType.Name : infoAttribute.ConstructorArguments[0].Value as string,
+                Name = infoAttribute == null ? itemType.Name : infoAttribute[0].Value as string,
+                Description = descriptionAttribute == null ? string.Empty : descriptionAttribute.Count > 0 ? descriptionAttribute[0].Value as string : string.Empty,
                 TechnicalName = $"{itemType.FullName}, {itemType.Module.Assembly.FullName}",
                 Properties = properties
             };
@@ -79,30 +80,16 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             foreach (var prop in properties)
             {
-                var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute);
-                var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute);
-                Property property = null;
-                if (customAttr == null)
+                var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute)?.ConstructorArguments;
+                var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute)?.ConstructorArguments;
+                Property property = new Property
                 {
-                    property = new Property
-                    {
-                        FriendlyName = prop.Name,
-                        Type = prop.PropertyType.Name
-                    };
-                }
-                else
-                {
-                    var arguments = customAttr.ConstructorArguments;
-                    var descriptionArgs = descriptionAttr?.ConstructorArguments;
-                    var count = arguments.Count;
-                    property = new Property()
-                    {
-                        FriendlyName = arguments[0].Value as string,
-                        Regex = count > 2 ? arguments[1].Value as string : "",
-                        Type = count > 1 ? arguments[2].Value as string : "",
-                        Description = descriptionArgs?.Count > 0 ? descriptionArgs[0].Value as string : ""
-                    };
-                }
+                    FriendlyName = customAttr != null ? customAttr[0].Value as string : prop.Name,
+                    TechnicalName = prop.Name,
+                    Regex = customAttr != null ? customAttr.Count > 1 ? customAttr[1].Value as string : string.Empty : string.Empty,
+                    Type = customAttr != null && customAttr.Count > 2 ? customAttr[2].Value as string : prop.PropertyType.Name,
+                    Description = descriptionAttr != null ? descriptionAttr.Count > 0 ? descriptionAttr[0].Value as string : string.Empty : string.Empty
+                };
 
                 if (prop.PropertyType.Namespace != "System")
                 {

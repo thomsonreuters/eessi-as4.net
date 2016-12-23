@@ -1,3 +1,5 @@
+import { Observer } from 'rxjs/Observer';
+import { Subject } from 'rxjs/Subject';
 import { ItemType } from './../api/ItemType';
 import { Injectable } from '@angular/core';
 import { AuthHttp } from 'angular2-jwt';
@@ -15,6 +17,7 @@ export interface IRuntimeService {
 
 @Injectable()
 export class RuntimeService implements IRuntimeService {
+    private _runtimeMetaData: any | null = null;
     constructor(private http: AuthHttp, private runtimeStore: RuntimeStore) {
 
     }
@@ -48,9 +51,24 @@ export class RuntimeService implements IRuntimeService {
                     steps: json.steps,
                     transformers: json.transformers,
                     certificateRepositories: json.certificateRepositories,
-                    deliverSenders: json.deliverSenders
+                    deliverSenders: json.deliverSenders,
+                    runtimeMetaData: json.runtimeMetaData
                 });
             });
+    }
+    public getRuntimeMetaData(): Observable<any> {
+        if (!!this._runtimeMetaData) {
+            return Observable.of<any>(this._runtimeMetaData);
+        }
+        let obs = new Subject<any>();
+        this.http
+            .get(this.getBaseUrl('getruntimemetadata'))
+            .subscribe(result => {
+                this._runtimeMetaData = result.json();
+                obs.next(this._runtimeMetaData);
+                obs.complete();
+            });
+        return obs;
     }
     private getBaseUrl(action: string) {
         return `api/runtime/${action}`;
