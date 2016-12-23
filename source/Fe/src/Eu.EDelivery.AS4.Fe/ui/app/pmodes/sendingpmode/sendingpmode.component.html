@@ -1,3 +1,22 @@
+<as4-modal name="new-pmode" title="Create a new pmode" (shown)="actionType = pmodes[0]; newName = ''; nameInput.focus()">
+    <form class="form-horizontal">
+        <div class="form-group">
+            <label class="col-xs-2">New name</label>
+            <div class="col-xs-10">
+                <input type="text" class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-2">Use</label>
+            <div class="col-xs-10">
+                <select class="form-control" (change)="actionType = $event.target.value" #select>
+                    <option *ngFor="let setting of pmodes" [selected]="actionType === setting" [ngValue]="setting">{{setting}}</option>
+                    <option value="-1" [selected]="actionType === -1">Custom</option>
+                </select>
+            </div>
+        </div>
+    </form>
+</as4-modal>
 <form [formGroup]="form" class="form-horizontal">
     <div formGroupName="pmode">
         <as4-box>

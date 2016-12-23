@@ -1,11 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { ItemType } from './../../api/ItemType';
 import { Settings } from './../../api/Settings';
 
 @Component({
     selector: 'as4-Settings',
-    templateUrl: './Settings.component.html'
+    templateUrl: './Settings.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent implements OnInit {
     @Input() properties: ItemType[];

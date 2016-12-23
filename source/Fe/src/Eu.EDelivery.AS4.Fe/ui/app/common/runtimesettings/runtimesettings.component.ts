@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges } from '@angular/core';
+import { Component, Input, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { ItemType } from './../../api/ItemType';
@@ -22,7 +22,8 @@ import { ItemType } from './../../api/ItemType';
                 </div>
             </div>
         </form>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RuntimeSettingsComponent {
     @Input() form: FormGroup;

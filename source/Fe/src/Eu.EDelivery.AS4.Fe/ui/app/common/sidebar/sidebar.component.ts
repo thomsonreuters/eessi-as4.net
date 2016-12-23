@@ -1,15 +1,15 @@
 import { Router, Route } from '@angular/router';
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'as4-sidebar',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './sidebar.component.html'
+  templateUrl: './sidebar.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent {
   public routes: Array<Route>;
   constructor(private router: Router) {
-    // this.routes = router.config.filter(route => route.data !== undefined && (!!!route.data['title'] || !!!route.data['root']));
     let routes = this
       .router
       .config

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 @Component({
@@ -10,7 +10,8 @@ import { FormGroup } from '@angular/forms';
             <button type="button" class="btn btn-flat delete-button" (click)="delete.emit()" [disabled]="!!!current"><i class="fa fa-trash-o"></i></button>
             <button type="button" class="btn btn-flat reset-button" (click)="reset.emit()" [class.btn-primary]="form.dirty || isNewMode" [disabled]="!form.dirty && !isNewMode"><i class="fa fa-undo"></i></button>
             <ng-content></ng-content>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CrudButtonsComponent implements OnInit {
     @Output() rename = new EventEmitter();

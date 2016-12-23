@@ -1,8 +1,9 @@
-import { Component, OnInit, Input, ElementRef, Renderer, ContentChildren, QueryList } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, Renderer, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'as4-box',
-    templateUrl: './box.component.html'
+    templateUrl: './box.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BoxComponent implements OnInit {
     @Input() title: string;

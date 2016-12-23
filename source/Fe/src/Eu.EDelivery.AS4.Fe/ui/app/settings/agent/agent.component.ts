@@ -88,7 +88,7 @@ export class AgentSettingsComponent implements OnDestroy {
                 if (!!this.newName) {
                     if (this.messageIfExists(this.newName)) return;
                     let newAgent;
-                    if (this.actionType !== -1) newAgent = Object.assign({}, this.settings.find(agt => agt.name === this.actionType));
+                    if (+this.actionType !== -1) newAgent = Object.assign({}, this.settings.find(agt => agt.name === this.actionType));
                     else newAgent = new SettingsAgent();
                     this.settings.push(newAgent);
                     this.currentAgent = newAgent;

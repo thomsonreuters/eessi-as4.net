@@ -11,7 +11,6 @@ import { JwtHelper } from 'angular2-jwt';
 import { ENV_PROVIDERS } from './environment';
 import { ROUTES } from './app.routes';
 import { AppComponent } from './app.component';
-import { APP_RESOLVER_PROVIDERS } from './app.resolver';
 import { AppState, InternalStateType } from './app.service';
 import { NoContentComponent } from './no-content';
 import { SettingsModule } from './settings';
@@ -22,7 +21,6 @@ import { AuthenticationModule } from './authentication';
 
 // Application wide providers
 const APP_PROVIDERS = [
-    ...APP_RESOLVER_PROVIDERS,
     AppState
 ];
 

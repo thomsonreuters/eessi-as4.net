@@ -1,7 +1,3 @@
-import { ModalService } from './../../common/modal/modal.service';
-import { Property } from './../../api/Property';
-import { RuntimeStore } from './../../settings/runtime.store';
-import { Method } from './../../api/Method';
 import { ReactiveFormsModule, FormArray, FormBuilder } from '@angular/forms';
 import { By } from '@angular/platform-browser/src/dom/debug/by';
 import { MethodComponent } from './method.component';
@@ -23,8 +19,14 @@ import { MockBackend } from '@angular/http/testing';
 import { As4ComponentsModule } from './../../common/as4components.module';
 import { CommonModule } from '@angular/common';
 import { DialogService } from './../../common/dialog.service';
-import { InputComponent } from '../../common/input/input.component';
+import { InputComponent } from './../../common/input/input.component';
 import { ItemType } from './../../api/ItemType';
+import { TooltipDirective } from './../../common/tooltip.directive';
+import { ModalService } from './../../common/modal/modal.service';
+import { Property } from './../../api/Property';
+import { RuntimeStore } from './../../settings/runtime.store';
+import { Method } from './../../api/Method';
+import { InfoComponent } from './../../common/info/info.component';
 
 describe('Notify method', () => {
     let fixture: ComponentFixture<MethodComponent>;
@@ -36,10 +38,12 @@ describe('Notify method', () => {
     beforeEach(async(() => TestBed.configureTestingModule({
         declarations: [
             InputComponent,
-            MethodComponent
+            MethodComponent,
+            TooltipDirective,
+            InfoComponent
         ],
         imports: [
-            ReactiveFormsModule,
+            ReactiveFormsModule
         ],
         providers: [
             DialogService,

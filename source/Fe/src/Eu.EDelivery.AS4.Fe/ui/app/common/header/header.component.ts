@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 
 import { AuthenticationService, AuthenticationStore } from '../../authentication/authentication.service';
 
@@ -6,7 +6,8 @@ import { AuthenticationService, AuthenticationStore } from '../../authentication
     selector: 'as4-header',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './header.component.html',
-    styles: [require('./header.component.scss').toString()]
+    styles: [require('./header.component.scss').toString()],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent {
     public isLoggedIn: boolean;

@@ -1,5 +1,5 @@
 import { InputComponent } from './../input/input.component';
-import { Directive, Input, ElementRef, Renderer } from '@angular/core';
+import { Directive, Input, ElementRef, Renderer, ChangeDetectionStrategy } from '@angular/core';
 
 @Directive({
     selector: '[tabitem]'

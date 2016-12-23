@@ -1,4 +1,4 @@
-import { Component, OnInit, ContentChildren, ViewChildren, QueryList, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ContentChildren, ViewChildren, QueryList, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 
 import { TabItemComponent } from './tabitem.component';
 

@@ -58,7 +58,7 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
         this.pmodeService.getAllReceiving();
     }
     getPmode(pmode: string) {
-        this.pmodeService.getReceiving(pmode);
+        this.pmodeService.setReceiving(pmode);
     }
     setPmode(pmode: string | undefined) {
         this.pmodeStore.setReceiving(<any>pmode);
@@ -71,5 +71,8 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
     }
     deletePmode(value: any) {
         this.pmodeService.deleteReceiving(value);
+    }
+    getByName(name: string): Observable<ReceivingPmode> {
+        return this.pmodeService.getReceivingByName(name);
     }
 }

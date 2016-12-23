@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class Store<T> {
-    protected state: T;
+    public state: T;
     protected storeSubject: BehaviorSubject<T> = new BehaviorSubject<T>(this.state);
     public changes = this.storeSubject.asObservable();
     constructor(state: T) {

@@ -9,7 +9,7 @@ import { NgModule } from '@angular/core';
 import { As4ComponentsModule } from './../common/as4components.module';
 import { ReceivingPmodeComponent } from './receivingpmode/receivingpmode.component';
 import { PmodeStore } from './pmode.store';
-import { PmodeService, pmodeService, ReceivingPmodeService, SendingPmodeService } from './pmode.service';
+import { PmodeService, pmodeService } from './pmode.service';
 import { MethodComponent } from './method/method.component';
 import { PmodeSelectComponent } from './pmodeselect/pmodeselect.component';
 
@@ -26,9 +26,7 @@ import { ROUTES } from './pmodes.routes';
     ],
     providers: [
         PmodeStore,
-        PmodeService,
-        ReceivingPmodeService,
-        SendingPmodeService
+        PmodeService
     ],
     imports: [
         CommonModule,

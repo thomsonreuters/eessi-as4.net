@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, Renderer, AfterViewInit } from '@angular/core';
+import { Component, Input, ElementRef, Renderer, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
     selector: 'as4-columns',
@@ -26,7 +26,8 @@ import { Component, Input, ElementRef, Renderer, AfterViewInit } from '@angular/
                 margin-top: 9px;
             }
         }
-    `]
+    `],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ColumnsComponent {
     @Input() noMargin: boolean = false;

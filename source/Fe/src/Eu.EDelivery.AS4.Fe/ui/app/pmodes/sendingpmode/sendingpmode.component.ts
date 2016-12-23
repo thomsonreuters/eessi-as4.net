@@ -50,7 +50,7 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
         this.pmodeService.getAllSending();
     }
     getPmode(pmode: string) {
-        this.pmodeService.getSending(pmode);
+        this.pmodeService.setSending(pmode);
     }
     setPmode(pmode: string | undefined) {
         this.pmodeStore.setSending(<any>pmode);
@@ -63,5 +63,8 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
     }
     deletePmode(value: any) {
         this.pmodeService.deleteSending(value);
+    }
+    getByName(name: string): Observable<SendingPmode> {
+        return this.pmodeService.getSendingByName(name);
     }
 }

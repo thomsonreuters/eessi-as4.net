@@ -99,7 +99,8 @@ describe('agent', () => {
             steps: new Array<ItemType>(),
             transformers: transformers,
             certificateRepositories: new Array<ItemType>(),
-            deliverSenders: new Array<ItemType>()
+            deliverSenders: new Array<ItemType>(),
+            runtimeMetaData: new Array<any>()
         });
 
         // Assert

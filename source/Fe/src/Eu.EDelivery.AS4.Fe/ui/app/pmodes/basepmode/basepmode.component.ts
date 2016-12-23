@@ -1,3 +1,5 @@
+import { ModalComponent } from './../../common/modal/modal.component';
+import { ModalService } from './../../common/modal/modal.service';
 import { BoxComponent } from './../../common/box/box.component';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -25,6 +27,8 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     public pmodes: string[];
     public isNewMode: boolean = false;
     public deliverSenders: Array<ItemType>;
+    public newName: string;
+    public actionType: string | number = 0;
     @ViewChildren(BoxComponent) boxes: QueryList<BoxComponent>;
     public get currentPmode(): T | undefined {
         return this._currentPmode;
@@ -38,7 +42,8 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     protected _currentPmodeSubscription: Subscription;
     protected _runtimeStoreSubscription: Subscription;
     protected _currentPmode: T | undefined;
-    constructor(protected formBuilder: FormBuilder, protected pmodeService: PmodeService, protected pmodeStore: PmodeStore, protected dialogService: DialogService, protected runtimeStore: RuntimeStore) {
+    constructor(protected formBuilder: FormBuilder, protected pmodeService: PmodeService, protected pmodeStore: PmodeStore, protected dialogService: DialogService, protected runtimeStore: RuntimeStore,
+        protected modalService: ModalService) {
         this.init();
     }
     public pmodeChanged(name: string) {
@@ -94,17 +99,25 @@ export abstract class BasePmodeComponent<T extends IPmode> {
             .subscribe(result => this.deletePmode(this.currentPmode.name));
     }
     public add() {
-        this.dialogService
-            .prompt('Please enter a new name', 'New pmode')
-            .filter(result => !!result)
-            .subscribe(newName => {
-                if (this.checkIfExists(newName)) return;
-                if (!!!newName) return;
-                this.currentPmode = this.newPmode(newName);
-                this.pmodes.push(newName);
-                this.isNewMode = true;
-                this.patchForm(this.formBuilder, this.form, this.currentPmode);
-                this.form.markAsDirty();
+        this.modalService
+            .show('new-pmode')
+            .filter(result => result)
+            .subscribe(() => {
+                if (this.checkIfExists(this.newName)) return;
+                if (!!!this.newName) return;
+                let newPmode: T;
+                if (+this.actionType !== -1) {
+                    this.getByName(this.pmodes.find(name => name === this.actionType))
+                        .subscribe(existingPmode => {
+                            this.currentPmode = Object.assign({}, existingPmode);
+                            this.currentPmode.name = this.newName;
+                            this.currentPmode.pmode.id = this.newName;
+                            this.afterAdd();
+                        });
+                    return;
+                }
+                this.currentPmode = this.newPmode(this.newName);
+                this.afterAdd();
             });
     }
     public save() {
@@ -150,9 +163,16 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     abstract updatePmode(value: any, originalName: string): Observable<boolean>;
     abstract deletePmode(value: any);
     abstract init();
+    abstract getByName(name: string): Observable<T>;
     private checkIfExists(name: string): boolean {
         let exists = this.pmodes.findIndex(pmode => pmode.toLowerCase() === name.toLowerCase()) > -1;
         if (exists) this.dialogService.message(`Pmode with name ${name} already exists`);
         return exists;
+    }
+    private afterAdd() {
+        this.pmodes.push(this.newName);
+        this.isNewMode = true;
+        this.patchForm(this.formBuilder, this.form, this.currentPmode);
+        this.form.markAsDirty();
     }
 }

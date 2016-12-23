@@ -5,7 +5,6 @@ import { Routes, RouterModule, CanActivate, Router } from '@angular/router';
 import { NoContentComponent } from './no-content';
 
 import { WrapperComponent } from './common/wrapper.component';
-import { DataResolver } from './app.resolver';
 import { MustBeAuthorizedGuard } from './common/common.guards';
 import { AgentSettingsComponent } from './settings/agent/agent.component';
 

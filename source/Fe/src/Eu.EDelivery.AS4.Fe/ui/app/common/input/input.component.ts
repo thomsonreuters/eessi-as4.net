@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit, SimpleChanges } from '@angular/core';
+import { Component, Input, AfterViewInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 import { RuntimeStore } from './../../settings/runtime.store';
 
@@ -19,7 +19,8 @@ import { RuntimeStore } from './../../settings/runtime.store';
         .tooltip-info {
             margin-left: 5px;
         }
-    `]
+    `],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputComponent {
     @Input() label: string;

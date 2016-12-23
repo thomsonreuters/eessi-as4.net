@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Http } from '@angular/http';
@@ -6,7 +6,8 @@ import { AuthenticationService, AuthenticationStore } from '../authentication.se
 
 @Component({
     selector: 'as4-login',
-    templateUrl: './login.component.html'
+    templateUrl: './login.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent implements OnInit {
     public username: string;
@@ -35,11 +36,5 @@ export class LoginComponent implements OnInit {
 
     login() {
         this.authenticationService.login(this.username, this.password);
-        // this.http
-        //     .get('api/authentication/externallogin?provider=Facebook')
-        //     .subscribe(result => {
-        //         var redirect = result.headers.get('location');
-        //         window.location.href = redirect;
-        //     });
     }
 }

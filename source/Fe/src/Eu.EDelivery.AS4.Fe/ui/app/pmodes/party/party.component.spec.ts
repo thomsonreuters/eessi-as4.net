@@ -1,3 +1,6 @@
+import { RuntimeStore } from './../../settings/runtime.store';
+import { InfoComponent } from './../../common/info/info.component';
+import { TooltipDirective } from './../../common/tooltip.directive';
 import { By } from '@angular/platform-browser/src/dom/debug/by';
 import { ReactiveFormsModule, FormBuilder, FormArray } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -30,7 +33,9 @@ describe('party', () => {
     beforeEach(async(() => TestBed.configureTestingModule({
         declarations: [
             InputComponent,
-            PartyComponent
+            PartyComponent,
+            TooltipDirective,
+            InfoComponent
         ],
         imports: [
             ReactiveFormsModule
@@ -38,7 +43,8 @@ describe('party', () => {
         providers: [
             FormBuilder,
             DialogService,
-            ModalService
+            ModalService,
+            RuntimeStore
         ]
     })));
     beforeEach(() => {
