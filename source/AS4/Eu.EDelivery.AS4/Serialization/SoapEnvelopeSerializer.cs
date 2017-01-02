@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return new XmlWriterSettings
             {
                 CloseOutput = false,
-                Encoding = Encoding.UTF8
+                Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)
             };
         }
 
