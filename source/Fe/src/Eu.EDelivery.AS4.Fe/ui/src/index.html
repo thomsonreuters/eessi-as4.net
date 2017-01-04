@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+    crossorigin="anonymous">
+  <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
+
+  <% if (webpackConfig.htmlElements.headTags) { %>
+    <!-- Configured Head Tags  -->
+    <%= webpackConfig.htmlElements.headTags %>
+      <% } %>
+
+        <!-- base url -->
+        <base href="<%= htmlWebpackPlugin.options.metadata.baseUrl %>">
+</head>
+
+<body class="skin-blue sidebar-mini">
+
+  <as4-app>
+    Loading...
+  </as4-app>
+
+  <% if (htmlWebpackPlugin.options.metadata.isDevServer && htmlWebpackPlugin.options.metadata.HMR !== true) { %>
+    <!-- Webpack Dev Server reload -->
+    <script src="/webpack-dev-server.js"></script>
+    <% } %>
+
+
+</body>
+
+</html>
