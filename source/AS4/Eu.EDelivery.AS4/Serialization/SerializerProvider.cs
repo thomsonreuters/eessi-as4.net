@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private bool KeyMatchesContentType(string contentType, string key)
         {
-            return key.Equals(contentType) || Regex.IsMatch(contentType, key, RegexOptions.IgnoreCase);
+            return key.Equals(contentType) || contentType.StartsWith(key, System.StringComparison.OrdinalIgnoreCase);
         }
     }
 }
