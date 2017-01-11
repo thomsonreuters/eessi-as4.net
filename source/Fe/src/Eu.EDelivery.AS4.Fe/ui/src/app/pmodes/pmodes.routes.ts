@@ -13,7 +13,6 @@ export const ROUTES: Routes = [
                 path: 'pmodes', children: [
                     { path: '', pathMatch: 'full', redirectTo: 'receiving' },
                     { path: 'receiving', component: ReceivingPmodeComponent, data: { title: 'Receiving', mode: 'receiving' } },
-                    { path: 'receiving/:id', component: ReceivingPmodeComponent, data: { title: 'Receiving', mode: 'receiving' } },
                     { path: 'sending', component: SendingPmodeComponent, data: { title: 'Sending', mode: 'sending' } },
                 ],
                 data: { title: 'Pmodes' },

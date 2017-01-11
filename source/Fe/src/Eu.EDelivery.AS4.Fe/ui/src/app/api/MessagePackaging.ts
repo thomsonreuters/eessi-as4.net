@@ -22,12 +22,9 @@ export class MessagePackaging {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: MessagePackaging) {
-
-		form.removeControl('partyInfo');
-		form.addControl('partyInfo', PartyInfo.getForm(formBuilder, current && current.partyInfo));
-		form.removeControl('collaborationInfo');
-		form.addControl('collaborationInfo', CollaborationInfo.getForm(formBuilder, current && current.collaborationInfo));
-		form.removeControl('messageProperties');
-		form.addControl('messageProperties', formBuilder.array(!!!(current && current.messageProperties) ? [] : current.messageProperties.map(item => MessageProperty.getForm(formBuilder, item))));
+		form.get(this.FIELD_partyInfo).reset({ value: current && current.partyInfo, disabled: !!!current && form.parent.disabled });
+		PartyInfo.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_partyInfo), current && current.partyInfo);
+		CollaborationInfo.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_collaborationInfo), current && current.collaborationInfo);
+		form.setControl('messageProperties', formBuilder.array(!!!(current && current.messageProperties) ? [] : current.messageProperties.map(item => MessageProperty.getForm(formBuilder, item))));
 	}
 }

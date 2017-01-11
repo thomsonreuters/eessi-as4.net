@@ -19,11 +19,8 @@ export class Agreement {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Agreement) {
-		form.removeControl(this.FIELD_value);
-		form.addControl(this.FIELD_value, formBuilder.control(current && current.value));
-		form.removeControl(this.FIELD_type);
-		form.addControl(this.FIELD_type, formBuilder.control(current && current.type));
-		form.removeControl(this.FIELD_pModeId);
-		form.addControl(this.FIELD_pModeId, formBuilder.control(current && current.pModeId));
+		form.get(this.FIELD_value).reset({ value: current && current.value, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_type).reset({ value: current && current.type, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_pModeId).reset({ value: current && current.pModeId, disabled: !!!current && form.parent.disabled });
 	}
 }

@@ -6,6 +6,7 @@ import { SendReliability } from "./SendReliability";
 import { SendHandling } from "./SendHandling";
 import { Security } from "./Security";
 import { SendMessagePackaging } from "./SendMessagePackaging";
+import { MessagePackaging } from './MessagePackaging';
 
 export class SendingProcessingMode {
 	id: string;
@@ -52,30 +53,17 @@ export class SendingProcessingMode {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendingProcessingMode) {
-		form.removeControl('id');
-		form.addControl('id', formBuilder.control(current && current.id));
-		form.removeControl('allowOverride');
-		form.addControl('allowOverride', formBuilder.control(current && current.allowOverride));
-		form.removeControl('mep');
-		form.addControl('mep', formBuilder.control(current && current.mep));
-		form.removeControl('mepBinding');
-		form.addControl('mepBinding', formBuilder.control(current && current.mepBinding));
+		form.get(this.FIELD_id).reset({ value: current && current.id, disabled: !!current || form.parent.disabled });
+		form.get(this.FIELD_allowOverride).reset({ value: current && current.allowOverride, disabled: !!current || form.parent.disabled });
+		form.get(this.FIELD_mep).reset({ value: current && current.mep, disabled: !!current || form.parent.disabled });
+		form.get(this.FIELD_mepBinding).reset({ value: current && current.mepBinding, disabled: !!current || form.parent.disabled });
 
-		form.removeControl('pushConfiguration');
-		form.addControl('pushConfiguration', PushConfiguration.getForm(formBuilder, current && current.pushConfiguration));
-		form.removeControl('pullConfiguration');
-		form.addControl('pullConfiguration', PullConfiguration.getForm(formBuilder, current && current.pullConfiguration));
-		form.removeControl('reliability');
-		form.addControl('reliability', SendReliability.getForm(formBuilder, current && current.reliability));
-		form.removeControl('receiptHandling');
-		form.addControl('receiptHandling', SendHandling.getForm(formBuilder, current && current.receiptHandling));
-		form.removeControl('errorHandling');
-		form.addControl('errorHandling', SendHandling.getForm(formBuilder, current && current.errorHandling));
-		form.removeControl('exceptionHandling');
-		form.addControl('exceptionHandling', SendHandling.getForm(formBuilder, current && current.exceptionHandling));
-		form.removeControl('security');
-		form.addControl('security', Security.getForm(formBuilder, current && current.security));
-		form.removeControl('messagePackaging');
-		form.addControl('messagePackaging', SendMessagePackaging.getForm(formBuilder, current && current.messagePackaging));
+		PushConfiguration.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_pushConfiguration), current && current.pushConfiguration);
+		PullConfiguration.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_pullConfiguration), current && current.pullConfiguration);
+		SendReliability.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_reliability), current && current.reliability);
+		SendHandling.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_receiptHandling), current && current.receiptHandling);
+		SendHandling.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_exceptionHandling), current && current.exceptionHandling);
+		Security.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_security), current && current.security);
+		MessagePackaging.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_messagePackaging), current && current.messagePackaging);
 	}
 }

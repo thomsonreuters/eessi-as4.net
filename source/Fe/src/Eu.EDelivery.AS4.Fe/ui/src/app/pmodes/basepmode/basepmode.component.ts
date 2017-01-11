@@ -36,8 +36,6 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     }
     public set currentPmode(pmode: T | undefined) {
         this._currentPmode = pmode;
-        if (!!!pmode) setTimeout(() => this.form.disable());
-        else setTimeout(() => this.form.enable());
     }
     protected _storeSubscription: Subscription;
     protected _currentPmodeSubscription: Subscription;
@@ -93,7 +91,6 @@ export abstract class BasePmodeComponent<T extends IPmode> {
             this.currentPmode = undefined;
         }
         this.patchForm(this.formBuilder, this.form, this.currentPmode);
-        this.form.reset(this.currentPmode);
         this.form.markAsPristine();
     }
     public delete() {

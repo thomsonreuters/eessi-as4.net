@@ -18,10 +18,7 @@ export class PushConfiguration {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PushConfiguration) {
-
-		form.removeControl('protocol');
-		form.addControl('protocol', Protocol.getForm(formBuilder, current && current.protocol));
-		form.removeControl('tlsConfiguration');
-		form.addControl('tlsConfiguration', TlsConfiguration.getForm(formBuilder, current && current.tlsConfiguration));
+		Protocol.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_protocol), current && current.protocol);
+		TlsConfiguration.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_tlsConfiguration), current && current.tlsConfiguration);
 	}
 }

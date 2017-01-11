@@ -31,18 +31,12 @@ export class Signing {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Signing) {
-		form.removeControl(this.FIELD_isEnabled);
-		form.addControl(this.FIELD_isEnabled, formBuilder.control(current && current.isEnabled));
-		form.removeControl(this.FIELD_privateKeyFindValue);
-		form.addControl(this.FIELD_privateKeyFindValue, formBuilder.control(current && current.privateKeyFindValue));
-		form.removeControl(this.FIELD_privateKeyFindType);
-		form.addControl(this.FIELD_privateKeyFindType, formBuilder.control(current && current.privateKeyFindType));
-		form.removeControl(this.FIELD_keyReferenceMethod);
-		form.addControl(this.FIELD_keyReferenceMethod, formBuilder.control(current && current.keyReferenceMethod));
-		form.removeControl(this.FIELD_algorithm);
-		form.addControl(this.FIELD_algorithm, formBuilder.control(current && current.algorithm));
-		form.removeControl(this.FIELD_hashFunction);
-		form.addControl(this.FIELD_hashFunction, formBuilder.control(current && current.hashFunction));
+		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
+		form.get(this.FIELD_privateKeyFindValue).reset({ value: current && current.privateKeyFindValue, disabled: !!!current });
+		form.get(this.FIELD_privateKeyFindType).reset({ value: current && current.privateKeyFindType, disabled: !!!current });
+		form.get(this.FIELD_keyReferenceMethod).reset({ value: current && current.keyReferenceMethod, disabled: !!!current });
+		form.get(this.FIELD_algorithm).reset({ value: current && current.algorithm, disabled: !!!current });
+		form.get(this.FIELD_hashFunction).reset({ value: current && current.hashFunction, disabled: !!!current });
 		this.setupForm(form);
 	}
 

@@ -25,15 +25,10 @@ export class Encryption {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Encryption) {
-		form.removeControl('isEnabled');
-		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
-		form.removeControl('algorithm');
-		form.addControl('algorithm', formBuilder.control(current && current.algorithm));
-		form.removeControl('publicKeyFindType');
-		form.addControl('publicKeyFindType', formBuilder.control(current && current.publicKeyFindType));
-		form.removeControl('publicKeyFindValue');
-		form.addControl('publicKeyFindValue', formBuilder.control(current && current.publicKeyFindValue));
-		form.removeControl('keyTransport');
-		form.addControl('keyTransport', formBuilder.control(current && current.keyTransport));
+		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
+		form.get(this.FIELD_algorithm).reset({ value: current && current.algorithm, disabled: !!!current });
+		form.get(this.FIELD_publicKeyFindType).reset({ value: current && current.publicKeyFindType, disabled: !!!current });
+		form.get(this.FIELD_publicKeyFindValue).reset({ value: current && current.publicKeyFindType, disabled: !!!current });
+		form.get(this.FIELD_keyTransport).reset({ value: current && current.keyTransport, disabled: !!!current });
 	}
 }

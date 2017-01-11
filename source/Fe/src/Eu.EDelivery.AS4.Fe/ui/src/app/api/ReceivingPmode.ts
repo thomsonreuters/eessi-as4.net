@@ -21,14 +21,9 @@ export class ReceivingPmode implements IPmode {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingPmode) {
-		form.setControl(this.FIELD_type, formBuilder.control(current && current.type));
-		form.setControl(this.FIELD_name, formBuilder.control(current && current.name));
-		form.setControl(this.FIELD_pmode, ReceivingProcessingMode.getForm(formBuilder, current && current.pmode));
-
-		// if (!!current) form.get('pmode').enable();
-		// else form.get('pmode').disable();
-		let test = form.get('pmode.exceptionHandling.notifyMessageConsumer').value;
-		if (test) form.get('pmode.exceptionHandling.notifyMethod').enable();
-		else form.get('pmode.exceptionHandling.notifyMethod').disable();
+		form.get(this.FIELD_type).reset({ value: current && current.type, disabled: !!!current });
+		form.get(this.FIELD_name).reset({ value: current && current.name, disabled: !!!current });
+		ReceivingProcessingMode.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_pmode), current && current.pmode);
+		form.markAsPristine();
 	}
 }

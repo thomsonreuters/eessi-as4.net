@@ -26,15 +26,11 @@ export class ReceiveReceiptHandling {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReceiptHandling) {
-		form.removeControl(this.FIELD_useNNRFormat);
-		form.addControl(this.FIELD_useNNRFormat, formBuilder.control(current && current.useNNRFormat, Validators.required));
-		form.removeControl(this.FIELD_replyPattern);
-		form.addControl(this.FIELD_replyPattern, formBuilder.control(current && current.replyPattern, Validators.required));
-		form.removeControl(this.FIELD_callbackUrl);
-		form.addControl(this.FIELD_callbackUrl, formBuilder.control(current && current.callbackUrl));
-		form.removeControl(this.FIELD_sendingPMode);
-		form.addControl(this.FIELD_sendingPMode, formBuilder.control(current && current.sendingPMode));
-		ReceiveReceiptHandling.setupForm(form);
+		form.get(this.FIELD_useNNRFormat).reset({ value: current && current.useNNRFormat, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_replyPattern).reset({ value: current && current.replyPattern, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_callbackUrl).reset({ value: current && current.callbackUrl, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_sendingPMode).reset({ value: current && current.sendingPMode, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_sendingPMode).reset({ value: current && current.sendingPMode, disabled: !!!current && form.parent.disabled });
 	}
 
 	static setupForm(form: FormGroup) {

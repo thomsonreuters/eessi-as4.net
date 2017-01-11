@@ -48,25 +48,15 @@ export class ReceivingProcessingMode {
     }
     /// Patch up all the formArray controls
     static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingProcessingMode) {
-        form.setControl(this.FIELD_id, formBuilder.control({ value: current && current.id, disabled: !!!current }));
-        form.removeControl(this.FIELD_mep);
-        form.addControl(this.FIELD_mep, formBuilder.control(current && current.mep));
-        form.removeControl(this.FIELD_mepBinding);
-        form.addControl(this.FIELD_mepBinding, formBuilder.control(current && current.mepBinding));
-
-        form.removeControl(this.FIELD_reliability);
-        form.addControl(this.FIELD_reliability, ReceiveReliability.getForm(formBuilder, current && current.reliability));
-        form.removeControl(this.FIELD_receiptHandling);
-        form.addControl(this.FIELD_receiptHandling, ReceiveReceiptHandling.getForm(formBuilder, current && current.receiptHandling));
-        form.removeControl(this.FIELD_errorHandling);
-        form.addControl(this.FIELD_errorHandling, ReceiveErrorHandling.getForm(formBuilder, current && current.errorHandling));
-        form.removeControl(this.FIELD_exceptionHandling);
-        form.addControl(this.FIELD_exceptionHandling, Receivehandling.getForm(formBuilder, current && current.exceptionHandling));
-        form.removeControl(this.FIELD_security);
-        form.addControl(this.FIELD_security, ReceiveSecurity.getForm(formBuilder, current && current.security));
-        form.removeControl(this.FIELD_messagePackaging);
-        form.addControl(this.FIELD_messagePackaging, MessagePackaging.getForm(formBuilder, current && current.messagePackaging));
-        form.removeControl(this.FIELD_deliver);
-        form.addControl(this.FIELD_deliver, Deliver.getForm(formBuilder, current && current.deliver));
+        form.get(this.FIELD_id).reset({ value: current && current.id, disabled: !!!current || form.parent.disabled });
+        form.get(this.FIELD_mep).reset({ value: current && current.mep, disabled: !!!current || form.parent.disabled });
+        form.get(this.FIELD_mepBinding).reset({ value: current && current.mepBinding, disabled: !!!current || form.parent.disabled });
+        ReceiveReliability.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_reliability), current && current.reliability);
+        ReceiveReceiptHandling.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_receiptHandling), current && current.receiptHandling);
+        ReceiveErrorHandling.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_errorHandling), current && current.errorHandling);
+        Receivehandling.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_exceptionHandling), current && current.exceptionHandling);
+        ReceiveSecurity.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_security), current && current.security);
+        MessagePackaging.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_messagePackaging), current && current.messagePackaging);
+        Deliver.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_deliver), current && current.deliver);
     }
 }

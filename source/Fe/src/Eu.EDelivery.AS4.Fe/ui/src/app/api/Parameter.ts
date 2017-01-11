@@ -9,10 +9,10 @@ export class Parameter {
 	static FIELD_name: string = 'name';
 	static FIELD_value: string = 'value';
 
-	static getForm(formBuilder: FormBuilder, current: Parameter): FormGroup {
+	static getForm(formBuilder: FormBuilder, current: Parameter, isDisabled?: boolean): FormGroup {
 		return formBuilder.group({
-			[this.FIELD_name]: [current && current.name, Validators.required],
-			[this.FIELD_value]: [current && current.value, Validators.required],
+			[this.FIELD_name]: [{ value: current && current.name, disabled: isDisabled }, Validators.required],
+			[this.FIELD_value]: [{ value: current && current.value, disabled: isDisabled }, Validators.required],
 		});
 	}
 	/// Patch up all the formArray controls

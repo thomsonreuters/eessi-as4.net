@@ -19,12 +19,9 @@ export class SendHandling {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendHandling) {
-		form.removeControl(this.FIELD_notifyMessageProducer);
-		form.addControl(this.FIELD_notifyMessageProducer, formBuilder.control(current && current.notifyMessageProducer));
-
-		form.removeControl(this.FIELD_notifyMethod);
-		form.addControl(this.FIELD_notifyMethod, Method.getForm(formBuilder, current && current.notifyMethod));
-		setTimeout(() => this.setupForm(form));
+		form.get(this.FIELD_notifyMessageProducer).reset({ value: current && current.notifyMessageProducer, disabled: !!!current });
+		Method.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_notifyMethod), current && current.notifyMethod);
+		this.setupForm(form);
 	}
 
 	static setupForm(form: FormGroup) {

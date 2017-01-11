@@ -21,12 +21,9 @@ export class SendingPmode implements IPmode {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendingPmode) {
-		form.removeControl('type');
-		form.addControl('type', formBuilder.control(current && current.type));
-		form.removeControl('name');
-		form.addControl('name', formBuilder.control(current && current.name));
-
-		form.removeControl('pmode');
-		form.addControl('pmode', SendingProcessingMode.getForm(formBuilder, current && current.pmode));
+		form.get(this.FIELD_type).reset({ value: current && current.type, disabled: !!!current });
+		form.get(this.FIELD_name).reset({ value: current && current.name, disabled: !!!current });
+		SendingProcessingMode.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_pmode), current && current.pmode);
+		form.markAsPristine();
 	}
 }

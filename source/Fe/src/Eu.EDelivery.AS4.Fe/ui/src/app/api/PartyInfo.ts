@@ -17,10 +17,7 @@ export class PartyInfo {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PartyInfo) {
-
-		form.removeControl('fromParty');
-		form.addControl('fromParty', Party.getForm(formBuilder, current && current.fromParty));
-		form.removeControl('toParty');
-		form.addControl('toParty', Party.getForm(formBuilder, current && current.toParty));
+		Party.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_fromParty), current && current.fromParty);
+		Party.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_toParty), current && current.toParty);
 	}
 }

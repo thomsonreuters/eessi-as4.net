@@ -22,13 +22,9 @@ export class TlsConfiguration {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: TlsConfiguration) {
-		form.removeControl('isEnabled');
-		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
-		form.removeControl('tlsVersion');
-		form.addControl('tlsVersion', formBuilder.control(current && current.tlsVersion));
-
-		form.removeControl('clientCertificateReference');
-		form.addControl('clientCertificateReference', ClientCertificateReference.getForm(formBuilder, current && current.clientCertificateReference));
+		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
+		form.get(this.FIELD_tlsVersion).reset({ value: current && current.isEnabled, disabled: !!!current });
+		ClientCertificateReference.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_clientCertificateReference), current && current.clientCertificateReference);
 		TlsConfiguration.setupForm(form);
 	}
 
@@ -40,16 +36,12 @@ export class TlsConfiguration {
 	static processEnabled(form: FormGroup) {
 		let isEnabled = form.get(TlsConfiguration.FIELD_isEnabled).value;
 		if (isEnabled) {
-			setTimeout(() => {
-				form.get(TlsConfiguration.FIELD_tlsVersion).enable();
-				form.get(TlsConfiguration.FIELD_clientCertificateReference).enable();
-			});
+			form.get(TlsConfiguration.FIELD_tlsVersion).enable();
+			form.get(TlsConfiguration.FIELD_clientCertificateReference).enable();
 		}
 		else {
-			setTimeout(() => {
-				form.get(TlsConfiguration.FIELD_tlsVersion).disable();
-				form.get(TlsConfiguration.FIELD_clientCertificateReference).disable();
-			});
+			form.get(TlsConfiguration.FIELD_tlsVersion).disable();
+			form.get(TlsConfiguration.FIELD_clientCertificateReference).disable();
 		}
 	}
 }

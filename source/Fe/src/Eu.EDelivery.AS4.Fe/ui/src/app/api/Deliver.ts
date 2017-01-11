@@ -17,20 +17,14 @@ export class Deliver {
 			payloadReferenceMethod: Method.getForm(formBuilder, current && current.payloadReferenceMethod),
 			deliverMethod: Method.getForm(formBuilder, current && current.deliverMethod),
 		});
-		// Deliver.setupForm(form);
+		Deliver.setupForm(form);
 		return form;
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Deliver) {
-		form.removeControl('isEnabled');
-		form.addControl('isEnabled', formBuilder.control(current && current.isEnabled));
-
-		form.removeControl('payloadReferenceMethod');
-		form.addControl('payloadReferenceMethod', Method.getForm(formBuilder, current && current.payloadReferenceMethod));
-		form.removeControl('deliverMethod');
-		form.addControl('deliverMethod', Method.getForm(formBuilder, current && current.deliverMethod));
-
-		// Deliver.setupForm(form);
+		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current && form.parent.disabled });
+		Method.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_deliverMethod), current && current.deliverMethod, current && !current.isEnabled);
+		Method.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_payloadReferenceMethod), current && current.payloadReferenceMethod, current && !current.isEnabled);
 	}
 
 	static setupForm(formGroup: FormGroup) {
@@ -46,12 +40,19 @@ export class Deliver {
 		let payload = formGroup.get(Deliver.FIELD_payloadReferenceMethod);
 		let method = formGroup.get(Deliver.FIELD_deliverMethod);
 		let isEnabled = formGroup.get(Deliver.FIELD_isEnabled);
-		if (isEnabled.value) enable();
-		else disable();
-
-		isEnabled.valueChanges.subscribe(result => {
-			if (!result) disable();
-			else enable();
-		});
+		if (isEnabled.value) {
+			payload.enable();
+		}
+		else {
+			payload.disable();
+		}
+		isEnabled
+			.valueChanges
+			.filter(() => !(formGroup && formGroup.parent && formGroup.parent.disabled))
+			.subscribe(result => {
+				if (!result) disable();
+				else enable();
+				formGroup.markAsDirty();
+			});
 	}
 }

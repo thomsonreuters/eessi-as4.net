@@ -14,8 +14,7 @@ export class ReceiveReliability {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReliability) {
-
-		form.removeControl('duplicateElimination');
-		form.addControl('duplicateElimination', DuplicateElimination.getForm(formBuilder, current && current.duplicateElimination));
+		form.get(this.FIELD_duplicateElimination).reset({ value: current && current.duplicateElimination, disabled: !!!current && form.parent.disabled });
+		DuplicateElimination.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_duplicateElimination), current && current.duplicateElimination);
 	}
 }

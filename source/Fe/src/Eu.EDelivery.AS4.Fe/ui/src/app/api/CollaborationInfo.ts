@@ -24,14 +24,9 @@ export class CollaborationInfo {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: CollaborationInfo) {
-		form.removeControl(this.FIELD_action);
-		form.addControl(this.FIELD_action, formBuilder.control(current && current.action));
-		form.removeControl(this.FIELD_conversationId);
-		form.addControl(this.FIELD_conversationId, formBuilder.control(current && current.conversationId));
-
-		form.removeControl(this.FIELD_agreementReference);
-		form.addControl(this.FIELD_agreementReference, Agreement.getForm(formBuilder, current && current.agreementReference));
-		form.removeControl(this.FIELD_service);
-		form.addControl(this.FIELD_service, Service.getForm(formBuilder, current && current.service));
+		form.get(this.FIELD_action).reset({ value: current && current.action, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_conversationId).reset({ value: current && current.conversationId, disabled: !!!current && form.parent.disabled });
+		Agreement.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_agreementReference), current && current.agreementReference);
+		Service.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_service), current && current.service);
 	}
 }

@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 export class PullConfiguration {
 	subChannel: string;
 
-	static FIELD_subChannel: string = 'subChannel';	
+	static FIELD_subChannel: string = 'subChannel';
 
 	static getForm(formBuilder: FormBuilder, current: PullConfiguration): FormGroup {
 		return formBuilder.group({
@@ -13,8 +13,6 @@ export class PullConfiguration {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PullConfiguration) {
-		form.removeControl('subChannel');
-		form.addControl('subChannel', formBuilder.control(current && current.subChannel));
-
+		form.get(this.FIELD_subChannel).reset({ value: current && current.subChannel, disabled: !!!current });
 	}
 }

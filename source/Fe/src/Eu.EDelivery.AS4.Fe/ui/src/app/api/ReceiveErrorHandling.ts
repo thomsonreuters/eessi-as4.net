@@ -25,16 +25,10 @@ export class ReceiveErrorHandling {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveErrorHandling) {
-		form.removeControl('useSoapFault');
-		form.addControl('useSoapFault', formBuilder.control(current && current.useSoapFault));
-		form.removeControl('replyPattern');
-		form.addControl('replyPattern', formBuilder.control(current && current.replyPattern));
-		form.removeControl('callbackUrl');
-		form.addControl('callbackUrl', formBuilder.control(current && current.callbackUrl));
-		form.removeControl('responseHttpCode');
-		form.addControl('responseHttpCode', formBuilder.control(current && current.responseHttpCode));
-		form.removeControl('sendingPMode');
-		form.addControl('sendingPMode', formBuilder.control(current && current.sendingPMode));
-
+		form.get(this.FIELD_useSoapFault).reset({ value: current && current.useSoapFault, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_replyPattern).reset({ value: current && current.replyPattern, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_callbackUrl).reset({ value: current && current.callbackUrl, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_responseHttpCode).reset({ value: current && current.responseHttpCode, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_sendingPMode).reset({ value: current && current.sendingPMode, disabled: !!!current && form.parent.disabled });
 	}
 }

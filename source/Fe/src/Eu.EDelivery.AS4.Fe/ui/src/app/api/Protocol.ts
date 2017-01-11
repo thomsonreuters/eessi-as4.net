@@ -20,11 +20,8 @@ export class Protocol {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Protocol) {
-		form.removeControl(this.FIELD_url);
-		form.addControl(this.FIELD_url, formBuilder.control(current && current.url));
-		form.removeControl(this.FIELD_useChunking);
-		form.addControl(this.FIELD_useChunking, formBuilder.control(current && current.useChunking));
-		form.removeControl(this.FIELD_useHttpCompression);
-		form.addControl(this.FIELD_useHttpCompression, formBuilder.control(current && current.useHttpCompression));
+		form.get(this.FIELD_url).reset({ value: current && current.url, disabled: !!!current });
+		form.get(this.FIELD_useChunking).reset({ value: current && current.useChunking, disabled: !!!current });
+		form.get(this.FIELD_useHttpCompression).reset({ value: current && current.useHttpCompression, disabled: !!!current });
 	}
 }

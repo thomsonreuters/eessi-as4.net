@@ -18,10 +18,7 @@ export class ReceiveSecurity {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveSecurity) {
-
-		form.removeControl('signingVerification');
-		form.addControl('signingVerification', SigningVerification.getForm(formBuilder, current && current.signingVerification));
-		form.removeControl('decryption');
-		form.addControl('decryption', Decryption.getForm(formBuilder, current && current.decryption));
+		form.get(this.FIELD_signingVerification).reset({ value: current && current.signingVerification, disabled: !!!current && form.parent.disabled });
+		form.get(this.FIELD_decryption).reset({ value: current && current.decryption, disabled: !!!current && form.parent.disabled });
 	}
 }

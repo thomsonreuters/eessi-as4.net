@@ -18,10 +18,7 @@ export class Security {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Security) {
-
-		form.removeControl('signing');
-		form.addControl('signing', Signing.getForm(formBuilder, current && current.signing));
-		form.removeControl('encryption');
-		form.addControl('encryption', Encryption.getForm(formBuilder, current && current.encryption));
+		Signing.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_signing), current && current.signing);
+		Encryption.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_encryption), current && current.encryption);
 	}
 }

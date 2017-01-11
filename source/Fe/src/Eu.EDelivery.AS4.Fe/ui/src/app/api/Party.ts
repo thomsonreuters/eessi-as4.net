@@ -17,9 +17,7 @@ export class Party {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Party) {
-		form.removeControl('role');
-		form.addControl('role', formBuilder.control('Sender'));
-
+		form.get(this.FIELD_role).reset({ value: current && current.role, disabled: !!!current && form.parent.disabled });
 		form.removeControl('partyIds');
 		form.addControl('partyIds', formBuilder.array(!!!(current && current.partyIds) ? [] : current.partyIds.map(item => PartyId.getForm(formBuilder, item))));
 	}

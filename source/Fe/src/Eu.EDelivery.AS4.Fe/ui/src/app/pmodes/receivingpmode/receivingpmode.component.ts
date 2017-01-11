@@ -33,7 +33,6 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
     }
     init() {
         this.form = ReceivingPmode.getForm(this.formBuilder, null);
-        // setTimeout(() => this.form.disable());
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)

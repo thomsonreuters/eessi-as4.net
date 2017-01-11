@@ -17,9 +17,7 @@ export class ClientCertificateReference {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ClientCertificateReference) {
-		form.removeControl('clientCertificateFindType');
-		form.addControl('clientCertificateFindType', formBuilder.control(current && current.clientCertificateFindType));
-		form.removeControl('clientCertificateFindValue');
-		form.addControl('clientCertificateFindValue', formBuilder.control(current && current.clientCertificateFindValue));
+		form.get(this.FIELD_clientCertificateFindType).reset({ value: current && current.clientCertificateFindType, disabled: !!!current });
+		form.get(this.FIELD_clientCertificateFindValue).reset({ value: current && current.clientCertificateFindValue, disabled: !!!current });
 	}
 }
