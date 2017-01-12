@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <MessageInfo>
+    <MessageId>725c3eee-6d13-4c8d-9907-f2a509419242@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+    <RefToMessageId>ca304bdc-4045-48b3-8769-166bf7cb3a8b@10.124.29.197</RefToMessageId>
+  </MessageInfo>
+  <StatusInfo>
+    <Status>Delivered</Status>
+    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <eb:MessageInfo>
+        <eb:Timestamp>2017-01-06T14:29:32.599Z</eb:Timestamp>
+        <eb:MessageId>725c3eee-6d13-4c8d-9907-f2a509419242@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+        <eb:RefToMessageId>ca304bdc-4045-48b3-8769-166bf7cb3a8b@10.124.29.197</eb:RefToMessageId>
+      </eb:MessageInfo>
+      <eb:Receipt>
+        <eb:UserMessage>
+          <eb:MessageInfo>
+            <eb:Timestamp>2017-01-06T14:28:54.4175487Z</eb:Timestamp>
+            <eb:MessageId>ca304bdc-4045-48b3-8769-166bf7cb3a8b@10.124.29.197</eb:MessageId>
+          </eb:MessageInfo>
+          <eb:PartyInfo>
+            <eb:From>
+              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+              <eb:Role>Sender</eb:Role>
+            </eb:From>
+            <eb:To>
+              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+              <eb:Role>Receiver</eb:Role>
+            </eb:To>
+          </eb:PartyInfo>
+          <eb:CollaborationInfo>
+            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+          </eb:CollaborationInfo>
+          <eb:MessageProperties>
+            <eb:Property name="Test" type="Test">Test</eb:Property>
+            <eb:Property name="Test" type="Test">Test</eb:Property>
+          </eb:MessageProperties>
+          <eb:PayloadInfo>
+            <eb:PartInfo href="cid:earth2">
+              <eb:PartProperties>
+                <eb:Property name="Test">Test</eb:Property>
+              </eb:PartProperties>
+            </eb:PartInfo>
+          </eb:PayloadInfo>
+        </eb:UserMessage>
+      </eb:Receipt>
+    </eb:SignalMessage>
+  </StatusInfo>
+</NotifyMessage>
