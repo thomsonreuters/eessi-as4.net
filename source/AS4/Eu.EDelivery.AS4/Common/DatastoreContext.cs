@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IConfig _config;
         private ILogger _logger;
         private RetryPolicy _policy;
-        private IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
+        private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
 
         public DbSet<InMessage> InMessages { get; set; }
