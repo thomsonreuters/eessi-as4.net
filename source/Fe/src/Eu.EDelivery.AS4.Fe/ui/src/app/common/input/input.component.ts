@@ -6,7 +6,7 @@ import { RuntimeStore } from './../../settings/runtime.store';
     selector: 'as4-input',
     template: `
         <div class="form-group" [class.isBoldLabel]="isLabelBold">
-            <label class="control-label col-xs-12 col-md-{{labelSize}}" *ngIf="showLabel">{{label}}<as4-info class="tooltip-info" [tooltip]="tooltip"></as4-info><ng-content select="[label]"></ng-content></label>
+            <label class="control-label col-xs-12 col-md-{{labelSize}}" *ngIf="showLabel">{{label}}<ng-content select="[label]"></ng-content><as4-info class="tooltip-info" [tooltip]="tooltip"></as4-info></label>
             <div class="col-xs-12 col-md-{{controlSize}}">
                 <ng-content></ng-content>
             </div>
