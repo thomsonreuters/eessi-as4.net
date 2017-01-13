@@ -1,0 +1,11 @@
+@import '../../../assets/css/variables.scss';
+
+:host(.ng-invalid) {
+    & input {
+        border: 1px solid $error;
+    }
+}
+
+.as4-tooltip {
+    color: white;
+}

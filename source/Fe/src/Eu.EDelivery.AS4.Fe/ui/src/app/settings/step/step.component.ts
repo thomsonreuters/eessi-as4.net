@@ -28,7 +28,7 @@ import { Step } from './../../api/Step';
                             <th>Type</th>
                             <th class="col-md-1">Undecorated?</th>
                         </tr>
-                        <tr *ngFor="let step of group.get('step'); let i = index" [formGroupName]="i">
+                        <tr *ngFor="let step of group.get('step').controls; let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>
                             <td class="action"><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
                             <td>

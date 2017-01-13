@@ -1,5 +1,6 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
+import { thumbPrintValidation } from '../validators/thumbprintValidator';
 
 export class Decryption {
     encryption: number;
@@ -26,22 +27,42 @@ export class Decryption {
         form.get(this.FIELD_privateKeyFindType).reset({ value: current && current.privateKeyFindType, disabled: !!!current });
     }
 
-    private static setupForm(formGroup: FormGroup) {
-        formGroup
+    private static setupForm(form: FormGroup) {
+        let fields = [this.FIELD_privateKeyFindValue, this.FIELD_privateKeyFindType];
+        form
             .get(Decryption.FIELD_encryption)
             .valueChanges
+            .map(result => +result)
             .subscribe(result => {
-                formGroup.get(Decryption.FIELD_privateKeyFindValue).updateValueAndValidity();
-                formGroup.get(Decryption.FIELD_privateKeyFindType).updateValueAndValidity();
+                fields.forEach(el => {
+                    let frm = form.get(el);
+                    frm.updateValueAndValidity();
+                    if (result === 2 || result === 0) frm.enable();
+                    else frm.disable();
+                })
+            });
+        form
+            .get(Decryption.FIELD_privateKeyFindType)
+            .valueChanges
+            .subscribe(() => {
+                form.get(Decryption.FIELD_privateKeyFindValue).updateValueAndValidity();
             });
     }
 
-    private static validateKey(control: FormGroup) {
+    private static validateKey(control: FormGroup): any {
         let encryptionValue = control && control.parent && Decryption.getEncryptionValue(<FormGroup>control.parent);
-        if ((encryptionValue === 2) && !!!control.value) {
-            return {
-                required: true
+        let findValue = control && control.parent && control.parent.get(Decryption.FIELD_privateKeyFindValue);
+        let findType = control && control.parent && control.parent.get(Decryption.FIELD_privateKeyFindType);
+        if (encryptionValue === 2) {
+            if (!!!control.value) {
+                return {
+                    required: true
+                }
             }
+        }
+
+        if (findType && findType.enabled && +findType.value === 0) {
+            return thumbPrintValidation(<FormControl>findValue, encryptionValue === 2)
         }
 
         return null;

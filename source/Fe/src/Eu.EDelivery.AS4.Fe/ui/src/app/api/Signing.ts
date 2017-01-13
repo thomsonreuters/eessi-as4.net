@@ -1,6 +1,7 @@
 /* tslint:disable */
 import { Validators } from '@angular/forms';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { thumbPrintValidation } from '../validators/thumbprintValidator';
 
 export class Signing {
 	isEnabled: boolean;
@@ -39,14 +40,24 @@ export class Signing {
 		form.get(this.FIELD_hashFunction).reset({ value: current && current.hashFunction, disabled: !!!current || !current.isEnabled });
 	}
 
-	static setupForm(formGroup: FormGroup) {
-		let fields = Object.keys(this).filter(key => key.startsWith('FIELD_') && !key.endsWith('isEnabled')).map(field => formGroup.get(this[field]));
-		let isEnabled = formGroup.get(this.FIELD_isEnabled);
+	static setupForm(form: FormGroup) {
+		let fields = Object.keys(this).filter(key => key.startsWith('FIELD_') && !key.endsWith('isEnabled')).map(field => form.get(this[field]));
+		let isEnabled = form.get(this.FIELD_isEnabled);
 		let toggle = (value: boolean) => {
 			if (value) fields.forEach(field => field.enable());
 			else fields.forEach(field => field.disable());
 		}
 		toggle(isEnabled.value);
 		isEnabled.valueChanges.subscribe(result => toggle(result));
+		let value = form.get(this.FIELD_privateKeyFindValue);
+		form.get(this.FIELD_privateKeyFindType)
+			.valueChanges
+			.map(result => +result)
+			.subscribe(result => {
+				value.clearValidators();
+				if (result === 0) value.setValidators([Validators.required, thumbPrintValidation])
+				else value.setValidators(Validators.required);
+				value.updateValueAndValidity();
+			});
 	}
 }

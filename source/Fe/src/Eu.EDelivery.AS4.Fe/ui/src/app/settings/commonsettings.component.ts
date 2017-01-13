@@ -18,7 +18,7 @@ import { Setting } from './../api/Setting';
                         <th>Key</th>
                         <th>Value</th>
                     </tr>
-                    <tr *ngFor="let step of form.get('setting'); let i = index" [formGroupName]="i">
+                    <tr *ngFor="let step of form.get('setting').controls; let i = index" [formGroupName]="i">
                         <td class="action"><button type="button" class="btn btn-flat" (click)="removeSetting(i)"><i class="fa fa-trash-o"></i></button></td>
                         <td><input type="text" class="form-control" formControlName="key"/></td>
                         <td><input type="text" class="form-control" formControlName="value"/></td>

@@ -10,7 +10,7 @@ import { As4ComponentsModule } from '../common';
 import { SettingsComponent } from './settings/settings.component';
 import { StepSettingsComponent } from './step/step.component';
 import { BaseSettingsComponent } from './base.component';
-import { CommonSettingsComponent } from './custom.component';
+import { CommonSettingsComponent } from './commonsettings.component';
 import { DatabaseSettingsComponent } from './database.component';
 import { AgentSettingsComponent } from './agent/agent.component';
 import { ReceiverComponent } from './receiver.component';

@@ -111,7 +111,7 @@
                 </as4-input>
                 <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindvalue">
                     <div formGroupName="clientCertificateReference">
-                        <input type="text" formControlName="clientCertificateFindValue" />
+                        <as4-thumbprint-input formControlName="clientCertificateFindValue"></as4-thumbprint-input>
                     </div>
                 </as4-input>
             </div>
@@ -125,11 +125,9 @@
             </div>
             <div tabitem title="Security" formGroupName="security" [isValid]="!!!currentPmode || form.get('pmode.security.signing').valid">
                 <div formGroupName="signing">
-                    <as4-input label="Enabled" runtimeTooltip="security.signing.enabled">
+                    <h5>Signing</h5>
+                    <as4-input label="Enabled" runtimeTooltip="security.signing.isenabled">
                         <input type="checkbox" formControlName="isEnabled" />
-                    </as4-input>
-                    <as4-input label="Private key find value" runtimeTooltip="security.signing.privatekeyfindvalue">
-                        <input type="text" formControlName="privateKeyFindValue" />
                     </as4-input>
                     <as4-input label="Private key find type" runtimeTooltip="security.signing.privatekeyfindtype">
                         <select formControlName="privateKeyFindType">
@@ -150,6 +148,9 @@
                             <option value="14">Find by subject key identifier</option>
                         </select>
                     </as4-input>
+                    <as4-input label="Private key find value" runtimeTooltip="security.signing.privatekeyfindvalue">
+                        <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
+                    </as4-input>
                     <as4-input label="Key reference method" runtimeTooltip="security.signing.keyreferencemethod">
                         <select formControlName="keyReferenceMethod">
                             <option value="0">BSTReference</option>
@@ -162,6 +163,40 @@
                     </as4-input>
                     <as4-input label="HashFunction" runtimeTooltip="security.signing.hashfunction">
                         <input type="text" formControlName="hashFunction" />
+                    </as4-input>
+                </div>
+                <div formGroupName="encryption">
+                    <h5>Encryption</h5>
+                    <as4-input label="Enabled" runtimeTooltip="security.encryption.isenabled">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="Algorithm">
+                        <input type="text" formControlName="algorithm" />
+                    </as4-input>
+                    <as4-input label="Public key find type" runtimeTooltip="security.encryption.publickeyfindtype">
+                        <select formControlName="publicKeyFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </as4-input>
+                    <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyfindvalue">
+                        <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
+                    </as4-input>
+                    <as4-input label="Key transport" runtimeTooltip="security.encryption.keytransport">
+                        <input type="text" formControlName="keyTransport" />
                     </as4-input>
                 </div>
             </div>

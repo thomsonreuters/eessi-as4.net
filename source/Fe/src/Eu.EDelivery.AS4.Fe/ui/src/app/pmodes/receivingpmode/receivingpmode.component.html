@@ -77,7 +77,7 @@
                 <div formGroupName="decryption">
                     <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"
                         runtimeTooltip="decryption.privatekeyfindvalue">
-                        <input type="text" formControlName="privateKeyFindValue" />
+                        <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
                     </as4-input>
                     <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"
                         runtimeTooltip="decryption.privatekeyfindtype">

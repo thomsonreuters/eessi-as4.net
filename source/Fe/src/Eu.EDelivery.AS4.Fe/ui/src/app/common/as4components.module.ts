@@ -1,3 +1,4 @@
+import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
 import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend } from '@angular/http';
 import { SpinnerService } from './spinner/spinner.service';
 import { SpinnerComponent } from './spinner/spinner.component';
@@ -66,6 +67,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ColumnsComponent,
         TooltipDirective,
         SpinnerComponent,
+        ThumbprintInputComponent
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -103,7 +105,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ColumnsComponent,
         TooltipDirective,
         SpinnerComponent,
-        TextMaskModule
+        TextMaskModule,
+        ThumbprintInputComponent
     ],
     imports: [
         AuthenticationModule,

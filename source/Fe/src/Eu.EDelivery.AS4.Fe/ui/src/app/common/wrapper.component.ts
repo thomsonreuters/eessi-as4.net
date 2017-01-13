@@ -21,6 +21,10 @@ import { Router, RoutesRecognized, ActivatedRouteSnapshot, ActivatedRoute } from
             .content-header {
                 font-size: 12px !important;
             }
+
+            .content-wrapper {
+                height: 100vh;
+            }
         `
     ]
 })
