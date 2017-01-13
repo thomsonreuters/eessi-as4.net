@@ -11,8 +11,8 @@ import { ItemType } from './../../api/ItemType';
                 <h4 *ngIf="showTitle === true">Settings</h4>
                 <div formArrayName="setting">
                     <div *ngFor="let set of form.get('setting').controls; let i = index" [formGroupName]="i">
-                        <as4-input>
-                            <div label>{{set.value.key}}&nbsp;<as4-info [tooltip]="selectedType && selectedType.properties[i] && selectedType.properties[i].description"></as4-info></div>
+                        <as4-input [tooltip]="selectedType && selectedType.properties[i] && selectedType.properties[i].description">
+                            <span label>{{set.value.key}}</span>
                             <div [ngSwitch]="selectedType && selectedType.properties[i] && selectedType.properties[i].type">
                                 <input *ngSwitchCase="'int'" type="number" class="form-control" formControlName="value"/>
                                 <input *ngSwitchDefault type="text" class="form-control" formControlName="value"/>
