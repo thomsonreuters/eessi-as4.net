@@ -25,7 +25,7 @@
                 <div class="input-group">
                     <select (change)="selectAgent($event.target.value); agentSelect.value = currentAgent && currentAgent.name" [value]="currentAgent && currentAgent.name"
                         class="form-control" #agentSelect>
-                        <option>Select an option</option>
+                        <option value="undefined">Select an option</option>
                         <option *ngFor="let agent of settings">{{currentAgent && (currentAgent.name == agent.name) && !!form && !!form.controls ? form.controls.name.value : agent.name}}</option>
                     </select>
                     <div class="input-group-btn" crud-buttons [current]="currentAgent" [isNewMode]="isNewMode" [form]="form" (rename)="rename()"
