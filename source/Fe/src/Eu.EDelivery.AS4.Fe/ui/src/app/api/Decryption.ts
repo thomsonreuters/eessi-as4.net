@@ -21,20 +21,19 @@ export class Decryption {
     }
     /// Patch up all the formArray controls
     static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Decryption) {
-        form.removeControl('encryption');
-        form.addControl('encryption', formBuilder.control(current && current.encryption));
-        form.removeControl('privateKeyFindValue');
-        form.addControl('privateKeyFindValue', formBuilder.control(current && current.privateKeyFindValue));
-        form.removeControl('privateKeyFindType');
-        form.addControl('privateKeyFindType', formBuilder.control(current && current.privateKeyFindType));
-        Decryption.setupForm(form);
+        form.get(this.FIELD_encryption).reset({ value: current && current.encryption, disabled: !!!current });
+        form.get(this.FIELD_privateKeyFindValue).reset({ value: current && current.privateKeyFindValue, disabled: !!!current });
+        form.get(this.FIELD_privateKeyFindType).reset({ value: current && current.privateKeyFindType, disabled: !!!current });
     }
 
     private static setupForm(formGroup: FormGroup) {
-        formGroup.get(Decryption.FIELD_encryption).valueChanges.subscribe(result => {
-            formGroup.get(Decryption.FIELD_privateKeyFindValue).updateValueAndValidity();
-            formGroup.get(Decryption.FIELD_privateKeyFindType).updateValueAndValidity();
-        });
+        formGroup
+            .get(Decryption.FIELD_encryption)
+            .valueChanges
+            .subscribe(result => {
+                formGroup.get(Decryption.FIELD_privateKeyFindValue).updateValueAndValidity();
+                formGroup.get(Decryption.FIELD_privateKeyFindType).updateValueAndValidity();
+            });
     }
 
     private static validateKey(control: FormGroup) {

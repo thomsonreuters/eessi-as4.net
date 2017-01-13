@@ -1,5 +1,6 @@
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Component, Input, Output } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 import { DialogService } from './../common/dialog.service';
 import { CustomSettings } from './../api/CustomSettings';
@@ -17,7 +18,7 @@ import { Setting } from './../api/Setting';
                         <th>Key</th>
                         <th>Value</th>
                     </tr>
-                    <tr *ngFor="let step of form.controls.setting.controls; let i = index" [formGroupName]="i">
+                    <tr *ngFor="let step of form.get('setting'); let i = index" [formGroupName]="i">
                         <td class="action"><button type="button" class="btn btn-flat" (click)="removeSetting(i)"><i class="fa fa-trash-o"></i></button></td>
                         <td><input type="text" class="form-control" formControlName="key"/></td>
                         <td><input type="text" class="form-control" formControlName="value"/></td>
@@ -32,10 +33,9 @@ export class CommonSettingsComponent {
     @Input() public get settings(): CustomSettings {
         return this._settings;
     }
-    @Output() public get isDirty(): boolean {
-        return this.form.dirty;
+    @Output() public get isDirty(): Observable<boolean> {
+        return Observable.of<boolean>(this.form.dirty);
     }
-
     public set settings(settings: CustomSettings) {
         this.form = CustomSettings.getForm(this.formBuilder, settings);
         this._settings = settings;

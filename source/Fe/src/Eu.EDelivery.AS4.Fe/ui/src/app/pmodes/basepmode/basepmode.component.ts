@@ -45,8 +45,6 @@ export abstract class BasePmodeComponent<T extends IPmode> {
         protected modalService: ModalService, protected activatedRoute: ActivatedRoute) {
     }
     ngOnInit() {
-        console.log(`ngOnInit ${this.form}`);
-        console.log(`Activated route ${this.activatedRoute.snapshot.params['id']}`);
         this.init();
     }
     public pmodeChanged(name: string) {

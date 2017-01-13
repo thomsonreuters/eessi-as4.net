@@ -9,15 +9,15 @@ import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
     template: `
         <div [formGroup]="group">
             <as4-input [label]="label" formArrayName="partyIds" runtimeTooltip="party.partyids">
-                <div class="item-container" *ngIf="group.controls.partyIds.controls.length === 0">
+                <div class="item-container" *ngIf="group.get('partyIds').controls.length === 0">
                     <button class="action add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                 </div>
-                <div class="item-container" *ngFor="let party of group.controls.partyIds.controls; let i = index" [formGroupName]="i">
+                <div class="item-container" *ngFor="let party of group.get('partyIds').controls; let i = index" [formGroupName]="i">
                     <div class="item input"><input type="text" placeholder="id" formControlName="id"/></div>
                     <div class="item input"><input type="text" placeholder="type" formControlName="type"/></div>
                     <div class="item actions">
                         <button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
-                        <button [disabled]="group.disabled" *ngIf="i === (group.controls.partyIds.controls.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button spacing"><i class="fa fa-plus"></i></button>
+                        <button [disabled]="group.disabled" *ngIf="i === (group.get('partyIds').length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button spacing"><i class="fa fa-plus"></i></button>
                     </div>
                 </div>
             </as4-input>

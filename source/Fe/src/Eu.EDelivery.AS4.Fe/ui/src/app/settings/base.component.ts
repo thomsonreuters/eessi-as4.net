@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
@@ -29,20 +30,21 @@ import { ItemType } from './../api/ItemType';
 })
 export class BaseSettingsComponent {
     public repositories: ItemType[];
+    public form: FormGroup;
     private _settings: Base;
-    private form: FormGroup;
     @Input() public get settings(): Base {
         return this._settings;
+    }
+    @Output() public get isDirty(): Observable<boolean> {
+        return Observable.of<boolean>(this.form.dirty);
     }
     public set settings(baseSetting: Base) {
         this.form = Base.getForm(this.formBuilder, baseSetting);
         this._settings = baseSetting;
     }
-    @Output() public get isDirty(): boolean {
-        return this.form.dirty;
-    }
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
-        runtimeStore.changes
+        runtimeStore
+            .changes
             .filter(result => !!(result && result.certificateRepositories))
             .subscribe(result => {
                 this.repositories = result.certificateRepositories;

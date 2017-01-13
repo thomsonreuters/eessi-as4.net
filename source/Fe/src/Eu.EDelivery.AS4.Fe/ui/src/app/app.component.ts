@@ -31,7 +31,7 @@ import '../assets/theme/js/app.js';
         <as4-modal name="error" showDefaultButtons="false" #errorDialog>
             <div *ngIf="isShowDetails && !!errorDialog.payload" [class.stack-trace]="isShowDetails">
                 <h3>Stack trace</h3>
-                <button type="button" class="btn btn-outline" [xngClipboard]="payload" (cbOnSuccess)="copiedToClipboard()">Copy</button>
+                <button type="button" class="btn btn-outline" [ngxClipboard]="payload" (cbOnSuccess)="copiedToClipboard()">Copy</button>
                 <p #payload>{{errorDialog.payload}}</p>
             </div>
             <div buttons>

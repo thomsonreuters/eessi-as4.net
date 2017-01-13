@@ -17,7 +17,8 @@ import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
 import { getRawFormValues } from './../../common/getRawFormValues';
 
 @Component({
-    templateUrl: './receivingpmode.component.html'
+    templateUrl: './receivingpmode.component.html',
+    styles: ['../basepmode/basepmode.component.scss']
 })
 export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> {
     patchForm(formBuilder: FormBuilder, form: FormGroup, pmode: ReceivingPmode) {
@@ -33,6 +34,7 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
     }
     init() {
         this.form = ReceivingPmode.getForm(this.formBuilder, null);
+        this.form.disable();
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)

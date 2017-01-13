@@ -20,15 +20,15 @@ import { Step } from './../../api/Step';
             </as4-input>
             <as4-input showLabel="false">
                 <p><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
-                <table formArrayName="step" class="table table-condensed" *ngIf="group.controls.step.controls.length > 0">
-                    <tbody [sortablejs]="group.controls.step" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved}">
+                <table formArrayName="step" class="table table-condensed" *ngIf="!!group.get('step')">
+                    <tbody [sortablejs]="group.get('step')" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved}">
                         <tr>
                             <th></th>
                             <th></th>
                             <th>Type</th>
                             <th class="col-md-1">Undecorated?</th>
                         </tr>
-                        <tr *ngFor="let step of group.controls.step.controls; let i = index" [formGroupName]="i">
+                        <tr *ngFor="let step of group.get('step'); let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>
                             <td class="action"><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
                             <td>
@@ -36,7 +36,7 @@ import { Step } from './../../api/Step';
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                                 </select>
                                 <div class="settings">
-                                    <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.controls.type.value"></as4-runtime-settings>
+                                    <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.get('type').value"></as4-runtime-settings>
                                 </div>
                             </td>
                             <td><input type="checkbox" formControlName="unDecorated"></td>

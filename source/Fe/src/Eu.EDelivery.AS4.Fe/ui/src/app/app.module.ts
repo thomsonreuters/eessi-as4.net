@@ -1,5 +1,6 @@
-import { SPINNER_PROVIDERS } from './common/spinner/spinner.service';
-import { ClipboardModule } from 'angular2-clipboard';
+import { AuthConfig } from 'angular2-jwt';
+// import { SPINNER_PROVIDERS } from './common/spinner/spinner.service';
+import { ClipboardModule } from 'ngx-clipboard';
 import { CommonModule } from '@angular/common';
 import { NgModule, ApplicationRef } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
@@ -21,15 +22,26 @@ import { As4ComponentsModule } from './common';
 import { AuthenticationModule } from './authentication';
 
 // Application wide providers
-const APP_PROVIDERS = [
-    AppState
-];
+// const APP_PROVIDERS = [
+//     AppState
+// ];
 
 type StoreType = {
     state: InternalStateType,
     restoreInputValues: () => void,
     disposeOldHosts: () => void
 };
+
+export function jwtHelperFactory() {
+    return new AuthConfig({
+        tokenName: "auth_token",
+        headerName: 'Authorization',
+        headerPrefix: 'Bearer',
+        globalHeaders: [{ 'Content-Type': 'application/json' }],
+        noJwtError: true,
+        noTokenScheme: true
+    });
+}
 
 /**
  * `AppModule` is the main entry point into Angular2's bootstraping process
@@ -46,6 +58,7 @@ type StoreType = {
         HttpModule,
         CommonModule,
         RouterModule.forRoot(ROUTES, { useHash: true }),
+
         SettingsModule,
         PmodesModule,
         As4ComponentsModule,
@@ -53,9 +66,8 @@ type StoreType = {
         ClipboardModule
     ],
     providers: [ // expose our Services and Providers into Angular's dependency injection
-        ENV_PROVIDERS,
-        APP_PROVIDERS,
-        { provide: JwtHelper, useValue: () => new JwtHelper() }
+        AppState,
+        { provide: JwtHelper, useFactory: jwtHelperFactory }
     ]
 })
 export class AppModule {

@@ -71,7 +71,7 @@ export class DialogService {
     public incorrectForm() {
         this.modalService
             .show('default', (dlg) => {
-                dlg.message = 'Input is invalid, please correct the red fields';
+                dlg.message = 'Input is invalid, please correct the invalid fields';
                 dlg.showCancel = false;
             });
     }

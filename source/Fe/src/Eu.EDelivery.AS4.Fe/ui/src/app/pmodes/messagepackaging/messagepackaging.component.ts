@@ -5,8 +5,8 @@ import { Component, Input } from '@angular/core';
     selector: 'as4-message-packaging',
     template: `
         <div [formGroup]="form">
-            <as4-party label="From party" [group]="form.controls.partyInfo.controls.fromParty" runtimeTooltip="partyinfo.fromparty"></as4-party>
-            <as4-party label="To party" [group]="form.controls.partyInfo.controls.toParty"></as4-party>
+            <as4-party label="From party" [group]="form.get('partyInfo.fromParty')" runtimeTooltip="partyinfo.fromparty"></as4-party>
+            <as4-party label="To party" [group]="form.get('partyInfo.toParty')"></as4-party>
         
             <div formGroupName="collaborationInfo">
                 <h5>Collaboration info</h5>

@@ -7,10 +7,10 @@ import { ItemType } from './../../api/ItemType';
     selector: 'as4-runtime-settings',
     template: `
         <form [formGroup]="form">
-            <div *ngIf="form.controls.setting.controls.length > 0">
+            <div *ngIf="!!form.get('setting')">
                 <h4 *ngIf="showTitle === true">Settings</h4>
                 <div formArrayName="setting">
-                    <div *ngFor="let set of form.controls.setting.controls; let i = index" [formGroupName]="i">
+                    <div *ngFor="let set of form.get('setting'); let i = index" [formGroupName]="i">
                         <as4-input>
                             <div label>{{set.value.key}}&nbsp;<as4-info [tooltip]="selectedType && selectedType.properties[i] && selectedType.properties[i].description"></as4-info></div>
                             <div [ngSwitch]="selectedType && selectedType.properties[i] && selectedType.properties[i].type">

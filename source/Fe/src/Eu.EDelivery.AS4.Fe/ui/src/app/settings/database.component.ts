@@ -1,5 +1,6 @@
 import { Component, Input, Output } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
 
 import { DialogService } from './../common/dialog.service';
 import { SettingsService } from './settings.service';
@@ -26,10 +27,10 @@ export class DatabaseSettingsComponent {
         this.form = SettingsDatabase.getForm(this.formBuilder, settingsDatabase);
         this._settings = settingsDatabase;
     }
-    @Output() get isDirty(): boolean {
-        return this.form.dirty;
+    @Output() get isDirty(): Observable<boolean> {
+        return Observable.of<boolean>(this.form.dirty);
     }
-    private form: FormGroup;
+    public form: FormGroup;
     private _settings: SettingsDatabase;
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
 

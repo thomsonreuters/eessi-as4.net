@@ -2,4 +2,7 @@
     li.invalid {
         border-top-color: red;
     }
+    li.active.invalid {
+        border-top-color: red;
+    }
 }

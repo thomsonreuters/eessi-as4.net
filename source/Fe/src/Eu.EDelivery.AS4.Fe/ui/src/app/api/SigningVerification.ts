@@ -13,7 +13,6 @@ export class SigningVerification {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SigningVerification) {
-		form.removeControl('signature');
-		form.addControl('signature', formBuilder.control(current && current.signature));
+		form.get(this.FIELD_signature).reset({ value: current && current.signature, disabled: !!!current });
 	}
 }

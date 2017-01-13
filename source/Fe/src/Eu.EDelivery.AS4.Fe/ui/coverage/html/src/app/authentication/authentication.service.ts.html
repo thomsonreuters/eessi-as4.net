@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src\app\authentication\authentication.service.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">all files</a> / <a href="index.html">src/app/authentication/</a> authentication.service.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">51.11% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>23/45</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/0</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">22.22% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>2/9</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">55.26% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>21/38</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Http, Headers, RequestOptions } from '@angular/http';
+import { Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
+&nbsp;
+const state = {
+    loggedin: tokenNotExpired()
+};
+&nbsp;
+interface State {
+    loggedin: boolean;
+}
+const store = new BehaviorSubject&lt;State&gt;(state);
+&nbsp;
+@Injectable()
+export class AuthenticationStore {
+    public changes = store.asObservable();
+    private store = store;
+<span class="fstat-no" title="function not covered" >    public getState() {</span>
+<span class="cstat-no" title="statement not covered" >        return this.store.value;</span>
+    }
+<span class="fstat-no" title="function not covered" >    public setState(newState: State)</span> {
+<span class="cstat-no" title="statement not covered" >        this.store.next(newState);</span>
+    }
+}
+const TOKENSTORE: string = 'id_token';
+&nbsp;
+@Injectable()
+export class AuthenticationService {
+<span class="fstat-no" title="function not covered" >    constructor(private <span class="cstat-no" title="statement not covered" >http: Http,</span> private <span class="cstat-no" title="statement not covered" >authenticationStore: AuthenticationStore,</span> private <span class="cstat-no" title="statement not covered" >jwtHelper: JwtHelper,</span> private <span class="cstat-no" title="statement not covered" >router: Router)</span></span> {
+    }
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public login(username: string, password: string)</span>: Observable&lt;boolean&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        let obs = new Subject&lt;boolean&gt;();</span>
+<span class="cstat-no" title="statement not covered" >        let headers = new Headers({ 'Content-Type': 'application/json' });</span>
+<span class="cstat-no" title="statement not covered" >        let options = new RequestOptions({ headers: headers });</span>
+<span class="cstat-no" title="statement not covered" >        this.http.post('api/authentication', JSON.stringify({</span>
+            username: username,
+            password: password
+        }), options)
+            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                obs.next(true);</span>
+<span class="cstat-no" title="statement not covered" >                localStorage.setItem(TOKENSTORE, result.json().access_token);</span>
+<span class="cstat-no" title="statement not covered" >                this.router.navigate(['/settings']);</span>
+<span class="cstat-no" title="statement not covered" >                this.authenticationStore.setState(Object.assign({}, {</span>
+                    loggedin: true
+                }));
+&nbsp;
+            }, <span class="fstat-no" title="function not covered" >() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                obs.next(false);</span>
+<span class="cstat-no" title="statement not covered" >                localStorage.removeItem(TOKENSTORE);</span>
+<span class="cstat-no" title="statement not covered" >                this.authenticationStore.setState(Object.assign({}, {</span>
+                    loggedin: false
+                }));
+            });
+<span class="cstat-no" title="statement not covered" >        return obs.asObservable();</span>
+    }
+<span class="fstat-no" title="function not covered" >    public logout() {</span>
+<span class="cstat-no" title="statement not covered" >        localStorage.removeItem(TOKENSTORE);</span>
+<span class="cstat-no" title="statement not covered" >        this.authenticationStore.setState(Object.assign({}, {</span>
+            loggedin: false
+        }));
+<span class="cstat-no" title="statement not covered" >        this.router.navigate(['/login']);</span>
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

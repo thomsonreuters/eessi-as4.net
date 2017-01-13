@@ -35,7 +35,7 @@
             </div>
         </as4-box>
         <as4-tab>
-            <div tabitem title="Common" [isValid]="!!!currentPmode || form.controls.pmode.controls.id.valid || form.controls.pmode.controls.allowOverride.valid || form.controls.pmode.controls.mep.valid || form.controls.pmode.controls.mepBinding.valid || form.controls.pmode.controls.messagePackaging.valid">
+            <div tabitem title="Common" [isValid]="!!!currentPmode || form.get('pmode.id').valid || form.get('pmode.allowOverride').valid || form.get('pmode.mep').valid || form.get('pmode.mepBinding').valid || form.get('pmode.messagePackaging').valid">
                 <as4-input label="Allow override" tooltip="Test" runtimeTooltip="sendingprocessingmode.allowoverride">
                     <input type="checkbox" formControlName="allowOverride" />
                 </as4-input>
@@ -64,7 +64,7 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Push" formGroupName="pushConfiguration" [isValid]="!!!currentPmode || form.controls.pmode.controls.pushConfiguration.valid">
+            <div tabitem title="Push" formGroupName="pushConfiguration" [isValid]="!!!currentPmode || form.get('pmode.pushConfiguration').valid">
                 <h5>Protocol</h5>
                 <as4-input label="Url" formGroupName="protocol" runtimeTooltip="protocol.url">
                     <input type="text" formControlName="url" />
@@ -115,15 +115,15 @@
                     </div>
                 </as4-input>
             </div>
-            <div tabitem title="Pull" formGroupName="pullConfiguration" [isValid]="!!!currentPmode || form.controls.pmode.controls.pullConfiguration.valid">
+            <div tabitem title="Pull" formGroupName="pullConfiguration" [isValid]="!!!currentPmode || form.get('pmode.pullConfiguration').valid">
                 <as4-input label="Sub channel" runtimeTooltip="pullconfiguration.subchannel">
                     <input type="text" formControlName="subChannel" />
                 </as4-input>
             </div>
-            <div tabitem title="Message packaging" [isValid]="!!!currentPmode || form.controls.pmode.controls.messagePackaging.valid">
-                <as4-message-packaging [form]="form.controls.pmode.controls.messagePackaging"></as4-message-packaging>
+            <div tabitem title="Message packaging" [isValid]="!!!currentPmode || form.get('pmode.messagePackaging').valid">
+                <as4-message-packaging [form]="form.get('pmode.messagePackaging')"></as4-message-packaging>
             </div>
-            <div tabitem title="Security" formGroupName="security" [isValid]="!!!currentPmode || form.controls.pmode.controls.security.controls.signing.valid">
+            <div tabitem title="Security" formGroupName="security" [isValid]="!!!currentPmode || form.get('pmode.security.signing').valid">
                 <div formGroupName="signing">
                     <as4-input label="Enabled" runtimeTooltip="security.signing.enabled">
                         <input type="checkbox" formControlName="isEnabled" />
@@ -165,7 +165,7 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Reliability" formGroupName="reliability" [isValid]="!!!currentPmode || form.controls.pmode.controls.reliability.valid">
+            <div tabitem title="Reliability" formGroupName="reliability" [isValid]="!!!currentPmode || form.get('pmode.reliability').valid">
                 <div formGroupName="receptionAwareness">
                     <as4-input label="Reception awareness" runtimeTooltip="reliability.receptionawareness.isenabled">
                         <input type="checkbox" formControlName="isEnabled" />
@@ -174,27 +174,27 @@
                         <input type="number" formControlName="retryCount" />
                     </as4-input>
                     <as4-input label="Retry interval" runtimeTooltip="reliability.receptionawareness.retryinterval">
-                        <input type="number" formControlName="retryInterval" />
+                        <input type="text" [textMask]="{ mask: mask}" formControlName="retryInterval" />
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.receiptHandling.valid">
+            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.get('pmode.receiptHandling').valid">
                 <as4-input label="Notify message producer" runtimeTooltip="receipthandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]=" form.controls.pmode.controls.receiptHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
+                <as4-method label="Notify method" [group]=" form.get('pmode.receiptHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
             </div>
-            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.errorHandling.valid">
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.get('pmode.errorHandling').valid">
                 <as4-input label="Notify message producer" runtimeTooltip="errorhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]=" form.controls.pmode.controls.errorHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
+                <as4-method label="Notify method" [group]=" form.get('pmode.errorHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
             </div>
-            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.controls.pmode.controls.exceptionHandling.valid">
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.get('pmode.exceptionHandling').valid">
                 <as4-input label="Notify message producer" runtimeTooltip="exceptionhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]=" form.controls.pmode.controls.exceptionHandling.controls.notifyMethod " [types]="deliverSenders "></as4-method>
+                <as4-method label="Notify method" [group]=" form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
             </div>
         </as4-tab>
     </div>

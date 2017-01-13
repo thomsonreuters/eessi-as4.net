@@ -25,7 +25,6 @@ export class TlsConfiguration {
 		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
 		form.get(this.FIELD_tlsVersion).reset({ value: current && current.isEnabled, disabled: !!!current });
 		ClientCertificateReference.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_clientCertificateReference), current && current.clientCertificateReference);
-		TlsConfiguration.setupForm(form);
 	}
 
 	static setupForm(form: FormGroup) {

@@ -38,9 +38,8 @@ describe('pmode select component', () => {
         sendingNames = new Array<string>();
         sendingNames.push('sendingPmode');
     });
-    it('should subscribe to current pmode according to the mode input property', inject([PmodeSelectComponent, PmodeService, PmodeStore], (cmp: PmodeSelectComponent, pmodeService: PmodeService, store: PmodeStore) => {
-        // Receiving mode
-        let serviceSpy = spyOn(pmodeService, 'getAllReceiving');
+    it('Should load the pmodes from the correct store', inject([PmodeSelectComponent, PmodeService, PmodeStore], (cmp: PmodeSelectComponent, pmodeService: PmodeService, store: PmodeStore) => {
+        // Receiving
         cmp.mode = 'receiving';
         store.setState({
             Receiving: null,
@@ -50,10 +49,8 @@ describe('pmode select component', () => {
         });
         cmp.ngOnInit();
         expect(cmp.pmodes).toBe(receivingNames);
-        expect(serviceSpy).toHaveBeenCalled();
 
-        // Sending mode        
-        serviceSpy = spyOn(pmodeService, 'getAllSending');
+        // Sending
         cmp.mode = 'sending';
         store.setState({
             Receiving: null,
@@ -61,9 +58,6 @@ describe('pmode select component', () => {
             ReceivingNames: null,
             SendingNames: sendingNames
         });
-        cmp.ngOnInit();
-        expect(cmp.pmodes).toBe(sendingNames);
-        expect(serviceSpy).toHaveBeenCalled();
     }));
     it('should throw exception when no mode has been supplied', () => {
         expect(() => new PmodeSelectComponent(null, null).ngOnInit()).toThrowError('Mode should be supplied');

@@ -16,7 +16,7 @@ export class Receivehandling {
             notifyMethod: Method.getForm(formBuilder, current && current.notifyMethod),
         });
 
-        setTimeout(() => this.setState(form));
+        this.setupForm(form);
         return form;
     }
     /// Patch up all the formArray controls
@@ -25,7 +25,7 @@ export class Receivehandling {
         Method.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_notifyMethod), current && current.notifyMethod, !!!current || !current.notifyMessageConsumer);
     }
 
-    static setState(form: FormGroup) {
+    static setupForm(form: FormGroup) {
         if (form.get(this.FIELD_notifyMessageConsumer).value) {
             form.get(this.FIELD_notifyMethod).enable();
         }

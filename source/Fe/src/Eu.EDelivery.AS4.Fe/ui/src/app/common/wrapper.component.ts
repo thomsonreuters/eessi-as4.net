@@ -36,6 +36,9 @@ export class WrapperComponent {
                 this.breadCrumb = this.getPath(result.state.root);
             });
     }
+    public ngOnDestroy() {
+        if (!!this._routeSubscription) this._routeSubscription.unsubscribe();
+    }
     private getPath(activatedRoute: ActivatedRouteSnapshot): string {
         let path = activatedRoute && activatedRoute.data && activatedRoute.data['title'];
         if (!!activatedRoute.firstChild) {
@@ -43,8 +46,5 @@ export class WrapperComponent {
         }
 
         return path;
-    }
-    private ngOnDestroy() {
-        if (!!this._routeSubscription) this._routeSubscription.unsubscribe();
     }
 }

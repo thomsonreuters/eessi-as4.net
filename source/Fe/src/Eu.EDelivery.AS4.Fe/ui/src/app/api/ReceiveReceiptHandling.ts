@@ -47,11 +47,11 @@ export class ReceiveReceiptHandling {
 		if (+replyPattern === 1) // Callback
 		{
 			callbackUrl.setValidators(Validators.required);
-			setTimeout(() => callbackUrl.enable());
+			callbackUrl.enable();
 		}
 		else {
 			callbackUrl.clearValidators();
-			setTimeout(() => callbackUrl.disable());
+			callbackUrl.disable();
 		}
 	}
 }

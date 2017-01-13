@@ -1,6 +1,6 @@
 import { Method } from './../../api/Method';
 import { Component, Input } from '@angular/core';
-import { FormGroup, FormBuilder, FormArray } from '@angular/forms';
+import { FormGroup, FormBuilder, FormArray, AbstractControl } from '@angular/forms';
 
 import { Parameter } from './../../api/Parameter';
 import { DialogService } from './../../common/dialog.service';
@@ -16,14 +16,14 @@ import { ItemType } from './../../api/ItemType';
                     <option *ngFor="let type of types" [value]="type.name">{{type.name}}</option>
                 </select>
             </as4-input>
-            <as4-input label="Method parameters" *ngIf="group.controls.parameters.controls.length > 0" runtimeTooltip="method.parameters">
+            <as4-input label="Method parameters" *ngIf="group.get('parameters').controls.length > 0" runtimeTooltip="method.parameters">
                 <table class="table table-condensed" formArrayName="parameters">
                     <tr>
                         <th>Name</th>
                         <th>Value</th>
                     </tr>
-                    <tr *ngFor="let setting of group.controls.parameters.controls; let i = index" [formGroupName]="i">
-                        <td>{{group.controls.parameters.controls[i].value.name}}</td>
+                    <tr *ngFor="let setting of group.get('parameters').controls; let i = index" [formGroupName]="i">
+                        <td>{{group.get('parameters').controls[i].value.name}}</td>
                         <td><input type="text" name="value" class="value-input form-control" formControlName="value"/></td>
                     </tr>
                 </table>
@@ -36,8 +36,7 @@ export class MethodComponent {
     @Input() types: Array<ItemType>;
     @Input() isDisabled: boolean = false;
     @Input() label: string;
-    constructor(private formBuilder: FormBuilder, private dialogService: DialogService) {
-    }
+    constructor(private formBuilder: FormBuilder, private dialogService: DialogService) { }
     typeChanged(result: string) {
         let type = this.types.find(method => method.name === result);
         this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!type || !!!type.properties ? [] : type.properties.map(prop => Parameter.getForm(this.formBuilder, {

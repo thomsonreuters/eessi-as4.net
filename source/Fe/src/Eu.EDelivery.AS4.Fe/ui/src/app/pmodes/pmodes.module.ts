@@ -1,3 +1,4 @@
+import { ReceivingPmode } from './../api/ReceivingPmode';
 import { MessagePackagingComponent } from './messagepackaging/messagepackaging.component';
 import { SendingPmodeComponent } from './sendingpmode/sendingpmode.component';
 import { PartyComponent } from './party/party.component';
@@ -33,7 +34,7 @@ import { ROUTES } from './pmodes.routes';
         As4ComponentsModule,
         FormsModule,
         ReactiveFormsModule,
-        RouterModule.forChild(ROUTES)
+        RouterModule.forChild(ROUTES),
     ]
 })
 export class PmodesModule {

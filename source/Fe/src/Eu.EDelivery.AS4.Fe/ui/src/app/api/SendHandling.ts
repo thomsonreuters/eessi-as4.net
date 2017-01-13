@@ -14,14 +14,13 @@ export class SendHandling {
 			[this.FIELD_notifyMessageProducer]: [!!(current && current.notifyMessageProducer)],
 			[this.FIELD_notifyMethod]: Method.getForm(formBuilder, current && current.notifyMethod),
 		});
-		setTimeout(() => this.setupForm(form));
+		this.setupForm(form);
 		return form;
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendHandling) {
 		form.get(this.FIELD_notifyMessageProducer).reset({ value: current && current.notifyMessageProducer, disabled: !!!current });
-		Method.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_notifyMethod), current && current.notifyMethod);
-		this.setupForm(form);
+		Method.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_notifyMethod), current && current.notifyMethod, !!!current || !current.notifyMessageProducer);
 	}
 
 	static setupForm(form: FormGroup) {

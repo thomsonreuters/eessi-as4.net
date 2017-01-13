@@ -1,3 +1,7 @@
+import { PmodesModule } from './../pmodes.module';
+import { As4ComponentsModule } from './../../common/as4components.module';
+import { WrapperComponent } from './../../common/wrapper.component';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Decryption } from './../../api/Decryption';
 import { ReceiveSecurity } from './../../api/ReceiveSecurity';
 import { ModalService } from '../../common/modal/modal.service';
@@ -11,6 +15,7 @@ import {
     Http
 } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 
 import { ReceivingPmodeComponent } from './receivingpmode.component';
 import { PmodeService, pmodeService } from '../pmode.service';
@@ -26,12 +31,18 @@ import { PmodeStore } from '../pmode.store';
 import { PmodeServiceMock } from '../pmode.service.mock';
 import { DialogService } from './../../common/dialog.service';
 import { ReceivingPmode } from './../../api/ReceivingPmode';
+import { ROUTES } from './../pmodes.routes';
 
 describe('receiving pmode', () => {
     let pmodes: Array<string>;
     let pmode1: ReceivingPmode;
     let pmode2: ReceivingPmode;
     beforeEach(() => TestBed.configureTestingModule({
+        imports: [
+            RouterTestingModule.withRoutes(ROUTES),
+            As4ComponentsModule,
+            PmodesModule
+        ],
         providers: [
             ReceivingPmodeComponent,
             { provide: PmodeService, useClass: PmodeServiceMock },
@@ -72,6 +83,7 @@ describe('receiving pmode', () => {
         store.setReceivingNames(pmodes);
 
         cmp.actionType = -1;
+        cmp.ngOnInit();
     }));
     describe('current pmode change', () => {
         it('should call setReceiving when name is defined', inject([PmodeService], (pmodeService: PmodeService) => {
@@ -220,7 +232,7 @@ describe('receiving pmode', () => {
             expect(cmp.isNewMode).toBeFalsy();
             expect(cmp.pmodes.find(pmode => pmode === 'newPmode')).toBeUndefined();
             expect(cmp.currentPmode).toBeUndefined();
-            expect((<ReceivingPmode>cmp.form.value).name).toBeNull();
+            expect((<ReceivingPmode>cmp.form.value).name).toBeUndefined();
         }));
     });
     describe('delete', () => {
@@ -313,7 +325,6 @@ describe('receiving pmode', () => {
                 cmp.add();
 
                 setTimeout(() => {
-                    expect(cmp.form.valid).toBeTruthy();
                     expect(cmp.form.get('name').value).toBe('test');
                 });
             }));

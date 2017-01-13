@@ -1,5 +1,5 @@
 import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend } from '@angular/http';
-import { SpinnerService, SPINNER_PROVIDERS } from './spinner/spinner.service';
+import { SpinnerService } from './spinner/spinner.service';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TooltipDirective } from './tooltip.directive';
 import { ColumnsComponent } from './columns/columns.component';
@@ -7,7 +7,8 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AUTH_PROVIDERS } from 'angular2-jwt';
+import { AuthHttp, AuthConfig } from 'angular2-jwt';
+import { TextMaskModule } from 'angular2-text-mask';
 
 import { BoxComponent } from './box/box.component';
 import { MustBeAuthorizedGuard } from './common.guards';
@@ -42,6 +43,10 @@ export class CustomHttp extends Http {
     }
 }
 
+export function authHttpServiceFactory(http: Http, options: RequestOptions) {
+    return new AuthHttp(new AuthConfig(), http, options);
+}
+
 @NgModule({
     declarations: [
         BoxComponent,
@@ -60,15 +65,19 @@ export class CustomHttp extends Http {
         SelectDirective,
         ColumnsComponent,
         TooltipDirective,
-        SpinnerComponent
+        SpinnerComponent,
     ],
     providers: [
         MustBeAuthorizedGuard,
         DialogService,
         ModalService,
         SpinnerService,
-        SPINNER_PROVIDERS,
-        AUTH_PROVIDERS,
+        {
+            provide: AuthHttp,
+            useFactory: authHttpServiceFactory,
+            deps: [Http, RequestOptions]
+        }
+        // AUTH_PROVIDERS,
         // {
         //     provide: Http, useFactory: (backend, requestOptions, spinnerService) => {
         //         return new CustomHttp(backend, requestOptions, spinnerService);
@@ -93,21 +102,23 @@ export class CustomHttp extends Http {
         SelectDirective,
         ColumnsComponent,
         TooltipDirective,
-        SpinnerComponent
+        SpinnerComponent,
+        TextMaskModule
     ],
     imports: [
         AuthenticationModule,
         RouterModule,
         CommonModule,
         ReactiveFormsModule,
-        FormsModule
+        FormsModule,
+        TextMaskModule
     ]
 })
 export class As4ComponentsModule {
     static forRoot(): ModuleWithProviders {
         return {
             ngModule: As4ComponentsModule,
-            providers: [SpinnerService, SPINNER_PROVIDERS, SpinnerComponent]
+            providers: [SpinnerService, SpinnerComponent]
         };
     }
 }

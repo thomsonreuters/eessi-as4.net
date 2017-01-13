@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
-@Injectable()
 export class Store<T> {
     public state: T;
     protected storeSubject: BehaviorSubject<T> = new BehaviorSubject<T>(this.state);

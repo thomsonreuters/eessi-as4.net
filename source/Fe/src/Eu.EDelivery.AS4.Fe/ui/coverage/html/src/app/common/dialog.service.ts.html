@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src\app\common\dialog.service.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">all files</a> / <a href="index.html">src/app/common/</a> dialog.service.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">30% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>18/60</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/2</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">9.52% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>2/21</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">28.57% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>16/56</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">67×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Response } from '@angular/http';
+&nbsp;
+import { ModalComponent } from './modal/modal.component';
+import { ModalService } from './modal/modal.service';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+&nbsp;
+@Injectable()
+export class DialogService {
+    constructor(private modalService: ModalService) {
+&nbsp;
+    }
+<span class="fstat-no" title="function not covered" >    public prompt(message: string, title?: string)</span>: Observable&lt;string&gt; {
+<span class="cstat-no" title="statement not covered" >        let obs = new Subject&lt;string&gt;();</span>
+<span class="cstat-no" title="statement not covered" >        let dialog: ModalComponent;</span>
+<span class="cstat-no" title="statement not covered" >        this.modalService</span>
+            .show('prompt', <span class="fstat-no" title="function not covered" >(dlg)</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >                dlg.message = message;</span>
+<span class="cstat-no" title="statement not covered" >                dlg.title = title;</span>
+<span class="cstat-no" title="statement not covered" >                dialog = dlg;</span>
+            })
+            .filter(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >result)</span>
+            .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                obs.next(dialog.result);</span>
+<span class="cstat-no" title="statement not covered" >                obs.complete();</span>
+            });
+<span class="cstat-no" title="statement not covered" >        return obs.asObservable();</span>
+    }
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public confirm(message: string, title?: string)</span>: Observable&lt;boolean&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        return Observable</span>
+            .create(<span class="fstat-no" title="function not covered" >observer </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                this.modalService</span>
+                    .show('default', <span class="fstat-no" title="function not covered" >(dlg)</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >                        dlg.message = message;</span>
+<span class="cstat-no" title="statement not covered" >                        dlg.title = title;</span>
+                    })
+                    .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                        observer.next(result);</span>
+<span class="cstat-no" title="statement not covered" >                        observer.complete();</span>
+                    });
+            });
+    }
+<span class="fstat-no" title="function not covered" >    public confirmUnsavedChanges(): Observable&lt;boolean&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        return this.confirm('There are unsaved changes, are you sure you want to continue?', 'Unsaved changes');</span>
+    }
+<span class="fstat-no" title="function not covered" >    public message(message: string)</span> {
+<span class="cstat-no" title="statement not covered" >        this.modalService</span>
+            .show('default', <span class="fstat-no" title="function not covered" >(dlg)</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >                dlg.message = message;</span>
+<span class="cstat-no" title="statement not covered" >                dlg.showCancel = false;</span>
+            });
+    }
+<span class="fstat-no" title="function not covered" >    public error(message: string, stackTrace: string | Response)</span> {
+<span class="cstat-no" title="statement not covered" >        this.modalService</span>
+            .show('error', <span class="fstat-no" title="function not covered" >(dlg)</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >                dlg.type = 'modal-danger';</span>
+<span class="cstat-no" title="statement not covered" >                dlg.message = message;</span>
+<span class="cstat-no" title="statement not covered" >                dlg.showCancel = false;</span>
+<span class="cstat-no" title="statement not covered" >                dlg.buttonOk = 'Ok';</span>
+<span class="cstat-no" title="statement not covered" >                dlg.title = 'Error';</span>
+<span class="cstat-no" title="statement not covered" >                if (stackTrace instanceof Response)</span>
+<span class="cstat-no" title="statement not covered" >                    try {</span>
+<span class="cstat-no" title="statement not covered" >                        dlg.payload = stackTrace.json().Exception;</span>
+                    }
+                    catch (e) {
+&nbsp;
+                    }
+            });
+    }
+<span class="fstat-no" title="function not covered" >    public incorrectForm() {</span>
+<span class="cstat-no" title="statement not covered" >        this.modalService</span>
+            .show('default', <span class="fstat-no" title="function not covered" >(dlg)</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >                dlg.message = 'Input is invalid, please correct the invalid fields';</span>
+<span class="cstat-no" title="statement not covered" >                dlg.showCancel = false;</span>
+            });
+    }
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public deleteConfirm(type: string)</span>: Observable&lt;boolean&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        return Observable</span>
+            .create(<span class="fstat-no" title="function not covered" >observer </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                this.modalService</span>
+                    .show('default', <span class="fstat-no" title="function not covered" >(dlg)</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >                        dlg.title = `Delete ${type}`;</span>
+<span class="cstat-no" title="statement not covered" >                        dlg.message = `Are you sure you want to delete the ${type} ?`;</span>
+<span class="cstat-no" title="statement not covered" >                        dlg.buttonCancel = 'No';</span>
+<span class="cstat-no" title="statement not covered" >                        dlg.buttonOk = 'Yes';</span>
+                    })
+                    .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                        observer.next(result);</span>
+<span class="cstat-no" title="statement not covered" >                        observer.complete();</span>
+                    });
+            });
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

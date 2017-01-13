@@ -20,7 +20,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
     public form: FormGroup;
     public currentAgent: SettingsAgent = new SettingsAgent();
     public transformers: Array<ItemType>;
-    private isNew: boolean = true;
+    public isNew: boolean = true;
     private _settingsStoreSubscr: Subscription;
     private _runtimeStoreSubscr: Subscription;
     constructor(private formBuilder: FormBuilder, private settingStore: SettingsStore, private settingsService: SettingsService,

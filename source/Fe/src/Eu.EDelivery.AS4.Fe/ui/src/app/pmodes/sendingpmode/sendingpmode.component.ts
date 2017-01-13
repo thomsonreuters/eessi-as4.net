@@ -9,9 +9,11 @@ import { ReceivingPmode } from './../../api/ReceivingPmode';
 
 @Component({
     selector: 'as4-sending-pmode',
-    templateUrl: './sendingpmode.component.html'
+    templateUrl: './sendingpmode.component.html',
+    styles: ['../basepmode/basepmode.component.scss']
 })
 export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
+    public mask: Array<any> = [/[0-6]/, /[0-6]/, ':', /[0-6]/, /[0-6]/, ':', /[0-6]/, /[0-6]/];
     patchForm(formBuilder: FormBuilder, form: FormGroup, pmode: SendingPmode) {
         SendingPmode.patchForm(this.formBuilder, this.form, this.currentPmode);
     }
@@ -25,7 +27,7 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
     }
     init() {
         this.form = SendingPmode.getForm(this.formBuilder, null);
-        setTimeout(() => this.form.disable());
+        this.form.disable();
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)

@@ -14,6 +14,6 @@ export class SendReliability {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendReliability) {
-		form.get(this.FIELD_receptionAwareness).reset({ value: current && current.receptionAwareness, disabled: !!!current });
+		ReceptionAwareness.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_receptionAwareness), current && current.receptionAwareness);
 	}
 }

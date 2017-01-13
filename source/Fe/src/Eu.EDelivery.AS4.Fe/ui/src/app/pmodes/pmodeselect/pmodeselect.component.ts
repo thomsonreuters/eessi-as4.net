@@ -53,7 +53,7 @@ export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
         }
     }
     ngOnDestroy() {
-        // this._storeSubscription.unsubscribe();
+        this._storeSubscription.unsubscribe();
     }
     writeValue(value: string) {
         this.selectedPmode = value;

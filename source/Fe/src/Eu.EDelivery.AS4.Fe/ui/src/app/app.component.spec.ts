@@ -1,3 +1,6 @@
+import { AuthHttp, AUTH_PROVIDERS } from 'angular2-jwt';
+import { Http, ConnectionBackend } from '@angular/http';
+import { PmodeService } from './pmodes/pmode.service';
 import {
     inject,
     TestBed
@@ -8,9 +11,10 @@ import { AppComponent } from './app.component';
 import { AppState } from './app.service';
 import { AuthenticationStore } from './authentication/authentication.service';
 import { RuntimeService, IRuntimeService } from './settings/runtime.service';
-import { RuntimeServiceMock } from './settings/runtime.service.mock';
 import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';
+import { RuntimeServiceMock } from './settings/runtime.service.mock';
+import { PmodeServiceMock } from './pmodes/pmode.service.mock';
 
 describe('App', () => {
 
@@ -22,7 +26,8 @@ describe('App', () => {
             AuthenticationStore,
             ModalService,
             DialogService,
-            { provide: RuntimeService, useClass: RuntimeServiceMock }
+            { provide: RuntimeService, useClass: RuntimeServiceMock },
+            { provide: PmodeService, useClass: PmodeServiceMock }
         ]
     }));
 
