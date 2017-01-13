@@ -43,8 +43,6 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     protected _currentPmode: T | undefined;
     constructor(protected formBuilder: FormBuilder, protected pmodeService: PmodeService, protected pmodeStore: PmodeStore, protected dialogService: DialogService, protected runtimeStore: RuntimeStore,
         protected modalService: ModalService, protected activatedRoute: ActivatedRoute) {
-    }
-    ngOnInit() {
         this.init();
     }
     public pmodeChanged(name: string) {

@@ -33,8 +33,9 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
         return newPmode;
     }
     init() {
-        this.form = ReceivingPmode.getForm(this.formBuilder, null);
-        this.form.disable();
+        let isInitial = true;
+        this.currentPmode = this.pmodeStore.getState() && this.pmodeStore.getState().Receiving;
+        this.form = ReceivingPmode.getForm(this.formBuilder, this.currentPmode);
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)
@@ -49,6 +50,11 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
             .subscribe(result => this.pmodes = result);
         this._currentPmodeSubscription = this.pmodeStore
             .changes
+            .filter(() => {
+                let result = isInitial;
+                isInitial = false;
+                return !result;
+            })
             .filter(result => !!result)
             .map(result => result.Receiving)
             .distinctUntilChanged()
@@ -56,7 +62,6 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
                 this.currentPmode = result;
                 ReceivingPmode.patchForm(this.formBuilder, this.form, result);
             });
-        // this.pmodeService.getAllReceiving();
     }
     getPmode(pmode: string) {
         this.pmodeService.setReceiving(pmode);

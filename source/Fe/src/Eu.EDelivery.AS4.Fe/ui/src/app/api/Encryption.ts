@@ -46,6 +46,7 @@ export class Encryption {
 				value.clearValidators();
 				if (+result === 0) value.setValidators([Validators.required, thumbPrintValidation]);
 				else value.setValidators(Validators.required);
+				value.updateValueAndValidity();
 			});
 
 		isEnabled

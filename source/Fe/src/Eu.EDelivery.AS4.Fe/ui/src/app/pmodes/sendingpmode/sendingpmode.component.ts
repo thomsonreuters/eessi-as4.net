@@ -26,8 +26,23 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
         return newPmode;
     }
     init() {
-        this.form = SendingPmode.getForm(this.formBuilder, null);
-        this.form.disable();
+        let isInitial = true;
+        this.currentPmode = this.pmodeStore.getState() && this.pmodeStore.getState().Sending;
+        this.form = SendingPmode.getForm(this.formBuilder, this.currentPmode);
+        this._currentPmodeSubscription = this.pmodeStore
+            .changes
+            .filter(() => {
+                let result = isInitial;
+                isInitial = false;
+                return !result;
+            })
+            .filter(result => !!result)
+            .map(result => result.Sending)
+            .distinctUntilChanged()
+            .subscribe(result => {
+                this.currentPmode = result;
+                SendingPmode.patchForm(this.formBuilder, this.form, result);
+            });
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)
@@ -40,15 +55,7 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
             .map(result => result.SendingNames)
             .distinctUntilChanged()
             .subscribe(result => this.pmodes = result);
-        this._currentPmodeSubscription = this.pmodeStore
-            .changes
-            .filter(result => !!result)
-            .map(result => result.Sending)
-            .distinctUntilChanged()
-            .subscribe(result => {
-                this.currentPmode = result;
-                SendingPmode.patchForm(this.formBuilder, this.form, result);
-            });
+
     }
     getPmode(pmode: string) {
         this.pmodeService.setSending(pmode);
