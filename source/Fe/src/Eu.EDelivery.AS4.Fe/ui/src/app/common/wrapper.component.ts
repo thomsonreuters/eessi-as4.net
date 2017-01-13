@@ -23,7 +23,7 @@ import { Router, RoutesRecognized, ActivatedRouteSnapshot, ActivatedRoute } from
             }
 
             .content-wrapper {
-                height: 100%;
+                min-height: 100vh;
             }
         `
     ]
