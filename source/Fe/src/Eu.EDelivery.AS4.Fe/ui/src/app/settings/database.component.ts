@@ -27,8 +27,8 @@ export class DatabaseSettingsComponent {
         this.form = SettingsDatabase.getForm(this.formBuilder, settingsDatabase);
         this._settings = settingsDatabase;
     }
-    @Output() get isDirty(): Observable<boolean> {
-        return Observable.of<boolean>(this.form.dirty);
+    @Output() get isDirty(): boolean {
+        return this.form.dirty;
     }
     public form: FormGroup;
     private _settings: SettingsDatabase;

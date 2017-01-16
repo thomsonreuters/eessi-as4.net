@@ -33,8 +33,8 @@ export class CommonSettingsComponent {
     @Input() public get settings(): CustomSettings {
         return this._settings;
     }
-    @Output() public get isDirty(): Observable<boolean> {
-        return Observable.of<boolean>(this.form.dirty);
+    @Output() public get isDirty(): boolean {
+        return this.form.dirty;
     }
     public set settings(settings: CustomSettings) {
         this.form = CustomSettings.getForm(this.formBuilder, settings);

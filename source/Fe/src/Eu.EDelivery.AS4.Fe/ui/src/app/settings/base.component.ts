@@ -35,8 +35,8 @@ export class BaseSettingsComponent {
     @Input() public get settings(): Base {
         return this._settings;
     }
-    @Output() public get isDirty(): Observable<boolean> {
-        return Observable.of<boolean>(this.form.dirty);
+    @Output() public get isDirty(): boolean {
+        return this.form.dirty;
     }
     public set settings(baseSetting: Base) {
         this.form = Base.getForm(this.formBuilder, baseSetting);
@@ -57,6 +57,8 @@ export class BaseSettingsComponent {
         }
         this.settingsService
             .saveBaseSettings(this.form.value)
-            .subscribe(result => this.form.markAsPristine());
+            .subscribe(result => {
+                this.form.markAsPristine();
+            });
     }
 }
