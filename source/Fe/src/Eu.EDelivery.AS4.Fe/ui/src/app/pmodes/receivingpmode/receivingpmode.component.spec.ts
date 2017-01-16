@@ -83,7 +83,7 @@ describe('receiving pmode', () => {
         store.setReceivingNames(pmodes);
 
         cmp.actionType = -1;
-        cmp.ngOnInit();
+        cmp.init();
     }));
     describe('current pmode change', () => {
         it('should call setReceiving when name is defined', inject([PmodeService], (pmodeService: PmodeService) => {

@@ -27,8 +27,9 @@ export class SendingPmodeComponent extends BasePmodeComponent<SendingPmode> {
     }
     init() {
         let isInitial = true;
-        this.currentPmode = this.pmodeStore.getState() && this.pmodeStore.getState().Sending;
-        this.form = SendingPmode.getForm(this.formBuilder, this.currentPmode);
+        let pmode = this.pmodeStore.getState() && this.pmodeStore.getState().Sending;
+        this.form = SendingPmode.getForm(this.formBuilder, pmode);
+        this.currentPmode = pmode;
         this._currentPmodeSubscription = this.pmodeStore
             .changes
             .filter(() => {

@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
         private IList<SettingsAgent> GetAgents(Func<SettingsAgents, SettingsAgent[]> getAgents, Model.Internal.Settings settings)
         {
             var get = getAgents(settings.Agents);
-            return get == null ? Enumerable.Empty<SettingsAgent>().ToList() : get.ToList();
+            return get?.ToList() ?? Enumerable.Empty<SettingsAgent>().ToList();
         }
     }
 }

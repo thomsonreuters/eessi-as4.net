@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
@@ -20,15 +22,39 @@ namespace Eu.EDelivery.AS4.Fe.Modules
         /// </summary>
         /// <param name="services"></param>
         /// <param name="mappings"></param>
+        /// <param name="configuration"></param>
         /// <param name="folderToScan"></param>
-        public static void AddModules(this IServiceCollection services, Dictionary<string, string> mappings, IConfigurationRoot configuration, string folderToScan = "modules")
+        public static void AddModules(this IServiceCollection services, Dictionary<string, string> mappings, Action<IConfigurationBuilder, IHostingEnvironment> configBuilder, out IConfigurationRoot configuration, string folderToScan = "modules")
         {
             services.AddSingleton<Scanner>();
 
+            List<TypeInfo> moduleAssemblies;
+            var scanner = SetupAssemblyScanner(services, folderToScan, out moduleAssemblies);
+
+            var baseTypes = Assembly.GetEntryAssembly().DefinedTypes.ToList();
+            RegisterInterfaces(services, mappings, scanner, baseTypes, moduleAssemblies);
+
+            var configurationBuilder = new ConfigurationBuilder();
+            configBuilder(configurationBuilder, services.BuildServiceProvider().GetService<IHostingEnvironment>());            
+            CallStartup<IRunAtConfiguration>(services, service => service.Run(configurationBuilder));
+            var localConfig = configurationBuilder.Build();
+            configuration = localConfig;
+
+            CallStartup<IRunAtServicesStartup>(services, service => service.Run(services, localConfig));
+        }
+
+        public static void ExecuteStartupServices(this IApplicationBuilder builder)
+        {
+            foreach (var runat in builder.ApplicationServices.GetServices<IRunAtAppStartup>())
+                runat.Run(builder);
+        }
+
+        private static Scanner SetupAssemblyScanner(IServiceCollection services, string folderToScan, out List<TypeInfo> moduleAssemblies)
+        {
             var serviceProvider = services.BuildServiceProvider();
             var scanner = serviceProvider.GetService<Scanner>();
 
-            var moduleAssemblies = Enumerable.Empty<TypeInfo>().ToList();
+            moduleAssemblies = Enumerable.Empty<TypeInfo>().ToList();
             if (Directory.Exists(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, folderToScan)))
                 moduleAssemblies = Directory
                     .GetFiles(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, folderToScan), "*.dll")
@@ -39,22 +65,21 @@ namespace Eu.EDelivery.AS4.Fe.Modules
 #endif
                     .SelectMany(asm => asm.DefinedTypes)
                     .ToList();
+            return scanner;
+        }
 
-            var baseTypes = Assembly.GetEntryAssembly().DefinedTypes.ToList();
-
+        private static void RegisterInterfaces(IServiceCollection services, Dictionary<string, string> mappings, Scanner scanner, List<TypeInfo> baseTypes, List<TypeInfo> moduleAssemblies)
+        {
             scanner
                 .Register<IAs4SettingsService>(services, baseTypes, moduleAssemblies, mappings)
                 .Register<IRunAtServicesStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
-                .Register<IRunAtAppStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient);
-
-            foreach (var runat in services.BuildServiceProvider().GetServices<IRunAtServicesStartup>())
-                runat.Run(services, configuration);
+                .Register<IRunAtAppStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
+                .Register<IRunAtConfiguration>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient);
         }
 
-        public static void ExecuteStartupServices(this IApplicationBuilder builder)
+        private static void CallStartup<T>(IServiceCollection services, Action<T> caller)
         {
-            foreach (var runat in builder.ApplicationServices.GetServices<IRunAtAppStartup>())
-                runat.Run(builder);
+            foreach (var runat in services.BuildServiceProvider().GetServices<T>()) caller(runat);
         }
     }
 }

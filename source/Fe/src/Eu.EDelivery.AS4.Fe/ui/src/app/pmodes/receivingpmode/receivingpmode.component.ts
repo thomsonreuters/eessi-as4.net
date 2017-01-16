@@ -1,3 +1,4 @@
+import { ActivatedRoute } from '@angular/router';
 import { BoxComponent } from './../../common/box/box.component';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
@@ -15,12 +16,17 @@ import { RuntimeStore } from './../../settings/runtime.store';
 import { SendingPmode } from './../../api/SendingPmode';
 import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
 import { getRawFormValues } from './../../common/getRawFormValues';
+import { ModalService } from './../../common/modal/modal.service';
 
 @Component({
     templateUrl: './receivingpmode.component.html',
     styles: ['../basepmode/basepmode.component.scss']
 })
 export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> {
+    constructor(protected formBuilder: FormBuilder, protected pmodeService: PmodeService, protected pmodeStore: PmodeStore, protected dialogService: DialogService, protected runtimeStore: RuntimeStore,
+        protected modalService: ModalService, protected activatedRoute: ActivatedRoute) {
+        super(formBuilder, pmodeService, pmodeStore, dialogService, runtimeStore, modalService, activatedRoute);
+    }
     patchForm(formBuilder: FormBuilder, form: FormGroup, pmode: ReceivingPmode) {
         ReceivingPmode.patchForm(this.formBuilder, this.form, this.currentPmode);
     }
@@ -34,8 +40,9 @@ export class ReceivingPmodeComponent extends BasePmodeComponent<ReceivingPmode> 
     }
     init() {
         let isInitial = true;
-        this.currentPmode = this.pmodeStore.getState() && this.pmodeStore.getState().Receiving;
-        this.form = ReceivingPmode.getForm(this.formBuilder, this.currentPmode);
+        let pmode = this.pmodeStore.getState() && this.pmodeStore.getState().Receiving;
+        this.form = ReceivingPmode.getForm(this.formBuilder, pmode);
+        this.currentPmode = pmode;
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter(result => !!result)

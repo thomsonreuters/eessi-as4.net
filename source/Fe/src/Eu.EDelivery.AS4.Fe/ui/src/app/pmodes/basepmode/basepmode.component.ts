@@ -36,6 +36,8 @@ export abstract class BasePmodeComponent<T extends IPmode> {
     }
     public set currentPmode(pmode: T | undefined) {
         this._currentPmode = pmode;
+        if (!!!pmode) this.form.disable();
+        else this.form.enable();
     }
     protected _storeSubscription: Subscription;
     protected _currentPmodeSubscription: Subscription;
@@ -143,11 +145,14 @@ export abstract class BasePmodeComponent<T extends IPmode> {
         this._storeSubscription.unsubscribe();
         this._currentPmodeSubscription.unsubscribe();
         this._runtimeStoreSubscription.unsubscribe();
+        this.pmodeStore.setReceiving(null);
+        this.pmodeStore.setSending(null);
     }
     protected abstract patchForm(formBuilder: FormBuilder, form: FormGroup, pmode: T);
     protected abstract newPmode(newName: string): T;
     protected abstract getPmode(pmode: string);
-    protected abstract setPmode(pmode: T | undefined);
+    protected abstract setPmode(pmode: T
+        | undefined);
     abstract createPmode(value: any): Observable<boolean>;
     abstract updatePmode(value: any, originalName: string): Observable<boolean>;
     abstract deletePmode(value: any);
