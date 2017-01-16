@@ -22,6 +22,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
         /// </summary>
         /// <param name="services"></param>
         /// <param name="mappings"></param>
+        /// <param name="configBuilder"></param>
         /// <param name="configuration"></param>
         /// <param name="folderToScan"></param>
         public static void AddModules(this IServiceCollection services, Dictionary<string, string> mappings, Action<IConfigurationBuilder, IHostingEnvironment> configBuilder, out IConfigurationRoot configuration, string folderToScan = "modules")
@@ -70,11 +71,18 @@ namespace Eu.EDelivery.AS4.Fe.Modules
 
         private static void RegisterInterfaces(IServiceCollection services, Dictionary<string, string> mappings, Scanner scanner, List<TypeInfo> baseTypes, List<TypeInfo> moduleAssemblies)
         {
-            scanner
-                .Register<IAs4SettingsService>(services, baseTypes, moduleAssemblies, mappings)
-                .Register<IRunAtServicesStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
-                .Register<IRunAtAppStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
-                .Register<IRunAtConfiguration>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient);
+            // Get IModular interface
+            foreach (var iface in baseTypes.Where(type => typeof(IModular).IsAssignableFrom(type) && type.IsInterface && type != typeof(IModular)))
+            {
+                scanner.Register(iface, services, baseTypes, moduleAssemblies, mappings);
+            }
+
+            //scanner.Register<IModular>(services, baseTypes, moduleAssemblies, mappings);
+            //scanner
+            //    .Register<IAs4SettingsService>(services, baseTypes, moduleAssemblies, mappings)
+            //    .Register<IRunAtServicesStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
+            //    .Register<IRunAtAppStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
+            //    .Register<IRunAtConfiguration>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient);
         }
 
         private static void CallStartup<T>(IServiceCollection services, Action<T> caller)

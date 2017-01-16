@@ -1,5 +1,4 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Fe.Modules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -12,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Eu.EDelivery.AS4.Fe.Authentication
 {
-    public class AuthenticationSetup : IRunAtServicesStartup, IRunAtAppStartup
+    public class AuthenticationSetup : IAuthenticationSetup
     {
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {

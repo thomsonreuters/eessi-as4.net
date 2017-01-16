@@ -1,10 +1,9 @@
-﻿using Eu.EDelivery.AS4.Fe.Modules;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
 {
-    public class PmodeSetup : IRunAtServicesStartup
+    public class PmodeSetup : IPmodeSetup
     {
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {

@@ -8,18 +8,16 @@ namespace Eu.EDelivery.AS4.Fe.Modules
 {
     public class Scanner
     {
-        public Scanner Register<TType>(IServiceCollection services, IList<TypeInfo> baseAssembly, IList<TypeInfo> modules, IDictionary<string, string> settings = null, ServiceLifetime lifeTime = ServiceLifetime.Singleton)
+        public Scanner Register(Type baseType, IServiceCollection services, IList<TypeInfo> baseAssembly, IList<TypeInfo> modules, IDictionary<string, string> settings = null, ServiceLifetime lifeTime = ServiceLifetime.Singleton)
         {
-            var baseType = typeof(TType);
-
             var localModules = baseAssembly
-                .Where(x => baseType.IsAssignableFrom(x.AsType()) && x.IsClass && x.AsType() != baseType)
-                .Select(x => new
-                {
-                    Iface = baseType,
-                    LocalImplementation = x.AsType(),
-                    FromConfig = settings == null ? string.Empty : settings.Where(cfg => cfg.Key == x.AsType().FullName).Select(cfg => cfg.Value).FirstOrDefault()
-                });
+               .Where(x => baseType.IsAssignableFrom(x.AsType()) && x.IsClass && x.AsType() != baseType)
+               .Select(x => new
+               {
+                   Iface = baseType,
+                   LocalImplementation = x.AsType(),
+                   FromConfig = settings == null ? string.Empty : settings.Where(cfg => cfg.Key == x.AsType().FullName).Select(cfg => cfg.Value).FirstOrDefault()
+               });
 
             foreach (var local in localModules)
             {
@@ -48,15 +46,27 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             return this;
         }
 
+        public Scanner Register<TType>(IServiceCollection services, IList<TypeInfo> baseAssembly, IList<TypeInfo> modules, IDictionary<string, string> settings = null, ServiceLifetime lifeTime = ServiceLifetime.Singleton)
+        {
+            return Register(typeof(TType), services, baseAssembly, modules, settings, lifeTime);
+        }
+
         private void RegisterType(IServiceCollection services, Type baseType, Type implementation, ServiceLifetime lifetime)
         {
             services.Add(new ServiceDescriptor(baseType, implementation, lifetime));
+
+            // If the implementation has lifecycle hooks implemented then register these
+            foreach (var hook in implementation.GetInterfaces().Where(iface => typeof(ILifecylceHook).IsAssignableFrom(iface) && iface != typeof(ILifecylceHook) && iface != baseType && iface != typeof(IModular)))
+            {
+                services.Add(new ServiceDescriptor(hook, implementation, ServiceLifetime.Transient));
+            }
         }
 
         private bool RegisterType(IServiceCollection services, Type baseType, IList<TypeInfo> types, ServiceLifetime lifetime)
         {
             var searchFor = types.FirstOrDefault(typ => typ.ImplementedInterfaces.Any(baseType.IsAssignableFrom));
             if (searchFor == null) return false;
+
             RegisterType(services, baseType, searchFor.AsType(), lifetime);
             return true;
         }

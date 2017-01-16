@@ -1,12 +1,11 @@
-﻿using Eu.EDelivery.AS4.Fe.Modules;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Eu.EDelivery.AS4.Fe.Logging
 {
-    public class ApplicationInsightsSetup : IRunAtConfiguration, IRunAtServicesStartup, IRunAtAppStartup
+    public class ApplicationInsightsSetup : IApplicationInsightsSetup
     {
         private readonly IHostingEnvironment env;
 

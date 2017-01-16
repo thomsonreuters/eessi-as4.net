@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Pmodes;
+using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using NSubstitute;
 using Xunit;
 

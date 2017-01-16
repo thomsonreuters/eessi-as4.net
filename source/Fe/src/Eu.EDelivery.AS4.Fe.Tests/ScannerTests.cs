@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Modules;
-using Eu.EDelivery.AS4.Fe.Services;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Fe.Tests.TestData;
 using Microsoft.Extensions.Configuration;

@@ -1,12 +1,11 @@
-﻿using Eu.EDelivery.AS4.Fe.Modules;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 
 namespace Eu.EDelivery.AS4.Fe.Logging
 {
-    public class LoggerSetup : IRunAtAppStartup
+    public class LoggerSetup : ILoggerSetup
     {
         private readonly IHostingEnvironment env;
         private readonly ILoggerFactory loggerFactory;

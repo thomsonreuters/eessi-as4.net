@@ -1,11 +1,10 @@
-﻿using Eu.EDelivery.AS4.Fe.Modules;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Eu.EDelivery.AS4.Fe.Swagger
 {
-    public class SwaggerSetup : IRunAtAppStartup, IRunAtServicesStartup
+    public class SwaggerSetup : ISwaggerSetup
     {
         public void Run(IApplicationBuilder app)
         {

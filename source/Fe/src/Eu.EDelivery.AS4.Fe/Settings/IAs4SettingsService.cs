@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Models;
-using Eu.EDelivery.AS4.Fe.Services;
+using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Fe.Settings

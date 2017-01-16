@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Pmodes;
+using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
