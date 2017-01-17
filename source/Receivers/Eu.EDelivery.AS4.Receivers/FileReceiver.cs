@@ -21,6 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// <see cref="IReceiver" /> Implementation to receive Files
     /// </summary>
+    [Info("File receiver")]
     public class FileReceiver : PollingTemplate<FileInfo, ReceivedMessage>, IReceiver
     {
         private readonly IMimeTypeRepository _repository;
@@ -36,6 +37,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private string Password => this._properties.ReadOptionalProperty("Password");
         protected override ILogger Logger { get; }
 
+        [Info("Polling interval", "", "int")]
         protected override TimeSpan PollingInterval => FromProperties();
 
         /// <summary>
@@ -57,7 +59,7 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         /// <summary>
-        /// Start Receiving on the given File Location
+        /// Start Receiving on the given File LocationParameter
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>

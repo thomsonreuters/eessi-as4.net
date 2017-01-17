@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private SendPMode GetReferencedSendingPMode()
         {
             string pmodeId = this._as4Message.ReceivingPMode.ReceiptHandling.SendingPMode;
-            this._logger.Info("Receipt Sending PMode Id: " + pmodeId);
+            this._logger.Info("PMode Id: " + pmodeId);
             return TryGetSendingPMode(pmodeId);
         }
 

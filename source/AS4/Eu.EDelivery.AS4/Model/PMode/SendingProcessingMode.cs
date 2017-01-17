@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Security.References;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -14,6 +15,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
     public class SendingProcessingMode : IPMode
     {
+        [Info("The id of the sending pmode")]
         public string Id { get; set; }
         public bool AllowOverride { get; set; }
         public MessageExchangePattern Mep { get; set; }

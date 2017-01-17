@@ -1,0 +1,198 @@
+﻿{
+  "description": "",
+  "Id": {
+    "description": ""
+  },
+  "AllowOverride": {
+    "description": ""
+  },
+  "Mep": {
+    "description": ""
+  },
+  "MepBinding": {
+    "description": ""
+  },
+  "PushConfiguration": {
+    "description": "",
+    "Protocol": {
+      "description": "",
+      "Url": {
+        "description": ""
+      },
+      "UseChunking": {
+        "description": ""
+      },
+      "UseHttpCompression": {
+        "description": ""
+      }
+    },
+    "TlsConfiguration": {
+      "description": "",
+      "IsEnabled": {
+        "description": ""
+      },
+      "TlsVersion": {
+        "description": ""
+      },
+      "ClientCertificateReference": {
+        "description": "",
+        "ClientCertificateFindType": {
+          "description": ""
+        },
+        "ClientCertificateFindValue": {
+          "description": ""
+        }
+      }
+    }
+  },
+  "PullConfiguration": {
+    "description": "",
+    "SubChannel": {
+      "description": ""
+    }
+  },
+  "Reliability": {
+    "description": "",
+    "ReceptionAwareness": {
+      "description": "",
+      "IsEnabled": {
+        "description": ""
+      },
+      "RetryCount": {
+        "description": ""
+      },
+      "RetryInterval": {
+        "description": ""
+      }
+    }
+  },
+  "ReceiptHandling": {
+    "description": "",
+    "NotifyMessageProducer": {
+      "description": ""
+    },
+    "NotifyMethod": {
+      "description": "",
+      "Type": {
+        "description": ""
+      },
+      "Parameters": {
+        "description": ""
+      },
+      "Item": {
+        "description": "",
+        "Name": {
+          "description": ""
+        },
+        "Value": {
+          "description": ""
+        }
+      }
+    }
+  },
+  "ErrorHandling": {
+    "description": "",
+    "NotifyMessageProducer": {
+      "description": ""
+    },
+    "NotifyMethod": {
+      "description": "",
+      "Type": {
+        "description": ""
+      },
+      "Parameters": {
+        "description": ""
+      },
+      "Item": {
+        "description": "",
+        "Name": {
+          "description": ""
+        },
+        "Value": {
+          "description": ""
+        }
+      }
+    }
+  },
+  "ExceptionHandling": {
+    "description": "",
+    "NotifyMessageProducer": {
+      "description": ""
+    },
+    "NotifyMethod": {
+      "description": "",
+      "Type": {
+        "description": ""
+      },
+      "Parameters": {
+        "description": ""
+      },
+      "Item": {
+        "description": "",
+        "Name": {
+          "description": ""
+        },
+        "Value": {
+          "description": ""
+        }
+      }
+    }
+  },
+  "Security": {
+    "description": "",
+    "Signing": {
+      "description": "",
+      "IsEnabled": {
+        "description": ""
+      },
+      "PrivateKeyFindValue": {
+        "description": ""
+      },
+      "PrivateKeyFindType": {
+        "description": ""
+      },
+      "KeyReferenceMethod": {
+        "description": ""
+      },
+      "Algorithm": {
+        "description": ""
+      },
+      "HashFunction": {
+        "description": ""
+      }
+    },
+    "Encryption": {
+      "description": "",
+      "IsEnabled": {
+        "description": ""
+      },
+      "Algorithm": {
+        "description": ""
+      },
+      "PublicKeyFindType": {
+        "description": ""
+      },
+      "PublicKeyFindValue": {
+        "description": ""
+      },
+      "KeyTransport": {
+        "description": ""
+      }
+    }
+  },
+  "MessagePackaging": {
+    "description": "",
+    "Mpc": {
+      "description": ""
+    },
+    "UseAS4Compression": {
+      "description": ""
+    },
+    "IsMultiHop": {
+      "description": ""
+    },
+    "IncludePModeId": {
+      "description": ""
+    }
+  }
+}

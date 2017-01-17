@@ -1,0 +1,40 @@
+$invalidColor: #dd4b39;
+
+form {
+    select.ng-invalid {
+        border: 1px solid $invalidColor;
+    }
+
+    input.ng-invalid {
+        border: 1px solid $invalidColor;
+    }
+
+    .control-label {
+        font-weight: 100;        
+    }
+
+    h5 {
+        font-weight: bold;
+        padding-top: 10px;
+        padding-bottom: 1px;
+        margin-bottom: 1px;
+    }
+
+    .table {
+        margin-bottom: 0;
+        tr > td {
+            padding: 0;
+            padding-right: 5px;
+            border-top: 0;
+        }
+
+        tr > td:last-child {
+            padding-right: 0;
+            text-align: right;
+        }
+    
+        tr:not(:last-child) > td {
+            padding-bottom: 5px;
+        }
+    }
+}

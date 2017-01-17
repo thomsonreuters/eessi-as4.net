@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (C) 2014 The Holodeck B2B Team, Sander Fieten
@@ -31,9 +31,9 @@
 			NOTE this schema is provided for convenience only for developers that need to process the delivery files.</xsd:documentation>
 	</xsd:annotation>
 	<xsd:import namespace="http://www.w3.org/XML/1998/namespace"
-		schemaLocation="http://www.w3.org/2001/03/xml.xsd"/>
+		schemaLocationParameter="http://www.w3.org/2001/03/xml.xsd"/>
 	<xsd:import namespace="http://holodeck-b2b.org/schemas/2015/08/delivery/ebms/receiptchild"
-		schemaLocation="delivery_rcpt_child.xsd"/>
+		schemaLocationParameter="delivery_rcpt_child.xsd"/>
 	<xsd:element name="Messaging" type="Messaging"/>
 	<xsd:complexType name="Messaging">
 		<xsd:annotation>

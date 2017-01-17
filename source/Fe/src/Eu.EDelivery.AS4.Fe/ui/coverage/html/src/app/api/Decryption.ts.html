@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src\app\api\Decryption.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">all files</a> / <a href="index.html">src/app/api/</a> Decryption.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">63.64% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>28/44</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">48.84% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>21/43</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">45.45% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>5/11</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">64.29% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>27/42</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
+import { FormBuilder, FormGroup, FormArray, FormControl, AbstractControl } from '@angular/forms';
+import { thumbPrintValidation } from '../validators/thumbprintValidator';
+&nbsp;
+export class Decryption {
+    encryption: number;
+    privateKeyFindValue: string;
+    privateKeyFindType: number;
+&nbsp;
+    static FIELD_encryption: string = 'encryption';
+    static FIELD_privateKeyFindValue: string = 'privateKeyFindValue';
+    static FIELD_privateKeyFindType: string = 'privateKeyFindType';
+&nbsp;
+    static getForm(formBuilder: FormBuilder, current: Decryption): FormGroup {
+        let form = formBuilder.group({
+            encryption: [(current == null || current.encryption == null) ? 0 : current.encryption],
+            privateKeyFindValue: [current &amp;&amp; current.privateKeyFindValue, this.validateKey],
+            privateKeyFindType: [current &amp;&amp; current.privateKeyFindType, this.validateKeyType],
+        });
+        Decryption.setupForm(form);
+        return form;
+    }
+    /// Patch up all the formArray controls
+<span class="fstat-no" title="function not covered" >    static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Decryption)</span> {
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_encryption).reset({ value: current &amp;&amp; current.encryption, disabled: !!!current });</span>
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_privateKeyFindValue).reset({ value: current &amp;&amp; current.privateKeyFindValue, disabled: !!!current });</span>
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_privateKeyFindType).reset({ value: current &amp;&amp; current.privateKeyFindType, disabled: !!!current });</span>
+    }
+&nbsp;
+    private static setupForm(form: FormGroup) {
+        let fields = [this.FIELD_privateKeyFindValue, this.FIELD_privateKeyFindType];
+        form
+            .get(Decryption.FIELD_encryption)
+            .valueChanges
+            .map(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >+result)</span>
+            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                fields.forEach(<span class="fstat-no" title="function not covered" >el </span>=&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                    let frm = form.get(el);</span>
+<span class="cstat-no" title="statement not covered" >                    frm.updateValueAndValidity();</span>
+<span class="cstat-no" title="statement not covered" >                    if (result === 2 || result === 0) <span class="cstat-no" title="statement not covered" >frm.enable();</span></span>
+                    else <span class="cstat-no" title="statement not covered" >frm.disable();</span>
+                })
+            });
+        form
+            .get(Decryption.FIELD_privateKeyFindType)
+            .valueChanges
+            .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                form.get(Decryption.FIELD_privateKeyFindValue).updateValueAndValidity();</span>
+            });
+    }
+&nbsp;
+    private static validateKey(control: FormGroup): any {
+        let encryptionValue = control &amp;&amp; control.parent &amp;&amp; <span class="branch-2 cbranch-no" title="branch not covered" >Decryption.getEncryptionValue(&lt;FormGroup&gt;control.parent);</span>
+        let findValue = control &amp;&amp; control.parent &amp;&amp; <span class="branch-2 cbranch-no" title="branch not covered" >control.parent.get(Decryption.FIELD_privateKeyFindValue);</span>
+        let findType = control &amp;&amp; control.parent &amp;&amp; <span class="branch-2 cbranch-no" title="branch not covered" >control.parent.get(Decryption.FIELD_privateKeyFindType);</span>
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (encryptionValue === 2) {
+<span class="cstat-no" title="statement not covered" >            if (!!!control.value) {</span>
+<span class="cstat-no" title="statement not covered" >                return {</span>
+                    required: true
+                }
+            }
+        }
+&nbsp;
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (findType &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >findType.enabled </span>&amp;&amp; <span class="branch-2 cbranch-no" title="branch not covered" >+findType.value === 0)</span> {
+<span class="cstat-no" title="statement not covered" >            return thumbPrintValidation(&lt;FormControl&gt;findValue, encryptionValue === 2)</span>
+        }
+&nbsp;
+        return null;
+    }
+&nbsp;
+    private static validateKeyType(control: FormGroup) {
+        let encryptionValue = control &amp;&amp; control.parent &amp;&amp; <span class="branch-2 cbranch-no" title="branch not covered" >Decryption.getEncryptionValue(&lt;FormGroup&gt;control.parent);</span>
+        <span class="missing-if-branch" title="if path not taken" >I</span>if ((encryptionValue === 2) &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >control.value &lt; 0)</span> {
+<span class="cstat-no" title="statement not covered" >            return {</span>
+                required: true
+            }
+        }
+&nbsp;
+        return null;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    private static getEncryptionValue(control: FormGroup)</span>: number {
+<span class="cstat-no" title="statement not covered" >        return +control.get(Decryption.FIELD_encryption).value;</span>
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

@@ -79,15 +79,6 @@ namespace Eu.EDelivery.AS4.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to minder-settings.xml.
-        /// </summary>
-        public static string mindersettingsfilename {
-            get {
-                return ResourceManager.GetString("mindersettingsfilename", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to receive-pmodes.
         /// </summary>
         public static string receivepmodefolder {

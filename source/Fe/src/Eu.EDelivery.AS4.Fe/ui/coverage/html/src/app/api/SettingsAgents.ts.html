@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src\app\api\SettingsAgents.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">all files</a> / <a href="index.html">src/app/api/</a> SettingsAgents.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">34.29% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>12/35</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/44</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">7.69% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>1/13</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">37.93% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>11/29</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { SettingsAgent } from "./SettingsAgent";
+&nbsp;
+export class SettingsAgents {
+	submitAgents: SettingsAgent[];
+	receiveAgents: SettingsAgent[];
+	sendAgents: SettingsAgent[];
+	deliverAgents: SettingsAgent[];
+	notifyAgents: SettingsAgent[];
+	receptionAwarenessAgent: SettingsAgent;
+&nbsp;
+	static FIELD_submitAgents: string = 'submitAgents';
+	static FIELD_receiveAgents: string = 'receiveAgents';
+	static FIELD_sendAgents: string = 'sendAgents';
+	static FIELD_deliverAgents: string = 'deliverAgents';
+	static FIELD_notifyAgents: string = 'notifyAgents';
+	static FIELD_receptionAwarenessAgent: string = 'receptionAwarenessAgent';
+&nbsp;
+<span class="fstat-no" title="function not covered" >	static getForm(formBuilder: FormBuilder, current: SettingsAgents)</span>: FormGroup {
+<span class="cstat-no" title="statement not covered" >		return formBuilder.group({</span>
+			submitAgents: formBuilder.array(!!!(current &amp;&amp; current.submitAgents) ? [] : current.submitAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
+			receiveAgents: formBuilder.array(!!!(current &amp;&amp; current.receiveAgents) ? [] : current.receiveAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
+			sendAgents: formBuilder.array(!!!(current &amp;&amp; current.sendAgents) ? [] : current.sendAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
+			deliverAgents: formBuilder.array(!!!(current &amp;&amp; current.deliverAgents) ? [] : current.deliverAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
+			notifyAgents: formBuilder.array(!!!(current &amp;&amp; current.notifyAgents) ? [] : current.notifyAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
+			receptionAwarenessAgent: SettingsAgent.getForm(formBuilder, current &amp;&amp; current.receptionAwarenessAgent),
+		});
+	}
+	/// Patch up all the formArray controls
+<span class="fstat-no" title="function not covered" >	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SettingsAgents)</span> {
+&nbsp;
+<span class="cstat-no" title="statement not covered" >		form.removeControl('submitAgents');</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('submitAgents', formBuilder.array(!!!(current &amp;&amp; current.submitAgents) ? [] : current.submitAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.removeControl('receiveAgents');</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('receiveAgents', formBuilder.array(!!!(current &amp;&amp; current.receiveAgents) ? [] : current.receiveAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.removeControl('sendAgents');</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('sendAgents', formBuilder.array(!!!(current &amp;&amp; current.sendAgents) ? [] : current.sendAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.removeControl('deliverAgents');</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('deliverAgents', formBuilder.array(!!!(current &amp;&amp; current.deliverAgents) ? [] : current.deliverAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.removeControl('notifyAgents');</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('notifyAgents', formBuilder.array(!!!(current &amp;&amp; current.notifyAgents) ? [] : current.notifyAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.removeControl('receptionAwarenessAgent');</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('receptionAwarenessAgent', SettingsAgent.getForm(formBuilder, current &amp;&amp; current.receptionAwarenessAgent));</span>
+	}
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

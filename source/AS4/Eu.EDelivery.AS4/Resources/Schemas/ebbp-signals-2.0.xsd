@@ -25,7 +25,7 @@ This document and the information contained herein is provided on an "AS IS" bas
             targetNamespace="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0" elementFormDefault="qualified"
             attributeFormDefault="unqualified" version="2.0">
   <xsd:import namespace="http://www.w3.org/1999/xlink"
-              schemaLocation="http://www.oasis-open.org/committees/ebxml-msg/schema/xlink.xsd" />
+              schemaLocationParameter="http://www.oasis-open.org/committees/ebxml-msg/schema/xlink.xsd" />
   <xsd:annotation>
     <xsd:documentation>
       The version of digital signature specification supported is identified
@@ -33,7 +33,7 @@ This document and the information contained herein is provided on an "AS IS" bas
     </xsd:documentation>
   </xsd:annotation>
   <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#"
-              schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd" />
+              schemaLocationParameter="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd" />
   <xsd:simpleExceptionType name="non-empty-string">
     <xsd:restriction base="xsd:string">
       <xsd:minLength value="1" />

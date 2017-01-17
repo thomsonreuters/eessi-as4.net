@@ -1,5 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace Eu.EDelivery.AS4.Fe.Runtime
 {
@@ -32,6 +37,46 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         public IEnumerable<ItemType> GetTransformers()
         {
             return runtimeLoader.Transformers;
+        }
+
+        [HttpGet]
+        [Route("getcertificaterepositories")]
+        public IEnumerable<ItemType> GetCertificateRepositories()
+        {
+            return runtimeLoader.CertificateRepositories;
+        }
+
+        [HttpGet]
+        [Route("getdeliversenders")]
+        public IEnumerable<ItemType> GetDeliverSenders()
+        {
+            return runtimeLoader.DeliverSenders;
+        }
+
+        [HttpGet]
+        [Route("getall")]
+        public IActionResult GetAll()
+        {
+            return new ObjectResult(new
+            {
+                Receivers = GetReceivers(),
+                Steps = GetSteps(),
+                Transformers = GetTransformers(),
+                CertificateRepositories = GetCertificateRepositories(),
+                DeliverSenders = GetDeliverSenders(),
+                RuntimeMetaData = JObject.Parse(JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()))
+            });
+        }
+
+        [HttpGet]
+        [Route("getruntimemetadata")]
+        public IActionResult GetRuntimeMetaData()
+        {
+            return new ContentResult
+            {
+                Content = JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter() ),
+                ContentType = "application/json"
+            };
         }
     }
 }

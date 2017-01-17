@@ -1,0 +1,18 @@
+<as4-box [title]="'Basic settings'">
+    <div content>
+        <as4-base-settings [settings]="settings" #baseSettings></as4-base-settings>
+    </div>
+    <button [class.disabled]="!baseSettings.isDirty" action type="<button" class="btn btn-box-tool" (click)="baseSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty"></i></button>
+</as4-box>
+<as4-box [title]="'Custom settings'">
+    <div content>
+        <as4-custom-settings [settings]="settings && settings.customSettings" #customSettings></as4-custom-settings>
+    </div>
+    <button [class.disabled]="!customSettings.isDirty" action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty"></i></button>
+</as4-box>
+<as4-box [title]="'Database settings'">
+    <div content>
+        <as4-database-settings [settings]="settings && settings.database" #databaseSettings #databaseSettings></as4-database-settings>
+    </div>
+    <button [class.disabled]="!databaseSettings.isDirty" action type="button" class="btn btn-box-tool" (click)="databaseSettings.save()"><i class="fa fa-save" [class.active]="baseSettings.isDirty"></i></button>
+</as4-box>

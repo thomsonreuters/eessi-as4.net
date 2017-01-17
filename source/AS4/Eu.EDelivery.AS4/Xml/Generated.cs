@@ -5099,8 +5099,8 @@ namespace Eu.EDelivery.AS4.Xml
     public partial class ReceptionAwareness
     {
         public bool IsEnabled { get; set; }
-        public int RetryCount { get; set; }
-        public int RetryInterval { get; set; }
+        public int? RetryCount { get; set; }
+        public int? RetryInterval { get; set; }
     }
 
     /// <remarks/>

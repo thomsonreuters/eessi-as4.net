@@ -1,0 +1,20 @@
+html,
+body {
+    height: 100%;
+}
+
+span.active {
+    background-color: gray;
+}
+
+.stack-trace {
+    p {
+        height: 100px;
+        overflow: hidden;
+        overflow-y: scroll;
+    }
+}
+
+.form-control {
+    height: 33px;
+}

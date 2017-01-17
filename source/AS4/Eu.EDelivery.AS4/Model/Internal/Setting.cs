@@ -72,6 +72,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("Receiver")] public Receiver Receiver { get; set; }
         [XmlElement("Transformer")] public Transformer Transformer { get; set; }
         [XmlElement("Steps")] public Steps Steps { get; set; }
+        // TODO: define decorator strategy for the .xml document
         [XmlElement("Decorator")] public Decorator Decorator { get; set; }
         [XmlAttribute(AttributeName = "name")] public string Name { get; set; }
     }

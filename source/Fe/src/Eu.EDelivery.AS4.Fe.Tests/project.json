@@ -7,30 +7,32 @@
     "xunit": "2.2.0-beta4-build3444",
     "NSubstitute": "2.0.0-rc",
     "dotnet-test-xunit": "2.2.0-preview2-build1029",
-    "xunit.runner.visualstudio": "2.2.0-beta4-build1194"
+    "xunit.runner.visualstudio": "2.2.0-beta4-build1194",
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0"
   },
+  "buildOptions": {
+    "platform": "anycpu",
+    "preserveCompilationContext": true,
+    "copyToOutput": [
+      "Eu.EDelivery.AS4.Receivers.dll",
+      "metadata_sendingprocessingmode.json",
+      "metadata_sendingprocessingmode_noprops.json",
+      "metadata_sendingprocessingmode_flatten.json"
 
+    ]
+  },
   "frameworks": {
-    "netcoreapp1.0": {
+    "net461": {
       "dependencies": {
-        "Microsoft.NETCore.App": {
-          "version": "1.0.1",
-          "type": "default"
+        "Eu.EDelivery.AS4": {
+          "target": "project"
         }
       },
-      "imports": [
-        "dotnet5.6",
-        "portable-net45+win8",
-        "netstandard1.6"
-      ]
+      "imports": "dnxcore50"
     }
   },
   "tools": {
     "Microsoft.DotNet.Watcher.Tools": "1.0.0-preview2-final"
   },
-  "testRunner": "xunit",
-  "runtimes": {
-    "win8-x64": {},
-    "win": {}
-  }
+  "testRunner": "xunit"
 }

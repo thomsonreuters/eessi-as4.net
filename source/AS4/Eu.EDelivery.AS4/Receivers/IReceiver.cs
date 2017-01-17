@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Receivers

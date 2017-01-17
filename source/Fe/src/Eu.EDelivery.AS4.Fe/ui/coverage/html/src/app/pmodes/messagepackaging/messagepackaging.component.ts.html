@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src\app\pmodes\messagepackaging\messagepackaging.component.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../../prettify.css" />
+    <link rel="stylesheet" href="../../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../../index.html">all files</a> / <a href="index.html">src/app/pmodes/messagepackaging/</a> messagepackaging.component.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>7/7</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/0</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>1/1</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>6/6</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { FormGroup } from '@angular/forms';
+import { Component, Input } from '@angular/core';
+&nbsp;
+@Component({
+    selector: 'as4-message-packaging',
+    template: `
+        &lt;div [formGroup]="form"&gt;
+            &lt;as4-party label="From party" [group]="form.get('partyInfo.fromParty')" runtimeTooltip="partyinfo.fromparty"&gt;&lt;/as4-party&gt;
+            &lt;as4-party label="To party" [group]="form.get('partyInfo.toParty')"&gt;&lt;/as4-party&gt;
+        
+            &lt;div formGroupName="collaborationInfo"&gt;
+                &lt;h5&gt;Collaboration info&lt;/h5&gt;
+                &lt;as4-input isLabelBold="true" label="Action" runtimeTooltip="collaborationinfo.action"&gt;
+                    &lt;input type="text" formControlName="action" /&gt;
+                &lt;/as4-input&gt;
+                &lt;as4-input isLabelBold="true" label="Service" runtimeTooltip="collaborationinfo.service"&gt; 
+                    &lt;as4-columns formGroupName="service"&gt;
+                        &lt;input type="text" placeholder="value" formControlName="value" /&gt;
+                        &lt;input type="text" placeholder="type" formControlName="type" /&gt;
+                    &lt;/as4-columns&gt;
+                &lt;/as4-input&gt;
+                &lt;as4-input isLabelBold="true" label="Agreement reference" formGroupName="agreementReference" runtimeTooltip="collaborationinfo.agreementreference"&gt;
+                    &lt;as4-columns&gt;
+                        &lt;input type="text" formControlName="value" placeholder="value" /&gt;
+                        &lt;input type="text" formControlName="type" placeholder="type" /&gt;
+                    &lt;/as4-columns&gt;
+                &lt;/as4-input&gt;
+                &lt;as4-input isLabelBold="true" label="PmodeId" formGroupName="agreementReference" runtimeTooltip="collaborationinfo.agreementreference.pmodeid"&gt;
+                    &lt;as4-pmode-select mode="receiving" formControlName="pModeId"&gt;&lt;/as4-pmode-select&gt;
+                &lt;/as4-input&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `
+})
+export class MessagePackagingComponent {
+    @Input() form: FormGroup;
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:00:45 GMT+0100 (Romance Standard Time)
+</div>
+</div>
+<script src="../../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../../sorter.js"></script>
+</body>
+</html>

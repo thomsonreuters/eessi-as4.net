@@ -1,96 +1,66 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
+﻿using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
-using Eu.EDelivery.AS4.Fe.Start;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using NLog.Extensions.Logging;
 
 namespace Eu.EDelivery.AS4.Fe
 {
     // Add profile data for application users by adding properties to the ApplicationUser class
-
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
-        {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", true, true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
-            //if (env.IsEnvironment("Development"))
-            //    builder.AddApplicationInsightsSettings(true);
-            
-            //builder.AddEnvironmentVariables();
-            Configuration = builder.Build();
-        }
-
-        public IConfigurationRoot Configuration { get; }
+        public IConfigurationRoot Configuration { get; private set; }
 
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
+            var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
+            IConfigurationRoot config;
+            services.AddModules(moduleMappings, (configBuilder, env) =>
+            {
+                configBuilder.SetBasePath(env.ContentRootPath)
+                    .AddJsonFile("appsettings.json", true, true)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
+            }, out config);
+            Configuration = config;
+
             // Add framework services.
-            services.AddAuthentication(options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
+            //services.AddAuthentication(options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
 
-            services.AddApplicationInsightsTelemetry(Configuration);
-
-            services.AddMvc();
-            services.AddSwaggerGen();
-            services.AddAutoMapper();
+            services.AddMvc().AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
             services.AddSingleton<ILogging, Logging.Logging>();
+            services.AddSingleton<ISettingsSource, FileSettingsSource>();
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader)new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
-          
+            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader) new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
+
             services.AddOptions();
             services.Configure<JwtOptions>(Configuration.GetSection("JwtOptions"));
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
-
-            // Setup Identity
-            var connectionStringBuilder = new SqliteConnectionStringBuilder {DataSource = "test.sqlite"};
-            var connectionString = connectionStringBuilder.ToString();
-            var connection = new SqliteConnection(connectionString);
-
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
-            services
-                .AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
-            var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
-            services.AddModules(moduleMappings);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            //loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            //loggerFactory.AddDebug();
-            loggerFactory.AddNLog();
+            app.ExecuteStartupServices();
 
-            app.SetupAuthentication();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"ui/dist/")),
+                RequestPath = new PathString("")
+            });
+
             //app.UseCookieAuthentication(new CookieAuthenticationOptions
             //{
             //    ExpireTimeSpan = TimeSpan.FromSeconds(5)
@@ -126,8 +96,6 @@ namespace Eu.EDelivery.AS4.Fe
             //    }
             //};
 
-            env.ConfigureNLog("nlog.config");
-
             var logger = app.ApplicationServices.GetService<ILogging>();
             var settings = app.ApplicationServices.GetService<IOptions<ApplicationSettings>>();
             app.UseExceptionHandler(options =>
@@ -150,24 +118,7 @@ namespace Eu.EDelivery.AS4.Fe
                 });
             });
 
-            //app.UseApplicationInsightsRequestTelemetry();
-            //app.UseApplicationInsightsExceptionTelemetry();
-
             app.UseMvc();
-            app.UseSwagger();
-            app.UseSwaggerUi();
-
-            using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
-                context.Database.EnsureCreated();
-                context.SaveChanges();
-
-                var db = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
-                db.CreateAsync(new ApplicationUser {UserName = "test"}, "k1342hT*98").Wait();
-            }
-
-            app.ExecuteStartupServices();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// Template Method Polling Base Class to expose the Polling mechanism over the Receivers
     /// </summary>
-    /// <typeparam name="TIn">Incoming Message Type from the Polling Location</typeparam>
+    /// <typeparam name="TIn">Incoming Message Type from the Polling LocationParameter</typeparam>
     /// <typeparam name="TOut">Out coming Message Type when the Message is Received</typeparam>
     public abstract class PollingTemplate<TIn, TOut>
     {

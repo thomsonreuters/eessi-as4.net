@@ -1,0 +1,10 @@
+<div class="nav-tabs-custom">
+    <ul class="nav nav-tabs">
+        <li *ngFor="let tabItem of tabItems; let i = index" [class.active]="i === 0" [class.invalid]="!tabItem.isValid">
+            <a href="#tab_{{i}}" data-toggle="tab">{{tabItem.title}}</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <ng-content></ng-content>
+    </div>
+</div>

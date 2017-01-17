@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Modules
 {
-    public interface IRunAtAppStartup
+    public interface IRunAtAppStartup : ILifecylceHook
     {
         void Run(IApplicationBuilder app);
     }

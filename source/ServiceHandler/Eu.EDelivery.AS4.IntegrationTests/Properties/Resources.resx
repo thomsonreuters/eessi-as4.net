@@ -226,7 +226,7 @@
     &lt;Payload&gt;
       &lt;Id&gt;earth&lt;/Id&gt;
       &lt;MimeExceptionType&gt;image/jpeg&lt;/MimeExceptionType&gt;
-      &lt;Location&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg&lt;/Location&gt;
+      &lt;LocationParameter&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg&lt;/LocationParameter&gt;
       &lt;PayloadProperties&gt;
         &lt;PayloadProperty&gt;
            &lt;Name&gt;Test&lt;/Name&gt;
@@ -238,7 +238,7 @@
     &lt;Payload&gt;
       &lt;Id&gt;earth2&lt;/Id&gt;
       &lt;MimeExceptionType&gt;image/jpeg&lt;/MimeExceptionType&gt;
-      &lt;Location&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth(2).jpg&lt;/Location&gt;
+      &lt;LocationParameter&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth(2).jpg&lt;/LocationParameter&gt;
       &lt;PayloadProperties&gt;
         &lt;PayloadProperty&gt;
            &lt;Name&gt;Test&lt;/Name&gt;
@@ -278,7 +278,7 @@
     &lt;Payload&gt;
       &lt;Id&gt;earth&lt;/Id&gt;
       &lt;MimeExceptionType&gt;image/jpeg&lt;/MimeExceptionType&gt;
-      &lt;Location&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg&lt;/Location&gt;
+      &lt;LocationParameter&gt;file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg&lt;/LocationParameter&gt;
       &lt;PayloadProperties&gt;
         &lt;PayloadProperty&gt;
            &lt;Name&gt;Test&lt;/Name&gt;

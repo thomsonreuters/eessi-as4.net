@@ -123,11 +123,6 @@
   </data>
   <data name="externalfolder" xml:space="preserve">
     <value>external</value>
-    <comment>Local folder name for the external assemblies</comment>
-  </data>
-  <data name="mindersettingsfilename" xml:space="preserve">
-    <value>minder-settings.xml</value>
-    <comment>Local file name for the Minder Global Settings</comment>
   </data>
   <data name="receivepmodefolder" xml:space="preserve">
     <value>receive-pmodes</value>
@@ -139,6 +134,6 @@
   </data>
   <data name="settingsfilename" xml:space="preserve">
     <value>settings.xml</value>
-    <comment>Local file name for the Global Settings</comment>
+    <comment>s</comment>
   </data>
 </root>

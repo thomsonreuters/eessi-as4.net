@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for src\app\api\ReceivingProcessingMode.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../../index.html">all files</a> / <a href="index.html">src/app/api/</a> ReceivingProcessingMode.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">70.59% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>24/34</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">48% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>24/50</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">66.67% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>2/3</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">69.7% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>23/33</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { ReceiveReliability } from "./ReceiveReliability";
+import { ReceiveReceiptHandling } from "./ReceiveReceiptHandling";
+import { ReceiveErrorHandling } from "./ReceiveErrorHandling";
+import { Receivehandling } from "./Receivehandling";
+import { ReceiveSecurity } from "./ReceiveSecurity";
+import { MessagePackaging } from "./MessagePackaging";
+import { Deliver } from "./Deliver";
+import { IPmode } from './Pmode.interface';
+&nbsp;
+export class ReceivingProcessingMode {
+    id: string;
+    mep: number;
+    mepBinding: number;
+    reliability: ReceiveReliability;
+    receiptHandling: ReceiveReceiptHandling;
+    errorHandling: ReceiveErrorHandling;
+    exceptionHandling: Receivehandling;
+    security: ReceiveSecurity;
+    messagePackaging: MessagePackaging;
+    deliver: Deliver;
+&nbsp;
+    static FIELD_id: string = 'id';
+    static FIELD_mep: string = 'mep';
+    static FIELD_mepBinding: string = 'mepBinding';
+    static FIELD_reliability: string = 'reliability';
+    static FIELD_receiptHandling: string = 'receiptHandling';
+    static FIELD_errorHandling: string = 'errorHandling';
+    static FIELD_exceptionHandling: string = 'exceptionHandling';
+    static FIELD_security: string = 'security';
+    static FIELD_messagePackaging: string = 'messagePackaging';
+    static FIELD_deliver: string = 'deliver';
+&nbsp;
+    static getForm(formBuilder: FormBuilder, current: ReceivingProcessingMode): FormGroup {
+        return formBuilder.group({
+            [this.FIELD_id]: [current &amp;&amp; current.id, Validators.required],
+            [this.FIELD_mep]: [(current == null || current.mep == null) ? 0 : current.mep, Validators.required],
+            [this.FIELD_mepBinding]: [(current == null || current.mepBinding == null) ? 1 : current.mepBinding, Validators.required],
+            [this.FIELD_reliability]: ReceiveReliability.getForm(formBuilder, current &amp;&amp; current.reliability),
+            [this.FIELD_receiptHandling]: ReceiveReceiptHandling.getForm(formBuilder, current &amp;&amp; current.receiptHandling),
+            [this.FIELD_errorHandling]: ReceiveErrorHandling.getForm(formBuilder, current &amp;&amp; current.errorHandling),
+            [this.FIELD_exceptionHandling]: Receivehandling.getForm(formBuilder, current &amp;&amp; current.exceptionHandling),
+            [this.FIELD_security]: ReceiveSecurity.getForm(formBuilder, current &amp;&amp; current.security),
+            [this.FIELD_messagePackaging]: MessagePackaging.getForm(formBuilder, current &amp;&amp; current.messagePackaging),
+            [this.FIELD_deliver]: Deliver.getForm(formBuilder, current &amp;&amp; current.deliver),
+        });
+    }
+    /// Patch up all the formArray controls
+<span class="fstat-no" title="function not covered" >    static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingProcessingMode)</span> {
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_id).reset({ value: current &amp;&amp; current.id, disabled: !!!current || form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_mep).reset({ value: current &amp;&amp; current.mep, disabled: !!!current || form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_mepBinding).reset({ value: current &amp;&amp; current.mepBinding, disabled: !!!current || form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveReliability.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_reliability), current &amp;&amp; current.reliability);</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveReceiptHandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_receiptHandling), current &amp;&amp; current.receiptHandling);</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveErrorHandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_errorHandling), current &amp;&amp; current.errorHandling);</span>
+<span class="cstat-no" title="statement not covered" >        Receivehandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_exceptionHandling), current &amp;&amp; current.exceptionHandling);</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveSecurity.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_security), current &amp;&amp; current.security);</span>
+<span class="cstat-no" title="statement not covered" >        MessagePackaging.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_messagePackaging), current &amp;&amp; current.messagePackaging);</span>
+<span class="cstat-no" title="statement not covered" >        Deliver.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_deliver), current &amp;&amp; current.deliver);</span>
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+</div>
+</div>
+<script src="../../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../../sorter.js"></script>
+</body>
+</html>

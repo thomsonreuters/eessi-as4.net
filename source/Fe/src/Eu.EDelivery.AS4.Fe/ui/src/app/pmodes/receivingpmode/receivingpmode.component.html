@@ -1,0 +1,127 @@
+<form [formGroup]="pmode.form" class="form-horizontal">
+    <div formGroupName="pmode">
+        <as4-box>
+            <div content>
+                <as4-pmode #pmode> </as4-pmode>
+            </div>
+        </as4-box>
+        <as4-tab>
+            <div tabitem title="Common">
+                <as4-input label="Message exchange pattern" runtimeTooltip="receivingprocessingmode.mep">
+                    <select formControlName="mep">
+                        <option value="0">One way</option>
+                        <option value="1">Two way</option>
+                    </select>
+                </as4-input>
+                <as4-input label="Message exchange pattern binding" runtimeTooltip="receivingprocessingmode.mepbinding">
+                    <select formControlName="mepBinding">
+                        <option value="0">Pull</option>
+                        <option value="1">Push</option>
+                    </select>
+                </as4-input>
+                <div formGroupName="reliability">
+                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination" runtimeTooltip="duplicateelimination.isenabled">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                </div>
+            </div>
+            <div tabitem title="Message packaging" [isValid]="!!!currentPmode || pmode.form.get('pmode.messagePackaging').valid">
+                <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')"></as4-message-packaging>
+            </div>
+            <div title="Security" tabitem formGroupName="security" [isValid]="!!!currentPmode || pmode.form.get('pmode.security').valid">
+                <as4-input label="Signing verification" formGroupName="signingVerification" runtimeTooltip="receivesecurity.signingverification">
+                    <select formControlName="signature">
+                        <option value="0">Allowed</option>
+                        <option value="1">Not allowed</option>
+                        <option value="2">Required</option>
+                        <option value="3">Ignored</option>
+                    </select>
+                </as4-input>
+                <as4-input label="Decryption" formGroupName="decryption" runtimeTooltip="receivesecurity.decryption">
+                    <select formControlName="encryption" #selectedEncryption>
+                        <option value="0">Allowed</option>
+                        <option value="1">Not allowed</option>
+                        <option value="2">Required</option>
+                        <option value="3">Ignored</option>
+                    </select>
+                </as4-input>
+                <div formGroupName="decryption">
+                    <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"
+                        runtimeTooltip="decryption.privatekeyfindtype">
+                        <select formControlName="privateKeyFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </as4-input>
+                    <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"
+                        runtimeTooltip="decryption.privatekeyfindvalue">
+                        <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
+                    </as4-input>
+                </div>
+            </div>
+            <div title="Deliver" tabitem formGroupName="deliver" [isValid]="!!!currentPmode || pmode.form.get('pmode.deliver').valid">
+                <as4-input label="Is enabled" runtimeToolip="deliver.isenabled">
+                    <input type="checkbox" formControlName="isEnabled" />
+                </as4-input>
+                <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.deliver.payloadReferenceMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Deliver method" [group]="pmode.form.get('pmode.deliver.deliverMethod')" [types]="deliverSenders"></as4-method>
+            </div>
+            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || pmode.form.get('pmode.receiptHandling').valid">
+                <as4-input label="Use NNR format" runtimeTooltip="receivereceipthandling.usennrformat">
+                    <input type="checkbox" formControlName="useNNRFormat" />
+                </as4-input>
+                <as4-input label="Reply pattern" runtimeTooltip="receivereceipthandling.replypattern">
+                    <select formControlName="replyPattern">
+                        <option value="0">Response</option>
+                        <option value="1">Callback</option>
+                    </select>
+                </as4-input>
+                <as4-input label="Callback url" *ngIf="pmode.form.get('pmode.receiptHandling.callbackUrl').enabled" runtimeTooltip="receivereceipthandling.callbackurl">
+                    <input type="text" formControlName="callbackUrl" />
+                </as4-input>
+                <as4-input label="Sending PMode" runtimeTooltip="receivereceipthandling.sendingpmode">
+                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
+                </as4-input>
+            </div>
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || pmode.form.get('pmode.errorHandling').valid">
+                <as4-input label="Use soap fault" runtimeTooltip="receiveerrorhandling.usesoapfault">
+                    <input type="checkbox" formControlName="useSoapFault">
+                </as4-input>
+                <as4-input label="Reply pattern" runtimeTooltip="receiveerrorhandling.replypattern">
+                    <select formControlName="replyPattern">
+                        <option value="0">Response</option>
+                        <option value="1">Callback</option>
+                    </select>
+                </as4-input>
+                <as4-input label="Callback url" runtimeTooltip="receiveerrorhandling.callbackurl">
+                    <input type="text" formControlName="callbackUrl">
+                </as4-input>
+                <as4-input label="Response http code" runtimeTooltip="receiveerrorhandling.responsehttpcode">
+                    <input type="text" formControlName="responseHttpCode">
+                </as4-input>
+                <as4-input label="Sending pmode" runtimeTooltip="receiveerrorhandling.sendingpmode">
+                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
+                </as4-input>
+            </div>
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
+                <as4-input label="Notify message consumer" runtimeTooltip="receivehandling.notifymessageconsumer">
+                    <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
+                </as4-input>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
+            </div>
+        </as4-tab>
+    </div>
+</form>
