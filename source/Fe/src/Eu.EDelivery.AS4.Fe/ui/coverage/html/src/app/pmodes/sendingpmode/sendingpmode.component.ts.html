@@ -20,14 +20,14 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">38.3% </span>
+        <span class="strong">34.62% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>18/47</span>
+        <span class='fraction'>18/52</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/0</span>
+        <span class='fraction'>0/2</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">5% </span>
@@ -35,9 +35,9 @@
         <span class='fraction'>1/20</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">36.36% </span>
+        <span class="strong">32% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>16/44</span>
+        <span class='fraction'>16/50</span>
       </div>
     </div>
   </div>
@@ -112,7 +112,17 @@
 67
 68
 69
-70</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -122,10 +132,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -141,6 +153,22 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -151,14 +179,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -192,9 +212,11 @@ import { ReceivingPmode } from './../../api/ReceivingPmode';
 &nbsp;
 @Component({
     selector: 'as4-sending-pmode',
-    templateUrl: './sendingpmode.component.html'
+    templateUrl: './sendingpmode.component.html',
+    styles: ['../basepmode/basepmode.component.scss']
 })
 export class SendingPmodeComponent extends BasePmodeComponent&lt;SendingPmode&gt; {
+    public <span class="cstat-no" title="statement not covered" >mask: Array&lt;any&gt; = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];</span>
 <span class="fstat-no" title="function not covered" >    patchForm(formBuilder: FormBuilder, form: FormGroup, pmode: SendingPmode)</span> {
 <span class="cstat-no" title="statement not covered" >        SendingPmode.patchForm(this.formBuilder, this.form, this.currentPmode);</span>
     }
@@ -207,8 +229,24 @@ export class SendingPmodeComponent extends BasePmodeComponent&lt;SendingPmode&gt
 <span class="cstat-no" title="statement not covered" >        return newPmode;</span>
     }
 <span class="fstat-no" title="function not covered" >    init() {</span>
-<span class="cstat-no" title="statement not covered" >        this.form = SendingPmode.getForm(this.formBuilder, null);</span>
-<span class="cstat-no" title="statement not covered" >        setTimeout(<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" ></span>this.form.disable())</span>;</span>
+<span class="cstat-no" title="statement not covered" >        let isInitial = true;</span>
+<span class="cstat-no" title="statement not covered" >        let pmode = this.pmodeStore.getState() &amp;&amp; this.pmodeStore.getState().Sending;</span>
+<span class="cstat-no" title="statement not covered" >        this.form = SendingPmode.getForm(this.formBuilder, pmode);</span>
+<span class="cstat-no" title="statement not covered" >        this.currentPmode = pmode;</span>
+<span class="cstat-no" title="statement not covered" >        this._currentPmodeSubscription = this.pmodeStore</span>
+            .changes
+            .filter(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                let result = isInitial;</span>
+<span class="cstat-no" title="statement not covered" >                isInitial = false;</span>
+<span class="cstat-no" title="statement not covered" >                return !result;</span>
+            })
+            .filter(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >!!result)</span>
+            .map(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >result.Sending)</span>
+            .distinctUntilChanged()
+            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >                this.currentPmode = result;</span>
+<span class="cstat-no" title="statement not covered" >                SendingPmode.patchForm(this.formBuilder, this.form, result);</span>
+            });
 <span class="cstat-no" title="statement not covered" >        this._runtimeStoreSubscription = this.runtimeStore</span>
             .changes
             .filter(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >!!result)</span>
@@ -221,15 +259,7 @@ export class SendingPmodeComponent extends BasePmodeComponent&lt;SendingPmode&gt
             .map(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >result.SendingNames)</span>
             .distinctUntilChanged()
             .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >this.pmodes = result)</span>;
-<span class="cstat-no" title="statement not covered" >        this._currentPmodeSubscription = this.pmodeStore</span>
-            .changes
-            .filter(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >!!result)</span>
-            .map(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >result.Sending)</span>
-            .distinctUntilChanged()
-            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
-<span class="cstat-no" title="statement not covered" >                this.currentPmode = result;</span>
-<span class="cstat-no" title="statement not covered" >                SendingPmode.patchForm(this.formBuilder, this.form, result);</span>
-            });
+&nbsp;
     }
 <span class="fstat-no" title="function not covered" >    getPmode(pmode: string)</span> {
 <span class="cstat-no" title="statement not covered" >        this.pmodeService.setSending(pmode);</span>
@@ -256,7 +286,7 @@ export class SendingPmodeComponent extends BasePmodeComponent&lt;SendingPmode&gt
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:00:45 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>

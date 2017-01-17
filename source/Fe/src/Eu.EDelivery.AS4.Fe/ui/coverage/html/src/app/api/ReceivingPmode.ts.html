@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">64.29% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>14/14</span>
+        <span class='fraction'>9/14</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">75% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>9/12</span>
+        <span class='fraction'>0/12</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">33.33% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>3/3</span>
+        <span class='fraction'>1/3</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">61.54% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>13/13</span>
+        <span class='fraction'>8/13</span>
       </div>
     </div>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line medium'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -87,7 +87,7 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -95,10 +95,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
@@ -115,19 +115,19 @@ export class ReceivingPmode implements IPmode {
 	static FIELD_name: string = 'name';
 	static FIELD_pmode: string = 'pmode';
 &nbsp;
-	static getForm(formBuilder: FormBuilder, current: ReceivingPmode): FormGroup {
-		return formBuilder.group({
-			[this.FIELD_type]: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.type]</span>,
-			[this.FIELD_name]: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.name]</span>,
-			[this.FIELD_pmode]: ReceivingProcessingMode.getForm(formBuilder, current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.pmode)</span>,
+<span class="fstat-no" title="function not covered" >	static getForm(formBuilder: FormBuilder, current: ReceivingPmode)</span>: FormGroup {
+<span class="cstat-no" title="statement not covered" >		return formBuilder.group({</span>
+			[this.FIELD_type]: [current &amp;&amp; current.type],
+			[this.FIELD_name]: [current &amp;&amp; current.name],
+			[this.FIELD_pmode]: ReceivingProcessingMode.getForm(formBuilder, current &amp;&amp; current.pmode),
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingPmode) {
-		form.get(this.FIELD_type).reset({ value: current &amp;&amp; current.type, disabled: !!!current });
-		form.get(this.FIELD_name).reset({ value: current &amp;&amp; current.name, disabled: !!!current });
-		ReceivingProcessingMode.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_pmode), current &amp;&amp; current.pmode);
-		form.markAsPristine();
+<span class="fstat-no" title="function not covered" >	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingPmode)</span> {
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_type).reset({ value: current &amp;&amp; current.type, disabled: !!!current });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_name).reset({ value: current &amp;&amp; current.name, disabled: !!!current });</span>
+<span class="cstat-no" title="statement not covered" >		ReceivingProcessingMode.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_pmode), current &amp;&amp; current.pmode);</span>
+<span class="cstat-no" title="statement not covered" >		form.markAsPristine();</span>
 	}
 }
 &nbsp;</pre></td></tr>
@@ -136,7 +136,7 @@ export class ReceivingPmode implements IPmode {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

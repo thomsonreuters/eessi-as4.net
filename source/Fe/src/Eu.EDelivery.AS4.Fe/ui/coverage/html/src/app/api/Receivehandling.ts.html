@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">90.91% </span>
+        <span class="strong">72.73% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>20/22</span>
+        <span class='fraction'>16/22</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">50% </span>
+        <span class="strong">21.43% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>7/14</span>
+        <span class='fraction'>3/14</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">60% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>5/5</span>
+        <span class='fraction'>3/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">94.74% </span>
+        <span class="strong">73.68% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>18/19</span>
+        <span class='fraction'>14/19</span>
       </div>
     </div>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line medium'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -97,31 +97,31 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">30×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">30×</span>
-<span class="cline-any cline-yes">30×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">30×</span>
-<span class="cline-any cline-yes">30×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">30×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">30×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -147,9 +147,9 @@ export class Receivehandling {
         return form;
     }
     /// Patch up all the formArray controls
-    static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Receivehandling) {
-        form.get(this.FIELD_notifyMessageConsumer).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.notifyMessageConsumer,</span> disabled: !!!current });
-        Method.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_notifyMethod), current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.notifyMethod,</span> !!!current || <span class="branch-1 cbranch-no" title="branch not covered" >!current.notifyMessageConsumer)</span>;
+<span class="fstat-no" title="function not covered" >    static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Receivehandling)</span> {
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_notifyMessageConsumer).reset({ value: current &amp;&amp; current.notifyMessageConsumer, disabled: !!!current });</span>
+<span class="cstat-no" title="statement not covered" >        Method.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_notifyMethod), current &amp;&amp; current.notifyMethod, !!!current || !current.notifyMessageConsumer);</span>
     }
 &nbsp;
     static setupForm(form: FormGroup) {
@@ -160,9 +160,9 @@ export class Receivehandling {
             form.get(this.FIELD_notifyMethod).disable();
         }
 &nbsp;
-        form.get(this.FIELD_notifyMessageConsumer).valueChanges.subscribe(result =&gt; {
-            <span class="missing-if-branch" title="if path not taken" >I</span>if (result) <span class="cstat-no" title="statement not covered" >form.get(this.FIELD_notifyMethod).enable();</span>
-            else form.get(this.FIELD_notifyMethod).disable();
+        form.get(this.FIELD_notifyMessageConsumer).valueChanges.subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >            if (result) <span class="cstat-no" title="statement not covered" >form.get(this.FIELD_notifyMethod).enable();</span></span>
+            else <span class="cstat-no" title="statement not covered" >form.get(this.FIELD_notifyMethod).disable();</span>
         });
     }
 }
@@ -172,7 +172,7 @@ export class Receivehandling {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

@@ -33,7 +33,7 @@ module.exports = function (options) {
      * Do not change, leave as is or it wont work.
      * See: https://github.com/webpack/karma-webpack#source-maps
      */
-    devtool: 'inline-source-map',
+    devtool: 'eval',
 
     /**
      * Options affecting the resolving of modules.

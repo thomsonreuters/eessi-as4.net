@@ -1,3 +1,4 @@
+import { PMODECRUD_SERVICE } from './../crud/crud.component';
 import { PmodeStore } from '../pmode.store';
 import { ActivatedRoute } from '@angular/router';
 import { PmodeSelectComponent } from './pmodeselect.component';
@@ -15,7 +16,6 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { AuthHttp } from 'angular2-jwt';
-import { PmodeService } from '../pmode.service';
 
 describe('pmode select component', () => {
     let receivingNames: Array<string>;
@@ -23,12 +23,6 @@ describe('pmode select component', () => {
     beforeEach(() => TestBed.configureTestingModule({
         providers: [
             PmodeSelectComponent,
-            {
-                provide: PmodeService, useValue: {
-                    getAllReceiving() { },
-                    getAllSending() { }
-                }
-            },
             PmodeStore
         ]
     }));
@@ -38,7 +32,7 @@ describe('pmode select component', () => {
         sendingNames = new Array<string>();
         sendingNames.push('sendingPmode');
     });
-    it('Should load the pmodes from the correct store', inject([PmodeSelectComponent, PmodeService, PmodeStore], (cmp: PmodeSelectComponent, pmodeService: PmodeService, store: PmodeStore) => {
+    it('Should load the pmodes from the correct store', inject([PmodeSelectComponent, PmodeStore], (cmp: PmodeSelectComponent, store: PmodeStore) => {
         // Receiving
         cmp.mode = 'receiving';
         store.setState({
@@ -60,7 +54,7 @@ describe('pmode select component', () => {
         });
     }));
     it('should throw exception when no mode has been supplied', () => {
-        expect(() => new PmodeSelectComponent(null, null).ngOnInit()).toThrowError('Mode should be supplied');
+        expect(() => new PmodeSelectComponent(null).ngOnInit()).toThrowError('Mode should be supplied');
     });
     it('should set selectedPmode to the selected mode', inject([PmodeSelectComponent], (cmp: PmodeSelectComponent) => {
         // Setup

@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">54.55% </span>
+        <span class="strong">94.12% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>18/33</span>
+        <span class='fraction'>32/34</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">0% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/2</span>
+        <span class='fraction'>2/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">20% </span>
+        <span class="strong">60% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>1/5</span>
+        <span class='fraction'>3/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">65.38% </span>
+        <span class="strong">92.31% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>17/26</span>
+        <span class='fraction'>24/26</span>
       </div>
     </div>
   </div>
-  <div class='status-line medium'></div>
+  <div class='status-line high'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -150,28 +150,28 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { PmodeService } from './pmodes/pmode.service';
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { SendingPmodeService, ReceivingPmodeService } from './pmodes/pmode.service';
 import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';
 import { AuthenticationStore } from './authentication/authentication.service';
@@ -204,7 +204,7 @@ import '../assets/theme/js/app.js';
         &lt;as4-modal name="error" showDefaultButtons="false" #errorDialog&gt;
             &lt;div *ngIf="isShowDetails &amp;&amp; !!errorDialog.payload" [class.stack-trace]="isShowDetails"&gt;
                 &lt;h3&gt;Stack trace&lt;/h3&gt;
-                &lt;button type="button" class="btn btn-outline" [xngClipboard]="payload" (cbOnSuccess)="copiedToClipboard()"&gt;Copy&lt;/button&gt;
+                &lt;button type="button" class="btn btn-outline" [ngxClipboard]="payload" (cbOnSuccess)="copiedToClipboard()"&gt;Copy&lt;/button&gt;
                 &lt;p #payload&gt;{{errorDialog.payload}}&lt;/p&gt;
             &lt;/div&gt;
             &lt;div buttons&gt;
@@ -216,15 +216,15 @@ import '../assets/theme/js/app.js';
 })
 export class AppComponent {
     public isLoggedIn: boolean;
-    public <span class="cstat-no" title="statement not covered" >isShowDetails: boolean = false;</span>
+    public isShowDetails: boolean = false;
     @ViewChild('modal') modal: ElementRef;
-<span class="fstat-no" title="function not covered" >    constructor(public <span class="cstat-no" title="statement not covered" >appState: AppState,</span> private <span class="cstat-no" title="statement not covered" >authenticationStore: AuthenticationStore,</span> private <span class="cstat-no" title="statement not covered" >runtimeService: RuntimeService,</span> private <span class="cstat-no" title="statement not covered" >modalService: ModalService,</span> private <span class="cstat-no" title="statement not covered" >dialogService: DialogService,</span> private <span class="cstat-no" title="statement not covered" >pmodeService: PmodeService)</span></span> {
-<span class="cstat-no" title="statement not covered" >        this.authenticationStore.changes.subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {</span>
-<span class="cstat-no" title="statement not covered" >            this.isLoggedIn = result.loggedin;</span>
-<span class="cstat-no" title="statement not covered" >            if (this.isLoggedIn) {</span>
-<span class="cstat-no" title="statement not covered" >                this.runtimeService.getAll();</span>
-<span class="cstat-no" title="statement not covered" >                this.pmodeService.getAllSending();</span>
-<span class="cstat-no" title="statement not covered" >                this.pmodeService.getAllReceiving();</span>
+    constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService) {
+        this.authenticationStore.changes.subscribe(result =&gt; {
+            this.isLoggedIn = result.loggedin;
+            if (this.isLoggedIn) {
+                this.runtimeService.getAll();
+                this.sendingPmodeService.getAll();
+                this.receivingPmodeService.getAll();
             }
         });
     }
@@ -241,7 +241,7 @@ export class AppComponent {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../prettify.js"></script>

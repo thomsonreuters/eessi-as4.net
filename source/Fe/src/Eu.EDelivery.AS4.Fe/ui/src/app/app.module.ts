@@ -1,5 +1,4 @@
 import { AuthConfig } from 'angular2-jwt';
-// import { SPINNER_PROVIDERS } from './common/spinner/spinner.service';
 import { ClipboardModule } from 'ngx-clipboard';
 import { CommonModule } from '@angular/common';
 import { NgModule, ApplicationRef } from '@angular/core';
@@ -20,11 +19,9 @@ import { PmodesModule } from './pmodes/pmodes.module';
 
 import { As4ComponentsModule } from './common';
 import { AuthenticationModule } from './authentication';
-
-// Application wide providers
-// const APP_PROVIDERS = [
-//     AppState
-// ];
+import { Http, RequestOptions } from '@angular/http';
+import { AuthHttp } from 'angular2-jwt';
+import { authHttpServiceFactory } from '../app/common/as4components.module';
 
 type StoreType = {
     state: InternalStateType,

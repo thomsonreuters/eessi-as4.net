@@ -1,37 +1,8 @@
-<as4-modal name="new-pmode" title="Create a new pmode" (shown)="actionType = pmodes[0]; newName = ''; nameInput.focus()">
-    <form class="form-horizontal">
-        <div class="form-group">
-            <label class="col-xs-2">New name</label>
-            <div class="col-xs-10">
-                <input type="text" class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName" />
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-xs-2">Use</label>
-            <div class="col-xs-10">
-                <select class="form-control" (change)="actionType = $event.target.value" #select>
-                    <option *ngFor="let setting of pmodes" [selected]="actionType === setting" [ngValue]="setting">{{setting}}</option>
-                    <option value="-1" [selected]="actionType === -1">Custom</option>
-                </select>
-            </div>
-        </div>
-    </form>
-</as4-modal>
-<form [formGroup]="form" class="form-horizontal">
+<form [formGroup]="pmode.form" class="form-horizontal">
     <div formGroupName="pmode">
         <as4-box>
             <div content>
-                <as4-input label="Name" runtimeTooltip="receivingprocessingmode.id">
-                    <as4-columns noMargin="true">
-                        <select class="form-control select-pmode" (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name"
-                            #pmodeSelect>
-                            <option value="undefined">Select an option</option>
-                            <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.name)">{{currentPmode && currentPmode.name === pmode && !!form && !!form.controls ? form.controls.name.value : pmode}}</option>
-                        </select>
-                        <div crud-buttons [form]="form" (add)="add()" (rename)="rename()" (reset)="reset()" (delete)="delete()" (save)="save()" [current]="currentPmode"
-                            [isNewMode]="isNewMode"></div>
-                    </as4-columns>
-                </as4-input>
+                <as4-pmode #pmode> </as4-pmode>
             </div>
         </as4-box>
         <as4-tab>
@@ -54,10 +25,10 @@
                     </as4-input>
                 </div>
             </div>
-            <div tabitem title="Message packaging" [isValid]="!!!currentPmode || form.get('pmode.messagePackaging').valid">
-                <as4-message-packaging [form]="form.get('pmode.messagePackaging')"></as4-message-packaging>
+            <div tabitem title="Message packaging" [isValid]="!!!currentPmode || pmode.form.get('pmode.messagePackaging').valid">
+                <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')"></as4-message-packaging>
             </div>
-            <div title="Security" tabitem formGroupName="security" [isValid]="!!!currentPmode || form.get('pmode.security').valid">
+            <div title="Security" tabitem formGroupName="security" [isValid]="!!!currentPmode || pmode.form.get('pmode.security').valid">
                 <as4-input label="Signing verification" formGroupName="signingVerification" runtimeTooltip="receivesecurity.signingverification">
                     <select formControlName="signature">
                         <option value="0">Allowed</option>
@@ -101,14 +72,14 @@
                     </as4-input>
                 </div>
             </div>
-            <div title="Deliver" tabitem formGroupName="deliver" [isValid]="!!!currentPmode || form.get('pmode.deliver').valid">
+            <div title="Deliver" tabitem formGroupName="deliver" [isValid]="!!!currentPmode || pmode.form.get('pmode.deliver').valid">
                 <as4-input label="Is enabled" runtimeToolip="deliver.isenabled">
                     <input type="checkbox" formControlName="isEnabled" />
                 </as4-input>
-                <as4-method label="Payload reference method" [group]="form.get('pmode.deliver.payloadReferenceMethod')" [types]="deliverSenders"></as4-method>
-                <as4-method label="Deliver method" [group]="form.get('pmode.deliver.deliverMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.deliver.payloadReferenceMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Deliver method" [group]="pmode.form.get('pmode.deliver.deliverMethod')" [types]="deliverSenders"></as4-method>
             </div>
-            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || form.get('pmode.receiptHandling').valid">
+            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!currentPmode || pmode.form.get('pmode.receiptHandling').valid">
                 <as4-input label="Use NNR format" runtimeTooltip="receivereceipthandling.usennrformat">
                     <input type="checkbox" formControlName="useNNRFormat" />
                 </as4-input>
@@ -118,14 +89,14 @@
                         <option value="1">Callback</option>
                     </select>
                 </as4-input>
-                <as4-input label="Callback url" *ngIf="form.get('pmode.receiptHandling.callbackUrl').enabled" runtimeTooltip="receivereceipthandling.callbackurl">
+                <as4-input label="Callback url" *ngIf="pmode.form.get('pmode.receiptHandling.callbackUrl').enabled" runtimeTooltip="receivereceipthandling.callbackurl">
                     <input type="text" formControlName="callbackUrl" />
                 </as4-input>
                 <as4-input label="Sending PMode" runtimeTooltip="receivereceipthandling.sendingpmode">
                     <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
                 </as4-input>
             </div>
-            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || form.get('pmode.errorHandling').valid">
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!currentPmode || pmode.form.get('pmode.errorHandling').valid">
                 <as4-input label="Use soap fault" runtimeTooltip="receiveerrorhandling.usesoapfault">
                     <input type="checkbox" formControlName="useSoapFault">
                 </as4-input>
@@ -145,11 +116,11 @@
                     <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
                 </as4-input>
             </div>
-            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || form.get('pmode.exceptionHandling').valid">
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
                 <as4-input label="Notify message consumer" runtimeTooltip="receivehandling.notifymessageconsumer">
                     <input type="checkbox" formControlName="notifyMessageConsumer" #notifyMessageConsumer/>
                 </as4-input>
-                <as4-method label="Notify method" [group]="form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
             </div>
         </as4-tab>
     </div>

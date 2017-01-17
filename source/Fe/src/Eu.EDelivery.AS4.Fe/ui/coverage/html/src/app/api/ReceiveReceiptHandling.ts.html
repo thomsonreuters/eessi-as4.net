@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">81.25% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>34/34</span>
+        <span class='fraction'>26/32</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">84.38% </span>
+        <span class="strong">37.5% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>27/32</span>
+        <span class='fraction'>12/32</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">66.67% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>8/8</span>
+        <span class='fraction'>4/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">82.76% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>29/29</span>
+        <span class='fraction'>24/29</span>
       </div>
     </div>
   </div>
@@ -117,43 +117,43 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">32×</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32×</span>
-<span class="cline-any cline-yes">32×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">32×</span>
-<span class="cline-any cline-yes">32×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">32×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">83×</span>
-<span class="cline-any cline-yes">83×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">83×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">82×</span>
-<span class="cline-any cline-yes">82×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -184,18 +184,18 @@ export class ReceiveReceiptHandling {
 		return form;
 	}
 	/// Patch up all the formArray controls
-	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReceiptHandling) {
-		form.get(this.FIELD_useNNRFormat).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.useNNRFormat,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_replyPattern).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.replyPattern,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_callbackUrl).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.callbackUrl,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_sendingPMode).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.sendingPMode,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_sendingPMode).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.sendingPMode,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
+<span class="fstat-no" title="function not covered" >	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveReceiptHandling)</span> {
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_useNNRFormat).reset({ value: current &amp;&amp; current.useNNRFormat, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_replyPattern).reset({ value: current &amp;&amp; current.replyPattern, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_callbackUrl).reset({ value: current &amp;&amp; current.callbackUrl, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_sendingPMode).reset({ value: current &amp;&amp; current.sendingPMode, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_sendingPMode).reset({ value: current &amp;&amp; current.sendingPMode, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
 	}
 &nbsp;
 	static setupForm(form: FormGroup) {
 		let patternChanges = form.get(this.FIELD_replyPattern);
 &nbsp;
-		patternChanges.valueChanges.subscribe(result =&gt; this.processCallbackUrl(form));
+		patternChanges.valueChanges.subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >this.processCallbackUrl(form))</span>;
 		this.processCallbackUrl(form);
 	}
 &nbsp;
@@ -206,11 +206,11 @@ export class ReceiveReceiptHandling {
 		if (+replyPattern === 1) // Callback
 		{
 			callbackUrl.setValidators(Validators.required);
-			setTimeout(() =&gt; callbackUrl.enable());
+			callbackUrl.enable();
 		}
 		else {
 			callbackUrl.clearValidators();
-			setTimeout(() =&gt; callbackUrl.disable());
+			callbackUrl.disable();
 		}
 	}
 }
@@ -220,7 +220,7 @@ export class ReceiveReceiptHandling {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

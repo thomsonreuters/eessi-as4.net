@@ -1,6 +1,6 @@
 import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
 import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend } from '@angular/http';
-import { SpinnerService } from './spinner/spinner.service';
+import { SpinnerService, SPINNER_PROVIDERS } from './spinner/spinner.service';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TooltipDirective } from './tooltip.directive';
 import { ColumnsComponent } from './columns/columns.component';
@@ -45,7 +45,8 @@ export class CustomHttp extends Http {
 }
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
-    return new AuthHttp(new AuthConfig(), http, options);
+    let result = new AuthHttp(new AuthConfig(), http, options);
+    return result;
 }
 
 @NgModule({
@@ -74,6 +75,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         DialogService,
         ModalService,
         SpinnerService,
+        SPINNER_PROVIDERS,
         {
             provide: AuthHttp,
             useFactory: authHttpServiceFactory,

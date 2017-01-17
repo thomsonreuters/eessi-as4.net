@@ -1,4 +1,4 @@
-import { PmodeService } from './pmodes/pmode.service';
+import { SendingPmodeService, ReceivingPmodeService } from './pmodes/pmode.service';
 import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';
 import { AuthenticationStore } from './authentication/authentication.service';
@@ -45,13 +45,13 @@ export class AppComponent {
     public isLoggedIn: boolean;
     public isShowDetails: boolean = false;
     @ViewChild('modal') modal: ElementRef;
-    constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private pmodeService: PmodeService) {
+    constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService) {
         this.authenticationStore.changes.subscribe(result => {
             this.isLoggedIn = result.loggedin;
             if (this.isLoggedIn) {
                 this.runtimeService.getAll();
-                this.pmodeService.getAllSending();
-                this.pmodeService.getAllReceiving();
+                this.sendingPmodeService.getAll();
+                this.receivingPmodeService.getAll();
             }
         });
     }

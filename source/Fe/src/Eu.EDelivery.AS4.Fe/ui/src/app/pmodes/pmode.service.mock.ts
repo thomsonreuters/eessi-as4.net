@@ -1,21 +1,19 @@
-import { SendingPmode } from './../api/SendingPmode';
+import { FormGroup } from '@angular/forms';
+import { IPmode } from './../api/Pmode.interface';
+import { ICrudPmodeService } from './pmode.service';
 import { Observable } from 'rxjs';
-import { Receiver } from './../api/Receiver';
-import { IPmodeService } from './pmode.service';
 
-import { ReceivingPmode } from './../api/ReceivingPmode';
-
-export class PmodeServiceMock implements IPmodeService {
-    getAllReceiving() { }
-    setReceiving() { }
-    getAllSending() { }
-    setSending() { }
-    deleteReceiving(name: string) { }
-    deleteSending(name: string) { }
-    createReceiving(pmode: ReceivingPmode): Observable<boolean> { return null; }
-    updateReceiving(pmode: ReceivingPmode, originalName: string): Observable<boolean> { return null; }
-    createSending(pmode: SendingPmode): Observable<boolean> { return null; }
-    updateSending(pmode: SendingPmode, originalName: string): Observable<boolean> { return null; }
-    getSendingByName(name: string): Observable<SendingPmode> { return null; }
-    getReceivingByName(name: string): Observable<ReceivingPmode> { return null; }
+export class PmodeServiceMock implements ICrudPmodeService {
+    obsGet(): Observable<IPmode> { return null; }
+    obsGetAll(): Observable<Array<string>> { return null; }
+    get(name: string) { }
+    delete(name: string) { }
+    getNew(name: string): IPmode { return null; }
+    create(pmode: IPmode): Observable<boolean> { return null; }
+    getForm(pmode: IPmode): FormGroup { return null; }
+    getByName(name: string): Observable<IPmode> { return null; }
+    patchForm(form: FormGroup, pmode: IPmode) { }
+    patchName(form: FormGroup, name: string) { }
+    update(pmode: IPmode, originalName: string): Observable<boolean> { return null; }
+    getAll() { }
 }

@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">68.75% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>16/16</span>
+        <span class='fraction'>11/16</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">85.29% </span>
+        <span class="strong">41.18% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>29/34</span>
+        <span class='fraction'>14/34</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">66.67% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>3/3</span>
+        <span class='fraction'>2/3</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">66.67% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>15/15</span>
+        <span class='fraction'>10/15</span>
       </div>
     </div>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line medium'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -94,7 +94,7 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">32×</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -104,11 +104,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
@@ -137,12 +137,12 @@ export class ReceiveErrorHandling {
 		});
 	}
 	/// Patch up all the formArray controls
-	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveErrorHandling) {
-		form.get(this.FIELD_useSoapFault).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.useSoapFault,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_replyPattern).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.replyPattern,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_callbackUrl).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.callbackUrl,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_responseHttpCode).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.responseHttpCode,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
-		form.get(this.FIELD_sendingPMode).reset({ value: current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.sendingPMode,</span> disabled: !!!current &amp;&amp; form.parent.disabled });
+<span class="fstat-no" title="function not covered" >	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveErrorHandling)</span> {
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_useSoapFault).reset({ value: current &amp;&amp; current.useSoapFault, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_replyPattern).reset({ value: current &amp;&amp; current.replyPattern, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_callbackUrl).reset({ value: current &amp;&amp; current.callbackUrl, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_responseHttpCode).reset({ value: current &amp;&amp; current.responseHttpCode, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_sendingPMode).reset({ value: current &amp;&amp; current.sendingPMode, disabled: !!!current &amp;&amp; form.parent.disabled });</span>
 	}
 }
 &nbsp;</pre></td></tr>
@@ -151,7 +151,7 @@ export class ReceiveErrorHandling {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

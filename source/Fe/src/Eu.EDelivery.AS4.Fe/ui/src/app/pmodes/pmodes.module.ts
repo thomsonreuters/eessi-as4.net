@@ -1,3 +1,4 @@
+import { CrudComponent } from './crud/crud.component';
 import { ReceivingPmode } from './../api/ReceivingPmode';
 import { MessagePackagingComponent } from './messagepackaging/messagepackaging.component';
 import { SendingPmodeComponent } from './sendingpmode/sendingpmode.component';
@@ -10,11 +11,15 @@ import { NgModule } from '@angular/core';
 import { As4ComponentsModule } from './../common/as4components.module';
 import { ReceivingPmodeComponent } from './receivingpmode/receivingpmode.component';
 import { PmodeStore } from './pmode.store';
-import { PmodeService, pmodeService } from './pmode.service';
+import { SendingPmodeService, ReceivingPmodeService } from './pmode.service';
 import { MethodComponent } from './method/method.component';
 import { PmodeSelectComponent } from './pmodeselect/pmodeselect.component';
 
 import { ROUTES } from './pmodes.routes';
+
+import { AuthHttp } from 'angular2-jwt';
+import { Http, RequestOptions } from '@angular/http';
+import { authHttpServiceFactory } from '../common/as4components.module';
 
 @NgModule({
     declarations: [
@@ -23,11 +28,18 @@ import { ROUTES } from './pmodes.routes';
         PmodeSelectComponent,
         MethodComponent,
         PartyComponent,
-        MessagePackagingComponent
+        MessagePackagingComponent,
+        CrudComponent
     ],
     providers: [
         PmodeStore,
-        PmodeService
+        SendingPmodeService,
+        ReceivingPmodeService,
+        {
+            provide: AuthHttp,
+            useFactory: authHttpServiceFactory,
+            deps: [Http, RequestOptions]
+        }
     ],
     imports: [
         CommonModule,

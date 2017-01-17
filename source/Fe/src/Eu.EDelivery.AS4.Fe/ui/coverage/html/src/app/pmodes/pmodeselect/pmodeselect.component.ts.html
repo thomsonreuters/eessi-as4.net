@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">79.49% </span>
+        <span class="strong">55.26% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>31/39</span>
+        <span class='fraction'>21/38</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">57.14% </span>
+        <span class="strong">14.29% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>4/7</span>
+        <span class='fraction'>1/7</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">56.25% </span>
+        <span class="strong">18.75% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>9/16</span>
+        <span class='fraction'>3/16</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">77.78% </span>
+        <span class="strong">51.43% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>28/36</span>
+        <span class='fraction'>18/35</span>
       </div>
     </div>
   </div>
@@ -111,49 +111,51 @@
 66
 67
 68
-69</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+69
+70</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">27×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -172,7 +174,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -184,11 +186,12 @@ import { Component, OnInit, Input, Output, forwardRef, ChangeDetectionStrategy }
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 &nbsp;
 import { PmodeStore } from '../pmode.store';
-import { PmodeService } from '../pmode.service';
+import { ICrudPmodeService } from './../pmode.service';
+import { PMODECRUD_SERVICE } from './../crud/crud.component';
 &nbsp;
 export const PMODESELECT_CONTROL_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
-    useExisting: forwardRef(() =&gt; PmodeSelectComponent),
+    useExisting: forwardRef(<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" ></span>PmodeSelectComponent)</span>,
     multi: true
 };
 &nbsp;
@@ -208,20 +211,20 @@ export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
     public isDisabled: boolean;
     private _storeSubscription: Subscription;
     private _propagateChange: (_: string) =&gt; void;
-    constructor(private pmodeService: PmodeService, private pmodeStore: PmodeStore) { }
-    public selectPmode(pmode: string) {
-        this.selectedPmode = pmode;
-        this._propagateChange(pmode);
+    constructor(private PMODECRUD_SERVICE: ICrudPmodeService, private pmodeStore: PmodeStore) { }
+<span class="fstat-no" title="function not covered" >    public selectPmode(pmode: string)</span> {
+<span class="cstat-no" title="statement not covered" >        this.selectedPmode = pmode;</span>
+<span class="cstat-no" title="statement not covered" >        this._propagateChange(pmode);</span>
     }
     ngOnInit() {
         switch (this.mode) {
-            case 'receiving':
-                this._storeSubscription = this.pmodeStore.changes
+<span class="branch-0 cbranch-no" title="branch not covered" >            case 'receiving':</span>
+<span class="cstat-no" title="statement not covered" >                this._storeSubscription = this.pmodeStore.changes</span>
                     .distinctUntilChanged()
-                    .filter(result =&gt; !!(result &amp;&amp; result.ReceivingNames))
-                    .map(result =&gt; result.ReceivingNames)
-                    .subscribe(result =&gt; this.pmodes = result);
-                break;
+                    .filter(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >!!(result &amp;&amp; result.ReceivingNames))</span>
+                    .map(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >result.ReceivingNames)</span>
+                    .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >this.pmodes = result)</span>;
+<span class="cstat-no" title="statement not covered" >                break;</span>
 <span class="branch-1 cbranch-no" title="branch not covered" >            case 'sending':</span>
 <span class="cstat-no" title="statement not covered" >                this._storeSubscription = this.pmodeStore.changes</span>
                     .distinctUntilChanged()
@@ -239,8 +242,8 @@ export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
 <span class="fstat-no" title="function not covered" >    writeValue(value: string)</span> {
 <span class="cstat-no" title="statement not covered" >        this.selectedPmode = value;</span>
     }
-    registerOnChange(fn) {
-        this._propagateChange = fn;
+<span class="fstat-no" title="function not covered" >    registerOnChange(fn)</span> {
+<span class="cstat-no" title="statement not covered" >        this._propagateChange = fn;</span>
     }
 <span class="fstat-no" title="function not covered" >    registerOnTouched() { </span>}
 <span class="fstat-no" title="function not covered" >    setDisabledState(isDisabled: boolean)</span>: void {
@@ -253,7 +256,7 @@ export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>

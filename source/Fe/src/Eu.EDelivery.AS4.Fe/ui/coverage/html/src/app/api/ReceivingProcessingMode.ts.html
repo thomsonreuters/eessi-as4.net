@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">70.59% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>34/34</span>
+        <span class='fraction'>24/34</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">48% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>50/50</span>
+        <span class='fraction'>24/50</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">66.67% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>3/3</span>
+        <span class='fraction'>2/3</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">69.7% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>33/33</span>
+        <span class='fraction'>23/33</span>
       </div>
     </div>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line medium'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -140,7 +140,7 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">30×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -155,16 +155,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
-<span class="cline-any cline-yes">51×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
@@ -216,17 +216,17 @@ export class ReceivingProcessingMode {
         });
     }
     /// Patch up all the formArray controls
-    static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingProcessingMode) {
-        form.get(this.FIELD_id).reset({ value: current &amp;&amp; current.id, disabled: !!!current || form.parent.disabled });
-        form.get(this.FIELD_mep).reset({ value: current &amp;&amp; current.mep, disabled: !!!current || form.parent.disabled });
-        form.get(this.FIELD_mepBinding).reset({ value: current &amp;&amp; current.mepBinding, disabled: !!!current || form.parent.disabled });
-        ReceiveReliability.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_reliability), current &amp;&amp; current.reliability);
-        ReceiveReceiptHandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_receiptHandling), current &amp;&amp; current.receiptHandling);
-        ReceiveErrorHandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_errorHandling), current &amp;&amp; current.errorHandling);
-        Receivehandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_exceptionHandling), current &amp;&amp; current.exceptionHandling);
-        ReceiveSecurity.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_security), current &amp;&amp; current.security);
-        MessagePackaging.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_messagePackaging), current &amp;&amp; current.messagePackaging);
-        Deliver.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_deliver), current &amp;&amp; current.deliver);
+<span class="fstat-no" title="function not covered" >    static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceivingProcessingMode)</span> {
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_id).reset({ value: current &amp;&amp; current.id, disabled: !!!current || form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_mep).reset({ value: current &amp;&amp; current.mep, disabled: !!!current || form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >        form.get(this.FIELD_mepBinding).reset({ value: current &amp;&amp; current.mepBinding, disabled: !!!current || form.parent.disabled });</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveReliability.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_reliability), current &amp;&amp; current.reliability);</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveReceiptHandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_receiptHandling), current &amp;&amp; current.receiptHandling);</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveErrorHandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_errorHandling), current &amp;&amp; current.errorHandling);</span>
+<span class="cstat-no" title="statement not covered" >        Receivehandling.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_exceptionHandling), current &amp;&amp; current.exceptionHandling);</span>
+<span class="cstat-no" title="statement not covered" >        ReceiveSecurity.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_security), current &amp;&amp; current.security);</span>
+<span class="cstat-no" title="statement not covered" >        MessagePackaging.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_messagePackaging), current &amp;&amp; current.messagePackaging);</span>
+<span class="cstat-no" title="statement not covered" >        Deliver.patchForm(formBuilder, &lt;FormGroup&gt;form.get(this.FIELD_deliver), current &amp;&amp; current.deliver);</span>
     }
 }
 &nbsp;</pre></td></tr>
@@ -235,7 +235,7 @@ export class ReceivingProcessingMode {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

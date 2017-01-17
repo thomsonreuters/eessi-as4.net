@@ -26,15 +26,15 @@ export class SpinnerService {
     }
 }
 
-// export const SPINNER_PROVIDERS: Provider[] = [
-//     {
-//         provide: Http, useFactory: (backend, requestOptions, spinnerService) => {
-//             return new CustomHttp(backend, requestOptions, spinnerService);
-//         }, deps: [XHRBackend, RequestOptions, SpinnerService]
-//     },
-//     {
-//         provide: AuthHttp, useFactory: (backend, requestOptions, spinnerService) => {
-//             return new CustomHttp(backend, requestOptions, spinnerService);
-//         }, deps: [XHRBackend, RequestOptions, SpinnerService]
-//     }
-// ];
+export const SPINNER_PROVIDERS: Provider[] = [
+    {
+        provide: Http, useFactory: (backend, requestOptions, spinnerService) => {
+            return new CustomHttp(backend, requestOptions, spinnerService);
+        }, deps: [XHRBackend, RequestOptions, SpinnerService]
+    },
+    {
+        provide: AuthHttp, useFactory: (backend, requestOptions, spinnerService) => {
+            return new CustomHttp(backend, requestOptions, spinnerService);
+        }, deps: [XHRBackend, RequestOptions, SpinnerService]
+    }
+];

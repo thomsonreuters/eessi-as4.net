@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">75% </span>
+        <span class="strong">66.67% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>27/36</span>
+        <span class='fraction'>30/45</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">50% </span>
+        <span class="strong">43.18% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>19/38</span>
+        <span class='fraction'>19/44</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">70% </span>
+        <span class="strong">58.33% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>7/10</span>
+        <span class='fraction'>7/12</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">78.57% </span>
+        <span class="strong">69.44% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>22/28</span>
+        <span class='fraction'>25/36</span>
       </div>
     </div>
   </div>
@@ -95,9 +95,21 @@
 50
 51
 52
-53</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -145,11 +157,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
 import { Validators } from '@angular/forms';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { thumbPrintValidation } from '../validators/thumbprintValidator';
 &nbsp;
 export class Signing {
 	isEnabled: boolean;
@@ -184,19 +207,29 @@ export class Signing {
 <span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_privateKeyFindValue).reset({ value: current &amp;&amp; current.privateKeyFindValue, disabled: !!!current || !current.isEnabled });</span>
 <span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_privateKeyFindType).reset({ value: current &amp;&amp; current.privateKeyFindType, disabled: !!!current || !current.isEnabled });</span>
 <span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_keyReferenceMethod).reset({ value: current &amp;&amp; current.keyReferenceMethod, disabled: !!!current || !current.isEnabled });</span>
-<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_algorithm).reset({ value: current &amp;&amp; current.algorithm, disabled: !!!current });</span>
-<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_hashFunction).reset({ value: current &amp;&amp; current.hashFunction, disabled: !!!current });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_algorithm).reset({ value: current &amp;&amp; current.algorithm, disabled: !!!current || !current.isEnabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_hashFunction).reset({ value: current &amp;&amp; current.hashFunction, disabled: !!!current || !current.isEnabled });</span>
 	}
 &nbsp;
-	static setupForm(formGroup: FormGroup) {
-		let fields = Object.keys(this).filter(key =&gt; key.startsWith('FIELD_') &amp;&amp; !key.endsWith('isEnabled')).map(field =&gt; formGroup.get(this[field]));
-		let isEnabled = formGroup.get(this.FIELD_isEnabled);
+	static setupForm(form: FormGroup) {
+		let fields = Object.keys(this).filter(key =&gt; key.startsWith('FIELD_') &amp;&amp; !key.endsWith('isEnabled')).map(field =&gt; form.get(this[field]));
+		let isEnabled = form.get(this.FIELD_isEnabled);
 		let toggle = (value: boolean) =&gt; {
 			<span class="missing-if-branch" title="if path not taken" >I</span>if (value) <span class="cstat-no" title="statement not covered" >fields.forEach(<span class="fstat-no" title="function not covered" >field </span>=&gt; <span class="cstat-no" title="statement not covered" >field.enable())</span>;</span>
 			else fields.forEach(field =&gt; field.disable());
 		}
 		toggle(isEnabled.value);
 		isEnabled.valueChanges.subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >toggle(result))</span>;
+		let value = form.get(this.FIELD_privateKeyFindValue);
+		form.get(this.FIELD_privateKeyFindType)
+			.valueChanges
+			.map(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >+result)</span>
+			.subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >				value.clearValidators();</span>
+<span class="cstat-no" title="statement not covered" >				if (result === 0) <span class="cstat-no" title="statement not covered" >value.setValidators([Validators.required, thumbPrintValidation])</span></span>
+				else <span class="cstat-no" title="statement not covered" >value.setValidators(Validators.required);</span>
+<span class="cstat-no" title="statement not covered" >				value.updateValueAndValidity();</span>
+			});
 	}
 }
 &nbsp;</pre></td></tr>
@@ -205,7 +238,7 @@ export class Signing {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

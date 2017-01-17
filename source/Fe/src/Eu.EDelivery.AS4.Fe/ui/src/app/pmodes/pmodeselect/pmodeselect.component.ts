@@ -3,7 +3,7 @@ import { Component, OnInit, Input, Output, forwardRef, ChangeDetectionStrategy }
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { PmodeStore } from '../pmode.store';
-import { PmodeService } from '../pmode.service';
+import { PMODECRUD_SERVICE } from './../crud/crud.component';
 
 export const PMODESELECT_CONTROL_VALUE_ACCESSOR: any = {
     provide: NG_VALUE_ACCESSOR,
@@ -27,7 +27,7 @@ export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
     public isDisabled: boolean;
     private _storeSubscription: Subscription;
     private _propagateChange: (_: string) => void;
-    constructor(private pmodeService: PmodeService, private pmodeStore: PmodeStore) { }
+    constructor(private pmodeStore: PmodeStore) { }
     public selectPmode(pmode: string) {
         this.selectedPmode = pmode;
         this._propagateChange(pmode);

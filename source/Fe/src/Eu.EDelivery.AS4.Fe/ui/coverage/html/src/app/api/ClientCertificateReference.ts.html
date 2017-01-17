@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">81.82% </span>
+        <span class="strong">85.71% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>9/11</span>
+        <span class='fraction'>18/21</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">25% </span>
+        <span class="strong">30% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>2/8</span>
-      </div>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">66.67% </span>
-        <span class="quiet">Functions</span>
-        <span class='fraction'>2/3</span>
+        <span class='fraction'>3/10</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">80% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>4/5</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">85% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>8/10</span>
+        <span class='fraction'>17/20</span>
       </div>
     </div>
   </div>
@@ -66,9 +66,23 @@
 21
 22
 23
-24</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -82,6 +96,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -89,9 +105,21 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Validators } from '@angular/forms';
-/* tslint:disable */
-import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
+import { FormBuilder, FormGroup, FormArray, Validators, FormControl } from '@angular/forms';
+import { thumbPrintValidation } from '../validators/thumbprintValidator';
 &nbsp;
 export class ClientCertificateReference {
 	clientCertificateFindType: number;
@@ -101,15 +129,29 @@ export class ClientCertificateReference {
 	static FIELD_clientCertificateFindValue: string = 'clientCertificateFindValue';
 &nbsp;
 	static getForm(formBuilder: FormBuilder, current: ClientCertificateReference): FormGroup {
-		return formBuilder.group({
+		let form = formBuilder.group({
 			clientCertificateFindType: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.clientCertificateFindType,</span> Validators.required],
-			clientCertificateFindValue: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.clientCertificateFindValue,</span> Validators.required],
+			clientCertificateFindValue: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.clientCertificateFindValue,</span> [Validators.required, thumbPrintValidation]]
 		});
+		this.setupForm(form);
+		return form;
 	}
 	/// Patch up all the formArray controls
 <span class="fstat-no" title="function not covered" >	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ClientCertificateReference)</span> {
 <span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_clientCertificateFindType).reset({ value: current &amp;&amp; current.clientCertificateFindType, disabled: !!!current });</span>
 <span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_clientCertificateFindValue).reset({ value: current &amp;&amp; current.clientCertificateFindValue, disabled: !!!current });</span>
+	}
+	static setupForm(form: FormGroup) {
+		let findValue = form.get(this.FIELD_clientCertificateFindValue);
+		form.get(this.FIELD_clientCertificateFindType)
+			.valueChanges
+			.subscribe((result: number) =&gt; {
+				findValue.clearValidators();
+				<span class="missing-if-branch" title="else path not taken" >E</span>if (+result === 0)
+					findValue.setValidators([Validators.required, thumbPrintValidation]);
+				else
+<span class="cstat-no" title="statement not covered" >					findValue.setValidators(Validators.required);</span>
+			});
 	}
 }
 &nbsp;</pre></td></tr>
@@ -118,7 +160,7 @@ export class ClientCertificateReference {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

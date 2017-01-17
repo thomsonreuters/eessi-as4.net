@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">86.67% </span>
+        <span class="strong">84.31% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>39/45</span>
+        <span class='fraction'>43/51</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -30,14 +30,14 @@
         <span class='fraction'>0/0</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">40% </span>
+        <span class="strong">33.33% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>2/5</span>
+        <span class='fraction'>2/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">87.8% </span>
+        <span class="strong">84.78% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>36/41</span>
+        <span class='fraction'>39/46</span>
       </div>
     </div>
   </div>
@@ -156,7 +156,25 @@
 111
 112
 113
-114</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -201,6 +219,20 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -269,7 +301,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend } from '@angular/http';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
+import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend } from '@angular/http';
 import { SpinnerService, SPINNER_PROVIDERS } from './spinner/spinner.service';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TooltipDirective } from './tooltip.directive';
@@ -278,7 +311,8 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AUTH_PROVIDERS } from 'angular2-jwt';
+import { AuthHttp, AuthConfig } from 'angular2-jwt';
+import { TextMaskModule } from 'angular2-text-mask';
 &nbsp;
 import { BoxComponent } from './box/box.component';
 import { MustBeAuthorizedGuard } from './common.guards';
@@ -313,6 +347,11 @@ export class CustomHttp extends Http {
     }
 }
 &nbsp;
+<span class="fstat-no" title="function not covered" >export function authHttpServiceFactory(http: Http, options: RequestOptions)</span> {
+<span class="cstat-no" title="statement not covered" >    let result = new AuthHttp(new AuthConfig(), http, options);</span>
+<span class="cstat-no" title="statement not covered" >    return result;</span>
+}
+&nbsp;
 @NgModule({
     declarations: [
         BoxComponent,
@@ -331,7 +370,8 @@ export class CustomHttp extends Http {
         SelectDirective,
         ColumnsComponent,
         TooltipDirective,
-        SpinnerComponent
+        SpinnerComponent,
+        ThumbprintInputComponent
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -339,7 +379,12 @@ export class CustomHttp extends Http {
         ModalService,
         SpinnerService,
         SPINNER_PROVIDERS,
-        AUTH_PROVIDERS,
+        {
+            provide: AuthHttp,
+            useFactory: authHttpServiceFactory,
+            deps: [Http, RequestOptions]
+        }
+        // AUTH_PROVIDERS,
         // {
         //     provide: Http, useFactory: (backend, requestOptions, spinnerService) =&gt; {
         //         return new CustomHttp(backend, requestOptions, spinnerService);
@@ -364,21 +409,24 @@ export class CustomHttp extends Http {
         SelectDirective,
         ColumnsComponent,
         TooltipDirective,
-        SpinnerComponent
+        SpinnerComponent,
+        TextMaskModule,
+        ThumbprintInputComponent
     ],
     imports: [
         AuthenticationModule,
         RouterModule,
         CommonModule,
         ReactiveFormsModule,
-        FormsModule
+        FormsModule,
+        TextMaskModule
     ]
 })
 export class As4ComponentsModule {
 <span class="fstat-no" title="function not covered" >    static forRoot(): ModuleWithProviders {</span>
 <span class="cstat-no" title="statement not covered" >        return {</span>
             ngModule: As4ComponentsModule,
-            providers: [SpinnerService, SPINNER_PROVIDERS, SpinnerComponent]
+            providers: [SpinnerService, SpinnerComponent]
         };
     }
 }
@@ -388,7 +436,7 @@ export class As4ComponentsModule {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

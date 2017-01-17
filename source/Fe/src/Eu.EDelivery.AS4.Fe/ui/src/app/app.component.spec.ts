@@ -1,6 +1,6 @@
 import { AuthHttp, AUTH_PROVIDERS } from 'angular2-jwt';
 import { Http, ConnectionBackend } from '@angular/http';
-import { PmodeService } from './pmodes/pmode.service';
+import { ReceivingPmodeService, SendingPmodeService } from './pmodes/pmode.service';
 import {
     inject,
     TestBed
@@ -27,7 +27,8 @@ describe('App', () => {
             ModalService,
             DialogService,
             { provide: RuntimeService, useClass: RuntimeServiceMock },
-            { provide: PmodeService, useClass: PmodeServiceMock }
+            { provide: ReceivingPmodeService, useClass: PmodeServiceMock },
+            { provide: SendingPmodeService, useClass: PmodeServiceMock }
         ]
     }));
 

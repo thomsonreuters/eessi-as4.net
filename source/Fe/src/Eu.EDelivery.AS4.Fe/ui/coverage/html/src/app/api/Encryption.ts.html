@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">68.75% </span>
+        <span class="strong">56.76% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>11/16</span>
+        <span class='fraction'>21/37</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">25% </span>
+        <span class="strong">15.63% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>5/20</span>
+        <span class='fraction'>5/32</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">66.67% </span>
+        <span class="strong">33.33% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>2/3</span>
+        <span class='fraction'>3/9</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">66.67% </span>
+        <span class="strong">62.5% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>10/15</span>
+        <span class='fraction'>20/32</span>
       </div>
     </div>
   </div>
@@ -77,8 +77,36 @@
 32
 33
 34
-35</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -101,6 +129,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -109,10 +139,34 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/* tslint:disable */
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { Validators } from '@angular/forms';
+import { thumbPrintValidation } from '../validators/thumbprintValidator';
 &nbsp;
 export class Encryption {
 	isEnabled: boolean;
@@ -128,21 +182,45 @@ export class Encryption {
 	static FIELD_keyTransport: string = 'keyTransport';
 &nbsp;
 	static getForm(formBuilder: FormBuilder, current: Encryption): FormGroup {
-		return formBuilder.group({
-			isEnabled: [!!(current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.isEnabled)</span>],
-			algorithm: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.algorithm]</span>,
-			publicKeyFindType: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.publicKeyFindType]</span>,
-			publicKeyFindValue: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.publicKeyFindValue]</span>,
-			keyTransport: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.keyTransport]</span>,
+		let form = formBuilder.group({
+			isEnabled: [!!(current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.isEnabled)</span>, Validators.required],
+			algorithm: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.algorithm,</span> Validators.required],
+			publicKeyFindType: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.publicKeyFindType,</span> Validators.required],
+			publicKeyFindValue: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.publicKeyFindValue,</span> Validators.required],
+			keyTransport: [current &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >current.keyTransport,</span> Validators.required],
 		});
+		this.setupForm(form);
+		return form;
 	}
 	/// Patch up all the formArray controls
 <span class="fstat-no" title="function not covered" >	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Encryption)</span> {
 <span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_isEnabled).reset({ value: current &amp;&amp; current.isEnabled, disabled: !!!current });</span>
-<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_algorithm).reset({ value: current &amp;&amp; current.algorithm, disabled: !!!current });</span>
-<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_publicKeyFindType).reset({ value: current &amp;&amp; current.publicKeyFindType, disabled: !!!current });</span>
-<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_publicKeyFindValue).reset({ value: current &amp;&amp; current.publicKeyFindType, disabled: !!!current });</span>
-<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_keyTransport).reset({ value: current &amp;&amp; current.keyTransport, disabled: !!!current });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_algorithm).reset({ value: current &amp;&amp; current.algorithm, disabled: !!!current || !current.isEnabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_publicKeyFindType).reset({ value: current &amp;&amp; current.publicKeyFindType, disabled: !!!current || !current.isEnabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_publicKeyFindValue).reset({ value: current &amp;&amp; current.publicKeyFindValue, disabled: !!!current || !current.isEnabled });</span>
+<span class="cstat-no" title="statement not covered" >		form.get(this.FIELD_keyTransport).reset({ value: current &amp;&amp; current.keyTransport, disabled: !!!current || !current.isEnabled });</span>
+	}
+	static setupForm(form: FormGroup) {
+		let fields = [this.FIELD_algorithm, this.FIELD_keyTransport, this.FIELD_publicKeyFindType, this.FIELD_publicKeyFindValue];
+		let value = form.get(this.FIELD_publicKeyFindValue);
+		let isEnabled = form.get(this.FIELD_isEnabled);
+&nbsp;
+		form.get(this.FIELD_publicKeyFindType)
+			.valueChanges
+			.subscribe(<span class="fstat-no" title="function not covered" >(result: number)</span> =&gt; {
+<span class="cstat-no" title="statement not covered" >				value.clearValidators();</span>
+<span class="cstat-no" title="statement not covered" >				if (+result === 0) <span class="cstat-no" title="statement not covered" >value.setValidators([Validators.required, thumbPrintValidation]);</span></span>
+				else <span class="cstat-no" title="statement not covered" >value.setValidators(Validators.required);</span>
+<span class="cstat-no" title="statement not covered" >				value.updateValueAndValidity();</span>
+			});
+&nbsp;
+		isEnabled
+			.valueChanges
+			.map(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >!!result)</span>
+			.subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+<span class="cstat-no" title="statement not covered" >				if (result) <span class="cstat-no" title="statement not covered" >fields.forEach(<span class="fstat-no" title="function not covered" >el </span>=&gt; <span class="cstat-no" title="statement not covered" >form.get(el).enable())</span>;</span></span>
+				else <span class="cstat-no" title="statement not covered" >fields.forEach(<span class="fstat-no" title="function not covered" >el </span>=&gt; <span class="cstat-no" title="statement not covered" >form.get(el).disable())</span>;</span>
+			});
 	}
 }
 &nbsp;</pre></td></tr>
@@ -151,7 +229,7 @@ export class Encryption {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Jan 12 2017 12:35:32 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>
