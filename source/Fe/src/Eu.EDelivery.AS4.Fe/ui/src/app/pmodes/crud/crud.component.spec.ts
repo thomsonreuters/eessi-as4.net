@@ -37,33 +37,29 @@ class ModalServiceMock {
 
 describe('Pmode crud', () => {
     let pmodes: Array<string>;
-    let fixture: ComponentFixture<CrudComponent>;
     let instance: CrudComponent;
     let pmode1: IPmode;
     let form: FormGroup;
 
     beforeEach(async(() => TestBed.configureTestingModule({
         declarations: [
-            CrudComponent
+
         ],
         imports: [
             ReactiveFormsModule,
             As4ComponentsModule
         ],
         providers: [
+            CrudComponent,
             { provide: DialogService, useClass: MockDialogService },
             { provide: RuntimeStore, useClass: RuntimeStoreMock },
             { provide: PMODECRUD_SERVICE, useClass: PmodeServiceMock },
             { provide: ModalService, useClass: ModalServiceMock }
         ]
-    }).compileComponents()));
-    beforeEach(() => {
-        fixture = TestBed.createComponent(CrudComponent);
-        instance = fixture.componentInstance;
-    });
-    afterEach(() => {
-        fixture.destroy();
-    });
+    })));
+    beforeEach(inject([CrudComponent], (component: CrudComponent) => {
+        instance = component;
+    }));
     beforeEach(() => {
         pmodes = new Array<string>();
         pmodes.push('pmode1');
@@ -85,13 +81,12 @@ describe('Pmode crud', () => {
     });
     describe('when created', () => {
         it('should call service.getForm and subscribe to the store events', inject([PMODECRUD_SERVICE], (service: ICrudPmodeService) => {
-            let getForm = spyOn(service, 'getForm').and.returnValue(form);
             let obsGetAll = spyOn(service, 'obsGetAll').and.returnValue(Observable.of(new Array<string>()));
             let obsGet = spyOn(service, 'obsGet').and.returnValue(Observable.of(null));
 
-            fixture.componentInstance.ngOnInit();
+            instance.ngOnInit();
 
-            expect(getForm).toHaveBeenCalled();
+            expect(instance.form).toBeDefined();
             expect(obsGetAll).toHaveBeenCalled();
             expect(obsGet).toHaveBeenCalled();
         }));

@@ -279,3 +279,6 @@ __pycache__/
 # tools/
 /source/ServiceHandler/Eu.EDelivery.AS4.Fe/.awcache
 /source/Fe/src/Eu.EDelivery.AS4.Fe/ui/dist
+
+# FE
+*.ts.html

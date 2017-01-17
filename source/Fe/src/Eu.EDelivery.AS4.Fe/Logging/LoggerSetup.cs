@@ -18,8 +18,8 @@ namespace Eu.EDelivery.AS4.Fe.Logging
 
         public void Run(IApplicationBuilder app)
         {
-            env.ConfigureNLog("nlog.config");
-            loggerFactory.AddNLog();
+            //env.ConfigureNLog("nlog.config");
+            //loggerFactory.AddNLog();
         }
     }
 }
