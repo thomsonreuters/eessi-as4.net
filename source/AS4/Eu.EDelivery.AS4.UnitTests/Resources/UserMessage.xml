@@ -77,7 +77,7 @@
         </eb:MessageProperties>
         <eb:PayloadInfo>
           <eb:PartInfo href="cid:earth">
-            <eb:Schemas />
+            <eb:Schema location="" version="" namespace=""/>
             <eb:PartProperties>
               <eb:Property name="CompressionType">application/gzip</eb:Property>
               <eb:Property name="MimeType">image/jpeg</eb:Property>
@@ -85,7 +85,7 @@
             </eb:PartProperties>
           </eb:PartInfo>
           <eb:PartInfo href="cid:earth2">
-            <eb:Schemas />
+            <eb:Schema />
             <eb:PartProperties>
               <eb:Property name="CompressionType">application/gzip</eb:Property>
               <eb:Property name="MimeType">image/jpeg</eb:Property>

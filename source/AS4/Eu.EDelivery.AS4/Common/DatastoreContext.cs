@@ -21,7 +21,8 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IConfig _config;
         private ILogger _logger;
         private RetryPolicy _policy;
-        private IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers;
+        private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
+            new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
 
         public DbSet<InMessage> InMessages { get; set; }
         public DbSet<OutMessage> OutMessages { get; set; }
@@ -63,22 +64,27 @@ namespace Eu.EDelivery.AS4.Common
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
+        private static readonly object SyncLock = new object();
+
         private void InitializeDataStoreContext()
         {
-            this._providers = new Dictionary<string, Func<string, DbContextOptionsBuilder>>(
-                StringComparer.InvariantCulture);
-
-            try
+            lock (SyncLock)
             {
-                base.Database.EnsureCreated();
-            }
-            catch (AS4Exception exception)
-            {
-                this._logger.Error(exception.Message);
-            }   
-            catch (Exception exception)
-            {
-                this._logger.Debug("Datastore failed to create or already created");
+                try
+                {
+                    if (base.Database.EnsureCreated())
+                    {
+                        _logger.Info("Datastore did not exist and has been created.");
+                    }
+                }
+                catch (AS4Exception exception)
+                {
+                    this._logger.Error(exception.Message);
+                }
+                catch (Exception exception)
+                {
+                    this._logger.Fatal($"Datastore failed to create or already created: {exception.Message}");
+                }
             }
         }
 
@@ -106,7 +112,7 @@ namespace Eu.EDelivery.AS4.Common
             ConfigureProviders(optionsBuilder);
 
             string providerKey = this._config.GetSetting("Provider");
-            if(!this._providers.ContainsKey(providerKey)) throw new AS4Exception($"No Database provider found for key: {providerKey}");
+            if (!this._providers.ContainsKey(providerKey)) throw new AS4Exception($"No Database provider found for key: {providerKey}");
             this._providers[providerKey](connectionString);
         }
 

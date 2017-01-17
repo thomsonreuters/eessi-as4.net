@@ -30,6 +30,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
     }
 
+    public class ErrorDescription
+    {
+        public string Language { get; set; }
+        public string Value { get; set; }
+    }
+
     public class ErrorDetail
     {
         public string ErrorCode { get; set; }
@@ -38,6 +44,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string Category { get; set; }
         public string RefToMessageInError { get; set; }
         public string ShortDescription { get; set; }
+        public ErrorDescription Description { get; set; }
         public string Detail { get; set; }
     }
 

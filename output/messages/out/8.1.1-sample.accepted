@@ -2,7 +2,7 @@
 <SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
   <Collaboration>
     <AgreementRef>
-      <PModeId>8.1.9-pmode</PModeId>
+      <PModeId>8.1.1-pmode</PModeId>
       <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
     </AgreementRef>
     <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
@@ -28,21 +28,9 @@
 
   <Payloads>
     <Payload>
-      <Id>earth</Id>
-      <MimeType>image/jpeg</MimeType>
-      <Location>file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg</Location>
-      <PayloadProperties>
-        <PayloadProperty>
-           <Name>Test</Name>
-          <Value>Test</Value>
-        </PayloadProperty>
-      </PayloadProperties>
-    </Payload>
-
-    <Payload>
       <Id>earth2</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth(2).jpg</Location>
+      <Location>file:///C:\temp\inspectors.zip</Location>
       <PayloadProperties>
         <PayloadProperty>
            <Name>Test</Name>
