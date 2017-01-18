@@ -21,7 +21,6 @@ import { MockBackend } from '@angular/http/testing';
 import { PartyComponent } from './party.component';
 import { Party } from './../../api/Party';
 import { PartyId } from './../../api/PartyId';
-import { As4ComponentsModule } from './../../common/as4components.module';
 import { ModalService } from './../../common/modal/modal.service';
 import { DialogService } from './../../common/dialog.service';
 import { InputComponent } from './../../common/input/input.component';

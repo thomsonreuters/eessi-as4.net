@@ -34,12 +34,7 @@ import { authHttpServiceFactory } from '../common/as4components.module';
     providers: [
         PmodeStore,
         SendingPmodeService,
-        ReceivingPmodeService,
-        {
-            provide: AuthHttp,
-            useFactory: authHttpServiceFactory,
-            deps: [Http, RequestOptions]
-        }
+        ReceivingPmodeService
     ],
     imports: [
         CommonModule,

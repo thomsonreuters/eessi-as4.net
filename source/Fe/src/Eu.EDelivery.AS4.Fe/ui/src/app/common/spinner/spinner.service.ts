@@ -1,5 +1,5 @@
 import { AuthHttp } from 'angular2-jwt';
-import { CustomHttp } from './../as4components.module';
+import { CustomHttp } from './customhttp';
 import { Http, XHRBackend, RequestOptions } from '@angular/http';
 import { Injectable, Provider } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -11,7 +11,7 @@ export class SpinnerService {
     private _changes = new BehaviorSubject<boolean>(false);
     private _counter: number = 0;
     constructor() {
-        this.changes = this._changes.asObservable().distinctUntilChanged().last();
+        this.changes = this._changes.asObservable().distinctUntilChanged();
     }
     public show() {
         this._counter++;
@@ -26,15 +26,6 @@ export class SpinnerService {
     }
 }
 
-export const SPINNER_PROVIDERS: Provider[] = [
-    {
-        provide: Http, useFactory: (backend, requestOptions, spinnerService) => {
-            return new CustomHttp(backend, requestOptions, spinnerService);
-        }, deps: [XHRBackend, RequestOptions, SpinnerService]
-    },
-    {
-        provide: AuthHttp, useFactory: (backend, requestOptions, spinnerService) => {
-            return new CustomHttp(backend, requestOptions, spinnerService);
-        }, deps: [XHRBackend, RequestOptions, SpinnerService]
-    }
-];
+export function spinnerHttpServiceFactory(backend: XHRBackend, options: RequestOptions, spinnerService: SpinnerService) {
+    return new CustomHttp(backend, options, spinnerService);
+}

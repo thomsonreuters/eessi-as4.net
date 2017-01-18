@@ -16,7 +16,6 @@ import {
 } from '@angular/http';
 import { MockBackend } from '@angular/http/testing';
 
-import { As4ComponentsModule } from './../../common/as4components.module';
 import { CommonModule } from '@angular/common';
 import { DialogService } from './../../common/dialog.service';
 import { InputComponent } from './../../common/input/input.component';
