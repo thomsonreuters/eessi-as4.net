@@ -113,7 +113,11 @@ module.exports = function (config) {
       // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom) 
       exitOnResourceError: true,
       flags: ['--load-images=true'],
-      debug: true
+      debug: true,
+      captureTimeout: 20000,
+      browserDisconnectTimeout: 20000,
+      browserDisconnectTolerance: 3,
+      browserNoActivityTimeout: 100000
     },
     /*
      * Continuous Integration mode
