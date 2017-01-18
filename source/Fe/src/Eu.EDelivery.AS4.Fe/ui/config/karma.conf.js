@@ -103,18 +103,18 @@ module.exports = function (config) {
       'PhantomJS'
     ],
 
-    phantomjsLauncher: {
-      // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom)
-      exitOnResourceError: true
+    customLaunchers: {
+      ChromeTravisCi: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
     },
-
-    // customLaunchers: {
-    //   ChromeTravisCi: {
-    //     base: 'Chrome',
-    //     flags: ['--no-sandbox']
-    //   }
-    // },
-
+    phantomjsLauncher: {
+      // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom) 
+      exitOnResourceError: true,
+      flags: ['--load-images=true'],
+      debug: true
+    },
     /*
      * Continuous Integration mode
      * if true, Karma captures browsers, runs the tests and exits
