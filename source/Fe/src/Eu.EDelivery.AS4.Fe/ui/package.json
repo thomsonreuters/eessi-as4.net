@@ -1,7 +1,7 @@
 {
-  "name": "angular2-webpack-starter",
+  "name": "as4netfe",
   "version": "5.1.1",
-  "description": "An Angular 2 Webpack Starter kit featuring Angular 2 (Router, Http, Forms, Services, Tests, E2E, Coverage), Karma, Protractor, Jasmine, Istanbul, TypeScript, and Webpack by AngularClass",
+  "description": "AS4.NET FE",
   "keywords": [
     "angular2",
     "webpack",
@@ -123,6 +123,7 @@
     "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.0.2",
     "karma-mocha-reporter": "^2.0.0",
+    "karma-phantomjs-launcher": "^1.0.2",
     "karma-remap-coverage": "^0.1.1",
     "karma-sourcemap-loader": "^0.3.7",
     "karma-webpack": "1.8.0",
@@ -151,13 +152,6 @@
     "webpack-dev-server": "2.2.0-rc.0",
     "webpack-md5-hash": "^0.0.5",
     "webpack-merge": "~1.0.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/angularclass/angular2-webpack-starter.git"
-  },
-  "bugs": {
-    "url": "https://github.com/angularclass/angular2-webpack-starter/issues"
   },
   "engines": {
     "node": ">= 4.2.1",
