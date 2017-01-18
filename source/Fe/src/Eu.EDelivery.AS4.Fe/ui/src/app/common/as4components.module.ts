@@ -1,6 +1,6 @@
 import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
-import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend } from '@angular/http';
-import { SpinnerService, SPINNER_PROVIDERS } from './spinner/spinner.service';
+import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend, Request } from '@angular/http';
+import { SpinnerService, spinnerHttpServiceFactory } from './spinner/spinner.service';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TooltipDirective } from './tooltip.directive';
 import { ColumnsComponent } from './columns/columns.component';
@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthHttp, AuthConfig } from 'angular2-jwt';
 import { TextMaskModule } from 'angular2-text-mask';
+import { Observable } from 'rxjs/Observable';
 
 import { BoxComponent } from './box/box.component';
 import { MustBeAuthorizedGuard } from './common.guards';
@@ -30,19 +31,6 @@ import { TabItemComponent } from './tab/tabitem.component';
 import { TabComponent } from './tab/tab.component';
 import { FocusDirective } from './focus.directive';
 import { SelectDirective } from './selectdirective';
-
-import { Observable } from 'rxjs/Observable';
-
-export class CustomHttp extends Http {
-    constructor(backend: XHRBackend, options: RequestOptions, private spinnerService: SpinnerService) {
-        super(backend, options);
-    }
-    get(url: string, options?: RequestOptionsArgs): Observable<Response> {
-        this.spinnerService.show();
-        let res = super.get(url, options);
-        return res;
-    }
-}
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     let result = new AuthHttp(new AuthConfig(), http, options);
@@ -75,19 +63,16 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         DialogService,
         ModalService,
         SpinnerService,
-        SPINNER_PROVIDERS,
+        {
+            provide: Http,
+            useFactory: spinnerHttpServiceFactory,
+            deps: [XHRBackend, RequestOptions, SpinnerService]
+        },
         {
             provide: AuthHttp,
             useFactory: authHttpServiceFactory,
             deps: [Http, RequestOptions]
         }
-        // AUTH_PROVIDERS,
-        // {
-        //     provide: Http, useFactory: (backend, requestOptions, spinnerService) => {
-        //         return new CustomHttp(backend, requestOptions, spinnerService);
-        //     }, deps: [XHRBackend, RequestOptions, SpinnerService]
-        // },
-        // LOGGING_ERROR_HANDLER_PROVIDER
     ],
     exports: [
         BoxComponent,
@@ -120,10 +105,5 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     ]
 })
 export class As4ComponentsModule {
-    static forRoot(): ModuleWithProviders {
-        return {
-            ngModule: As4ComponentsModule,
-            providers: [SpinnerService, SpinnerComponent]
-        };
-    }
+
 }

@@ -1,5 +1,5 @@
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { Component, OnInit, OpaqueToken, Inject, Input } from '@angular/core';
+import { Component, OnInit, OpaqueToken, Inject, Output, OnDestroy } from '@angular/core';
 
 import { DialogService } from './../../common/dialog.service';
 import { IPmode } from './../../api/Pmode.interface';
@@ -45,7 +45,7 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
         <ng-content></ng-content>
     `
 })
-export class CrudComponent implements OnInit {
+export class CrudComponent implements OnInit, OnDestroy {
     public isNewMode: boolean;
     public pmodes: Array<string>;
     public form: FormGroup;
@@ -63,6 +63,9 @@ export class CrudComponent implements OnInit {
             this.crudService.patchForm(this.form, result);
             this.form.markAsPristine();
         }));
+    }
+    public ngOnDestroy() {
+        this.subscriptions.forEach(subs => subs.unsubscribe());
     }
     public pmodeChanged(name: string) {
         let select = () => {

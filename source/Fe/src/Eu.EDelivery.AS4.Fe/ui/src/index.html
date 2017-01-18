@@ -20,20 +20,57 @@
 
         <!-- base url -->
         <base href="<%= htmlWebpackPlugin.options.metadata.baseUrl %>">
+    <style>
+      .spinner {        
+        width: 40px;
+        height: 40px;
+        margin: 100px auto;
+        background-color: #333;
+
+        border-radius: 100%;  
+        -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+        animation: sk-scaleout 1.0s infinite ease-in-out;
+      }
+      .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      @-webkit-keyframes sk-scaleout {
+        0% { -webkit-transform: scale(0) }
+        100% {
+        -webkit-transform: scale(1.0);
+        opacity: 0;
+        }
+      }
+
+      @keyframes sk-scaleout {
+        0% { 
+        -webkit-transform: scale(0);
+        transform: scale(0);
+        } 100% {
+        -webkit-transform: scale(1.0);
+        transform: scale(1.0);
+        opacity: 0;
+        }
+      }
+  </style>
 </head>
 
 <body class="skin-blue sidebar-mini">
 
   <as4-app>
-    Loading...
+    <div class="spinner-container">
+      <div class="spinner"></div>
+    </div>
   </as4-app>
 
   <% if (htmlWebpackPlugin.options.metadata.isDevServer && htmlWebpackPlugin.options.metadata.HMR !== true) { %>
     <!-- Webpack Dev Server reload -->
     <script src="/webpack-dev-server.js"></script>
     <% } %>
-
-
 </body>
 
 </html>

@@ -18,5 +18,5 @@ import { ReceivingPmode } from './../../api/ReceivingPmode';
     ]
 })
 export class SendingPmodeComponent {
-    public mask: Array<any> = [/[0-6]/, /[0-6]/, ':', /[0-6]/, /[0-6]/, ':', /[0-6]/, /[0-6]/];
+    public mask: Array<any> = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
 }

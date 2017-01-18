@@ -24,6 +24,6 @@ export class ReceivingPmode implements IPmode {
 		form.get(this.FIELD_type).reset({ value: current && current.type, disabled: !!!current });
 		form.get(this.FIELD_name).reset({ value: current && current.name, disabled: !!!current });
 		ReceivingProcessingMode.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_pmode), current && current.pmode);
-		form.markAsPristine();
+		form.updateValueAndValidity();
 	}
 }
