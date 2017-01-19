@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.Integratio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.ServiceHandler.UnitTests", "ServiceHandler\Eu.EDelivery.AS4.ServiceHandler.UnitTests\Eu.EDelivery.AS4.ServiceHandler.UnitTests.csproj", "{675E36A5-FAB5-4C74-AA3B-332117DFECEE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.Fe.Tests", "Fe\src\Eu.EDelivery.AS4.Fe.Tests\Eu.EDelivery.AS4.Fe.Tests.csproj", "{BF046E70-9AB2-48C8-9E86-BE35429FADC0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.Fe.UnitTests", "Fe\src\Eu.EDelivery.AS4.Fe.UnitTests\Eu.EDelivery.AS4.Fe.UnitTests.csproj", "{BF046E70-9AB2-48C8-9E86-BE35429FADC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
