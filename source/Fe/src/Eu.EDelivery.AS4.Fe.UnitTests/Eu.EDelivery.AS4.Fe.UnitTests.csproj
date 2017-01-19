@@ -122,9 +122,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="metadata_sendingprocessingmode.json" />
-    <None Include="metadata_sendingprocessingmode_flatten.json" />
-    <None Include="metadata_sendingprocessingmode_noprops.json" />
+    <None Include="metadata_sendingprocessingmode.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="metadata_sendingprocessingmode_flatten.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="metadata_sendingprocessingmode_noprops.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
