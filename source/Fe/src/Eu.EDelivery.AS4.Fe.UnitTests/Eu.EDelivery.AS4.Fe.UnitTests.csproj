@@ -8,8 +8,8 @@
     <ProjectGuid>{BF046E70-9AB2-48C8-9E86-BE35429FADC0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Eu.EDelivery.AS4.Fe.Tests</RootNamespace>
-    <AssemblyName>Eu.EDelivery.AS4.Fe.Tests</AssemblyName>
+    <RootNamespace>Eu.EDelivery.AS4.Fe.UnitTests</RootNamespace>
+    <AssemblyName>Eu.EDelivery.AS4.Fe.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
