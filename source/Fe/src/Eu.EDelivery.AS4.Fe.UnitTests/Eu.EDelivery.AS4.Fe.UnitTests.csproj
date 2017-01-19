@@ -147,10 +147,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Eu.EDelivery.AS4.dll" />
-    <Content Include="Eu.EDelivery.AS4.Receivers.dll" />
-    <Content Include="Eu.EDelivery.AS4.Steps.dll" />
-    <Content Include="Eu.EDelivery.AS4.Transformers.dll" />
+    <Content Include="Eu.EDelivery.AS4.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Eu.EDelivery.AS4.Receivers.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Eu.EDelivery.AS4.Steps.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Eu.EDelivery.AS4.Transformers.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Authentication\" />
