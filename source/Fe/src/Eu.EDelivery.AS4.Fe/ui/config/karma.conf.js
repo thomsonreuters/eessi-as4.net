@@ -100,7 +100,7 @@ module.exports = function (config) {
      * available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
      */
     browsers: [
-      'Chrome'
+      'PhantomJS'
     ],
 
     customLaunchers: {
@@ -109,7 +109,16 @@ module.exports = function (config) {
         flags: ['--no-sandbox']
       }
     },
-
+    phantomjsLauncher: {
+      // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom) 
+      exitOnResourceError: true,
+      flags: ['--load-images=true'],
+      debug: true
+    },
+    captureTimeout: 20000,
+    browserDisconnectTimeout: 20000,
+    browserDisconnectTolerance: 3,
+    browserNoActivityTimeout: 100000,
     /*
      * Continuous Integration mode
      * if true, Karma captures browsers, runs the tests and exits
