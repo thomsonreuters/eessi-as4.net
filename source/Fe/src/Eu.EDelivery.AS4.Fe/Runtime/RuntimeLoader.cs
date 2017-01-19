@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 
         public IRuntimeLoader Initialize()
         {
-            if (!Directory.Exists(folder)) return this;
+            if (!Directory.Exists(folder)) throw new System.Exception($"The module folder {folder} doesn't exist");
 
             var types = LoadTypesFromAssemblies();
             Receivers = LoadImplementationsForType(types, "Eu.EDelivery.AS4.Receivers.IReceiver");

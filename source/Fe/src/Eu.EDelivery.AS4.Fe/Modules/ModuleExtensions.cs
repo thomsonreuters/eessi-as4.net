@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             List<TypeInfo> moduleAssemblies;
             var scanner = SetupAssemblyScanner(services, folderToScan, out moduleAssemblies);
 
-            var baseTypes = Assembly.GetEntryAssembly().DefinedTypes.ToList();
+            var baseTypes = typeof(Startup).Assembly.DefinedTypes.ToList();
             RegisterInterfaces(services, mappings, scanner, baseTypes, moduleAssemblies);
 
             var configurationBuilder = new ConfigurationBuilder();

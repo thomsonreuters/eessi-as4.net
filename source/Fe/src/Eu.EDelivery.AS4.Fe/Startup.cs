@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddSingleton<ILogging, Logging.Logging>();
             services.AddSingleton<ISettingsSource, FileSettingsSource>();
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader) new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
+            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader)new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
 
             services.AddOptions();
             services.Configure<JwtOptions>(Configuration.GetSection("JwtOptions"));
@@ -54,12 +54,16 @@ namespace Eu.EDelivery.AS4.Fe
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.ExecuteStartupServices();
-
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"ui/dist/")),
-                RequestPath = new PathString("")
-            });
+            //app.UseDefaultFiles(new DefaultFilesOptions()
+            //{
+            //    DefaultFileNames = new[] { "index.html" }
+            //});
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"ui/dist/")),
+            //    RequestPath = new PathString("")
+            //});
+            app.UseFileServer();
 
             //app.UseCookieAuthentication(new CookieAuthenticationOptions
             //{
@@ -102,7 +106,7 @@ namespace Eu.EDelivery.AS4.Fe
             {
                 options.Run(async context =>
                 {
-                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
                     var ex = context.Features.Get<IExceptionHandlerFeature>();
                     if (ex != null)
