@@ -54,7 +54,7 @@ export function jwtHelperFactory() {
         FormsModule,
         HttpModule,
         CommonModule,
-        RouterModule.forRoot(ROUTES, { useHash: true }),
+        RouterModule.forRoot(ROUTES, { useHash: false }),
 
         SettingsModule,
         PmodesModule,
