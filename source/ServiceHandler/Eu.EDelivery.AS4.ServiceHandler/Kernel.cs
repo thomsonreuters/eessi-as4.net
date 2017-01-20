@@ -36,6 +36,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            Program.Main(null);
             if (this._agents == null) return;
 
             this._logger.Debug("Starting...");

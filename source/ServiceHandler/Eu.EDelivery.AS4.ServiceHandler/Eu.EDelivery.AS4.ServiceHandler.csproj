@@ -42,6 +42,10 @@
       <HintPath>..\..\packages\AutoMapper.5.0.2\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Eu.EDelivery.AS4.Fe, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\output\Eu.EDelivery.AS4.Fe.exe</HintPath>
+    </Reference>
     <Reference Include="FluentValidation">
       <HintPath>..\..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
     </Reference>
