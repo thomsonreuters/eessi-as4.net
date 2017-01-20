@@ -7,7 +7,8 @@
   "dependencies": {
     "Microsoft.Bcl": "1.1.10",
     "Microsoft.Bcl.Async": "1.0.168",
-    "Microsoft.Bcl.Build": "1.0.21"
+    "Microsoft.Bcl.Build": "1.0.21",
+    "Microsoft.EntityFrameworkCore": "1.0.0"
   },
   "frameworks": {
     ".NETFramework, Version=v4.6.1": {}
