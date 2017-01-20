@@ -2,11 +2,14 @@
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Runtime;
+using Eu.EDelivery.AS4.Fe.Settings;
+using Microsoft.Extensions.Options;
 using Mono.Cecil;
 using Newtonsoft.Json;
+using NSubstitute;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.Fe.Tests
+namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
     public class RuntimeLoaderTest
     {
@@ -15,9 +18,13 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
         private RuntimeLoaderTest Setup()
         {
-            loader = new RuntimeLoader(Directory.GetCurrentDirectory());
+            var options = Substitute.For<IOptions<ApplicationSettings>>();
+            options.Value.Returns(new ApplicationSettings()
+            {
+                Runtime = Directory.GetCurrentDirectory()
+            });
+            loader = new RuntimeLoader(options);
             types = loader.LoadTypesFromAssemblies();
-            loader.Initialize();
             return this;
         }
 
@@ -57,9 +64,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             public void When_No_InfoAttribute_Present_Property_Info_Should_Be_Used()
             {
                 // Setup
-                var loader = new RuntimeLoader(Directory.GetCurrentDirectory());
-
-                var types = loader.LoadTypesFromAssemblies();
+                Setup();
 
                 // Act
                 var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.Tests.TestData.ITestReceiver");
@@ -86,14 +91,13 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             }
         }
 
-        public class FlattenRuntimeToJson
+        public class FlattenRuntimeToJson : RuntimeLoaderTest
         {
             [Fact]
             public void Object_Properties_Should_Be_Flattened_In_Json()
             {
                 // Setup
-                var loader = new RuntimeLoader(Directory.GetCurrentDirectory());
-                var types = loader.LoadTypesFromAssemblies();
+                Setup();
 
                 var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Model.PMode.IPMode");
 

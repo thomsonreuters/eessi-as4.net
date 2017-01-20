@@ -4,7 +4,7 @@ import { SpinnerService, spinnerHttpServiceFactory } from './spinner/spinner.ser
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TooltipDirective } from './tooltip.directive';
 import { ColumnsComponent } from './columns/columns.component';
-import { NgModule, ModuleWithProviders } from '@angular/core';
+import { NgModule, ModuleWithProviders, ErrorHandler } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -21,7 +21,7 @@ import { AuthenticationModule } from './../authentication/authentication.module'
 import { InputComponent } from './input/input.component';
 import { InfoComponent } from './info/info.component';
 import { DialogService } from './dialog.service';
-import { LOGGING_ERROR_HANDLER_PROVIDER } from './error.handler';
+import { errorHandlerFactory } from './error.handler';
 import { RuntimeSettingsComponent } from './runtimesettings/runtimesettings.component';
 import { CrudButtonsComponent } from './crudbuttons/crudbuttons.component';
 import { ModalService } from './modal/modal.service';
@@ -63,6 +63,11 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         DialogService,
         ModalService,
         SpinnerService,
+        {
+            provide: ErrorHandler,
+            useFactory: errorHandlerFactory,
+            deps: [DialogService, SpinnerService]
+        },
         {
             provide: Http,
             useFactory: spinnerHttpServiceFactory,

@@ -35,20 +35,18 @@ export class BaseSettingsComponent {
     @Input() public get settings(): Base {
         return this._settings;
     }
-    @Output() public get isDirty(): boolean {
-        return this.form.dirty;
-    }
     public set settings(baseSetting: Base) {
         this.form = Base.getForm(this.formBuilder, baseSetting);
         this._settings = baseSetting;
     }
+    @Output() public get isDirty(): Observable<boolean> {
+        return this.form.valueChanges.map(() => this.form.dirty);
+    }
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
         runtimeStore
             .changes
-            .filter(result => !!(result && result.certificateRepositories))
-            .subscribe(result => {
-                this.repositories = result.certificateRepositories;
-            });
+            .filter((result) => !!(result && result.certificateRepositories))
+            .subscribe((result) => this.repositories = result.certificateRepositories);
     }
     public save() {
         if (!this.form.valid) {
@@ -57,8 +55,6 @@ export class BaseSettingsComponent {
         }
         this.settingsService
             .saveBaseSettings(this.form.value)
-            .subscribe(result => {
-                this.form.markAsPristine();
-            });
+            .subscribe((result) => this.form.markAsPristine());
     }
 }

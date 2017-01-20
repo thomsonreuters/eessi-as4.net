@@ -6,7 +6,9 @@
   },
   "dependencies": {
     "Microsoft.Bcl": "1.1.10",
-    "Microsoft.Bcl.Build": "1.0.14"
+    "Microsoft.Bcl.Async": "1.0.168",
+    "Microsoft.Bcl.Build": "1.0.21",
+    "System.Reflection.Metadata": "1.4.2"
   },
   "frameworks": {
     ".NETFramework, Version=v4.6.1": {}
