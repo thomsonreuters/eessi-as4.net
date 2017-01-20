@@ -10,11 +10,12 @@
     "noEmit": true,
     "noEmitHelpers": true,
     "strictNullChecks": false,
-    "baseUrl": "./src",
-    "paths": {},
     "lib": [
       "es2015",
       "dom"
+    ],
+    "typeRoots": [
+      "node_modules/@types"
     ],
     "types": [
       "hammerjs",

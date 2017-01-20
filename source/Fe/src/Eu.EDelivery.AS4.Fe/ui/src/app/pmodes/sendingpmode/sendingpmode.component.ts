@@ -1,3 +1,5 @@
+import { RuntimeStore } from './../../settings/runtime.store';
+import { Subscription } from 'rxjs/Subscription';
 import { PMODECRUD_SERVICE } from './../crud/crud.component';
 import { SendingPmodeService } from './../pmode.service';
 import { SendingProcessingMode } from './../../api/SendingProcessingMode';
@@ -18,5 +20,17 @@ import { ReceivingPmode } from './../../api/ReceivingPmode';
     ]
 })
 export class SendingPmodeComponent {
-    public mask: Array<any> = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
+    public mask: any[] = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
+    public deliverSenders;
+    private subscriptions: Subscription[] = new Array<Subscription>();
+    constructor(private _runtimeStore: RuntimeStore) {
+        this._runtimeStore
+            .changes
+            .filter((store) => !!!store)
+            .map((store) => store.deliverSenders)
+            .subscribe((data) => this.deliverSenders = data);
+    }
+    public ngOnDestroy() {
+        this.subscriptions.forEach((subs) => subs.unsubscribe);
+    }
 }

@@ -9,16 +9,12 @@ import { RuntimeService } from './settings/runtime.service';
 
 import 'jquery';
 import 'bootstrap/dist/js/bootstrap.js';
-import '../assets/theme/js/app.js';
+import '../theme/js/app.js';
 
 @Component({
     selector: 'as4-app',
     encapsulation: ViewEncapsulation.None,
-    styleUrls: [
-        '../../node_modules/bootstrap/dist/css/bootstrap.css',
-        '../assets/theme/css/AdminLTE.css',
-        '../assets/theme/css/skins/_all-skins.min.css',
-        '../assets/css/site.scss',
+    styles: [
         './app.component.scss'
     ],
     template: `    

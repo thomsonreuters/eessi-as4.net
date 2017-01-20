@@ -19,6 +19,7 @@ const HtmlElementsPlugin = require('./html-elements-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
+const ngcWebpack = require('ngc-webpack');
 
 /*
  * Webpack Constants
@@ -26,7 +27,7 @@ const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
 const HMR = helpers.hasProcessFlag('hot');
 const AOT = helpers.hasNpmFlag('aot');
 const METADATA = {
-  title: 'AS4.NET',
+  title: 'AS4.net',
   baseUrl: '/',
   isDevServer: helpers.isWebpackDevServer()
 };
@@ -39,9 +40,7 @@ const METADATA = {
 module.exports = function (options) {
   isProd = options.env === 'production';
   return {
-    performance: {
-      hints: false
-    },
+
     /*
      * Cache generated modules and chunks to improve performance for multiple incremental builds.
      * This is enabled by default in watch mode.
@@ -60,8 +59,8 @@ module.exports = function (options) {
     entry: {
 
       'polyfills': './src/polyfills.browser.ts',
-      'main': AOT ? './src/main.browser.aot.ts' :
-        './src/main.browser.ts'
+      'main':      AOT ? './src/main.browser.aot.ts' :
+                  './src/main.browser.ts'
 
     },
 
@@ -106,7 +105,14 @@ module.exports = function (options) {
             '@angularclass/hmr-loader?pretty=' + !isProd + '&prod=' + isProd,
             'awesome-typescript-loader?{configFileName: "tsconfig.webpack.json"}',
             'angular2-template-loader',
-            'angular-router-loader?loader=system&genDir=compiled/src/app&aot=' + AOT
+            {
+              loader: 'ng-router-loader',
+              options: {
+                loader: 'async-system',
+                genDir: 'compiled',
+                aot: AOT
+              }
+            }
           ],
           exclude: [/\.(spec|e2e)\.ts$/]
         },
@@ -122,13 +128,25 @@ module.exports = function (options) {
         },
 
         /*
-         * to string and css loader support for *.css files
+         * to string and css loader support for *.css files (from Angular components)
          * Returns file content as string
          *
          */
         {
           test: /\.css$/,
-          use: ['to-string-loader', 'css-loader']
+          use: ['to-string-loader', 'css-loader'],
+          exclude: [helpers.root('src', 'styles')]
+        },
+
+        /*
+         * to string and sass loader support for *.scss files (from Angular components)
+         * Returns compiled css content as string
+         *
+         */
+        {
+          test: /\.scss$/,
+          use: ['to-string-loader', 'css-loader', 'sass-loader'],
+          exclude: [helpers.root('src', 'styles')]
         },
 
         /* Raw loader support for *.html
@@ -148,14 +166,10 @@ module.exports = function (options) {
           test: /\.(jpg|png|gif)$/,
           use: 'file-loader'
         },
-        {
-          test: /\.scss$/,
-          exclude: /node_modules/,
-          loaders: ['raw-loader', 'sass-loader'] // sass-loader not scss-loader
-        },
         { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader?name=./[hash].[ext]" },
         { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader?limit=10000&minetype=application/font-woff&name=./[hash].[ext]" },
-        { test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/i, loader: 'file-loader?name=./[hash].[ext]' },
+        { test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/i, loader: 'file-loader?name=./[hash].[ext]' }
+
       ],
 
     },
@@ -228,7 +242,7 @@ module.exports = function (options) {
        */
       new CopyWebpackPlugin([
         { from: 'src/assets', to: 'assets' },
-        { from: 'src/meta' }
+        { from: 'src/meta'}
       ]),
 
 
@@ -313,13 +327,19 @@ module.exports = function (options) {
         /facade(\\|\/)math/,
         helpers.root('node_modules/@angular/core/src/facade/math.js')
       ),
-      new LoaderOptionsPlugin({}),
+
+      new ngcWebpack.NgcWebpackPlugin({
+        disabled: !AOT,
+        tsConfig: helpers.root('tsconfig.webpack.json'),
+        resourceOverride: helpers.root('config/resource-override.js')
+      }),
+
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery',
         'window.jQuery': 'jquery',
         'window.jquery': 'jquery'
-      }),
+      })
     ],
 
     /*

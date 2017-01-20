@@ -31,6 +31,7 @@ export interface ICrudPmodeService {
 
 @Injectable()
 export class ReceivingPmodeService implements ICrudPmodeService {
+    private _baseUrl = 'api/pmode/receiving';
     constructor(private http: AuthHttp, private pmodeStore: PmodeStore, private formBuilder: FormBuilder) {
 
     }
@@ -57,12 +58,12 @@ export class ReceivingPmodeService implements ICrudPmodeService {
     }
     get(name: string) {
         this.http
-            .get(`${this.getBaseUrl()}/${name}`)
+            .get(`${this.getBaseUrl(name)}`)
             .subscribe(result => this.pmodeStore.update('Receiving', result.json()));
     }
     delete(name: string) {
         this.http
-            .delete(`${this.getBaseUrl()}/${name}`)
+            .delete(`${this.getBaseUrl(name)}/`)
             .subscribe(result => {
                 this.pmodeStore.deleteSending(name);
             });
@@ -70,7 +71,7 @@ export class ReceivingPmodeService implements ICrudPmodeService {
     update(pmode: IPmode, originalName: string): Observable<boolean> {
         let obs = new Subject<boolean>();
         this.http
-            .put(`${this.getBaseUrl()}/${originalName}`, pmode)
+            .put(`${this.getBaseUrl(originalName)}`, pmode)
             .subscribe(result => {
                 this.pmodeStore.setReceiving(<ReceivingPmode>pmode);
                 obs.next(true);
@@ -109,20 +110,22 @@ export class ReceivingPmodeService implements ICrudPmodeService {
     getByName(name: string): Observable<IPmode> {
         let obs = new Subject<ReceivingPmode>();
         this.http
-            .get(`${this.getBaseUrl()}/${name}`)
+            .get(`${this.getBaseUrl(name)}`)
             .subscribe(result => {
                 obs.next(result.json());
                 obs.complete();
             });
         return obs.asObservable();
     }
-    private getBaseUrl(): string {
-        return `api/pmode/receiving/`;
+    private getBaseUrl(action?: string): string {
+        if (!!!action) return this._baseUrl;
+        return `${this._baseUrl}/${action}`;
     }
 }
 
 @Injectable()
 export class SendingPmodeService implements ICrudPmodeService {
+    private _baseUrl = 'api/pmode/sending';
     constructor(private http: AuthHttp, private pmodeStore: PmodeStore, private formBuilder: FormBuilder) {
 
     }
@@ -208,115 +211,8 @@ export class SendingPmodeService implements ICrudPmodeService {
             });
         return obs.asObservable();
     }
-    private getBaseUrl(): string {
-        return `api/pmode/sending/`;
+    private getBaseUrl(action?: string): string {
+        if (!!!action) return this._baseUrl;
+        return `${this._baseUrl}/action`;
     }
 }
-
-// @Injectable()
-// export class PmodeService implements IPmodeService {
-//     constructor(private http: AuthHttp, private pmodeStore: PmodeStore) {
-//     }
-//     public getAllReceiving() {
-//         this.http
-//             .get(this.getBaseUrl('receiving'))
-//             .subscribe(result => {
-//                 this.pmodeStore.update('ReceivingNames', result.json());
-//             });
-//     }
-//     public getAllSending() {
-//         this.http
-//             .get(this.getBaseUrl('sending'))
-//             .subscribe(result => {
-//                 this.pmodeStore.update('SendingNames', result.json());
-//             });
-//     }
-//     public deleteReceiving(name: string) {
-//         this.http
-//             .delete(`${this.getBaseUrl('receiving')}/${name}`)
-//             .subscribe(result => {
-//                 this.pmodeStore.deleteReceiving(name);
-//             });
-//     }
-//     public createReceiving(pmode: ReceivingPmode): Observable<boolean> {
-//         let obs = new Subject<boolean>();
-//         this.http
-//             .post(`${this.getBaseUrl('receiving')}`, pmode)
-//             .subscribe(result => {
-//                 this.pmodeStore.setReceiving(pmode);
-//                 obs.next();
-//                 obs.complete();
-//             });
-//         return obs.asObservable();
-//     }
-//     public updateReceiving(pmode: ReceivingPmode, originalName: string): Observable<boolean> {
-//         let obs = new Subject<boolean>();
-//         this.http
-//             .put(`${this.getBaseUrl('receiving')}/${originalName}`, pmode)
-//             .subscribe(result => {
-//                 this.pmodeStore.setReceiving(pmode);
-//                 obs.next(true);
-//                 obs.complete();
-//             });
-//         return obs.asObservable();
-//     }
-//     public deleteSending(name: string) {
-//         this.http
-//             .delete(`${this.getBaseUrl('sending')}/${name}`)
-//             .subscribe(result => {
-//                 this.pmodeStore.deleteSending(name);
-//             });
-//     }
-//     public setSending(name: string) {
-//         this.http
-//             .get(`${this.getBaseUrl('sending')}/${name}`)
-//             .subscribe(result => this.pmodeStore.update('Sending', result.json()));
-//     }
-//     public setReceiving(name: string) {
-//         this.http
-//             .get(`${this.getBaseUrl('receiving')}/${name}`)
-//             .subscribe(result => this.pmodeStore.update('Receiving', result.json()));
-//     }
-//     public createSending(pmode: SendingPmode): Observable<boolean> {
-//         let obs = new Subject<boolean>();
-//         this.http
-//             .post(`${this.getBaseUrl('sending')}`, pmode)
-//             .subscribe(result => {
-//                 this.pmodeStore.setSending(pmode);
-//                 obs.next();
-//                 obs.complete();
-//             });
-//         return obs.asObservable();
-//     }
-//     public updateSending(pmode: SendingPmode, originalName: string): Observable<boolean> {
-//         let obs = new Subject<boolean>();
-//         this.http
-//             .put(`${this.getBaseUrl('sending')}/${originalName}`, pmode)
-//             .subscribe(result => {
-//                 this.pmodeStore.setSending(pmode);
-//                 obs.next(true);
-//                 obs.complete();
-//             });
-//         return obs.asObservable();
-//     }
-//     public getSendingByName(name: string): Observable<SendingPmode> {
-//         let obs = new Subject<SendingPmode>();
-//         this.http
-//             .get(`${this.getBaseUrl('sending')}/${name}`)
-//             .subscribe(result => obs.next(result.json()));
-//         return obs.asObservable();
-//     }
-//     public getReceivingByName(name: string): Observable<ReceivingPmode> {
-//         let obs = new Subject<ReceivingPmode>();
-//         this.http
-//             .get(`${this.getBaseUrl('receiving')}/${name}`)
-//             .subscribe(result => {
-//                 obs.next(result.json());
-//                 obs.complete();
-//             });
-//         return obs.asObservable();
-//     }
-//     private getBaseUrl(action: string): string {
-//         return `api/pmode/${action}`;
-//     }
-// }

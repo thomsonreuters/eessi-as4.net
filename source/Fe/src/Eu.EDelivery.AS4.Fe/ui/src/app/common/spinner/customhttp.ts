@@ -9,7 +9,9 @@ export class CustomHttp extends Http {
     }
     request(url: string | Request, options?: RequestOptionsArgs): Observable<Response> {
         this.spinnerService.show();
-        let result = super.request(url, options).do(() => this.spinnerService.hide());
+        let result = super
+            .request(url, options)
+            .do(() => this.spinnerService.hide());
         return result;
     }
 }
