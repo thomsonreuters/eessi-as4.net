@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Fe;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler

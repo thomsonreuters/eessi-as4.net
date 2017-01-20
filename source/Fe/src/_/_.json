@@ -1,0 +1,28 @@
+﻿{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
+    "NETStandard.Library": "1.6.1",
+    "NSubstitute": "2.0.0-rc",
+    "xunit": "2.1.0",
+    "xunit.assert": "2.1.0",
+    "xunit.runner.visualstudio": "2.1.0"
+  },
+  "buildOptions": {
+    "preserveCompilationContext": true,
+    "copyToOutput": [
+      "Eu.EDelivery.AS4.Receivers.dll",
+      "metadata_sendingprocessingmode.json",
+      "metadata_sendingprocessingmode_noprops.json",
+      "metadata_sendingprocessingmode_flatten.json"
+    ]
+  },
+  "frameworks": {
+    "net461": {
+      "imports": "dnxcore50"
+    }
+  },
+  "runtimes": {
+    "win": {}
+  }
+}
