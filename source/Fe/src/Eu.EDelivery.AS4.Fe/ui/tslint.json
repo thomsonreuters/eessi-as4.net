@@ -34,10 +34,6 @@
       "timeEnd",
       "trace"
     ],
-    "max-line-length": [
-      true,
-      100
-    ],
     "no-string-literal": false,
     "no-use-before-declare": true,
     "object-literal-sort-keys": false,

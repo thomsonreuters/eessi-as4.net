@@ -9,17 +9,13 @@ import { RuntimeService } from './settings/runtime.service';
 
 import 'jquery';
 import 'bootstrap/dist/js/bootstrap.js';
-import '../assets/theme/js/app.js';
+import '../theme/js/app.js';
 
 @Component({
     selector: 'as4-app',
     encapsulation: ViewEncapsulation.None,
     styles: [
-        require('../../node_modules/bootstrap/dist/css/bootstrap.css'),
-        require('../assets/theme/css/AdminLTE.css'),
-        require('../assets/theme/css/skins/_all-skins.min.css'),
-        require('../assets/css/site.scss'),
-        require('./app.component.scss')
+        './app.component.scss'
     ],
     template: `    
         <as4-spinner></as4-spinner>

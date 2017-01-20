@@ -27,8 +27,8 @@ export class DatabaseSettingsComponent {
         this.form = SettingsDatabase.getForm(this.formBuilder, settingsDatabase);
         this._settings = settingsDatabase;
     }
-    @Output() get isDirty(): boolean {
-        return this.form.dirty;
+    @Output() get isDirty(): Observable<boolean> {
+        return this.form.valueChanges.map(() => this.form.dirty);
     }
     public form: FormGroup;
     private _settings: SettingsDatabase;
@@ -42,8 +42,10 @@ export class DatabaseSettingsComponent {
         }
         this.settingsService
             .saveDatabaseSettings(this.form.value)
-            .subscribe(result => {
-                if (result) this.form.markAsPristine();
+            .subscribe((result) => {
+                if (result) {
+                    this.form.markAsPristine();
+                }
             });
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Eu.EDelivery.AS4.Fe.Settings;
+using Microsoft.Extensions.Options;
 using Mono.Cecil;
 using Mono.Collections.Generic;
 
@@ -18,9 +20,10 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         public IEnumerable<ItemType> DeliverSenders { get; private set; }
         public IEnumerable<ItemType> ReceivingPmode { get; private set; }
 
-        public RuntimeLoader(string folder)
+        public RuntimeLoader(IOptions<ApplicationSettings> settings)
         {
-            this.folder = folder;
+            folder = settings.Value.Runtime;
+            Initialize();
         }
 
         public IRuntimeLoader Initialize()

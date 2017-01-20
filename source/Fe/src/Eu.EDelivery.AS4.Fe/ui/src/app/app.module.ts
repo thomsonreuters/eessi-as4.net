@@ -23,6 +23,8 @@ import { Http, RequestOptions } from '@angular/http';
 import { AuthHttp } from 'angular2-jwt';
 import { authHttpServiceFactory } from '../app/common/as4components.module';
 
+import '../styles/external.scss';
+
 type StoreType = {
     state: InternalStateType,
     restoreInputValues: () => void,

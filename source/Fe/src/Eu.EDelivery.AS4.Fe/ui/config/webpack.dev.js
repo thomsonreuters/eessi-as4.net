@@ -217,15 +217,26 @@ module.exports = function (options) {
      *
      * See: https://webpack.github.io/docs/webpack-dev-server.html
      */
-    devServer: {
-      port: METADATA.port,
-      host: METADATA.host,
-      historyApiFallback: true,
-      watchOptions: {
-        aggregateTimeout: 300,
-        poll: 1000
-      }
-    },
+      devServer: {
+            port: METADATA.port,
+            host: METADATA.host,
+            historyApiFallback: true,
+            watchOptions: {
+              aggregateTimeout: 300,
+              poll: 1000
+            },
+            proxy: {
+              '/api/*': {
+                target: 'http://localhost:5000/',
+                changeOrigin: true,
+                secure: false,
+                headers: {
+                  'Connection': 'keep-alive',
+                  'Access-Control-Allow-Origin': '*'
+                }
+              }
+            }
+          },
 
     /*
      * Include polyfills or mocks for various node stuff
