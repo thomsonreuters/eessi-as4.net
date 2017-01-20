@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var host = new WebHostBuilder()
                 .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseContentRoot(Path.Combine(Directory.GetCurrentDirectory(), @"ui/dist/"))
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();

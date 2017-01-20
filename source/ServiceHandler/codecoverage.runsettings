@@ -19,6 +19,7 @@
                 <ModulePath>Eu.EDelivery.AS4.Steps.dll</ModulePath>
                 <ModulePath>Eu.EDelivery.AS4.Receivers.dll</ModulePath>
                 <ModulePath>Eu.EDelivery.AS4.Transformers.dll</ModulePath>
+		<ModulePath>Eu.EDelivery.AS4.Fe.UnitTests.dll</ModulePath>
               </Include>
             </ModulePaths>
             <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
