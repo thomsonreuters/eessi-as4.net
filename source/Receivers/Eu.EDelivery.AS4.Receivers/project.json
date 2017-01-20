@@ -5,10 +5,11 @@
     "emitEntryPoint": true
   },
   "dependencies": {
+    "Microsoft.Bcl": "1.1.10",
     "Microsoft.Bcl.Build": "1.0.14"
   },
   "frameworks": {
-    ".NETFramework, Version=v4.6.1": {}   
+    ".NETFramework, Version=v4.6.1": {}
   },
   "runtimes": {
     "win10-x86": {},
