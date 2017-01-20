@@ -14,12 +14,12 @@ import '../assets/theme/js/app.js';
 @Component({
     selector: 'as4-app',
     encapsulation: ViewEncapsulation.None,
-    styleUrls: [
-        '../../node_modules/bootstrap/dist/css/bootstrap.css',
-        '../assets/theme/css/AdminLTE.css',
-        '../assets/theme/css/skins/_all-skins.min.css',
-        '../assets/css/site.scss',
-        './app.component.scss'
+    styles: [
+        require('../../node_modules/bootstrap/dist/css/bootstrap.css'),
+        require('../assets/theme/css/AdminLTE.css'),
+        require('../assets/theme/css/skins/_all-skins.min.css'),
+        require('../assets/css/site.scss'),
+        require('./app.component.scss')
     ],
     template: `    
         <as4-spinner></as4-spinner>

@@ -4,7 +4,6 @@
 
 const helpers = require('./helpers');
 const path = require('path');
-const webpack = require('webpack');
 
 /**
  * Webpack Plugins
@@ -81,8 +80,7 @@ module.exports = function (options) {
           exclude: [
             // these packages have problems with their sourcemaps
             helpers.root('node_modules/rxjs'),
-            helpers.root('node_modules/@angular'),
-            helpers.root('node_modules/angular2-jwt')
+            helpers.root('node_modules/@angular')
           ]
         },
 
@@ -136,15 +134,6 @@ module.exports = function (options) {
           loader: ['to-string-loader', 'css-loader'],
           exclude: [helpers.root('src/index.html')]
         },
-        {
-          test: /\.scss$/,
-          exclude: /node_modules/,
-          loaders: ['raw-loader', 'sass-loader'], // sass-loader not scss-loader
-          exclude: [helpers.root('src/index.html')]
-        },
-        { test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "file-loader?name=./[hash].[ext]" },
-        { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader?limit=10000&minetype=application/font-woff&name=./[hash].[ext]" },
-        { test: /\.(png|jpe?g|gif|svg|woff|woff2|ttf|eot|ico)$/i, loader: 'file-loader?name=./[hash].[ext]' },
 
         /**
          * Raw loader support for *.html
@@ -168,7 +157,7 @@ module.exports = function (options) {
           enforce: 'post',
           test: /\.(js|ts)$/,
           loader: 'istanbul-instrumenter-loader',
-          include: helpers.root('src', 'app'),
+          include: helpers.root('src'),
           exclude: [
             /\.(e2e|spec)\.ts$/,
             /node_modules/
@@ -232,11 +221,7 @@ module.exports = function (options) {
           // legacy options go here
         }
       }),
-      new ProvidePlugin({
-        jQuery: 'jquery',
-        $: 'jquery',
-        jquery: 'jquery'
-      })
+
     ],
 
     /**
