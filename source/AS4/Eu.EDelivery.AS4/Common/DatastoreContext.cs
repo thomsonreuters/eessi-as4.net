@@ -51,7 +51,6 @@ namespace Eu.EDelivery.AS4.Common
         {
             this._config = config;
             InitializeFields();
-            InitializeDataStoreContext();
         }
 
         private void InitializeFields()
@@ -62,30 +61,6 @@ namespace Eu.EDelivery.AS4.Common
 
 
             this._logger = LogManager.GetCurrentClassLogger();
-        }
-
-        private static readonly object SyncLock = new object();
-
-        private void InitializeDataStoreContext()
-        {
-            lock (SyncLock)
-            {
-                try
-                {
-                    if (base.Database.EnsureCreated())
-                    {
-                        _logger.Info("Datastore did not exist and has been created.");
-                    }
-                }
-                catch (AS4Exception exception)
-                {
-                    this._logger.Error(exception.Message);
-                }
-                catch (Exception exception)
-                {
-                    this._logger.Fatal($"Datastore failed to create or already created: {exception.Message}");
-                }
-            }
         }
 
         /// <summary>
