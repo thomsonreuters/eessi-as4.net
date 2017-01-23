@@ -19,8 +19,6 @@ import '../theme/js/app.js';
         './app.component.scss'
     ],
     template: `    
-        <as4-spinner></as4-spinner>
-        <router-outlet></router-outlet>
         <as4-modal name="default"></as4-modal>
         <as4-modal name="prompt" #promptDialog (shown)="input.focus(); promptDialog.result = ''">
             <input type="text" class="form-control" #input [value]="promptDialog.result" (keyup)="promptDialog.result = $event.target.value"/>             
@@ -36,6 +34,8 @@ import '../theme/js/app.js';
                 <button type="button" class="btn btn-outline" (click)="errorDialog.ok()">Ok</button>
             </div>
         </as4-modal>
+        <as4-spinner></as4-spinner>
+        <router-outlet></router-outlet>        
   `
 })
 export class AppComponent {
