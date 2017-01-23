@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe;
 using NLog;
 
@@ -23,8 +25,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <param name="agents"></param>
         public Kernel(IEnumerable<IAgent> agents)
         {
-            if (agents == null) this._logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
+            if (agents == null)
+            {
+                this._logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
+            }
 
+            
             this._agents = agents;
             this._logger = LogManager.GetCurrentClassLogger();
         }
@@ -36,8 +42,27 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            //Task.Run(() => Program.Main(null));
-            if (this._agents == null) return;
+            if (this._agents == null)
+            {
+                return;
+            }
+
+            using (var c = new DatastoreContext(Config.Instance))
+            {
+                try
+                {
+                    if (c.Database.EnsureCreated())
+                    {
+                        _logger.Info("Datastore did not exist and has been created.");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    this._logger.Fatal($"Datastore failed to create or already created: {exception.Message}");
+                    return;
+                }
+            }
+
 
             this._logger.Debug("Starting...");
             Task task = Task.WhenAll(this._agents.Select(c => c.Start(cancellationToken)).ToArray());
