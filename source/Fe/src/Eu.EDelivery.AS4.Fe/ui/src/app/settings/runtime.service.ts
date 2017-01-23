@@ -17,7 +17,7 @@ export interface IRuntimeService {
 }
 
 @Injectable()
-export class RuntimeService implements IRuntimeService {
+export class RuntimeService implements IRuntimeService {s
     private _runtimeMetaData: any | null = null;
     constructor(private http: Http, private runtimeStore: RuntimeStore) {
 
@@ -25,27 +25,27 @@ export class RuntimeService implements IRuntimeService {
     public getReceivers() {
         this.http
             .get(this.getBaseUrl('getreceivers'))
-            .subscribe(type => this.runtimeStore.update('receivers', type.json()));
+            .subscribe((type) => this.runtimeStore.update('receivers', type.json()));
     }
     public getSteps() {
         this.http
             .get(this.getBaseUrl('getsteps'))
-            .subscribe(type => this.runtimeStore.update('steps', type.json()));
+            .subscribe((type) => this.runtimeStore.update('steps', type.json()));
     }
     public getTransformers() {
         this.http
             .get(this.getBaseUrl('gettransformers'))
-            .subscribe(type => this.runtimeStore.update('transformers', type.json()));
+            .subscribe((type) => this.runtimeStore.update('transformers', type.json()));
     }
     public getCertificateRepositories() {
         this.http
             .get(this.getBaseUrl('getcertificaterepositories'))
-            .subscribe(type => this.runtimeStore.update('certificateRepositories', type.json()));
+            .subscribe((type) => this.runtimeStore.update('certificateRepositories', type.json()));
     }
     public getAll() {
         this.http
             .get(this.getBaseUrl('getall'))
-            .subscribe(result => {
+            .subscribe((result) => {
                 let json = result.json();
                 this.runtimeStore.setState({
                     receivers: json.receivers,
@@ -64,7 +64,7 @@ export class RuntimeService implements IRuntimeService {
         let obs = new Subject<any>();
         this.http
             .get(this.getBaseUrl('getruntimemetadata'))
-            .subscribe(result => {
+            .subscribe((result) => {
                 this._runtimeMetaData = result.json();
                 obs.next(this._runtimeMetaData);
                 obs.complete();
