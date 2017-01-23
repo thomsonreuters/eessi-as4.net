@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
@@ -54,7 +55,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             Parameter locationParameter = this._method["location"];
 
             string extension = this._repository.GetExtensionFromMimeType(attachment.ContentType);
-            attachment.Location = $"{locationParameter.Value}{attachment.Id}{extension}";
+            string fileName = FilenameSanitizer.EnsureValidFilename(attachment.Id);
+
+            attachment.Location = $"{locationParameter.Value}{fileName}{extension}";
         }
 
         private void TryUploadAttachment(Attachment attachment)
@@ -78,7 +81,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private void UploadAttachment(Attachment attachment)
         {
             using (FileStream fileStream = File.Create(attachment.Location))
+            {
                 attachment.Content.CopyTo(fileStream);
+            }
 
             this._logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachment.Location}");
         }

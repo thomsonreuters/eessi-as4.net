@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
             return this;
         }
 
-        private XmlDocument SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
+        private static XmlDocument SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
         {
             var xmlDocument = new XmlDocument();
 
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
             return xmlDocument;
         }
 
-        private XmlSerializerNamespaces GetXmlNamespaces()
+        private static XmlSerializerNamespaces GetXmlNamespaces()
         {
             var namespaces = new XmlSerializerNamespaces();
             foreach (KeyValuePair<SoapNamespace, string> prefix in Prefixes)

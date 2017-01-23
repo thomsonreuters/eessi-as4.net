@@ -63,12 +63,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return deliverMessage;
         }
 
-        private void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)
+        private static void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)
         {
             deliverMessage.CollaborationInfo.AgreementRef.PModeId = as4Message.SendingPMode.Id ?? string.Empty;
         }
 
-        private void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)
+        private static void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)
         {
             foreach (Attachment attachment in as4Message.Attachments)
             {

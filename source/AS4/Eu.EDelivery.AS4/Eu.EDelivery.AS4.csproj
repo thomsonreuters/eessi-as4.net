@@ -429,6 +429,7 @@
     <Compile Include="Strategies\Retriever\WebPayloadRetriever.cs" />
     <Compile Include="Utilities\ContentTypeSupporter.cs" />
     <Compile Include="Factories\IdentifierFactory.cs" />
+    <Compile Include="Utilities\FilenameSanitizer.cs" />
     <Compile Include="Validators\DeliverMessageValidator.cs" />
     <Compile Include="Validators\IValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
