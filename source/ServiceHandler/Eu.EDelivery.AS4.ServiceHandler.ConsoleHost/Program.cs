@@ -12,6 +12,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
     {
         public static void Main()
         {
+            Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
+
             Kernel kernel = CreateKernel();
             if (kernel == null)
             {

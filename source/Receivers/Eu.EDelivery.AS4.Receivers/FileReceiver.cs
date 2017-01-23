@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -92,7 +91,7 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
         {
             this.Logger.Info($"Received Message from Filesystem: {entity.Name}");
-            WithImpersonation(() => GetFileFromMessage(entity, messageCallback, token));
+            WithImpersonation(() => GetMessageFromFile(entity, messageCallback, token));
         }
 
         /// <summary>
@@ -106,7 +105,7 @@ namespace Eu.EDelivery.AS4.Receivers
             MoveFile(fileInfo, "exception");
         }
 
-        private void GetFileFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
+        private void GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
             if (!fileInfo.Exists) return;
             this.Logger.Info($"Received file '{fileInfo.Name}'");
@@ -117,14 +116,14 @@ namespace Eu.EDelivery.AS4.Receivers
         private async void OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
             string contentType = this._repository.GetMimeTypeFromExtension(fileInfo.Extension);
-
+            
             MoveFile(fileInfo, "processing");
 
             InternalMessage internalMessage;
             using (Stream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
             {
                 fileStream.Seek(0, SeekOrigin.Begin);
-                var receivedMessage = new ReceivedMessage(fileStream, contentType);
+                var receivedMessage = new ReceivedMessage(fileInfo.Name, fileStream, contentType);
                 internalMessage = await messageCallback(receivedMessage, token);
             }
 

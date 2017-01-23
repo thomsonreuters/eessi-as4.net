@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Security.Repositories
         public SignedXmlRepository(XmlDocument document)
         {
             this._document = document;
-            this._allowedIdNodeNames = new[] {"Id", "id", "ID"};
+            this._allowedIdNodeNames = new[] { "Id", "id", "ID" };
         }
 
         /// <summary>
@@ -74,11 +74,17 @@ namespace Eu.EDelivery.AS4.Security.Repositories
             return this._document.SelectNodes(xpath).Cast<XmlElement>().ToList();
         }
 
-        private bool MatchingNodesIsNotPopulated(IReadOnlyCollection<XmlElement> matchingNodes)
+        private static bool MatchingNodesIsNotPopulated(IReadOnlyCollection<XmlElement> matchingNodes)
         {
-            if (matchingNodes.Count <= 0) return true;
+            if (matchingNodes.Count <= 0)
+            {
+                return true;
+            }
+
             if (matchingNodes.Count >= 2)
+            {
                 throw new CryptographicException("Malformed reference element.");
+            }
 
             return false;
         }

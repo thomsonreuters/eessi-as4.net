@@ -50,6 +50,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            _logger.Info($"{internalMessage.Prefix} Executing RetrievePayloadsStep");
+
             if (!internalMessage.SubmitMessage.HasPayloads)
                 return ReturnSameInternalMessage(internalMessage);
 
@@ -68,8 +70,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             try
             {
                 this._logger.Info($"{internalMessage.Prefix} Retrieve Submit Message Payloads");
-                internalMessage.AddAttachments(payload =>
-                        this._provider.Get(payload).RetrievePayload(payload.Location));
+                internalMessage.AddAttachments(payload => this._provider.Get(payload).RetrievePayload(payload.Location));
+                this._logger.Info($"{internalMessage.Prefix} Number of Payloads retrieved: {internalMessage.AS4Message.Attachments.Count}");
             }
             catch (Exception exception)
             {
@@ -81,6 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             string description = $"{internalMessage.Prefix} Failed to retrieve Submit Message Payloads";
             this._logger.Error(description);
+            this._logger.Error($"{internalMessage.Prefix} {exception.Message}");
 
             return new AS4ExceptionBuilder()
                 .WithDescription(description)

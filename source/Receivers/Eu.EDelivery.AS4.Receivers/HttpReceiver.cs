@@ -99,8 +99,8 @@ namespace Eu.EDelivery.AS4.Receivers
             var requestStream = new MemoryStream();
             context.Request.InputStream.CopyTo(requestStream);
             requestStream.Position = 0;
-
-            return new ReceivedMessage(requestStream, context.Request.ContentType);
+            
+            return new ReceivedMessage(context.Request.RawUrl, requestStream, context.Request.ContentType);
         }
 
         private void ProcessResponse(

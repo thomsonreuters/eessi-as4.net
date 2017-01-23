@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Common
             LoadExternalAssemblies(externalDictionary);
         }
 
-        private DirectoryInfo GetExternalDirectory()
+        private static DirectoryInfo GetExternalDirectory()
         {
             DirectoryInfo directory = null;
             if(Directory.Exists(Properties.Resources.externalfolder))
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Common
             return directory;
         }
 
-        private void LoadExternalAssemblies(DirectoryInfo externalDictionary)
+        private static void LoadExternalAssemblies(DirectoryInfo externalDictionary)
         {
             foreach (FileInfo assemblyFile in externalDictionary.GetFiles("*.dll"))
             {
@@ -91,14 +91,14 @@ namespace Eu.EDelivery.AS4.Common
             }
         }
 
-        private string GetSendPModeFolder()
+        private static string GetSendPModeFolder()
         {
             return Path.Combine(
                 Properties.Resources.configurationfolder,
                 Properties.Resources.sendpmodefolder);
         }
 
-        private string GetReceivePModeFolder()
+        private static string GetReceivePModeFolder()
         {
             return Path.Combine(
                 Properties.Resources.configurationfolder,
@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.Common
             }
         }
 
-        private T Deserialize<T>(string path) where T : class
+        private static T Deserialize<T>(string path) where T : class
         {
             using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -140,12 +140,12 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AssignSettingsToGlobalConfiguration()
         {
-            AddFixedSettigns();
+            AddFixedSettings();
             AddCustomSettings();
             AddCustomAgents();
         }
 
-        private void AddFixedSettigns()
+        private void AddFixedSettings()
         {
             this._configuration["IdFormat"] = this._settings.IdFormat;
             this._configuration["Provider"] = this._settings.Database.Provider;
