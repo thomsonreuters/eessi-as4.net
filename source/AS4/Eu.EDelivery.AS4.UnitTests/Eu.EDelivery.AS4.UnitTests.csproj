@@ -236,6 +236,7 @@
     <Compile Include="Security\Serializers\GivenEncryptedDataSerializerFacts.cs" />
     <Compile Include="Security\Strategies\GivenEncryptionStrategyFacts.cs" />
     <Compile Include="Serialization\GivenMimeMessageSerializerFacts.cs" />
+    <Compile Include="Serialization\GivenSerializerProviderFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeSerializerFacts.cs" />
     <Compile Include="Security\References\GivenKeyIdentifierSecurityTokenReferenceFacts.cs" />
     <Compile Include="Security\Strategies\GivenSignStrategyFacts.cs" />
