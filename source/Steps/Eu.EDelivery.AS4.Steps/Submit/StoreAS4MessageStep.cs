@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 .WithInnerException(exception)
                 .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
-                .WithDescription("Unable to store AS4 Messages")
+                .WithDescription($"Unable to store AS4 Messages", exception)
                 .Build();
         }
 

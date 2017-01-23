@@ -39,6 +39,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
+            _logger.Info($"Transforming ReceivedMessage {message.Id} to InternalMessage");
+            
             SubmitMessage submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
             ValidateSubmitMessage(submitMessage);
 

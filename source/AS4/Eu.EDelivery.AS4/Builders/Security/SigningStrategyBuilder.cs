@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// <returns></returns>
         public SigningStrategyBuilder WithSignatureAlgorithm(string signatureAlgorithmIdentifier)
         {
-            this._logger.Debug($"Singing Algorithm: {signatureAlgorithmIdentifier}");
+            this._logger.Debug($"Signing Algorithm: {signatureAlgorithmIdentifier}");
             SignatureAlgorithm signatureAlgorithm = this._algorithmProvider.Get(signatureAlgorithmIdentifier);
             this._strategy.AddAlgorithm(signatureAlgorithm);
 

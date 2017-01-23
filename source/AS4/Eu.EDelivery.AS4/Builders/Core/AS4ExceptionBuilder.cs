@@ -41,6 +41,30 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return this;
         }
 
+        /// <summary>
+        /// Add a description to the <see cref="AS4Exception"/> and add the description from 
+        /// the specified <param name="exception"></param>
+        /// </summary>
+        /// <param name="description"></param>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        public AS4ExceptionBuilder WithDescription(string description, Exception exception)
+        {
+            this._description = description + $": {GetErrorMessageFromInnerException(exception)}";
+
+            return this;
+        }
+
+        private static string GetErrorMessageFromInnerException(Exception exception)
+        {
+            if (exception.InnerException == null)
+            {
+                return exception.Message;
+            }
+
+            return GetErrorMessageFromInnerException(exception.InnerException);
+        }
+
         public AS4ExceptionBuilder WithInnerException(Exception innerException)
         {
             this._innerException = innerException;

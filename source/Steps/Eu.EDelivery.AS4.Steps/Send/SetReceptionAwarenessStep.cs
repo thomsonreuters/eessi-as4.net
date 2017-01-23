@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return ReturnSameResult(internalMessage, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
 
             if (!IsReceptionAwarenessNotSet())
-                return ReturnSameResult(internalMessage, "ebMS message already is configured with Receiption Awareness");
+                return ReturnSameResult(internalMessage, "ebMS message already is configured with Reception Awareness");
 
             await InsertReceptionAwarenessAsync();
             return StepResult.Success(internalMessage);

@@ -10,7 +10,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class ReceivedMessage
     {
-        public string ContentType { get; set; }
+        public string Id { get; private set; }
+        public string ContentType { get;  set; }
         public Stream RequestStream { get; set; }
 
         protected ReceivedMessage() { }
@@ -39,6 +40,23 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             this.RequestStream = requestStream;
             this.ContentType = contentType;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceivedMessage"/> class. 
+        /// Create a new Received Message with a given RequestStream
+        /// and Processing Mode
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="requestStream">
+        /// </param>
+        /// <param name="contentType">
+        /// </param>
+        public ReceivedMessage(string id, Stream requestStream, string contentType)
+        {
+            this.RequestStream = requestStream;
+            this.ContentType = contentType;
+            this.Id = id;
         }
 
         /// <summary>
