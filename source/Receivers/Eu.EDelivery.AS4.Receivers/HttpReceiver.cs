@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -85,21 +87,49 @@ namespace Eu.EDelivery.AS4.Receivers
         private async Task ProcessRequestAsync(
             HttpListenerContext context, Function messageCallback, CancellationToken token)
         {
-            if (context.Request.HttpMethod.Equals("GET")) return;
+            this._logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
 
-            this._logger.Info($"Received request at: {this.Prefix}");
-
+            if (context.Request.HttpMethod.Equals("GET"))
+            {
+                DisplayHtmlStatusPage(context);
+                return;
+            }
+            
             ReceivedMessage receivedMessage = CreateReceivedMessage(context);
             InternalMessage internalMessage = await messageCallback(receivedMessage, CancellationToken.None);
             ProcessResponse(context, internalMessage, token);
         }
 
-        private ReceivedMessage CreateReceivedMessage(HttpListenerContext context)
+        private static void DisplayHtmlStatusPage(HttpListenerContext context)
+        {
+            var responseBuilder = HttpGetResponseFactory.GetHttpGetRessponse(context.Request.AcceptTypes);
+
+            byte[] response;
+
+            try
+            {
+                response = responseBuilder.GetResponse(context);
+                context.Response.StatusCode = 200;
+            }                        
+            catch(Exception ex)
+            {
+                context.Response.StatusCode = 500;
+                response = System.Text.Encoding.UTF8.GetBytes(ex.Message);
+            }
+
+            var responseLength = response.Length;
+
+            context.Response.ContentLength64 = responseLength;
+            context.Response.OutputStream.Write(response, 0, responseLength);
+            context.Response.OutputStream.Close();
+        }
+
+        private static ReceivedMessage CreateReceivedMessage(HttpListenerContext context)
         {
             var requestStream = new MemoryStream();
             context.Request.InputStream.CopyTo(requestStream);
             requestStream.Position = 0;
-            
+
             return new ReceivedMessage(context.Request.RawUrl, requestStream, context.Request.ContentType);
         }
 
@@ -111,7 +141,7 @@ namespace Eu.EDelivery.AS4.Receivers
             context.Response.Close();
         }
 
-        private void SetupResponseHeaders(HttpListenerContext context, InternalMessage internalMessage)
+        private static void SetupResponseHeaders(HttpListenerContext context, InternalMessage internalMessage)
         {
             context.Response.KeepAlive = false;
             context.Response.StatusCode = GetHttpStatusCode(internalMessage);
@@ -120,7 +150,7 @@ namespace Eu.EDelivery.AS4.Receivers
             context.Response.ContentType = internalMessage.AS4Message.ContentType;
         }
 
-        private int GetHttpStatusCode(InternalMessage internalMessage)
+        private static int GetHttpStatusCode(InternalMessage internalMessage)
         {
             var statusCode = (int)HttpStatusCode.OK;
             if (internalMessage.AS4Message.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
@@ -167,9 +197,65 @@ namespace Eu.EDelivery.AS4.Receivers
             this._logger.Info($"AS4 {type} is send to requested party");
         }
 
-        private bool IsAS4MessageAnError(InternalMessage internalMessage)
+        private static bool IsAS4MessageAnError(InternalMessage internalMessage)
         {
             return internalMessage.AS4Message.PrimarySignalMessage is Error;
         }
+
+        private static class HttpGetResponseFactory
+        {
+            public static HttpGetResponse GetHttpGetRessponse(string[] acceptHeaders)
+            {
+                if (acceptHeaders.Contains("text/html"))
+                {
+                    return new HttpHtmlGetResponse();
+                }
+                if (acceptHeaders.Contains("image/*"))
+                {
+                    return new HttpImageGetResponse();
+                }
+                throw new NotSupportedException("No HttpGetResponse implementation available for these acceptheaders.");
+            }
+
+            private sealed class HttpHtmlGetResponse : HttpGetResponse
+            {
+                public override byte[] GetResponse(HttpListenerContext context)
+                {
+                    const string html =
+                    @"<html>
+<head>
+    <meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"">
+    <title>AS4.NET</title>       
+</head>
+<body>
+    <img src=""assets/as4logo.png"" alt=""AS4.NET logo"" Style=""display:block, margin:auto""></img>
+    <div Style=""text-align:center""><p>This AS4.NET MessageHandler is online</p></div>
+</body>";
+                    return System.Text.Encoding.UTF8.GetBytes(html);
+                }
+            }
+
+            private sealed class HttpImageGetResponse : HttpGetResponse
+            {
+                public override byte[] GetResponse(HttpListenerContext context)
+                {
+                    string file = context.Request.Url.ToString().Replace(context.Request.UrlReferrer.ToString(), "./");
+
+                    if (File.Exists(file) == false)
+                    {
+                        return new byte[] { };
+                    }
+
+                    return File.ReadAllBytes(file);
+                }
+            }
+
+            public abstract class HttpGetResponse
+            {
+                public abstract byte[] GetResponse(HttpListenerContext context);
+            }
+        }
+
+
     }
 }
