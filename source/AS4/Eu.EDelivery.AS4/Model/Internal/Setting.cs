@@ -15,6 +15,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public CertificateStore CertificateStore { get; set; }
         public CustomSettings CustomSettings { get; set; }
         public SettingsAgents Agents { get; set; }
+        public bool FeInProcess { get; set; }
     }
 
     [Serializable]
