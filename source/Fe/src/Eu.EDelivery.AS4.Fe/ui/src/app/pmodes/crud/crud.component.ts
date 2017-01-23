@@ -3,10 +3,10 @@ import { Component, OnInit, OpaqueToken, Inject, Output, OnDestroy } from '@angu
 
 import { DialogService } from './../../common/dialog.service';
 import { IPmode } from './../../api/Pmode.interface';
-import { ICrudPmodeService } from './../pmode.service';
 import { ModalService } from './../../common/modal/modal.service';
 import { getRawFormValues } from './../../common/getRawFormValues';
 import { Subscription } from 'rxjs/Subscription';
+import { ICrudPmodeService } from '../crudpmode.service.interface';
 
 export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
 

@@ -5,12 +5,12 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { ItemType } from './../api/ItemType';
 
 interface State {
-    receivers: Array<ItemType>;
-    steps: Array<ItemType>;
-    transformers: Array<ItemType>;
-    certificateRepositories: Array<ItemType>;
-    deliverSenders: Array<ItemType>;
-    runtimeMetaData: Array<any>;
+    receivers: ItemType[];
+    steps: ItemType[];
+    transformers: ItemType[];
+    certificateRepositories: ItemType[];
+    deliverSenders: ItemType[];
+    runtimeMetaData: ItemType[];
 }
 
 @Injectable()

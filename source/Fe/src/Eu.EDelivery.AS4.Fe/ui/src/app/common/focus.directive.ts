@@ -4,13 +4,17 @@ import { Directive, DoCheck, ElementRef, AfterViewInit, Input } from '@angular/c
   selector: '[focus]'
 })
 export class FocusDirective implements DoCheck {
-  @Input() onlyWhenNoText: boolean = false;
+  @Input() public onlyWhenNoText: boolean = false;
   private initialised: boolean = false;
   constructor(private el: ElementRef) { }
-  ngDoCheck() {
-    if (this.initialised) return;
+  public ngDoCheck() {
+    if (this.initialised) {
+      return;
+    }
     setTimeout(() => {
-      if (this.onlyWhenNoText && (<any>document.activeElement).type === 'text') return;
+      if (this.onlyWhenNoText && (<any>document.activeElement).type === 'text') {
+        return;
+      }
       this.el.nativeElement.focus();
     });
     this.initialised = true;

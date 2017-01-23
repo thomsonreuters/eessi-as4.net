@@ -18,18 +18,25 @@ export class SettingsStore extends Store<ISettingsState> {
         });
     }
     public updateAgent(type: string, originalName: string, agent: SettingsAgent) {
-        if (type === SettingsAgents.FIELD_receptionAwarenessAgent) this.setReceptionAwarenessAgent(agent);
-        else this.setAgent(agent, originalName, type);
+        if (type === SettingsAgents.FIELD_receptionAwarenessAgent) {
+            this.setReceptionAwarenessAgent(agent);
+        } else {
+            this.setAgent(agent, originalName, type);
+        }
         this.setState(this.state);
     }
     public deleteAgent(type: string, agent: SettingsAgent) {
-        if (type === SettingsAgents.FIELD_receptionAwarenessAgent) this.state.Settings.agents.receptionAwarenessAgent = undefined;
-        else this.removeAgent(agent, type);
+        if (type === SettingsAgents.FIELD_receptionAwarenessAgent) {
+            this.state.Settings.agents.receptionAwarenessAgent = undefined;
+        } else {
+            this.removeAgent(agent, type);
+        }
         this.setState(this.state);
     }
     public addAgent(type: string, agent: SettingsAgent) {
-        if (type === SettingsAgents.FIELD_receptionAwarenessAgent) this.state.Settings.agents.receptionAwarenessAgent = agent;
-        else {
+        if (type === SettingsAgents.FIELD_receptionAwarenessAgent) {
+            this.state.Settings.agents.receptionAwarenessAgent = agent;
+        } else {
             if (!!!this.state.Settings.agents[type]) {
                 this.state.Settings.agents[type] = [agent];
                 return;

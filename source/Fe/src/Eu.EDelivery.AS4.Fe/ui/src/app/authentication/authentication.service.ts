@@ -4,27 +4,16 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
 
+import { AuthenticationStore, TOKENSTORE } from './authentication.store';
+
 const state = {
     loggedin: tokenNotExpired()
 };
 
-interface State {
+export interface State {
     loggedin: boolean;
 }
-const store = new BehaviorSubject<State>(state);
-
-@Injectable()
-export class AuthenticationStore {
-    public changes = store.asObservable();
-    private store = store;
-    public getState() {
-        return this.store.value;
-    }
-    public setState(newState: State) {
-        this.store.next(newState);
-    }
-}
-const TOKENSTORE: string = 'id_token';
+export const store = new BehaviorSubject<State>(state);
 
 @Injectable()
 export class AuthenticationService {
@@ -33,12 +22,12 @@ export class AuthenticationService {
     public login(username: string, password: string): Observable<boolean> {
         let obs = new Subject<boolean>();
         let headers = new Headers({ 'Content-Type': 'application/json' });
-        let options = new RequestOptions({ headers: headers });
+        let options = new RequestOptions({ headers });
         this.http.post('api/authentication', JSON.stringify({
-            username: username,
-            password: password
+            username,
+            password
         }), options)
-            .subscribe(result => {
+            .subscribe((result) => {
                 obs.next(true);
                 localStorage.setItem(TOKENSTORE, result.json().access_token);
                 this.router.navigate(['/settings']);

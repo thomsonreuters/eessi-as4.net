@@ -1,6 +1,7 @@
 import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 
-import { AuthenticationService, AuthenticationStore } from '../../authentication/authentication.service';
+import { AuthenticationService } from '../../authentication/authentication.service';
+import { AuthenticationStore } from '../../authentication/authentication.store';
 
 @Component({
     selector: 'as4-header',
@@ -12,9 +13,9 @@ import { AuthenticationService, AuthenticationStore } from '../../authentication
 export class HeaderComponent {
     public isLoggedIn: boolean;
     constructor(private authenticationService: AuthenticationService, private authenticationStore: AuthenticationStore) {
-        authenticationStore.changes.subscribe(result => this.isLoggedIn = result.loggedin);
+        authenticationStore.changes.subscribe((result) => this.isLoggedIn = result.loggedin);
     }
-    logout() {
+    public logout() {
         this.authenticationService.logout();
     }
 }

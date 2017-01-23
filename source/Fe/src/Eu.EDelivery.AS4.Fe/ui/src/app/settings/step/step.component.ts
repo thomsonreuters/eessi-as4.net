@@ -55,7 +55,7 @@ import { Step } from './../../api/Step';
     ]
 })
 export class StepSettingsComponent implements OnDestroy {
-    @Input() group: FormGroup;
+    @Input() public group: FormGroup;
     public steps: ItemType[];
     public decorators: ItemType[];
     private _runtimeStoreSubscription: Subscription;
@@ -76,7 +76,9 @@ export class StepSettingsComponent implements OnDestroy {
         this.group.markAsDirty();
     }
     public removeStep(index: number) {
-        if (!this.dialogService.confirm('Are you sure you want to delete the step ?')) return;
+        if (!this.dialogService.confirm('Are you sure you want to delete the step ?')) {
+            return;
+        }
         (<FormArray>this.group.controls['step']).removeAt(index);
         this.group.markAsDirty();
     }
@@ -89,7 +91,7 @@ export class StepSettingsComponent implements OnDestroy {
         formGroup
             .addControl('setting', this.formBuilder.array(stepProps
                 .properties
-                .map(prop => Setting.getForm(this.formBuilder, {
+                .map((prop) => Setting.getForm(this.formBuilder, {
                     key: prop.friendlyName,
                     value: ''
                 }))));

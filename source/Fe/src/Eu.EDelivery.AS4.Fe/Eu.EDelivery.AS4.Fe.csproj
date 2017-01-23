@@ -19,7 +19,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\output\fe\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -140,7 +140,9 @@
     <None Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\libuv.dll" />
+    <Content Include="libuv.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Runtime\Eu.EDelivery.AS4.dll" />
     <Content Include="Runtime\Eu.EDelivery.AS4.Receivers.dll" />
     <Content Include="Runtime\Eu.EDelivery.AS4.Steps.dll" />

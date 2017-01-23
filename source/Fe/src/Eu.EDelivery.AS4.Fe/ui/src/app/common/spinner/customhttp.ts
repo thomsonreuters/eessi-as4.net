@@ -7,7 +7,7 @@ export class CustomHttp extends Http {
     constructor(backend: XHRBackend, options: RequestOptions, private spinnerService: SpinnerService) {
         super(backend, options);
     }
-    request(url: string | Request, options?: RequestOptionsArgs): Observable<Response> {
+    public request(url: string | Request, options?: RequestOptionsArgs): Observable<Response> {
         this.spinnerService.show();
         let result = super
             .request(url, options)

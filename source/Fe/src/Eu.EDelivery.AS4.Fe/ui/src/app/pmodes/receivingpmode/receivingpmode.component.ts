@@ -32,7 +32,7 @@ export class ReceivingPmodeComponent implements OnDestroy {
     constructor(private _runtimeStore: RuntimeStore) {
         this._runtimeStore
             .changes
-            .filter((store) => !!!store)
+            .filter((store) => !!store)
             .map((store) => store.deliverSenders)
             .subscribe((data) => this.deliverSenders = data);
     }

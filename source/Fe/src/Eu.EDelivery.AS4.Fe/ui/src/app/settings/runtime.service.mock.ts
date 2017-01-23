@@ -1,9 +1,9 @@
 import { IRuntimeService } from './runtime.service';
 
 export class RuntimeServiceMock implements IRuntimeService {
-    getReceivers() { }
-    getSteps() { }
-    getTransformers() { }
-    getCertificateRepositories() { }
-    getAll() { }
+    public getReceivers() { }
+    public getSteps() { }
+    public getTransformers() { }
+    public getCertificateRepositories() { }
+    public getAll() { }
 }
