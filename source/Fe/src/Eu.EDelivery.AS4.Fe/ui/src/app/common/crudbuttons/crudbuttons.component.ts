@@ -12,18 +12,13 @@ import { FormGroup } from '@angular/forms';
             <ng-content></ng-content>
     `
 })
-export class CrudButtonsComponent implements OnInit {
-    @Output() rename = new EventEmitter();
-    @Output() add = new EventEmitter();
-    @Output() save = new EventEmitter();
-    @Output() delete = new EventEmitter();
-    @Output() reset = new EventEmitter();
-    @Input() current: string;
-    @Input() form: FormGroup;
-    @Input() isNewMode: boolean = false;
-    constructor() {
-    }
-
-    ngOnInit() {
-    }
+export class CrudButtonsComponent {
+    @Output() public rename = new EventEmitter();
+    @Output() public add = new EventEmitter();
+    @Output() public save = new EventEmitter();
+    @Output() public delete = new EventEmitter();
+    @Output() public reset = new EventEmitter();
+    @Input() public current: string;
+    @Input() public form: FormGroup;
+    @Input() public isNewMode: boolean = false;
 }

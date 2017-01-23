@@ -8,19 +8,19 @@ import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent {
-  public routes: Array<Route>;
+  public routes: Route[];
   constructor(private router: Router) {
     let routes = this
       .router
       .config
-      .map(result => {
+      .map((result) => {
         if (!!!result.path) {
           return result.children;
         }
 
         return result;
       });
-    this.routes = this.flatten<Route>(routes).filter(route => !!route.data && !!route.data['title']);
+    this.routes = this.flatten<Route>(routes).filter((route) => !!route.data && !!route.data['title']);
 
   }
   private flatten<T>(list: Route[]): T[] {

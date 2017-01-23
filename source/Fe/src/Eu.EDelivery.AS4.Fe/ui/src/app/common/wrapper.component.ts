@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs/Subscription';
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Router, RoutesRecognized, ActivatedRouteSnapshot, ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -28,20 +28,22 @@ import { Router, RoutesRecognized, ActivatedRouteSnapshot, ActivatedRoute } from
         `
     ]
 })
-export class WrapperComponent {
+export class WrapperComponent implements OnDestroy {
     public breadCrumb: string;
     private _routeSubscription: Subscription;
     constructor(private router: Router, private activatedRoute: ActivatedRoute) {
         this.breadCrumb = this.getPath(this.activatedRoute.snapshot);
         this._routeSubscription = this.router
             .events
-            .filter(evt => evt instanceof RoutesRecognized)
+            .filter((evt) => evt instanceof RoutesRecognized)
             .subscribe((result: RoutesRecognized) => {
                 this.breadCrumb = this.getPath(result.state.root);
             });
     }
     public ngOnDestroy() {
-        if (!!this._routeSubscription) this._routeSubscription.unsubscribe();
+        if (!!this._routeSubscription) {
+            this._routeSubscription.unsubscribe();
+        }
     }
     private getPath(activatedRoute: ActivatedRouteSnapshot): string {
         let path = activatedRoute && activatedRoute.data && activatedRoute.data['title'];

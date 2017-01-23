@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Fe.Settings
 {

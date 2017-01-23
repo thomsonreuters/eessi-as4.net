@@ -5,7 +5,7 @@ import { ModalComponent } from './modal.component';
 
 @Injectable()
 export class ModalService {
-    private modals: Array<ModalComponent> = new Array<ModalComponent>();
+    private modals: ModalComponent[] = new Array<ModalComponent>();
     public registerModal(modal: ModalComponent) {
         this.modals.push(modal);
     }
@@ -14,9 +14,11 @@ export class ModalService {
         this.modals.splice(index, 1);
     }
     public show(name: string, modal?: (dialog: ModalComponent) => void) {
-        let dialog = this.modals.find(src => src.name === name);
-        this.modals.forEach(mdl => mdl.isVisible = false);
-        if (!!modal) modal(dialog);
+        let dialog = this.modals.find((src) => src.name === name);
+        this.modals.forEach((mdl) => mdl.isVisible = false);
+        if (!!modal) {
+            modal(dialog);
+        }
         return dialog.show();
     }
 }

@@ -8,7 +8,7 @@ export class DialogErrorHandler implements ErrorHandler {
     constructor(private _dialogService: DialogService, private _spinnerService: SpinnerService) {
 
     }
-    handleError(error: Response | any): void {
+    public handleError(error: Response | any): void {
         this._spinnerService.hide();
         this._dialogService.error(error, error);
     }
