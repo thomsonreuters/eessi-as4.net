@@ -17,7 +17,7 @@ import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
 import { getRawFormValues } from './../../common/getRawFormValues';
 import { ModalService } from './../../common/modal/modal.service';
 import { BoxComponent } from './../../common/box/box.component';
-import { ReceivingPmodeService } from './../pmode.service';
+import { ReceivingPmodeService } from '../receivingpmode.service';
 
 @Component({
     templateUrl: './receivingpmode.component.html',

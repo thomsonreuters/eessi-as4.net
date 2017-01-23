@@ -10,7 +10,7 @@ export class ModalService {
         this.modals.push(modal);
     }
     public unregisterModal(modal: ModalComponent) {
-        let index = this.modals.findIndex(src => src === modal);
+        let index = this.modals.findIndex((src) => src === modal);
         this.modals.splice(index, 1);
     }
     public show(name: string, modal?: (dialog: ModalComponent) => void) {
