@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
@@ -63,7 +64,10 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private void SendDeliverMessage(DeliverMessage deliverMessage, string locationFolder)
         {
-            string location = $"{locationFolder}{deliverMessage.MessageInfo.MessageId}.xml";
+
+            string filename = FilenameSanitizer.EnsureValidFilename(deliverMessage.MessageInfo.MessageId) + ".xml";
+            string location = Path.Combine(locationFolder, filename);
+
             using (FileStream fileStream = File.Create(location))
             {
                 var serializer = new XmlSerializer(typeof(DeliverMessage));
