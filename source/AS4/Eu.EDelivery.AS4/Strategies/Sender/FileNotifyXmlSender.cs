@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
@@ -61,8 +62,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private void SendNotifyMessage(NotifyMessage notifyMessage, string locationFolder)
         {
-            string locationFile = $"{locationFolder}{notifyMessage.MessageInfo.MessageId}.xml";
-
+            string locationFile = Path.Combine(locationFolder,
+                                               FilenameSanitizer.EnsureValidFilename(notifyMessage.MessageInfo.MessageId) + ".xml");
+                                                
             TryCreateMissingDirectoriesIfNotExists(locationFolder);
             TrySendNotifyMessageFile(notifyMessage, locationFile);
         }

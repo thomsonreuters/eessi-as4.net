@@ -164,16 +164,26 @@ namespace Eu.EDelivery.AS4.Receivers
             this.Logger.Debug($"Renaming file '{fileInfo.Name}'...");
             string destFileName = $"{fileInfo.Directory?.FullName}\\{Path.GetFileNameWithoutExtension(fileInfo.FullName)}.{extension}";
 
-            if (File.Exists(destFileName))
-            {
-                const string copyExtension = " - Copy";
-                string copyFilename = destFileName + copyExtension;
-                this.Logger.Debug($"File with name: {destFileName} already exists, renaming to {copyFilename}");
-                MoveFile(fileInfo, extension + copyExtension);
-            }
-            else fileInfo.MoveTo(destFileName);
+            destFileName = EnsureFilenameIsUnique(destFileName);
+
+            fileInfo.MoveTo(destFileName);
 
             this.Logger.Info($"File renamed to: '{fileInfo.Name}'!");
+        }
+
+        private static string EnsureFilenameIsUnique(string filename)
+        {
+            if (File.Exists(filename))
+            {
+                const string copyExtension = " - Copy";
+
+                string name = Path.GetFileName(filename) + copyExtension + Path.GetExtension(filename);
+                string copyFilename = Path.Combine(Path.GetDirectoryName(filename) ?? "", name);
+
+                return EnsureFilenameIsUnique(copyFilename);
+            }
+
+            return filename;
         }
 
         private TimeSpan FromProperties()
