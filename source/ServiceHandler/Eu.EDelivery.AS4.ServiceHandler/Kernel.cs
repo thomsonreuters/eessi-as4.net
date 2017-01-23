@@ -42,6 +42,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+
             if (this._agents == null)
             {
                 return;
@@ -62,7 +63,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                     return;
                 }
             }
-
 
             this._logger.Debug("Starting...");
             Task task = Task.WhenAll(this._agents.Select(c => c.Start(cancellationToken)).ToArray());

@@ -49,6 +49,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             Registry registry = Registry.Instance;
 
             config.Initialize();
+
+            StartFeInProcess();
+
             if (!config.IsInitialized) return null;
 
             string certificateTypeRepository = config.GetSetting("CertificateRepository");
@@ -57,6 +60,13 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
             var agentProvider = new AgentProvider(config);
             return new Kernel(agentProvider.GetAgents());
+        }
+
+        private static void StartFeInProcess()
+        {
+            if (!Config.Instance.FeInProcess) return;
+            Fe.Program.InProcess = true;
+            Task.Factory.StartNew(() => Fe.Program.Main(null));
         }
     }
 }

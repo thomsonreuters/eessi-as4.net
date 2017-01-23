@@ -152,6 +152,7 @@ namespace Eu.EDelivery.AS4.Common
             this._configuration["ConnectionString"] = this._settings.Database.ConnectionString;
             this._configuration["CertificateStore"] = this._settings.CertificateStore.StoreName;
             this._configuration["CertificateRepository"] = this._settings.CertificateStore?.Repository?.Type;
+            this.FeInProcess = this._settings.FeInProcess;
         }
 
         private void AddCustomSettings()
@@ -212,5 +213,10 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() 
             => this._receivingPModes.Select(p => p.Value.PMode as ReceivingProcessingMode);
+
+        /// <summary>
+        /// Indicates if the FE needs to be started in process
+        /// </summary>
+        public bool FeInProcess { get; private set; }
     }
 }
