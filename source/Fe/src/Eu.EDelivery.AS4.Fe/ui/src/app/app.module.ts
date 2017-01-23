@@ -23,6 +23,8 @@ import { Http, RequestOptions } from '@angular/http';
 import { AuthHttp } from 'angular2-jwt';
 import { authHttpServiceFactory } from '../app/common/as4components.module';
 
+import '../styles/external.scss';
+
 type StoreType = {
     state: InternalStateType,
     restoreInputValues: () => void,
@@ -54,7 +56,7 @@ export function jwtHelperFactory() {
         FormsModule,
         HttpModule,
         CommonModule,
-        RouterModule.forRoot(ROUTES, { useHash: true }),
+        RouterModule.forRoot(ROUTES, { useHash: false }),
 
         SettingsModule,
         PmodesModule,
@@ -70,8 +72,10 @@ export function jwtHelperFactory() {
 export class AppModule {
     constructor(public appRef: ApplicationRef, public appState: AppState) { }
 
-    hmrOnInit(store: StoreType) {
-        if (!store || !store.state) return;
+    public hmrOnInit(store: StoreType) {
+        if (!store || !store.state) {
+            return;
+        }
         console.log('HMR store', JSON.stringify(store, null, 2));
         // set state
         this.appState._state = store.state;
@@ -86,8 +90,8 @@ export class AppModule {
         delete store.restoreInputValues;
     }
 
-    hmrOnDestroy(store: StoreType) {
-        const cmpLocation = this.appRef.components.map(cmp => cmp.location.nativeElement);
+    public hmrOnDestroy(store: StoreType) {
+        const cmpLocation = this.appRef.components.map((cmp) => cmp.location.nativeElement);
         // save state
         const state = this.appState._state;
         store.state = state;
@@ -99,10 +103,9 @@ export class AppModule {
         removeNgStyles();
     }
 
-    hmrAfterDestroy(store: StoreType) {
+    public hmrAfterDestroy(store: StoreType) {
         // display new elements
         store.disposeOldHosts();
         delete store.disposeOldHosts;
     }
 }
-

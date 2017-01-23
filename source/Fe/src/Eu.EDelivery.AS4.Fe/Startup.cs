@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -30,7 +29,8 @@ namespace Eu.EDelivery.AS4.Fe
             IConfigurationRoot config;
             services.AddModules(moduleMappings, (configBuilder, env) =>
             {
-                configBuilder.SetBasePath(env.ContentRootPath)
+                configBuilder
+                    .SetBasePath(env.ContentRootPath)
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
             }, out config);
@@ -43,27 +43,21 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddSingleton<ILogging, Logging.Logging>();
             services.AddSingleton<ISettingsSource, FileSettingsSource>();
             services.AddSingleton<ITokenService, TokenService>();
-            services.AddSingleton<IRuntimeLoader, RuntimeLoader>(x => (RuntimeLoader)new RuntimeLoader(Path.Combine(Directory.GetCurrentDirectory(), "runtime")).Initialize());
+            services.AddSingleton<IRuntimeLoader, RuntimeLoader>();
 
             services.AddOptions();
             services.Configure<JwtOptions>(Configuration.GetSection("JwtOptions"));
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline		Path.Combine(Directory.GetCurrentDirectory(), @"ui/dist/")	"C:\\dev\\AS4.net\\source\\Fe\\src\\Eu.EDelivery.AS4.Fe\\bin\\Debug\\ui/dist/"	string
+
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.ExecuteStartupServices();
-            //app.UseDefaultFiles(new DefaultFilesOptions()
-            //{
-            //    DefaultFileNames = new[] { "index.html" }
-            //});
-            //app.UseStaticFiles(new StaticFileOptions
-            //{
-            //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"ui/dist/")),
-            //    RequestPath = new PathString("")
-            //});
-            app.UseFileServer();
+            app.UseStatusCodePagesWithReExecute("/");
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             //app.UseCookieAuthentication(new CookieAuthenticationOptions
             //{

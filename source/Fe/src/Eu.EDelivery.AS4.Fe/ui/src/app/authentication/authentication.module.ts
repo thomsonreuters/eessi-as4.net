@@ -3,9 +3,10 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { LoginComponent } from './login/login.component';
-import { AuthenticationService, AuthenticationStore } from './authentication.service';
+import { AuthenticationService, } from './authentication.service';
 
 import { routes } from './authentication.routes';
+import { AuthenticationStore } from './authentication.store';
 
 @NgModule({
     imports: [

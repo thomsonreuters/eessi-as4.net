@@ -1,4 +1,12 @@
-import { Component, Input, ElementRef, Renderer, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
+import {
+    Component,
+    Input,
+    ElementRef,
+    Renderer,
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    OnInit
+} from '@angular/core';
 
 @Component({
     selector: 'as4-columns',
@@ -29,10 +37,12 @@ import { Component, Input, ElementRef, Renderer, AfterViewInit, ChangeDetectionS
     `],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ColumnsComponent {
-    @Input() noMargin: boolean = false;
+export class ColumnsComponent implements OnInit {
+    @Input() public noMargin: boolean = false;
     constructor(private _element: ElementRef, private _renderer: Renderer) { }
-    ngOnInit() {
-        if (!this.noMargin) this._renderer.setElementClass(this._element.nativeElement, 'no-margin', true);
+    public ngOnInit() {
+        if (!this.noMargin) {
+            this._renderer.setElementClass(this._element.nativeElement, 'no-margin', true);
+        }
     }
 }

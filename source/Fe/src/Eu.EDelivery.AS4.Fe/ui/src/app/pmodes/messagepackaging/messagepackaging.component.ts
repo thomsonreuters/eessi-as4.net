@@ -33,5 +33,5 @@ import { Component, Input } from '@angular/core';
     `
 })
 export class MessagePackagingComponent {
-    @Input() form: FormGroup;
+    @Input() public form: FormGroup;
 }

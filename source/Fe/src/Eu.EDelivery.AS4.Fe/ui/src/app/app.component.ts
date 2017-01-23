@@ -1,24 +1,21 @@
-import { SendingPmodeService, ReceivingPmodeService } from './pmodes/pmode.service';
 import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';
-import { AuthenticationStore } from './authentication/authentication.service';
 import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 
 import { AppState } from './app.service';
 import { RuntimeService } from './settings/runtime.service';
+import { AuthenticationStore } from './authentication/authentication.store';
+import { SendingPmodeService } from './pmodes/sendingpmode.service';
+import { ReceivingPmodeService } from './pmodes/receivingpmode.service';
 
 import 'jquery';
 import 'bootstrap/dist/js/bootstrap.js';
-import '../assets/theme/js/app.js';
+import '../theme/js/app.js';
 
 @Component({
     selector: 'as4-app',
     encapsulation: ViewEncapsulation.None,
-    styleUrls: [
-        '../../node_modules/bootstrap/dist/css/bootstrap.css',
-        '../assets/theme/css/AdminLTE.css',
-        '../assets/theme/css/skins/_all-skins.min.css',
-        '../assets/css/site.scss',
+    styles: [
         './app.component.scss'
     ],
     template: `    
@@ -44,7 +41,7 @@ import '../assets/theme/js/app.js';
 export class AppComponent {
     public isLoggedIn: boolean;
     public isShowDetails: boolean = false;
-    @ViewChild('modal') modal: ElementRef;
+    @ViewChild('modal') public modal: ElementRef;
     constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService) {
         this.authenticationStore.changes.subscribe(result => {
             this.isLoggedIn = result.loggedin;

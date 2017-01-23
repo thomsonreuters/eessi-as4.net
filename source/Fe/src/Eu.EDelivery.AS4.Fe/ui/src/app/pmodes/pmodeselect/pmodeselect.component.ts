@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs/Subscription';
-import { Component, OnInit, Input, Output, forwardRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, forwardRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { PmodeStore } from '../pmode.store';
@@ -20,8 +20,8 @@ export const PMODESELECT_CONTROL_VALUE_ACCESSOR: any = {
     `,
     providers: [PMODESELECT_CONTROL_VALUE_ACCESSOR]
 })
-export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
-    @Input() mode: string;
+export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAccessor {
+    @Input() public mode: string;
     public selectedPmode: string;
     public pmodes: string[];
     public isDisabled: boolean;
@@ -32,37 +32,37 @@ export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
         this.selectedPmode = pmode;
         this._propagateChange(pmode);
     }
-    ngOnInit() {
+    public ngOnInit() {
         switch (this.mode) {
             case 'receiving':
                 this._storeSubscription = this.pmodeStore.changes
                     .distinctUntilChanged()
-                    .filter(result => !!(result && result.ReceivingNames))
-                    .map(result => result.ReceivingNames)
-                    .subscribe(result => this.pmodes = result);
+                    .filter((result) => !!(result && result.ReceivingNames))
+                    .map((result) => result.ReceivingNames)
+                    .subscribe((result) => this.pmodes = result);
                 break;
             case 'sending':
                 this._storeSubscription = this.pmodeStore.changes
                     .distinctUntilChanged()
-                    .filter(result => !!(result && result.SendingNames))
-                    .map(result => result.SendingNames)
-                    .subscribe(result => this.pmodes = result);
+                    .filter((result) => !!(result && result.SendingNames))
+                    .map((result) => result.SendingNames)
+                    .subscribe((result) => this.pmodes = result);
                 break;
             default:
                 throw Error('Mode should be supplied');
         }
     }
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this._storeSubscription.unsubscribe();
     }
-    writeValue(value: string) {
+    public writeValue(value: string) {
         this.selectedPmode = value;
     }
-    registerOnChange(fn) {
+    public registerOnChange(fn) {
         this._propagateChange = fn;
     }
-    registerOnTouched() { }
-    setDisabledState(isDisabled: boolean): void {
+    public registerOnTouched() { }
+    public setDisabledState(isDisabled: boolean): void {
         this.isDisabled = isDisabled;
     }
 }

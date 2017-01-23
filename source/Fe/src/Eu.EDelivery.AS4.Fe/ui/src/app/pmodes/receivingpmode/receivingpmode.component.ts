@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
 import { FormGroup, FormBuilder, FormArray, FormControl, AbstractControl } from '@angular/forms';
-import { Component, ViewChildren, QueryList, OnInit, Inject } from '@angular/core';
+import { Component, ViewChildren, QueryList, OnInit, Inject, OnDestroy } from '@angular/core';
 
 import { BasePmodeComponent } from './../basepmode/basepmode.component';
 import { ReceivingPmode } from './../../api/ReceivingPmode';
@@ -26,6 +26,17 @@ import { ReceivingPmodeService } from './../pmode.service';
         { provide: PMODECRUD_SERVICE, useClass: ReceivingPmodeService }
     ]
 })
-export class ReceivingPmodeComponent {
-
+export class ReceivingPmodeComponent implements OnDestroy {
+    public deliverSenders;
+    private subscriptions: Subscription[] = new Array<Subscription>();
+    constructor(private _runtimeStore: RuntimeStore) {
+        this._runtimeStore
+            .changes
+            .filter((store) => !!store)
+            .map((store) => store.deliverSenders)
+            .subscribe((data) => this.deliverSenders = data);
+    }
+    public ngOnDestroy() {
+        this.subscriptions.forEach((subs) => subs.unsubscribe);
+    }
 }

@@ -26,6 +26,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 
         private void WriteItem(ItemType itemType, JObject rootJson)
         {
+            if (rootJson[itemType.Name.ToCamelCase()] != null) return;
             var mainObj = new JObject();
             rootJson.Add(new JProperty(itemType.Name.ToCamelCase(), mainObj));
             foreach (var property in itemType.Properties)

@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, AfterViewInit, SimpleChanges, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 
 import { RuntimeStore } from './../../settings/runtime.store';
 
@@ -22,31 +22,29 @@ import { RuntimeStore } from './../../settings/runtime.store';
     `],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputComponent {
-    @Input() label: string;
-    @Input() isLabelBold: boolean = true;
-    @Input() labelSize: number = 3;
-    @Input() controlSize: number = 5;
-    @Input() showLabel: boolean = true;
-    @Input() tooltip: string;
-    @Input() runtimeTooltip: string;
+export class InputComponent implements OnChanges {
+    @Input() public label: string;
+    @Input() public isLabelBold: boolean = true;
+    @Input() public labelSize: number = 3;
+    @Input() public controlSize: number = 5;
+    @Input() public showLabel: boolean = true;
+    @Input() public tooltip: string;
+    @Input() public runtimeTooltip: string;
     constructor(private _runtimeStore: RuntimeStore) {
 
     }
-    ngOnChanges(changes: SimpleChanges) {
+    public ngOnChanges(changes: SimpleChanges) {
         if (changes['runtimeTooltip'] && changes['runtimeTooltip'].currentValue) {
             this._runtimeStore
                 .changes
-                .filter(state => !!state && !!state.runtimeMetaData)
-                .map(state => state.runtimeMetaData)
-                .subscribe(result => {
-                    this.tooltip = this.resolve(`${this.runtimeTooltip}.description`, result);
-                });
+                .filter((state) => !!state && !!state.runtimeMetaData)
+                .map((state) => state.runtimeMetaData)
+                .subscribe((result) => this.tooltip = this.resolve(`${this.runtimeTooltip}.description`, result));
         }
     }
 
     private resolve(path: string, obj: any) {
-        return path.split('.').reduce(function (prev, curr) {
+        return path.split('.').reduce((prev, curr) => {
             return prev ? prev[curr] : undefined;
         }, obj || self);
     }

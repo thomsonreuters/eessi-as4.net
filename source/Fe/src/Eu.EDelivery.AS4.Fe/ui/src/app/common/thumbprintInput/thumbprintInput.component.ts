@@ -1,4 +1,15 @@
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NG_VALIDATORS, FormControl, FormControlDirective, ControlContainer, FormControlName, NgControl, FormGroup, AbstractControl } from '@angular/forms';
+import {
+    NG_VALUE_ACCESSOR,
+    ControlValueAccessor,
+    NG_VALIDATORS,
+    FormControl,
+    FormControlDirective,
+    ControlContainer,
+    FormControlName,
+    NgControl,
+    FormGroup,
+    AbstractControl
+} from '@angular/forms';
 import { Component, OnInit, Input, Host, Inject, Optional, SkipSelf, forwardRef, EventEmitter } from '@angular/core';
 
 @Component({
@@ -25,19 +36,21 @@ export class ThumbprintInputComponent implements ControlValueAccessor {
     public get input(): string {
         return this._input;
     }
-    public name: EventEmitter<string>;
     public set input(value: string) {
         this._input = value;
-        if (!!!this._propagateChange) return;
+        if (!!!this._propagateChange) {
+            return;
+        }
         this._propagateChange(this.input);
     }
+    public name: EventEmitter<string>;
     public get errors() {
         return this.formControl.control.get(this.formControlName).errors;
     }
-    @Input() formControlName: string;
+    @Input() public formControlName: string;
     private _input: string;
     private _propagateChange: (_: string) => void;
-    constructor( @SkipSelf() @Host() @Inject(forwardRef(() => ControlContainer)) private formControl: ControlContainer) {
+    constructor(@SkipSelf() @Host() @Inject(forwardRef(() => ControlContainer)) private formControl: ControlContainer) {
     }
     public sanitize() {
         let charReg = new RegExp(/[0-9a-fA-F]/);
@@ -55,10 +68,8 @@ export class ThumbprintInputComponent implements ControlValueAccessor {
     public registerOnChange(fn) {
         this._propagateChange = fn;
     }
-    public registerOnTouched() {
-
-    }
-    setDisabledState(isDisabled: boolean) {
+    public registerOnTouched() { }
+    public setDisabledState(isDisabled: boolean) {
         this.isDisabled = isDisabled;
     }
 }
