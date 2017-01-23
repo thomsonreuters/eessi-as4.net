@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using MimeKit;
 using MimeKit.IO;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -19,6 +20,8 @@ namespace Eu.EDelivery.AS4.Serialization
     internal class MimeMessageSerializer : ISerializer
     {
         private readonly ISerializer _soapSerializer;
+
+        private readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MimeMessageSerializer"/> class. 
@@ -78,10 +81,13 @@ namespace Eu.EDelivery.AS4.Serialization
         private void AddAttachmentsToBodyMultiPart(AS4Message message, Multipart bodyMultipart)
         {
             foreach (Attachment attachment in message.Attachments)
+            {
+                _logger.Debug($"Adding attachment to AS4Message: {attachment.Location}");
                 AddAttachmentToMultipart(bodyMultipart, attachment);
+            }
         }
 
-        private MimePart GetBodyPartFromStream(Stream memoryStream)
+        private static MimePart GetBodyPartFromStream(Stream memoryStream)
         {
             var bodyPart = new MimePart("application", "soap+xml");
             bodyPart.ContentType.Parameters["charset"] = Encoding.UTF8.HeaderName.ToLowerInvariant();
@@ -90,9 +96,9 @@ namespace Eu.EDelivery.AS4.Serialization
             return bodyPart;
         }
 
-        private Multipart CreateMultiPartFromBodyPart(MimeEntity bodyPart)
+        private static Multipart CreateMultiPartFromBodyPart(MimeEntity bodyPart)
         {
-            var bodyMultipart = new Multipart("related") {bodyPart};
+            var bodyMultipart = new Multipart("related") { bodyPart };
             bodyMultipart.ContentType.Parameters["type"] = bodyPart.ContentType.MimeType;
 
             return bodyMultipart;
@@ -213,7 +219,7 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private AS4Exception ThrowAS4MimeInconsistencyException(Exception exception)
+        private static AS4Exception ThrowAS4MimeInconsistencyException(Exception exception)
         {
             return new AS4ExceptionBuilder()
                 .WithInnerException(exception)
@@ -242,7 +248,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return attachment;
         }
 
-        private Attachment CreateDefaultAttachment(MimePart bodyPart)
+        private static Attachment CreateDefaultAttachment(MimePart bodyPart)
         {
             return new Attachment(id: bodyPart.ContentId)
             {
@@ -251,7 +257,7 @@ namespace Eu.EDelivery.AS4.Serialization
             };
         }
 
-        private void AssignPartProperties(Attachment attachment, AS4Message message)
+        private static void AssignPartProperties(Attachment attachment, AS4Message message)
         {
             PartInfo partInfo = message.PrimaryUserMessage?.PayloadInfo
                 .FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);

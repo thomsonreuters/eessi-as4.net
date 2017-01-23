@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 string url = this._as4Message.SendingPMode.PushConfiguration.Protocol.Url;
-                this._logger.Debug($"AS4 Message receivced from: {url}");
+                this._logger.Debug($"AS4 Message received from: {url}");
                 await HandleHttpResponseAsync(request, cancellationToken);
             }
             catch (WebException exception)

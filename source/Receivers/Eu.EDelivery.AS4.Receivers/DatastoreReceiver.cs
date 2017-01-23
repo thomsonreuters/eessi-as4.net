@@ -136,17 +136,19 @@ namespace Eu.EDelivery.AS4.Receivers
             this.Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
 
             using (var memoryStream = new MemoryStream(messageEntity.MessageBody))
-            using (DatastoreContext context = this._storeExpression())
             {
-                context.Update(messageEntity);
+                using (DatastoreContext context = this._storeExpression())
+                {
+                    context.Update(messageEntity);
 
-                if (this._operation != Operation.NotApplicable)
-                    messageEntity.Operation = this._operation;
+                    if (this._operation != Operation.NotApplicable)
+                        messageEntity.Operation = this._operation;
 
-                context.SaveChanges();
+                    context.SaveChanges();
 
-                ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, memoryStream);
-                messageCallback(receivedMessage, token);
+                    ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, memoryStream);
+                    messageCallback(receivedMessage, token);
+                }
             }
         }
 

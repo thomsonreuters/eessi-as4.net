@@ -40,17 +40,21 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public X509Certificate2 GetCertificate(X509FindType findType, string privateKeyReference)
         {
-            X509Store certificateStore = GetCertificateStore();
-            certificateStore.Open(OpenFlags.ReadOnly);
+            using (X509Store certificateStore = GetCertificateStore())
+            {
+                certificateStore.Open(OpenFlags.ReadOnly);
 
-            X509Certificate2Collection certificateCollection = certificateStore.Certificates
-                .Find(findType, privateKeyReference, validOnly: false);
+                X509Certificate2Collection certificateCollection =
+                    certificateStore.Certificates.Find(findType, privateKeyReference, validOnly: false);
 
-            if (certificateCollection.Count <= 0)
-                throw new CryptographicException(
-                    $"Could not find Certificate in store: '{GetCertificateStoreName()}' where '{findType}' is '{privateKeyReference}'");
+                if (certificateCollection.Count <= 0)
+                {
+                    throw new CryptographicException(
+                          $"Could not find Certificate in store: '{GetCertificateStoreName()}' where '{findType}' is '{privateKeyReference}'");
+                }
 
-            return certificateCollection[0];
+                return certificateCollection[0];            
+            }
         }
 
         private X509Store GetCertificateStore()

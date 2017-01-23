@@ -72,13 +72,14 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             SendingProcessingMode pmode = RetrievePMode();
             ValidatePMode(pmode);
             this._internalMessage.SubmitMessage.PMode = pmode;
+
         }
 
         private SendingProcessingMode RetrievePMode()
         {
             string processingModeId = this._internalMessage.SubmitMessage.Collaboration?.AgreementRef?.PModeId;
             SendingProcessingMode pmode = this._config.GetSendingPMode(processingModeId);
-            this._logger.Debug($"{this._internalMessage.Prefix} Sending PMode {pmode.Id} was retrieved");
+            this._logger.Info($"{this._internalMessage.Prefix} Sending PMode {pmode.Id} was retrieved");
 
             return pmode;
         }
@@ -86,10 +87,16 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private void ValidatePMode(SendingProcessingMode pmode)
         {
             if (this._validator.Validate(pmode))
+            {
                 this._logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message");
+            }
+            else
+            {
+                this._logger.Error($"Sending PMode {pmode.Id} is not valid for Submit Message");
+            }
         }
 
-        private AS4Exception ThrowAS4CannotRetrieveSendPModeException(InternalMessage internalMessage, Exception exception)
+        private static AS4Exception ThrowAS4CannotRetrieveSendPModeException(InternalMessage internalMessage, Exception exception)
         {
             string generatedMessageId = Guid.NewGuid().ToString();
 

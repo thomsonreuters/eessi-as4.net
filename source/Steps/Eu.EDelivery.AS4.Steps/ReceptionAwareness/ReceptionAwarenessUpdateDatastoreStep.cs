@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private void UpdateForUnawnseredMessage(CancellationToken cancellationToken)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._logger.Info($"[{messageId}] ebMS message is unawsnered");
+            this._logger.Warn($"[{messageId}] ebMS message is unanswered");
 
             UpdateReceptionAwareness(awareness => awareness.IsCompleted = true);
 
