@@ -33,8 +33,11 @@ export class AgentSettingsComponent implements OnDestroy {
     }
     public set currentAgent(agent: SettingsAgent) {
         this._currentAgent = agent;
-        if (!!this.currentAgent) this.form.enable();
-        else this.form.disable();
+        if (!!this.currentAgent) {
+            this.form.enable();
+        } else {
+            this.form.disable();
+        }
     }
     public transformers: ItemType[];
     public isNewMode: boolean = false;
@@ -61,19 +64,19 @@ export class AgentSettingsComponent implements OnDestroy {
 
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
-            .filter(x => x != null)
-            .subscribe(result => {
+            .filter((x) => x != null)
+            .subscribe((result) => {
                 this.transformers = result.transformers;
             });
 
         this._settingsStoreSubscription = this.settingsStore
             .changes
-            .filter(result => !!result && !!result.Settings && !!result.Settings.agents[this.agent])
-            .map(result => result.Settings.agents[this.agent])
+            .filter((result) => !!result && !!result.Settings && !!result.Settings.agents[this.agent])
+            .map((result) => result.Settings.agents[this.agent])
             .distinctUntilChanged()
-            .subscribe(result => {
+            .subscribe((result) => {
                 this.settings = result;
-                this.currentAgent = result.find(agt => agt.name === this.form.value.name);
+                this.currentAgent = result.find((agt) => agt.name === this.form.value.name);
                 if (!!this.currentAgent) {
                     SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
                     this.form.reset(this.currentAgent);
@@ -83,13 +86,18 @@ export class AgentSettingsComponent implements OnDestroy {
     public addAgent() {
         this.modalService
             .show('new-agent')
-            .filter(result => result)
+            .filter((result) => result)
             .subscribe(() => {
                 if (!!this.newName) {
-                    if (this.messageIfExists(this.newName)) return;
+                    if (this.messageIfExists(this.newName)) {
+                        return;
+                    }
                     let newAgent;
-                    if (+this.actionType !== -1) newAgent = Object.assign({}, this.settings.find(agt => agt.name === this.actionType));
-                    else newAgent = new SettingsAgent();
+                    if (+this.actionType !== -1) {
+                        newAgent = Object.assign({}, this.settings.find(agt => agt.name === this.actionType));
+                    } else {
+                        newAgent = new SettingsAgent();
+                    }
                     this.settings.push(newAgent);
                     this.currentAgent = newAgent;
                     this.currentAgent.name = this.newName;
@@ -104,7 +112,7 @@ export class AgentSettingsComponent implements OnDestroy {
     public selectAgent(selectedAgent: string = null): boolean {
         let select = () => {
             this.isNewMode = false;
-            this.currentAgent = this.settings.find(agent => agent.name === selectedAgent);
+            this.currentAgent = this.settings.find((agent) => agent.name === selectedAgent);
             SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
             this.form.reset(this.currentAgent);
         };
@@ -112,10 +120,13 @@ export class AgentSettingsComponent implements OnDestroy {
         if (this.form.dirty) {
             this.dialogService
                 .confirmUnsavedChanges()
-                .filter(result => result)
+                .filter((result) => result)
                 .subscribe(() => {
-                    if (this.isNewMode) this.settings = this.settings.filter(agent => agent !== this.currentAgent);
-                    else select();
+                    if (this.isNewMode) {
+                        this.settings = this.settings.filter((agent) => agent !== this.currentAgent);
+                    } else {
+                        select();
+                    }
                 });
 
             return false;
@@ -130,9 +141,12 @@ export class AgentSettingsComponent implements OnDestroy {
             return;
         }
         let obs;
-        if (!this.isNewMode) obs = this.settingsService.updateAgent(this.form.value, this.currentAgent.name, this.agent);
-        else obs = this.settingsService.createAgent(this.form.value, this.agent);
-        obs.subscribe(result => {
+        if (!this.isNewMode) {
+            obs = this.settingsService.updateAgent(this.form.value, this.currentAgent.name, this.agent);
+        } else {
+            obs = this.settingsService.createAgent(this.form.value, this.agent);
+        }
+        obs.subscribe((result) => {
             if (result) {
                 this.isNewMode = false;
                 this.form.markAsPristine();
@@ -141,7 +155,7 @@ export class AgentSettingsComponent implements OnDestroy {
     }
     public reset() {
         if (this.isNewMode) {
-            this.settings = this.settings.filter(agent => agent !== this.currentAgent);
+            this.settings = this.settings.filter((agent) => agent !== this.currentAgent);
             this.currentAgent = undefined;
         }
         this.isNewMode = false;
@@ -151,8 +165,10 @@ export class AgentSettingsComponent implements OnDestroy {
     public rename() {
         this.dialogService
             .prompt('Please enter a new name', 'Rename')
-            .subscribe(name => {
-                if (this.messageIfExists(name)) return;
+            .subscribe((name) => {
+                if (this.messageIfExists(name)) {
+                    return;
+                }
                 if (!!this.currentAgent && !!name) {
                     this.form.patchValue({ [SettingsAgent.FIELD_name]: name });
                     this.form.markAsDirty();
@@ -162,11 +178,11 @@ export class AgentSettingsComponent implements OnDestroy {
     public delete() {
         this.dialogService
             .confirm('Are you sure you want to delete the agent', 'Delete agent')
-            .filter(result => result)
-            .subscribe(result => {
+            .filter((result) => result)
+            .subscribe((result) => {
                 this.form.markAsPristine();
                 if (this.isNewMode) {
-                    this.settings = this.settings.filter(agent => agent.name !== this.currentAgent.name);
+                    this.settings = this.settings.filter((agent) => agent.name !== this.currentAgent.name);
                     this.selectAgent();
                     return;
                 }
@@ -174,12 +190,12 @@ export class AgentSettingsComponent implements OnDestroy {
                 this.settingsService.deleteAgent(this.currentAgent, this.agent);
             });
     }
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this._settingsStoreSubscription.unsubscribe();
         this._runtimeStoreSubscription.unsubscribe();
     }
     private messageIfExists(name: string): boolean {
-        let exists = !!this.settings.find(agent => agent.name === name);
+        let exists = !!this.settings.find((agent) => agent.name === name);
         if (exists) {
             this.dialogService.message(`An agent with the name ${name} already exists`);
             return true;

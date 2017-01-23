@@ -12,7 +12,7 @@ export class SpinnerComponent {
         this._spinnerService
             .changes
             .debounceTime(100)
-            .subscribe(result => {
+            .subscribe((result) => {
                 this.showSpinner = result;
             });
     }

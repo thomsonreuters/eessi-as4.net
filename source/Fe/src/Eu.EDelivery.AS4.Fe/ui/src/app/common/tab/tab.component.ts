@@ -1,4 +1,13 @@
-import { Component, OnInit, ContentChildren, ViewChildren, QueryList, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    ContentChildren,
+    ViewChildren,
+    QueryList,
+    ViewEncapsulation,
+    ChangeDetectionStrategy,
+    AfterContentInit
+} from '@angular/core';
 
 import { TabItemComponent } from './tabitem.component';
 
@@ -6,13 +15,10 @@ import { TabItemComponent } from './tabitem.component';
     selector: 'as4-tab',
     templateUrl: './tab.component.html'
 })
-export class TabComponent {
-    @ContentChildren(TabItemComponent) tabItems: QueryList<TabItemComponent>;
-    constructor() {
-    }
-
-    ngAfterContentInit() {
+export class TabComponent implements AfterContentInit {
+    @ContentChildren(TabItemComponent) public tabItems: QueryList<TabItemComponent>;
+    public ngAfterContentInit() {
         let current = 0;
-        this.tabItems.forEach(item => item.tabId = current++);
+        this.tabItems.forEach((item) => item.tabId = current++);
     }
 }

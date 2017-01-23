@@ -1,4 +1,4 @@
-import { Component, Input, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, SimpleChanges, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 
 import { ItemType } from './../../api/ItemType';
@@ -25,15 +25,17 @@ import { ItemType } from './../../api/ItemType';
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RuntimeSettingsComponent {
-    @Input() form: FormGroup;
-    @Input() types: ItemType[];
-    @Input() itemType: string;
-    @Input() showTitle: boolean = true;
+export class RuntimeSettingsComponent implements OnChanges {
+    @Input() public form: FormGroup;
+    @Input() public types: ItemType[];
+    @Input() public itemType: string;
+    @Input() public pshowTitle: boolean = true;
     public selectedType: ItemType;
-    ngOnChanges(changes: SimpleChanges) {
+    public ngOnChanges(changes: SimpleChanges) {
         let itemType = changes['itemType'] && changes['itemType'].currentValue;
-        if (!!!this.types) return;
-        this.selectedType = this.types.find(type => type.technicalName === itemType);
+        if (!!!this.types) {
+            return;
+        }
+        this.selectedType = this.types.find((type) => type.technicalName === itemType);
     }
 }

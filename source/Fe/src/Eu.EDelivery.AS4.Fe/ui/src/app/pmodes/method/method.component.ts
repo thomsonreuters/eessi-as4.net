@@ -41,7 +41,7 @@ export class MethodComponent {
     }
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) { }
     public typeChanged(result: string) {
-        let type = this.types.find(method => method.name === result);
+        let type = this.types.find((method) => method.name === result);
         this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!type || !!!type.properties ? [] : type.properties.map(prop => Parameter.getForm(this.formBuilder, {
             name: prop.friendlyName,
             value: ''

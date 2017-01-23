@@ -28,7 +28,7 @@ export class SettingsService implements ISettingsService {
         return this
             .http
             .get(this.getUrl())
-            .subscribe(result => this.settingsStore.update('Settings', result.json()));
+            .subscribe((result) => this.settingsStore.update('Settings', result.json()));
     }
     public saveBaseSettings(base: Base): Observable<boolean> {
         let subj = new Subject<boolean>();
@@ -107,7 +107,8 @@ export class SettingsService implements ISettingsService {
     }
 
     private getUrl(path?: string): string {
-        if (path === undefined) return '/api/configuration';
-        else return `/api/configuration/${path}`;
+        if (path === undefined) {
+            return '/api/configuration';
+        } else { return `/api/configuration/${path}`; }
     }
 }

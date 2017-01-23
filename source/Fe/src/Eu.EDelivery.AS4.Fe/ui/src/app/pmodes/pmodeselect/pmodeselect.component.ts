@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs/Subscription';
-import { Component, OnInit, Input, Output, forwardRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Input, Output, forwardRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { PmodeStore } from '../pmode.store';
@@ -20,7 +20,7 @@ export const PMODESELECT_CONTROL_VALUE_ACCESSOR: any = {
     `,
     providers: [PMODESELECT_CONTROL_VALUE_ACCESSOR]
 })
-export class PmodeSelectComponent implements OnInit, ControlValueAccessor {
+export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAccessor {
     @Input() public mode: string;
     public selectedPmode: string;
     public pmodes: string[];

@@ -1,4 +1,4 @@
-import { Component, Input, AfterViewInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, AfterViewInit, SimpleChanges, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 
 import { RuntimeStore } from './../../settings/runtime.store';
 
@@ -22,7 +22,7 @@ import { RuntimeStore } from './../../settings/runtime.store';
     `],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputComponent {
+export class InputComponent implements OnChanges {
     @Input() public label: string;
     @Input() public isLabelBold: boolean = true;
     @Input() public labelSize: number = 3;

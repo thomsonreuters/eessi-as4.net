@@ -20,7 +20,7 @@ export class DialogService {
                 dlg.title = title;
                 dialog = dlg;
             })
-            .filter(result => result)
+            .filter((result) => result)
             .subscribe(() => {
                 obs.next(dialog.result);
                 obs.complete();
@@ -29,13 +29,13 @@ export class DialogService {
     }
     public confirm(message: string, title?: string): Observable<boolean> {
         return Observable
-            .create(observer => {
+            .create((observer) => {
                 this.modalService
                     .show('default', (dlg) => {
                         dlg.message = message;
                         dlg.title = title;
                     })
-                    .subscribe(result => {
+                    .subscribe((result) => {
                         observer.next(result);
                         observer.complete();
                     });
@@ -59,13 +59,11 @@ export class DialogService {
                 dlg.showCancel = false;
                 dlg.buttonOk = 'Ok';
                 dlg.title = 'Error';
-                if (stackTrace instanceof Response)
+                if (stackTrace instanceof Response) {
                     try {
                         dlg.payload = stackTrace.json().Exception;
-                    }
-                    catch (e) {
-
-                    }
+                    } catch (e) {}
+                }
             });
     }
     public incorrectForm() {
@@ -77,7 +75,7 @@ export class DialogService {
     }
     public deleteConfirm(type: string): Observable<boolean> {
         return Observable
-            .create(observer => {
+            .create((observer) => {
                 this.modalService
                     .show('default', (dlg) => {
                         dlg.title = `Delete ${type}`;
@@ -85,7 +83,7 @@ export class DialogService {
                         dlg.buttonCancel = 'No';
                         dlg.buttonOk = 'Yes';
                     })
-                    .subscribe(result => {
+                    .subscribe((result) => {
                         observer.next(result);
                         observer.complete();
                     });

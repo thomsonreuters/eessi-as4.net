@@ -29,7 +29,8 @@ namespace Eu.EDelivery.AS4.Fe
             IConfigurationRoot config;
             services.AddModules(moduleMappings, (configBuilder, env) =>
             {
-                configBuilder.SetBasePath(env.ContentRootPath)
+                configBuilder
+                    .SetBasePath(env.ContentRootPath)
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
             }, out config);
@@ -99,7 +100,7 @@ namespace Eu.EDelivery.AS4.Fe
             {
                 options.Run(async context =>
                 {
-                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
                     var ex = context.Features.Get<IExceptionHandlerFeature>();
                     if (ex != null)

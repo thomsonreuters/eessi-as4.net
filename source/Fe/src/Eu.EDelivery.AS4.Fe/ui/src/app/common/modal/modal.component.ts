@@ -41,27 +41,31 @@ export class ModalComponent implements OnDestroy {
     public type: string = '';
     public showOk: boolean = true;
     public showCancel: boolean = true;
-    @Input() payload: string;
-    @Input() showDefaultButtons: boolean = true;
-    @Input() name: string;
-    @Input() title: string;
-    @Input() message: string;
-    @Input() showDefaultMessage: boolean = true;
-    @Input() buttonOk: string = 'Ok';
-    @Input() buttonCancel: string = 'Cancel';
-    @Output() shown = new EventEmitter();
-    private obs: Subject<boolean>;
+    @Input() public payload: string;
+    @Input() public showDefaultButtons: boolean = true;
+    @Input() public name: string;
+    @Input() public title: string;
+    @Input() public message: string;
+    @Input() public showDefaultMessage: boolean = true;
+    @Input() public buttonOk: string = 'Ok';
+    @Input() public buttonCancel: string = 'Cancel';
+    @Output() public shown = new EventEmitter();
     @HostListener('document:keydown', ['$event'])
+    private obs: Subject<boolean>;
+    constructor(private modalService: ModalService, private elementRef: ElementRef) {
+        this.modalService.registerModal(this);
+    }
     public keyDown(event: KeyboardEvent) {
-        if (!this.isVisible) return;
+        if (!this.isVisible) {
+            return;
+        }
         if (event.keyCode === 27) {
             event.stopPropagation();
             event.preventDefault();
         }
-        if (event.keyCode === 27) this.cancel();
-    }
-    constructor(private modalService: ModalService, private elementRef: ElementRef) {
-        this.modalService.registerModal(this);
+        if (event.keyCode === 27) {
+            this.cancel();
+        }
     }
     public cancel() {
         this.isVisible = false;
@@ -80,7 +84,7 @@ export class ModalComponent implements OnDestroy {
         this.obs = new Subject<boolean>();
         return this.obs.asObservable();
     }
-    ngOnDestroy() {
+    public ngOnDestroy() {
         this.modalService.unregisterModal(this);
         console.log('destroyed');
     }
