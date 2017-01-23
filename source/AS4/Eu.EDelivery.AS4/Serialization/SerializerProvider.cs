@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Serialization
@@ -43,7 +42,7 @@ namespace Eu.EDelivery.AS4.Serialization
             throw new AS4Exception($"No given Serializer found for a given Content Type: {contentType}");
         }
 
-        private bool KeyMatchesContentType(string contentType, string key)
+        private static bool KeyMatchesContentType(string contentType, string key)
         {
             return key.Equals(contentType) || contentType.StartsWith(key, System.StringComparison.OrdinalIgnoreCase);
         }
