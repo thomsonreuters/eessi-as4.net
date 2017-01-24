@@ -1,4 +1,6 @@
-import { Observable } from 'rxjs';
+import { CanComponentDeactivate } from './../common/candeactivate.guard';
+import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Component, Input, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
@@ -7,6 +9,7 @@ import { RuntimeStore } from './runtime.store';
 import { Base } from './../api/Base';
 import { SettingsService } from './settings.service';
 import { ItemType } from './../api/ItemType';
+import '../common/rxjs/toBehaviorSubject';
 
 @Component({
     selector: 'as4-base-settings',
@@ -28,20 +31,23 @@ import { ItemType } from './../api/ItemType';
         </form>
     `
 })
-export class BaseSettingsComponent {
+export class BaseSettingsComponent implements CanComponentDeactivate {
     public repositories: ItemType[];
     public form: FormGroup;
-    private _settings: Base;
+    @Output() public isDirty: Observable<boolean>;
     @Input() public get settings(): Base {
         return this._settings;
     }
     public set settings(baseSetting: Base) {
         this.form = Base.getForm(this.formBuilder, baseSetting);
+        this.isDirty = this
+            .form
+            .valueChanges
+            .map(() => this.form.dirty)
+            .toBehaviorSubject(this.form.dirty);
         this._settings = baseSetting;
     }
-    @Output() public get isDirty(): Observable<boolean> {
-        return this.form.valueChanges.map(() => this.form.dirty);
-    }
+    private _settings: Base;
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
         runtimeStore
             .changes
@@ -55,6 +61,12 @@ export class BaseSettingsComponent {
         }
         this.settingsService
             .saveBaseSettings(this.form.value)
-            .subscribe((result) => this.form.markAsPristine());
+            .subscribe((result) => {
+                this.form.markAsPristine();
+                this.form.updateValueAndValidity();
+            });
+    }
+    public canDeactivate(): boolean {
+        return !this.form.dirty;
     }
 }

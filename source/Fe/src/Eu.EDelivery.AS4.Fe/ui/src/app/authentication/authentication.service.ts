@@ -6,15 +6,6 @@ import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
 
 import { AuthenticationStore, TOKENSTORE } from './authentication.store';
 
-const state = {
-    loggedin: tokenNotExpired()
-};
-
-export interface State {
-    loggedin: boolean;
-}
-export const store = new BehaviorSubject<State>(state);
-
 @Injectable()
 export class AuthenticationService {
     constructor(private http: Http, private authenticationStore: AuthenticationStore, private jwtHelper: JwtHelper, private router: Router) {

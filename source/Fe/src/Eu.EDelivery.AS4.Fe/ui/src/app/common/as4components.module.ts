@@ -1,3 +1,4 @@
+import { CanDeactivateGuard } from './candeactivate.guard';
 import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
 import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend, Request } from '@angular/http';
 import { SpinnerService, spinnerHttpServiceFactory } from './spinner/spinner.service';
@@ -60,14 +61,15 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     ],
     providers: [
         MustBeAuthorizedGuard,
+        CanDeactivateGuard,
         DialogService,
         ModalService,
         SpinnerService,
-        {
-            provide: ErrorHandler,
-            useFactory: errorHandlerFactory,
-            deps: [DialogService, SpinnerService]
-        },
+        // {
+        //     provide: ErrorHandler,
+        //     useFactory: errorHandlerFactory,
+        //     deps: [DialogService, SpinnerService]
+        // },
         {
             provide: Http,
             useFactory: spinnerHttpServiceFactory,

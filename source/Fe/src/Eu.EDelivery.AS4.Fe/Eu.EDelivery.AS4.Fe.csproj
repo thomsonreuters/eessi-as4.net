@@ -106,6 +106,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="appsettings.inprocess.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -135,8 +138,6 @@
     <None Include="ui\tsconfig.json" />
     <None Include="ui\tsconfig.webpack.json" />
     <None Include="ui\tslint.json" />
-    <None Include="ui\yarn-error.log" />
-    <None Include="ui\yarn.lock" />
     <None Include="web.config" />
   </ItemGroup>
   <ItemGroup>

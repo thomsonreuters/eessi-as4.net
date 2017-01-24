@@ -62,10 +62,10 @@ export class StepSettingsComponent implements OnDestroy {
     constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
-            .filter(result => result != null)
-            .subscribe(result => {
+            .filter((result) => result != null)
+            .subscribe((result) => {
                 this.steps = result.steps;
-                this.decorators = result.steps.filter(step => step.name.toLowerCase().indexOf('decorator') > 0);
+                this.decorators = result.steps.filter((step) => step.name.toLowerCase().indexOf('decorator') > 0);
             });
     }
     public itemMoved = () => {

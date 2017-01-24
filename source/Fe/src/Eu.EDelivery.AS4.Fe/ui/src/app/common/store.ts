@@ -3,9 +3,11 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 export class Store<T> {
     public state: T;
-    public changes = this.storeSubject.asObservable();
-    protected storeSubject: BehaviorSubject<T> = new BehaviorSubject<T>(this.state);
+    public changes;
+    protected storeSubject: BehaviorSubject<T>;
     constructor(state: T) {
+        this.storeSubject = new BehaviorSubject<T>(this.state);
+        this.changes = this.storeSubject.asObservable();
         this.state = state;
     }
     public getState() {
@@ -25,7 +27,7 @@ export class Store<T> {
     public findAndUpdate(prop, state) {
         const collection = this.state[prop];
         this.setState(Object.assign({}, this.state, {
-            [prop]: collection.map(item => {
+            [prop]: collection.map((item) => {
                 if (item.id !== state.id) {
                     return item;
                 }
@@ -35,6 +37,6 @@ export class Store<T> {
     }
     public findAndDelete(prop, id) {
         const collection = this.state[prop];
-        this.setState(Object.assign({}, this.state, { [prop]: collection.filter(item => item.id !== id) }));
+        this.setState(Object.assign({}, this.state, { [prop]: collection.filter((item) => item.id !== id) }));
     }
 }

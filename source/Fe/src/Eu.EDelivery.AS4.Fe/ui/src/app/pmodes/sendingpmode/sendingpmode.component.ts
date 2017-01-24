@@ -1,6 +1,7 @@
+import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { Subscription } from 'rxjs/Subscription';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { Component, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroupDirective } from '@angular/forms';
+import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { RuntimeStore } from './../../settings/runtime.store';
@@ -19,9 +20,10 @@ import { ReceivingPmode } from './../../api/ReceivingPmode';
         { provide: PMODECRUD_SERVICE, useClass: SendingPmodeService }
     ]
 })
-export class SendingPmodeComponent implements OnDestroy {
+export class SendingPmodeComponent implements OnDestroy, CanComponentDeactivate {
     public mask: any[] = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
     public deliverSenders;
+    @ViewChild(FormGroupDirective) private formGroup: FormGroupDirective;
     private subscriptions: Subscription[] = new Array<Subscription>();
     constructor(private _runtimeStore: RuntimeStore) {
         this._runtimeStore
@@ -32,5 +34,8 @@ export class SendingPmodeComponent implements OnDestroy {
     }
     public ngOnDestroy() {
         this.subscriptions.forEach((subs) => subs.unsubscribe);
+    }
+    public canDeactivate(): boolean {
+        return !this.formGroup.dirty;
     }
 }

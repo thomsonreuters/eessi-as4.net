@@ -1,9 +1,10 @@
+import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { PMODECRUD_SERVICE } from './../crud/crud.component';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { Observable } from 'rxjs/Observable';
-import { FormGroup, FormBuilder, FormArray, FormControl, AbstractControl } from '@angular/forms';
-import { Component, ViewChildren, QueryList, OnInit, Inject, OnDestroy } from '@angular/core';
+import { FormGroup, FormBuilder, FormArray, FormControl, AbstractControl, FormGroupDirective } from '@angular/forms';
+import { Component, ViewChildren, QueryList, OnInit, Inject, OnDestroy,ViewChild } from '@angular/core';
 
 import { BasePmodeComponent } from './../basepmode/basepmode.component';
 import { ReceivingPmode } from './../../api/ReceivingPmode';
@@ -17,7 +18,7 @@ import { ReceivingProcessingMode } from './../../api/ReceivingProcessingMode';
 import { getRawFormValues } from './../../common/getRawFormValues';
 import { ModalService } from './../../common/modal/modal.service';
 import { BoxComponent } from './../../common/box/box.component';
-import { ReceivingPmodeService } from './../pmode.service';
+import { ReceivingPmodeService } from '../receivingpmode.service';
 
 @Component({
     templateUrl: './receivingpmode.component.html',
@@ -26,9 +27,10 @@ import { ReceivingPmodeService } from './../pmode.service';
         { provide: PMODECRUD_SERVICE, useClass: ReceivingPmodeService }
     ]
 })
-export class ReceivingPmodeComponent implements OnDestroy {
+export class ReceivingPmodeComponent implements OnDestroy, CanComponentDeactivate {
     public deliverSenders;
     private subscriptions: Subscription[] = new Array<Subscription>();
+    @ViewChild(FormGroupDirective) private formGroup: FormGroupDirective;
     constructor(private _runtimeStore: RuntimeStore) {
         this._runtimeStore
             .changes
@@ -38,5 +40,8 @@ export class ReceivingPmodeComponent implements OnDestroy {
     }
     public ngOnDestroy() {
         this.subscriptions.forEach((subs) => subs.unsubscribe);
+    }
+    public canDeactivate(): boolean {
+        return !this.formGroup.dirty;
     }
 }

@@ -1,3 +1,5 @@
+import { CanComponentDeactivate } from './../common/candeactivate.guard';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Component, Input, Output } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
@@ -5,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { DialogService } from './../common/dialog.service';
 import { SettingsService } from './settings.service';
 import { SettingsDatabase } from './../api/SettingsDatabase';
+import '../common/rxjs/toBehaviorSubject';
 
 @Component({
     selector: 'as4-database-settings',
@@ -19,17 +22,16 @@ import { SettingsDatabase } from './../api/SettingsDatabase';
         </form>
     `
 })
-export class DatabaseSettingsComponent {
+export class DatabaseSettingsComponent implements CanComponentDeactivate {
     @Input() public get settings(): SettingsDatabase {
         return this._settings;
     }
     public set settings(settingsDatabase: SettingsDatabase) {
         this.form = SettingsDatabase.getForm(this.formBuilder, settingsDatabase);
         this._settings = settingsDatabase;
+        this.isDirty = this.form.valueChanges.map(() => this.form.dirty).toBehaviorSubject(this.form.dirty);
     }
-    @Output() get isDirty(): Observable<boolean> {
-        return this.form.valueChanges.map(() => this.form.dirty);
-    }
+    @Output() public isDirty: Observable<boolean>;
     public form: FormGroup;
     private _settings: SettingsDatabase;
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
@@ -45,7 +47,11 @@ export class DatabaseSettingsComponent {
             .subscribe((result) => {
                 if (result) {
                     this.form.markAsPristine();
+                    this.form.updateValueAndValidity();
                 }
             });
+    }
+    public canDeactivate(): boolean {
+        return !this.form.dirty;
     }
 }
