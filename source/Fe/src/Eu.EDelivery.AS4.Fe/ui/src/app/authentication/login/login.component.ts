@@ -7,14 +7,12 @@ import { AuthenticationStore } from '../authentication.store';
 
 @Component({
     selector: 'as4-login',
-    templateUrl: './login.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    templateUrl: './login.component.html'
 })
 export class LoginComponent {
     public username: string;
     public password: string;
-    constructor(private http: Http, private activatedRoute: ActivatedRoute, private authenticationService: AuthenticationService,
-        private authenticationStore: AuthenticationStore) {
+    constructor(private http: Http, private activatedRoute: ActivatedRoute, private authenticationService: AuthenticationService, private authenticationStore: AuthenticationStore) {
         this.authenticationStore.changes.subscribe((result) => {
             console.log(result);
         });
@@ -32,6 +30,12 @@ export class LoginComponent {
             });
     }
     public login() {
-        this.authenticationService.login(this.username, this.password);
+        this.authenticationService
+            .login(this.username, this.password)
+            .filter((result) => !result)
+            .subscribe(() => {
+                this.username = '';
+                this.password = '';            
+            });
     }
 }

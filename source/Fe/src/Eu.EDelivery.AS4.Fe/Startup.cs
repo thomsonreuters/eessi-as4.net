@@ -55,7 +55,17 @@ namespace Eu.EDelivery.AS4.Fe
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.ExecuteStartupServices();
-            app.UseStatusCodePagesWithReExecute("/");
+            app.Use(async (context, next) =>
+            {
+                await next();
+
+                if (context.Request.Path.StartsWithSegments("/api")) return;
+                if (context.Response.StatusCode != 200)
+                {
+                    context.Request.Path = "/index.html";
+                    await next();
+                }
+            });
             app.UseDefaultFiles();
             app.UseStaticFiles();
 

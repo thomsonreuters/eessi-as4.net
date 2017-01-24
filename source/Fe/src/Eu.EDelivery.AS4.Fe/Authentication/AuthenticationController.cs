@@ -10,20 +10,18 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
     [Route("api/[controller]")]
     public class AuthenticationController : Controller
     {
-        private readonly SignInManager<ApplicationUser> signInManager;
         private readonly ITokenService tokenService;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public AuthenticationController(ITokenService tokenService, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AuthenticationController(ITokenService tokenService, UserManager<ApplicationUser> userManager)
         {
             this.tokenService = tokenService;
-            this.signInManager = signInManager;
             this.userManager = userManager;
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<ActionResult> Login([FromBody] LoginModel login)
+        public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
             var user = await userManager.FindByNameAsync(login.Username);
             var result = await userManager.CheckPasswordAsync(user, login.Password);

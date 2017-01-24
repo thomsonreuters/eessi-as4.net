@@ -32,6 +32,7 @@ import { TabItemComponent } from './tab/tabitem.component';
 import { TabComponent } from './tab/tab.component';
 import { FocusDirective } from './focus.directive';
 import { SelectDirective } from './selectdirective';
+import { spinnerErrorhandlerDecoratorFactory } from './spinner/spinnerhideerror.handler.factory';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     let result = new AuthHttp(new AuthConfig(), http, options);
@@ -70,6 +71,11 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         //     useFactory: errorHandlerFactory,
         //     deps: [DialogService, SpinnerService]
         // },
+        {
+            provide: ErrorHandler,
+            useFactory: spinnerErrorhandlerDecoratorFactory,
+            deps: [SpinnerService]
+        },
         {
             provide: Http,
             useFactory: spinnerHttpServiceFactory,

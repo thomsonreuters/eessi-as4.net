@@ -1,3 +1,5 @@
+import { DialogService } from './../common/dialog.service';
+import { SpinnerService } from './../common/spinner/spinner.service';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
@@ -8,7 +10,8 @@ import { AuthenticationStore, TOKENSTORE } from './authentication.store';
 
 @Injectable()
 export class AuthenticationService {
-    constructor(private http: Http, private authenticationStore: AuthenticationStore, private jwtHelper: JwtHelper, private router: Router) {
+    constructor(private http: Http, private authenticationStore: AuthenticationStore, private jwtHelper: JwtHelper, private router: Router, private _spinnerService: SpinnerService,
+        private _dialogService: DialogService) {
     }
     public login(username: string, password: string): Observable<boolean> {
         let obs = new Subject<boolean>();
@@ -26,12 +29,17 @@ export class AuthenticationService {
                     loggedin: true
                 }));
 
-            }, () => {
+            }, (error: { status: number }) => {
                 obs.next(false);
                 localStorage.removeItem(TOKENSTORE);
                 this.authenticationStore.setState(Object.assign({}, {
                     loggedin: false
                 }));
+                this._spinnerService.hide();
+
+                if (error.status === 401) {
+                    this._dialogService.error('Invalid username/password');
+                }
             });
         return obs.asObservable();
     }

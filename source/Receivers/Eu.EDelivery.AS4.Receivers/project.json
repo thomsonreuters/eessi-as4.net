@@ -5,6 +5,7 @@
     "emitEntryPoint": true
   },
   "dependencies": {
+    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.1.0",
     "Microsoft.Bcl": "1.1.10",
     "Microsoft.Bcl.Async": "1.0.168",
     "Microsoft.Bcl.Build": "1.0.21",
