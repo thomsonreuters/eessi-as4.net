@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             Task.Factory.StartNew(() =>
             {
                 Fe.Program.InProcess = true;
-                Fe.Program.Main(null);
+                Fe.Program.Main(new[] { "inprocess" });
             });
         }
     }
