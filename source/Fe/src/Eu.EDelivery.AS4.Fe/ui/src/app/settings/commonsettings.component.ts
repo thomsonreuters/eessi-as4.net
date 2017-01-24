@@ -1,3 +1,5 @@
+import { CanComponentDeactivate } from './../common/candeactivate.guard';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { FormBuilder, FormGroup, FormArray, AbstractControl } from '@angular/forms';
 import { Component, Input, Output } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -6,6 +8,7 @@ import { DialogService } from './../common/dialog.service';
 import { CustomSettings } from './../api/CustomSettings';
 import { SettingsService } from './settings.service';
 import { Setting } from './../api/Setting';
+import '../common/rxjs/toBehaviorSubject';
 
 @Component({
     selector: 'as4-custom-settings',
@@ -28,10 +31,10 @@ import { Setting } from './../api/Setting';
         </form>
     `
 })
-export class CommonSettingsComponent {
+export class CommonSettingsComponent implements CanComponentDeactivate {
     public form: FormGroup;
     public get settingControl(): { [key: string]: AbstractControl } {
-        return !!!this.form && (<FormGroup>this.form.get('setting')).controls;
+        return !!this.form && (<FormGroup>this.form.get('setting')).controls;
     }
     @Input() public get settings(): CustomSettings {
         return this._settings;
@@ -39,10 +42,9 @@ export class CommonSettingsComponent {
     public set settings(settings: CustomSettings) {
         this.form = CustomSettings.getForm(this.formBuilder, settings);
         this._settings = settings;
+        this.isDirty = this.form.valueChanges.map(() => this.form.dirty).toBehaviorSubject(this.form.dirty);
     }
-    @Output() public get isDirty(): Observable<boolean> {
-        return this.form.valueChanges.map(() => this.form.dirty);
-    }
+    @Output() public isDirty: Observable<boolean>;
     private _settings: CustomSettings;
     constructor(private settingsService: SettingsService, private formBuilder: FormBuilder, private dialogService: DialogService) {
     }
@@ -56,6 +58,7 @@ export class CommonSettingsComponent {
             .subscribe((result) => {
                 if (result) {
                     this.form.markAsPristine();
+                    this.form.updateValueAndValidity();
                 }
             });
     }
@@ -70,5 +73,8 @@ export class CommonSettingsComponent {
         }
         (<FormArray>this.form.controls['setting']).removeAt(index);
         this.form.markAsDirty();
+    }
+    public canDeactivate(): boolean {
+        return !this.form.dirty;
     }
 }

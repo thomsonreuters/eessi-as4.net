@@ -1,3 +1,4 @@
+import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { Observer } from 'rxjs/Observer';
 import { removeNgStyles } from '@angularclass/hmr';
 import { ActivatedRoute } from '@angular/router';
@@ -24,7 +25,7 @@ import { Property } from './../../api/Property';
     selector: 'as4-agent-settings',
     templateUrl: './agent.component.html'
 })
-export class AgentSettingsComponent implements OnDestroy {
+export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate {
     public settings: SettingsAgent[] = new Array<SettingsAgent>();
     public collapsed: boolean = true;
 
@@ -193,6 +194,9 @@ export class AgentSettingsComponent implements OnDestroy {
     public ngOnDestroy() {
         this._settingsStoreSubscription.unsubscribe();
         this._runtimeStoreSubscription.unsubscribe();
+    }
+    public canDeactivate(): boolean {
+        return !this.form.dirty;
     }
     private messageIfExists(name: string): boolean {
         let exists = !!this.settings.find((agent) => agent.name === name);

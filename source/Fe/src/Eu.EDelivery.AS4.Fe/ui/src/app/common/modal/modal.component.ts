@@ -50,11 +50,11 @@ export class ModalComponent implements OnDestroy {
     @Input() public buttonOk: string = 'Ok';
     @Input() public buttonCancel: string = 'Cancel';
     @Output() public shown = new EventEmitter();
-    @HostListener('document:keydown', ['$event'])
     private obs: Subject<boolean>;
     constructor(private modalService: ModalService, private elementRef: ElementRef) {
         this.modalService.registerModal(this);
     }
+    @HostListener('document:keydown', ['$event'])
     public keyDown(event: KeyboardEvent) {
         if (!this.isVisible) {
             return;
@@ -78,10 +78,10 @@ export class ModalComponent implements OnDestroy {
         this.obs.complete();
     }
     public show(): Observable<boolean> {
+        this.obs = new Subject<boolean>();
         this.reset();
         // Wrap the shown emit event in a timeout to make sure that the modal dialog has already been rendered
         setTimeout(() => this.shown.emit());
-        this.obs = new Subject<boolean>();
         return this.obs.asObservable();
     }
     public ngOnDestroy() {
