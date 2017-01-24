@@ -33,11 +33,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
             Console.ReadLine();
 
-            Console.WriteLine("Stopping...");
+            Console.WriteLine(@"Stopping...");
             cancellationTokenSource.Cancel();
 
             task.GetAwaiter().GetResult();
-            Console.WriteLine($"Stopped: {task.Status}");
+            Console.WriteLine($@"Stopped: {task.Status}");
 
             if (task.IsFaulted && task.Exception != null)
                 Console.WriteLine(task.Exception.ToString());
