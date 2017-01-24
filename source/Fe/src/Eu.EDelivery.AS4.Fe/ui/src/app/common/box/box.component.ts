@@ -3,7 +3,7 @@ import { Component, OnInit, Input, ElementRef, Renderer, ChangeDetectionStrategy
 @Component({
     selector: 'as4-box',
     templateUrl: './box.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BoxComponent implements OnInit {
     @Input() public title: string;
