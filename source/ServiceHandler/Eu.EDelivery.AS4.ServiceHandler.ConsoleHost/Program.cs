@@ -67,8 +67,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         private static void StartFeInProcess()
         {
             if (!Config.Instance.FeInProcess) return;
-            //Eu.EDelivery.AS4.Fe.Program.InProcess = true;
-            Task.Factory.StartNew(() => Fe.Program.Main(null));
+            Task.Factory.StartNew(() =>
+            {
+                Fe.Program.InProcess = true;
+                Fe.Program.Main(null);
+            });
         }
     }
 }
