@@ -8,7 +8,7 @@ import {
 } from '@angular/core/testing';
 import { Component } from '@angular/core';
 
-import { ICrudPmodeService } from './../pmode.service';
+import { ICrudPmodeService } from '../crudpmode.service.interface';
 import { RuntimeStore } from './../../settings/runtime.store';
 import { DialogService } from './../../common/dialog.service';
 import { CrudComponent, PMODECRUD_SERVICE } from './crud.component';

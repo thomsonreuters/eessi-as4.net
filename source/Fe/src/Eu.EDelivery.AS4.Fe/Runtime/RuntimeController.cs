@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace Eu.EDelivery.AS4.Fe.Runtime
 {
@@ -74,7 +71,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         {
             return new ContentResult
             {
-                Content = JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter() ),
+                Content = JsonConvert.SerializeObject(runtimeLoader.ReceivingPmode, Formatting.Indented, new FlattenRuntimeToJsonConverter()),
                 ContentType = "application/json"
             };
         }

@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">53.33% </span>
+        <span class="strong">35.9% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>24/45</span>
+        <span class='fraction'>14/39</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/0</span>
+        <span class='fraction'>0/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">33.33% </span>
+        <span class="strong">16.67% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>3/9</span>
+        <span class='fraction'>1/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">57.89% </span>
+        <span class="strong">37.5% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>22/38</span>
+        <span class='fraction'>12/32</span>
       </div>
     </div>
   </div>
-  <div class='status-line medium'></div>
+  <div class='status-line low'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -96,19 +96,9 @@
 51
 52
 53
-54
-55
-56
-57
-58
-59
-60
-61
-62
-63
-64
-65
-66</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+54</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -117,28 +107,9 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -162,10 +133,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,47 +142,37 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Http, Headers, RequestOptions } from '@angular/http';
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { DialogService } from './../common/dialog.service';
+import { SpinnerService } from './../common/spinner/spinner.service';
+import { Http, Headers, RequestOptions } from '@angular/http';
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { JwtHelper, tokenNotExpired } from 'angular2-jwt';
 &nbsp;
-const state = {
-    loggedin: tokenNotExpired()
-};
-&nbsp;
-interface State {
-    loggedin: boolean;
-}
-const store = new BehaviorSubject&lt;State&gt;(state);
-&nbsp;
-@Injectable()
-export class AuthenticationStore {
-    public changes = store.asObservable();
-    private store = store;
-<span class="fstat-no" title="function not covered" >    public getState() {</span>
-<span class="cstat-no" title="statement not covered" >        return this.store.value;</span>
-    }
-    public setState(newState: State) {
-        this.store.next(newState);
-    }
-}
-const TOKENSTORE: string = 'id_token';
+import { AuthenticationStore, TOKENSTORE } from './authentication.store';
 &nbsp;
 @Injectable()
 export class AuthenticationService {
-<span class="fstat-no" title="function not covered" >    constructor(private <span class="cstat-no" title="statement not covered" >http: Http,</span> private <span class="cstat-no" title="statement not covered" >authenticationStore: AuthenticationStore,</span> private <span class="cstat-no" title="statement not covered" >jwtHelper: JwtHelper,</span> private <span class="cstat-no" title="statement not covered" >router: Router)</span></span> {
+    constructor(private <span class="cstat-no" title="statement not covered" >http: Http,</span> private <span class="cstat-no" title="statement not covered" >authenticationStore: AuthenticationStore,</span> private <span class="cstat-no" title="statement not covered" >jwtHelper: JwtHelper,</span> private <span class="cstat-no" title="statement not covered" >router: Router,</span> private <span class="cstat-no" title="statement not covered" >_spinnerService: SpinnerService,</span>
+        private <span class="cstat-no" title="statement not covered" >_dialogService: DialogService<span class="fstat-no" title="function not covered" >)</span> {</span>
     }
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public login(username: string, password: string)</span>: Observable&lt;boolean&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        let obs = new Subject&lt;boolean&gt;();</span>
-<span class="cstat-no" title="statement not covered" >        let headers = new Headers({ 'Content-Type': 'application/json' });</span>
-<span class="cstat-no" title="statement not covered" >        let options = new RequestOptions({ headers: headers });</span>
+<span class="cstat-no" title="statement not covered" >    public login(username: string, password: string<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; {</span></span>
+        let obs = <span class="cstat-no" title="statement not covered" >new Subject&lt;boolean&gt;();</span>
+        let headers = <span class="cstat-no" title="statement not covered" >new Headers({ 'Content-Type': 'application/json' });</span>
+        let options = <span class="cstat-no" title="statement not covered" >new RequestOptions({ headers });</span>
 <span class="cstat-no" title="statement not covered" >        this.http.post('api/authentication', JSON.stringify({</span>
-            username: username,
-            password: password
+            username,
+            password
         }), options)
-            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+            .subscribe((result<span class="fstat-no" title="function not covered" >) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >                obs.next(true);</span>
 <span class="cstat-no" title="statement not covered" >                localStorage.setItem(TOKENSTORE, result.json().access_token);</span>
 <span class="cstat-no" title="statement not covered" >                this.router.navigate(['/settings']);</span>
@@ -221,12 +180,17 @@ export class AuthenticationService {
                     loggedin: true
                 }));
 &nbsp;
-            }, <span class="fstat-no" title="function not covered" >() =&gt; {</span>
+            }, (error: { status: number }<span class="fstat-no" title="function not covered" >) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >                obs.next(false);</span>
 <span class="cstat-no" title="statement not covered" >                localStorage.removeItem(TOKENSTORE);</span>
 <span class="cstat-no" title="statement not covered" >                this.authenticationStore.setState(Object.assign({}, {</span>
                     loggedin: false
                 }));
+<span class="cstat-no" title="statement not covered" >                this._spinnerService.hide();</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                if (error.status === 401) {</span>
+<span class="cstat-no" title="statement not covered" >                    this._dialogService.error('Invalid username/password');</span>
+                }
             });
 <span class="cstat-no" title="statement not covered" >        return obs.asObservable();</span>
     }
@@ -244,7 +208,7 @@ export class AuthenticationService {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

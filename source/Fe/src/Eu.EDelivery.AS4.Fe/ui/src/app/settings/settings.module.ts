@@ -1,3 +1,4 @@
+import { AuthenticationModule } from './../authentication/authentication.module';
 import { RuntimeService } from './runtime.service';
 import { SettingsService } from './settings.service';
 import { Component, NgModule } from '@angular/core';
@@ -46,7 +47,8 @@ import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/rece
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(ROUTES),
-        SortablejsModule
+        SortablejsModule,
+        AuthenticationModule
     ],
     exports: [
         SettingsComponent,

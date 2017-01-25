@@ -10,7 +10,7 @@ export class Settings {
 	database: SettingsDatabase;
 	certificateStore: CertificateStore;
 	customSettings: CustomSettings;
-	agents: SettingsAgents;
+	agents = new SettingsAgents();
 
 	static FIELD_idFormat: string = 'idFormat';	
 	static FIELD_database: string = 'database';

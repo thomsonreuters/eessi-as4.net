@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">36.96% </span>
+        <span class="strong">35.56% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>17/46</span>
+        <span class='fraction'>16/45</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
@@ -35,9 +35,9 @@
         <span class='fraction'>1/15</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">43.24% </span>
+        <span class="strong">38.89% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>16/37</span>
+        <span class='fraction'>14/36</span>
       </div>
     </div>
   </div>
@@ -119,16 +119,15 @@
 74
 75
 76
-77
-78</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+77</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -138,10 +137,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -197,8 +195,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Http } from '@angular/http';
-import { Observer } from 'rxjs/Observer';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
 import { ItemType } from './../api/ItemType';
 import { Injectable } from '@angular/core';
@@ -216,36 +213,36 @@ export interface IRuntimeService {
 }
 &nbsp;
 @Injectable()
-export class RuntimeService implements IRuntimeService {
+export class RuntimeService implements IRuntimeService {s
     private <span class="cstat-no" title="statement not covered" >_runtimeMetaData: any | null = null;</span>
-<span class="fstat-no" title="function not covered" >    constructor(private <span class="cstat-no" title="statement not covered" >http: Http,</span> private <span class="cstat-no" title="statement not covered" >runtimeStore: RuntimeStore)</span></span> {
+    constructor(private <span class="cstat-no" title="statement not covered" >http: AuthHttp,</span> private <span class="cstat-no" title="statement not covered" >runtimeStore: RuntimeStore<span class="fstat-no" title="function not covered" >)</span> {</span>
 &nbsp;
     }
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public getReceivers() {</span></span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .get(this.getBaseUrl('getreceivers'))
-            .subscribe(<span class="fstat-no" title="function not covered" >type </span>=&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('receivers', type.json()))</span>;
+            .subscribe((type<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('receivers', type.json()))</span></span>;
     }
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public getSteps() {</span></span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .get(this.getBaseUrl('getsteps'))
-            .subscribe(<span class="fstat-no" title="function not covered" >type </span>=&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('steps', type.json()))</span>;
+            .subscribe((type<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('steps', type.json()))</span></span>;
     }
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public getTransformers() {</span></span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .get(this.getBaseUrl('gettransformers'))
-            .subscribe(<span class="fstat-no" title="function not covered" >type </span>=&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('transformers', type.json()))</span>;
+            .subscribe((type<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('transformers', type.json()))</span></span>;
     }
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public getCertificateRepositories() {</span></span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .get(this.getBaseUrl('getcertificaterepositories'))
-            .subscribe(<span class="fstat-no" title="function not covered" >type </span>=&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('certificateRepositories', type.json()))</span>;
+            .subscribe((type<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >this.runtimeStore.update('certificateRepositories', type.json()))</span></span>;
     }
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public getAll() {</span></span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .get(this.getBaseUrl('getall'))
-            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
-<span class="cstat-no" title="statement not covered" >                let json = result.json();</span>
+            .subscribe((result<span class="fstat-no" title="function not covered" >) =&gt; {</span>
+                let json = <span class="cstat-no" title="statement not covered" >result.json();</span>
 <span class="cstat-no" title="statement not covered" >                this.runtimeStore.setState({</span>
                     receivers: json.receivers,
                     steps: json.steps,
@@ -260,17 +257,17 @@ export class RuntimeService implements IRuntimeService {
 <span class="cstat-no" title="statement not covered" >        if (!!this._runtimeMetaData) {</span>
 <span class="cstat-no" title="statement not covered" >            return Observable.of&lt;any&gt;(this._runtimeMetaData);</span>
         }
-<span class="cstat-no" title="statement not covered" >        let obs = new Subject&lt;any&gt;();</span>
+        let obs = <span class="cstat-no" title="statement not covered" >new Subject&lt;any&gt;();</span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .get(this.getBaseUrl('getruntimemetadata'))
-            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
+            .subscribe((result<span class="fstat-no" title="function not covered" >) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >                this._runtimeMetaData = result.json();</span>
 <span class="cstat-no" title="statement not covered" >                obs.next(this._runtimeMetaData);</span>
 <span class="cstat-no" title="statement not covered" >                obs.complete();</span>
             });
 <span class="cstat-no" title="statement not covered" >        return obs;</span>
     }
-<span class="fstat-no" title="function not covered" >    private getBaseUrl(action: string)</span> {
+    private getBaseUrl(action: string<span class="fstat-no" title="function not covered" >) {</span>
 <span class="cstat-no" title="statement not covered" >        return `api/runtime/${action}`;</span>
     }
 }
@@ -280,7 +277,7 @@ export class RuntimeService implements IRuntimeService {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

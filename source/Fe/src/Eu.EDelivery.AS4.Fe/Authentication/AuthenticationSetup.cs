@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
             // Setup Identity
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = "test.sqlite" };
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = "users.sqlite" };
             var connectionString = connectionStringBuilder.ToString();
             var connection = new SqliteConnection(connectionString);
 
@@ -25,7 +26,6 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 .AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
         }
 
         public void Run(IApplicationBuilder app)
@@ -40,7 +40,8 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 ValidateAudience = false,
                 ValidAudience = options.Audience,
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType = ClaimTypes.Role
             };
 
             app.UseJwtBearerAuthentication(new JwtBearerOptions
@@ -57,8 +58,36 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 context.Database.EnsureCreated();
                 context.SaveChanges();
 
-                var db = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
-                db.CreateAsync(new ApplicationUser { UserName = "test" }, "k1342hT*98").Wait();
+                var userManager = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
+
+                var user1 = new ApplicationUser { UserName = "test" };
+                var user2 = new ApplicationUser { UserName = "test2" };
+
+                var user1result = userManager.CreateAsync(user1, "gl0M+`pxas").Result;
+                var user2result = userManager.CreateAsync(user2, "gl0M+`pxas").Result;
+
+                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, "admin"), new Claim(ClaimTypes.Role, "readonly") }).Wait();
+                userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, "readonly") }).Wait();
+
+                //var adminRole = new IdentityRole("admin");
+                //var readonlyRole = new IdentityRole("readonly");
+                //var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
+                //var admin = roleManager.CreateAsync(adminRole).Result;
+                //var read = roleManager.CreateAsync(readonlyRole).Result;
+
+                //var result1 = roleManager.AddClaimAsync(adminRole, new Claim(ClaimTypes.Role, "admin")).Result;
+                //var result2 = roleManager.AddClaimAsync(readonlyRole, new Claim(ClaimTypes.Role, "readonly")).Result;
+
+                //var db = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
+
+                //var user1 = new ApplicationUser { UserName = "test" };
+                //var user2 = new ApplicationUser { UserName = "test2" };
+
+                //db.CreateAsync(user1, "gl0M+`pxas").Wait();
+                //db.CreateAsync(user2, "gl0M+`pxas").Wait();
+
+                //var role1 = db.AddToRoleAsync(user1, "admin").Result;
+                //var role2 = db.AddToRoleAsync(user2, "readonly").Result;
             }
         }
     }

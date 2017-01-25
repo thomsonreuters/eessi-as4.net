@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">25% </span>
+        <span class="strong">23.88% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>17/68</span>
+        <span class='fraction'>16/67</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
@@ -35,9 +35,9 @@
         <span class='fraction'>1/22</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">26.67% </span>
+        <span class="strong">23.33% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>16/60</span>
+        <span class='fraction'>14/60</span>
       </div>
     </div>
   </div>
@@ -156,7 +156,8 @@
 111
 112
 113
-114</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+114
+115</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -177,27 +178,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -234,6 +222,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -265,6 +266,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -292,17 +294,17 @@ export interface ISettingsService {
 &nbsp;
 @Injectable()
 export class SettingsService implements ISettingsService {
-<span class="fstat-no" title="function not covered" >    constructor(private <span class="cstat-no" title="statement not covered" >http: AuthHttp,</span> private <span class="cstat-no" title="statement not covered" >settingsStore: SettingsStore)</span></span> {
+    constructor(private <span class="cstat-no" title="statement not covered" >http: AuthHttp,</span> private <span class="cstat-no" title="statement not covered" >settingsStore: SettingsStore<span class="fstat-no" title="function not covered" >)</span> {</span>
 <span class="cstat-no" title="statement not covered" >        this.getSettings();</span>
     }
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public getSettings() {</span></span>
 <span class="cstat-no" title="statement not covered" >        return this</span>
             .http
             .get(this.getUrl())
-            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; <span class="cstat-no" title="statement not covered" >this.settingsStore.update('Settings', result.json()))</span>;
+            .subscribe((result<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >this.settingsStore.update('Settings', result.json()))</span></span>;
     }
-<span class="fstat-no" title="function not covered" >    public saveBaseSettings(base: Base)</span>: Observable&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >        let subj = new Subject&lt;boolean&gt;();</span>
+    public saveBaseSettings(base: Base<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; {</span>
+        let subj = <span class="cstat-no" title="statement not covered" >new Subject&lt;boolean&gt;();</span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .post(this.getUrl('basesettings'), base)
             .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
@@ -314,8 +316,8 @@ export class SettingsService implements ISettingsService {
             });
 <span class="cstat-no" title="statement not covered" >        return subj.asObservable();</span>
     }
-<span class="fstat-no" title="function not covered" >    public saveCustomSettings(custom: CustomSettings)</span>: Observable&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >        let subj = new Subject&lt;boolean&gt;();</span>
+    public saveCustomSettings(custom: CustomSettings<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; {</span>
+        let subj = <span class="cstat-no" title="statement not covered" >new Subject&lt;boolean&gt;();</span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .post(this.getUrl('customsettings'), custom)
             .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
@@ -327,8 +329,8 @@ export class SettingsService implements ISettingsService {
             });
 <span class="cstat-no" title="statement not covered" >        return subj.asObservable();</span>
     }
-<span class="fstat-no" title="function not covered" >    public saveDatabaseSettings(settings: SettingsDatabase)</span>: Observable&lt;boolean&gt; {
-<span class="cstat-no" title="statement not covered" >        let subj = new Subject&lt;boolean&gt;();</span>
+    public saveDatabaseSettings(settings: SettingsDatabase<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; {</span>
+        let subj = <span class="cstat-no" title="statement not covered" >new Subject&lt;boolean&gt;();</span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .post(this.getUrl('databasesettings'), settings)
             .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
@@ -340,8 +342,8 @@ export class SettingsService implements ISettingsService {
             });
 <span class="cstat-no" title="statement not covered" >        return subj.asObservable();</span>
     }
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public createAgent(settings: SettingsAgent, agent: string)</span>: Observable&lt;boolean&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        let subject = new Subject&lt;boolean&gt;();</span>
+<span class="cstat-no" title="statement not covered" >    public createAgent(settings: SettingsAgent, agent: string<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; {</span></span>
+        let subject = <span class="cstat-no" title="statement not covered" >new Subject&lt;boolean&gt;();</span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .post(this.getUrl(agent), settings)
             .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
@@ -354,8 +356,8 @@ export class SettingsService implements ISettingsService {
             });
 <span class="cstat-no" title="statement not covered" >        return subject.asObservable();</span>
     }
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public updateAgent(settings: SettingsAgent, originalName: string, agent: string)</span>: Observable&lt;boolean&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        let subject = new Subject&lt;boolean&gt;();</span>
+<span class="cstat-no" title="statement not covered" >    public updateAgent(settings: SettingsAgent, originalName: string, agent: string<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; {</span></span>
+        let subject = <span class="cstat-no" title="statement not covered" >new Subject&lt;boolean&gt;();</span>
 &nbsp;
         // Make a copy of the SettingsAgent and swap the originalName with the new name
         // This is done because the api expects the new name as a route parameter instead of the old name
@@ -371,15 +373,16 @@ export class SettingsService implements ISettingsService {
             });
 <span class="cstat-no" title="statement not covered" >        return subject.asObservable();</span>
     }
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public deleteAgent(settings: SettingsAgent, agent: string)</span> {</span>
+<span class="cstat-no" title="statement not covered" >    public deleteAgent(settings: SettingsAgent, agent: string<span class="fstat-no" title="function not covered" >) {</span></span>
 <span class="cstat-no" title="statement not covered" >        this.http</span>
             .delete(`${this.getUrl(agent)}?name=${settings.name}`, settings)
-            .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" ></span>this.settingsStore.deleteAgent(agent, settings))</span>;
+            .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >this.settingsStore.deleteAgent(agent, settings))</span></span>;
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    private getUrl(path?: string)</span>: string {
-<span class="cstat-no" title="statement not covered" >        if (path === undefined) <span class="cstat-no" title="statement not covered" >return '/api/configuration';</span></span>
-        else <span class="cstat-no" title="statement not covered" >return `/api/configuration/${path}`;</span>
+    private getUrl(path?: string<span class="fstat-no" title="function not covered" >): string {</span>
+<span class="cstat-no" title="statement not covered" >        if (path === undefined) {</span>
+<span class="cstat-no" title="statement not covered" >            return '/api/configuration';</span>
+        } else { <span class="cstat-no" title="statement not covered" >return `/api/configuration/${path}`; </span>}
     }
 }
 &nbsp;</pre></td></tr>
@@ -388,7 +391,7 @@ export class SettingsService implements ISettingsService {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

@@ -1,3 +1,4 @@
+import { RolesService } from './../authentication/roles.service';
 import { CanDeactivateGuard } from './candeactivate.guard';
 import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
 import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend, Request } from '@angular/http';
@@ -9,12 +10,12 @@ import { NgModule, ModuleWithProviders, ErrorHandler } from '@angular/core';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthHttp, AuthConfig } from 'angular2-jwt';
+import { AuthHttp, AuthConfig, JwtHelper } from 'angular2-jwt';
 import { TextMaskModule } from 'angular2-text-mask';
 import { Observable } from 'rxjs/Observable';
 
 import { BoxComponent } from './box/box.component';
-import { MustBeAuthorizedGuard } from './common.guards';
+import { MustBeAuthorizedGuard } from './mustbeauthorized.guard';
 import { WrapperComponent } from './wrapper.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { HeaderComponent } from './header/header.component';
@@ -66,6 +67,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         DialogService,
         ModalService,
         SpinnerService,
+        RolesService,
         // {
         //     provide: ErrorHandler,
         //     useFactory: errorHandlerFactory,

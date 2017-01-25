@@ -43,7 +43,9 @@ export class AppComponent {
     public isShowDetails: boolean = false;
     @ViewChild('modal') public modal: ElementRef;
     constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService) {
-        this.authenticationStore.changes.subscribe((result) => {
+        this.authenticationStore
+        .changes
+        .subscribe((result) => {
             this.isLoggedIn = result.loggedin;
             if (this.isLoggedIn) {
                 this.runtimeService.getAll();

@@ -80,7 +80,8 @@ module.exports = function (options) {
           exclude: [
             // these packages have problems with their sourcemaps
             helpers.root('node_modules/rxjs'),
-            helpers.root('node_modules/@angular')
+            helpers.root('node_modules/@angular'),
+            helpers.root('node_modules/angular2-jwt')
           ]
         },
 
@@ -134,6 +135,11 @@ module.exports = function (options) {
           loader: ['to-string-loader', 'css-loader'],
           exclude: [helpers.root('src/index.html')]
         },
+        {
+          test: /\.scss$/,
+          use: ['to-string-loader', 'css-loader', 'sass-loader'],
+          exclude: [helpers.root('src', 'styles')]
+        },
 
         /**
          * Raw loader support for *.html
@@ -157,7 +163,7 @@ module.exports = function (options) {
           enforce: 'post',
           test: /\.(js|ts)$/,
           loader: 'istanbul-instrumenter-loader',
-          include: helpers.root('src'),
+          include: helpers.root('src', 'app'),
           exclude: [
             /\.(e2e|spec)\.ts$/,
             /node_modules/
@@ -221,7 +227,11 @@ module.exports = function (options) {
           // legacy options go here
         }
       }),
-
+      new ProvidePlugin({
+        jQuery: 'jquery',
+        $: 'jquery',
+        jquery: 'jquery'
+      })
     ],
 
     /**

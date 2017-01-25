@@ -17,6 +17,9 @@ export class SettingsStore extends Store<ISettingsState> {
             Settings: new Settings()
         });
     }
+    public clear() {
+        this.setState({ Settings: new Settings()});
+    }
     public updateAgent(type: string, originalName: string, agent: SettingsAgent) {
         if (type === SettingsAgents.FIELD_receptionAwarenessAgent) {
             this.setReceptionAwarenessAgent(agent);

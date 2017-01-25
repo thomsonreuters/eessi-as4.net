@@ -1,14 +1,15 @@
-﻿using System.IO;
-using System.Net;
+﻿using System.Net;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,12 @@ namespace Eu.EDelivery.AS4.Fe
             // Add framework services.
             //services.AddAuthentication(options => options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme);
 
-            services.AddMvc().AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
+            services
+                .AddMvc(options =>
+                {
+                    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
+                })
+                .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
             services.AddSingleton<ILogging, Logging.Logging>();
             services.AddSingleton<ISettingsSource, FileSettingsSource>();
             services.AddSingleton<ITokenService, TokenService>();

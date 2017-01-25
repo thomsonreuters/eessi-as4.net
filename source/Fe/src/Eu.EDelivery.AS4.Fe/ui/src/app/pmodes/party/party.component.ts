@@ -56,7 +56,7 @@ export class PartyComponent {
     @Input() public group: FormGroup;
     @Input() public label: string;
     public get partyIdsControl(): any {
-        return !!!this.group && (<FormGroup>this.group.get('partyIds')).controls;
+        return !!this.group && (<FormGroup>this.group.get('partyIds')).controls;
     }
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) {
     }

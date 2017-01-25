@@ -1,6 +1,7 @@
-import { AuthHttp, AUTH_PROVIDERS } from 'angular2-jwt';
+import { AuthHttp, AUTH_PROVIDERS, JwtHelper } from 'angular2-jwt';
 import { Http, ConnectionBackend } from '@angular/http';
-import { ReceivingPmodeService, SendingPmodeService } from './pmodes/pmode.service';
+import { ReceivingPmodeService } from './pmodes/receivingpmode.service';
+import { SendingPmodeService } from './pmodes/sendingpmode.service';
 import {
     inject,
     TestBed
@@ -9,12 +10,16 @@ import {
 // Load the implementations that should be tested
 import { AppComponent } from './app.component';
 import { AppState } from './app.service';
-import { AuthenticationStore } from './authentication/authentication.service';
+import { AuthenticationStore } from './authentication/authentication.store';
 import { RuntimeService, IRuntimeService } from './settings/runtime.service';
 import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';
 import { RuntimeServiceMock } from './settings/runtime.service.mock';
 import { PmodeServiceMock } from './pmodes/pmode.service.mock';
+
+class JwtHelperMock {
+
+}
 
 describe('App', () => {
 
@@ -26,6 +31,7 @@ describe('App', () => {
             AuthenticationStore,
             ModalService,
             DialogService,
+            { provide: JwtHelper, useClass: JwtHelperMock },
             { provide: RuntimeService, useClass: RuntimeServiceMock },
             { provide: ReceivingPmodeService, useClass: PmodeServiceMock },
             { provide: SendingPmodeService, useClass: PmodeServiceMock }
@@ -41,7 +47,7 @@ describe('App', () => {
         spyOn(runtimeService, 'getAll');
 
         // Act
-        store.setState({ loggedin: true });
+        store.setState({ loggedin: true, roles: [] });
 
         // Assert
         expect(app.isLoggedIn).toBeTruthy();
@@ -56,7 +62,7 @@ describe('App', () => {
         let spy4 = spyOn(runtimeService, 'getTransformers');
 
         // Act 
-        store.setState({ loggedin: false });
+        store.setState({ loggedin: false, roles: [] });
 
         // Assert
         expect(app.isLoggedIn).toBeFalsy();

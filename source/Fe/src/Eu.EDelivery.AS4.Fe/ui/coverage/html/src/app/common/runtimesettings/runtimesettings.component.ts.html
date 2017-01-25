@@ -30,14 +30,14 @@
         <span class='fraction'>0/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">33.33% </span>
+        <span class="strong">25% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>1/3</span>
+        <span class='fraction'>1/4</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">76.92% </span>
+        <span class="strong">69.23% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>10/13</span>
+        <span class='fraction'>9/13</span>
       </div>
     </div>
   </div>
@@ -82,34 +82,36 @@
 37
 38
 39
-40</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+40
+41
+42</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -120,13 +122,15 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component, Input, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component, Input, SimpleChanges, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 &nbsp;
 import { ItemType } from './../../api/ItemType';
 &nbsp;
-@Component({
+<span class="fstat-no" title="function not covered" >@Component({</span>
     selector: 'as4-runtime-settings',
     template: `
         &lt;form [formGroup]="form"&gt;
@@ -148,16 +152,18 @@ import { ItemType } from './../../api/ItemType';
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RuntimeSettingsComponent {
-    @Input() form: FormGroup;
-    @Input() types: ItemType[];
-    @Input() itemType: string;
-    @Input() <span class="cstat-no" title="statement not covered" >showTitle: boolean = true;</span>
+export class RuntimeSettingsComponent implements OnChanges {
+    @Input() public form: FormGroup;
+    @Input() public types: ItemType[];
+    @Input() public itemType: string;
+    @Input() public <span class="cstat-no" title="statement not covered" >pshowTitle: boolean = true;</span>
     public selectedType: ItemType;
-<span class="fstat-no" title="function not covered" >    ngOnChanges(changes: SimpleChanges)</span> {
-<span class="cstat-no" title="statement not covered" >        let itemType = changes['itemType'] &amp;&amp; changes['itemType'].currentValue;</span>
-<span class="cstat-no" title="statement not covered" >        if (!!!this.types) <span class="cstat-no" title="statement not covered" >return;</span></span>
-<span class="cstat-no" title="statement not covered" >        this.selectedType = this.types.find(<span class="fstat-no" title="function not covered" >type </span>=&gt; <span class="cstat-no" title="statement not covered" >type.technicalName === itemType)</span>;</span>
+    public ngOnChanges(changes: SimpleChanges<span class="fstat-no" title="function not covered" >) {</span>
+        let itemType = <span class="cstat-no" title="statement not covered" >changes['itemType'] &amp;&amp; changes['itemType'].currentValue;</span>
+<span class="cstat-no" title="statement not covered" >        if (!!!this.types) {</span>
+<span class="cstat-no" title="statement not covered" >            return;</span>
+        }
+<span class="cstat-no" title="statement not covered" >        this.selectedType = this.types.find((type<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >type.technicalName === itemType)</span></span>;</span>
     }
 }
 &nbsp;</pre></td></tr>
@@ -166,7 +172,7 @@ export class RuntimeSettingsComponent {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>

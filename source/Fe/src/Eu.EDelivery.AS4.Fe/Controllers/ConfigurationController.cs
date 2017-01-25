@@ -1,18 +1,15 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using EnsureThat;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Model.Internal;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eu.EDelivery.AS4.Fe.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     public class ConfigurationController : Controller
     {
         private readonly IAs4SettingsService settingsService;

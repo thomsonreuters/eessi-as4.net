@@ -35,7 +35,7 @@ export class LoginComponent {
             .filter((result) => !result)
             .subscribe(() => {
                 this.username = '';
-                this.password = '';            
+                this.password = '';
             });
     }
 }
