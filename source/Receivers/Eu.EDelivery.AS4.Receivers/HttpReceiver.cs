@@ -78,9 +78,8 @@ namespace Eu.EDelivery.AS4.Receivers
                 listener.Start();
             }
             catch (HttpListenerException exception)
-            {
-                this._logger.Error("Http Listener Exception");
-                this._logger.Debug($"Http Listener Exception: {exception.Message}");
+            {                
+                this._logger.Error($"Http Listener Exception: {exception.Message}");
             }
         }
 

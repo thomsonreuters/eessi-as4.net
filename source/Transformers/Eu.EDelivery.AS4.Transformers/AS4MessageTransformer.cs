@@ -72,14 +72,14 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        private Error CreateError(AS4Exception exception)
+        private static Error CreateError(AS4Exception exception)
         {
             return new ErrorBuilder()
                 .WithAS4Exception(exception)
                 .BuildWithOriginalAS4Exception();
         }
 
-        private AS4Message CreateErrorMessage(Error errorMessage)
+        private static AS4Message CreateErrorMessage(Error errorMessage)
         {
             return new AS4MessageBuilder()
                 .WithSignalMessage(errorMessage)
@@ -101,10 +101,14 @@ namespace Eu.EDelivery.AS4.Transformers
         private void PreConditions(ReceivedMessage message)
         {
             if (message.RequestStream == null)
+            {
                 throw ThrowAS4TransformException("The incoming stream is not an ebMS Message");
+            }
 
             if (!ContentTypeSupporter.IsContentTypeSupported(message.ContentType))
+            {
                 throw ThrowAS4TransformException($"ContentType is not supported {nameof(message.ContentType)}");
+            }
         }
 
         private AS4Exception ThrowAS4TransformException(string description)

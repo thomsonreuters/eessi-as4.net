@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private bool IsSignalMessageReferenceUserMessage(SignalMessage signalMessage)
         {
-            return signalMessage.RefToMessageId.Equals(this._as4Message.PrimaryUserMessage?.MessageId);
+            return signalMessage.RefToMessageId?.Equals(this._as4Message.PrimaryUserMessage?.MessageId) ?? false;
         }
 
         private async Task UpdateOther(SignalMessage signalMessage, CancellationToken cancellationToken)
