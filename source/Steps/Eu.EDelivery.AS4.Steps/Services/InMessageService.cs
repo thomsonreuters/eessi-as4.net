@@ -88,12 +88,12 @@ namespace Eu.EDelivery.AS4.Steps.Services
             return inMessage;
         }
 
-        private bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
+        private static bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
 
-        private void AddOperationDelivered(MessageEntity inMessage)
+        private static void AddOperationDelivered(MessageEntity inMessage)
         {
             inMessage.Operation = Operation.ToBeDelivered;
             inMessage.OperationMethod = "to be determined";
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
             return inMessage;
         }
 
-        private bool ReceiptDoesNotNeedToBeNotified(AS4Message as4Message)
+        private static bool ReceiptDoesNotNeedToBeNotified(AS4Message as4Message)
         {
             return !as4Message.SendingPMode.ReceiptHandling.NotifyMessageProducer;
         }
@@ -147,6 +147,20 @@ namespace Eu.EDelivery.AS4.Steps.Services
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             this._logger.Info($"Update Message: {signalMessage.MessageId} as Error");
+
+            if (_logger.IsWarnEnabled)
+            {
+                var errorSignalMessage = signalMessage as Error;
+
+                if (errorSignalMessage != null)
+                {
+                    foreach (var error in errorSignalMessage.Errors)
+                    {
+                        _logger.Warn($"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");
+                    }
+                }
+            }
+
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, cancellationToken);
 
             await this._repository.InsertInMessageAsync(inMessage);
@@ -162,18 +176,22 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithPModeString(AS4XmlSerializer.Serialize(as4Message.SendingPMode))
                 .Build(cancellationToken);
 
-            if (ErrorDontNeedToBeNotified(as4Message) || signalMessage.IsDuplicated) return inMessage;
+            if (ErrorDontNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)
+            {
+                return inMessage;
+            }
+
             AddOperationNotified(inMessage);
 
             return inMessage;
         }
 
-        private bool ErrorDontNeedToBeNotified(AS4Message as4Message)
+        private static bool ErrorDontNeedToBeNotified(AS4Message as4Message)
         {
             return !as4Message.SendingPMode.ErrorHandling.NotifyMessageProducer;
         }
 
-        private void AddOperationNotified(MessageEntity inMessage)
+        private static void AddOperationNotified(MessageEntity inMessage)
         {
             inMessage.Operation = Operation.ToBeNotified;
             inMessage.OperationMethod = "To be determined";
