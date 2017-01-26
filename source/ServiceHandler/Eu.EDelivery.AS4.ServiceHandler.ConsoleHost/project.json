@@ -9,6 +9,8 @@
     "Microsoft.Bcl.Async": "1.0.168",
     "Microsoft.Bcl.Build": "1.0.21",
     "Microsoft.EntityFrameworkCore": "1.1.0",
+    "Microsoft.Net.Http": "2.2.29",
+    "System.Net.Http": "4.3.0",
     "System.Threading.Tasks": "4.3.0"
   },
   "frameworks": {

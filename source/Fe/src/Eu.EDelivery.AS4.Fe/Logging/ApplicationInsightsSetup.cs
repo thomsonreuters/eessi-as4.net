@@ -26,8 +26,7 @@ namespace Eu.EDelivery.AS4.Fe.Logging
 
         public void Run(IApplicationBuilder app)
         {
-            app.UseApplicationInsightsRequestTelemetry();
-            app.UseApplicationInsightsExceptionTelemetry();
+           
         }
     }
 }

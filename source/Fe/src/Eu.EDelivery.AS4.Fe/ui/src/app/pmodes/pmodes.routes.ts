@@ -13,10 +13,11 @@ export const ROUTES: Routes = [
             {
                 path: 'pmodes', children: [
                     { path: '', pathMatch: 'full', redirectTo: 'receiving', canDeactivate: [CanDeactivateGuard] },
-                    { path: 'receiving', component: ReceivingPmodeComponent, data: { title: 'Receiving', mode: 'receiving' }, canDeactivate: [CanDeactivateGuard] },
+                    { path: 'receiving', component: ReceivingPmodeComponent, data: { title: 'Receiving', mode: 'receiving' }, canDeactivate: [CanDeactivateGuard], canActivate: [MustBeAuthorizedGuard },
                     { path: 'sending', component: SendingPmodeComponent, data: { title: 'Sending', mode: 'sending' }, canDeactivate: [CanDeactivateGuard] },
                 ],
-                data: { title: 'Pmodes' }
+                data: { title: 'Pmodes' },
+                canActivate: [MustBeAuthorizedGuard]
             }
         ],
         canActivate: [MustBeAuthorizedGuard]

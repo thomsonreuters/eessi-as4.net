@@ -42,12 +42,12 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Authentication\ApplicationDbContext.cs" />
     <Compile Include="Authentication\ApplicationUser.cs" />
+    <Compile Include="Authentication\AuthenticationConfiguration.cs" />
     <Compile Include="Authentication\AuthenticationController.cs" />
     <Compile Include="Authentication\AuthenticationSetup.cs" />
     <Compile Include="Authentication\IAuthenticationSetup.cs" />

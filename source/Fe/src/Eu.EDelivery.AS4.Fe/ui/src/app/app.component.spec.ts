@@ -1,3 +1,5 @@
+import { SettingsServiceMock } from './settings/settings.service.mock';
+import { SettingsService } from './settings/settings.service';
 import { AuthHttp, AUTH_PROVIDERS, JwtHelper } from 'angular2-jwt';
 import { Http, ConnectionBackend } from '@angular/http';
 import { ReceivingPmodeService } from './pmodes/receivingpmode.service';
@@ -31,6 +33,7 @@ describe('App', () => {
             AuthenticationStore,
             ModalService,
             DialogService,
+            { provide: SettingsService, useClass: SettingsServiceMock },
             { provide: JwtHelper, useClass: JwtHelperMock },
             { provide: RuntimeService, useClass: RuntimeServiceMock },
             { provide: ReceivingPmodeService, useClass: PmodeServiceMock },

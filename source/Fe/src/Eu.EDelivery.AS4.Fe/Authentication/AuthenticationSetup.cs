@@ -16,8 +16,12 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
     {
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
+            services.Configure<AuthenticationConfiguration>(configuration.GetSection("Authentication"));
+
+            var databaseName = configuration.GetSection("Authentication")["Database"];
+
             // Setup Identity
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = "users.sqlite" };
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = databaseName };
             var connectionString = connectionStringBuilder.ToString();
             var connection = new SqliteConnection(connectionString);
 
