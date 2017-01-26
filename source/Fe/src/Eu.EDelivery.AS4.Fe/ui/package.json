@@ -52,7 +52,7 @@
     "server": "npm run server:dev",
     "start:hmr": "npm run server:dev:hmr",
     "start": "npm run server:dev",
-    "test": "npm run lint && karma start --browsers Chrome",
+    "test": "karma start --browsers Chrome",
     "test:ci": "karma start --browsers PhantomJS",
     "tslint": "tslint",
     "typedoc": "typedoc",

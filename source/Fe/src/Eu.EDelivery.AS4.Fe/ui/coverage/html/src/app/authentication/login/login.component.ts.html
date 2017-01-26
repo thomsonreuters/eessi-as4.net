@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">47.83% </span>
+        <span class="strong">37.04% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>11/23</span>
+        <span class='fraction'>10/27</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
@@ -30,14 +30,14 @@
         <span class='fraction'>0/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">14.29% </span>
+        <span class="strong">12.5% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>1/7</span>
+        <span class='fraction'>1/8</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">52.63% </span>
+        <span class="strong">40% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>10/19</span>
+        <span class='fraction'>8/20</span>
       </div>
     </div>
   </div>
@@ -83,34 +83,13 @@
 38
 39
 40
-41</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+41
+42</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -119,48 +98,72 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 &nbsp;
 import { Http } from '@angular/http';
-import { AuthenticationService, AuthenticationStore } from '../authentication.service';
+import { AuthenticationService } from '../authentication.service';
+import { AuthenticationStore } from '../authentication.store';
 &nbsp;
 @Component({
     selector: 'as4-login',
-    templateUrl: './login.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    templateUrl: './login.component.html'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
     public username: string;
     public password: string;
-<span class="fstat-no" title="function not covered" >    constructor(private <span class="cstat-no" title="statement not covered" >http: Http,</span> private <span class="cstat-no" title="statement not covered" >activatedRoute: ActivatedRoute,</span> private <span class="cstat-no" title="statement not covered" >authenticationService: AuthenticationService</span></span>
-        , private <span class="cstat-no" title="statement not covered" >authenticationStore: AuthenticationStore)</span> {
-<span class="cstat-no" title="statement not covered" >        this.authenticationStore.changes.subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    constructor(private <span class="cstat-no" title="statement not covered" >http: Http,</span> private <span class="cstat-no" title="statement not covered" >activatedRoute: ActivatedRoute,</span> private <span class="cstat-no" title="statement not covered" >authenticationService: AuthenticationService,</span> private <span class="cstat-no" title="statement not covered" >authenticationStore: AuthenticationStore<span class="fstat-no" title="function not covered" >)</span> {</span></span>
+<span class="cstat-no" title="statement not covered" >        this.authenticationStore.changes.subscribe((result<span class="fstat-no" title="function not covered" >) =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >            console.log(result);</span>
         });
 <span class="cstat-no" title="statement not covered" >        activatedRoute</span>
             .queryParams
-            .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
-<span class="cstat-no" title="statement not covered" >                let callback = result['callback'];</span>
+            .subscribe((result<span class="fstat-no" title="function not covered" >) =&gt; {</span>
+                let callback = <span class="cstat-no" title="statement not covered" >result['callback'];</span>
 <span class="cstat-no" title="statement not covered" >                if (!!callback) {</span>
 <span class="cstat-no" title="statement not covered" >                    this.http</span>
                         .get('api/authentication/externallogin?provider=Facebook&amp;callback=true')
-                        .subscribe(<span class="fstat-no" title="function not covered" >authenticationResult </span>=&gt; {
+                        .subscribe((authenticationResult<span class="fstat-no" title="function not covered" >) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >                            console.log(`Callback result token ${authenticationResult.json().access_token}`);</span>
                         });
                 }
             });
     }
-&nbsp;
-<span class="fstat-no" title="function not covered" >    ngOnInit() {</span>
-    }
-&nbsp;
-<span class="fstat-no" title="function not covered" >    login() {</span>
-<span class="cstat-no" title="statement not covered" >        this.authenticationService.login(this.username, this.password);</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    public login() {</span></span>
+<span class="cstat-no" title="statement not covered" >        this.authenticationService</span>
+            .login(this.username, this.password)
+            .filter((result<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >!result)</span></span>
+            .subscribe(<span class="fstat-no" title="function not covered" >() =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >                this.username = '';</span>
+<span class="cstat-no" title="statement not covered" >                this.password = '';            </span>
+            });
     }
 }
 &nbsp;</pre></td></tr>
@@ -169,7 +172,7 @@ export class LoginComponent implements OnInit {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>

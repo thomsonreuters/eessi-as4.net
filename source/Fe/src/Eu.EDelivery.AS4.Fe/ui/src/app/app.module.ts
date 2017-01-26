@@ -1,9 +1,10 @@
+import { AuthenticationStore } from './authentication/authentication.store';
 import { AuthConfig } from 'angular2-jwt';
 import { ClipboardModule } from 'ngx-clipboard';
 import { CommonModule } from '@angular/common';
 import { NgModule, ApplicationRef } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormControlDirective } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { removeNgStyles, createNewHosts, createInputTransfer } from '@angularclass/hmr';
@@ -31,17 +32,6 @@ type StoreType = {
     disposeOldHosts: () => void
 };
 
-export function jwtHelperFactory() {
-    return new AuthConfig({
-        tokenName: "auth_token",
-        headerName: 'Authorization',
-        headerPrefix: 'Bearer',
-        globalHeaders: [{ 'Content-Type': 'application/json' }],
-        noJwtError: true,
-        noTokenScheme: true
-    });
-}
-
 /**
  * `AppModule` is the main entry point into Angular2's bootstraping process
  */
@@ -49,7 +39,7 @@ export function jwtHelperFactory() {
     bootstrap: [AppComponent],
     declarations: [
         AppComponent,
-        NoContentComponent
+        NoContentComponent,
     ],
     imports: [ // import Angular's modules
         BrowserModule,
@@ -65,8 +55,7 @@ export function jwtHelperFactory() {
         ClipboardModule
     ],
     providers: [ // expose our Services and Providers into Angular's dependency injection
-        AppState,
-        { provide: JwtHelper, useFactory: jwtHelperFactory }
+        AppState
     ]
 })
 export class AppModule {

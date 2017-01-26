@@ -30,9 +30,9 @@
         <span class='fraction'>0/44</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">7.69% </span>
+        <span class="strong">14.29% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>1/13</span>
+        <span class='fraction'>2/14</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">37.93% </span>
@@ -93,7 +93,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -154,29 +154,29 @@ export class SettingsAgents {
 	static FIELD_notifyAgents: string = 'notifyAgents';
 	static FIELD_receptionAwarenessAgent: string = 'receptionAwarenessAgent';
 &nbsp;
-<span class="fstat-no" title="function not covered" >	static getForm(formBuilder: FormBuilder, current: SettingsAgents)</span>: FormGroup {
+	static getForm(formBuilder: FormBuilder, current: SettingsAgents<span class="fstat-no" title="function not covered" >): FormGroup {</span>
 <span class="cstat-no" title="statement not covered" >		return formBuilder.group({</span>
-			submitAgents: formBuilder.array(!!!(current &amp;&amp; current.submitAgents) ? [] : current.submitAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
-			receiveAgents: formBuilder.array(!!!(current &amp;&amp; current.receiveAgents) ? [] : current.receiveAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
-			sendAgents: formBuilder.array(!!!(current &amp;&amp; current.sendAgents) ? [] : current.sendAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
-			deliverAgents: formBuilder.array(!!!(current &amp;&amp; current.deliverAgents) ? [] : current.deliverAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
-			notifyAgents: formBuilder.array(!!!(current &amp;&amp; current.notifyAgents) ? [] : current.notifyAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>),
+			submitAgents: formBuilder.array(!!!(current &amp;&amp; current.submitAgents) ? [] : current.submitAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>),
+			receiveAgents: formBuilder.array(!!!(current &amp;&amp; current.receiveAgents) ? [] : current.receiveAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>),
+			sendAgents: formBuilder.array(!!!(current &amp;&amp; current.sendAgents) ? [] : current.sendAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>),
+			deliverAgents: formBuilder.array(!!!(current &amp;&amp; current.deliverAgents) ? [] : current.deliverAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>),
+			notifyAgents: formBuilder.array(!!!(current &amp;&amp; current.notifyAgents) ? [] : current.notifyAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>),
 			receptionAwarenessAgent: SettingsAgent.getForm(formBuilder, current &amp;&amp; current.receptionAwarenessAgent),
 		});
 	}
 	/// Patch up all the formArray controls
-<span class="fstat-no" title="function not covered" >	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SettingsAgents)</span> {
+	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SettingsAgents<span class="fstat-no" title="function not covered" >) {</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >		form.removeControl('submitAgents');</span>
-<span class="cstat-no" title="statement not covered" >		form.addControl('submitAgents', formBuilder.array(!!!(current &amp;&amp; current.submitAgents) ? [] : current.submitAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('submitAgents', formBuilder.array(!!!(current &amp;&amp; current.submitAgents) ? [] : current.submitAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>));</span>
 <span class="cstat-no" title="statement not covered" >		form.removeControl('receiveAgents');</span>
-<span class="cstat-no" title="statement not covered" >		form.addControl('receiveAgents', formBuilder.array(!!!(current &amp;&amp; current.receiveAgents) ? [] : current.receiveAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('receiveAgents', formBuilder.array(!!!(current &amp;&amp; current.receiveAgents) ? [] : current.receiveAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>));</span>
 <span class="cstat-no" title="statement not covered" >		form.removeControl('sendAgents');</span>
-<span class="cstat-no" title="statement not covered" >		form.addControl('sendAgents', formBuilder.array(!!!(current &amp;&amp; current.sendAgents) ? [] : current.sendAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('sendAgents', formBuilder.array(!!!(current &amp;&amp; current.sendAgents) ? [] : current.sendAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>));</span>
 <span class="cstat-no" title="statement not covered" >		form.removeControl('deliverAgents');</span>
-<span class="cstat-no" title="statement not covered" >		form.addControl('deliverAgents', formBuilder.array(!!!(current &amp;&amp; current.deliverAgents) ? [] : current.deliverAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('deliverAgents', formBuilder.array(!!!(current &amp;&amp; current.deliverAgents) ? [] : current.deliverAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>));</span>
 <span class="cstat-no" title="statement not covered" >		form.removeControl('notifyAgents');</span>
-<span class="cstat-no" title="statement not covered" >		form.addControl('notifyAgents', formBuilder.array(!!!(current &amp;&amp; current.notifyAgents) ? [] : current.notifyAgents.map(<span class="fstat-no" title="function not covered" >item </span>=&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span>));</span>
+<span class="cstat-no" title="statement not covered" >		form.addControl('notifyAgents', formBuilder.array(!!!(current &amp;&amp; current.notifyAgents) ? [] : current.notifyAgents.map(item<span class="fstat-no" title="function not covered" > =&gt; <span class="cstat-no" title="statement not covered" >SettingsAgent.getForm(formBuilder, item))</span></span>));</span>
 <span class="cstat-no" title="statement not covered" >		form.removeControl('receptionAwarenessAgent');</span>
 <span class="cstat-no" title="statement not covered" >		form.addControl('receptionAwarenessAgent', SettingsAgent.getForm(formBuilder, current &amp;&amp; current.receptionAwarenessAgent));</span>
 	}
@@ -187,7 +187,7 @@ export class SettingsAgents {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

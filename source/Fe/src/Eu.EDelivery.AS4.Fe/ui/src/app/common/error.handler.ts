@@ -9,7 +9,6 @@ export class DialogErrorHandler implements ErrorHandler {
 
     }
     public handleError(error: Response | any): void {
-        this._spinnerService.hide();
         this._dialogService.error(error, error);
     }
 }

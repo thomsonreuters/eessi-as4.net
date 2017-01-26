@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">68.18% </span>
+        <span class="strong">72.73% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>15/22</span>
+        <span class='fraction'>16/22</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -30,9 +30,9 @@
         <span class='fraction'>0/0</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">15.38% </span>
+        <span class="strong">42.86% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>2/13</span>
+        <span class='fraction'>6/14</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -67,7 +67,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -75,6 +74,7 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">16×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -83,22 +83,22 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { FormGroup } from '@angular/forms';
 import { IPmode } from './../api/Pmode.interface';
-import { ICrudPmodeService } from './pmode.service';
+import { ICrudPmodeService } from './crudpmode.service.interface';
 import { Observable } from 'rxjs';
 &nbsp;
 export class PmodeServiceMock implements ICrudPmodeService {
-<span class="fstat-no" title="function not covered" >    obsGet(): Observable&lt;IPmode&gt; { <span class="cstat-no" title="statement not covered" ></span>return null; </span>}
-<span class="fstat-no" title="function not covered" >    obsGetAll(): Observable&lt;Array&lt;string&gt;&gt; { <span class="cstat-no" title="statement not covered" ></span>return null; </span>}
-<span class="fstat-no" title="function not covered" >    get(name: string)</span> { }
-<span class="fstat-no" title="function not covered" >    delete(name: string)</span> { }
-<span class="fstat-no" title="function not covered" >    getNew(name: string)</span>: IPmode { <span class="cstat-no" title="statement not covered" >return null; </span>}
-<span class="fstat-no" title="function not covered" >    create(pmode: IPmode)</span>: Observable&lt;boolean&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}
-<span class="fstat-no" title="function not covered" >    getForm(pmode: IPmode)</span>: FormGroup { <span class="cstat-no" title="statement not covered" >return null; </span>}
-<span class="fstat-no" title="function not covered" >    getByName(name: string)</span>: Observable&lt;IPmode&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}
-<span class="fstat-no" title="function not covered" >    patchForm(form: FormGroup, pmode: IPmode)</span> { }
-<span class="fstat-no" title="function not covered" >    patchName(form: FormGroup, name: string)</span> { }
-<span class="fstat-no" title="function not covered" >    update(pmode: IPmode, originalName: string)</span>: Observable&lt;boolean&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}
-    getAll() { }
+<span class="fstat-no" title="function not covered" >   public obsGet(): Observable&lt;IPmode&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}</span>
+<span class="fstat-no" title="function not covered" >   public obsGetAll(): Observable&lt;string[]&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}</span>
+   public get(name: string) { }
+   public delete(name: string<span class="fstat-no" title="function not covered" >) { }</span>
+   public getNew(name: string<span class="fstat-no" title="function not covered" >): IPmode { <span class="cstat-no" title="statement not covered" >return null; </span>}</span>
+   public create(pmode: IPmode<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}</span>
+   public getForm(pmode: IPmode): FormGroup { return null; }
+   public getByName(name: string<span class="fstat-no" title="function not covered" >): Observable&lt;IPmode&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}</span>
+   public patchForm(form: FormGroup, pmode: IPmode) { }
+   public patchName(form: FormGroup, name: string<span class="fstat-no" title="function not covered" >) { }</span>
+   public update(pmode: IPmode, originalName: string<span class="fstat-no" title="function not covered" >): Observable&lt;boolean&gt; { <span class="cstat-no" title="statement not covered" >return null; </span>}</span>
+   public getAll() { }
 }
 &nbsp;</pre></td></tr>
 </table></pre>
@@ -106,7 +106,7 @@ export class PmodeServiceMock implements ICrudPmodeService {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../prettify.js"></script>

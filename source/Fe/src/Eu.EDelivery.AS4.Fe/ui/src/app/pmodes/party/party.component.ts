@@ -10,14 +10,14 @@ import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/for
         <div [formGroup]="group">
             <as4-input [label]="label" formArrayName="partyIds" runtimeTooltip="party.partyids">
                 <div class="item-container" *ngIf="partyIdsControl.length === 0">
-                    <button class="action add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
+                    <button as4-auth class="action add-button" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                 </div>
                 <div class="item-container" *ngFor="let party of partyIdsControl; let i = index" [formGroupName]="i">
                     <div class="item input"><input type="text" placeholder="id" formControlName="id"/></div>
                     <div class="item input"><input type="text" placeholder="type" formControlName="type"/></div>
                     <div class="item actions">
-                        <button [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
-                        <button [disabled]="group.disabled" *ngIf="i === (partyIdsControl.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button spacing"><i class="fa fa-plus"></i></button>
+                        <button as4-auth [disabled]="group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
+                        <button as4-auth [disabled]="group.disabled" *ngIf="i === (partyIdsControl.length-1)" type="button" [disabled]="group.disabled" (click)="addParty()" class="btn btn-flat add-button spacing"><i class="fa fa-plus"></i></button>
                     </div>
                 </div>
             </as4-input>
@@ -56,7 +56,7 @@ export class PartyComponent {
     @Input() public group: FormGroup;
     @Input() public label: string;
     public get partyIdsControl(): any {
-        return !!!this.group && (<FormGroup>this.group.get('partyIds')).controls;
+        return !!this.group && (<FormGroup>this.group.get('partyIds')).controls;
     }
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) {
     }

@@ -1,4 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
+import { Component, OnInit, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { Http } from '@angular/http';
@@ -7,18 +8,17 @@ import { AuthenticationStore } from '../authentication.store';
 
 @Component({
     selector: 'as4-login',
-    templateUrl: './login.component.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    templateUrl: './login.component.html'
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
     public username: string;
     public password: string;
-    constructor(private http: Http, private activatedRoute: ActivatedRoute, private authenticationService: AuthenticationService,
-        private authenticationStore: AuthenticationStore) {
-        this.authenticationStore.changes.subscribe((result) => {
+    private _subscriptions: Subscription[] = new Array<Subscription>();
+    constructor(private http: Http, private activatedRoute: ActivatedRoute, private authenticationService: AuthenticationService, private authenticationStore: AuthenticationStore) {
+        this._subscriptions.push(this.authenticationStore.changes.subscribe((result) => {
             console.log(result);
-        });
-        activatedRoute
+        }));
+        this._subscriptions.push(activatedRoute
             .queryParams
             .subscribe((result) => {
                 let callback = result['callback'];
@@ -29,9 +29,18 @@ export class LoginComponent {
                             console.log(`Callback result token ${authenticationResult.json().access_token}`);
                         });
                 }
-            });
+        }));
     }
     public login() {
-        this.authenticationService.login(this.username, this.password);
+        this.authenticationService
+            .login(this.username, this.password)
+            .filter((result) => !result)
+            .subscribe(() => {
+                this.username = '';
+                this.password = '';
+            });
+    }
+    public ngOnDestroy(){
+        this._subscriptions.forEach((sub) => sub.unsubscribe());
     }
 }

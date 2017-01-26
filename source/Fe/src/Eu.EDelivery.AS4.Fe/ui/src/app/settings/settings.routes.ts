@@ -1,7 +1,7 @@
 import { CanDeactivateGuard } from './../common/candeactivate.guard';
 import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
-import { MustBeAuthorizedGuard } from '../common/common.guards';
+import { MustBeAuthorizedGuard } from '../common/mustbeauthorized.guard';
 
 import { AgentSettingsComponent } from './agent/agent.component';
 import { SettingsComponent } from './settings/settings.component';

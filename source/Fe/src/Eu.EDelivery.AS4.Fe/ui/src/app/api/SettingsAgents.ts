@@ -3,11 +3,11 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { SettingsAgent } from "./SettingsAgent";
 
 export class SettingsAgents {
-	submitAgents: SettingsAgent[];
-	receiveAgents: SettingsAgent[];
-	sendAgents: SettingsAgent[];
-	deliverAgents: SettingsAgent[];
-	notifyAgents: SettingsAgent[];
+	submitAgents = new Array<SettingsAgent>();
+	receiveAgents = new Array<SettingsAgent>();
+	sendAgents = new Array<SettingsAgent>();
+	deliverAgents = new Array<SettingsAgent>();
+	notifyAgents = new Array<SettingsAgent>();
 	receptionAwarenessAgent: SettingsAgent;
 
 	static FIELD_submitAgents: string = 'submitAgents';

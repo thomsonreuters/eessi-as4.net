@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">94.12% </span>
+        <span class="strong">94.29% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>32/34</span>
+        <span class='fraction'>33/35</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -104,22 +104,18 @@
 59
 60
 61
-62
-63
-64
-65</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+62</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -148,9 +144,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">1×</span>
@@ -171,32 +165,27 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { SendingPmodeService, ReceivingPmodeService } from './pmodes/pmode.service';
-import { DialogService } from './common/dialog.service';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';
-import { AuthenticationStore } from './authentication/authentication.service';
 import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 &nbsp;
 import { AppState } from './app.service';
 import { RuntimeService } from './settings/runtime.service';
+import { AuthenticationStore } from './authentication/authentication.store';
+import { SendingPmodeService } from './pmodes/sendingpmode.service';
+import { ReceivingPmodeService } from './pmodes/receivingpmode.service';
 &nbsp;
 import 'jquery';
 import 'bootstrap/dist/js/bootstrap.js';
-import '../assets/theme/js/app.js';
+import '../theme/js/app.js';
 &nbsp;
 @Component({
     selector: 'as4-app',
     encapsulation: ViewEncapsulation.None,
-    styleUrls: [
-        '../../node_modules/bootstrap/dist/css/bootstrap.css',
-        '../assets/theme/css/AdminLTE.css',
-        '../assets/theme/css/skins/_all-skins.min.css',
-        '../assets/css/site.scss',
+    styles: [
         './app.component.scss'
     ],
     template: `    
-        &lt;as4-spinner&gt;&lt;/as4-spinner&gt;
-        &lt;router-outlet&gt;&lt;/router-outlet&gt;
         &lt;as4-modal name="default"&gt;&lt;/as4-modal&gt;
         &lt;as4-modal name="prompt" #promptDialog (shown)="input.focus(); promptDialog.result = ''"&gt;
             &lt;input type="text" class="form-control" #input [value]="promptDialog.result" (keyup)="promptDialog.result = $event.target.value"/&gt;             
@@ -212,14 +201,16 @@ import '../assets/theme/js/app.js';
                 &lt;button type="button" class="btn btn-outline" (click)="errorDialog.ok()"&gt;Ok&lt;/button&gt;
             &lt;/div&gt;
         &lt;/as4-modal&gt;
+        &lt;as4-spinner&gt;&lt;/as4-spinner&gt;
+        &lt;router-outlet&gt;&lt;/router-outlet&gt;        
   `
 })
 export class AppComponent {
     public isLoggedIn: boolean;
     public isShowDetails: boolean = false;
-    @ViewChild('modal') modal: ElementRef;
+    @ViewChild('modal') public modal: ElementRef;
     constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService) {
-        this.authenticationStore.changes.subscribe(result =&gt; {
+        this.authenticationStore.changes.subscribe((result) =&gt; {
             this.isLoggedIn = result.loggedin;
             if (this.isLoggedIn) {
                 this.runtimeService.getAll();
@@ -241,7 +232,7 @@ export class AppComponent {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../prettify.js"></script>

@@ -1,0 +1,1 @@
+export const TOKENSTORE: string = 'id_token';

@@ -51,7 +51,7 @@ export class DialogService {
                 dlg.showCancel = false;
             });
     }
-    public error(message: string, stackTrace: string | Response) {
+    public error(message: string, stackTrace?: string | Response) {
         this.modalService
             .show('error', (dlg) => {
                 dlg.type = 'modal-danger';

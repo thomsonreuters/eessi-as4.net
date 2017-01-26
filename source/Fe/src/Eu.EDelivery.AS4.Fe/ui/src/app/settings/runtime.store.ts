@@ -17,12 +17,22 @@ interface State {
 export class RuntimeStore extends Store<State> {
     constructor() {
         super({
-            receivers: Array<ItemType>(),
-            steps: Array<ItemType>(),
-            transformers: Array<ItemType>(),
-            certificateRepositories: Array<ItemType>(),
-            deliverSenders: Array<ItemType>(),
-            runtimeMetaData: Array<ItemType>()
+            receivers: new Array<ItemType>(),
+            steps: new Array<ItemType>(),
+            transformers: new Array<ItemType>(),
+            certificateRepositories: new Array<ItemType>(),
+            deliverSenders: new Array<ItemType>(),
+            runtimeMetaData: new Array<ItemType>()
+        });
+    }
+    public clear() {
+        this.setState({
+             receivers: new Array<ItemType>(),
+            steps: new Array<ItemType>(),
+            transformers: new Array<ItemType>(),
+            certificateRepositories: new Array<ItemType>(),
+            deliverSenders: new Array<ItemType>(),
+            runtimeMetaData: new Array<ItemType>()
         });
     }
 }

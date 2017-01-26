@@ -53,6 +53,7 @@
     <Compile Include="Authentication\IAuthenticationSetup.cs" />
     <Compile Include="Authentication\ITokenService.cs" />
     <Compile Include="Authentication\JwtOptions.cs" />
+    <Compile Include="Authentication\Roles.cs" />
     <Compile Include="Authentication\TokenService.cs" />
     <Compile Include="Automapper\AutomapperSetup.cs" />
     <Compile Include="Automapper\IAutomapperSetup.cs" />

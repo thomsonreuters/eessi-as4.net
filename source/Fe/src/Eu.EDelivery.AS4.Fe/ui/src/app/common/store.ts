@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable }   from 'rxjs/OBservable';
 
 export class Store<T> {
     public state: T;
-    public changes;
+    public changes: Observable<T>;
     protected storeSubject: BehaviorSubject<T>;
     constructor(state: T) {
-        this.storeSubject = new BehaviorSubject<T>(this.state);
+        this.storeSubject = new BehaviorSubject<T>(state);
         this.changes = this.storeSubject.asObservable();
         this.state = state;
     }

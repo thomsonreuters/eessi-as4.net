@@ -1,7 +1,9 @@
-﻿namespace Eu.EDelivery.AS4.Fe.Authentication
+﻿using System.Threading.Tasks;
+
+namespace Eu.EDelivery.AS4.Fe.Authentication
 {
     public interface ITokenService
     {
-        string GenerateToken();
+        Task<string> GenerateToken(ApplicationUser user);
     }
 }

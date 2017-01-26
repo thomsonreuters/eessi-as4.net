@@ -1,3 +1,4 @@
+import { AuthenticationModule } from './../authentication/authentication.module';
 import { CrudComponent } from './crud/crud.component';
 import { ReceivingPmode } from './../api/ReceivingPmode';
 import { MessagePackagingComponent } from './messagepackaging/messagepackaging.component';
@@ -43,6 +44,7 @@ import { authHttpServiceFactory } from '../common/as4components.module';
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(ROUTES),
+        AuthenticationModule
     ]
 })
 export class PmodesModule {

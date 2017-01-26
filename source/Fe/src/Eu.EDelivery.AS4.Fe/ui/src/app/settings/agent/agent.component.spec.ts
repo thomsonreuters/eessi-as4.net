@@ -34,7 +34,7 @@ describe('agent', () => {
     let currentAgent: SettingsAgent;
     let otherAgent: SettingsAgent;
     let settings: Settings;
-    let agents: Array<SettingsAgent>;
+    let agents: SettingsAgent[];
     beforeEach(() => {
         currentAgent = new SettingsAgent();
         currentAgent.name = currentAgentName;

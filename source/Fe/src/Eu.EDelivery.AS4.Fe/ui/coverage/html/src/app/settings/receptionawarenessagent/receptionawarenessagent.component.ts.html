@@ -115,7 +115,12 @@
 70
 71
 72
-73</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+73
+74
+75
+76
+77
+78</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -129,11 +134,11 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">11×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">10×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -159,15 +164,18 @@
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">3×</span>
@@ -180,6 +188,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
@@ -217,44 +227,49 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
         this.form = SettingsAgent.getForm(this.formBuilder, null);
         this._settingsStoreSubscr = this.settingStore
             .changes
-            .filter(result =&gt; !!result &amp;&amp; !!result.Settings &amp;&amp; !!result.Settings.agents)
-            .map(result =&gt; result.Settings.agents.receptionAwarenessAgent)
-            .subscribe(result =&gt; {
+            .filter((result) =&gt; !!result &amp;&amp; !!result.Settings &amp;&amp; !!result.Settings.agents)
+            .map((result) =&gt; result.Settings.agents.receptionAwarenessAgent)
+            .subscribe((result) =&gt; {
                 this.isNew = !!!result;
                 this.currentAgent = !!!result ? new SettingsAgent() : result;
                 this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
             });
         this._runtimeStoreSubscr = this.runtimeStore
             .changes
-            .filter(result =&gt; !!result &amp;&amp; !!result.transformers)
-            .subscribe(result =&gt; {
+            .filter((result) =&gt; !!result &amp;&amp; !!result.transformers)
+            .subscribe((result) =&gt; {
                 this.transformers = result.transformers;
             });
     }
-    save() {
+    public save() {
         if (!this.form.valid) {
             this.dialogService.incorrectForm();
             return;
         }
 &nbsp;
         let obs: Observable&lt;boolean&gt;;
-        if (this.isNew) obs = this.settingsService.createAgent(this.form.value, SettingsAgents.FIELD_receptionAwarenessAgent);
-        else obs = this.settingsService.updateAgent(this.form.value, this.currentAgent.name, SettingsAgents.FIELD_receptionAwarenessAgent);
-        obs.subscribe(result =&gt; {
+        if (this.isNew) {
+            obs = this.settingsService.createAgent(this.form.value, SettingsAgents.FIELD_receptionAwarenessAgent);
+        } else {
+            obs = this.settingsService.updateAgent(this.form.value, this.currentAgent.name, SettingsAgents.FIELD_receptionAwarenessAgent);
+        }
+        obs.subscribe((result) =&gt; {
             <span class="missing-if-branch" title="else path not taken" >E</span>if (result) {
                 this.form.markAsPristine();
                 this.currentAgent = &lt;SettingsAgent&gt;this.form.value;
             }
         });
     }
-    reset() {
+    public reset() {
         this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
     }
-    delete() {
-        if (!this.dialogService.deleteConfirm('agent')) return;
+    public delete() {
+        if (!this.dialogService.deleteConfirm('agent')) {
+            return;
+        }
         this.settingsService.deleteAgent(this.currentAgent, SettingsAgents.FIELD_receptionAwarenessAgent);
     }
-<span class="fstat-no" title="function not covered" >    ngOnDestroy() {</span>
+<span class="fstat-no" title="function not covered" >    public ngOnDestroy() {</span>
 <span class="cstat-no" title="statement not covered" >        this._settingsStoreSubscr.unsubscribe();</span>
 <span class="cstat-no" title="statement not covered" >        this._runtimeStoreSubscr.unsubscribe();</span>
     }
@@ -265,7 +280,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>
