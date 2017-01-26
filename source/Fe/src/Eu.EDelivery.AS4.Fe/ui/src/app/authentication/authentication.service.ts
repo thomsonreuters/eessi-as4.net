@@ -29,8 +29,8 @@ export class AuthenticationService {
                 obs.next(true);
                 let token = result.json().access_token;
                 localStorage.setItem(TOKENSTORE, token);
-                this.router.navigate(['/settings']);
                 this.authenticationStore.login();
+                this.router.navigate(['/settings']);
             }, (error: { status: number }) => {
                 obs.next(false);
                 localStorage.removeItem(TOKENSTORE);

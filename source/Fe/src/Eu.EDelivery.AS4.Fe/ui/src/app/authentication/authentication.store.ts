@@ -42,7 +42,7 @@ export class AuthenticationStore extends Store<State> {
             if (claim.indexOf('role') === -1) {
                 return;
             }
-            result.push(claim);
+            result.push(token[claim]);
         });
         return result;
     }

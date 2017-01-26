@@ -1,5 +1,4 @@
-import { HasAuthDirective } from './hasauth/hasauth.directive';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormControlDirective } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { JwtHelper, AuthConfig } from 'angular2-jwt';
@@ -10,6 +9,7 @@ import { AuthenticationService, } from './authentication.service';
 import { routes } from './authentication.routes';
 import { AuthenticationStore } from './authentication.store';
 import { TOKENSTORE } from './token';
+import { HasAuthDirective } from './hasauth/hasauth.directive';
 
 export function jwtHelperFactory() {
     return new JwtHelper();

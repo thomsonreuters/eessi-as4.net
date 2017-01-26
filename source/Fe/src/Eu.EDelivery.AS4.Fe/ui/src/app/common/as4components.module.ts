@@ -73,11 +73,11 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         //     useFactory: errorHandlerFactory,
         //     deps: [DialogService, SpinnerService]
         // },
-        {
-            provide: ErrorHandler,
-            useFactory: spinnerErrorhandlerDecoratorFactory,
-            deps: [SpinnerService]
-        },
+        // {
+        //     provide: ErrorHandler,
+        //     useFactory: spinnerErrorhandlerDecoratorFactory,
+        //     deps: [SpinnerService]
+        // },
         {
             provide: Http,
             useFactory: spinnerHttpServiceFactory,

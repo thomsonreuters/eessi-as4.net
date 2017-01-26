@@ -41,10 +41,10 @@ import { authHttpServiceFactory } from '../common/as4components.module';
     imports: [
         CommonModule,
         As4ComponentsModule,
-        AuthenticationModule,
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(ROUTES),
+        AuthenticationModule
     ]
 })
 export class PmodesModule {

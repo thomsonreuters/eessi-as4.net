@@ -1,11 +1,9 @@
-﻿using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eu.EDelivery.AS4.Fe.Authentication
@@ -15,13 +13,11 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
     {
         private readonly ITokenService tokenService;
         private readonly UserManager<ApplicationUser> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
 
-        public AuthenticationController(ITokenService tokenService, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AuthenticationController(ITokenService tokenService, UserManager<ApplicationUser> userManager)
         {
             this.tokenService = tokenService;
             this.userManager = userManager;
-            this.roleManager = roleManager;
         }
 
         [HttpPost]
@@ -32,12 +28,10 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
             var result = await userManager.CheckPasswordAsync(user, login.Password);
 
             if (result)
-            {
                 return new OkObjectResult(new
                 {
                     access_token = await tokenService.GenerateToken(user)
                 });
-            }
 
             return new UnauthorizedResult();
         }
@@ -47,7 +41,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
         [Route("externallogin")]
         public async Task<IActionResult> ExternalLogin(string provider = null)
         {
-            await HttpContext.Authentication.ChallengeAsync(provider, new AuthenticationProperties { RedirectUri = "http://localhost:3000/#/login?callback=true" });
+            await HttpContext.Authentication.ChallengeAsync(provider, new AuthenticationProperties {RedirectUri = "http://localhost:3000/#/login?callback=true"});
             return new OkResult();
         }
 
@@ -61,7 +55,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
             await HttpContext.Authentication.SignOutAsync("Cookies");
             return new OkObjectResult(new
             {
-                access_token = tokenService.GenerateToken(await userManager.GetUserAsync((ClaimsPrincipal)User.Identity))
+                access_token = tokenService.GenerateToken(await userManager.GetUserAsync((ClaimsPrincipal) User.Identity))
             });
         }
     }

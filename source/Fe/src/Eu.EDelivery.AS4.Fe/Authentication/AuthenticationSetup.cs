@@ -60,14 +60,14 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
 
                 var userManager = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
 
-                var user1 = new ApplicationUser { UserName = "test" };
-                var user2 = new ApplicationUser { UserName = "test2" };
+                var user1 = new ApplicationUser { UserName = "admin" };
+                var user2 = new ApplicationUser { UserName = "readonly" };
 
                 var user1result = userManager.CreateAsync(user1, "gl0M+`pxas").Result;
                 var user2result = userManager.CreateAsync(user2, "gl0M+`pxas").Result;
 
-                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, "admin"), new Claim(ClaimTypes.Role, "readonly") }).Wait();
-                userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, "readonly") }).Wait();
+                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin), new Claim(ClaimTypes.Role, "readonly") }).Wait();
+                userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, Roles.Readonly) }).Wait();
 
                 //var adminRole = new IdentityRole("admin");
                 //var readonlyRole = new IdentityRole("readonly");

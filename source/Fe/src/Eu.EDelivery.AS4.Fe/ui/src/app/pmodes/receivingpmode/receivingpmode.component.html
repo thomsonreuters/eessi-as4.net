@@ -1,4 +1,4 @@
-<form [formGroup]="pmode.form" class="form-horizontal">
+<form [formGroup]="pmode.form" class="form-horizontal" disabled>
     <div formGroupName="pmode">
         <as4-box>
             <div content>
@@ -12,7 +12,6 @@
                         <option value="0">One way</option>
                         <option value="1">Two way</option>
                     </select>
-                    <input type="text"/>
                 </as4-input>
                 <as4-input label="Message exchange pattern binding" runtimeTooltip="receivingprocessingmode.mepbinding">
                     <select formControlName="mepBinding">
