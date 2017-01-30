@@ -68,6 +68,8 @@ namespace Eu.EDelivery.AS4.Receivers
             StartPolling(messageCallback, cancellationToken);
         }
 
+        private readonly HashSet<FileInfo> _pendingFiles = new HashSet<FileInfo>();
+
         /// <summary>
         /// Declaration to where the Message are and can be polled
         /// </summary>
@@ -76,10 +78,49 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override IEnumerable<FileInfo> GetMessagesToPoll(CancellationToken cancellationToken)
         {
             var directoryInfo = new DirectoryInfo(this.FilePath);
-            var fileNames = new FileInfo[0];
-            WithImpersonation(() => fileNames = directoryInfo.GetFiles(this.FileMask));
 
-            return fileNames;
+            var result = new List<FileInfo>();
+
+            WithImpersonation(delegate
+            {
+                var files = directoryInfo.GetFiles(this.FileMask);
+
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        var pendingFile = new FileInfo(MoveFile(file, "pending"));
+
+                        Logger.Trace($"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
+
+                        _pendingFiles.Add(pendingFile);
+
+                        result.Add(pendingFile);
+                    }
+                    catch (IOException ex)
+                    {
+                        Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
+                        Logger.Trace(ex.Message);
+                    }
+                }
+            });
+
+            return result;
+        }
+
+        protected override void ReleasePendingItems()
+        {
+            // Rename the 'pending' files to their original filename.
+            var extension = Path.GetExtension(this.FileMask);
+
+            foreach (var pendingFile in _pendingFiles)
+            {
+                if (File.Exists(pendingFile.FullName))
+                {
+                    MoveFile(pendingFile, extension);
+                }
+            }
+            _pendingFiles.Clear();
         }
 
         /// <summary>
@@ -107,27 +148,42 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
-            if (!fileInfo.Exists) return;
-            this.Logger.Info($"Received file '{fileInfo.Name}'");
+            if (!fileInfo.Exists)
+            {
+                return;
+            }
+
+            this.Logger.Info($"Getting Message from file '{fileInfo.Name}'");
 
             OpenStreamFromMessage(fileInfo, messageCallback, token);
+
+            _pendingFiles.Remove(fileInfo);
         }
 
         private async void OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
-            string contentType = this._repository.GetMimeTypeFromExtension(fileInfo.Extension);
-            
-            MoveFile(fileInfo, "processing");
-
-            InternalMessage internalMessage;
-            using (Stream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
+            try
             {
-                fileStream.Seek(0, SeekOrigin.Begin);
-                var receivedMessage = new ReceivedMessage(fileInfo.Name, fileStream, contentType);
-                internalMessage = await messageCallback(receivedMessage, token);
-            }
 
-            NotifyReceivedFile(fileInfo, internalMessage);
+                string contentType = this._repository.GetMimeTypeFromExtension(fileInfo.Extension);
+
+                MoveFile(fileInfo, "processing");
+
+                InternalMessage internalMessage;
+                using (Stream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
+                {
+                    fileStream.Seek(0, SeekOrigin.Begin);
+                    var receivedMessage = new ReceivedMessage(fileInfo.Name, fileStream, contentType);
+                    internalMessage = await messageCallback(receivedMessage, token);
+                }
+
+                NotifyReceivedFile(fileInfo, internalMessage);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"An error occured while processing {fileInfo.Name}");
+                Logger.Trace(ex.Message);
+            }
         }
 
         private void NotifyReceivedFile(FileInfo fileInfo, InternalMessage internalMessage)
@@ -158,8 +214,10 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="fileInfo"></param>
         /// <param name="extension"></param>
-        private void MoveFile(FileInfo fileInfo, string extension)
+        private string MoveFile(FileInfo fileInfo, string extension)
         {
+            extension = extension.TrimStart('.');
+
             this.Logger.Debug($"Renaming file '{fileInfo.Name}'...");
             string destFileName = $"{fileInfo.Directory?.FullName}\\{Path.GetFileNameWithoutExtension(fileInfo.FullName)}.{extension}";
 
@@ -168,18 +226,20 @@ namespace Eu.EDelivery.AS4.Receivers
             fileInfo.MoveTo(destFileName);
 
             this.Logger.Info($"File renamed to: '{fileInfo.Name}'!");
+
+            return destFileName;
         }
 
         private static string EnsureFilenameIsUnique(string filename)
         {
-            if (File.Exists(filename))
+            while (File.Exists(filename))
             {
                 const string copyExtension = " - Copy";
 
                 string name = Path.GetFileName(filename) + copyExtension + Path.GetExtension(filename);
                 string copyFilename = Path.Combine(Path.GetDirectoryName(filename) ?? "", name);
 
-                return EnsureFilenameIsUnique(copyFilename);
+                filename = copyFilename;
             }
 
             return filename;

@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             var messageEntity = entity as MessageEntity;
             if (messageEntity != null) ReceiveMessageEntity(messageEntity, messageCallback, token);
-            else ReveiveEntity(entity, messageCallback, token);
+            else ReceiveEntity(entity, messageCallback, token);
         }
 
         private void ReceiveMessageEntity(MessageEntity messageEntity, Function messageCallback, CancellationToken token)
@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
+        private static ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
         {
             return new ReceivedMessageEntityMessage(messageEntity: messageEntity)
             {
@@ -161,20 +161,21 @@ namespace Eu.EDelivery.AS4.Receivers
             };
         }
 
-        private void ReveiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        private static void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
             messageCallback(message, token);
         }
-
-        /// <summary>
-        /// Describe what to do when a
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="exception"></param>
+        
         protected override void HandleMessageException(Entity message, Exception exception)
         {
             this.Logger.Error(exception.Message);
+        }
+
+        protected override void ReleasePendingItems()
+        {
+            // TODO: implement; wait for conformance-branch merging, since DataStoreReceiver
+            // has modified there as well.
         }
     }
 

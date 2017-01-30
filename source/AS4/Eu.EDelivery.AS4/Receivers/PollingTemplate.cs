@@ -26,18 +26,28 @@ namespace Eu.EDelivery.AS4.Receivers
         protected void StartPolling(Func<TOut, CancellationToken, Task<InternalMessage>> onMessage, CancellationToken cancellationToken)
         {
             if (this.PollingInterval.Ticks <= 0)
-                throw new ApplicationException("PollingInterval should be greater than zero");
-
-            while (!cancellationToken.IsCancellationRequested)
             {
-                var tasks = new List<Task>();
-                IEnumerable<TIn> messagesToPoll = GetMessagesToPoll(cancellationToken);
-                tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
-
-                TryPollOnTarget(tasks, messagesToPoll);
+                throw new ApplicationException("PollingInterval should be greater than zero");
             }
 
-            this.Logger.Info("Cancellation requested");
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var tasks = new List<Task>();
+                    IEnumerable<TIn> messagesToPoll = GetMessagesToPoll(cancellationToken);
+                    tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
+
+                    TryPollOnTarget(tasks, messagesToPoll);
+                }
+
+                this.Logger.Info("Cancellation requested");
+            }
+            finally
+            {
+                // Make sure that pending items are released.
+                ReleasePendingItems();
+            }
         }
 
         /// <summary>
@@ -54,7 +64,9 @@ namespace Eu.EDelivery.AS4.Receivers
             catch (Exception exception)
             {
                 foreach (TIn message in messagesToPoll)
+                {
                     HandleMessageException(message, exception);
+                }
             }
         }
 
@@ -92,12 +104,14 @@ namespace Eu.EDelivery.AS4.Receivers
             Func<TOut, CancellationToken, Task<InternalMessage>> messageCallback,
             CancellationToken token);
 
+        protected abstract void ReleasePendingItems();
+
         private IEnumerable<Task> CreateTaskForEachMessage(
             IEnumerable<TIn> messagesToPoll,
             Func<TOut, CancellationToken, Task<InternalMessage>> messageCallback,
             CancellationToken cancellationToken)
         {
-            return messagesToPoll.Select(
+            return messagesToPoll.Where(m => m != null).Select(
                 message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken)));
         }
     }
