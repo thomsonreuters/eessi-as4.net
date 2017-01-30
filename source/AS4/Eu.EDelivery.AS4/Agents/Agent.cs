@@ -96,7 +96,11 @@ namespace Eu.EDelivery.AS4.Agents
             CancellationToken cancellationToken)
         {
             InternalMessage internalMessage = await TryTransform(message, cancellationToken);
-            if (internalMessage.Exception != null) return internalMessage;
+
+            if (internalMessage.Exception != null)
+            {
+                return internalMessage;
+            }
 
             StepResult result = this._step.ExecuteAsync(internalMessage, cancellationToken).GetAwaiter().GetResult();
 

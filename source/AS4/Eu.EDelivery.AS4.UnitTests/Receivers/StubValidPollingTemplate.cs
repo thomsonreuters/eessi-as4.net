@@ -49,5 +49,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             messageCallback(entity, cancellationToken);
         }
+
+        protected override void ReleasePendingItems()
+        {            
+        }
     }
 }

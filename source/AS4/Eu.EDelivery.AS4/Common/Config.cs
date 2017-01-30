@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Common
             }
         }
 
-        private void LoadExternalAssemblies()
+        private static void LoadExternalAssemblies()
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
             if (externalDictionary == null) return;
