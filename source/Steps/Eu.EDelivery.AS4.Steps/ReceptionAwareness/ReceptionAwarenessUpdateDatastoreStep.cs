@@ -61,23 +61,27 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
+
             this._receptionAwareness = internalMessage.ReceiptionAwareness;
 
-            if (IsMessageAlreadyAwnsered())
+            if (IsMessageAlreadyAnswered())
             {
+                this._logger.Debug("Message has been answered, marking as complete");
                 UpdateForAnsweredMessage();
                 return StepResult.SuccessAsync(internalMessage);
             }
 
             if (MessageNeedsToBeResend())
             {
+                this._logger.Debug($"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
                 UpdateForResendMessage();
             }
             else
-            {
-                WaitRetryInterval("Waiting ....");
-                if (IsMessageUnawnserd())
+            {             
+                if (IsMessageUnanswered())
                 {
+                    this._logger.Debug("Message is unanswered.");
                     UpdateForUnawnseredMessage(cancellationToken);
                 }
             }
@@ -86,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private bool IsMessageAlreadyAwnsered()
+        private bool IsMessageAlreadyAnswered()
         {
             string messageId = this._receptionAwareness.InternalMessageId;
 
@@ -115,7 +119,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private void UpdateForResendMessage()
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend");
+            this._logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {this._receptionAwareness.CurrentRetryCount + 1})");
             this._repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.ToBeSent);
 
             UpdateReceptionAwareness(awareness =>
@@ -124,16 +128,12 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 awareness.LastSendTime = DateTimeOffset.UtcNow;
             });
         }
-
-        //private static readonly TimeSpan UnansweredGracePeriod = new TimeSpan(0, 0, 1, 0);
-
-        private bool IsMessageUnawnserd()
+        
+        private bool IsMessageUnanswered()
         {
             return
                 this._receptionAwareness.CurrentRetryCount ==
                 this._receptionAwareness.TotalRetryCount;
-            //      DateTime.Now - this._receptionAwareness.LastSendTime > UnansweredGracePeriod;
-
         }
 
         private void UpdateForUnawnseredMessage(CancellationToken cancellationToken)
