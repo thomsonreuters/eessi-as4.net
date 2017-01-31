@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private AS4Exception GetPossibleThrownAS4Exception(InternalMessage internalMessage)
+        private static AS4Exception GetPossibleThrownAS4Exception(InternalMessage internalMessage)
         {
             var error = internalMessage.AS4Message.PrimarySignalMessage as Error;
             return error?.Exception;
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 .WithReceivingPMode(this._originalAS4Message.ReceivingPMode).Build();
         }
 
-        private void AssignResponseHttpCode(InternalMessage internalMessage)
+        private static void AssignResponseHttpCode(InternalMessage internalMessage)
         {
             ReceivingProcessingMode receivingPMode = internalMessage.AS4Message.ReceivingPMode;
             receivingPMode = receivingPMode ?? new ReceivingProcessingMode();

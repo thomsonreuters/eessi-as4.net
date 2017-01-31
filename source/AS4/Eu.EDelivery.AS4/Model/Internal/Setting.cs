@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -95,6 +96,25 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
         [XmlAttribute(AttributeName = "undecorated")] public bool UnDecorated { get; set; }
         [XmlElement("Setting")] public Setting[] Setting { get; set; }
+    }
+
+    /// <summary>
+    /// Defines the configuration of a ConditionalStep
+    /// </summary>
+    /// <remarks>This class is not serializable.  Only used programmatically for conformonce-testing.</remarks>
+    public class ConditionalStepConfig
+    {
+        public Func<AS4Message, bool> Condition { get; }
+        public Steps ThenStepConfig { get; }
+        public Steps ElseStepConfig { get; }
+
+        public ConditionalStepConfig(Func<AS4Message, bool> condition,
+            Steps thenStepConfig, Steps elseStepConfig)
+        {
+            this.Condition = condition;
+            this.ThenStepConfig = thenStepConfig;
+            this.ElseStepConfig = elseStepConfig;
+        }
     }
 
     [Serializable]

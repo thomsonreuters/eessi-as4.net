@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 
@@ -36,7 +37,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             return receiver;
         }
 
-        private void ConfigureReceiverWithSettings(IReceiver receiver, Receiver settingsReceiver)
+        private static void ConfigureReceiverWithSettings(IReceiver receiver, Receiver settingsReceiver)
         {
             if (settingsReceiver.Setting == null) return;
 

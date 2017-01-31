@@ -282,7 +282,6 @@
     <Compile Include="Steps\Submit\GivenRetrievepayloadsStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSigningAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\GIvenStepBuilderFacts.cs" />
     <Compile Include="Steps\Send\GivenSendUpdateDatastoreFacts.cs" />
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
     <Compile Include="Builders\Core\InternalMessageBuilder.cs" />
