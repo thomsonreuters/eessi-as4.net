@@ -1,3 +1,4 @@
+import { MonitorModule } from './monitor/monitor.module';
 import { AuthenticationStore } from './authentication/authentication.store';
 import { AuthConfig } from 'angular2-jwt';
 import { ClipboardModule } from 'ngx-clipboard';
@@ -46,6 +47,7 @@ type StoreType = {
         FormsModule,
         HttpModule,
         CommonModule,
+        MonitorModule,
         RouterModule.forRoot(ROUTES, { useHash: false }),
 
         SettingsModule,

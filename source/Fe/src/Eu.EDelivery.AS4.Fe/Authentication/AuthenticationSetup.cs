@@ -16,8 +16,12 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
     {
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
+            services.Configure<AuthenticationConfiguration>(configuration.GetSection("Authentication"));
+
+            var databaseName = configuration.GetSection("Authentication")["Database"];
+
             // Setup Identity
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = "users.sqlite" };
+            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = databaseName };
             var connectionString = connectionStringBuilder.ToString();
             var connection = new SqliteConnection(connectionString);
 
@@ -66,7 +70,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 var user1result = userManager.CreateAsync(user1, "gl0M+`pxas").Result;
                 var user2result = userManager.CreateAsync(user2, "gl0M+`pxas").Result;
 
-                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin), new Claim(ClaimTypes.Role, "readonly") }).Wait();
+                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin) }).Wait();
                 userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, Roles.Readonly) }).Wait();
 
                 //var adminRole = new IdentityRole("admin");

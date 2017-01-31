@@ -22,7 +22,6 @@ export interface ISettingsService {
 @Injectable()
 export class SettingsService implements ISettingsService {
     constructor(private http: AuthHttp, private settingsStore: SettingsStore) {
-        this.getSettings();
     }
     public getSettings() {
         return this

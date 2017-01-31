@@ -57,7 +57,6 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
         [HttpGet]
         [Route("sending")]
-        [Authorize(Roles = Roles.Admin)]
         public async Task<IEnumerable<string>> GetSendingPmodes()
         {
             return await pmodeService.GetSendingNames();
@@ -73,7 +72,6 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
         [HttpGet]
         [Route("sending/{name}")]
-        [Authorize(Roles = Roles.Admin)]
         public async Task<SendingPmode> GetSending(string name)
         {
             return await pmodeService.GetSendingByName(name);
