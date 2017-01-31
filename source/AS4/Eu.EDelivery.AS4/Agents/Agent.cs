@@ -23,22 +23,22 @@ namespace Eu.EDelivery.AS4.Agents
         private IReceiver _receiver;
         private readonly Model.Internal.Steps _stepConfiguration;
         private readonly Model.Internal.ConditionalStepConfig _conditionalStepConfig;
-        private readonly ITransformer _transformer;
+        private readonly Model.Internal.Transformer _transformerConfiguration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. 
         /// </summary>
-        /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>
-        /// <param name="transformer"> Transformation needed to transform to a Central Messaging Model </param>
+        /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>        
+        /// <param name="transformerConfig"> Configuration of the Transformer that should be created to transform to a Central Messaging Model</param>
         /// <param name="stepConfiguration">StepConfiguration which describes the steps that will be executed when messages are received </param>        
-        public Agent(IReceiver receiver, ITransformer transformer, Model.Internal.Steps stepConfiguration)
+        public Agent(IReceiver receiver, Model.Internal.Transformer transformerConfig, Model.Internal.Steps stepConfiguration)
         {
             if (receiver == null) throw new ArgumentNullException(nameof(receiver));
-            if (transformer == null) throw new ArgumentNullException(nameof(transformer));
+            if (transformerConfig == null) throw new ArgumentNullException(nameof(transformerConfig));
             if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
 
             this._receiver = receiver;
-            this._transformer = transformer;
+            this._transformerConfiguration = transformerConfig;
             this._stepConfiguration = stepConfiguration;
 
             this._logger = LogManager.GetCurrentClassLogger();
@@ -48,16 +48,16 @@ namespace Eu.EDelivery.AS4.Agents
         /// Initializes a new instance of the <see cref="Agent"/> class. 
         /// </summary>
         /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>
-        /// <param name="transformer"> Transformation needed to transform to a Central Messaging Model </param>
+        /// <param name="transformerConfig"> Configuration of the Transformer that should be created to transform to a Central Messaging Model</param>
         /// <param name="stepConfiguration">ConditionalStepConfig which describes the steps that will be executed when messages are received </param>        
-        public Agent(IReceiver receiver, ITransformer transformer, ConditionalStepConfig stepConfiguration)
+        public Agent(IReceiver receiver, Model.Internal.Transformer transformerConfig, ConditionalStepConfig stepConfiguration)
         {
             if (receiver == null) throw new ArgumentNullException(nameof(receiver));
-            if (transformer == null) throw new ArgumentNullException(nameof(transformer));
+            if (transformerConfig == null) throw new ArgumentNullException(nameof(transformerConfig));
             if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
 
             this._receiver = receiver;
-            this._transformer = transformer;
+            this._transformerConfiguration = transformerConfig;
             this._conditionalStepConfig = stepConfiguration;
             this._logger = LogManager.GetCurrentClassLogger();
         }
@@ -155,7 +155,8 @@ namespace Eu.EDelivery.AS4.Agents
         {
             try
             {
-                return await this._transformer.TransformAsync(message, cancellationToken);
+                var transformer = new GenericTypeBuilder().SetType(_transformerConfiguration.Type).Build<ITransformer>();
+                return await transformer.TransformAsync(message, cancellationToken);
             }
             catch (AS4Exception exception)
             {

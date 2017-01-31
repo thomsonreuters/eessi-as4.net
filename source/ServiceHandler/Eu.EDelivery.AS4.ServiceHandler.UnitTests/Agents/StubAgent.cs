@@ -12,8 +12,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Agents
     /// </summary>
     public class StubAgent : Agent
     {
-        public StubAgent(IReceiver receiver, Model.Internal.Steps stepConfig, ITransformer transformer = null)
-            : base(receiver, transformer, stepConfig) { }
+        public StubAgent(IReceiver receiver, Model.Internal.Steps stepConfig, Transformer transformerConfig = null)
+            : base(receiver, transformerConfig, stepConfig) { }
+
 
         /// <summary>
         /// Perform action when Message is received
