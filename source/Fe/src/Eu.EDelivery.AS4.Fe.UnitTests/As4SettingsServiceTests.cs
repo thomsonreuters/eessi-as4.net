@@ -52,10 +52,10 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
         private As4SettingsServiceTests Setup()
         {
-            var mapper = Mapper.Configuration.CreateMapper();
+            Mapper.Initialize(cfg => cfg.AddProfile(new SettingsAutoMapper()));
             settingsSource = Substitute.For<ISettingsSource>();
             settingsSource.Get().Returns(settingsList);
-            settingsService = new As4SettingsService(mapper, settingsSource);
+            settingsService = new As4SettingsService(new Mapper(Mapper.Configuration), settingsSource);
             return this;
         }
 
