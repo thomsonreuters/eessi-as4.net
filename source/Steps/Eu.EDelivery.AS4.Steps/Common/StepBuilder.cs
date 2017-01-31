@@ -18,6 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
     /// <summary>
     /// Builder for the <see cref="IStep" /> implementations
     /// </summary>
+    [Obsolete("This class is never used.")]
     public class StepBuilder
     {
         private readonly IInMessageService _inMessageService;

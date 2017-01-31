@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Serialization
     /// <summary>
     /// Serialize <see cref="AS4Message" /> to a <see cref="Stream" />
     /// </summary>
-    internal class MimeMessageSerializer : ISerializer
+    public class MimeMessageSerializer : ISerializer
     {
         private readonly ISerializer _soapSerializer;
 

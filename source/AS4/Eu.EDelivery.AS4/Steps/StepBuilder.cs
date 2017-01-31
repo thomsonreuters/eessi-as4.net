@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Steps;
 
-namespace Eu.EDelivery.AS4.ServiceHandler.Builder
+namespace Eu.EDelivery.AS4.Steps
 {
     /// <summary>
     /// Builder to make <see cref="IStep"/> implementation
@@ -11,17 +11,29 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
     /// </summary>
     public class StepBuilder
     {
-        private Model.Internal.Steps _settingSteps;
+
+        private readonly Model.Internal.Steps _settingSteps;
+        private readonly ConditionalStepConfig _conditialStepConfig;
+
+        private StepBuilder(Model.Internal.Steps settingSteps, ConditionalStepConfig conditionalStepConfig)
+        {
+            this._settingSteps = settingSteps;
+            this._conditialStepConfig = conditionalStepConfig;
+        }
 
         /// <summary>
         /// Set the configured <see cref="Model.Internal.Steps"/> settings
         /// </summary>
         /// <param name="settingSteps"></param>
         /// <returns></returns>
-        public StepBuilder SetSettings(Model.Internal.Steps settingSteps)
+        public static StepBuilder FromSettings(Model.Internal.Steps settingSteps)
         {
-            this._settingSteps = settingSteps;
-            return this;
+            return new StepBuilder(settingSteps, null);
+        }
+
+        public static StepBuilder FromConditionalConfig(ConditionalStepConfig conditionalStepConfig)
+        {
+            return new StepBuilder(null, conditionalStepConfig);
         }
 
         /// <summary>
@@ -30,6 +42,13 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// <returns></returns>
         public IStep Build()
         {
+            if (this._conditialStepConfig != null)
+            {
+                return new ConditionalStep(_conditialStepConfig.Condition,
+                    this._conditialStepConfig.ThenStepConfig,
+                    this._conditialStepConfig.ElseStepConfig);
+            }
+
             IStep decoratedStep = CreateDecoratorStep(this._settingSteps);
             IList<IStep> unDecoratedSteps = CreateUndecoratedSteps();
 
@@ -40,7 +59,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
             return new CompositeStep(unDecoratedSteps.ToArray());
         }
 
-        
+
         private IStep CreateDecoratorStep(Model.Internal.Steps settingsSteps)
         {
             IStep[] decoratedSteps = settingsSteps.Step
@@ -81,7 +100,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
                 .ToList();
         }
 
-        private T CreateInstance<T>(string typeString, params object[] args) where T : class
+        private static T CreateInstance<T>(string typeString, params object[] args) where T : class
         {
             return new GenericTypeBuilder().SetType(typeString).SetArgs(args).Build<T>();
         }

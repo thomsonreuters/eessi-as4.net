@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Eu.EDelivery.AS4.Agents;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -70,13 +71,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             this._agents.Add(agent);
         }
 
-        private IAgent GetAgentFromSettings(SettingsAgent agent)
+        private static IAgent GetAgentFromSettings(SettingsAgent agent)
         {
             IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
-            var transformer = new GenericTypeBuilder().SetType(agent.Transformer.Type).Build<ITransformer>();
-            IStep step = new StepBuilder().SetSettings(agent.Steps).Build();
+            var transformer = new GenericTypeBuilder().SetType(agent.Transformer.Type).Build<ITransformer>();            
 
-            return new Agent(receiver, transformer, step);
+            return new Agent(receiver, transformer, agent.Steps);
         }
     }
 }

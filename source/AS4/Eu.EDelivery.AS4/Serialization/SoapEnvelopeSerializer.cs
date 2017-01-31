@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Serialization
     /// <summary>
     /// Serialize <see cref="Model.Core.AS4Message" /> to a <see cref="Stream" />
     /// </summary>
-    internal class SoapEnvelopeSerializer : ISerializer
+    public class SoapEnvelopeSerializer : ISerializer
     {
         private readonly SoapEnvelopeBuilder _builder;
         private readonly ILogger _logger;

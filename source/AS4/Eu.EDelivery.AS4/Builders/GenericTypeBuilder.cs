@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Eu.EDelivery.AS4.Exceptions;
 
-namespace Eu.EDelivery.AS4.ServiceHandler.Builder
+namespace Eu.EDelivery.AS4.Builders
 {
     /// <summary>
     /// Factory implementation to create instance from a given <see cref="Type"/>

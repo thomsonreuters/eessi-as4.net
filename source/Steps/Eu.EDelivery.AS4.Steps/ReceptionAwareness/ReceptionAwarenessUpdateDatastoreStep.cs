@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -25,6 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private readonly ILogger _logger;
 
         private Entities.ReceptionAwareness _receptionAwareness;
+        private UserMessage _userMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
@@ -63,15 +65,22 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             if (IsMessageAlreadyAwnsered())
             {
-                UpdateForAwnseredMessage();
+                UpdateForAnsweredMessage();
                 return StepResult.SuccessAsync(internalMessage);
             }
 
             if (MessageNeedsToBeResend())
+            {
                 UpdateForResendMessage();
-
-            if (IsMessageUnawnserd())
-                UpdateForUnawnseredMessage(cancellationToken);
+            }
+            else
+            {
+                WaitRetryInterval("Waiting ....");
+                if (IsMessageUnawnserd())
+                {
+                    UpdateForUnawnseredMessage(cancellationToken);
+                }
+            }
 
             WaitRetryInterval("Waiting retry interval...");
             return StepResult.SuccessAsync(internalMessage);
@@ -85,7 +94,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 inMessage => inMessage.EbmsRefToMessageId?.Equals(messageId) == true) != null;
         }
 
-        private void UpdateForAwnseredMessage()
+        private void UpdateForAnsweredMessage()
         {
             string messageId = this._receptionAwareness.InternalMessageId;
             this._logger.Info($"[{messageId}] Reception Awareness completed");
@@ -116,17 +125,21 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             });
         }
 
+        //private static readonly TimeSpan UnansweredGracePeriod = new TimeSpan(0, 0, 1, 0);
+
         private bool IsMessageUnawnserd()
         {
             return
                 this._receptionAwareness.CurrentRetryCount ==
                 this._receptionAwareness.TotalRetryCount;
+            //      DateTime.Now - this._receptionAwareness.LastSendTime > UnansweredGracePeriod;
+
         }
 
         private void UpdateForUnawnseredMessage(CancellationToken cancellationToken)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._logger.Warn($"[{messageId}] ebMS message is unanswered");
+            this._logger.Info($"[{messageId}] ebMS message is unawsnered");
 
             UpdateReceptionAwareness(awareness => awareness.IsCompleted = true);
 
@@ -139,6 +152,14 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             AS4Exception as4Exception = CreateAS4Exception();
             string messageId = this._receptionAwareness.InternalMessageId;
+
+            OutMessage outMessage = this._repository.GetOutMessageById(messageId);
+
+            using (var memoryStream = new MemoryStream(outMessage.MessageBody))
+            {
+                ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+                this._userMessage = serializer.DeserializeAsync(memoryStream, outMessage.ContentType, CancellationToken.None).Result.PrimaryUserMessage;
+            }
 
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
@@ -166,6 +187,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             return new AS4MessageBuilder()
                 .WithSendingPMode(pmode)
                 .WithSignalMessage(errorMessage)
+                .WithUserMessage(this._userMessage)
                 .Build();
         }
 
@@ -181,6 +203,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             string messageId = this._receptionAwareness.InternalMessageId;
 
             this._logger.Info($"[{messageId}] {description}");
+            // TODO: modify code below to await Task.Delay( ... ) ?
             Thread.Sleep(retryInterval);
         }
     }

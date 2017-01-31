@@ -233,6 +233,7 @@
     <Compile Include="Builders\Entities\InMessageBuilder.cs" />
     <Compile Include="Builders\Entities\OutExceptionBuilder.cs" />
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
+    <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
     <Compile Include="Factories\UserMessageFactory.cs" />
     <Compile Include="Mappings\PMode\IPModeResolver.cs" />
@@ -355,6 +356,7 @@
     <Compile Include="Security\Signing\SigningId.cs" />
     <Compile Include="Security\References\BinarySecurityTokenReference.cs" />
     <Compile Include="Security\Strategies\SigningStrategy.cs" />
+    <Compile Include="Steps\StepBuilder.cs" />
     <Compile Include="Strategies\Retriever\FtpPayloadRetriever.cs" />
     <Compile Include="Strategies\Sender\FileNotifyXmlSender.cs" />
     <Compile Include="Strategies\Sender\FileDeliverXmlSender.cs" />

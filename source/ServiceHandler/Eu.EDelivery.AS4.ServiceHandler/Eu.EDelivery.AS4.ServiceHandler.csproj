@@ -214,9 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\AgentProvider.cs" />
-    <Compile Include="Builder\GenericTypeBuilder.cs" />
     <Compile Include="Builder\ReceiverBuilder.cs" />
-    <Compile Include="Builder\StepBuilder.cs" />
     <Compile Include="Kernel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
