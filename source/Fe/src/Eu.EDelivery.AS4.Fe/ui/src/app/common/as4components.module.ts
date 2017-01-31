@@ -1,3 +1,5 @@
+import { ClipboardModule } from 'ngx-clipboard';
+import { ClipboardComponent } from './clipboard/clipboard.component';
 import { RolesService } from './../authentication/roles.service';
 import { CanDeactivateGuard } from './candeactivate.guard';
 import { ThumbprintInputComponent } from './thumbprintInput/thumbprintInput.component';
@@ -29,11 +31,12 @@ import { CrudButtonsComponent } from './crudbuttons/crudbuttons.component';
 import { ModalService } from './modal/modal.service';
 import { ModalComponent } from './modal/modal.component';
 import { TextDirective } from './text.directive';
-import { TabItemComponent } from './tab/tabitem.component';
+import { TabItemDirective } from './tab/tabitem.directive';
 import { TabComponent } from './tab/tab.component';
 import { FocusDirective } from './focus.directive';
 import { SelectDirective } from './selectdirective';
 import { spinnerErrorhandlerDecoratorFactory } from './spinner/spinnerhideerror.handler.factory';
+import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directive';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     let result = new AuthHttp(new AuthConfig(), http, options);
@@ -53,13 +56,15 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ModalComponent,
         FocusDirective,
         TabComponent,
-        TabItemComponent,
+        TabItemDirective,
         TextDirective,
         SelectDirective,
         ColumnsComponent,
         TooltipDirective,
         SpinnerComponent,
-        ThumbprintInputComponent
+        ThumbprintInputComponent,
+        ClipboardComponent,
+        DateTimePickerDirective
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -68,6 +73,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ModalService,
         SpinnerService,
         RolesService,
+        ClipboardModule,
         // {
         //     provide: ErrorHandler,
         //     useFactory: errorHandlerFactory,
@@ -101,14 +107,16 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ModalComponent,
         FocusDirective,
         TabComponent,
-        TabItemComponent,
+        TabItemDirective,
         TextDirective,
         SelectDirective,
         ColumnsComponent,
         TooltipDirective,
         SpinnerComponent,
         TextMaskModule,
-        ThumbprintInputComponent
+        ThumbprintInputComponent,
+        ClipboardComponent,
+        DateTimePickerDirective
     ],
     imports: [
         AuthenticationModule,
@@ -116,7 +124,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         CommonModule,
         ReactiveFormsModule,
         FormsModule,
-        TextMaskModule
+        TextMaskModule,
+        ClipboardModule
     ]
 })
 export class As4ComponentsModule {

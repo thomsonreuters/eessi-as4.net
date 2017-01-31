@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
                 var user1result = userManager.CreateAsync(user1, "gl0M+`pxas").Result;
                 var user2result = userManager.CreateAsync(user2, "gl0M+`pxas").Result;
 
-                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin), new Claim(ClaimTypes.Role, "readonly") }).Wait();
+                userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin) }).Wait();
                 userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, Roles.Readonly) }).Wait();
 
                 //var adminRole = new IdentityRole("admin");

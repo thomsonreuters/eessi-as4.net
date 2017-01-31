@@ -17,5 +17,5 @@ namespace Eu.EDelivery.AS4.Entities
             get { return this.Operation.ToString(); }
             set { this.Operation = (Operation) Enum.Parse(typeof(Operation), value, true); }
         }
-    }
+    }   
 }
