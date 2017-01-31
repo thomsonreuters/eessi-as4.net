@@ -34,6 +34,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly List<EncryptedData> _encryptedDatas;
         private readonly AS4EncryptedKey _as4EncryptedKey;
 
+        public const string XmlEncSHA1Url = "http://www.w3.org/2000/09/xmldsig#sha1";
+
         /// <summary>
         /// Run once Crypto Configuration
         /// </summary>
