@@ -10,10 +10,8 @@ namespace Eu.EDelivery.AS4.Security.Factories
     /// Factory to create <see cref="OaepEncoding"/> Encoding
     /// </summary>
     internal class EncodingFactory
-    {
-        private static readonly EncodingFactory Signalton = new EncodingFactory();
-
-        public static EncodingFactory Instance = Signalton;
+    {        
+        public static EncodingFactory Instance = new EncodingFactory();
 
         private EncodingFactory() {}
 
@@ -24,16 +22,16 @@ namespace Eu.EDelivery.AS4.Security.Factories
         /// <returns></returns>
         public OaepEncoding Create(string digestAlgorithm = null)
         {
-            IDigest digest = digestAlgorithm != null ? GetDigest(digestAlgorithm) : new Sha256Digest();
+            IDigest digest = digestAlgorithm != null ? GetDigest(digestAlgorithm) : new Sha1Digest();
             return CreateEncoding(digest);
         }
 
-        private IDigest GetDigest(string algorithm)
+        private static IDigest GetDigest(string algorithm)
         {
             return DigestUtilities.GetDigest(algorithm.Substring(algorithm.IndexOf('#') + 1));
         }
 
-        private OaepEncoding CreateEncoding(IDigest digest)
+        private static OaepEncoding CreateEncoding(IDigest digest)
         {
             return new OaepEncoding(
                 cipher: new RsaEngine(),
