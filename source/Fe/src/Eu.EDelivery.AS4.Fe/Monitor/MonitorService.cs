@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
         public Task<MessageResult<InException>> GetExceptions(InExceptionFilter filter)
         {
-            
+            throw new NotImplementedException();
         }
 
         public Task<MessageResult<Message>> GetInMessages(InMessageFilter filter)

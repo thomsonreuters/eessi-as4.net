@@ -15,12 +15,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     {
         public override IQueryable<InMessage> ApplyFilter(IQueryable<InMessage> query)
         {
-            
+            throw new NotImplementedException();
         }
 
         private IQueryable<InMessage> Test(IQueryable<MessageEntity> query)
         {
-            
+            throw new NotImplementedException();
+
         }
     }
 
