@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Eu.EDelivery.AS4.Agents;
-using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
-using Eu.EDelivery.AS4.Steps;
-using Eu.EDelivery.AS4.Transformers;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.Agents
@@ -74,9 +71,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         private static IAgent GetAgentFromSettings(SettingsAgent agent)
         {
             IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
-            var transformer = new GenericTypeBuilder().SetType(agent.Transformer.Type).Build<ITransformer>();            
-
-            return new Agent(receiver, transformer, agent.Steps);
+            
+            return new Agent(receiver, agent.Transformer, agent.Steps);
         }
     }
 }
