@@ -249,7 +249,12 @@ namespace Eu.EDelivery.AS4.Repositories
             ReceptionAwareness receptionAwareness = this._dbContext.ReceptionAwareness
                 .FirstOrDefault(a => a.InternalMessageId.Equals(refToMessageId));
 
-            if (receptionAwareness == null) return;
+            if (receptionAwareness == null)
+            {
+                LogManager.GetCurrentClassLogger().Error($"Unable to update ReceptionAwareness entity. No record exists for MessageId {refToMessageId}");
+                return;
+            }
+
             updateAction(receptionAwareness);
             this._dbContext.Update(receptionAwareness);
 
