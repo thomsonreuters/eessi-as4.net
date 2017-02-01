@@ -80,6 +80,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     e.LastSendTime = DateTimeOffset.UtcNow;
                 }
 
+                // TODO: optimize; SaveChanges should be called at the end of the transaction.
+                //       Now, the repository calls SaveChanges as well, which should not be 
+                //       done imho.
+                context.SaveChanges();
+
                 // For every MessageId for which no ReceptionAwareness entity exists, create one.
                 var existingIds = existingReceptionAwarenessEntities.Select(r => r.InternalMessageId);
                 var missing = _internalMessage.AS4Message.MessageIds.Where(id => existingIds.Contains(id) == false);

@@ -19,8 +19,7 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public class DatastoreContext : DbContext
     {
-        private readonly IConfig _config;
-        private ILogger _logger;
+        private readonly IConfig _config;        
         private RetryPolicy _policy;
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
