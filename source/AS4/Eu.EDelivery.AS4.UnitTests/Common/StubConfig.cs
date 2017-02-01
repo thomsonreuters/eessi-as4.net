@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -99,6 +98,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
         {
             return this._receivingPmodes.Values;
+        }
+
+        public IEnumerable<string> GetUrlsForEnabledMinderTestAgents()
+        {
+            throw new NotImplementedException();
         }
     }
 }

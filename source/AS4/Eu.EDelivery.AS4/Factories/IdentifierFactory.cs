@@ -16,10 +16,9 @@ namespace Eu.EDelivery.AS4.Factories
     {
         private static readonly Regex MacroMatchRegex;
         private static readonly Dictionary<string, Func<string>> Macros;
-        private static readonly IdentifierFactory Signalton = new IdentifierFactory();
 
         private static IConfig _config;
-        public static IdentifierFactory Instance = Signalton;
+        public static readonly IdentifierFactory Instance = new IdentifierFactory();
 
         static IdentifierFactory()
         {
@@ -50,11 +49,15 @@ namespace Eu.EDelivery.AS4.Factories
             _config = _config ?? Config.Instance;
 
             if (!_config.IsInitialized)
+            {
                 _config.Initialize();
+            }
 
             string defaultFormat = _config.GetSetting("idformat");
             if (string.IsNullOrEmpty(defaultFormat))
+            {
                 defaultFormat = "{GUID}@{IPADDRESS}";
+            }
 
             return Create(defaultFormat);
         }
@@ -66,7 +69,7 @@ namespace Eu.EDelivery.AS4.Factories
         /// <param name="config"></param>
         public void SetContext(IConfig config)
         {
-            IdentifierFactory._config = config;
+            _config = config;
         }
 
         /// <summary>
@@ -77,10 +80,14 @@ namespace Eu.EDelivery.AS4.Factories
         internal string Create(string idFormat)
         {
             if (idFormat == null)
+            {
                 throw new ArgumentNullException(nameof(idFormat));
+            }
 
             if (idFormat.Length == 0)
-                throw new ArgumentException("idFormat is invalid.", nameof(idFormat));
+            {
+                throw new ArgumentException(@"idFormat is invalid.", nameof(idFormat));
+            }
 
             var idBuilder = new StringBuilder(idFormat);
 

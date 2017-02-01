@@ -55,6 +55,18 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("DeliverAgent", IsNullable = false)] public SettingsAgent[] DeliverAgents { get; set; }
         [XmlElement("NotifyAgent", IsNullable = false)] public SettingsAgent[] NotifyAgents { get; set; }
         [XmlElement("ReceptionAwarenessAgent", IsNullable = false)] public SettingsAgent ReceptionAwarenessAgent { get; set; }
+        [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)] public SettingsMinderAgent[] ConformanceTestAgent { get; set; }
+    }
+
+    [Serializable]
+    [DesignerCategory("code")]
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class SettingsMinderAgent
+    {
+        [XmlAttribute("Enabled")]
+        public bool Enabled { get; set; }
+        [XmlAttribute("Url")]
+        public string Url { get; set; }
     }
 
     [Serializable]
