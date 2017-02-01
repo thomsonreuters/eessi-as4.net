@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -173,10 +174,17 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task UpdateInMessageAsync(string messageId, Action<InMessage> updateAction)
         {
+            // TODO: this can be optimized
+
             InMessage inMessage = this._dbContext.InMessages
                 .FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
 
-            if (inMessage == null) return;
+            if (inMessage == null)
+            {
+                LogManager.GetCurrentClassLogger().Warn($"No InMessage found for MessageId {messageId}");
+                return;
+            }
+
             updateAction(inMessage);
             inMessage.ModificationTime = DateTimeOffset.UtcNow;
             this._dbContext.Update(inMessage);
