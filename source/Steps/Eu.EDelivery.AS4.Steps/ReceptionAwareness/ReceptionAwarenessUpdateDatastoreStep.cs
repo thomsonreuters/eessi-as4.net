@@ -77,6 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                         }
                     }
 
+
                     // TODO: savechanges should be called here.
                 }
             }
@@ -112,7 +113,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             return
                 this._receptionAwareness.CurrentRetryCount < this._receptionAwareness.TotalRetryCount &&
-                repository.GetOutMessageById(this._receptionAwareness.InternalMessageId)?.Operation == Operation.Sent &&
+                repository.GetOutMessageById(this._receptionAwareness.InternalMessageId)?.Operation != Operation.Sending &&
                 DateTimeOffset.UtcNow.CompareTo(deadlineForResend) > 0 &&
                 this._receptionAwareness.IsCompleted == false;
         }
@@ -145,6 +146,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             this._logger.Info($"[{messageId}] ebMS message is unanswered");
 
             UpdateReceptionAwareness(awareness => awareness.IsCompleted = true, repository);
+            repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.DeadLettered);
 
             Error errorMessage = CreateError(repository);
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);

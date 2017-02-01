@@ -144,10 +144,13 @@ namespace Eu.EDelivery.AS4.Repositories
             OutMessage outMessage = this._dbContext.OutMessages
                 .FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
 
-            if (outMessage == null) return;
+            if (outMessage == null)
+            {
+                LogManager.GetCurrentClassLogger().Error($"No OutMessage found for MessageId {messageId}");
+                return;
+            }
             updateAction(outMessage);
             outMessage.ModificationTime = DateTimeOffset.UtcNow;
-            this._dbContext.Update(outMessage);
 
             await this._dbContext.SaveChangesAsync();
 
@@ -187,7 +190,6 @@ namespace Eu.EDelivery.AS4.Repositories
 
             updateAction(inMessage);
             inMessage.ModificationTime = DateTimeOffset.UtcNow;
-            this._dbContext.Update(inMessage);
 
             await this._dbContext.SaveChangesAsync();
         }
@@ -208,7 +210,6 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 updateAction(inException);
                 inException.ModificationTime = DateTimeOffset.UtcNow;
-                this._dbContext.Update(inException);
 
                 await this._dbContext.SaveChangesAsync();
             }
@@ -231,7 +232,6 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 updateAction(outException);
                 outException.ModificationTime = DateTimeOffset.UtcNow;
-                this._dbContext.Update(outException);
             }
 
             await this._dbContext.SaveChangesAsync();
@@ -254,9 +254,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 LogManager.GetCurrentClassLogger().Error($"Unable to update ReceptionAwareness entity. No record exists for MessageId {refToMessageId}");
                 return;
             }
-
             updateAction(receptionAwareness);
-            this._dbContext.Update(receptionAwareness);
 
             await this._dbContext.SaveChangesAsync();
         }
