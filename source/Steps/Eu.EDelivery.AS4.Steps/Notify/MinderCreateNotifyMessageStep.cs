@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     {
         private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
         private readonly ILogger _logger;
-        private IList<MessageProperty> _properties;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MinderCreateNotifyMessageStep"/> class
@@ -30,8 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <summary>
         /// Start create notify message step
         /// </summary>
-        /// <param name="internalMessage"></param>
-        /// <param name="context"></param>
+        /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -44,17 +43,20 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             if (signalMessage != null)
             {
                 this._logger.Info($"Minder Create Notify Message as {signalMessage.GetType().Name}");
-
-                if (userMessage != null)
-                    AssignMinderProperties(userMessage, signalMessage);
-
-                AssignSendingUrl(internalMessage);
-                //RemoveUnneededUserMessage(internalMessage);
             }
             else
             {
                 this._logger.Warn($"{internalMessage.Prefix} AS4Message does not contain a primary SignalMessage");
             }
+
+            if (userMessage != null)
+            {
+                AssignMinderProperties(userMessage, signalMessage);
+            }
+
+            AssignSendingUrl(internalMessage);
+            //RemoveUnneededUserMessage(internalMessage);
+
 
             return StepResult.SuccessAsync(internalMessage);
         }
@@ -64,10 +66,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             AssignServiceAction(userMessage);
             AssignFromPartyRole(userMessage);
 
-            this._properties = userMessage.MessageProperties;
+            if (signalMessage != null)
+            {
+                userMessage.MessageProperties.Add(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
+                userMessage.MessageProperties.Add(new MessageProperty("SignalType", signalMessage.GetType().Name));
 
-            AddSignalMessageProperties(signalMessage);
-            userMessage.RefToMessageId = signalMessage.MessageId;
+                userMessage.RefToMessageId = signalMessage.MessageId;
+            }
         }
 
         private static void AssignSendingUrl(InternalMessage internalMessage)
@@ -105,10 +110,5 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
         }
 
-        private void AddSignalMessageProperties(SignalMessage signalMessage)
-        {
-            this._properties.Add(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
-            this._properties.Add(new MessageProperty("SignalType", signalMessage.GetType().Name));
-        }
     }
 }
