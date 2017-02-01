@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
+using AutoMapper;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
 
@@ -31,13 +32,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             this._logger.Info("Minder Create Deliver Message");
 
-            CreateMinderDeliverMessage(internalMessage);
+            internalMessage.DeliverMessage = CreateMinderDeliverMessage(internalMessage);
             AdaptCreatedMessage(internalMessage);
 
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private void CreateMinderDeliverMessage(InternalMessage internalMessage)
+        private DeliverMessage CreateMinderDeliverMessage(InternalMessage internalMessage)
         {
             UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
             this._properties = userMessage.MessageProperties;
@@ -47,6 +48,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             AssignCollaborationInfoProperties(userMessage);
             AssignParties(userMessage);
             AssignDeliverServiceAction(userMessage);
+            
+            return Mapper.Map<DeliverMessage>(userMessage);
         }
 
         private static void AdaptCreatedMessage(InternalMessage internalMessage)
