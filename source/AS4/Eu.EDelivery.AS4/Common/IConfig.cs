@@ -40,6 +40,13 @@ namespace Eu.EDelivery.AS4.Common
         IEnumerable<ReceivingProcessingMode> GetReceivingPModes();
 
         IEnumerable<SettingsAgent> GetSettingsAgents();
+
+        /// <summary>
+        /// Gets the urls on which a HttpReceiver should listen to perform the conformance-tests.
+        /// </summary>        
+        /// <returns>A collection of strings.  Each item represents an url.</returns>        
+        /// <remarks>For every Url that is returned, a special Minder-Agent will be instantiated.</remarks>
+        IEnumerable<string> GetUrlsForEnabledMinderTestAgents();
     }
 
     public enum PropertyType
