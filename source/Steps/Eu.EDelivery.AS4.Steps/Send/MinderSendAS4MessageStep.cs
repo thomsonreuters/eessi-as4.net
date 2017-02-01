@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -19,9 +18,10 @@ using NLog;
 namespace Eu.EDelivery.AS4.Steps.Send
 {
     /// <summary>
-    /// Send <see cref="AS4Message" /> to the corresponding Receiving MSH
+    /// Minder send <see cref="AS4Message" /> to the corresponding Receiving MSH,
+    /// with no exception handling, just catching
     /// </summary>
-    public class SendAS4MessageStep : IStep
+    public class MinderSendAS4MessageStep : IStep
     {
         private readonly ILogger _logger;
         private readonly ISerializerProvider _provider;
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep"/> class
         /// </summary>
-        public SendAS4MessageStep()
+        public MinderSendAS4MessageStep()
         {
             this._provider = Registry.Instance.SerializerProvider;
             this._repository = Registry.Instance.CertificateRepository;
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="provider">
         /// </param>
-        public SendAS4MessageStep(ISerializerProvider provider)
+        public MinderSendAS4MessageStep(ISerializerProvider provider)
         {
             this._provider = provider;
             this._logger = LogManager.GetCurrentClassLogger();
@@ -75,28 +75,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             this._internalMessage = message;
         }
 
-        private static void UpdateOperation(InternalMessage message, Operation operation)
-        {
-            var as4Message = message.AS4Message;
-
-            if (as4Message != null)
-            {
-                using (var context = Registry.Instance.CreateDatastoreContext())
-                {
-                    var repository = new DatastoreRepository(context);
-
-                    var outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
-
-                    foreach (var outMessage in outMessages)
-                    {
-                        outMessage.Operation = operation;
-                    }
-
-                    context.SaveChanges();
-                }
-            }
-        }
-
         private async Task TrySendAS4MessageAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             try
@@ -107,20 +85,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (Exception exception)
             {
-                this._logger.Error(
-                    $"{internalMessage.Prefix} An error occured while trying to send the message: {exception.Message}");
-
-                UpdateOperation(internalMessage, Operation.ToBeSent);
-                //                throw ThrowFailedSendAS4Exception(internalMessage, exception);
-
+                // [CONFORMANCE TESTING] Don't rethrow exception to not have an endless loop of retrying
+                // Reason: Minder Interceptor doesn't always return a valid AS4 Message
+                ThrowFailedSendAS4Exception(internalMessage, exception);
             }
         }
 
         private HttpWebRequest CreateWebRequest()
         {
             string protocolUrl = this._as4Message.SendingPMode.PushConfiguration.Protocol.Url;
-
-            var request = (HttpWebRequest)WebRequest.Create(protocolUrl);
+            var request = WebRequest.Create(protocolUrl) as HttpWebRequest;
             request.Method = "POST";
             request.ContentType = this._as4Message.ContentType;
             request.KeepAlive = false;
@@ -163,6 +137,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             ISerializer serializer = this._provider.Get(this._as4Message.ContentType);
 
+            this._as4Message.SecurityHeader = new SecurityHeader();
             using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
                 serializer.Serialize(this._as4Message, requestStream, cancellationToken);
         }
@@ -172,9 +147,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 string url = this._as4Message.SendingPMode.PushConfiguration.Protocol.Url;
-                this._logger.Debug($"AS4 Message received from: {url}");
+                this._logger.Debug($"AS4 Message receivced from: {url}");
                 await HandleHttpResponseAsync(request, cancellationToken);
-
             }
             catch (WebException exception)
             {

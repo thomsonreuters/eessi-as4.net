@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -11,11 +10,13 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class StepResult
     {
-        private static StepResult _successResult, _failedResult;
 
-        public AS4Exception Exception { get; set; }
-        public Stream Result { get; set; }
-        public InternalMessage InternalMessage { get; set; }
+        public AS4Exception Exception { get; private set; }        
+        public InternalMessage InternalMessage { get; private set; }
+
+        private StepResult()
+        {
+        }
 
         /// <summary>
         /// Return a Successful <see cref="StepResult" />
@@ -24,12 +25,12 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public static StepResult Success(InternalMessage message)
         {
-            if (_successResult == null)
-                _successResult = new StepResult();
-            _successResult.InternalMessage = message;
-
-            return _successResult;
+            return new StepResult()
+            {
+                InternalMessage = message
+            };
         }
+
         public static Task<StepResult> SuccessAsync(InternalMessage message)
         {
             return Task.FromResult(Success(message));
@@ -42,21 +43,19 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public static StepResult Failed(AS4Exception exception)
         {
-            if (_failedResult == null)
-                _failedResult = new StepResult();
-            _failedResult.Exception = exception;
-
-            return _failedResult;
+            return new StepResult()
+            {
+                Exception = exception
+            };
         }
 
         public static StepResult Failed(AS4Exception exception, InternalMessage internalMessage)
         {
-            if (_failedResult == null)
-                _failedResult = new StepResult();
-            _failedResult.Exception = exception;
-            _failedResult.InternalMessage = internalMessage;
-
-            return _failedResult;
+            return new StepResult()
+            {
+                Exception = exception,
+                InternalMessage = internalMessage
+            };
         }
     }
 }

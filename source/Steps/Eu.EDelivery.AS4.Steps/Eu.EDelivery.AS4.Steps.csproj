@@ -129,6 +129,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\InExceptionStepDecorator.cs" />
+    <Compile Include="Common\MinderInExceptionStepDecorator.cs" />
+    <Compile Include="Common\MinderOutExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
     <Compile Include="Deliver\MinderCreateDeliverMessageStep.cs" />
@@ -137,6 +139,10 @@
     <Compile Include="Deliver\ZipAttachmentsStep.cs" />
     <Compile Include="Notify\CreateNotifyMessageStep.cs" />
     <Compile Include="Notify\MinderCreateNotifyMessageStep.cs" />
+    <Compile Include="Notify\MinderNotifyUpdateInExceptionDatastoreStep.cs" />
+    <Compile Include="Notify\MinderNotifyUpdateInMessageDatastoreStep.cs" />
+    <Compile Include="Notify\MinderNotifyUpdateOutExceptionDatastoreStep.cs" />
+    <Compile Include="Notify\MinderNotifyUpdateOutMessageDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateInExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutMessageDatastoreStep.cs" />
@@ -147,6 +153,7 @@
     <Compile Include="Receive\SendAS4ReceiptStep.cs" />
     <Compile Include="Receive\StoreAS4ReiptStep.cs" />
     <Compile Include="ReceptionAwareness\ReceptionAwarenessUpdateDatastoreStep.cs" />
+    <Compile Include="Send\MinderSendAS4MessageStep.cs" />
     <Compile Include="Send\SetReceptionAwarenessStep.cs" />
     <Compile Include="Services\InExceptionService.cs" />
     <Compile Include="Services\OutMessageService.cs" />
@@ -171,6 +178,8 @@
     <Compile Include="Receive\DeterminePModesStep.cs" />
     <Compile Include="Submit\CreateDefaultAS4MessageStep.cs" />
     <Compile Include="Submit\MinderAssembleAS4MessageStep.cs" />
+    <Compile Include="Submit\MinderCreateAS4ReceiptStep.cs" />
+    <Compile Include="Submit\MinderNotifyReceiptStep.cs" />
     <Compile Include="Submit\MinderRetrieveSendingPModeStep.cs" />
     <Compile Include="Submit\RetrievePayloadsStep.cs" />
     <Compile Include="Submit\RetrieveSendingPModeStep.cs" />

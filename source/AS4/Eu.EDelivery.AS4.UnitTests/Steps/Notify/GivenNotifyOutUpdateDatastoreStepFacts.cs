@@ -4,10 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
@@ -23,8 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         public GivenNotifyOutUpdateDatastoreStepFacts()
         {
-            var repository = new DatastoreRepository(() => new DatastoreContext(base.Options));
-            this._step = new NotifyUpdateOutMessageDatastoreStep(repository);
+            this._step = new NotifyUpdateOutMessageDatastoreStep();
         }
 
         public class GivenValidArguments : GivenNotifyOutUpdateDatastoreStepFacts
@@ -38,6 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 var internalMessage = new InternalMessage(notifyMessage);
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 AssertOutMessage(notifyMessage.MessageInfo.MessageId, m =>
                 {
@@ -48,15 +46,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void InsertDefaultOutMessage(string sharedId)
             {
-                OutMessage outMessage = base.CreateOutMessage(sharedId);
+                OutMessage outMessage = CreateOutMessage(sharedId);
                 outMessage.Operation = Operation.Notifying;
                 outMessage.Status = OutStatus.Ack;
                 base.InsertOutMessage(outMessage);
             }
 
-            private NotifyMessage CreateNotifyMessage(string id)
+            private static NotifyMessage CreateNotifyMessage(string id)
             {
-                return new NotifyMessage {MessageInfo = {MessageId = id}};
+                return new NotifyMessage { MessageInfo = { MessageId = id } };
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
@@ -79,9 +77,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             }
         }
 
-        private OutMessage CreateOutMessage(string id)
+        private static OutMessage CreateOutMessage(string id)
         {
-            return new OutMessage {EbmsMessageId = id};
+            return new OutMessage { EbmsMessageId = id };
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Repositories;
@@ -12,20 +13,20 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how the data store gets updated when a message is notified
     /// </summary>
-    public class NotifyUpdateOutExceptionDatastoreStep : IStep
+    public class MinderNotifyUpdateInExceptionDatastoreStep : IStep
     {
         private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the type <see cref="NotifyUpdateInExceptionDatastoreStep"/> class
         /// </summary>
-        public NotifyUpdateOutExceptionDatastoreStep()
+        public MinderNotifyUpdateInExceptionDatastoreStep()
         {
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
-        /// Start updating the OutExceptions table for a given <see cref="NotifyMessage"/>
+        /// Start updating the InExceptions table for a given <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
@@ -34,25 +35,28 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             NotifyMessage notifyMessage = internalMessage.NotifyMessage;
             this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            using (var context = Registry.Instance.CreateDatastoreContext())
+            {
+                await UpdateInException(internalMessage, new DatastoreRepository(context));
+            }
 
-            await UpdateDatastoreAsync(notifyMessage);
             return StepResult.Success(internalMessage);
         }
 
-        private static async Task UpdateDatastoreAsync(NotifyMessage notifyMessage)
+        private static async Task UpdateInException(InternalMessage internalMessage, DatastoreRepository repository)
         {
-            using (var context = Registry.Instance.CreateDatastoreContext())
-            {
-                var repository = new DatastoreRepository(context);
+            SignalMessage signalMessage = internalMessage.AS4Message.PrimarySignalMessage;
 
-                await repository.UpdateOutExceptionAsync(
-                    notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedOutException);
-            }
+            string messageId = signalMessage == null
+                ? internalMessage.AS4Message.PrimaryUserMessage.MessageId
+                : signalMessage.RefToMessageId;
+
+            await repository.UpdateInExceptionAsync(messageId, UpdateNotifiedInException);
         }
 
-        private static void UpdateNotifiedOutException(OutException outException)
+        private static void UpdateNotifiedInException(InException inException)
         {
-            outException.Operation = Operation.Notified;
+            inException.Operation = Operation.Notified;
         }
     }
 }

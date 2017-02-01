@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
@@ -13,44 +15,114 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// </summary>
     public class MinderCreateDeliverMessageStep : IStep
     {
+        private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
+        private readonly ILogger _logger;
         private IList<MessageProperty> _properties;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MinderCreateDeliverMessageStep"/>
+        /// </summary>
+        public MinderCreateDeliverMessageStep()
+        {
+            this._logger = LogManager.GetCurrentClassLogger();
+        }
 
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
-            AssignDeliverAction(userMessage);
+            this._logger.Info("Minder Create Deliver Message");
 
-            this._properties = userMessage.MessageProperties;
-            AssignMessageInfo(userMessage);
-            AssignPartyProperties(userMessage);
-            AssignCollaborationInfoProperties(userMessage);
+            CreateMinderDeliverMessage(internalMessage);
+            AdaptCreatedMessage(internalMessage);
 
             return StepResult.SuccessAsync(internalMessage);
         }
 
+        private void CreateMinderDeliverMessage(InternalMessage internalMessage)
+        {
+            UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
+            this._properties = userMessage.MessageProperties;
+
+            AssignMessageInfo(userMessage);
+            AssignPartyProperties(userMessage);
+            AssignCollaborationInfoProperties(userMessage);
+            AssignParties(userMessage);
+            AssignDeliverServiceAction(userMessage);
+        }
+
+        private static void AdaptCreatedMessage(InternalMessage internalMessage)
+        {
+            AssignSendingUrl(internalMessage);
+            ResetSecurityHeader(internalMessage);
+            RemoveUnneededUserMessage(internalMessage);
+        }
+
+        private static void AssignSendingUrl(InternalMessage internalMessage)
+        {
+            AS4Message as4Message = internalMessage.AS4Message;
+            UserMessage userMessage = as4Message.PrimaryUserMessage;
+            MessageProperty originalSender =
+                userMessage?.MessageProperties.FirstOrDefault(p => p.Name.Equals("originalSender"));
+
+            int corner = originalSender?.Value.Equals("C1") == true ? 4 : 1;
+            as4Message.SendingPMode.PushConfiguration.Protocol.Url = $"http://13.81.109.44:15001/corner{corner}";
+        }
+
+        private static void ResetSecurityHeader(InternalMessage internalMessage)
+        {
+            internalMessage.AS4Message.SecurityHeader = new SecurityHeader();
+        }
+
+        private static void RemoveUnneededUserMessage(InternalMessage internalMessage)
+        {
+            AS4Message as4Message = internalMessage.AS4Message;
+            ICollection<UserMessage> userMessages = as4Message.UserMessages;
+
+            Func<UserMessage, bool> whereMessageIdIsDifferent = m => !m.MessageId.Equals(as4Message.PrimaryUserMessage.MessageId);
+            UserMessage otherUserMessage = userMessages.FirstOrDefault(whereMessageIdIsDifferent);
+            if (otherUserMessage != null) userMessages.Remove(otherUserMessage);
+        }
+
         private void AssignMessageInfo(UserMessage userMessage)
         {
-            this._properties.Add(new MessageProperty("MessageId", userMessage.MessageId));
+            AddMessageProperty("MessageId", userMessage.MessageId);
+        }
+
+        private static void AssignParties(UserMessage userMessage)
+        {
+            userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
+            userMessage.Sender.PartyIds.First().Id = "as4-net-c3";
+
+            userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
+            userMessage.Receiver.PartyIds.First().Id = "minder";
         }
 
         private void AssignCollaborationInfoProperties(UserMessage userMessage)
         {
-            this._properties.Add(new MessageProperty("Service", userMessage.CollaborationInfo.Service.Value));
-            this._properties.Add(new MessageProperty("Action", userMessage.CollaborationInfo.Action));
-            this._properties.Add(new MessageProperty("ConversationId", userMessage.CollaborationInfo.ConversationId));
+            CollaborationInfo info = userMessage.CollaborationInfo;
+            AddMessageProperty("Service", info.Service.Value);
+            AddMessageProperty("Action", info.Action);
+            AddMessageProperty("ConversationId", info.ConversationId);
         }
 
-        private void AssignDeliverAction(UserMessage userMessage)
+        private static void AssignDeliverServiceAction(UserMessage userMessage)
         {
             userMessage.CollaborationInfo.Action = "Deliver";
+            userMessage.CollaborationInfo.Service.Value = ConformanceUriPrefix;
+            userMessage.CollaborationInfo.ConversationId = "1";
         }
 
         private void AssignPartyProperties(UserMessage userMessage)
         {
-            this._properties.Add(new MessageProperty("FromPartyId", userMessage.Sender.PartyIds.First().Id));
-            this._properties.Add(new MessageProperty("FromPartyRole", userMessage.Sender.Role));
-            this._properties.Add(new MessageProperty("ToPartyId", userMessage.Receiver.PartyIds.First().Id));
-            this._properties.Add(new MessageProperty("ToPartyRole", userMessage.Sender.Role));
+            AddMessageProperty("FromPartyId", userMessage.Sender.PartyIds.First().Id);
+            AddMessageProperty("FromPartyRole", userMessage.Sender.Role);
+
+            AddMessageProperty("ToPartyId", userMessage.Receiver.PartyIds.First().Id);
+            AddMessageProperty("ToPartyRole", userMessage.Receiver.Role);
+        }
+
+        private void AddMessageProperty(string key, string value)
+        {
+            this._properties.Add(new MessageProperty(key, value));
         }
     }
 }

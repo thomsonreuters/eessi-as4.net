@@ -12,10 +12,7 @@ namespace Eu.EDelivery.AS4.Steps
     public class CompositeStep : IStep
     {
         private readonly IList<IStep> _steps;
-
-        private InternalMessage _messageToSend;
-        private StepResult _response;
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="CompositeStep"/> class. 
         /// Create a <see cref="CompositeStep"/> that acts as a
@@ -36,25 +33,20 @@ namespace Eu.EDelivery.AS4.Steps
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {
-            this._response = new StepResult();
-            this._messageToSend = internalMessage;
+        {            
+            var messageToSend = internalMessage;
 
             foreach (IStep step in this._steps)
-                await ExecuteStep(step, cancellationToken);
+            {
+                var result = await step.ExecuteAsync(messageToSend, cancellationToken);
 
-            return StepResult.Success(this._messageToSend);
-        }
+                if (result.InternalMessage != null)
+                {
+                    messageToSend = result.InternalMessage;
+                }
+            }
 
-        private async Task ExecuteStep(IStep step, CancellationToken cancellationToken)
-        {
-            StepResult result = await step.ExecuteAsync(this._messageToSend, cancellationToken);
-
-            if (result.Result != null && this._response.Result == null)
-                this._response = result;
-
-            if (result.InternalMessage != null)
-                this._messageToSend = result.InternalMessage;
-        }
+            return StepResult.Success(messageToSend);
+        }        
     }
 }

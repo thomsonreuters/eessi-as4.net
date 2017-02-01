@@ -12,8 +12,7 @@ namespace Eu.EDelivery.AS4.Common
         ICertificateRepository CertificateRepository { get; set; }
         INotifySenderProvider NotifySenderProvider { get; set; }
         IDeliverSenderProvider DeliverSenderProvider { get; }
-        IPayloadRetrieverProvider PayloadRetrieverProvider { get; set; }
-        IDatastoreRepository DatastoreRepository { get; set; }
+        IPayloadRetrieverProvider PayloadRetrieverProvider { get; set; }        
         IAttachmentUploaderProvider AttachmentUploader { get; set; }
     }
 }

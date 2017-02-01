@@ -1,11 +1,9 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
@@ -16,15 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     /// Testing <see cref="NotifyUpdateOutExceptionDatastoreStep"/>
     /// </summary>
     public class GivenNotifyUpdateOutExceptionDatastoreStepFacts : GivenDatastoreFacts
-    {
-        protected IDatastoreRepository Repository;
-
-        public GivenNotifyUpdateOutExceptionDatastoreStepFacts()
-        {
-            this.Repository = new DatastoreRepository(
-                () => new DatastoreContext(base.Options));
-        }
-
+    {        
         public class GivenValidArguments : GivenNotifyUpdateOutExceptionDatastoreStepFacts
         {
             [Fact]
@@ -36,15 +26,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 var notifyMessage = new NotifyMessage { MessageInfo = { RefToMessageId = outException.EbmsRefToMessageId } };
 
                 var internalMessage = new InternalMessage(notifyMessage);
-                var step = new NotifyUpdateOutExceptionDatastoreStep(base.Repository);
+                var step = new NotifyUpdateOutExceptionDatastoreStep();
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 AssertOutException(outException);
             }
 
-            private OutException CreateDefaultOutException()
+            private static OutException CreateDefaultOutException()
             {
                 return new OutException
                 {
@@ -55,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void AssertOutException(OutException previousOutException)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = GetDataStoreContext())
                 {
                     OutException outException = context.OutExceptions
                         .FirstOrDefault(e => e.EbmsRefToMessageId.Equals(previousOutException.EbmsRefToMessageId));
@@ -68,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         protected void InsertOutException(OutException outException)
         {
-            using (var context = new DatastoreContext(base.Options))
+            using (var context = GetDataStoreContext())
             {
                 context.OutExceptions.Add(outException);
                 context.SaveChanges();

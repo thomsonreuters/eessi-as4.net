@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
             string certificateTypeRepository = config.GetSetting("CertificateRepository");
             registry.CertificateRepository = new GenericTypeBuilder().SetType(certificateTypeRepository).Build<ICertificateRepository>();
-            registry.DatastoreRepository = new DatastoreRepository(() => new DatastoreContext(config));
+            registry.CreateDatastoreContext = () => new DatastoreContext(config);
 
             var agentProvider = new AgentProvider(config);
             return new Kernel(agentProvider.GetAgents());

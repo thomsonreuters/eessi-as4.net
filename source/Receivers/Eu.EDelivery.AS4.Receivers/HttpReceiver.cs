@@ -57,6 +57,8 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public async void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
+            // TODO: for performance : call GetContextAsync multiple times to handle concurrent requests.
+
             var listener = new HttpListener();
             listener.Prefixes.Add(this.Prefix);
             StartListener(listener);
@@ -79,8 +81,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
             catch (HttpListenerException exception)
             {
-                this._logger.Error("Http Listener Exception");
-                this._logger.Debug($"Http Listener Exception: {exception.Message}");
+                this._logger.Error($"Http Listener Exception: {exception.Message}");
             }
         }
 

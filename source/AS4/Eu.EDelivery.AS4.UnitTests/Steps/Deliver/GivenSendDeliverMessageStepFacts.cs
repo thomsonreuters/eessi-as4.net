@@ -55,11 +55,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                     => s.Send(It.IsAny<DeliverMessage>()), Times.Once);
             }
 
-            private ReceivingProcessingMode CreateDefaultReceivingPMode()
+            private static ReceivingProcessingMode CreateDefaultReceivingPMode()
             {
                 return new ReceivingProcessingMode
                 {
-                    Deliver = {DeliverMethod = new Method()}
+                    Deliver = { DeliverMethod = new Method() }
                 };
             }
         }
