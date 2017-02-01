@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -24,9 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         public GivenStoreAS4MessageStepsFacts()
         {
-            var registry = new Registry();
-            this._module = new StoreAS4MessageStep(
-                new DatastoreRepository(() => new DatastoreContext(CreateNewContextOptions())));
+            this._module = new StoreAS4MessageStep();
         }
 
         /// <summary>
@@ -61,7 +55,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             {
                 // Act / Assert
                 await Assert.ThrowsAsync<NullReferenceException>(() =>
-                        this._module.ExecuteAsync(null, CancellationToken.None));
+                      this._module.ExecuteAsync(null, CancellationToken.None));
+
             }
         }
     }

@@ -38,15 +38,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
             public async Task ThenExecuteStepSucceedsWithInsertedInExceptionAsync(string sharedId)
             {
                 // Arrange
-                AS4Exception as4Exception = base.CreateDefaultAS4Exception(sharedId);
+                AS4Exception as4Exception = CreateDefaultAS4Exception(sharedId);
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
                 var internalMessage = new InternalMessage();
-                
+
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
-                
+
+
                 // Assert
                 AssertInException(sharedId, exception =>
                 {
@@ -57,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertInException(string messageId, Action<InException> assertAction)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
                     InException inException = context.InExceptions
                         .FirstOrDefault(e => e.EbmsRefToMessageId.Equals(messageId));
@@ -69,16 +70,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
             public async Task ThenExecuteStepSucceedsWithToBeNotifiedInExceptionAsync(string sharedId)
             {
                 // Arrange
-                AS4Exception as4Exception = base.CreateDefaultAS4Exception(sharedId);
-                var receivePMode = new ReceivingProcessingMode {ExceptionHandling = {NotifyMessageConsumer = true}};
+                AS4Exception as4Exception = CreateDefaultAS4Exception(sharedId);
+                var receivePMode = new ReceivingProcessingMode { ExceptionHandling = { NotifyMessageConsumer = true } };
                 as4Exception.PMode = AS4XmlSerializer.Serialize(receivePMode);
                 SetupMockedStep(as4Exception);
                 ResetStep();
-            
+
                 var internalMessage = new InternalMessage();
 
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+
 
                 // Assert
                 AssertInException(sharedId, exception =>
@@ -92,17 +94,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
             public async Task ThenExecuteStepSucceedsWithUpdatedInMessageAsync(string sharedId)
             {
                 // Arrange
-                AS4Exception as4Exception = base.CreateDefaultAS4Exception(sharedId);
+                AS4Exception as4Exception = CreateDefaultAS4Exception(sharedId);
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
                 InMessage inMessage = CreateDefaultInMessage(sharedId);
                 InsertInMessage(inMessage);
                 var internalMessage = new InternalMessage();
-                
+
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
-                
+
                 // Assert
                 AssertInMessage(sharedId, message =>
                 {
@@ -111,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 });
             }
 
-            private InMessage CreateDefaultInMessage(string messageId)
+            private static InMessage CreateDefaultInMessage(string messageId)
             {
                 return new InMessage
                 {
@@ -122,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void InsertInMessage(InMessage inMessage)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = GetDataStoreContext())
                 {
                     context.InMessages.Add(inMessage);
                     context.SaveChanges();
@@ -131,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertInMessage(string messageId, Action<InMessage> assertAction)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = GetDataStoreContext())
                 {
                     InMessage inMessage = context.InMessages
                         .FirstOrDefault(e => e.EbmsMessageId.Equals(messageId));
@@ -148,7 +150,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 .Throws(as4Exception);
         }
 
-        private AS4Exception CreateDefaultAS4Exception(string messageId)
+        private static AS4Exception CreateDefaultAS4Exception(string messageId)
         {
             return new AS4ExceptionBuilder()
                 .WithDescription("Test AS4 Exception")
@@ -158,8 +160,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected void ResetStep()
         {
-            var datastoreRepository = new DatastoreRepository(() => new DatastoreContext(base.Options));
-            this._step = new InExceptionStepDecorator(this._mockedStep.Object, datastoreRepository);
+            this._step = new InExceptionStepDecorator(this._mockedStep.Object);
         }
     }
 }

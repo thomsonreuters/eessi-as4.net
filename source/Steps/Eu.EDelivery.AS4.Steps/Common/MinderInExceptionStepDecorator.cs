@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -7,6 +8,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Common
@@ -15,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
     /// Exception Handling Step: acts as Decorator for the <see cref="CompositeStep"/>
     /// Responsibility: describes what to do in case an exception occurs within a AS4 Notify operation
     /// </summary>
-    public class InExceptionStepDecorator : IStep
+    public class MinderInExceptionStepDecorator : IStep
     {
         private readonly IStep _step;
 
@@ -28,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// with a a decorated <paramref name="step"/>
         /// </summary>
         /// <param name="step"></param>
-        public InExceptionStepDecorator(IStep step)
+        public MinderInExceptionStepDecorator(IStep step)
         {
             this._step = step;
         }
@@ -37,7 +39,8 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// Start executing Step
         /// so it can be catched
         /// </summary>
-        /// <param name="internalMessage"></param>        
+        /// <param name="internalMessage"></param>
+        /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -50,9 +53,8 @@ namespace Eu.EDelivery.AS4.Steps.Common
             {
                 using (var context = Registry.Instance.CreateDatastoreContext())
                 {
-                    var repository = new DatastoreRepository(context);
                     this._internalMessage = internalMessage;
-                    await HandleInExceptionAsync(exception, repository);
+                    await HandleInExceptionAsync(exception, new DatastoreRepository(context));
                 }
 
                 return StepResult.Failed(exception);
@@ -71,13 +73,24 @@ namespace Eu.EDelivery.AS4.Steps.Common
             try
             {
                 InException inException = CreateInException(exception, messageId);
+                SetMessageBody(inException);
 
-                await repository.InsertInExceptionAsync(inException);
+                await StoreInExceptionAsync(inException, repository);
                 await UpdateInMessageAsync(messageId, exception.ExceptionType, repository);
             }
             catch (Exception)
             {
                 this._logger.Error($"{this._internalMessage.Prefix} Cannot Update Datastore with OutException");
+            }
+        }
+
+        private void SetMessageBody(ExceptionEntity outException)
+        {
+            using (var messageBodyStream = new MemoryStream())
+            {
+                var serializer = new SoapEnvelopeSerializer();
+                serializer.Serialize(this._internalMessage.AS4Message, messageBodyStream, CancellationToken.None);
+                outException.MessageBody = messageBodyStream.ToArray();
             }
         }
 
@@ -87,6 +100,11 @@ namespace Eu.EDelivery.AS4.Steps.Common
                 .WithAS4Exception(exception)
                 .WithEbmsMessageId(messageId)
                 .Build();
+        }
+
+        private static async Task StoreInExceptionAsync(InException exception, IDatastoreRepository repository)
+        {
+            await repository.InsertInExceptionAsync(exception);
         }
 
         private static async Task UpdateInMessageAsync(string messageId, ExceptionType exceptionType, IDatastoreRepository repository)

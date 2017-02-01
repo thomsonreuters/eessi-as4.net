@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -22,8 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         public GivenSetReceptionAwarenessStepFacts()
         {
-            this.Repository = new DatastoreRepository(() 
-                => new DatastoreContext(base.Options));
+            this.Repository = new DatastoreRepository(GetDataStoreContext());
         }
 
         public class GivenValidArguments : GivenSetReceptionAwarenessStepFacts
@@ -35,9 +32,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 const string messageId = "message-id";
                 AS4.Model.PMode.ReceptionAwareness receptionAwareness = base.CreatePModeReceptionAwareness();
                 InternalMessage internalMessage = CreateDefaultInternalMessage(messageId, receptionAwareness);
-                var step = new SetReceptionAwarenessStep(base.Repository);
+                var step = new SetReceptionAwarenessStep();
 
-                // Act
+                // Act                
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
@@ -50,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             private void AssertReceptionAwareness(string messageId, Action<Entities.ReceptionAwareness> condition)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
                     Entities.ReceptionAwareness receptionAwareness = context.ReceptionAwareness
                         .FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
@@ -62,14 +59,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 }
             }
 
-            private InternalMessage CreateDefaultInternalMessage(string messageId, AS4.Model.PMode.ReceptionAwareness receptionAwareness)
+            private static InternalMessage CreateDefaultInternalMessage(string messageId, AS4.Model.PMode.ReceptionAwareness receptionAwareness)
             {
                 var pmode = new AS4.Model.PMode.SendingProcessingMode
                 {
                     Reliability = { ReceptionAwareness = receptionAwareness }
                 };
                 var userMessage = new UserMessage(messageId: messageId);
-                var as4Message = new AS4Message {SendingPMode = pmode};
+                var as4Message = new AS4Message { SendingPMode = pmode };
                 as4Message.UserMessages.Add(userMessage);
                 var internalMessage = new InternalMessage(as4Message);
                 return internalMessage;

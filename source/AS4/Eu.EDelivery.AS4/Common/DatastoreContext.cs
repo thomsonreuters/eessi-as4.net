@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using NLog;
 using Polly;
 using Polly.Retry;
@@ -89,6 +90,9 @@ namespace Eu.EDelivery.AS4.Common
             string providerKey = this._config.GetSetting("Provider");
             if (!this._providers.ContainsKey(providerKey)) throw new AS4Exception($"No Database provider found for key: {providerKey}");
             this._providers[providerKey](connectionString);
+
+            // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
         }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)

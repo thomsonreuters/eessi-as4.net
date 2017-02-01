@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        private SubmitMessage DeserializeSubmitMessage(Stream stream)
+        private static SubmitMessage DeserializeSubmitMessage(Stream stream)
         {
             var serializer = new XmlSerializer(typeof(SubmitMessage));
             return serializer.Deserialize(stream) as SubmitMessage;

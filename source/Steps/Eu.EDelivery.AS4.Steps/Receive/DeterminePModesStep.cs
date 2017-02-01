@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +27,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IConfig _config;
         private readonly IPModeRuleVisitor _visitor;
-        private readonly IDatastoreRepository _repository;
 
         private AS4Message _as4Message;
 
@@ -35,7 +35,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public DeterminePModesStep()
         {
-            this._repository = Registry.Instance.DatastoreRepository;
             this._config = Config.Instance;
             this._visitor = new PModeRuleVisitor();
         }
@@ -44,14 +43,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Initializes a new instance of the <see cref="DeterminePModesStep"/> class
         /// Create a Determine Receiving PMode Step
         /// with a given Data store
-        /// </summary>
-        /// <param name="repository"> </param>
+        /// </summary>        
         /// <param name="config"> </param>
         /// <param name="visitor"> </param>
-        internal DeterminePModesStep(
-            IDatastoreRepository repository, IConfig config, IPModeRuleVisitor visitor)
+        internal DeterminePModesStep(IConfig config, IPModeRuleVisitor visitor)
         {
-            this._repository = repository;
             this._config = config;
             this._visitor = visitor;
         }
@@ -81,17 +77,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private SendPMode GetPModeFromDatastore()
         {
-            string refToMessageId = this._as4Message.PrimarySignalMessage.RefToMessageId;
-            OutMessage outMessage = this._repository.GetOutMessageById(refToMessageId);
+            using (var context = Registry.Instance.CreateDatastoreContext())
+            {
+                var repository = new DatastoreRepository(context);
 
-            if (outMessage == null)
-                throw ThrowAS4Exception(
-                    $"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
+                string refToMessageId = this._as4Message.PrimarySignalMessage.RefToMessageId;
+                OutMessage outMessage = repository.GetOutMessageById(refToMessageId);
 
-            var pmode = AS4XmlSerializer.Deserialize<SendPMode>(outMessage.PMode);
-            this._logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
+                if (outMessage == null)
+                    throw ThrowAS4Exception(
+                        $"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
 
-            return pmode;
+                var pmode = AS4XmlSerializer.Deserialize<SendPMode>(outMessage.PMode);
+                this._logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
+
+                return pmode;
+            }
         }
 
         private ReceivePMode GetPModeFromSettings()
@@ -140,10 +141,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"No Receiving PMode was found with for UserMessage with Message Id: {this._as4Message.PrimaryUserMessage.MessageId}");
 
             if (TheresMoreThanOwnWinningParticipant(participants, winningParticipant))
+            {
                 throw ThrowToManyPModeFoundException();
+            }
         }
 
-        private bool TheresMoreThanOwnWinningParticipant(
+        private static bool TheresMoreThanOwnWinningParticipant(
             IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             return participants.Count(p => p.Points == winningParticipant.Points) > 1;
@@ -163,7 +166,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private SendPMode GetReferencedSendingPMode()
         {
             string pmodeId = this._as4Message.ReceivingPMode.ReceiptHandling.SendingPMode;
-            this._logger.Info("PMode Id: " + pmodeId);
+            this._logger.Info("Receipt Sending PMode Id: " + pmodeId);
             return TryGetSendingPMode(pmodeId);
         }
 

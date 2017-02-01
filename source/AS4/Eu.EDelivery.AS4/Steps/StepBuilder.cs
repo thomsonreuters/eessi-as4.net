@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -103,6 +104,30 @@ namespace Eu.EDelivery.AS4.Steps
         private static T CreateInstance<T>(string typeString, params object[] args) where T : class
         {
             return new GenericTypeBuilder().SetType(typeString).SetArgs(args).Build<T>();
+        }
+    }
+
+    [Flags]
+    public enum StepOptions
+    {
+        UseDatastore = 2,
+        UseDefaults = 1
+    }
+
+    public class StepEntry
+    {
+        public IStep Step { get; set; }
+        public StepOptions Options { get; set; }
+
+        private StepEntry(IStep step, StepOptions options)
+        {
+            this.Step = step;
+            this.Options = options;
+        }
+
+        public static StepEntry Create(StepOptions options, IStep step)
+        {
+            return new StepEntry(step, options);
         }
     }
 }

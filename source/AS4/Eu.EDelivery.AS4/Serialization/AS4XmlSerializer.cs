@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
@@ -25,12 +26,14 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static string Serialize<T>(T data)
         {
-            var stringWriter = new StringWriter();
-            using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter))
+            using (var stringWriter = new StringWriter())
             {
-                var serializer = new XmlSerializer(typeof(T));
-                serializer.Serialize(xmlWriter, data);
-                return stringWriter.ToString();
+                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, DefaultXmlWriterSettings))
+                {
+                    var serializer = new XmlSerializer(typeof(T));
+                    serializer.Serialize(xmlWriter, data);
+                    return stringWriter.ToString();
+                }
             }
         }
 
@@ -42,26 +45,46 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static XmlDocument Serialize(AS4Message as4Message, CancellationToken cancellationToken)
         {
-            var memoryStream = new MemoryStream();
-            var provider = new SerializerProvider();
+            using (var memoryStream = new MemoryStream())
+            {
+                var provider = new SerializerProvider();
 
-            ISerializer serializer = provider.Get(Constants.ContentTypes.Soap);
-            serializer.Serialize(as4Message, memoryStream, cancellationToken);
+                ISerializer serializer = provider.Get(Constants.ContentTypes.Soap);
+                serializer.Serialize(as4Message, memoryStream, cancellationToken);
 
-            return LoadEnvelopeToDocument(memoryStream);
+                return LoadEnvelopeToDocument(memoryStream);
+            }
         }
+
+        private static readonly XmlWriterSettings DefaultXmlWriterSettings =
+            new XmlWriterSettings
+            {
+                CloseOutput = false,
+                Encoding = new UTF8Encoding(false)
+            };
 
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
             envelopeStream.Position = 0;
             var envelopeXmlDocument = new XmlDocument();
-            var readerSettings = new XmlReaderSettings { CloseInput = false };
+            var readerSettings = DefaultXmlReaderSettings;
 
             using (XmlReader reader = XmlReader.Create(envelopeStream, readerSettings))
+            {
                 envelopeXmlDocument.Load(reader);
+            }
 
             return envelopeXmlDocument;
         }
+
+        private static readonly XmlReaderSettings DefaultXmlReaderSettings =
+            new XmlReaderSettings
+            {
+                Async = true,
+                CloseInput = false,
+                IgnoreComments = true,
+                IgnoreWhitespace = true,
+            };
 
         /// <summary>
         /// Deserialize Xml String to Model
@@ -71,12 +94,17 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static T Deserialize<T>(string xml) where T : class
         {
-            if (xml == null) return null;
+            if (xml == null)
+            {
+                return null;
+            }
             using (XmlReader reader = XmlReader.Create(new StringReader(xml)))
             {
                 var serializer = new XmlSerializer(typeof(T));
                 if (serializer.CanDeserialize(reader))
+                {
                     return serializer.Deserialize(reader) as T;
+                }
 
                 return null;
             }

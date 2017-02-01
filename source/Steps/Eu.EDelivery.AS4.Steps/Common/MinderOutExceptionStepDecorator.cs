@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -7,18 +8,17 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Common
 {
     /// <summary>
-    /// Exception Handling Step: acts as Decorator for the <see cref="CompositeStep"/>
-    /// Responsibility: describes what to do in case an exception occurs within a AS4 Send/Submit operation
+    /// Exception Handling Decorator for Minder Conformance Testing,
+    /// by creating an AS4 Message Error Message as User Message
     /// </summary>
-    [Info("Out exception decorator")]
-    public class OutExceptionStepDecorator : IStep
+    public class MinderOutExceptionStepDecorator : IStep
     {
         private readonly IStep _step;
         private readonly ILogger _logger;
@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// with a given <paramref name="step"/> to decorate and defaults from <see cref="Registry"/>
         /// </summary>
         /// <param name="step"></param>
-        public OutExceptionStepDecorator(IStep step)
+        public MinderOutExceptionStepDecorator(IStep step)
         {
             this._step = step;
             this._logger = LogManager.GetCurrentClassLogger();
@@ -40,7 +40,8 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// <summary>
         /// Execute the given Step, so it can be catched
         /// </summary>
-        /// <param name="internalMessage"></param>        
+        /// <param name="internalMessage"></param>
+        /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -53,10 +54,13 @@ namespace Eu.EDelivery.AS4.Steps.Common
             {
                 this._logger.Error(exception.Message);
                 InitializeFields(internalMessage, exception);
+
                 using (var context = Registry.Instance.CreateDatastoreContext())
                 {
                     await HandleOutException(exception, new DatastoreRepository(context));
+                    this._internalMessage.Exception = exception;
                 }
+
                 return StepResult.Failed(exception, this._internalMessage);
             }
         }
@@ -79,12 +83,24 @@ namespace Eu.EDelivery.AS4.Steps.Common
             try
             {
                 OutException outException = CreateOutException(exception, messageId);
+                SetMessageBody(outException);
+
                 await repository.InsertOutExceptionAsync(outException);
                 await repository.UpdateOutMessageAsync(messageId, UpdateOutMessageType);
             }
             catch (Exception)
             {
                 this._logger.Error($"{this._internalMessage.Prefix} Cannot Update Datastore with OutException");
+            }
+        }
+
+        private void SetMessageBody(ExceptionEntity outException)
+        {
+            using (var messageBodyStream = new MemoryStream())
+            {
+                var serializer = new SoapEnvelopeSerializer();
+                serializer.Serialize(this._internalMessage.AS4Message, messageBodyStream, CancellationToken.None);
+                outException.MessageBody = messageBodyStream.ToArray();
             }
         }
 

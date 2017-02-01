@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Repositories;
@@ -12,20 +13,20 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how the data store gets updated when a message is notified
     /// </summary>
-    public class NotifyUpdateOutExceptionDatastoreStep : IStep
+    public class MinderNotifyUpdateInMessageDatastoreStep : IStep
     {
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the type <see cref="NotifyUpdateInExceptionDatastoreStep"/> class
+        /// Initializes a new instance of the <see cref="NotifyUpdateInExceptionDatastoreStep"/> class
         /// </summary>
-        public NotifyUpdateOutExceptionDatastoreStep()
+        public MinderNotifyUpdateInMessageDatastoreStep()
         {
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
-        /// Start updating the OutExceptions table for a given <see cref="NotifyMessage"/>
+        /// Start updating the Data store for the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
@@ -35,24 +36,29 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             NotifyMessage notifyMessage = internalMessage.NotifyMessage;
             this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage);
+            await UpdateInMessage(internalMessage);
+
             return StepResult.Success(internalMessage);
         }
 
-        private static async Task UpdateDatastoreAsync(NotifyMessage notifyMessage)
+        private static async Task UpdateInMessage(InternalMessage internalMessage)
         {
+            SignalMessage signalMessage = internalMessage.AS4Message.PrimarySignalMessage;
+
+            string messageId = signalMessage == null
+                ? internalMessage.AS4Message.PrimaryUserMessage.MessageId
+                : signalMessage.MessageId;
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
-
-                await repository.UpdateOutExceptionAsync(
-                    notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedOutException);
+                await repository.UpdateInMessageAsync(messageId, UpdateNotifiedInMessage);
             }
         }
 
-        private static void UpdateNotifiedOutException(OutException outException)
+        private static void UpdateNotifiedInMessage(InMessage inMessage)
         {
-            outException.Operation = Operation.Notified;
+            inMessage.Status = InStatus.Notified;
+            inMessage.Operation = Operation.Notified;
         }
     }
 }

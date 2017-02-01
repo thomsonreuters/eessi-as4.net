@@ -16,25 +16,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     public class NotifyUpdateOutMessageDatastoreStep : IStep
     {
         private readonly ILogger _logger;
-        private readonly IDatastoreRepository _repository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NotifyUpdateOutMessageDatastoreStep"/> class. 
-        /// Create a <see cref="IStep"/> implementation to update the data store
-        /// according to the given <see cref="NotifyMessage"/>
-        /// </summary>
-        /// <param name="repository">
-        /// The repository.
-        /// </param>
-        public NotifyUpdateOutMessageDatastoreStep(IDatastoreRepository repository)
-        {
-            this._repository = repository;
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
 
         public NotifyUpdateOutMessageDatastoreStep()
         {
-            this._repository = Registry.Instance.DatastoreRepository;
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -54,13 +38,17 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return StepResult.Success(internalMessage);
         }
 
-        private async Task UpdateDatastoreAync(NotifyMessage notifyMessage)
+        private static async Task UpdateDatastoreAync(NotifyMessage notifyMessage)
         {
-            await this._repository.UpdateOutMessageAsync(
-                notifyMessage.MessageInfo.MessageId, UpdateNotifiedOutMessage);
+            using (var context = Registry.Instance.CreateDatastoreContext())
+            {
+                var repository = new DatastoreRepository(context);
+                await repository.UpdateOutMessageAsync(
+                    notifyMessage.MessageInfo.MessageId, UpdateNotifiedOutMessage);
+            }
         }
 
-        private void UpdateNotifiedOutMessage(OutMessage outMessage)
+        private static void UpdateNotifiedOutMessage(OutMessage outMessage)
         {
             outMessage.Status = OutStatus.Notified;
             outMessage.Operation = Operation.Notified;

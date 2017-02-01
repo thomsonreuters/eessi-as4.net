@@ -88,12 +88,12 @@ namespace Eu.EDelivery.AS4.Steps.Services
             return inMessage;
         }
 
-        private bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
+        private static bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
 
-        private void AddOperationDelivered(MessageEntity inMessage)
+        private static void AddOperationDelivered(MessageEntity inMessage)
         {
             inMessage.Operation = Operation.ToBeDelivered;
             inMessage.OperationMethod = "to be determined";
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
             return inMessage;
         }
 
-        private bool ReceiptDoesNotNeedToBeNotified(AS4Message as4Message)
+        private static bool ReceiptDoesNotNeedToBeNotified(AS4Message as4Message)
         {
             return !as4Message.SendingPMode.ReceiptHandling.NotifyMessageProducer;
         }
@@ -168,12 +168,12 @@ namespace Eu.EDelivery.AS4.Steps.Services
             return inMessage;
         }
 
-        private bool ErrorDontNeedToBeNotified(AS4Message as4Message)
+        private static bool ErrorDontNeedToBeNotified(AS4Message as4Message)
         {
             return !as4Message.SendingPMode.ErrorHandling.NotifyMessageProducer;
         }
 
-        private void AddOperationNotified(MessageEntity inMessage)
+        private static void AddOperationNotified(MessageEntity inMessage)
         {
             inMessage.Operation = Operation.ToBeNotified;
             inMessage.OperationMethod = "To be determined";

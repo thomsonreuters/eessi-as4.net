@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -21,8 +22,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     {
         private readonly ILogger _logger;
         private readonly IValidator<DeliverMessage> _validator;
-
-        private InternalMessage _internalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateDeliverMessageStep"/> class. 
@@ -44,15 +43,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._logger.Info($"{internalMessage.Prefix} Create a Deliver Message from an AS4 Message");
-            this._internalMessage = internalMessage;
 
             internalMessage.DeliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
-            ValidateDeliverMessage(internalMessage.DeliverMessage);
+            ValidateDeliverMessage(internalMessage.DeliverMessage, internalMessage);
 
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private DeliverMessage CreateDeliverMessage(AS4Message as4Message)
+        private static DeliverMessage CreateDeliverMessage(AS4Message as4Message)
         {
             MapInitialization.InitializeMapper();
 
@@ -77,12 +75,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private void ValidateDeliverMessage(DeliverMessage deliverMessage)
+        private void ValidateDeliverMessage(DeliverMessage deliverMessage, InternalMessage internalMessage)
         {
             if (!this._validator.Validate(deliverMessage)) return;
 
             string messageId = deliverMessage.MessageInfo.MessageId;
-            string message = $"{this._internalMessage.Prefix} Deliver Message {messageId} was valid";
+            string message = $"{internalMessage.Prefix} Deliver Message {messageId} was valid";
             this._logger.Debug(message);
         }
     }

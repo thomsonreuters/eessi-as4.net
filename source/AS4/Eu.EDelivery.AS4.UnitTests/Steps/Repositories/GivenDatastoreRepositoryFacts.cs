@@ -14,26 +14,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
     /// </summary>
     public class GivenDatastoreRepositoryFacts : GivenDatastoreFacts
     {
-        private readonly DatastoreRepository _repository;
-
-        public GivenDatastoreRepositoryFacts()
-        {
-            Func<DatastoreContext> datastore = () => new DatastoreContext(base.Options);
-            this._repository = new DatastoreRepository(datastore);
-        }
-
         public class GivenValidArguments : GivenDatastoreRepositoryFacts
         {
             [Theory, InlineData("shared-id")]
             public void ThenGetInMessageSucceeded(string sharedId)
             {
                 // Arrange
-                var inMessage = new InMessage() {EbmsMessageId = sharedId};
+                var inMessage = new InMessage() { EbmsMessageId = sharedId };
                 InsertInMessage(inMessage);
-                // Act
-                InMessage resultMessage = base._repository.GetInMessageById(inMessage.EbmsMessageId);
-                // Assert
-                Assert.NotNull(resultMessage);
+
+                using (var context = this.GetDataStoreContext())
+                {
+                    var repository = new DatastoreRepository(context);
+
+                    // Act
+                    InMessage resultMessage = repository.GetInMessageById(inMessage.EbmsMessageId);
+                    // Assert
+                    Assert.NotNull(resultMessage);
+                }
             }
 
             [Theory, InlineData("shared-id")]
@@ -42,19 +40,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Arrange
                 var outMessage = new OutMessage() { EbmsMessageId = sharedId };
                 InsertOutMessage(outMessage);
-                // Act
-                OutMessage resultMessage = base._repository.GetOutMessageById(outMessage.EbmsMessageId);
-                // Assert
-                Assert.NotNull(resultMessage);
+
+                using (var context = this.GetDataStoreContext())
+                {
+                    var repository = new DatastoreRepository(context);
+
+                    // Act
+                    OutMessage resultMessage = repository.GetOutMessageById(outMessage.EbmsMessageId);
+                    // Assert
+                    Assert.NotNull(resultMessage);
+                }
             }
 
             [Theory, InlineData("shared-id")]
             public async Task ThenInsertInMessageSucceedsAsync(string sharedId)
             {
                 // Arrange
-                var inMessage = new InMessage() {EbmsMessageId = sharedId};
-                // Act
-                await base._repository.InsertInMessageAsync(inMessage);
+                var inMessage = new InMessage() { EbmsMessageId = sharedId };
+
+                using (var context = this.GetDataStoreContext())
+                {
+                    // Act
+                    await new DatastoreRepository(context).InsertInMessageAsync(inMessage);
+                }
+
                 // Assert
                 AssertInMessage(inMessage.EbmsMessageId, Assert.NotNull);
             }
@@ -65,8 +74,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Arrange
                 var inException = new InException() { EbmsRefToMessageId = sharedId };
                 // Act
-                await base._repository.InsertInExceptionAsync(inException);
-                // Assert
+
+                using (var context = this.GetDataStoreContext())
+                {
+                    await new DatastoreRepository(context).InsertInExceptionAsync(inException);
+                    // Assert
+                }
+
                 AssertInException(inException.EbmsRefToMessageId, Assert.NotNull);
             }
 
@@ -76,7 +90,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Arrange
                 var outMessage = new OutMessage() { EbmsMessageId = sharedId };
                 // Act
-                await base._repository.InsertOutMessageAsync(outMessage);
+                using (var context = this.GetDataStoreContext())
+                {
+                    await new DatastoreRepository(context).InsertOutMessageAsync(outMessage);
+                }
+
                 // Assert
                 AssertOutMessage(outMessage.EbmsMessageId, Assert.NotNull);
             }
@@ -87,7 +105,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Arrange
                 var outException = new OutException() { EbmsRefToMessageId = sharedId };
                 // Act
-                await base._repository.InsertOutExceptionAsync(outException);
+                using (var context = this.GetDataStoreContext())
+                {
+                    await new DatastoreRepository(context).InsertOutExceptionAsync(outException);
+                }
                 // Assert
                 AssertOutException(outException.EbmsRefToMessageId, Assert.NotNull);
             }
@@ -103,16 +124,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 };
                 InsertInMessage(inMessage);
                 // Act
-                await base._repository.UpdateInMessageAsync(inMessage.EbmsMessageId,
-                        m => m.Operation = Operation.Delivered);
+                using (var context = this.GetDataStoreContext())
+                {
+                    await new DatastoreRepository(context).UpdateInMessageAsync(inMessage.EbmsMessageId,
+                          m => m.Operation = Operation.Delivered);
+                }
                 // Assert
-                AssertInMessage(inMessage.EbmsMessageId, 
+                AssertInMessage(inMessage.EbmsMessageId,
                     m => Assert.Equal(Operation.Delivered, m.Operation));
             }
 
             private void InsertInMessage(InMessage inMessage)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
                     context.InMessages.Add(inMessage);
                     context.SaveChanges();
@@ -131,7 +155,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void AssertInException(string messageId, Action<InException> assertAction)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
                     InException inException = context.InExceptions
                         .FirstOrDefault(m => m.EbmsRefToMessageId.Equals(messageId));
@@ -150,10 +174,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 };
                 InsertOutMessage(outMessage);
                 // Act
-                await base._repository.UpdateOutMessageAsync(outMessage.EbmsMessageId,
+                using (var context = this.GetDataStoreContext())
+                {
+                    await new DatastoreRepository(context).UpdateOutMessageAsync(outMessage.EbmsMessageId,
                     m => m.Operation = Operation.Sent);
+                }
                 // Assert
-                AssertOutMessage(outMessage.EbmsMessageId, 
+                AssertOutMessage(outMessage.EbmsMessageId,
                     m => Assert.Equal(Operation.Sent, m.Operation));
 
             }

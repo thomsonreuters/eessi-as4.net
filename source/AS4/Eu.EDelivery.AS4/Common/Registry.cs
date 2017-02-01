@@ -11,10 +11,9 @@ namespace Eu.EDelivery.AS4.Common
     /// Global Registry to provide Strategies
     /// </summary>
     public sealed class Registry : IRegistry
-    {
-        private static readonly Registry Signalton = new Registry();
+    {        
 
-        public static Registry Instance => Signalton;
+        public static readonly Registry Instance = new Registry();
 
         public IPayloadRetrieverProvider PayloadRetrieverProvider { get; set; }
         public IDeliverSenderProvider DeliverSenderProvider { get; private set; }
@@ -22,7 +21,8 @@ namespace Eu.EDelivery.AS4.Common
         public ICertificateRepository CertificateRepository { get; set; }
         public ISerializerProvider SerializerProvider => new SerializerProvider();
         public IAttachmentUploaderProvider AttachmentUploader { get; set; }
-        public IDatastoreRepository DatastoreRepository { get; set; }
+
+        public Func<DatastoreContext> CreateDatastoreContext { get; set; }
 
         public Registry()
         {

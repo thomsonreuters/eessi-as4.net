@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Specifications;
 using NLog;
@@ -27,7 +28,28 @@ namespace Eu.EDelivery.AS4.Receivers
         private Operation _operation;
         private IDictionary<string, string> _properties;
 
-        protected override TimeSpan PollingInterval { get; }
+        protected override TimeSpan PollingInterval {
+            get
+            {
+                TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
+
+                if (this._properties == null)
+                {
+                    return defaultInterval;
+                }
+
+                return this._properties.ContainsKey("PollingInterval") ? GetPollingIntervalFromProperties() : defaultInterval;
+            }
+        }
+
+        private TimeSpan GetPollingIntervalFromProperties()
+        {
+            string pollingInterval = this._properties.ReadMandatoryProperty("PollingInterval");
+            double miliseconds = Convert.ToDouble(pollingInterval);
+
+            return TimeSpan.FromMilliseconds(miliseconds);
+        }
+
         protected override ILogger Logger { get; }
 
         /// <summary>
@@ -35,8 +57,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public DatastoreReceiver()
         {
-            this._specification = new DatastoreSpecification();
-            this.PollingInterval = TimeSpan.FromSeconds(1);
+            this._specification = new DatastoreSpecification();            
             this.Logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -59,8 +80,7 @@ namespace Eu.EDelivery.AS4.Receivers
             this._findExpression = findExpression;
             this._operation = updatedOperation;
 
-            this._specification = new DatastoreSpecification();
-            this.PollingInterval = TimeSpan.FromSeconds(1);
+            this._specification = new DatastoreSpecification();            
             this.Logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -112,8 +132,27 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
             IEnumerable<Entity> entities;
-            using (DatastoreContext context = this._storeExpression())
-                entities = this._findExpression(context).ToList();
+
+            // Use a TransactionScope to get the highest TransactionIsolation level.
+            using (var tx = new System.Transactions.TransactionScope())
+            {
+                using (DatastoreContext context = this._storeExpression())
+                {
+                    entities = this._findExpression(context).ToList();
+
+                    // Make sure that all message-entities are locked before continue to process them.
+                    if (this._operation != Operation.NotApplicable)
+                    {
+                        foreach (var messageEntity in entities.OfType<MessageEntity>())
+                        {
+                            messageEntity.Operation = this._operation;
+                        }
+                    }
+                    context.SaveChanges();
+                }
+
+                tx.Complete();
+            }
 
             return entities;
         }
@@ -127,8 +166,14 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override void MessageReceived(Entity entity, Function messageCallback, CancellationToken token)
         {
             var messageEntity = entity as MessageEntity;
-            if (messageEntity != null) ReceiveMessageEntity(messageEntity, messageCallback, token);
-            else ReveiveEntity(entity, messageCallback, token);
+            if (messageEntity != null)
+            {
+                ReceiveMessageEntity(messageEntity, messageCallback, token);
+            }
+            else
+            {
+                ReceiveEntity(entity, messageCallback, token);
+            }
         }
 
         private void ReceiveMessageEntity(MessageEntity messageEntity, Function messageCallback, CancellationToken token)
@@ -137,22 +182,12 @@ namespace Eu.EDelivery.AS4.Receivers
 
             using (var memoryStream = new MemoryStream(messageEntity.MessageBody))
             {
-                using (DatastoreContext context = this._storeExpression())
-                {
-                    context.Update(messageEntity);
-
-                    if (this._operation != Operation.NotApplicable)
-                        messageEntity.Operation = this._operation;
-
-                    context.SaveChanges();
-
-                    ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, memoryStream);
-                    messageCallback(receivedMessage, token);
-                }
+                ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, memoryStream);
+                messageCallback(receivedMessage, token);
             }
         }
 
-        private ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
+        private static ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
         {
             return new ReceivedMessageEntityMessage(messageEntity: messageEntity)
             {
@@ -161,7 +196,7 @@ namespace Eu.EDelivery.AS4.Receivers
             };
         }
 
-        private void ReveiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        private static void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
             messageCallback(message, token);

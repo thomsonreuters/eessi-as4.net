@@ -102,11 +102,22 @@ namespace Eu.EDelivery.AS4.Agents
             }
             catch (AS4Exception exception)
             {
+                _logger.Error($"An AS4 Exception occured: {exception.Message}");
+
                 var internalMessage = new InternalMessage { Exception = exception };
 
                 var step = CreateSteps();
 
                 step.ExecuteAsync(internalMessage, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                _logger.Fatal($"An unhandled exception occured: {exception.Message}");
+                if (exception.InnerException != null)
+                {
+                    this._logger.Fatal($"Inner Exception: {exception.InnerException.Message}");
+                }
+                throw;
             }
         }
 
