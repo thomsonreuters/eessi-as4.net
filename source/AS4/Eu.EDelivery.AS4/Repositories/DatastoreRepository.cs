@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (inMessage == null)
             {
-                LogManager.GetCurrentClassLogger().Warn($"No InMessage found for MessageId {messageId}");
+                LogManager.GetCurrentClassLogger().Error($"No InMessage found for MessageId {messageId}");
                 return;
             }
 

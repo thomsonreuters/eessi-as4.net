@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                     }
                     else
                     {
-                        if (IsMessageUnanswered())
+                        if (IsMessageUnanswered(repository))
                         {
                             this._logger.Debug("Message is unanswered.");
                             UpdateForUnansweredMessage(repository, cancellationToken);
@@ -106,9 +106,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             TimeSpan retryInterval = TimeSpan.Parse(this._receptionAwareness.RetryInterval);
 
-            TimeSpan gracePeriod =
-                TimeSpan.FromTicks(retryInterval.Ticks); // * (this._receptionAwareness.CurrentRetryCount + 1));
-
+            TimeSpan gracePeriod = TimeSpan.FromTicks(retryInterval.Ticks);
 
             DateTimeOffset deadlineForResend = this._receptionAwareness.LastSendTime.Add(gracePeriod);
 
@@ -128,16 +126,17 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
         }
 
-        private static readonly TimeSpan UnansweredGracePeriod = new TimeSpan(0, 0, 1, 0);
+        //private static readonly TimeSpan UnansweredGracePeriod = new TimeSpan(0, 0, 1, 0);
 
-        private bool IsMessageUnanswered()
+        private bool IsMessageUnanswered(IDatastoreRepository repository)
         {
-            DateTimeOffset deadlineForReceival = this._receptionAwareness.LastSendTime.Add(UnansweredGracePeriod);
+            //DateTimeOffset deadlineForReceival = this._receptionAwareness.LastSendTime.Add(UnansweredGracePeriod);
 
             return
-                this._receptionAwareness.CurrentRetryCount ==
-                this._receptionAwareness.TotalRetryCount &&
-                DateTimeOffset.UtcNow.CompareTo(deadlineForReceival) > 0;
+                this._receptionAwareness.CurrentRetryCount >=
+                this._receptionAwareness.TotalRetryCount; // &&
+                                                          // repository.GetOutMessageById(this._receptionAwareness.InternalMessageId)?.Operation != Operation.Sending;
+                                                          //DateTimeOffset.UtcNow.CompareTo(deadlineForReceival) > 0;
         }
 
         private void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
