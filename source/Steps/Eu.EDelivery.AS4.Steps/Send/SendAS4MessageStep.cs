@@ -171,7 +171,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             ISerializer serializer = this._provider.Get(this._as4Message.ContentType);
 
             using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
+            {
                 serializer.Serialize(this._as4Message, requestStream, cancellationToken);
+            }
         }
 
         private async Task TryHandleHttpResponseAsync(WebRequest request, CancellationToken cancellationToken)

@@ -126,18 +126,10 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.ToBeSent);
 
         }
-
-        //private static readonly TimeSpan UnansweredGracePeriod = new TimeSpan(0, 0, 1, 0);
-
+        
         private bool IsMessageUnanswered(IDatastoreRepository repository)
-        {
-            //DateTimeOffset deadlineForReceival = this._receptionAwareness.LastSendTime.Add(UnansweredGracePeriod);
-
-            return
-                this._receptionAwareness.CurrentRetryCount >=
-                this._receptionAwareness.TotalRetryCount; // &&
-                                                          // repository.GetOutMessageById(this._receptionAwareness.InternalMessageId)?.Operation != Operation.Sending;
-                                                          //DateTimeOffset.UtcNow.CompareTo(deadlineForReceival) > 0;
+        {           
+            return this._receptionAwareness.CurrentRetryCount >= this._receptionAwareness.TotalRetryCount; 
         }
 
         private void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
