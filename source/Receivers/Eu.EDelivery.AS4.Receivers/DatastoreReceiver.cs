@@ -28,7 +28,8 @@ namespace Eu.EDelivery.AS4.Receivers
         private Operation _operation;
         private IDictionary<string, string> _properties;
 
-        protected override TimeSpan PollingInterval {
+        protected override TimeSpan PollingInterval
+        {
             get
             {
                 TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
@@ -57,7 +58,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public DatastoreReceiver()
         {
-            this._specification = new DatastoreSpecification();            
+            this._specification = new DatastoreSpecification();
             this.Logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -80,7 +81,7 @@ namespace Eu.EDelivery.AS4.Receivers
             this._findExpression = findExpression;
             this._operation = updatedOperation;
 
-            this._specification = new DatastoreSpecification();            
+            this._specification = new DatastoreSpecification();
             this.Logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -140,15 +141,18 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     entities = this._findExpression(context).ToList();
 
-                    // Make sure that all message-entities are locked before continue to process them.
-                    if (this._operation != Operation.NotApplicable)
+                    if (entities.Any())
                     {
-                        foreach (var messageEntity in entities.OfType<MessageEntity>())
+                        // Make sure that all message-entities are locked before continue to process them.
+                        if (this._operation != Operation.NotApplicable)
                         {
-                            messageEntity.Operation = this._operation;
+                            foreach (var messageEntity in entities.OfType<MessageEntity>())
+                            {
+                                messageEntity.Operation = this._operation;
+                            }
                         }
+                        context.SaveChanges();
                     }
-                    context.SaveChanges();
                 }
 
                 tx.Complete();
