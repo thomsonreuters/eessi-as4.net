@@ -6,10 +6,12 @@
     public enum Operation
     {
         NotApplicable,
+        Undetermined,
 
         ToBeSent,
         Sending,
         Sent,
+        DeadLettered,
 
         ToBeNotified,
         Notifying,

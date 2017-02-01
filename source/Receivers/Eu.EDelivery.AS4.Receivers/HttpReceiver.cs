@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 DisplayHtmlStatusPage(context);
                 return;
             }
-            
+
             ReceivedMessage receivedMessage = CreateReceivedMessage(context);
             InternalMessage internalMessage = await messageCallback(receivedMessage, CancellationToken.None);
             ProcessResponse(context, internalMessage, token);
@@ -111,8 +111,8 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 response = responseBuilder.GetResponse(context);
                 context.Response.StatusCode = 200;
-            }                        
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 context.Response.StatusCode = 500;
                 response = System.Text.Encoding.UTF8.GetBytes(ex.Message);
@@ -147,19 +147,24 @@ namespace Eu.EDelivery.AS4.Receivers
             context.Response.KeepAlive = false;
             context.Response.StatusCode = GetHttpStatusCode(internalMessage);
 
-            if (internalMessage.AS4Message.IsEmpty) return;
+            if (internalMessage.AS4Message.IsEmpty)
+            {
+                return;
+            }
+
             context.Response.ContentType = internalMessage.AS4Message.ContentType;
         }
 
         private static int GetHttpStatusCode(InternalMessage internalMessage)
         {
             var statusCode = (int)HttpStatusCode.OK;
-            if (internalMessage.AS4Message.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
-                statusCode = internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
 
-            const int defaultStatusCode = 500;
-            bool isStatusCodeValid = statusCode < 100;
-            return isStatusCodeValid ? defaultStatusCode : statusCode;
+            if (internalMessage.AS4Message.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
+            {
+                statusCode = internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
+            }
+
+            return statusCode < 100 ? 500 : statusCode;
         }
 
         private void SetupResponseContent(

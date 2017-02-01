@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Send the <see cref="AS4Message" />
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -110,9 +110,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 this._logger.Error(
                     $"{internalMessage.Prefix} An error occured while trying to send the message: {exception.Message}");
 
-                UpdateOperation(internalMessage, Operation.ToBeSent);
-                //                throw ThrowFailedSendAS4Exception(internalMessage, exception);
-
+                if (internalMessage.AS4Message.SendingPMode
+                    .Reliability.ReceptionAwareness.IsEnabled)
+                {
+                    // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
+                    UpdateOperation(internalMessage, Operation.Undetermined);
+                }
+                else
+                {
+                    throw ThrowFailedSendAS4Exception(internalMessage, exception);
+                }
             }
         }
 
@@ -172,7 +179,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 string url = this._as4Message.SendingPMode.PushConfiguration.Protocol.Url;
-                this._logger.Debug($"AS4 Message received from: {url}");
+                this._logger.Debug($"AS4 Message receivced from: {url}");
                 await HandleHttpResponseAsync(request, cancellationToken);
 
             }
