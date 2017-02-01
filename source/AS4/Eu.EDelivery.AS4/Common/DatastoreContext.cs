@@ -57,10 +57,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             this._policy = Policy
                 .Handle<DbUpdateException>()
-                .RetryAsync();
-
-
-            this._logger = LogManager.GetCurrentClassLogger();
+                .RetryAsync();            
         }
 
         /// <summary>
