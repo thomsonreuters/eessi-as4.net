@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe;
+using Eu.EDelivery.AS4.Mappings.Common;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler
@@ -30,7 +31,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 this._logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
             }
 
-            
+            MapInitialization.InitializeMapper();
+
             this._agents = agents;
             this._logger = LogManager.GetCurrentClassLogger();
         }

@@ -21,9 +21,7 @@ namespace Eu.EDelivery.AS4.Singletons
         /// <param name="source"></param>
         /// <returns></returns>
         public static TDestination Map<TDestination>(object source)
-        {
-            MapInitialization.InitializeMapper();
-
+        {            
             return Mapper.Map<TDestination>(source);
         }
     }

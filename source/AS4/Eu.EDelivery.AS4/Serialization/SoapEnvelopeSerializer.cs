@@ -62,8 +62,7 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static Xml.Messaging CreateMessagingHeader(Model.Core.AS4Message message)
-        {
-            MapInitialization.InitializeMapper();
+        {            
             var messagingHeader = new Xml.Messaging { SecurityId = message.SigningId.HeaderSecurityId };
 
             if (message.IsSignalMessage)

@@ -82,8 +82,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private UserMessage CreateUserMessage()
         {
             this._logger.Debug("Map Submit Message to UserMessage");
-
-            MapInitialization.InitializeMapper();
+            
             return Mapper.Map<UserMessage>(this._internalMessage.SubmitMessage);
         }
     }

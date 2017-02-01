@@ -51,9 +51,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         private static DeliverMessage CreateDeliverMessage(AS4Message as4Message)
-        {
-            MapInitialization.InitializeMapper();
-
+        {            
             var deliverMessage = Mapper.Map<DeliverMessage>(as4Message.PrimaryUserMessage);
             AssignSendingPModeId(as4Message, deliverMessage);
             AssignAttachmentLocations(as4Message, deliverMessage);

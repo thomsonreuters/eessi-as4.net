@@ -186,6 +186,7 @@
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
     <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
+    <Compile Include="Mappings\Core\GivenXmlSignalMessageMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenErrorToNotifyMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
     <Compile Include="Mappings\PMode\GivenPModeActionResolverFacts.cs" />
