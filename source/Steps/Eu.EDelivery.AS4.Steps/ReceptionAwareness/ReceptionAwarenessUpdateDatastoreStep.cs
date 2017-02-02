@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private readonly ILogger _logger;
 
         private Entities.ReceptionAwareness _receptionAwareness;
-        private UserMessage _userMessage;
+        ////private UserMessage _userMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
@@ -155,14 +155,14 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             // TODO: frgh; what is the use of the code below?
 
-            if (outMessage?.MessageBody != null)
-            {
-                using (var memoryStream = new MemoryStream(outMessage.MessageBody))
-                {
-                    ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-                    this._userMessage = serializer.DeserializeAsync(memoryStream, outMessage.ContentType, CancellationToken.None).Result.PrimaryUserMessage;
-                }
-            }
+            //////if (outMessage?.MessageBody != null)
+            //////{
+            //////    using (var memoryStream = new MemoryStream(outMessage.MessageBody))
+            //////    {
+            //////        ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+            //////        this._userMessage = serializer.DeserializeAsync(memoryStream, outMessage.ContentType, CancellationToken.None).Result.PrimaryUserMessage;
+            //////    }
+            //////}
 
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
@@ -191,10 +191,10 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 .WithSendingPMode(pmode)
                 .WithSignalMessage(errorMessage);
 
-            if (this._userMessage != null)
-            {
-                builder.WithUserMessage(this._userMessage);
-            }
+            ////if (this._userMessage != null)
+            ////{
+            ////    builder.WithUserMessage(this._userMessage);
+            ////}
 
             return builder.Build();
         }

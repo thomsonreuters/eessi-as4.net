@@ -23,12 +23,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly ILogger _logger;
         private readonly ICertificateRepository _certificateRepository;
 
-        private InternalMessage _internalMessage;
+        ////private InternalMessage _internalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TryEncryptAS4Message"/> class
         /// </summary>
-        public EncryptAS4MessageStep() : this(Registry.Instance.CertificateRepository) {}
+        public EncryptAS4MessageStep() : this(Registry.Instance.CertificateRepository) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TryEncryptAS4Message"/> class
@@ -48,36 +48,39 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            _internalMessage = internalMessage;
+            ////_internalMessage = internalMessage;
 
             if (!internalMessage.AS4Message.SendingPMode.Security.Encryption.IsEnabled)
+            {
                 return ReturnSameInternalMessage(internalMessage);
+            }
 
-            TryEncryptAS4Message();
+            TryEncryptAS4Message(internalMessage);
 
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TryEncryptAS4Message()
+        private void TryEncryptAS4Message(InternalMessage internalMessage)
         {
-            this._logger.Info($"{this._internalMessage.Prefix} Encrypt AS4 Message with given Encryption Information");
+            this._logger.Info($"{internalMessage.Prefix} Encrypt AS4 Message with given Encryption Information");
             try
             {
-                IEncryptionStrategy strategy = CreateEncryptStrategy();
-                this._internalMessage.AS4Message.SecurityHeader.Encrypt(strategy);
+                IEncryptionStrategy strategy = CreateEncryptStrategy(internalMessage);
+                internalMessage.AS4Message.SecurityHeader.Encrypt(strategy);
             }
             catch (Exception exception)
             {
-                string description = $"{this._internalMessage.Prefix} Problems with Encrypting AS4 Message";
-                throw ThrowCommonEncryptionException(description, exception);
+                string description = $"{internalMessage.Prefix} Problems with Encrypting AS4 Message";
+                throw ThrowCommonEncryptionException(internalMessage, description, exception);
             }
         }
 
-        private IEncryptionStrategy CreateEncryptStrategy()
+        private IEncryptionStrategy CreateEncryptStrategy(InternalMessage internalMessage)
         {
-            AS4Message as4Message = this._internalMessage.AS4Message;
+            AS4Message as4Message = internalMessage.AS4Message;
             Encryption encryption = as4Message.SendingPMode.Security.Encryption;
-            X509Certificate2 certificate = RetrieveCertificate(encryption);
+
+            X509Certificate2 certificate = RetrieveCertificate(internalMessage);
 
             var builder = new EncryptionStrategyBuilder(as4Message);
 
@@ -88,15 +91,25 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return builder.Build();
         }
 
-        private X509Certificate2 RetrieveCertificate(Encryption encryption)
+        private X509Certificate2 RetrieveCertificate(InternalMessage internalMessage)
         {
-            X509Certificate2 certificate = this._certificateRepository
-                .GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
+            var certCriteria = GetCertificateFindValue(internalMessage.AS4Message);
+
+            X509Certificate2 certificate = this._certificateRepository.GetCertificate(certCriteria.Item1, certCriteria.Item2);
 
             if (!certificate.HasPrivateKey)
-                throw ThrowCommonEncryptionException($"{this._internalMessage.Prefix} Failed Authentication");
+            {
+                throw ThrowCommonEncryptionException(internalMessage, $"{internalMessage.Prefix} Failed Authentication");
+            }
 
             return certificate;
+        }
+
+        protected virtual Tuple<X509FindType, string> GetCertificateFindValue(AS4Message as4Message)
+        {
+            Encryption encryption = as4Message.SendingPMode.Security.Encryption;
+
+            return new Tuple<X509FindType, string>(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
         }
 
         private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
@@ -105,15 +118,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private AS4Exception ThrowCommonEncryptionException(string description, Exception innerException = null)
+        private AS4Exception ThrowCommonEncryptionException(InternalMessage internalMessage, string description, Exception innerException = null)
         {
             this._logger.Error(description);
 
             return new AS4ExceptionBuilder()
                 .WithDescription(description)
                 .WithInnerException(innerException)
-                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
+                .WithMessageIds(internalMessage.AS4Message.MessageIds)
+                .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
                 .Build();
         }
     }

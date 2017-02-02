@@ -18,6 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
     /// Exception Handling Decorator for Minder Conformance Testing,
     /// by creating an AS4 Message Error Message as User Message
     /// </summary>
+    [Obsolete("We can use the regular OutExceptionStepDecorator for Minder tests. Only difference is MessageBody is set.")]
     public class MinderOutExceptionStepDecorator : IStep
     {
         private readonly IStep _step;
@@ -40,8 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// <summary>
         /// Execute the given Step, so it can be catched
         /// </summary>
-        /// <param name="internalMessage"></param>
-        /// <param name="context"></param>
+        /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)

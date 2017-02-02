@@ -1,17 +1,14 @@
 ﻿namespace Eu.EDelivery.AS4.Model.Core
 {
-    public class MessageProperty
+    public sealed class MessageProperty
     {
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
+        public string Name { get; private set; }
+        public string Type { get; private set; }
+        public string Value { get; private set; }
+      
 
-        public MessageProperty() {}
-
-        public MessageProperty(string name, string value)
-        {
-            this.Name = name;
-            this.Value = value;
+        public MessageProperty(string name, string value) : this(name, value, string.Empty)
+        {            
         }
 
         public MessageProperty(string name, string type, string value)

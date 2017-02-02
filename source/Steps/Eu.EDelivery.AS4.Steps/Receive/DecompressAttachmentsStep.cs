@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private AS4Exception ThrowMissingMimeTypePartyPropertyException(Attachment attachment)
+        private static AS4Exception ThrowMissingMimeTypePartyPropertyException(Attachment attachment)
         {
             string description = $"Attachment {attachment.Id} hasn't got a MimeType PartProperty";
             return new AS4ExceptionBuilder().WithDescription(description).Build();
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isNotCompressed;
         }
 
-        private bool HasntAttachmentMimeTypePartProperty(Attachment attachment)
+        private static bool HasntAttachmentMimeTypePartProperty(Attachment attachment)
         {
             return !attachment.Properties.ContainsKey("MimeType");
         }

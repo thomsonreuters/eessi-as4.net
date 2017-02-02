@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// </summary>
         /// <param name="envelopeDocument"></param>
         /// <returns></returns>
-        public SecurityTokenReference Get(XmlDocument envelopeDocument)
+        public SecurityTokenReference Get(XmlNode envelopeDocument)
         {
             if (HasEnvelopeTag(envelopeDocument, tag: "BinarySecurityToken"))
                 return new BinarySecurityTokenReference();
@@ -56,12 +56,13 @@ namespace Eu.EDelivery.AS4.Security.References
             if (HasEnvelopeTag(envelopeDocument, tag: "KeyIdentifier"))
                 return new KeyIdentifierSecurityTokenReference();
 
-            throw new AS4Exception("Not supported Security Token Reference for Envelope Document");
+            // Return a BinarySecurityTokenReference as a default when no other option was possible.
+            return new BinarySecurityTokenReference();
         }
 
-        private bool HasEnvelopeTag(XmlNode envelope, string tag)
+        private static bool HasEnvelopeTag(XmlNode envelope, string tag)
         {
-            return envelope.SelectSingleNode($"//*[local-name()='{tag}']") != null;
+            return envelope?.SelectSingleNode($"//*[local-name()='{tag}']") != null;
         }
     }
 
@@ -72,6 +73,6 @@ namespace Eu.EDelivery.AS4.Security.References
     public interface ISecurityTokenReferenceProvider
     {
         SecurityTokenReference Get(X509ReferenceType referenceType);
-        SecurityTokenReference Get(XmlDocument envelopeDocument);
+        SecurityTokenReference Get(XmlNode envelopeDocument);
     }
 }

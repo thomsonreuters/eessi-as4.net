@@ -46,6 +46,10 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="envelopeDocument"></param>
         public void LoadXml(XmlDocument envelopeDocument)
         {
+            // TODO: we need to make sure that this gets implemented correctly.
+            // the correct SecurityTokenReference should be retrieved.
+            // Take a look at the implementation in Conformance-testing branch.
+
             var securityTokenElement =
                 envelopeDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
 

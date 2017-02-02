@@ -110,16 +110,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 this._logger.Error(
                     $"{internalMessage.Prefix} An error occured while trying to send the message: {exception.Message}");
 
-                if (internalMessage.AS4Message.SendingPMode
+                HandleSendAS4Exception(internalMessage, exception);
+            }
+        }
+
+        protected virtual void HandleSendAS4Exception(InternalMessage internalMessage, Exception exception)
+        {
+            if (internalMessage.AS4Message.SendingPMode
                     .Reliability.ReceptionAwareness.IsEnabled)
-                {
-                    // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                    UpdateOperation(internalMessage, Operation.Undetermined);
-                }
-                else
-                {
-                    throw ThrowFailedSendAS4Exception(internalMessage, exception);
-                }
+            {
+                // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
+                UpdateOperation(internalMessage, Operation.Undetermined);
+            }
+            else
+            {
+                throw ThrowFailedSendAS4Exception(internalMessage, exception);
             }
         }
 
@@ -143,7 +148,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private void AssignClientCertificate(HttpWebRequest request)
         {
             TlsConfiguration configuration = this._as4Message.SendingPMode.PushConfiguration.TlsConfiguration;
-            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null) return;
+            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null)
+            {
+                return;
+            }
 
             ClientCertificateReference certReference = configuration.ClientCertificateReference;
             X509Certificate2 certificate = this._repository
