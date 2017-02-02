@@ -76,13 +76,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return attachment.Id + this._repository.GetExtensionFromMimeType(attachment.ContentType);
         }
 
-        private void AddAttachmentStreamToEntry(Stream attachmentStream, ZipArchiveEntry entry)
+        private static void AddAttachmentStreamToEntry(Stream attachmentStream, ZipArchiveEntry entry)
         {
             using (Stream entryStream = entry.Open())
                 attachmentStream.CopyTo(entryStream);
         }
 
-        private Attachment CreateZippedAttachment(Stream stream)
+        private static Attachment CreateZippedAttachment(Stream stream)
         {
             stream.Position = 0;
 

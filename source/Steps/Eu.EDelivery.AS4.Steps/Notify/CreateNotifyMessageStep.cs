@@ -43,19 +43,19 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private NotifyMessage CreateNotifyMessage(AS4Message as4Message)
+        private static NotifyMessage CreateNotifyMessage(AS4Message as4Message)
         {
             return AS4Mapper.Map<NotifyMessage>(as4Message.PrimarySignalMessage);
         }
 
-        private XmlElement[] GetOriginalSignalMessage(AS4Message as4Message)
+        private static XmlElement[] GetOriginalSignalMessage(AS4Message as4Message)
         {
             if (as4Message.EnvelopeDocument == null) return new XmlElement[0];
 
             const string xpath = "//*[local-name()='SignalMessage']";
             XmlNode nodeSignature = as4Message.EnvelopeDocument.SelectSingleNode(xpath);
 
-            return new[] {(XmlElement) nodeSignature};
+            return new[] { (XmlElement)nodeSignature };
         }
 
         private void LogInformation(InternalMessage internalMessage)
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             this._logger.Info($"{this._internalMessage.Prefix} Create a Notify Message from a {type}");
         }
 
-        private string GetNotifyMessageType(InternalMessage internalMessage)
+        private static string GetNotifyMessageType(InternalMessage internalMessage)
         {
             Status status = internalMessage.NotifyMessage.StatusInfo.Status;
             return status == Status.Delivered ? "Receipt" : status.ToString();

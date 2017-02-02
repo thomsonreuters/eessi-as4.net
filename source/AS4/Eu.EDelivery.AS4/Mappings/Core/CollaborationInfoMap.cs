@@ -21,7 +21,12 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.Action, src => src.MapFrom(t => t.Action))
                 .ForMember(dest => dest.AgreementReference, src => src.MapFrom(t => t.AgreementRef))
                 .ForMember(dest => dest.ConversationId, src => src.MapFrom(t => t.ConversationId))
-                .ForMember(dest => dest.Service, src => src.MapFrom(t => t.Service));
+                .ForMember(dest => dest.Service, src => src.MapFrom(t => t.Service))
+                .AfterMap((xmlInfo, modelInfo) =>
+                {
+                    if (modelInfo?.AgreementReference?.IsEmpty() == true)
+                        modelInfo.AgreementReference = null;
+                });
         }
     }
 }

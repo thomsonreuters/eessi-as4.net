@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AutoMapper;
+using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -16,20 +18,20 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         private void MapModelToXml()
         {
             CreateMap<Model.Core.NonRepudiationInformation, Xml.NonRepudiationInformation>()
-                .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation));
+                .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation ?? new List<MessagePartNRInformation>()));
 
             CreateMap<Model.Core.MessagePartNRInformation, Xml.MessagePartNRInformation>()
-                .ForMember(dest => (Xml.ReferenceType) dest.Item, src => src.MapFrom(t => t.Reference))
+                .ForMember(dest => (Xml.ReferenceType)dest.Item, src => src.MapFrom(t => t.Reference))
                 .AfterMap((modelInfo, xmlInfo) =>
                 {
                     Model.Core.Reference modelReference = modelInfo.Reference;
                     xmlInfo.Item = new Xml.ReferenceType
                     {
                         URI = modelReference.URI,
-                        DigestMethod = new Xml.DigestMethodType {Algorithm = modelReference.DigestMethod.Algorithm},
+                        DigestMethod = new Xml.DigestMethodType { Algorithm = modelReference.DigestMethod.Algorithm },
                         DigestValue = Encoding.UTF8.GetBytes(modelInfo.Reference.DigestValue),
                         Transforms = modelReference.Transforms
-                            .Select(t => new Xml.TransformType {Algorithm = t.Algorithm}).ToArray()
+                            .Select(t => new Xml.TransformType { Algorithm = t.Algorithm }).ToArray()
                     };
                 });
 
@@ -52,7 +54,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         private void MapXmlToModel()
         {
             CreateMap<Xml.NonRepudiationInformation, Model.Core.NonRepudiationInformation>()
-                .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation));
+                .ForMember(dest => dest.MessagePartNRInformation, src => src.MapFrom(t => t.MessagePartNRInformation ?? new Xml.MessagePartNRInformation[] { }));
 
             CreateMap<Xml.MessagePartNRInformation, Model.Core.MessagePartNRInformation>()
                 .ForMember(dest => dest.Reference, src => src.MapFrom(t => t.Item));

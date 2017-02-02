@@ -11,10 +11,108 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
+
+    public class MinderCreateDeliverMessageStep : CreateDeliverMessageStep
+    {
+        private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
+
+        #region Modifications to InternalMessage before DeliverMessage is created
+
+        protected override void BeforeDeliverMessageCreated(InternalMessage internalMessage)
+        {
+            var userMessage = internalMessage.AS4Message.PrimaryUserMessage;
+
+            AssignMessageInfo(userMessage);
+            AssignPartyProperties(userMessage);
+            AssignCollaborationInfoProperties(userMessage);
+            AssignParties(userMessage);
+            AssignDeliverServiceAction(userMessage);
+        }
+
+        private static void AssignMessageInfo(UserMessage userMessage)
+        {
+            AddUserMessageProperty(userMessage, "MessageId", userMessage.MessageId);
+        }
+
+        private static void AssignParties(UserMessage userMessage)
+        {
+            userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
+            userMessage.Sender.PartyIds.First().Id = "as4-net-c3";
+
+            userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
+            userMessage.Receiver.PartyIds.First().Id = "minder";
+        }
+
+        private static void AssignCollaborationInfoProperties(UserMessage userMessage)
+        {
+            CollaborationInfo info = userMessage.CollaborationInfo;
+            AddUserMessageProperty(userMessage, "Service", info.Service.Value);
+            AddUserMessageProperty(userMessage, "Action", info.Action);
+            AddUserMessageProperty(userMessage, "ConversationId", info.ConversationId);
+        }
+
+        private static void AssignDeliverServiceAction(UserMessage userMessage)
+        {
+            userMessage.CollaborationInfo.Action = "Deliver";
+            userMessage.CollaborationInfo.Service.Value = ConformanceUriPrefix;
+            userMessage.CollaborationInfo.ConversationId = "1";
+        }
+
+        private static void AssignPartyProperties(UserMessage userMessage)
+        {
+            AddUserMessageProperty(userMessage, "FromPartyId", userMessage.Sender.PartyIds.First().Id);
+            AddUserMessageProperty(userMessage, "FromPartyRole", userMessage.Sender.Role);
+
+            AddUserMessageProperty(userMessage, "ToPartyId", userMessage.Receiver.PartyIds.First().Id);
+            AddUserMessageProperty(userMessage, "ToPartyRole", userMessage.Receiver.Role);
+        }
+
+        #endregion
+
+        protected override void AfterDeliverMessageCreated(InternalMessage internalMessage)
+        {
+            AssignSendingUrl(internalMessage);
+            ResetSecurityHeader(internalMessage);
+            RemoveUnneededUserMessage(internalMessage);
+        }
+
+        private static void AssignSendingUrl(InternalMessage internalMessage)
+        {
+            AS4Message as4Message = internalMessage.AS4Message;
+            UserMessage userMessage = as4Message.PrimaryUserMessage;
+            MessageProperty originalSender =
+                userMessage?.MessageProperties.FirstOrDefault(p => p.Name.Equals("originalSender", StringComparison.OrdinalIgnoreCase));
+
+            int corner = originalSender?.Value.Equals("C1", StringComparison.OrdinalIgnoreCase) == true ? 4 : 1;
+            as4Message.SendingPMode.PushConfiguration.Protocol.Url = $"http://13.81.109.44:15001/corner{corner}";
+        }
+
+        private static void ResetSecurityHeader(InternalMessage internalMessage)
+        {
+            internalMessage.AS4Message.SecurityHeader = new SecurityHeader();
+        }
+
+        private static void RemoveUnneededUserMessage(InternalMessage internalMessage)
+        {
+            AS4Message as4Message = internalMessage.AS4Message;
+            ICollection<UserMessage> userMessages = as4Message.UserMessages;
+
+            Func<UserMessage, bool> whereMessageIdIsDifferent = m => !m.MessageId.Equals(as4Message.PrimaryUserMessage.MessageId);
+            UserMessage otherUserMessage = userMessages.FirstOrDefault(whereMessageIdIsDifferent);
+            if (otherUserMessage != null) userMessages.Remove(otherUserMessage);
+        }
+
+        private static void AddUserMessageProperty(UserMessage message, string key, string value)
+        {
+            message.MessageProperties.Add(new MessageProperty(key, value));
+        }
+    }
+
     /// <summary>
     /// Assemble a <see cref="AS4Message"/> as Deliver Message
     /// </summary>
-    public class MinderCreateDeliverMessageStep : IStep
+    [Obsolete("Replaced by MinderCreateDeliverMessageStep")]
+    public class MinderCreateDeliverMessageStepOld : IStep
     {
         private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
         private readonly ILogger _logger;
@@ -23,7 +121,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Initializes a new instance of the <see cref="MinderCreateDeliverMessageStep"/>
         /// </summary>
-        public MinderCreateDeliverMessageStep()
+        public MinderCreateDeliverMessageStepOld()
         {
             this._logger = LogManager.GetCurrentClassLogger();
         }
@@ -48,7 +146,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             AssignCollaborationInfoProperties(userMessage);
             AssignParties(userMessage);
             AssignDeliverServiceAction(userMessage);
-            
+
             return Mapper.Map<DeliverMessage>(userMessage);
         }
 

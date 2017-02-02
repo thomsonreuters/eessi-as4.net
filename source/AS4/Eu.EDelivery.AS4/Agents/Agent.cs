@@ -142,7 +142,9 @@ namespace Eu.EDelivery.AS4.Agents
             StepResult result = step.ExecuteAsync(internalMessage, cancellationToken).GetAwaiter().GetResult();
 
             if (result.Exception != null)
+            {
                 this._logger.Warn($"Executing {this.AgentConfig.Name} Step failed: {result.Exception.Message}");
+            }
 
             return result.InternalMessage;
         }

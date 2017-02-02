@@ -3,8 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -44,7 +42,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             this._logger.Info($"{internalMessage.Prefix} Create a Deliver Message from an AS4 Message");
 
+            BeforeDeliverMessageCreated(internalMessage);
+
             internalMessage.DeliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
+
+            AfterDeliverMessageCreated(internalMessage);
+
             ValidateDeliverMessage(internalMessage.DeliverMessage, internalMessage);
 
             return StepResult.SuccessAsync(internalMessage);
@@ -57,6 +60,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             AssignAttachmentLocations(as4Message, deliverMessage);
 
             return deliverMessage;
+        }
+
+        protected virtual void BeforeDeliverMessageCreated(InternalMessage internalMessage)
+        {
+        }
+
+        protected virtual void AfterDeliverMessageCreated(InternalMessage internalMessage)
+        {
         }
 
         private static void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)
@@ -75,7 +86,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage, InternalMessage internalMessage)
         {
-            if (!this._validator.Validate(deliverMessage)) return;
+            if (!this._validator.Validate(deliverMessage))
+            {
+                _logger.Error($"{internalMessage.Prefix} DeliverMessage is not valid.");
+                return;
+            }
 
             string messageId = deliverMessage.MessageInfo.MessageId;
             string message = $"{internalMessage.Prefix} Deliver Message {messageId} was valid";

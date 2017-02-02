@@ -1,14 +1,17 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Common
@@ -24,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         private readonly ILogger _logger;
 
         private SendingProcessingMode _sendPMode;
-        private InternalMessage _internalMessage;
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutExceptionStepDecorator"/> class
@@ -52,57 +55,72 @@ namespace Eu.EDelivery.AS4.Steps.Common
             catch (AS4Exception exception)
             {
                 this._logger.Error(exception.Message);
-                InitializeFields(internalMessage, exception);
+
+                internalMessage.Exception = exception;
+
                 using (var context = Registry.Instance.CreateDatastoreContext())
                 {
-                    await HandleOutException(exception, new DatastoreRepository(context));
+                    await HandleOutException(exception, internalMessage, new DatastoreRepository(context));
                 }
-                return StepResult.Failed(exception, this._internalMessage);
+                return StepResult.Failed(exception, internalMessage);
             }
         }
 
-        private void InitializeFields(InternalMessage internalMessage, AS4Exception exception)
-        {
-            this._internalMessage = internalMessage;
-            this._internalMessage.Exception = exception;
-            this._sendPMode = internalMessage.AS4Message?.SendingPMode;
-        }
-
-        private async Task HandleOutException(AS4Exception exception, IDatastoreRepository repository)
+        private async Task HandleOutException(AS4Exception exception, InternalMessage internalMessage, IDatastoreRepository repository)
         {
             foreach (string messageId in exception.MessageIds)
-                await TryHandleOutExceptionAsync(exception, messageId, repository);
+            {
+                await TryHandleOutExceptionAsync(exception, messageId, internalMessage, repository);
+            }
         }
 
-        private async Task TryHandleOutExceptionAsync(AS4Exception exception, string messageId, IDatastoreRepository repository)
+        private async Task TryHandleOutExceptionAsync(AS4Exception exception, string messageId, InternalMessage internalMessage, IDatastoreRepository repository)
         {
             try
             {
-                OutException outException = CreateOutException(exception, messageId);
+                OutException outException = CreateOutException(exception, internalMessage, messageId);
+
+#if DEBUG
+                outException.MessageBody = GetAS4MessageByteRepresentationSetMessageBody(internalMessage.AS4Message);
+
+#endif
                 await repository.InsertOutExceptionAsync(outException);
                 await repository.UpdateOutMessageAsync(messageId, UpdateOutMessageType);
             }
             catch (Exception)
             {
-                this._logger.Error($"{this._internalMessage.Prefix} Cannot Update Datastore with OutException");
+                this._logger.Error($"{internalMessage.Prefix} Cannot Update Datastore with OutException");
             }
         }
 
-        private OutException CreateOutException(AS4Exception exception, string messageId)
+        private static OutException CreateOutException(AS4Exception exception, InternalMessage internalMessage, string messageId)
         {
             OutExceptionBuilder builder = new OutExceptionBuilder()
                 .WithAS4Exception(exception)
                 .WithEbmsMessageId(messageId);
 
-            if (NeedsOutExceptionBeNotified())
+            if (NeedsOutExceptionBeNotified(internalMessage.AS4Message?.SendingPMode))
+            {
                 builder.WithOperation(Operation.ToBeNotified);
+            }
 
             return builder.Build();
         }
 
-        private bool NeedsOutExceptionBeNotified()
+        private static byte[] GetAS4MessageByteRepresentationSetMessageBody(AS4Message as4Message)
         {
-            return this._sendPMode?.ExceptionHandling?.NotifyMessageProducer == true;
+            using (var messageBodyStream = new MemoryStream())
+            {
+                var serializer = new SoapEnvelopeSerializer();
+                serializer.Serialize(as4Message, messageBodyStream, CancellationToken.None);
+
+                return messageBodyStream.ToArray();
+            }
+        }
+
+        private static bool NeedsOutExceptionBeNotified(SendingProcessingMode sendPMode)
+        {
+            return sendPMode?.ExceptionHandling?.NotifyMessageProducer == true;
         }
 
         private static void UpdateOutMessageType(OutMessage outMessage)
