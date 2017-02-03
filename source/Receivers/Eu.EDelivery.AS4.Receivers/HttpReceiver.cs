@@ -176,8 +176,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 this._logger.Info("Empty Http Body is send");
                 return;
             }
-
-            LogInformation(internalMessage);
+            
             TrySerializeResponseContent(context, internalMessage, token);
         }
 
@@ -195,12 +194,6 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 this._logger.Error(exception.Message);
             }
-        }
-
-        private void LogInformation(InternalMessage internalMessage)
-        {
-            string type = IsAS4MessageAnError(internalMessage) ? nameof(Error) : nameof(Receipt);
-            this._logger.Info($"AS4 {type} is send to requested party");
         }
 
         private static bool IsAS4MessageAnError(InternalMessage internalMessage)
