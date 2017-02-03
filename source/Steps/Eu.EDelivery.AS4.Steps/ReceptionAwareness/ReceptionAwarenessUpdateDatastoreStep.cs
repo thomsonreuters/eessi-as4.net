@@ -174,7 +174,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             string messageId = this._receptionAwareness.InternalMessageId;
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription($"[{messageId}] Missing Receipt")
                 .WithMessageIds(this._receptionAwareness.InternalMessageId)
                 .WithErrorCode(ErrorCode.Ebms0301)

@@ -115,9 +115,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             this._logger.Error(description);
 
-            AS4ExceptionBuilder builder = new AS4ExceptionBuilder()
-                .WithInnerException(exception)
+            AS4ExceptionBuilder builder = AS4ExceptionBuilder
                 .WithDescription(description)
+                .WithInnerException(exception)                
                 .WithMessageIds(this._internalMessage.NotifyMessage.MessageInfo.MessageId)
                 .WithExceptionType(ExceptionType.ConnectionFailure);
 

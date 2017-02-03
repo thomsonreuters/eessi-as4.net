@@ -72,12 +72,11 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             string description = $"Unable to retrieve Payload at location: {location}";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
-                .WithInnerException(exception)
-                .WithDescription(description)
-                .WithErrorCode(ErrorCode.Ebms0011)
-                .WithExceptionType(ExceptionType.ExternalPayloadError)
-                .Build();
+            return AS4ExceptionBuilder.WithDescription(description)
+                                      .WithInnerException(exception)                
+                                      .WithErrorCode(ErrorCode.Ebms0011)
+                                      .WithExceptionType(ExceptionType.ExternalPayloadError)
+                                      .Build();
         }
     }
 }

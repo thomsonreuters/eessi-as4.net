@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         protected AS4Exception CreateDefaultAS4Exception()
         {
             // Arrange
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription("Test Exception")
                 .WithPModeString("<PMode></PMode>")
                 .WithExceptionType(ExceptionType.ConnectionFailure)

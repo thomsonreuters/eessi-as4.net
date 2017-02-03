@@ -28,8 +28,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBuildOutExceptionSucceedsWithAS4Exeption()
             {
                 // Arrange
-                AS4Exception as4Exception =
-                    new AS4ExceptionBuilder().WithDescription("Test Exception")
+                var as4Exception =
+                    AS4ExceptionBuilder.WithDescription("Test Exception")
                         .WithPModeString("<PMode></PMode>")
                         .Build();
                 // Act

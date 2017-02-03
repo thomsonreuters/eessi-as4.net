@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 
         protected AS4Exception CreateDefaultAS4Exception()
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription("Test AS4 Exception")
                 .WithMessageIds(Guid.NewGuid().ToString())
                 .Build();

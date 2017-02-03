@@ -70,11 +70,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private AS4Exception ThrowAS4ExceptionWithInnerException(Exception exception)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
+                .WithDescription("Unable to store AS4 Messages")
                 .WithInnerException(exception)
                 .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
-                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
-                .WithDescription("Unable to store AS4 Messages")                
+                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)                
                 .Build();
         }
 

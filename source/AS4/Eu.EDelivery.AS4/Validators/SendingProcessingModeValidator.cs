@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Validators
             string description = $"Sending PMode {pmode.Id} was invalid, see logging";
             this._logger.Error(description);
             
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(Guid.NewGuid().ToString())
                 .Build();

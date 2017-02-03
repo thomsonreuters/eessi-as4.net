@@ -245,7 +245,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithErrorCode(ErrorCode.Ebms0005)
                 .WithExceptionType(ExceptionType.ConnectionFailure)

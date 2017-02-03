@@ -129,7 +129,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected void SetupMockedStep(string messageId)
         {
-            AS4Exception as4Exception = new AS4ExceptionBuilder()
+            AS4Exception as4Exception = AS4ExceptionBuilder
                 .WithDescription("Test AS4 Exception")
                 .WithMessageIds(messageId)
                 .Build();

@@ -157,10 +157,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             const string description = "More than one matching PMode was found";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
-                .WithDescription(description)
-                .WithMessageIds(this._as4Message.MessageIds)
-                .Build();
+            return AS4ExceptionBuilder.WithDescription(description)
+                                      .WithMessageIds(this._as4Message.MessageIds)
+                                      .Build();
         }
 
         private SendPMode GetReferencedSendingPMode()
@@ -186,11 +185,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
-                .WithDescription(description)
-                .WithErrorCode(ErrorCode.Ebms0001)
-                .WithMessageIds(this._as4Message.MessageIds)
-                .Build();
+            return AS4ExceptionBuilder.WithDescription(description)
+                                      .WithErrorCode(ErrorCode.Ebms0001)
+                                      .WithMessageIds(this._as4Message.MessageIds)
+                                      .Build();
         }
     }
 }

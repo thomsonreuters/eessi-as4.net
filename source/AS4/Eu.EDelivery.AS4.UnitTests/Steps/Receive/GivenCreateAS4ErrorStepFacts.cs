@@ -88,9 +88,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Equal(as4Message.SigningId, result.InternalMessage.AS4Message.SigningId);
             }
 
-            private AS4Exception CreateFilledAS4Exception()
+            private static AS4Exception CreateFilledAS4Exception()
             {
-                return new AS4ExceptionBuilder()
+                return AS4ExceptionBuilder
                     .WithDescription("Testing AS4 Exception")
                     .WithErrorCode(ErrorCode.Ebms0001)
                     .WithMessageIds("message-id")

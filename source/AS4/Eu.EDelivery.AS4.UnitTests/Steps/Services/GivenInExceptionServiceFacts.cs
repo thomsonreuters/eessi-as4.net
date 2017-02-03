@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                     });
                 base.ResetDatastoreService();
 
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription("Test Exception").WithMessageIds(sharedId).Build();
 
                 // Act
