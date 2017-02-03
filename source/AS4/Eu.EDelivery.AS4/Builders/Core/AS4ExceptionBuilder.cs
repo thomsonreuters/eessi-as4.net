@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -78,12 +77,14 @@ namespace Eu.EDelivery.AS4.Builders.Core
 
         private void AssignPublicProperties(AS4Exception as4Exception)
         {
-            as4Exception.MessageIds.ForEach(i =>
+            foreach (string messageId in as4Exception.MessageIds)
             {
-                if (!this._messageIds.Contains(i))
-                    this._messageIds.Add(i);
-            });
-
+                if (_messageIds.Contains(messageId) == false)
+                {
+                    _messageIds.Add(messageId);
+                }
+            }
+            
             if (as4Exception.ErrorCode != default(ErrorCode)) this._errorCode = as4Exception.ErrorCode;
             if (as4Exception.ExceptionType != default(ExceptionType)) this._exceptionType = as4Exception.ExceptionType;
             if (!string.IsNullOrEmpty(as4Exception.PMode)) this._pmodeString = as4Exception.PMode;
@@ -96,8 +97,11 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public AS4ExceptionBuilder WithMessageIds(params string[] messageIds)
         {
-            messageIds.ForEach(i => this._messageIds.Add(i));
-
+            foreach (string messageId in messageIds)
+            {
+                _messageIds.Add(messageId);
+            }
+            
             return this;
         }
 

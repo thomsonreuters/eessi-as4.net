@@ -96,8 +96,10 @@ namespace Eu.EDelivery.AS4.Validators
 
         private AS4Exception ThrowHandleInvalidPModeException(SendingProcessingMode pmode, ValidationResult result)
         {
-            result.Errors.ForEach(
-                e => this._logger.Error($"Sending PMode Validation Error: {e.PropertyName} = {e.ErrorMessage}"));
+            foreach (var e in result.Errors)
+            {
+                _logger.Error($"Sending PMode Validation Error: {e.PropertyName} = {e.ErrorMessage}");
+            }
 
             string description = $"Sending PMode {pmode.Id} was invalid, see logging";
             this._logger.Error(description);

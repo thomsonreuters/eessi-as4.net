@@ -1,4 +1,6 @@
-﻿using Castle.Core.Internal;
+﻿using System;
+using System.Linq;
+using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
@@ -54,9 +56,11 @@ namespace Eu.EDelivery.AS4.Validators
 
         private AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage, ValidationResult result)
         {
-            result.Errors.ForEach(e
-                => this._logger.Error($"Deliver Message Validation Error: {e.PropertyName} = {e.ErrorMessage}"));
-
+            foreach (var e in result.Errors)
+            {
+                _logger.Error($"Deliver Message Validation Error: {e.PropertyName} = {e.ErrorMessage}");
+            }
+            
             string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
             this._logger.Error(description);
             
@@ -99,23 +103,24 @@ namespace Eu.EDelivery.AS4.Validators
                 .Must(RuleForPayload);
         }
 
-        private bool RuleForPayload(Payload payload)
+        private static bool RuleForPayload(Payload payload)
         {
             return RuleForPayloadDirectProperties(payload) && RuleForPayloadSchemas(payload);
         }
 
-        private bool RuleForPayloadDirectProperties(Payload i)
+        private static bool RuleForPayloadDirectProperties(Payload i)
         {
             return i.Id != null && i.Location != null /*&& i.MimeType != null*/;
         }
 
-        private bool RuleForPayloadSchemas(Payload i)
+        private static bool RuleForPayloadSchemas(Payload i)
         {
-            if (i.Schemas == null || i.Schemas.Length <= 0) return true;
+            if (i.Schemas == null || i.Schemas.Length <= 0)
+            {
+                return true;
+            }
 
-            var isLocationPresent = false;
-            i.Schemas.ForEach(s => isLocationPresent = !string.IsNullOrEmpty(s.Location));
-            return isLocationPresent;
+            return i.Schemas.All(s => !String.IsNullOrEmpty(s.Location));            
         }
     }
 }
