@@ -62,9 +62,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private void SendNotifyMessage(NotifyMessage notifyMessage, string locationFolder)
         {
-            string locationFile = Path.Combine(locationFolder,
+            string locationFile = Path.Combine(locationFolder ?? "",
                                                FilenameSanitizer.EnsureValidFilename(notifyMessage.MessageInfo.MessageId) + ".xml");
-                                                
+
             TryCreateMissingDirectoriesIfNotExists(locationFolder);
             TrySendNotifyMessageFile(notifyMessage, locationFile);
         }
@@ -95,12 +95,14 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         {
             try
             {
-                if (!Directory.Exists(locationFolder))
+                if (!String.IsNullOrWhiteSpace(locationFolder) && !Directory.Exists(locationFolder))
+                {
                     Directory.CreateDirectory(locationFolder);
+                }
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
-               this._logger.Error(exception.Message);
+                this._logger.Error(exception.Message);
             }
         }
 

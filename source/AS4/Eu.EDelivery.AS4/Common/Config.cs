@@ -210,13 +210,22 @@ namespace Eu.EDelivery.AS4.Common
         public SendingProcessingMode GetSendingPMode(string id)
         {
             if (id == null)
+            {
                 throw new AS4Exception("Given Sending PMode key is null");
+            }
+
+            if (_sendingPModes.Count == 0)
+            {
+                throw new AS4Exception("There are no Sending PModes defined.");
+            }
 
             ConfiguredPMode configuredPMode = null;
             this._sendingPModes.TryGetValue(id, out configuredPMode);
 
             if (configuredPMode == null)
-                throw new AS4Exception("Multiple keys found for Sending Processing Mode");
+            {
+                throw new AS4Exception($"No Sending Processing Mode found for {id}");
+            }
 
             return configuredPMode.PMode as SendingProcessingMode;
         }
