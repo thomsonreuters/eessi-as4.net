@@ -4,9 +4,14 @@ namespace Eu.EDelivery.AS4.Model.Common
 {
     public class MessageProperty : IEquatable<MessageProperty>
     {
-        public string Name { get; private set; }
-        public string Type { get; private set; }
-        public string Value { get; private set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Value { get; set; }
+
+        public MessageProperty() : this(string.Empty, string.Empty, string.Empty)
+        {
+            // Default constructor is necessary for serialization.
+        }
 
         public MessageProperty(string name, string type, string value)
         {
@@ -45,7 +50,7 @@ namespace Eu.EDelivery.AS4.Model.Common
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
 
-            return obj.GetType() == GetType() && Equals((MessageProperty) obj);
+            return obj.GetType() == GetType() && Equals((MessageProperty)obj);
         }
 
         /// <summary>
@@ -59,9 +64,9 @@ namespace Eu.EDelivery.AS4.Model.Common
             unchecked
             {
                 int hashCode = this.Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name) : 0;
-                hashCode = (hashCode*397) ^
+                hashCode = (hashCode * 397) ^
                            (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
-                hashCode = (hashCode*397) ^
+                hashCode = (hashCode * 397) ^
                            (this.Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Value) : 0);
                 return hashCode;
             }

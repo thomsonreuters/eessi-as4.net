@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (Exception exception)
             {
-                string description = $"{internalMessage.Prefix} Problems with Encrypting AS4 Message";
+                string description = $"{internalMessage.Prefix} Problems with Encrypting AS4 Message: {exception.Message}";
                 throw ThrowCommonEncryptionException(internalMessage, description, exception);
             }
         }
