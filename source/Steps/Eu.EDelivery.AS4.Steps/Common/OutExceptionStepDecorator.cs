@@ -26,9 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         private readonly IStep _step;
         private readonly ILogger _logger;
 
-        private SendingProcessingMode _sendPMode;
-
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="OutExceptionStepDecorator"/> class
         /// with a given <paramref name="step"/> to decorate and defaults from <see cref="Registry"/>

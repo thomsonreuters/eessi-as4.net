@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             var s = new Model.Internal.Steps()
             {
-                Decorator = typeof(MinderOutExceptionStepDecorator).AssemblyQualifiedName,
+                Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
                 Step = new Step[]
                 {
                     new Step { Type = typeof(MinderAssembleAS4MessageStep).AssemblyQualifiedName },
