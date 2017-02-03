@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return submitMessage.PMode.MessagePackaging.Mpc;
         }
 
-        private bool DoesSubmitMessageTriesToOverridePModeMpc(SubmitMessage submitMessage)
+        private static bool DoesSubmitMessageTriesToOverridePModeMpc(SubmitMessage submitMessage)
         {
             return
                 submitMessage.PMode.AllowOverride == false &&

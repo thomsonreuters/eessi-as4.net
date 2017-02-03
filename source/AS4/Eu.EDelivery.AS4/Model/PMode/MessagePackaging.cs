@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -7,6 +8,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public PartyInfo PartyInfo { get; set; }
         public CollaborationInfo CollaborationInfo { get; set; }
+
+        [XmlArray("MessageProperties")]
+        [XmlArrayItem("MessageProperty")]
         public List<MessageProperty> MessageProperties { get; set; }
     }
 
