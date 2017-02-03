@@ -141,9 +141,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             description = internalMessage.Prefix + description;
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
-                .WithInnerException(exception)
+            return AS4ExceptionBuilder
                 .WithDescription(description)
+                .WithInnerException(exception)                
                 .WithMessageIds(as4Message.MessageIds)
                 .WithErrorCode(errorCode)
                 .WithReceivingPMode(as4Message.ReceivingPMode)

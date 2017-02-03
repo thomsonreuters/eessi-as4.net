@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Security.References
                 envelopeDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
 
             if (securityTokenElement == null)
-                throw new AS4ExceptionBuilder()
+                throw AS4ExceptionBuilder
                     .WithDescription("No Security Token Reference element found in given Xml Document")
                     .WithErrorCode(ErrorCode.Ebms0101)
                     .Build();

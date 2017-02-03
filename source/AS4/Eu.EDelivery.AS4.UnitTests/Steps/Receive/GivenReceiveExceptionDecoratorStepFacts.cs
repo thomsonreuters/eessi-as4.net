@@ -216,7 +216,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected void SetupCatchedStepWithException(string messageId = "dummy-message-id")
         {
-            AS4Exception as4Exception = new AS4ExceptionBuilder()
+            AS4Exception as4Exception = AS4ExceptionBuilder
                 .WithDescription("Testing AS4 Exception")
                 .WithPModeString(AS4XmlSerializer.Serialize(GetReceivingPMode()))
                 .WithMessageIds(messageId)

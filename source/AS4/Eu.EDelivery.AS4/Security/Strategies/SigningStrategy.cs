@@ -241,9 +241,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return chain.Build(certificate);
         }
 
-        private AS4Exception ThrowAS4SignException(string description)
+        private static AS4Exception ThrowAS4SignException(string description)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithErrorCode(ErrorCode.Ebms0101)
                 .Build();

@@ -48,8 +48,10 @@ namespace Eu.EDelivery.AS4.Serialization
             }
             catch (Exception exception)
             {
-                throw new AS4ExceptionBuilder()
-                    .WithInnerException(exception).WithMessageIds(message.MessageIds).Build();
+                throw AS4ExceptionBuilder
+                    .WithDescription("An error occured while serializing the MIME message")
+                    .WithInnerException(exception)
+                    .WithMessageIds(message.MessageIds).Build();
             }
         }
 
@@ -228,9 +230,9 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static AS4Exception ThrowAS4MimeInconsistencyException(Exception exception)
         {
-            return new AS4ExceptionBuilder()
-                .WithInnerException(exception)
+            return AS4ExceptionBuilder                
                 .WithDescription("The use of MIME is not consistent with the required usage in this specification")
+                .WithInnerException(exception)
                 .WithErrorCode(ErrorCode.Ebms0007)
                 .WithExceptionType(ExceptionType.MimeInconsistency)
                 .Build();

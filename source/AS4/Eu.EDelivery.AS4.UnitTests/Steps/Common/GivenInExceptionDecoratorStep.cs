@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         private static AS4Exception CreateDefaultAS4Exception(string messageId)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription("Test AS4 Exception")
                 .WithMessageIds(messageId)
                 .Build();

@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private AS4Exception ThrowSendDeliverAS4Exception(string description, Exception innerException)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
                 .WithExceptionType(ExceptionType.ConnectionFailure)

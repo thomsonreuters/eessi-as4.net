@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildAS4ExceptionWithDescription()
             {
                 // Act
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription(base.TestAS4Description).Build();
                 // Assert
                 Assert.NotNull(as4Exception);
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildAS4ExceptionWithDescriptionAndMessageIds()
             {
                 // Act
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription(base.TestAS4Description)
                     .WithMessageIds(base.TestMessageIds)
                     .Build();
@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildAS4ExceptionWithDescriptionMessageIdsAndErrorCode()
             {
                 // Act
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription(base.TestAS4Description)
                     .WithMessageIds(base.TestMessageIds)
                     .WithErrorCode(base.TestErrorCode)
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildAS4ExceptionWithDescriptionMessageIdsErrorCodeAndExceptionType()
             {
                 // Act
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription(base.TestAS4Description)
                     .WithMessageIds(base.TestMessageIds)
                     .WithErrorCode(base.TestErrorCode)
@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 // Arrange
                 var existingAS4Exception = new AS4Exception("Test Existing AS4 Exception");
                 // Act
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription(base.TestAS4Description)
                     .WithErrorCode(base.TestErrorCode)
                     .WithExistingAS4Exception(existingAS4Exception)
@@ -92,11 +92,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 {
                     ErrorCode = ErrorCode.Ebms0001,
                     ExceptionType = ExceptionType.ConnectionFailure,
-                    PMode = "<PMode></PMode>",
-                    MessageIds = new[] {"message-id-1"}
+                    PMode = "<PMode></PMode>"                    
                 };
+
+                existingAS4Exception.SetMessageIds(new[] { "message-id-1" });
+
                 // Act
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription("New Description")
                     .WithErrorCode(ErrorCode.Ebms0002)
                     .WithExceptionType(ExceptionType.ExternalPayloadError)
@@ -113,16 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 
         public class GivenInvalidArguments : GivenAS4ExceptionBuilderFacts
         {
-            [Fact]
-            public void ThenBuildAS4ExceptionWithoutDescription()
-            {
-                // Act
-                AS4Exception as4Exception = new AS4ExceptionBuilder().Build();
-                // Assert
-                Assert.NotNull(as4Exception);
-                Assert.NotEmpty(as4Exception.Message);
-            }
-
+        
             [Fact]
             public void ThenBuildAS4ExceptionWithNullExisting()
             {
@@ -130,7 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 AS4Exception existingAS4Exception = null;
                 // Act / Assert
                 Assert.Throws<ArgumentNullException>(() 
-                    => new AS4ExceptionBuilder()
+                    => AS4ExceptionBuilder.WithDescription("AS4 Exception Facts")
                     .WithExistingAS4Exception(existingAS4Exception)
                     .Build());
             }

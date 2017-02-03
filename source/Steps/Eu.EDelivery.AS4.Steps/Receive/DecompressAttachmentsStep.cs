@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static AS4Exception ThrowMissingMimeTypePartyPropertyException(Attachment attachment)
         {
             string description = $"Attachment {attachment.Id} hasn't got a MimeType PartProperty";
-            return new AS4ExceptionBuilder().WithDescription(description).Build();
+            return AS4ExceptionBuilder.WithDescription(description).Build();
         }
 
         private bool IsAttachmentNotCompressed(Attachment attachment)
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             const string description = "Cannot decompress the message";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(this._as4Message.MessageIds)
                 .WithErrorCode(ErrorCode.Ebms0303)

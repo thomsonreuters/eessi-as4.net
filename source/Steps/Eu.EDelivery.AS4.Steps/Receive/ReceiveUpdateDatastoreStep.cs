@@ -182,7 +182,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             this._logger.Error(description);
 
-            throw new AS4ExceptionBuilder()
+            throw AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(this._as4Message.MessageIds)
                 .WithInnerException(exception)

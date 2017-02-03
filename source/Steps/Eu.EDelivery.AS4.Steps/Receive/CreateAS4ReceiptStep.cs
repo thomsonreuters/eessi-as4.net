@@ -118,7 +118,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Exception ThrowCommonAS4Exception(AS4Exception exception)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
+                .WithDescription("An error occured while receiving a message.")
                 .WithExistingAS4Exception(exception)
                 .WithPModeString(this._internalMessage.ReceivingPModeString)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)

@@ -39,9 +39,9 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     });
         }
 
-        private AS4Exception ThrowNoExternalPayloadsSupportedException(Model.Core.PartInfo modelPartInfo)
+        private static AS4Exception ThrowNoExternalPayloadsSupportedException(Model.Core.PartInfo modelPartInfo)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription($"AS4Message only support embedded Payloads and: '{modelPartInfo.Href}' was given")
                 .WithErrorCode(ErrorCode.Ebms0011)
                 .WithMessageIds(IdentifierFactory.Instance.Create())

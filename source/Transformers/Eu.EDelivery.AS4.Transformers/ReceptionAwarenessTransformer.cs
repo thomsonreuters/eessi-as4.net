@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 "Current Transformer cannot be used for the given Received Message, expecting type of ReceivedEntityMessage";
             this._logger.Error(description);
             
-            return new AS4ExceptionBuilder().WithDescription(description).Build();
+            return AS4ExceptionBuilder.WithDescription(description).Build();
         }
     }
 }

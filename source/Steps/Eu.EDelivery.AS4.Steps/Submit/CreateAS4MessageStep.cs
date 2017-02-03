@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             string description = $"[generated: {generatedMessageId}] Unable to Create AS4 Message from Submit Message";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
                 .WithMessageIds(generatedMessageId)

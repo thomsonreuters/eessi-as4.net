@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             this._logger.Error(description);
             this._logger.Error($"{internalMessage.Prefix} {exception.Message}");
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(exception)
                 .WithMessageIds(internalMessage.AS4Message.MessageIds)

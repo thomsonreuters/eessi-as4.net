@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
                 .WithMessageIds(internalMessage.AS4Message.MessageIds)

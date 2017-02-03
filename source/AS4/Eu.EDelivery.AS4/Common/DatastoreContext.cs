@@ -220,9 +220,9 @@ namespace Eu.EDelivery.AS4.Common
 
         private AS4Exception ThrowDatastoreUnavailableException(Exception innerException = null)
         {
-            return new AS4ExceptionBuilder()
-                .WithInnerException(innerException)
+            return AS4ExceptionBuilder
                 .WithDescription("Datastore unavailable")
+                .WithInnerException(innerException)                
                 .WithErrorCode(ErrorCode.Ebms0004)
                 .Build();
         }
