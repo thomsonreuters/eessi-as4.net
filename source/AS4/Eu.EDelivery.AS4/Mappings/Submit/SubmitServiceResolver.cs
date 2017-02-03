@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
@@ -30,8 +31,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         /// <returns></returns>
         public CoreService Resolve(SubmitMessage message)
         {
-            if (DoesSubmitMessageTriesToOverridePModeValues(message))
+            if (message.PMode.AllowOverride == false && DoesSubmitMessageTriesToOverridePModeValues(message))
+            {
                 throw new AS4Exception($"Submit message is not allowed by PMode {message.PMode.Id} to override Service");
+            }
 
             if (message.Collaboration.Service?.Value != null)
                 return Mapper.Map<CoreService>(message.Collaboration.Service);
@@ -39,12 +42,14 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return this._pmodeResolver.Resolve(message.PMode);
         }
 
-        private bool DoesSubmitMessageTriesToOverridePModeValues(SubmitMessage message)
-        {
-            return 
-                message.PMode.AllowOverride == false && 
-                message.Collaboration.Service?.Value != null && 
-                message.PMode.MessagePackaging.CollaborationInfo?.Service?.Value != null;
+        private static bool DoesSubmitMessageTriesToOverridePModeValues(SubmitMessage message)
+        {            
+            return
+
+                message.Collaboration.Service?.Value != null &&
+                message.PMode.MessagePackaging.CollaborationInfo?.Service?.Value != null &&
+                StringComparer.OrdinalIgnoreCase.Equals(message.Collaboration.Service?.Value,
+                    message.PMode.MessagePackaging.CollaborationInfo?.Service?.Value) == false;
         }
     }
 }

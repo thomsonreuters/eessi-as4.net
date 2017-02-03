@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             string generatedMessageId = Guid.NewGuid().ToString();
 
             return AS4ExceptionBuilder
-                .WithDescription($"[generated: {generatedMessageId}] Cannot retrieve Sending PMode")
+                .WithDescription($"[generated: {generatedMessageId}] Cannot retrieve Sending PMode", exception)
                 .WithInnerException(exception)                
                 .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
                 .WithMessageIds(generatedMessageId)

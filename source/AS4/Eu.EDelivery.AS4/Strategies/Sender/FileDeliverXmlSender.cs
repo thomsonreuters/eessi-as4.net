@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         {
 
             string filename = FilenameSanitizer.EnsureValidFilename(deliverMessage.MessageInfo.MessageId) + ".xml";
-            string location = Path.Combine(locationFolder, filename);
+            string location = Path.Combine(locationFolder??"", filename);
 
             using (FileStream fileStream = File.Create(location))
             {

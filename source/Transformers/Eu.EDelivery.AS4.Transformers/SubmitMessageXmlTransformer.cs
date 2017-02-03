@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             _logger.Info($"Transforming ReceivedMessage {message.Id} to InternalMessage");
             
-            SubmitMessage submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
+            var submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
             ValidateSubmitMessage(submitMessage);
 
             var internalMessage = new InternalMessage(submitMessage);
@@ -73,10 +73,11 @@ namespace Eu.EDelivery.AS4.Transformers
             const string description = "Deserialize Submit Message Fails";
             this._logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(exception)                
-                .Build();
+            var builder = AS4ExceptionBuilder
+                .WithDescription(description, exception)
+                .WithInnerException(exception);
+                
+            return builder.Build();
         }
 
         private void ValidateSubmitMessage(SubmitMessage submitMessage)
