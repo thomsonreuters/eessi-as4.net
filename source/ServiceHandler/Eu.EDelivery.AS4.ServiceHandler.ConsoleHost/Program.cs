@@ -43,6 +43,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             if (task.IsFaulted && task.Exception != null)
                 Console.WriteLine(task.Exception.ToString());
 
+            Config.Instance.Dispose();
+
             Console.ReadLine();
         }
 

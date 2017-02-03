@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Common
     /// <summary>
     /// Responsible for making sure that every child (ex. Step) is executed in the same Context
     /// </summary>
-    public sealed class Config : IConfig
+    public sealed class Config : IConfig, IDisposable
     {
         private static readonly IConfig Singleton = new Config();
         private readonly ILogger _logger;
@@ -25,6 +25,9 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IDictionary<string, string> _configuration;
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _sendingPModes;
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _receivingPModes;
+
+        private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
+        private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
 
         private Settings _settings;
         private List<SettingsAgent> _agents;
@@ -54,10 +57,13 @@ namespace Eu.EDelivery.AS4.Common
                 this.IsInitialized = true;
                 RetrieveLocalConfiguration();
 
-                new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._sendingPModes);
-                new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._receivingPModes);
+                _sendingPModeWatcher = new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._sendingPModes);
+                _receivingPModeWatcher = new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._receivingPModes);
 
                 LoadExternalAssemblies();
+
+                _sendingPModeWatcher.Start();
+                _sendingPModeWatcher.Start();
             }
             catch (Exception exception)
             {
@@ -257,6 +263,14 @@ namespace Eu.EDelivery.AS4.Common
                 yield return agent.Url;
             }
 
+        }
+
+        public void Dispose()
+        {
+            _sendingPModeWatcher?.Stop();
+            _receivingPModeWatcher?.Stop();
+            _sendingPModeWatcher?.Dispose();
+            _receivingPModeWatcher?.Dispose();
         }
     }
 }
