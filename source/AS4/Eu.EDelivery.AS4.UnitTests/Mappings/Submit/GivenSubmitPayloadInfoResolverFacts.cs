@@ -76,12 +76,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenResolveFailsWithEmptySchemaLocation()
             {
                 // Arrange
-                SubmitMessage submitMesage = base.CreatePopulatedSubmitMessage();
-                submitMesage.Payloads.ForEach(p => p.Schemas = new[] {new CommonSchema(location: string.Empty)});
-                submitMesage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
+
+                foreach (var p in submitMessage.Payloads)
+                {
+                    p.Schemas = new[] { new CommonSchema(location: string.Empty) };
+                }
+                
+                submitMessage.PMode = base.CreatePopulatedSendingPMode();
                 // Act / Assert
                 Assert.Throws<AS4Exception>(
-                    () => new SubmitPayloadInfoResolver().Resolve(submitMesage));
+                    () => new SubmitPayloadInfoResolver().Resolve(submitMessage));
             }
 
             [Fact]
@@ -89,8 +94,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.Payloads.ForEach(
-                    p => p.PayloadProperties = new[] {new PayloadProperty(name: string.Empty)});
+
+                foreach (var p in submitMessage.Payloads)
+                {
+                    p.PayloadProperties = new[] {new PayloadProperty(name: string.Empty)};
+                }
+                
                 submitMessage.PMode = base.CreatePopulatedSendingPMode();
                 // Act
                 Assert.Throws<AS4Exception>(
