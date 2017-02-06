@@ -29,7 +29,6 @@ namespace Eu.EDelivery.AS4.Serialization
     /// </summary>
     public class SoapEnvelopeSerializer : ISerializer
     {
-        //private readonly SoapEnvelopeBuilder _builder;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -96,9 +95,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 return null;
             }
 
-            return  message.SecurityHeader?.GetXml();            
+            return message.SecurityHeader?.GetXml();
         }
-                
+
         private void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
             if (!IsMultiHop(as4Message.SendingPMode) || !as4Message.IsSignalMessage) return;
@@ -116,9 +115,9 @@ namespace Eu.EDelivery.AS4.Serialization
 
             builder.SetRoutingInput(routingInput);
         }
-               
+
         private void WriteSoapEnvelopeTo(XmlDocument soapEnvelopeDocument, Stream stream)
-        {            
+        {
             using (XmlWriter writer = XmlWriter.Create(stream, DefaultXmlWriterSettings))
             {
                 soapEnvelopeDocument.WriteTo(writer);
@@ -316,10 +315,10 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static ICollection<Model.Core.UserMessage> GetUserMessagesFromHeader(Xml.Messaging header)
-        {            
+        {
             if (header.UserMessage == null)
             {
-                return new UserMessage[] {};
+                return new UserMessage[] { };
             }
 
             var messages = TryMapUserMessages(header);
