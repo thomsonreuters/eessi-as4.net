@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     public class MinderSendAS4MessageStep : SendAS4MessageStep
     {
-        protected override void HandleSendAS4Exception(InternalMessage internalMessage, Exception exception)
+        protected override StepResult HandleSendAS4Exception(InternalMessage internalMessage, Exception exception)
         {
             // [CONFORMANCE TESTING] Don't rethrow exception to not have an endless loop of retrying
             // Reason: Minder Interceptor doesn't always return a valid AS4 Message
@@ -24,6 +24,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 logger.Error(exception.InnerException.Message);
             }
+
+            return StepResult.Failed(CreateFailedSendAS4Exception(internalMessage, exception));
         }
     }
 }

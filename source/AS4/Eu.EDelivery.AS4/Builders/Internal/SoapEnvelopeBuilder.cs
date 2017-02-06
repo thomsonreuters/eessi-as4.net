@@ -158,6 +158,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// Break Down the Soap Envelope Builder
         /// </summary>
         /// <returns></returns>
+        [Obsolete("should no longer be used or should be renamed to reset.")]
         public SoapEnvelopeBuilder BreakDown()
         {
             InitializeBuilder();
