@@ -30,8 +30,8 @@
       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.MinderOutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-        <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-        <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.MinderSignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.MinderEncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.SendAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.SendUpdateDataStoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       </Steps>
@@ -101,7 +101,7 @@
         <Setting key="Field">Operation</Setting>
         <Setting key="Value">ToBeNotified</Setting>
         <Setting key="Update">Notifying</Setting>
-	      <Setting key="PollingInterval">3000</Setting>
+	<Setting key="PollingInterval">3000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.MinderOutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -115,7 +115,7 @@
         <Setting key="Table">ReceptionAwareness</Setting>
         <Setting key="Field">IsCompleted</Setting>
         <Setting key="Value">false</Setting>
-	      <Setting key="PollingInterval">5000</Setting>
+	<Setting key="PollingInterval">5000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ReceptionAwarenessTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <Steps>

@@ -73,6 +73,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private static SecurityTokenReference GetSecurityTokenReference(XmlNode encryptedKeyNode)
         {
+            if (encryptedKeyNode == null)
+            {
+                return new BinarySecurityTokenReference();
+            }
+
             if (HasEnvelopeTag(encryptedKeyNode, tag: "BinarySecurityToken"))
                 return new BinarySecurityTokenReference();
 
