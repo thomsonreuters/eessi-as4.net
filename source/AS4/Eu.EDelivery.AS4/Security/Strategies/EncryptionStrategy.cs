@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.Builders;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Factories;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Security.Transforms;
 using Org.BouncyCastle.Crypto;
@@ -61,6 +62,32 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this._attachments = new List<Attachment>();
             this._encryptedDatas = new List<EncryptedData>();
             this._as4EncryptedKey = new AS4EncryptedKey();
+
+            var encryptedKeyNode = document.SelectSingleNode("//*[local-name()='EncryptedKey']");
+            if (encryptedKeyNode != null)
+            {
+                this._configuration.Key.SecurityTokenReference = GetSecurityTokenReference(encryptedKeyNode);
+            }
+        }
+
+
+        private static SecurityTokenReference GetSecurityTokenReference(XmlNode encryptedKeyNode)
+        {
+            if (HasEnvelopeTag(encryptedKeyNode, tag: "BinarySecurityToken"))
+                return new BinarySecurityTokenReference();
+
+            if (HasEnvelopeTag(encryptedKeyNode, tag: "X509SerialNumber"))
+                return new IssuerSecurityTokenReference();
+
+            if (HasEnvelopeTag(encryptedKeyNode, tag: "KeyIdentifier"))
+                return new KeyIdentifierSecurityTokenReference();
+
+            return new BinarySecurityTokenReference();
+        }
+
+        private static bool HasEnvelopeTag(XmlNode envelope, string tag)
+        {
+            return envelope?.SelectSingleNode($".//*[local-name()='{tag}']") != null;
         }
 
         /// <summary>
