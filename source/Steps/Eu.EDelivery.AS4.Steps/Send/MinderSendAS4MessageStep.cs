@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// with no exception handling, just catching
     /// </summary>
     public class MinderSendAS4MessageStep : SendAS4MessageStep
-    {       
+    {
         protected override StepResult HandleSendAS4Exception(InternalMessage internalMessage, Exception exception)
         {
             // [CONFORMANCE TESTING] Don't rethrow exception to not have an endless loop of retrying
