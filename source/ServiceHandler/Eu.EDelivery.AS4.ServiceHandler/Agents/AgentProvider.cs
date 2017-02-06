@@ -136,16 +136,16 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 Step = new Step[]
                 {
                     new Step { Type = typeof(DeterminePModesStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName },
+                    new Step { Type = typeof(MinderDecryptAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName },
                     new Step { Type = typeof(ReceiveUpdateDatastoreStep).AssemblyQualifiedName},
                     new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName },
                     new Step { Type = typeof(StoreAS4ReiptStep).AssemblyQualifiedName},
-                    new Step { Type = typeof(SignAS4MessageStep).AssemblyQualifiedName },
+                    new Step { Type = typeof(MinderSignAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(SendAS4ReceiptStep).AssemblyQualifiedName },
                     new Step { UnDecorated = true,Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName },
-                    new Step { UnDecorated = true, Type=typeof(SignAS4MessageStep).AssemblyQualifiedName},
+                    new Step { UnDecorated = true, Type=typeof(MinderSignAS4MessageStep).AssemblyQualifiedName},
                 }
             };
         }
