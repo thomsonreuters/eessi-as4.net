@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Algorithms;
@@ -15,6 +16,7 @@ using Eu.EDelivery.AS4.Security.Factories;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Security.Transforms;
+using NLog;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -63,28 +65,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this._encryptedDatas = new List<EncryptedData>();
             this._as4EncryptedKey = new AS4EncryptedKey();
 
-            XmlNode encryptedKeyNode = document.SelectSingleNode("//*[local-name()='EncryptedKey']");
-            this._configuration.Key.SecurityTokenReference = GetSecurityTokenReference(encryptedKeyNode);
-        }
+            var encryptedKeyElement = document.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
+            if (encryptedKeyElement != null)
+            {
+                var provider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
-        private SecurityTokenReference GetSecurityTokenReference(XmlNode envelopeDocument)
-        {
-            if (HasEnvelopeTag(envelopeDocument, tag: "BinarySecurityToken"))
-                return new BinarySecurityTokenReference();
-
-            if (HasEnvelopeTag(envelopeDocument, tag: "X509SerialNumber"))
-                return new IssuerSecurityTokenReference();
-
-            if (HasEnvelopeTag(envelopeDocument, tag: "KeyIdentifier"))
-                return new KeyIdentifierSecurityTokenReference();
-
-            // TODO: use 'Binary Security Token' as default
-            return new BinarySecurityTokenReference();
-        }
-
-        private bool HasEnvelopeTag(XmlNode envelope, string tag)
-        {
-            return envelope?.SelectSingleNode($".//*[local-name()='{tag}']") != null;
+                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement);
+            }
         }
 
         /// <summary>
@@ -173,7 +160,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private byte[] GenerateSymmetricKey(int keySize)
         {
-            using (var rijn = new RijndaelManaged {KeySize = keySize}) return rijn.Key;
+            using (var rijn = new RijndaelManaged { KeySize = keySize }) return rijn.Key;
         }
 
         private void SetEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
@@ -283,8 +270,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 DecryptAttachment(encryptedData, decryptAlgorithm);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Error($"Failed to decrypt data element {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    logger.Error(ex.InnerException.Message);
+                }
                 throw new AS4Exception($"Failed to decrypt data element");
             }
         }
