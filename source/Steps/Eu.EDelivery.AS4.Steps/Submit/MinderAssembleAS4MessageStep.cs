@@ -49,6 +49,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             AssignMessageProperties(userMessage);
             RemoveUnusedAgreementRef(userMessage);
             RemoveAllInfoMessageProperties(userMessage);
+
+            internalMessage.AS4Message.SecurityHeader = new SecurityHeader();
         }
 
         private void AssignMessageProperties(UserMessage userMessage)
