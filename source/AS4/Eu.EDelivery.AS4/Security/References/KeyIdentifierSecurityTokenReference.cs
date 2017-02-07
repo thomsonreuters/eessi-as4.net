@@ -3,7 +3,6 @@ using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Security.References
 {
@@ -12,9 +11,7 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal class KeyIdentifierSecurityTokenReference : SecurityTokenReference
     {
-        private readonly string _securityTokenReferenceId;
         private readonly string _keyInfoId;
-        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyIdentifierSecurityTokenReference"/> class. 
@@ -24,8 +21,11 @@ namespace Eu.EDelivery.AS4.Security.References
         public KeyIdentifierSecurityTokenReference()
         {
             this._keyInfoId = $"KI-{Guid.NewGuid()}";
-            this._securityTokenReferenceId = $"STR-{Guid.NewGuid()}";
-            this._logger = LogManager.GetCurrentClassLogger();
+        }
+
+        public KeyIdentifierSecurityTokenReference(XmlElement envelope)
+        {
+            LoadXml(envelope);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <returns></returns>
         public override XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {
-            var nodeKeyInfo = (XmlElement) element.SelectSingleNode("//*[local-name()='KeyInfo']");
+            var nodeKeyInfo = (XmlElement)element.SelectSingleNode("//*[local-name()='KeyInfo']");
             nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, this._keyInfoId);
 
             return element;

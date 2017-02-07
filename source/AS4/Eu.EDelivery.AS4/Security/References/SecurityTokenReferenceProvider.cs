@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
@@ -9,16 +10,16 @@ namespace Eu.EDelivery.AS4.Security.References
     /// Class to provide <see cref="SecurityTokenReference"/> implementations
     /// TODO: will be moved to <see cref="SecurityTokenReference"/>
     /// </summary>
-    public class SecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
+    public class OldSecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
     {
         private readonly IDictionary<X509ReferenceType, SecurityTokenReference> _references;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SecurityTokenReferenceProvider"/> class. 
+        /// Initializes a new instance of the <see cref="OldSecurityTokenReferenceProvider"/> class. 
         /// Create a new Security Token Reference Provider
         /// with Defaults registered
         /// </summary>
-        public SecurityTokenReferenceProvider()
+        public OldSecurityTokenReferenceProvider()
         {
             this._references = new Dictionary<X509ReferenceType, SecurityTokenReference>
             {
@@ -47,6 +48,76 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <returns></returns>
         public SecurityTokenReference Get(XmlNode envelopeDocument)
         {
+            var binaryEnvelope = GetElement(envelopeDocument, tag: "BinarySecurityToken");
+            if (binaryEnvelope != null)
+            {
+                return new BinarySecurityTokenReference(binaryEnvelope);
+            }
+            else
+            {
+                var issuerEnvelope = GetElement(envelopeDocument, tag: "X509SerialNumber");
+
+                if (issuerEnvelope != null)
+                {
+                    return new IssuerSecurityTokenReference(issuerEnvelope);
+                }
+                else
+                {
+                    var keyEnvelope = GetElement(envelopeDocument, tag: "KeyIdentifier");
+
+                    if (keyEnvelope != null)
+                    {
+                        return new KeyIdentifierSecurityTokenReference(keyEnvelope);
+                    }
+                }
+            }
+
+            throw new NotSupportedException("No matching SecurityTokenReference implementation found");
+
+            ////if (HasEnvelopeTag(envelopeDocument, tag: "BinarySecurityToken"))
+            ////    return new BinarySecurityTokenReference();
+
+            ////if (HasEnvelopeTag(envelopeDocument, tag: "X509SerialNumber"))
+            ////    return new IssuerSecurityTokenReference();
+
+            ////if (HasEnvelopeTag(envelopeDocument, tag: "KeyIdentifier"))
+            ////    return new KeyIdentifierSecurityTokenReference();
+
+            ////// Return a BinarySecurityTokenReference as a default when no other option was possible.
+            ////return new BinarySecurityTokenReference();
+        }
+
+        private static XmlElement GetElement(XmlNode envelope, string tag)
+        {
+            return envelope?.SelectSingleNode($"//*[local-name()='{tag}']") as XmlElement;            
+        }
+
+        ////private static bool HasEnvelopeTag(XmlNode envelope, string tag)
+        ////{
+        ////    return envelope?.SelectSingleNode($"//*[local-name()='{tag}']") != null;
+        ////}
+    }
+
+    public class SecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
+    {
+        public SecurityTokenReference Get(X509ReferenceType referenceType)
+        {
+            switch (referenceType)
+            {
+                case X509ReferenceType.BSTReference:
+                    return new BinarySecurityTokenReference();
+                case X509ReferenceType.IssuerSerial:
+                    return new IssuerSecurityTokenReference();
+                case X509ReferenceType.KeyIdentifier:
+                    return new KeyIdentifierSecurityTokenReference();
+
+                default:
+                    throw new NotSupportedException($"There exists no SecurityTokenReferenceType for {referenceType}");
+            }
+        }
+
+        public SecurityTokenReference Get(XmlNode envelopeDocument)
+        {
             if (HasEnvelopeTag(envelopeDocument, tag: "BinarySecurityToken"))
                 return new BinarySecurityTokenReference();
 
@@ -57,7 +128,8 @@ namespace Eu.EDelivery.AS4.Security.References
                 return new KeyIdentifierSecurityTokenReference();
 
             // Return a BinarySecurityTokenReference as a default when no other option was possible.
-            return new BinarySecurityTokenReference();
+            throw new NotSupportedException("No matching TokenReferenceType found in envelopeDocument");
+            //return new BinarySecurityTokenReference();
         }
 
         private static bool HasEnvelopeTag(XmlNode envelope, string tag)

@@ -1,6 +1,10 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Xml;
+using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
@@ -60,7 +64,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
         private void InitializeFields()
         {
-            this._tokenProvider = new SecurityTokenReferenceProvider();
+            this._tokenProvider = new SecurityTokenReferenceProvider();  // new OldSecurityTokenReferenceProvider();
             this._algorithmProvider = new SignatureAlgorithmProvider();
             this._logger = LogManager.GetCurrentClassLogger();
         }
@@ -74,9 +78,50 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
         private void LoadSecurityTokenReference(XmlDocument envelopeDocument)
         {
-            SecurityTokenReference securityTokenReference = this._tokenProvider.Get(envelopeDocument);
-            this._strategy.SecurityTokenReference = securityTokenReference;
-            this._logger.Debug($"Verify with Security Token Reference: {securityTokenReference.GetType().Name}");
+            //SecurityTokenReference securityTokenReference = this._tokenProvider.Get(envelopeDocument);
+
+            if (envelopeDocument == null)
+            {
+                throw new ArgumentNullException(nameof(envelopeDocument));
+            }
+
+            var tokenNodes =
+                envelopeDocument.SelectNodes("//*[local-name()='Signature/SecurityTokenReference']")?.OfType<XmlElement>().ToArray();
+
+            SecurityTokenReference token = null;
+
+            if (tokenNodes != null)
+            {
+                LogManager.GetCurrentClassLogger().Info($"{tokenNodes.Count()} Signature Tokens retrieved.");
+
+                XmlElement securityTokenElement = tokenNodes.FirstOrDefault();
+
+                if (securityTokenElement != null)
+                {
+                    token = _tokenProvider.Get(securityTokenElement);
+                    this._strategy.SecurityTokenReference = token;
+                    this._logger.Debug($"Verify with Security Token Reference: {token.GetType().Name}");
+                }
+            }
+            //XmlElement securityTokenElement = null;
+            //foreach (XmlNode tokenNode in tokenNodes)
+            //    if (tokenNode.ParentNode.ParentNode.LocalName.Equals("Signature"))
+            //        securityTokenElement = tokenNode as XmlElement;
+
+
+            
+
+
+            // [CONFORMANCE TESTING] Before Conformance Testing
+            //var securityTokenElement =
+            //    envelopeDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
+
+            if (token == null)
+            {
+                throw AS4ExceptionBuilder.WithDescription("No Security Token Reference element found in given Xml Document")
+                                           .WithErrorCode(ErrorCode.Ebms0101)
+                                           .Build();
+            }                      
         }
 
         /// <summary>

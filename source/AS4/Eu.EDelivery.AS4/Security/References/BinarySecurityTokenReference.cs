@@ -9,7 +9,16 @@ namespace Eu.EDelivery.AS4.Security.References
     /// Binary Security Token Strategy to add a Security Reference to the Message
     /// </summary>
     internal class BinarySecurityTokenReference : SecurityTokenReference
-    {        
+    {
+        public BinarySecurityTokenReference()
+        {                
+        }
+
+        public BinarySecurityTokenReference(XmlElement securityTokenElement)
+        {
+            this.LoadXml(securityTokenElement);            
+        }
+          
         /// <summary>
         /// Append the Security Token Reference for the Binary Security Token
         /// </summary>
@@ -85,7 +94,7 @@ namespace Eu.EDelivery.AS4.Security.References
 
             XmlElement binarySecurityTokenElement = GetBinarySecurityTokenElementFrom(element);
             if (binarySecurityTokenElement != null)
-                AssignCertificate(binarySecurityTokenElement);
+                AssignCertificate(binarySecurityTokenElement);            
         }
 
         private void AssignCertificate(XmlElement binarySecurityTokenElement)

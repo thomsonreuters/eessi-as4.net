@@ -158,7 +158,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             foreach (SecurityTokenReference reference in this.KeyInfo.OfType<SecurityTokenReference>())
             {
-                if(reference.Certificate == null) reference.LoadXml(this._document);
+                if (reference.Certificate == null)
+                {
+                    throw new InvalidOperationException("SecurityTokenReference does not contain certificate information");                   
+                }
                 reference.AppendSecurityTokenTo(securityElement, securityElement.OwnerDocument);
             }
         }
@@ -228,7 +231,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void LoadCertificate(ICertificateRepository certificateRepository)
         {
             this.SecurityTokenReference.CertificateRepository = certificateRepository;
-            this.SecurityTokenReference.LoadXml(this._document);
+            // FRGH
+           // this.SecurityTokenReference.LoadXml(this._document);
 
             if (!VerifyCertificate(this.SecurityTokenReference.Certificate))
                 throw ThrowAS4SignException("The signing certificate is not trusted");
