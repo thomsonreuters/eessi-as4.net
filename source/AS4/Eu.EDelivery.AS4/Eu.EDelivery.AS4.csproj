@@ -252,6 +252,7 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
     <Compile Include="Factories\UserMessageFactory.cs" />
+    <Compile Include="InfoAttribute.cs" />
     <Compile Include="Mappings\PMode\IPModeResolver.cs" />
     <Compile Include="Mappings\PMode\PModeActionResolver.cs" />
     <Compile Include="Mappings\PMode\PModeAgreementRefResolver.cs" />

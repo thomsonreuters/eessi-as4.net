@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Net;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;

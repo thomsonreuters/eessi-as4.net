@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Net;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Security.References;
 
