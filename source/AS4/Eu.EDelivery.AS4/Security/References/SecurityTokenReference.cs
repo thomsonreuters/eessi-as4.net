@@ -2,9 +2,6 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Security.References
 {
@@ -34,27 +31,6 @@ namespace Eu.EDelivery.AS4.Security.References
 
         public abstract override void LoadXml(XmlElement element);
 
-        /// <summary>
-        /// Load the given <see cref="envelopeDocument"/> 
-        /// in the <see cref="SecurityTokenReference"/>
-        /// </summary>
-        /// <param name="envelopeDocument"></param>
-        ////public void LoadXml(XmlDocument envelopeDocument)
-        ////{
-        ////    // TODO: we need to make sure that this gets implemented correctly.
-        ////    // the correct SecurityTokenReference should be retrieved.
-        ////    // Take a look at the implementation in Conformance-testing branch.
-
-        ////    var securityTokenElement =
-        ////        envelopeDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
-
-        ////    if (securityTokenElement == null)
-        ////        throw AS4ExceptionBuilder
-        ////            .WithDescription("No Security Token Reference element found in given Xml Document")
-        ////            .WithErrorCode(ErrorCode.Ebms0101)
-        ////            .Build();
-
-        ////    this.LoadXml(securityTokenElement);
-        ////}
+        
     }
 }
