@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <summary>
         /// Gets or sets the reference id.
         /// </summary>
-        public string ReferenceId { get; set; } = "cert-" + Guid.NewGuid();
+        public string ReferenceId { get; protected set; } = "cert-" + Guid.NewGuid();
 
         public virtual XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {
