@@ -44,22 +44,22 @@ namespace Eu.EDelivery.AS4.Security.References
         /// in the <see cref="SecurityTokenReference"/>
         /// </summary>
         /// <param name="envelopeDocument"></param>
-        public void LoadXml(XmlDocument envelopeDocument)
-        {
-            // TODO: we need to make sure that this gets implemented correctly.
-            // the correct SecurityTokenReference should be retrieved.
-            // Take a look at the implementation in Conformance-testing branch.
+        ////public void LoadXml(XmlDocument envelopeDocument)
+        ////{
+        ////    // TODO: we need to make sure that this gets implemented correctly.
+        ////    // the correct SecurityTokenReference should be retrieved.
+        ////    // Take a look at the implementation in Conformance-testing branch.
 
-            var securityTokenElement =
-                envelopeDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
+        ////    var securityTokenElement =
+        ////        envelopeDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference'] ") as XmlElement;
 
-            if (securityTokenElement == null)
-                throw AS4ExceptionBuilder
-                    .WithDescription("No Security Token Reference element found in given Xml Document")
-                    .WithErrorCode(ErrorCode.Ebms0101)
-                    .Build();
+        ////    if (securityTokenElement == null)
+        ////        throw AS4ExceptionBuilder
+        ////            .WithDescription("No Security Token Reference element found in given Xml Document")
+        ////            .WithErrorCode(ErrorCode.Ebms0101)
+        ////            .Build();
 
-            this.LoadXml(securityTokenElement);
-        }
+        ////    this.LoadXml(securityTokenElement);
+        ////}
     }
 }
