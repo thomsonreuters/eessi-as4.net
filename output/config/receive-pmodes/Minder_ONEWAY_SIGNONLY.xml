@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ONEWAY_ONLY_SIGN</Id>
+  <Id>ONEWAY_SIGNONLY</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -9,21 +9,31 @@
     </DuplicateElimination>
   </Reliability>
   <ReceiptHandling>
-    <UseNNRFormat>false</UseNNRFormat>
+    <UseNNRFormat>true</UseNNRFormat>
     <ReplyPattern>Response</ReplyPattern>
     <SendingPMode>Minder_response</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
-    <NotifyMessageConsumer>false</NotifyMessageConsumer>
-    <NotifyMethod />
+    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\errors\" />
+      </Parameters>
+    </NotifyMethod>
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>
     <SendingPMode>Minder_response</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
-    <NotifyMessageConsumer>false</NotifyMessageConsumer>
-    <NotifyMethod />
+    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\exceptions\" />
+      </Parameters>
+    </NotifyMethod>
   </ExceptionHandling>
   <Security>
     <SigningVerification>
@@ -31,8 +41,8 @@
     </SigningVerification>
   <Signing>
       <IsEnabled>false</IsEnabled>
-      <KeyReferenceMethod>IssuerSerial</KeyReferenceMethod>
-      <PrivateKeyFindValue>PartyA</PrivateKeyFindValue>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
@@ -45,21 +55,23 @@
   <MessagePackaging>
     <PartyInfo>
         <FromParty>
-          <PartyIds>
-            <PartyId>
-              <Id>as4-net-c2</Id>
-            </PartyId>
-          </PartyIds>
-          <Role>Sender</Role>
-        </FromParty>
-        <ToParty>
-          <PartyIds>
-            <PartyId>
-              <Id>as4-net-c3</Id>
-            </PartyId>
-          </PartyIds>
-          <Role>Receiver</Role>
-        </ToParty>
+				<PartyIds>
+					<PartyId>
+						<Id>as4-net-c2</Id>
+						<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
+					</PartyId>
+				</PartyIds>
+				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
+			</FromParty>
+			<ToParty>
+				<PartyIds>
+					<PartyId>
+						<Id>as4-net-c3</Id>
+						<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
+					</PartyId>
+				</PartyIds>
+				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
+			</ToParty>
       </PartyInfo>
       <CollaborationInfo>
         <Action>ACT_ONEWAY_SIGNONLY</Action>
