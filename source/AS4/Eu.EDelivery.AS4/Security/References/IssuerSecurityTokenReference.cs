@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
+using Eu.EDelivery.AS4.Repositories;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Security.References
@@ -12,6 +13,7 @@ namespace Eu.EDelivery.AS4.Security.References
     {
         private readonly string _securityTokenReferenceId;
         private readonly string _keyInfoId;
+        private readonly ICertificateRepository _certifcateRepository;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -19,16 +21,18 @@ namespace Eu.EDelivery.AS4.Security.References
         /// Create a new <see cref="SecurityTokenReference"/>
         /// to handle <see cref="X509ReferenceType.IssuerSerial"/> configuration
         /// </summary>
-        public IssuerSecurityTokenReference()
+        public IssuerSecurityTokenReference(ICertificateRepository certificateRepository)
         {
             this._keyInfoId = $"KI-{Guid.NewGuid()}";
             this._securityTokenReferenceId = $"STR-{Guid.NewGuid()}";
             this._logger = LogManager.GetCurrentClassLogger();
+            this._certifcateRepository = certificateRepository;
         }
 
-        public IssuerSecurityTokenReference(XmlElement envelope)
+        public IssuerSecurityTokenReference(XmlElement envelope, ICertificateRepository certifcateRepository)
         {
-            LoadXml(envelope);            
+            LoadXml(envelope);
+            _certifcateRepository = certifcateRepository;
         }
 
         /// <summary>
@@ -130,8 +134,7 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             var xmlIssuerSerial = (XmlElement)element.SelectSingleNode("//*[local-name()='X509SerialNumber']");
 
-            this.Certificate = this.CertificateRepository
-                .GetCertificate(X509FindType.FindBySerialNumber, xmlIssuerSerial.InnerText);
+            this.Certificate = this._certifcateRepository.GetCertificate(X509FindType.FindBySerialNumber, xmlIssuerSerial.InnerText);
         }
     }
 }

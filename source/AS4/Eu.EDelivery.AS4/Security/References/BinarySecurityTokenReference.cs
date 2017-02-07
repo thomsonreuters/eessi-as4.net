@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Security.References
         }
 
         private XmlElement GetBinarySecurityTokenElementFrom(XmlNode node)
-        {
+        {            
             XmlNode securityHeader = node.ParentNode?.ParentNode?.ParentNode;
             return securityHeader?.ChildNodes?.OfType<XmlElement>()
                 .FirstOrDefault(IsElementABinarySecurityTokenElement);

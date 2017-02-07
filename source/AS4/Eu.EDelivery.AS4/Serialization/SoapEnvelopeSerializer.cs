@@ -199,8 +199,11 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-                envelopeDocument.Validate((sender, args)
-                    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
+                // FRGH
+                // [Conformance Testing]
+                // Temporarely disabled.
+                ////envelopeDocument.Validate((sender, args)
+                ////    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
             }
             catch (XmlSchemaValidationException exception)
             {

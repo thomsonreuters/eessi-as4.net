@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly XmlDocument _document;
         private readonly List<Attachment> _attachments;
 
-        private readonly EncryptionConfiguration _configuration;
+        private readonly EncryptionConfiguration _configuration;        
         private readonly List<EncryptedData> _encryptedDatas;
         private readonly AS4EncryptedKey _as4EncryptedKey;
 
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// Run once Crypto Configuration
         /// </summary>
         static EncryptionStrategy()
-        {
+        {            
             CryptoConfig.AddAlgorithm(typeof(AttachmentCiphertextTransform), AttachmentCiphertextTransform.Url);
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes128-gcm");
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes192-gcm");
@@ -70,9 +70,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 var provider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
-                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement);
+                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement);                    
             }
         }
+        
 
         /// <summary>
         /// Adds an <see cref="Attachment"/>, which the strategy can use later on in the encryption/decryption logic.

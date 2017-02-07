@@ -19,12 +19,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// Gets or sets the referenced <see cref="X509Certificate2"/>.
         /// </summary>
         public X509Certificate2 Certificate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the <see cref="ICertificateRepository"/> the retrieve the <see cref="X509Certificate2"/>
-        /// </summary>
-        public ICertificateRepository CertificateRepository { protected get; set; }
-
+        
         /// <summary>
         /// Gets or sets the reference id.
         /// </summary>
