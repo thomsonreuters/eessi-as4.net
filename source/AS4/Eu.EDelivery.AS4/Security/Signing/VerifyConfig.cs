@@ -9,8 +9,7 @@ namespace Eu.EDelivery.AS4.Security.Signing
     /// the verification of the <see cref="AS4Message"/>
     /// </summary>
     public class VerifyConfig
-    {
-        public ICertificateRepository CertificateRepository { get; set; }
+    {        
         public ICollection<Attachment> Attachments { get; set; }
     }
 }
