@@ -6,12 +6,12 @@
         public string Type { get; set; }
         public string Value { get; set; }
 
-        public MessageProperty() : this(string.Empty, string.Empty, string.Empty)
+        public MessageProperty() : this(null, null, null)
         {
             // Default ctor is necessary for XML Serialization.   
         }
 
-        public MessageProperty(string name, string value) : this(name, value, string.Empty)
+        public MessageProperty(string name, string value) : this(name, null, value)
         {
         }
 

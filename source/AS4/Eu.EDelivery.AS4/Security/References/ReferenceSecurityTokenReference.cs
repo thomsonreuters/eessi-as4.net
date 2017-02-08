@@ -4,6 +4,11 @@ namespace Eu.EDelivery.AS4.Security.References
 {
     public class ReferenceSecurityTokenReference : SecurityTokenReference
     {
+        public ReferenceSecurityTokenReference(string referenceId)
+        {
+            this.ReferenceId = referenceId;
+        }
+
         /// <summary>
         /// The ValueType attribute of the reference
         /// </summary>

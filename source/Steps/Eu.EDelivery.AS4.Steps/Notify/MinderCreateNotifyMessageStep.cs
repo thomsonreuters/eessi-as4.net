@@ -52,9 +52,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             if (userMessage != null)
             {
                 AssignMinderProperties(userMessage, signalMessage);
+                AssignSendingUrl(internalMessage);
             }
 
-            AssignSendingUrl(internalMessage);
+
             //RemoveUnneededUserMessage(internalMessage);
 
 
@@ -78,7 +79,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static void AssignSendingUrl(InternalMessage internalMessage)
         {
             AS4Message as4Message = internalMessage.AS4Message;
+
             IList<MessageProperty> messageProperties = as4Message.PrimaryUserMessage.MessageProperties;
+
+
             MessageProperty originalSender = messageProperties.FirstOrDefault(p => p.Name.Equals("originalSender"));
 
             int corner = originalSender?.Value.Equals("C1") == true ? 1 : 4;

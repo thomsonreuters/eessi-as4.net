@@ -140,13 +140,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 throw ThrowAS4Exception(
                     $"No Receiving PMode was found with for UserMessage with Message Id: {this._as4Message.PrimaryUserMessage.MessageId}");
 
-            if (TheresMoreThanOwnWinningParticipant(participants, winningParticipant))
+            if (TheresMoreThanOneWinningParticipant(participants, winningParticipant))
             {
                 throw ThrowToManyPModeFoundException();
             }
         }
 
-        private static bool TheresMoreThanOwnWinningParticipant(
+        private static bool TheresMoreThanOneWinningParticipant(
             IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             return participants.Count(p => p.Points == winningParticipant.Points) > 1;

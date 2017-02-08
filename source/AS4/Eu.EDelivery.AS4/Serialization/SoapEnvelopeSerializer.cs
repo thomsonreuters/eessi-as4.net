@@ -200,8 +200,11 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-                envelopeDocument.Validate((sender, args)
-                    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
+                // FRGH
+                // [Conformance Testing]
+                // Temporarely disabled.
+                ////envelopeDocument.Validate((sender, args)
+                ////    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
             }
             catch (XmlSchemaValidationException exception)
             {
@@ -290,20 +293,25 @@ namespace Eu.EDelivery.AS4.Serialization
         private static bool IsReadersNameMessaging(XmlReader reader)
             => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Messaging") && IsReadersNamespace(reader);
 
-        private ICollection<Model.Core.SignalMessage> GetSignalMessagesFromHeader(Xml.Messaging messagingHeader)
+        private List<Model.Core.SignalMessage> GetSignalMessagesFromHeader(Xml.Messaging messagingHeader)
         {
-            var signalMessages = new Collection<Model.Core.SignalMessage>();
-            if (messagingHeader.SignalMessage == null) return signalMessages;
-            foreach (Xml.SignalMessage signalMessage in messagingHeader.SignalMessage)
+            if (messagingHeader.SignalMessage == null)
             {
-                AddSignalMessageToList(signalMessages, signalMessage);
+                return new List<SignalMessage>();
             }
 
-            return signalMessages;
+            var messages = new List<SignalMessage>();
+
+            foreach (Xml.SignalMessage signalMessage in messagingHeader.SignalMessage)
+            {
+                AddSignalMessageToList(messages, signalMessage);
+            }
+
+            return messages;
         }
 
         private static void AddSignalMessageToList(
-            ICollection<Model.Core.SignalMessage> signalMessages, Xml.SignalMessage signalMessage)
+            List<Model.Core.SignalMessage> signalMessages, Xml.SignalMessage signalMessage)
         {
             if (signalMessage.Error != null)
                 signalMessages.Add(AS4Mapper.Map<Model.Core.Error>(signalMessage));
@@ -315,16 +323,16 @@ namespace Eu.EDelivery.AS4.Serialization
                 signalMessages.Add(AS4Mapper.Map<Model.Core.Receipt>(signalMessage));
         }
 
-        private static ICollection<Model.Core.UserMessage> GetUserMessagesFromHeader(Xml.Messaging header)
+        private static List<Model.Core.UserMessage> GetUserMessagesFromHeader(Xml.Messaging header)
         {
             if (header.UserMessage == null)
             {
-                return new UserMessage[] { };
+                return new List<UserMessage>();
             }
 
             var messages = TryMapUserMessages(header);
 
-            return messages.ToArray();
+            return messages.ToList();
         }
 
         private static IEnumerable<Model.Core.UserMessage> TryMapUserMessages(Xml.Messaging header)

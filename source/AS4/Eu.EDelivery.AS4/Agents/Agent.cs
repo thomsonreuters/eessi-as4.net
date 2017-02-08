@@ -130,6 +130,8 @@ namespace Eu.EDelivery.AS4.Agents
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
+            this._logger.Info($"{this.AgentConfig.Name} received and starts handling message with id {message.Id}");
+
             InternalMessage internalMessage = await TryTransform(message, cancellationToken);
 
             if (internalMessage.Exception != null)

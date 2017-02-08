@@ -11,13 +11,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
     /// </summary>
     public class GivenKeyIdentifierSecurityTokenReferenceFacts
     {
-        private readonly KeyIdentifierSecurityTokenReference _reference;
-        private readonly X509Certificate2 _dummyCertificate;
+        private readonly KeyIdentifierSecurityTokenReference _reference;        
 
         public GivenKeyIdentifierSecurityTokenReferenceFacts()
         {
-            this._dummyCertificate = new StubCertificateRepository().GetDummyCertificate();
-            this._reference = new KeyIdentifierSecurityTokenReference {Certificate = this._dummyCertificate};
+            var repository = new StubCertificateRepository();            
+            this._reference = new KeyIdentifierSecurityTokenReference(repository);
+            this._reference.Certificate = repository.GetDummyCertificate();
         }
 
         /// <summary>
@@ -93,15 +93,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             [Fact]
             public void ThenLoadXmlGetsCertificateFromXml()
             {
-                // Arrange
-                base._reference.Certificate = base._dummyCertificate;
+                // Arrange                
                 XmlElement keyIdentifierXml = base._reference.GetXml();
-                base._reference.Certificate = null;
-                base._reference.CertificateRepository = new StubCertificateRepository();
+                base._reference.Certificate = null;                
                 // Act
                 base._reference.LoadXml(keyIdentifierXml);
                 // Assert
-                Assert.Equal(base._dummyCertificate, base._reference.Certificate);
+                Assert.Equal(new StubCertificateRepository().GetDummyCertificate(), base._reference.Certificate);
             }
         }
     }

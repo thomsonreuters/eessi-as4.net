@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly string _securityTokenReferenceNamespace;
         private readonly XmlDocument _document;
 
-        public SecurityTokenReference SecurityTokenReference { get; internal set; }
+        public SecurityTokenReference SecurityTokenReference { get; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SigningStrategy"/> class. 
@@ -40,9 +40,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         /// <param name="document">
         /// </param>
-        internal SigningStrategy(XmlDocument document) : base(document)
+        /// <param name="securityTokenReference"></param>
+        internal SigningStrategy(XmlDocument document, SecurityTokenReference securityTokenReference) : base(document)
         {
             this._document = document;
+            SecurityTokenReference = securityTokenReference;
             this._securityTokenReferenceNamespace = $"{Constants.Namespaces.WssSecuritySecExt} SecurityTokenReference";
             this.SignedInfo.CanonicalizationMethod = XmlDsigExcC14NTransformUrl;
         }
@@ -71,7 +73,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
         {
-            var cspParams = new CspParameters(24) {KeyContainerName = "XML_DISG_RSA_KEY"};
+            var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
             var key = new RSACryptoServiceProvider(cspParams);
             using (certificate.GetRSAPrivateKey()) { }
             string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
@@ -99,7 +101,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="hashFunction"></param>
         public void AddXmlReference(string id, string hashFunction)
         {
-            var reference = new CryptoReference("#" + id) {DigestMethod = hashFunction};
+            var reference = new CryptoReference("#" + id) { DigestMethod = hashFunction };
             Transform transform = new XmlDsigExcC14NTransform();
             reference.AddTransform(transform);
             base.AddReference(reference);
@@ -112,7 +114,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="digestMethod"></param>
         public void AddAttachmentReference(Attachment attachment, string digestMethod)
         {
-            var attachmentReference = new CryptoReference(uri: CidPrefix + attachment.Id) {DigestMethod = digestMethod};
+            var attachmentReference = new CryptoReference(uri: CidPrefix + attachment.Id) { DigestMethod = digestMethod };
             attachmentReference.AddTransform(new AttachmentSignatureTransform());
             base.AddReference(attachmentReference);
 
@@ -158,7 +160,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             foreach (SecurityTokenReference reference in this.KeyInfo.OfType<SecurityTokenReference>())
             {
-                if(reference.Certificate == null) reference.LoadXml(this._document);
+                if (reference.Certificate == null)
+                {
+                    throw new InvalidOperationException("SecurityTokenReference does not contain certificate information");
+                }
                 reference.AppendSecurityTokenTo(securityElement, securityElement.OwnerDocument);
             }
         }
@@ -207,7 +212,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <returns></returns>
         public bool VerifySignature(VerifyConfig options)
         {
-            LoadCertificate(options.CertificateRepository);
+            X509ChainStatus[] status;
+
+            if (!VerifyCertificate(this.SecurityTokenReference.Certificate, out status))
+            {
+
+                throw ThrowAS4SignException($"The signing certificate is not trusted: {string.Join(" ", status.Select(s => s.StatusInformation))}");
+            }
 
             this.LoadXml(GetSignatureElement());
             this.AddUnreconizedAttachmentReferences(options.Attachments);
@@ -224,21 +235,18 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             return xmlSignature;
         }
-
-        private void LoadCertificate(ICertificateRepository certificateRepository)
+        
+        private bool VerifyCertificate(X509Certificate2 certificate, out X509ChainStatus[] errorMessages)
         {
-            this.SecurityTokenReference.CertificateRepository = certificateRepository;
-            this.SecurityTokenReference.LoadXml(this._document);
+            using (X509Chain chain = new X509Chain())
+            {
+                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
+                bool isValid = chain.Build(certificate);
 
-            if (!VerifyCertificate(this.SecurityTokenReference.Certificate))
-                throw ThrowAS4SignException("The signing certificate is not trusted");
-        }
+                errorMessages = isValid ? new X509ChainStatus[] { } : chain.ChainStatus;
 
-        private bool VerifyCertificate(X509Certificate2 certificate)
-        {
-            X509Chain chain = new X509Chain();
-            chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
-            return chain.Build(certificate);
+                return isValid;
+            }
         }
 
         private static AS4Exception ThrowAS4SignException(string description)

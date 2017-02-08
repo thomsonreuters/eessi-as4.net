@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Algorithms;
@@ -31,7 +32,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly XmlDocument _document;
         private readonly List<Attachment> _attachments;
 
-        private readonly EncryptionConfiguration _configuration;
+        private readonly EncryptionConfiguration _configuration;        
         private readonly List<EncryptedData> _encryptedDatas;
         private readonly AS4EncryptedKey _as4EncryptedKey;
 
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// Run once Crypto Configuration
         /// </summary>
         static EncryptionStrategy()
-        {
+        {            
             CryptoConfig.AddAlgorithm(typeof(AttachmentCiphertextTransform), AttachmentCiphertextTransform.Url);
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes128-gcm");
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes192-gcm");
@@ -63,33 +64,15 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this._encryptedDatas = new List<EncryptedData>();
             this._as4EncryptedKey = new AS4EncryptedKey();
 
-            var encryptedKeyNode = document.SelectSingleNode("//*[local-name()='EncryptedKey']");
-            if (encryptedKeyNode != null)
+            var encryptedKeyElement = document.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
+            if (encryptedKeyElement != null)
             {
-                this._configuration.Key.SecurityTokenReference = GetSecurityTokenReference(encryptedKeyNode);
+                var provider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
+
+                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement);                    
             }
         }
-
-
-        private static SecurityTokenReference GetSecurityTokenReference(XmlNode encryptedKeyNode)
-        {
-            if (HasEnvelopeTag(encryptedKeyNode, tag: "BinarySecurityToken"))
-                return new BinarySecurityTokenReference();
-
-            if (HasEnvelopeTag(encryptedKeyNode, tag: "X509SerialNumber"))
-                return new IssuerSecurityTokenReference();
-
-            if (HasEnvelopeTag(encryptedKeyNode, tag: "KeyIdentifier"))
-                return new KeyIdentifierSecurityTokenReference();
-
-            return new BinarySecurityTokenReference();
-        }
-
-        private static bool HasEnvelopeTag(XmlNode envelope, string tag)
-        {
-            return envelope?.SelectSingleNode($".//*[local-name()='{tag}']") != null;
-        }
-
+        
         /// <summary>
         /// Adds an <see cref="Attachment"/>, which the strategy can use later on in the encryption/decryption logic.
         /// </summary>

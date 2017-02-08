@@ -27,6 +27,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly ISerializerProvider _provider;
         private readonly ICertificateRepository _repository;
 
+        private  AS4Message _originalAS4Message;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep"/> class
         /// </summary>
@@ -58,6 +60,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            this._originalAS4Message = internalMessage.AS4Message;
+
             return await TrySendAS4MessageAsync(internalMessage, cancellationToken);
         }
 
@@ -151,9 +155,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private async Task TryHandleHttpRequestAsync(WebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             try
-            {
-                string url = internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url;
-                this._logger.Info($"Send AS4 Message to: {url}");
+            {                
+                this._logger.Info($"Send AS4 Message to: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
                 await HandleHttpRequestAsync(request, internalMessage.AS4Message, cancellationToken);
             }
             catch (WebException exception)
@@ -175,9 +178,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private async Task<StepResult> TryHandleHttpResponseAsync(WebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             try
-            {
-                string url = internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url;
-                this._logger.Debug($"AS4 Message receivced from: {url}");
+            {                
+                this._logger.Debug($"AS4 Message receivced from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
                 return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }
             catch (WebException exception)
@@ -201,6 +203,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private async Task<StepResult> PrepareStepResult(HttpWebResponse webResponse, InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             //this._stepResult.InternalMessage.AS4Message = this._as4Message;
+            internalMessage.AS4Message = this._originalAS4Message;
+
             if (webResponse == null || webResponse.StatusCode == HttpStatusCode.Accepted)
             {
                 internalMessage.AS4Message.SignalMessages.Clear();
