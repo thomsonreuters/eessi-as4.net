@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ONEWAY_ONLY_SIGN</Id>
+  <Id>ONEWAY_RETRY</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -21,7 +21,7 @@
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
       <RetryCount>5</RetryCount>
       <RetryInterval>00:00:05</RetryInterval>
     </ReceptionAwareness>
@@ -53,9 +53,9 @@
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Encryption>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>as4-net-c2</PublicKeyFindValue>
+      <PublicKeyFindValue>as4-net-c3</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
@@ -64,9 +64,9 @@
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>
-      <Action>ACT_ONEWAY_SIGNONLY</Action>
+      <Action>ACT_ONEWAY_RETRY</Action>
       <Service>
-        <Value>SRV_ONEWAY_SIGNONLY</Value>
+        <Value>SRV_ONEWAY_RETRY</Value>
       </Service>
     </CollaborationInfo>
 	<PartyInfo>
