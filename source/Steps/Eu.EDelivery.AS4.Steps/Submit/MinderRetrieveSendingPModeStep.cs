@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static string SubStringPModeIdFrom(string target)
         {
-            return target.Substring(4);
+            return target.Substring(6);
         }
     }
 }
