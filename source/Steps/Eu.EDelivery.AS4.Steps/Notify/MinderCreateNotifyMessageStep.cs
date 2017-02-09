@@ -6,7 +6,12 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using System.Linq;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Steps.Services;
 using NLog;
+using System.IO;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
@@ -40,6 +45,47 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
             SignalMessage signalMessage = internalMessage.AS4Message.PrimarySignalMessage;
 
+            if (userMessage == null && signalMessage != null)
+            {
+                // Retrieve the userMessage that is related to the specified SignalMessage
+                using (var db = Registry.Instance.CreateDatastoreContext())
+                {
+                    MessageEntity ent;
+                                                         
+                    ent=
+                        db.InMessages.FirstOrDefault(
+                            m =>
+                                m.EbmsMessageId == signalMessage.RefToMessageId &&
+                                m.EbmsMessageType == MessageType.UserMessage);
+
+                    if (ent== null)
+                    {
+                        ent= db.OutMessages.FirstOrDefault(
+                            m =>
+                                m.EbmsMessageId == signalMessage.RefToMessageId &&
+                                m.EbmsMessageType == MessageType.UserMessage);
+                    }
+
+                    if (ent!= null )
+                    {
+                        using (var stream = new MemoryStream(ent.MessageBody))
+
+                        {
+                            stream.Position = 0;
+                            var s = Registry.Instance.SerializerProvider.Get(ent.ContentType);
+                            var result = s.DeserializeAsync(stream, ent.ContentType, cancellationToken).GetAwaiter().GetResult();
+
+                            if (result != null)
+                            {
+                                internalMessage.AS4Message.UserMessages.Add(result.PrimaryUserMessage);
+                                userMessage = result.PrimaryUserMessage;
+                            }
+                        }
+
+                    }
+                }
+            }
+
             if (signalMessage != null)
             {
                 this._logger.Info($"Minder Create Notify Message as {signalMessage.GetType().Name}");
@@ -55,9 +101,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 AssignSendingUrl(internalMessage);
             }
 
+            
+            RemoveUnneededUserMessage(internalMessage);
 
-            //RemoveUnneededUserMessage(internalMessage);
-
+            // SignalMessages should be removed.
+            internalMessage.AS4Message.SignalMessages.Clear();
 
             return StepResult.SuccessAsync(internalMessage);
         }
@@ -79,10 +127,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static void AssignSendingUrl(InternalMessage internalMessage)
         {
             AS4Message as4Message = internalMessage.AS4Message;
-
             IList<MessageProperty> messageProperties = as4Message.PrimaryUserMessage.MessageProperties;
-
-
             MessageProperty originalSender = messageProperties.FirstOrDefault(p => p.Name.Equals("originalSender"));
 
             int corner = originalSender?.Value.Equals("C1") == true ? 1 : 4;
