@@ -98,9 +98,19 @@ namespace Eu.EDelivery.AS4.Watchers
         private void AddOrUpdateConfiguredPMode(string fullPath)
         {
             IPMode pmode = TryDeserialize(fullPath);
-            if (pmode == null) return;
+            if (pmode == null)
+            {
+                return;
+            }
 
             var configuredPMode = new ConfiguredPMode(fullPath, pmode);
+
+            if (this._pmodes.ContainsKey(pmode.Id))
+            {
+                LogManager.GetCurrentClassLogger().Warn($"There already exists a configured PMode with id {pmode.Id}.");
+                LogManager.GetCurrentClassLogger().Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+            }
+
             this._pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
         }
 
