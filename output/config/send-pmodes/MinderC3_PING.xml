@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ONEWAY_RETRY</Id>
+  <Id>PING</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -21,7 +21,7 @@
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
       <RetryCount>5</RetryCount>
       <RetryInterval>00:00:05</RetryInterval>
     </ReceptionAwareness>
@@ -47,7 +47,7 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
@@ -64,16 +64,16 @@
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>
-      <Action>ACT_ONEWAY_RETRY</Action>
+      <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
       <Service>
-        <Value>SRV_ONEWAY_RETRY</Value>
+        <Value>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Value>
       </Service>
     </CollaborationInfo>
 	<PartyInfo>
 			<FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-cs2</Id>
+						<Id>as4-net-cs3</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Sender</Role>
@@ -81,7 +81,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-cs3</Id>
+						<Id>as4-net-cs2</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Receiver</Role>
