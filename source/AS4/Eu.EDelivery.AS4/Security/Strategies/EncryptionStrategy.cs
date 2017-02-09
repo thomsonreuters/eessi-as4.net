@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Security.Factories;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Security.Transforms;
+using NLog;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -269,8 +270,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 DecryptAttachment(encryptedData, decryptAlgorithm);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Error($"Failed to decrypt data element {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    logger.Error(ex.InnerException.Message);
+                }
                 throw new AS4Exception($"Failed to decrypt data element");
             }
         }

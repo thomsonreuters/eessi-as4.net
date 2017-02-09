@@ -27,11 +27,11 @@
         <Setting key="Update">Sending</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.MinderOutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-        <Step type="Eu.EDelivery.AS4.Steps.Send.MinderSignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-        <Step type="Eu.EDelivery.AS4.Steps.Send.MinderEncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.SendAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.SendUpdateDataStoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       </Steps>
@@ -123,6 +123,7 @@
       </Steps>
     </ReceptionAwarenessAgent>
 
+    <!-- For ConformanceTesting using Minder, setup 2 instances of the consolehost application and enable only one minder-agent at each corner. -->
     <MinderSubmitReceiveAgent Enabled="true" Url="http://*:8080/as4-net-c2/"/>
     <MinderSubmitReceiveAgent Enabled="true" Url="http://*:9090/as4-net-c3/"/>
   </Agents>

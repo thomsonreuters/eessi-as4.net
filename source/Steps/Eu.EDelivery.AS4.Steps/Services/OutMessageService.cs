@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
             bool isCallback = outMessageType == MessageType.Error ? IsErrorReplyPatternCallback(message)
                                                                   : IsReceiptReplyPatternCallback(message);
 
-            operation = isCallback ? Operation.ToBeSent : Operation.ToBeNotified;
+            operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
             status = isCallback ? OutStatus.Created : OutStatus.Sent;
         }
 
