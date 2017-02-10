@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
-using Eu.EDelivery.AS4.Transformers;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Agents
 {
@@ -13,7 +12,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Agents
     public class StubAgent : Agent
     {
         public StubAgent(IReceiver receiver, Model.Internal.Steps stepConfig, Transformer transformerConfig = null)
-            : base(receiver, transformerConfig, stepConfig) { }
+            : base(NullAgentConfig.Default, receiver, transformerConfig, stepConfig) { }
 
 
         /// <summary>

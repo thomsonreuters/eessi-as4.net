@@ -73,8 +73,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             foreach (SettingsAgent settingAgent in this._config.GetSettingsAgents())
             {
                 IAgent agent = GetAgentFromSettings(settingAgent);
-                agent.AgentConfig = new AgentConfig(settingAgent.Name);
-
+                
                 this._agents.Add(agent);
             }
         }
@@ -83,7 +82,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
 
-            return new Agent(receiver, agent.Transformer, agent.Steps);
+            return new Agent(new AgentConfig(agent.Name), receiver, agent.Transformer, agent.Steps);
         }
 
         private static Agent CreateMinderTestAgent(string url)
@@ -91,12 +90,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             var receiver = new HttpReceiver();
             receiver.Configure(new Dictionary<string, string> { ["Url"] = url });
 
-            var transformerConfig = new Model.Internal.Transformer()
+            var transformerConfig = new Transformer()
             {
                 Type = typeof(AS4MessageTransformer).AssemblyQualifiedName
             };
 
-            return new Agent(receiver, transformerConfig, CreateMinderSubmitReceiveStepConfig());
+            return new Agent(new AgentConfig("Minder Submit/Receive Agent"),  receiver, transformerConfig, CreateMinderSubmitReceiveStepConfig());
         }
 
         private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
@@ -120,7 +119,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 {
                     new Step { Type = typeof(MinderAssembleAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(MinderRetrieveSendingPModeStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },                    
+                    new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
                 }
             };

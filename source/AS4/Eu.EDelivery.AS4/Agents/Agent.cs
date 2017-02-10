@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Agents
     /// - Steps (Delegate to steps)
     /// - Adapter (delegate to Adapter)
     /// </summary>
-    public class Agent : IAgent 
+    public class Agent : IAgent
     {
         private readonly ILogger _logger;
         private IReceiver _receiver;
@@ -31,11 +31,14 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>        
         /// <param name="transformerConfig"> Configuration of the Transformer that should be created to transform to a Central Messaging Model</param>
         /// <param name="stepConfiguration">StepConfiguration which describes the steps that will be executed when messages are received </param>        
-        public Agent(IReceiver receiver, Model.Internal.Transformer transformerConfig, Model.Internal.Steps stepConfiguration)
+        public Agent(AgentConfig agentConfig, IReceiver receiver, Model.Internal.Transformer transformerConfig, Model.Internal.Steps stepConfiguration)
         {
+            if( agentConfig == null) throw new ArgumentNullException(nameof(agentConfig));
             if (receiver == null) throw new ArgumentNullException(nameof(receiver));
             if (transformerConfig == null) throw new ArgumentNullException(nameof(transformerConfig));
             if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
+
+            AgentConfig = agentConfig;
 
             this._receiver = receiver;
             this._transformerConfiguration = transformerConfig;
@@ -50,11 +53,14 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>
         /// <param name="transformerConfig"> Configuration of the Transformer that should be created to transform to a Central Messaging Model</param>
         /// <param name="stepConfiguration">ConditionalStepConfig which describes the steps that will be executed when messages are received </param>        
-        public Agent(IReceiver receiver, Model.Internal.Transformer transformerConfig, ConditionalStepConfig stepConfiguration)
+        public Agent(AgentConfig agentConfig, IReceiver receiver, Model.Internal.Transformer transformerConfig, ConditionalStepConfig stepConfiguration)
         {
+            if (agentConfig == null) throw new ArgumentNullException(nameof(agentConfig));
             if (receiver == null) throw new ArgumentNullException(nameof(receiver));
             if (transformerConfig == null) throw new ArgumentNullException(nameof(transformerConfig));
             if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
+
+            AgentConfig = agentConfig;
 
             this._receiver = receiver;
             this._transformerConfiguration = transformerConfig;
@@ -62,7 +68,7 @@ namespace Eu.EDelivery.AS4.Agents
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
-        public AgentConfig AgentConfig { get; set; } = new NullAgentConfig();
+        public AgentConfig AgentConfig { get; }
 
         /// <summary>
         /// Start the Agent with the given Settings
@@ -104,8 +110,8 @@ namespace Eu.EDelivery.AS4.Agents
         private void StartReceiver(CancellationToken cancellationToken)
         {
             try
-            {                
-                this._receiver.StartReceiving(OnReceived, cancellationToken);                
+            {
+                this._receiver.StartReceiving(OnReceived, cancellationToken);
             }
             catch (AS4Exception exception)
             {
@@ -154,7 +160,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 this._logger.Warn($"Executing {this.AgentConfig.Name} Step failed: {result.Exception.Message}");
             }
-            
+
             this._logger.Debug($"{this.AgentConfig.Name} finished handling message with id {message.Id}");
 
             return result.InternalMessage;
@@ -188,6 +194,6 @@ namespace Eu.EDelivery.AS4.Agents
                 return new InternalMessage(exception);
             }
         }
-        
+
     }
 }
