@@ -21,30 +21,35 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 Console.ReadLine();
                 return;
             }
+            try
+            {
+                var cancellationTokenSource = new CancellationTokenSource();
+                Task task = kernel.StartAsync(cancellationTokenSource.Token);
+                task.ContinueWith(
+                    x =>
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine(x.Exception?.ToString());
+                    },
+                    TaskContinuationOptions.OnlyOnFaulted);
 
-            var cancellationTokenSource = new CancellationTokenSource();
-            Task task = kernel.StartAsync(cancellationTokenSource.Token);
-            task.ContinueWith(
-                x =>
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(x.Exception?.ToString());
-                },
-                TaskContinuationOptions.OnlyOnFaulted);
+                Console.ReadLine();
 
-            Console.ReadLine();
+                Console.WriteLine(@"Stopping...");
+                cancellationTokenSource.Cancel();
 
-            Console.WriteLine(@"Stopping...");
-            cancellationTokenSource.Cancel();
+                task.GetAwaiter().GetResult();
+                Console.WriteLine($@"Stopped: {task.Status}");
 
-            task.GetAwaiter().GetResult();
-            Console.WriteLine($@"Stopped: {task.Status}");
-
-            if (task.IsFaulted && task.Exception != null)
-                Console.WriteLine(task.Exception.ToString());
-
-            Config.Instance.Dispose();
-
+                if (task.IsFaulted && task.Exception != null)
+                    Console.WriteLine(task.Exception.ToString());
+            }
+            finally
+            {
+                kernel.Dispose();
+                Config.Instance.Dispose();
+            }
+            
             Console.ReadLine();
         }
 

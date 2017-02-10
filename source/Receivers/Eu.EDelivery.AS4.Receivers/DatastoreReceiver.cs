@@ -114,6 +114,17 @@ namespace Eu.EDelivery.AS4.Receivers
             StartPolling(messageCallback, cancellationToken);
         }
 
+        public void StopReceiving()
+        {
+            if (this._properties == null) return;
+
+            string table = this._properties["Table"];
+            string field = this._properties["Field"];
+            string value = this._properties["Value"];
+
+            this.Logger.Debug($"Stop Receiving on Datastore FROM {table} WHERE {field} == {value}");
+        }
+
         private void LogReceiverSpecs()
         {
             if (this._properties == null) return;
@@ -122,7 +133,7 @@ namespace Eu.EDelivery.AS4.Receivers
             string field = this._properties["Field"];
             string value = this._properties["Value"];
 
-            this.Logger.Info($"Start Receiving on Datastore FROM {table} WHERE {field} == {value}");
+            this.Logger.Debug($"Start Receiving on Datastore FROM {table} WHERE {field} == {value}");
         }
 
         /// <summary>

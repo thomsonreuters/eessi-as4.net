@@ -35,9 +35,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
 
                 TryPollOnTarget(tasks, messagesToPoll, cancellationToken);
-            }
-
-            this.Logger.Info("Cancellation requested");
+            }            
         }
 
         /// <summary>
@@ -70,6 +68,7 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 // TODO: modify this to Task.Delay().Wait instead ?
                 Thread.Sleep(this.PollingInterval);
+               // Task.Delay(this.PollingInterval, cancellationToken).Wait(cancellationToken);
             }
         }
 

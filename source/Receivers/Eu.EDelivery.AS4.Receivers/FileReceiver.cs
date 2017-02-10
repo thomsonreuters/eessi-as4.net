@@ -64,8 +64,13 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            this.Logger.Info($"Start receiving on '{Path.GetFullPath(this.FilePath)}'...");
+            this.Logger.Debug($"Start receiving on '{Path.GetFullPath(this.FilePath)}'...");
             StartPolling(messageCallback, cancellationToken);
+        }
+
+        public void StopReceiving()
+        {
+            this.Logger.Debug($"Stop receiving on '{Path.GetFullPath(this.FilePath)}'...");
         }
 
         /// <summary>
