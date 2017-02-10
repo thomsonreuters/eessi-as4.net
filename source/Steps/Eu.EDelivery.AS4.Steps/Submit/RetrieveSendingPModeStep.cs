@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
@@ -20,8 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     {
         private readonly IConfig _config;
         private readonly ILogger _logger;
-        private readonly IValidator<SendingProcessingMode> _validator;
-        private InternalMessage _internalMessage;
+        private readonly IValidator<SendingProcessingMode> _validator;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep"/> class
@@ -56,9 +56,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public Task<StepResult> ExecuteAsync(InternalMessage message, CancellationToken cancellationToken)
         {
             try
-            {
-                this._internalMessage = message;
-                RetrieveSendPMode();
+            {                
+                RetrieveSendPMode(message);
                 return StepResult.SuccessAsync(message);
             }
             catch (Exception exception)
@@ -67,21 +66,34 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
         }
 
-        private void RetrieveSendPMode()
+        private void RetrieveSendPMode(InternalMessage message)
         {
-            SendingProcessingMode pmode = RetrievePMode();
-            ValidatePMode(pmode);
-            this._internalMessage.SubmitMessage.PMode = pmode;
+            SendingProcessingMode pmode = RetrievePMode(message);
 
+            ValidatePMode(pmode);
+
+            message.SubmitMessage.PMode = pmode;
         }
 
-        private SendingProcessingMode RetrievePMode()
+        private SendingProcessingMode RetrievePMode(InternalMessage message)
         {
-            string processingModeId = this._internalMessage.SubmitMessage.Collaboration?.AgreementRef?.PModeId;
+            string processingModeId = RetrieveProcessingModeId(message.SubmitMessage.Collaboration);
+
             SendingProcessingMode pmode = this._config.GetSendingPMode(processingModeId);
-            this._logger.Info($"{this._internalMessage.Prefix} Sending PMode {pmode.Id} was retrieved");
+
+            this._logger.Info($"{message.Prefix} Sending PMode {pmode.Id} was retrieved");
 
             return pmode;
+        }
+
+        private string RetrieveProcessingModeId( CollaborationInfo collaborationInfo)
+        {
+            if (collaborationInfo == null)
+            {
+                throw new ArgumentNullException(nameof(collaborationInfo));
+            }
+
+            return collaborationInfo.AgreementRef?.PModeId;
         }
 
         private void ValidatePMode(SendingProcessingMode pmode)
