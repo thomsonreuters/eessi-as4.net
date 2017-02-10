@@ -209,7 +209,7 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
-            if (id == null)
+            if (String.IsNullOrEmpty(id))
             {
                 throw new AS4Exception("Given Sending PMode key is null");
             }
