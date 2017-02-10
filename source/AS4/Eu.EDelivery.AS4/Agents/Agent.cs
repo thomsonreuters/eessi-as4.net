@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Agents
     /// - Steps (Delegate to steps)
     /// - Adapter (delegate to Adapter)
     /// </summary>
-    public class Agent : IAgent
+    public class Agent : IAgent 
     {
         private readonly ILogger _logger;
         private IReceiver _receiver;
@@ -72,12 +72,20 @@ namespace Eu.EDelivery.AS4.Agents
         public Task Start(CancellationToken cancellationToken)
         {
             this._logger.Debug($"Start {this.AgentConfig.Name}...");
-            cancellationToken.Register(() => this._logger.Debug($"{this.AgentConfig.Name} closing.."));
+            cancellationToken.Register(() => this.Stop());
 
             Task task = Task.Factory.StartNew(() => StartReceiver(cancellationToken), TaskCreationOptions.LongRunning);
 
-            this._logger.Debug($"{this.AgentConfig.Name} Started!");
+            this._logger.Info($"{this.AgentConfig.Name} Started!");
             return task;
+        }
+
+        public void Stop()
+        {
+            this._logger.Debug($"Stopping {this.AgentConfig.Name} ...");
+            this._receiver?.StopReceiving();
+
+            this._logger.Info($"{this.AgentConfig.Name} stopped.");
         }
 
         /// <summary>
@@ -87,6 +95,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="cancellationToken"></param>
         public void ResetReceiver(IReceiver receiver, CancellationToken cancellationToken)
         {
+            this._receiver?.StopReceiving();
             this._receiver = receiver;
             this._logger.Info("Restarting Receiver...");
             StartReceiver(cancellationToken);
@@ -95,10 +104,8 @@ namespace Eu.EDelivery.AS4.Agents
         private void StartReceiver(CancellationToken cancellationToken)
         {
             try
-            {
-                this._logger.Debug($"{this.AgentConfig.Name} handling message...");
-                this._receiver.StartReceiving(OnReceived, cancellationToken);
-                this._logger.Debug($"{this.AgentConfig.Name} message handled");
+            {                
+                this._receiver.StartReceiving(OnReceived, cancellationToken);                
             }
             catch (AS4Exception exception)
             {
@@ -130,7 +137,7 @@ namespace Eu.EDelivery.AS4.Agents
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
-            this._logger.Info($"{this.AgentConfig.Name} received and starts handling message with id {message.Id}");
+            this._logger.Debug($"{this.AgentConfig.Name} received and starts handling message with id {message.Id}");
 
             InternalMessage internalMessage = await TryTransform(message, cancellationToken);
 
@@ -147,6 +154,8 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 this._logger.Warn($"Executing {this.AgentConfig.Name} Step failed: {result.Exception.Message}");
             }
+            
+            this._logger.Debug($"{this.AgentConfig.Name} finished handling message with id {message.Id}");
 
             return result.InternalMessage;
         }
@@ -179,5 +188,6 @@ namespace Eu.EDelivery.AS4.Agents
                 return new InternalMessage(exception);
             }
         }
+        
     }
 }

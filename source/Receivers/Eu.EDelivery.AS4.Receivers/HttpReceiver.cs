@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -26,6 +27,7 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private readonly ILogger _logger;
         private readonly ISerializerProvider _provider;
+        private HttpListener _listener;
         private IDictionary<string, string> _properties;
 
         private string Prefix => this._properties.ReadMandatoryProperty("Url");
@@ -59,24 +61,51 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             // TODO: for performance : call GetContextAsync multiple times to handle concurrent requests.
 
-            var listener = new HttpListener();
-            listener.Prefixes.Add(this.Prefix);
-            StartListener(listener);
+            _listener = new HttpListener();
 
-            while (listener.IsListening && !cancellationToken.IsCancellationRequested)
+            try
             {
-                HttpListenerContext context = await listener.GetContextAsync();
-                await ProcessRequestAsync(context, messageCallback, cancellationToken);
-            }
+                _listener.Prefixes.Add(this.Prefix);
+                StartListener(_listener);
 
-            listener.Close();
+                while (_listener.IsListening && !cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        HttpListenerContext context = await _listener.GetContextAsync();
+                        await ProcessRequestAsync(context, messageCallback, cancellationToken);
+                    }
+                    catch (HttpListenerException)
+                    {
+                        this._logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        this._logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                    }
+                }
+            }
+            finally
+            {
+                _listener.Close();
+            }
+        }
+
+        public void StopReceiving()
+        {
+            this._logger.Debug($"Stop listening on {Prefix}");
+
+            if (_listener != null)
+            {
+                this._listener.Close();
+            }
         }
 
         private void StartListener(HttpListener listener)
         {
             try
             {
-                this._logger.Info($"Start receiving on '{this.Prefix}'...");
+                this._logger.Debug($"Start receiving on '{this.Prefix}'...");
                 listener.Start();
             }
             catch (HttpListenerException exception)
@@ -176,7 +205,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 this._logger.Info("Empty Http Body is send");
                 return;
             }
-            
+
             TrySerializeResponseContent(context, internalMessage, token);
         }
 

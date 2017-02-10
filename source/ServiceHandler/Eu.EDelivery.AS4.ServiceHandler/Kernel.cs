@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
     /// Start point for AS4 Connection
     /// Wrapper for the Channels
     /// </summary>
-    public class Kernel
+    public class Kernel : IDisposable
     {
         private readonly IEnumerable<IAgent> _agents;
         private readonly ILogger _logger;
@@ -71,6 +71,22 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             this._logger?.Debug("Started!");
 
             await task;
+
+            CloseAgents();
+        }
+
+        private void CloseAgents()
+        {
+            foreach (var agent in this._agents)
+            {
+                var disposableAgent = agent as IDisposable;                
+                disposableAgent?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+           CloseAgents();
         }
     }
 }
