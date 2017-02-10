@@ -78,18 +78,18 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 this._agents.Add(agent);
             }
         }
-        
+
         private static IAgent GetAgentFromSettings(SettingsAgent agent)
         {
             IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
-            
+
             return new Agent(receiver, agent.Transformer, agent.Steps);
         }
 
         private static Agent CreateMinderTestAgent(string url)
         {
             var receiver = new HttpReceiver();
-            receiver.Configure(new Dictionary<string, string> { ["Url"] = url }); 
+            receiver.Configure(new Dictionary<string, string> { ["Url"] = url });
 
             var transformerConfig = new Model.Internal.Transformer()
             {
@@ -120,8 +120,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 {
                     new Step { Type = typeof(MinderAssembleAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(MinderRetrieveSendingPModeStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(MinderCreateAS4ReceiptStep).AssemblyQualifiedName},
+                    new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },                    
+                    new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
                 }
             };
 
