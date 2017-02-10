@@ -34,7 +34,10 @@ namespace Eu.EDelivery.AS4.Builders
         public GenericTypeBuilder SetType(string typeString)
         {
             this._type = ResolveType(typeString);
-            if (this._type == null) throw new AS4Exception($"Not given class found for given Type: {typeString}");
+            if (this._type == null)
+            {
+                throw new AS4Exception($"Not given class found for given Type: {typeString}");
+            }
 
             return this;
         }

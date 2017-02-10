@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     /// </summary>
     public class GivenNotifyUpdateInExceptionDatastoreStepFacts : GivenDatastoreFacts
     {
-       
+
         public class GivenValidArguments : GivenNotifyUpdateInExceptionDatastoreStepFacts
         {
             [Fact]
@@ -26,7 +27,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 InException inException = CreateDefaultInException();
                 base.InsertInException(inException);
 
-                var notifyMessage = new NotifyMessage { MessageInfo = { RefToMessageId = inException.EbmsRefToMessageId } };
+
+                var msgInfo = new MessageInfo() { RefToMessageId = inException.EbmsRefToMessageId };
+
+                var notifyMessage = new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, String.Empty);
+
 
                 var internalMessage = new InternalMessage(notifyMessage);
                 var step = new NotifyUpdateInExceptionDatastoreStep();

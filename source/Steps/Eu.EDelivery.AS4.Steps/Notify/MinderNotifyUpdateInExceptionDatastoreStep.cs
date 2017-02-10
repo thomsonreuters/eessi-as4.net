@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -13,6 +14,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how the data store gets updated when a message is notified
     /// </summary>
+    [Obsolete]
     public class MinderNotifyUpdateInExceptionDatastoreStep : IStep
     {
         private readonly ILogger _logger;
@@ -31,16 +33,18 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            NotifyMessage notifyMessage = internalMessage.NotifyMessage;
-            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
-            using (var context = Registry.Instance.CreateDatastoreContext())
-            {
-                await UpdateInException(internalMessage, new DatastoreRepository(context));
-            }
+            //////NotifyMessage notifyMessage = internalMessage.NotifyMessage;
+            //////this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            //////using (var context = Registry.Instance.CreateDatastoreContext())
+            //////{
+            //////    await UpdateInException(internalMessage, new DatastoreRepository(context));
+            //////}
 
-            return StepResult.Success(internalMessage);
+            //////return StepResult.Success(internalMessage);
+            
+            throw new NotImplementedException();
         }
 
         private static async Task UpdateInException(InternalMessage internalMessage, DatastoreRepository repository)

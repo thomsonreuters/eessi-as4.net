@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             {
                 // Arrange
                 InsertDefaultInMessage(sharedId);
-                NotifyMessage notifyMessage = CreateNotifyMessage(sharedId);
+                var notifyMessage = CreateNotifyMessage(sharedId);
                 var internalMessage = new InternalMessage(notifyMessage);
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -51,9 +51,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 base.InsertInMessage(inMessage);
             }
 
-            private static NotifyMessage CreateNotifyMessage(string id)
+            private static NotifyMessageEnvelope CreateNotifyMessage(string id)
             {
-                return new NotifyMessage { MessageInfo = { MessageId = id } };
+                var msgInfo = new MessageInfo() {MessageId = id};
+
+                return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
             }
 
             private void AssertInMessage(string messageId, Action<InMessage> assertAction)

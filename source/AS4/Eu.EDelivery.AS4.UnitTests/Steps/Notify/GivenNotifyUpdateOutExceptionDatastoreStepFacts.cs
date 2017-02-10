@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     /// Testing <see cref="NotifyUpdateOutExceptionDatastoreStep"/>
     /// </summary>
     public class GivenNotifyUpdateOutExceptionDatastoreStepFacts : GivenDatastoreFacts
-    {        
+    {
         public class GivenValidArguments : GivenNotifyUpdateOutExceptionDatastoreStepFacts
         {
             [Fact]
@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 // Arrange
                 OutException outException = CreateDefaultOutException();
                 base.InsertOutException(outException);
-                var notifyMessage = new NotifyMessage { MessageInfo = { RefToMessageId = outException.EbmsRefToMessageId } };
+                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo() { RefToMessageId = outException.EbmsRefToMessageId }, Status.Delivered, null, string.Empty);
 
                 var internalMessage = new InternalMessage(notifyMessage);
                 var step = new NotifyUpdateOutExceptionDatastoreStep();

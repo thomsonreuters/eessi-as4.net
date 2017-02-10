@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {                
-                this._logger.Debug($"AS4 Message receivced from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
+                this._logger.Debug($"AS4 Message received from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
                 return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }
             catch (WebException exception)
