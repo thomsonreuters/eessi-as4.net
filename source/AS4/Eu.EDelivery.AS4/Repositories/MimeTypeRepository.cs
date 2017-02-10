@@ -18,12 +18,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public string GetExtensionFromMimeType(string mimeType)
         {
-            string emptyExtension = string.Empty;
-            RegistryKey key = Registry.ClassesRoot.OpenSubKey(RegistryPath + mimeType, writable: false);
-            if (key == null) return emptyExtension;
+            using (RegistryKey key = Registry.ClassesRoot.OpenSubKey(RegistryPath + mimeType, writable: false))
+            {
+                if (key == null)
+                {
+                    return string.Empty;
+                }
 
-            object value = key.GetValue("Extension", defaultValue: string.Empty);
-            return value.ToString();
+                object value = key.GetValue("Extension", defaultValue: string.Empty);
+                return value.ToString();
+            }
         }
 
         /// <summary>
