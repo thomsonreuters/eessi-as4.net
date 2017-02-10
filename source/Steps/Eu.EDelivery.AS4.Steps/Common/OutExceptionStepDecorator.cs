@@ -78,10 +78,8 @@ namespace Eu.EDelivery.AS4.Steps.Common
             {
                 OutException outException = CreateOutException(exception, internalMessage, messageId);
 
-#if DEBUG
                 outException.MessageBody = GetAS4MessageByteRepresentationSetMessageBody(internalMessage.AS4Message);
 
-#endif
                 await repository.InsertOutExceptionAsync(outException);
                 await repository.UpdateOutMessageAsync(messageId, UpdateOutMessageType);
             }
