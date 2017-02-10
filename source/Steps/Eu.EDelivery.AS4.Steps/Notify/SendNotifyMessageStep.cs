@@ -63,12 +63,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TrySendNotifyMessage(NotifyMessage notifyMessage)
+        private void TrySendNotifyMessage(NotifyMessageEnvelope notifyMessage)
         {
             try
             {
                 Method notifyMethod = GetNotifyMethod(notifyMessage);
-                PostNotifyMethodConditions(notifyMethod);
                 SendNotifyMessage(notifyMessage, notifyMethod);
             }
             catch (Exception exception)
@@ -76,26 +75,18 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 throw ThrowAS4SendException("Notify Message was not send correctly", exception);
             }
         }
-
-        private void PostNotifyMethodConditions(Method notifyMethod)
-        {
-            if (notifyMethod != null) return;
-
-            Status status = this._internalMessage.NotifyMessage.StatusInfo.Status;
-            throw ThrowAS4SendException($"Notify Method not defined for Status: {status}");
-        }
-
-        private Method GetNotifyMethod(NotifyMessage notifyMessage)
+        
+        private Method GetNotifyMethod(NotifyMessageEnvelope notifyMessage)
         {
             SendingProcessingMode sendPMode = this._internalMessage.AS4Message.SendingPMode;
             ReceivingProcessingMode receivePMode = this._internalMessage.AS4Message.ReceivingPMode;
 
-            switch (notifyMessage.StatusInfo.Status)
+            switch (notifyMessage.StatusCode)
             {
                 case Status.Delivered: return sendPMode.ReceiptHandling.NotifyMethod;
                 case Status.Error: return sendPMode.ErrorHandling.NotifyMethod;
                 case Status.Exception: return DetermineMethod(sendPMode?.ExceptionHandling, receivePMode?.ExceptionHandling);
-                default: throw new ArgumentOutOfRangeException();
+                default: throw new ArgumentOutOfRangeException($"Notify method not defined for status {notifyMessage.StatusCode}");
             }
         }
 
@@ -104,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return IsNotifyMessageFormedBySending() ? sendHandling?.NotifyMethod : receivehandling?.NotifyMethod;
         }
 
-        private void SendNotifyMessage(NotifyMessage notifyMessage, Method notifyMethod)
+        private void SendNotifyMessage(NotifyMessageEnvelope notifyMessage, Method notifyMethod)
         {
             INotifySender sender = this._provider.GetNotifySender(notifyMethod.Type);
             sender.Configure(notifyMethod);

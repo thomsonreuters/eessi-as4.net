@@ -1,13 +1,11 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Notify;
-using Eu.EDelivery.AS4.UnitTests.Builders;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Xunit;
 using Eu.EDelivery.AS4.Serialization;
@@ -40,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 StepResult result = await base._step
                     .ExecuteAsync(internalMessage, CancellationToken.None);
                 // Assert
-                NotifyMessage notifyMessage = result.InternalMessage.NotifyMessage;
+                var notifyMessage = result.InternalMessage.NotifyMessage;
                 Assert.NotNull(notifyMessage);
                 Assert.Equal(receipt.MessageId, notifyMessage.MessageInfo.MessageId);
                 Assert.Equal(receipt.RefToMessageId, notifyMessage.MessageInfo.RefToMessageId);
@@ -56,9 +54,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 StepResult result = await base._step
                     .ExecuteAsync(internalMessage, CancellationToken.None);
                 // Assert
-                NotifyMessage notifyMessage = result.InternalMessage.NotifyMessage;
+                var notifyMessage = result.InternalMessage.NotifyMessage;
                 Assert.NotNull(notifyMessage);
-                Assert.Equal(Status.Delivered, notifyMessage.StatusInfo.Status);
+                Assert.Equal(Status.Delivered, notifyMessage.StatusCode);
             }
 
             [Fact]
@@ -71,10 +69,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 StepResult result = await base._step
                     .ExecuteAsync(internalMessage, CancellationToken.None);
                 // Assert
-                NotifyMessage notifyMessage = result.InternalMessage.NotifyMessage;
+                var notifyMessageEnv = result.InternalMessage.NotifyMessage;
+                Assert.NotNull(notifyMessageEnv);
+
+                var notifyMessage = AS4XmlSerializer.Deserialize<NotifyMessage>(System.Text.Encoding.UTF8.GetString(notifyMessageEnv.NotifyMessage));
                 Assert.NotNull(notifyMessage);
+
                 XmlElement signalMessage = GetSignalMessageFromDocument(internalMessage.AS4Message.EnvelopeDocument);
-                Assert.Equal(notifyMessage.StatusInfo.Any, new[] {signalMessage});
+                Assert.Equal(notifyMessage.StatusInfo.Any, new[] { signalMessage });
             }
         }
 
@@ -92,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         protected XmlElement GetSignalMessageFromDocument(XmlDocument document)
         {
             const string xpath = "//*[local-name()='SignalMessage']";
-            return (XmlElement) document.SelectSingleNode(xpath);
+            return (XmlElement)document.SelectSingleNode(xpath);
         }
     }
 }

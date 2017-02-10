@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -14,6 +15,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how the data store gets updated when a message is notified
     /// </summary>
+    [Obsolete]
     public class MinderNotifyUpdateOutMessageDatastoreStep : IStep
     {
         private readonly ILogger _logger;
@@ -35,13 +37,14 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AS4Exception">Throws exception when data store is unavailable</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            NotifyMessage notifyMessage = internalMessage.NotifyMessage;
-            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            //NotifyMessage notifyMessage = internalMessage.NotifyMessage;
+            //this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateOutMessage(internalMessage);
-            return StepResult.Success(internalMessage);
+            //await UpdateOutMessage(internalMessage);
+            //return StepResult.Success(internalMessage);
+            throw new NotImplementedException();
         }
 
         private static async Task UpdateOutMessage(InternalMessage internalMessage)

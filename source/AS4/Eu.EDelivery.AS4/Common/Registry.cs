@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Common
     /// Global Registry to provide Strategies
     /// </summary>
     public sealed class Registry : IRegistry
-    {        
+    {
 
         public static readonly Registry Instance = new Registry();
 
@@ -50,18 +50,19 @@ namespace Eu.EDelivery.AS4.Common
         private void RegisterNotifySenderProvider()
         {
             this.NotifySenderProvider = new NotifySenderProvider();
-            this.NotifySenderProvider.Accept(s
-                => s.Equals("FILE", StringComparison.CurrentCultureIgnoreCase), new FileNotifyXmlSender());
+
+            this.NotifySenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), (() => new FileNotifySender()));
+            this.NotifySenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), () => new HttpNotifySender());
         }
 
         private void RegisterAttachmentUploaderProvider()
         {
             this.AttachmentUploader = new AttachmentUploaderProvider();
 
-            var ignoreCase = StringComparison.CurrentCultureIgnoreCase;
             var mimeTypeRepository = new MimeTypeRepository();
-            this.AttachmentUploader.Accept(s => s.Equals("FILE", ignoreCase), new FileAttachmentUploader(mimeTypeRepository));
-            this.AttachmentUploader.Accept(s => s.Equals("EMAIL", ignoreCase), new EmailAttachmentUploader(mimeTypeRepository));
+
+            this.AttachmentUploader.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new FileAttachmentUploader(mimeTypeRepository));
+            this.AttachmentUploader.Accept(s => s.Equals("EMAIL", StringComparison.OrdinalIgnoreCase), new EmailAttachmentUploader(mimeTypeRepository));
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             public async Task ThenExecuteStepSucceedsWithSendingPModeAsync()
             {
                 // Arrange
-                var notifyMessage = new NotifyMessage {StatusInfo = {Status = Status.Delivered}};
+                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
                 var internalMessage = new InternalMessage(notifyMessage);
                 internalMessage.AS4Message.SendingPMode = CreateDefaultSendingPMode();
 
@@ -45,14 +45,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
                 // Assert
                 base._mockedSender.Verify(s
-                    => s.Send(It.IsAny<NotifyMessage>()), Times.AtLeastOnce);
+                    => s.Send(It.IsAny<NotifyMessageEnvelope>()), Times.AtLeastOnce);
             }
 
             private SendingProcessingMode CreateDefaultSendingPMode()
             {
                 return new SendingProcessingMode
                 {
-                    ReceiptHandling = {NotifyMethod = new Method()}
+                    ReceiptHandling = { NotifyMethod = new Method() }
                 };
             }
 
@@ -60,19 +60,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             public async Task ThenExecuteStepWithReceivingPModeAsync()
             {
                 // Arrange
-                var notifyMessage = new NotifyMessage {StatusInfo = {Status = Status.Error}};
+                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Error, null, String.Empty);
+
                 var internalMessage = new InternalMessage(notifyMessage);
-                internalMessage.AS4Message.SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}};
+                internalMessage.AS4Message.SendingPMode = new SendingProcessingMode { ErrorHandling = { NotifyMethod = new Method() } };
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
                 // Assert
-                base._mockedSender.Verify(s => s.Send(It.IsAny<NotifyMessage>()));
+                base._mockedSender.Verify(s => s.Send(It.IsAny<NotifyMessageEnvelope>()));
             }
-
-            private ReceivingProcessingMode CreateDefaultReceivingPMode()
-            {
-                return new ReceivingProcessingMode();
-            }
+           
         }
 
         public class GivenInvalidArguments : GivenSendNotifyMessageStepFacts
@@ -82,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             {
                 // Arrange
                 SetupFailedNotifySender();
-                var notifyMessage = new NotifyMessage();
+                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
                 var internalMessage = new InternalMessage(notifyMessage);
                 // Act / Assert
                 await AssertFailedNotifySender(internalMessage);
@@ -98,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             private void SetupFailedNotifySender()
             {
                 base._mockedSender
-                    .Setup(s => s.Send(It.IsAny<NotifyMessage>()))
+                    .Setup(s => s.Send(It.IsAny<NotifyMessageEnvelope>()))
                     .Throws<Exception>();
                 base._step = new SendNotifyMessageStep(this._mockedProvider.Object);
             }

@@ -259,6 +259,7 @@
     <Compile Include="Mappings\PMode\PModeReceiverResolver.cs" />
     <Compile Include="Mappings\PMode\PModeSenderResolver.cs" />
     <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
+    <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Security\Builders\EncryptedKeyBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
@@ -375,12 +376,14 @@
     <Compile Include="Security\Strategies\SigningStrategy.cs" />
     <Compile Include="Steps\StepBuilder.cs" />
     <Compile Include="Strategies\Retriever\FtpPayloadRetriever.cs" />
-    <Compile Include="Strategies\Sender\FileNotifyXmlSender.cs" />
+    <Compile Include="Strategies\Sender\FileNotifySender.cs" />
     <Compile Include="Strategies\Sender\FileDeliverXmlSender.cs" />
+    <Compile Include="Strategies\Sender\HttpNotifySender.cs" />
     <Compile Include="Strategies\Sender\IDeliverSender.cs" />
     <Compile Include="Strategies\Sender\INotifySender.cs" />
     <Compile Include="Strategies\Sender\DeliverSenderProvider.cs" />
     <Compile Include="Strategies\Sender\NotifySenderProvider.cs" />
+    <Compile Include="Strategies\Sender\SenderNotifier.cs" />
     <Compile Include="Strategies\Uploader\AttachmentUploaderProvider.cs" />
     <Compile Include="Strategies\Uploader\EmailAttachmentUploader.cs" />
     <Compile Include="Strategies\Uploader\FileAttachmentUploader.cs" />

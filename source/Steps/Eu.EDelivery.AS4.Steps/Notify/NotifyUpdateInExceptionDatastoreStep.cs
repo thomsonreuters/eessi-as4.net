@@ -32,18 +32,18 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            NotifyMessage notifyMessage = internalMessage.NotifyMessage;
-            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            var notifyMessageEnv = internalMessage.NotifyMessage;
+            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
 
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
-                await UpdateDatastoreAsync(notifyMessage, new DatastoreRepository(context));
+                await UpdateDatastoreAsync(notifyMessageEnv, new DatastoreRepository(context));
             }
 
             return StepResult.Success(internalMessage);
         }
 
-        private static async Task UpdateDatastoreAsync(NotifyMessage notifyMessage, DatastoreRepository repository)
+        private static async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage, DatastoreRepository repository)
         {
             await repository.UpdateInExceptionAsync(
                 notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedInException);
