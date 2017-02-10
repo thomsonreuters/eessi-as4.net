@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
     /// Exception Handling Decorator for Minder Conformance Testing,
     /// by creating an AS4 Message Error Message as User Message
     /// </summary>
-    [Obsolete("We can use the regular OutExceptionStepDecorator for Minder tests. Only difference is MessageBody is set.")]
+    [Obsolete("We can use the regular InExceptionStepDecorator for Minder tests.")]
     public class MinderOutExceptionStepDecorator : IStep
     {
         private readonly IStep _step;

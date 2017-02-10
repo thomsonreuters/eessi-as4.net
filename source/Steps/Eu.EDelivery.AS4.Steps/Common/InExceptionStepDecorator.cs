@@ -73,15 +73,15 @@ namespace Eu.EDelivery.AS4.Steps.Common
             try
             {
                 InException inException = CreateInException(exception, messageId);
-#if DEBUG
+
                 inException.MessageBody = GetAS4MessageByteRepresentation(message.AS4Message);
-#endif
+
                 await repository.InsertInExceptionAsync(inException);
                 await UpdateInMessageAsync(messageId, exception.ExceptionType, repository);
             }
             catch (Exception)
             {
-                this._logger.Error($"{message.Prefix} Cannot Update Datastore with OutException");
+                this._logger.Error($"{message.Prefix} Cannot Update Datastore with InException");
             }
         }
 

@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
     /// Exception Handling Step: acts as Decorator for the <see cref="CompositeStep"/>
     /// Responsibility: describes what to do in case an exception occurs within a AS4 Notify operation
     /// </summary>
-    [Obsolete("We can use the regular InExceptionStepDecorator for Minder tests. Only difference is MessageBody is set.")]
+    [Obsolete("We can use the regular InExceptionStepDecorator for Minder tests.")]
     public class MinderInExceptionStepDecorator : IStep
     {
         private readonly IStep _step;
