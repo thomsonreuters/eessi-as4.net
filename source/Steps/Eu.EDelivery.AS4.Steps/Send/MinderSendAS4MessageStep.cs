@@ -9,6 +9,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// Minder send <see cref="AS4Message" /> to the corresponding Receiving MSH,
     /// with no exception handling, just catching
     /// </summary>
+    [Obsolete("We should not use this step anymore.")]
     public class MinderSendAS4MessageStep : SendAS4MessageStep
     {
         protected override StepResult HandleSendAS4Exception(InternalMessage internalMessage, Exception exception)

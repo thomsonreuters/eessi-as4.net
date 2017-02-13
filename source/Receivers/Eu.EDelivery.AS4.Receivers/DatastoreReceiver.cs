@@ -224,8 +224,8 @@ namespace Eu.EDelivery.AS4.Receivers
 
         protected override void ReleasePendingItems()
         {
-            // TODO: implement; wait for conformance-branch merging, since DataStoreReceiver
-            // has modified there as well.
+            // TODO: we should release the records that have been held locked by this
+            // DataStoreReceiver so that they won't be locked forever.
         }
     }
 
