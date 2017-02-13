@@ -38,10 +38,8 @@ namespace Eu.EDelivery.AS4.Receivers
                     IEnumerable<TIn> messagesToPoll = GetMessagesToPoll(cancellationToken);
                     tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
 
-                    TryPollOnTarget(tasks, messagesToPoll);
-                }
-
-                this.Logger.Info("Cancellation requested");
+                    TryPollOnTarget(tasks, messagesToPoll, cancellationToken);
+                }                
             }
             finally
             {
