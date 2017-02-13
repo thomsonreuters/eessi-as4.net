@@ -122,6 +122,14 @@ namespace Eu.EDelivery.AS4.Common
                 Properties.Resources.configurationfolder,
                 Properties.Resources.settingsfilename);
 
+            var fullPath = Path.GetFullPath(path);
+
+            if (Path.IsPathRooted(path) == false ||                
+                File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false)
+            {
+                path = Path.Combine(".", path);
+            }
+
             this._settings = TryDeserialize<Settings>(path);
             if (this._settings == null) throw new AS4Exception("Invalid Settings file");
             AssignSettingsToGlobalConfiguration();
