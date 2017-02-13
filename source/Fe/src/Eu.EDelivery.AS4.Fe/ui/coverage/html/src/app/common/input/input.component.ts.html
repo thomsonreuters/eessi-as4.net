@@ -35,9 +35,9 @@
         <span class='fraction'>4/8</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">81.82% </span>
+        <span class="strong">80.95% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>18/22</span>
+        <span class='fraction'>17/21</span>
       </div>
     </div>
   </div>
@@ -94,13 +94,11 @@
 49
 50
 51
-52
-53
-54</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
+52</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -131,15 +129,13 @@
 <span class="cline-any cline-yes">7×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -149,7 +145,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component, Input, AfterViewInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Component, Input, AfterViewInit, SimpleChanges, ChangeDetectionStrategy, OnChanges } from '@angular/core';
 &nbsp;
 import { RuntimeStore } from './../../settings/runtime.store';
 &nbsp;
@@ -173,31 +169,29 @@ import { RuntimeStore } from './../../settings/runtime.store';
     `],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputComponent {
-    @Input() label: string;
-    @Input() isLabelBold: boolean = true;
-    @Input() labelSize: number = 3;
-    @Input() controlSize: number = 5;
-    @Input() showLabel: boolean = true;
-    @Input() tooltip: string;
-    @Input() runtimeTooltip: string;
+export class InputComponent implements OnChanges {
+    @Input() public label: string;
+    @Input() public isLabelBold: boolean = true;
+    @Input() public labelSize: number = 3;
+    @Input() public controlSize: number = 5;
+    @Input() public showLabel: boolean = true;
+    @Input() public tooltip: string;
+    @Input() public runtimeTooltip: string;
     constructor(private _runtimeStore: RuntimeStore) {
 &nbsp;
     }
-    ngOnChanges(changes: SimpleChanges) {
+    public ngOnChanges(changes: SimpleChanges) {
         <span class="missing-if-branch" title="else path not taken" >E</span>if (changes['runtimeTooltip'] &amp;&amp; changes['runtimeTooltip'].currentValue) {
             this._runtimeStore
                 .changes
-                .filter(state =&gt; !!state &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >!!state.runtimeMetaData)</span>
-                .map(<span class="fstat-no" title="function not covered" >state </span>=&gt; <span class="cstat-no" title="statement not covered" >state.runtimeMetaData)</span>
-                .subscribe(<span class="fstat-no" title="function not covered" >result </span>=&gt; {
-<span class="cstat-no" title="statement not covered" >                    this.tooltip = this.resolve(`${this.runtimeTooltip}.description`, result);</span>
-                });
+                .filter((state) =&gt; !!state &amp;&amp; <span class="branch-1 cbranch-no" title="branch not covered" >!!state.runtimeMetaData)</span>
+                .map((state<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >state.runtimeMetaData)</span></span>
+                .subscribe((result<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >this.tooltip = this.resolve(`${this.runtimeTooltip}.description`, result))</span></span>;
         }
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    private resolve(path: string, obj: any)</span> {
-<span class="cstat-no" title="statement not covered" >        return path.split('.').reduce(<span class="fstat-no" title="function not covered" >function (prev, curr)</span> {</span>
+    private resolve(path: string, obj: any<span class="fstat-no" title="function not covered" >) {</span>
+<span class="cstat-no" title="statement not covered" >        return path.split('.').reduce((prev, curr<span class="fstat-no" title="function not covered" >) =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >            return prev ? prev[curr] : undefined;</span>
         }, obj || self);
     }
@@ -208,7 +202,7 @@ export class InputComponent {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>

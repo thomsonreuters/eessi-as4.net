@@ -30,14 +30,14 @@
         <span class='fraction'>0/2</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">14.29% </span>
+        <span class="strong">25% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>1/7</span>
+        <span class='fraction'>2/8</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">53.33% </span>
+        <span class="strong">46.67% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>8/15</span>
+        <span class='fraction'>7/15</span>
       </div>
     </div>
   </div>
@@ -65,13 +65,15 @@
 20
 21
 22
-23</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+23
+24
+25</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">40×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -86,6 +88,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
@@ -94,18 +98,20 @@ import { ModalComponent } from './modal.component';
 &nbsp;
 @Injectable()
 export class ModalService {
-    private modals: Array&lt;ModalComponent&gt; = new Array&lt;ModalComponent&gt;();
-<span class="fstat-no" title="function not covered" >    public registerModal(modal: ModalComponent)</span> {
+    private modals: ModalComponent[] = new Array&lt;ModalComponent&gt;();
+    public registerModal(modal: ModalComponent<span class="fstat-no" title="function not covered" >) {</span>
 <span class="cstat-no" title="statement not covered" >        this.modals.push(modal);</span>
     }
-<span class="fstat-no" title="function not covered" >    public unregisterModal(modal: ModalComponent)</span> {
-<span class="cstat-no" title="statement not covered" >        let index = this.modals.findIndex(<span class="fstat-no" title="function not covered" >src </span>=&gt; <span class="cstat-no" title="statement not covered" >src === modal)</span>;</span>
+    public unregisterModal(modal: ModalComponent<span class="fstat-no" title="function not covered" >) {</span>
+        let index = <span class="cstat-no" title="statement not covered" >this.modals.findIndex((src<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >src === modal)</span></span>;</span>
 <span class="cstat-no" title="statement not covered" >        this.modals.splice(index, 1);</span>
     }
-<span class="fstat-no" title="function not covered" >    public show(name: string, modal?: (dialog: ModalComponent) =&gt; void)</span> {
-<span class="cstat-no" title="statement not covered" >        let dialog = this.modals.find(<span class="fstat-no" title="function not covered" >src </span>=&gt; <span class="cstat-no" title="statement not covered" >src.name === name)</span>;</span>
-<span class="cstat-no" title="statement not covered" >        this.modals.forEach(<span class="fstat-no" title="function not covered" >mdl </span>=&gt; <span class="cstat-no" title="statement not covered" >mdl.isVisible = false)</span>;</span>
-<span class="cstat-no" title="statement not covered" >        if (!!modal) <span class="cstat-no" title="statement not covered" >modal(dialog);</span></span>
+    public show(name: string, modal?: (dialog: ModalComponent) =&gt; void<span class="fstat-no" title="function not covered" >) {</span>
+        let dialog = <span class="cstat-no" title="statement not covered" >this.modals.find((src<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >src.name === name)</span></span>;</span>
+<span class="cstat-no" title="statement not covered" >        this.modals.forEach((mdl<span class="fstat-no" title="function not covered" >) =&gt; <span class="cstat-no" title="statement not covered" >mdl.isVisible = false)</span></span>;</span>
+<span class="cstat-no" title="statement not covered" >        if (!!modal) {</span>
+<span class="cstat-no" title="statement not covered" >            modal(dialog);</span>
+        }
 <span class="cstat-no" title="statement not covered" >        return dialog.show();</span>
     }
 }
@@ -115,7 +121,7 @@ export class ModalService {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>

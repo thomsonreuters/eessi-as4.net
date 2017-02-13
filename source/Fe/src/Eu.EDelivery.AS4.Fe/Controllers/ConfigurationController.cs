@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using EnsureThat;
+using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Models;
 using Eu.EDelivery.AS4.Fe.Settings;
@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Eu.EDelivery.AS4.Fe.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     public class ConfigurationController : Controller
     {
         private readonly IAs4SettingsService settingsService;
@@ -30,6 +29,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("basesettings")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task SaveBaseSettings([FromBody] BaseSettings settings)
         {
             EnsureArg.IsNotNull(settings, nameof(settings));
@@ -38,6 +38,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("customsettings")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task SaveCustomSettings([FromBody] CustomSettings settings)
         {
             EnsureArg.IsNotNull(settings, nameof(settings));
@@ -46,6 +47,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("databasesettings")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task SaveDatabaseSettings([FromBody] SettingsDatabase settings)
         {
             EnsureArg.IsNotNull(settings, nameof(settings));
@@ -54,6 +56,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("submitagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task CreateSubmitAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -62,6 +65,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpDelete]
         [Route("submitagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task DeleteSubmitAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
@@ -70,6 +74,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPut]
         [Route("submitagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task UpdateSubmitAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -79,6 +84,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("receiveagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task CreateReceiveAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -87,6 +93,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpDelete]
         [Route("receiveagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task DeleteReceiveAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
@@ -95,6 +102,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPut]
         [Route("receiveagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task UpdateReceiveAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -104,6 +112,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("sendagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task CreateSendAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -112,6 +121,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpDelete]
         [Route("sendagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task DeleteSendAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
@@ -120,6 +130,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPut]
         [Route("sendagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task UpdateSendAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -129,6 +140,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("deliveragents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task CreateDeliverAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -137,6 +149,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpDelete]
         [Route("deliveragents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task DeleteDeliverAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
@@ -145,6 +158,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPut]
         [Route("deliveragents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task UpdateDeliverAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -154,6 +168,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("notifyagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task CreateNotifyAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -162,6 +177,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpDelete]
         [Route("notifyagents")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task DeleteNotifyAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
@@ -170,6 +186,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPut]
         [Route("notifyagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task UpdateNotifyAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -178,6 +195,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPost]
         [Route("receptionawarenessagent")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task CreateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
@@ -186,6 +204,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpDelete]
         [Route("receptionawarenessagent")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task DeleteReceptionAwarenessAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
@@ -194,6 +213,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
 
         [HttpPut]
         [Route("receptionawarenessagent/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task UpdateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));

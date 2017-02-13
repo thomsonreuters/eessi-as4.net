@@ -147,6 +147,20 @@ namespace Eu.EDelivery.AS4.Steps.Services
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             this._logger.Info($"Update Message: {signalMessage.MessageId} as Error");
+
+            if (_logger.IsWarnEnabled)
+            {
+                var errorSignalMessage = signalMessage as Error;
+
+                if (errorSignalMessage != null)
+                {
+                    foreach (var error in errorSignalMessage.Errors)
+                    {
+                        _logger.Warn($"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");
+                    }
+                }
+            }
+
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, cancellationToken);
 
             await this._repository.InsertInMessageAsync(inMessage);
@@ -162,7 +176,11 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithPModeString(AS4XmlSerializer.Serialize(as4Message.SendingPMode))
                 .Build(cancellationToken);
 
-            if (ErrorDontNeedToBeNotified(as4Message) || signalMessage.IsDuplicated) return inMessage;
+            if (ErrorDontNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)
+            {
+                return inMessage;
+            }
+
             AddOperationNotified(inMessage);
 
             return inMessage;

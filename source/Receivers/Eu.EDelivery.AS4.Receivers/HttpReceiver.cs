@@ -256,7 +256,7 @@ namespace Eu.EDelivery.AS4.Receivers
     <title>AS4.NET</title>       
 </head>
 <body>
-    <img src=""assets/as4logo.png"" alt=""AS4.NET logo"" Style=""display:block, margin:auto""></img>
+    <img src=""assets/as4logo.png"" alt=""AS4.NET logo"" Style=""width:100%; height:auto; display:block, margin:auto""></img>
     <div Style=""text-align:center""><p>This AS4.NET MessageHandler is online</p></div>
 </body>";
                     return System.Text.Encoding.UTF8.GetBytes(html);

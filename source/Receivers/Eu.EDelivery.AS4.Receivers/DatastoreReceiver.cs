@@ -216,15 +216,16 @@ namespace Eu.EDelivery.AS4.Receivers
             var message = new ReceivedEntityMessage(entity);
             messageCallback(message, token);
         }
-
-        /// <summary>
-        /// Describe what to do when a
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="exception"></param>
+        
         protected override void HandleMessageException(Entity message, Exception exception)
         {
             this.Logger.Error(exception.Message);
+        }
+
+        protected override void ReleasePendingItems()
+        {
+            // TODO: implement; wait for conformance-branch merging, since DataStoreReceiver
+            // has modified there as well.
         }
     }
 

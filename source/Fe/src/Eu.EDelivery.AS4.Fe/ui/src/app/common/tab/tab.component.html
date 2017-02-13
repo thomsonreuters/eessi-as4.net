@@ -1,9 +1,10 @@
 <div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
         <li *ngFor="let tabItem of tabItems; let i = index" [class.active]="i === 0" [class.invalid]="!tabItem.isValid">
-            <a href="#tab_{{i}}" data-toggle="tab">{{tabItem.title}}</a>
+            <a href="#tab_{{i}}" data-toggle="tab" (click)="activeTab = tabItem">{{tabItem.title}}&nbsp;<template *ngIf="activeTab === tabItem" [ngTemplateOutlet]="tabItem.container"></template></a>            
         </li>
     </ul>
+    <p>{{tabItem | json}}</p>
     <div class="tab-content">
         <ng-content></ng-content>
     </div>

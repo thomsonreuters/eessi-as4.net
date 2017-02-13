@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
-
+            
             return IsReplyPatternCallback()
                 ? CreateEmptySoapResult()
                 : ReturnSameStepResult();

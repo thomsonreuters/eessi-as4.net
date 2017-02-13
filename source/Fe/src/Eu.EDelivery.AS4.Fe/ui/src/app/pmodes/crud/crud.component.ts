@@ -34,7 +34,7 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
         </as4-modal>
         <as4-input label="Name" runtimeTooltip="receivingprocessingmode.id">
             <as4-columns noMargin="true">
-                <select class="FormArray-control select-pmode" (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name" #pmodeSelect>
+                <select class="FormArray-control select-pmode" as4-no-auth (change)="pmodeChanged($event.target.value); pmodeSelect.value = currentPmode && currentPmode.name" #pmodeSelect>
                     <option value="undefined">Select an option</option>
                     <option *ngFor="let pmode of pmodes" [selected]="pmode === (currentPmode && currentPmode.name)">{{currentPmode && currentPmode.name === pmode && !!form && !!form.controls ? form.controls.name.value : pmode}}</option>
                 </select>

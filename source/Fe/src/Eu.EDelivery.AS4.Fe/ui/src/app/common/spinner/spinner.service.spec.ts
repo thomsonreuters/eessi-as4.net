@@ -2,8 +2,7 @@ import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
 import {
     inject,
-    TestBed,
-    fakeAsync
+    TestBed
 } from '@angular/core/testing';
 import { Component } from '@angular/core';
 import {

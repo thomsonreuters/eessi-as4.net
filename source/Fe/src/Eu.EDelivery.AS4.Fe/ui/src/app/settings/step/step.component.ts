@@ -19,9 +19,9 @@ import { Step } from './../../api/Step';
                 </select>
             </as4-input>
             <as4-input showLabel="false">
-                <p><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
+                <p><button as4-auth [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
                 <table formArrayName="step" class="table table-condensed" *ngIf="!!group.get('step')">
-                    <tbody [sortablejs]="group.get('step')" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved}">
+                    <tbody [sortablejs]="group.get('step')" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }" as4-auth>
                         <tr>
                             <th></th>
                             <th></th>
@@ -30,7 +30,7 @@ import { Step } from './../../api/Step';
                         </tr>
                         <tr *ngFor="let step of group.get('step').controls; let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>
-                            <td class="action"><button [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
+                            <td class="action"><button as4-auth [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
                             <td>
                                 <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>

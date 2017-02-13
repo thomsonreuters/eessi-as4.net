@@ -20,9 +20,9 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">58.33% </span>
+        <span class="strong">95% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>14/24</span>
+        <span class='fraction'>19/20</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -30,18 +30,18 @@
         <span class='fraction'>0/0</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">14.29% </span>
+        <span class="strong">83.33% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>1/7</span>
+        <span class='fraction'>5/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">56.52% </span>
+        <span class="strong">94.44% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>13/23</span>
+        <span class='fraction'>17/18</span>
       </div>
     </div>
   </div>
-  <div class='status-line medium'></div>
+  <div class='status-line high'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -74,57 +74,39 @@
 29
 30
 31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41</td><td class="line-coverage quiet"><span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
+32</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { AuthHttp } from 'angular2-jwt';
-import { CustomHttp } from './../as4components.module';
+import { CustomHttp } from './customhttp';
 import { Http, XHRBackend, RequestOptions } from '@angular/http';
 import { Injectable, Provider } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -133,43 +115,34 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 @Injectable()
 export class SpinnerService {
     public changes: Observable&lt;boolean&gt;;
-    private <span class="cstat-no" title="statement not covered" >_changes = new BehaviorSubject&lt;boolean&gt;(false);</span>
-    private <span class="cstat-no" title="statement not covered" >_counter: number = 0;</span>
-<span class="fstat-no" title="function not covered" >    constructor() {</span>
-<span class="cstat-no" title="statement not covered" >        this.changes = this._changes.asObservable().distinctUntilChanged().last();</span>
+    private _changes = new BehaviorSubject&lt;boolean&gt;(false);
+    private _counter: number = 0;
+    constructor() {
+        this.changes = this._changes.asObservable().distinctUntilChanged();
     }
-<span class="fstat-no" title="function not covered" >    public show() {</span>
-<span class="cstat-no" title="statement not covered" >        this._counter++;</span>
-<span class="cstat-no" title="statement not covered" >        this.process();</span>
+    public show() {
+        this._counter++;
+        this.process();
     }
-<span class="fstat-no" title="function not covered" >    public hide() {</span>
-<span class="cstat-no" title="statement not covered" >        this._counter--;</span>
-<span class="cstat-no" title="statement not covered" >        this.process();</span>
+    public hide() {
+        this._counter--;
+        this.process();
     }
-<span class="fstat-no" title="function not covered" >    private process() {</span>
-<span class="cstat-no" title="statement not covered" >        this._changes.next(this._counter &gt; 0);</span>
+    private process() {
+        this._changes.next(this._counter &gt; 0);
     }
 }
 &nbsp;
-export const SPINNER_PROVIDERS: Provider[] = [
-    {
-        provide: Http, useFactory: <span class="fstat-no" title="function not covered" >(backend, requestOptions, spinnerService)</span> =&gt; {
-<span class="cstat-no" title="statement not covered" >            return new CustomHttp(backend, requestOptions, spinnerService);</span>
-        }, deps: [XHRBackend, RequestOptions, SpinnerService]
-    },
-    {
-        provide: AuthHttp, useFactory: <span class="fstat-no" title="function not covered" >(backend, requestOptions, spinnerService)</span> =&gt; {
-<span class="cstat-no" title="statement not covered" >            return new CustomHttp(backend, requestOptions, spinnerService);</span>
-        }, deps: [XHRBackend, RequestOptions, SpinnerService]
-    }
-];
+export function spinnerHttpServiceFactory(backend: XHRBackend, options: RequestOptions, spinnerService: SpinnerService<span class="fstat-no" title="function not covered" >) {</span>
+<span class="cstat-no" title="statement not covered" >    return new CustomHttp(backend, options, spinnerService);</span>
+}
 &nbsp;</pre></td></tr>
 </table></pre>
 <div class='push'></div><!-- for sticky footer -->
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2017 14:48:55 GMT+0100 (Romance Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 24 2017 14:02:40 GMT+0100 (Romance Standard Time)
 </div>
 </div>
 <script src="../../../../prettify.js"></script>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -14,5 +15,14 @@ namespace Eu.EDelivery.AS4.Entities
 
         public DateTimeOffset ModificationTime { get; set; }
         public DateTimeOffset InsertionTime { get; set; }
+        [NotMapped] public Operation Operation { get; set; }
+        public string OperationMethod { get; set; }
+
+        [Column("Operation")]
+        public string OperationString
+        {
+            get { return this.Operation.ToString(); }
+            set { this.Operation = (Operation) Enum.Parse(typeof(Operation), value, true); }
+        }
     }
 }

@@ -1,3 +1,4 @@
+import { SettingsService } from './settings/settings.service';
 import { DialogService } from './common/dialog.service';
 import { ModalService } from './common/modal/modal.service';
 import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
@@ -42,10 +43,14 @@ export class AppComponent {
     public isLoggedIn: boolean;
     public isShowDetails: boolean = false;
     @ViewChild('modal') public modal: ElementRef;
-    constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService) {
-        this.authenticationStore.changes.subscribe((result) => {
+    constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService,
+    private settingsService: SettingsService) {
+        this.authenticationStore
+        .changes
+        .subscribe((result) => {
             this.isLoggedIn = result.loggedin;
             if (this.isLoggedIn) {
+                this.settingsService.getSettings();
                 this.runtimeService.getAll();
                 this.sendingPmodeService.getAll();
                 this.receivingPmodeService.getAll();

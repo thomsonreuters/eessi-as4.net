@@ -15,14 +15,14 @@ import '../common/rxjs/toBehaviorSubject';
     template: `
         <form [formGroup]="form">
             <as4-input>
-                <p><button type="button" class="btn btn-flat" (click)="addSetting()"><i class="fa fa-plus"></i></button></p>
+                <p><button type="button" as4-auth class="btn btn-flat" (click)="addSetting()"><i class="fa fa-plus"></i></button></p>
                 <table class="table table-condensed" formArrayName="setting">
                     <tr>
                         <th>Key</th>
                         <th>Value</th>
                     </tr>
                     <tr *ngFor="let step of settingControl; let i = index" [formGroupName]="i">
-                        <td class="action"><button type="button" class="btn btn-flat" (click)="removeSetting(i)"><i class="fa fa-trash-o"></i></button></td>
+                        <td class="action"><button as4-auth type="button" class="btn btn-flat" (click)="removeSetting(i)"><i class="fa fa-trash-o"></i></button></td>
                         <td><input type="text" class="form-control" formControlName="key"/></td>
                         <td><input type="text" class="form-control" formControlName="value"/></td>
                     </tr>

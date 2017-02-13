@@ -20,8 +20,9 @@ export class SidebarComponent {
 
         return result;
       });
-    this.routes = this.flatten<Route>(routes).filter((route) => !!route.data && !!route.data['title']);
-
+    this.routes = this.flatten<Route>(routes)
+      .filter((route) => !!route.data && !!route.data['title'])
+      .sort((route) => +route.data['weight']);
   }
   private flatten<T>(list: Route[]): T[] {
     return list.reduce((a, b) => (Array.isArray(b) ? a.push(...this.flatten(b)) : a.push(b), a), []);

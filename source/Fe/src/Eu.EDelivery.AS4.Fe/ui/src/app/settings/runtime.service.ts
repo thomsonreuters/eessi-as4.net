@@ -1,4 +1,3 @@
-import { Http } from '@angular/http';
 import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
 import { ItemType } from './../api/ItemType';
@@ -19,7 +18,7 @@ export interface IRuntimeService {
 @Injectable()
 export class RuntimeService implements IRuntimeService {s
     private _runtimeMetaData: any | null = null;
-    constructor(private http: Http, private runtimeStore: RuntimeStore) {
+    constructor(private http: AuthHttp, private runtimeStore: RuntimeStore) {
 
     }
     public getReceivers() {

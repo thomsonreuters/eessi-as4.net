@@ -12,6 +12,9 @@
  * all here! Crazy huh. So we need to do some setup
  */
 Error.stackTraceLimit = Infinity;
+require('jquery');
+require('bootstrap/dist/js/bootstrap.js');
+require('../src/theme/js/app.js');
 
 require('core-js/es6');
 require('core-js/es7/reflect');

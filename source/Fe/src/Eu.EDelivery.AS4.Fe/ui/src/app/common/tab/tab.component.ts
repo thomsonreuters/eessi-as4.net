@@ -1,3 +1,4 @@
+import { Subscription } from 'rxjs/Subscription';
 import {
     Component,
     OnInit,
@@ -6,19 +7,22 @@ import {
     QueryList,
     ViewEncapsulation,
     ChangeDetectionStrategy,
-    AfterContentInit
+    AfterContentInit,
+    OnDestroy
 } from '@angular/core';
 
-import { TabItemComponent } from './tabitem.component';
+import { TabItemDirective } from './tabitem.directive';
 
 @Component({
     selector: 'as4-tab',
     templateUrl: './tab.component.html'
 })
 export class TabComponent implements AfterContentInit {
-    @ContentChildren(TabItemComponent) public tabItems: QueryList<TabItemComponent>;
+    @ContentChildren(TabItemDirective) public tabItems: QueryList<TabItemDirective>;
+    public activeTab: TabItemDirective;
     public ngAfterContentInit() {
         let current = 0;
         this.tabItems.forEach((item) => item.tabId = current++);
+        this.activeTab = this.tabItems.first;
     }
 }
