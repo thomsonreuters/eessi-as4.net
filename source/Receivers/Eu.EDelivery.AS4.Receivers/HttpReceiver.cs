@@ -234,11 +234,11 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             public static HttpGetResponse GetHttpGetRessponse(string[] acceptHeaders)
             {
-                if (acceptHeaders.Contains("text/html"))
+                if (acceptHeaders.Contains("text/html", StringComparer.OrdinalIgnoreCase))
                 {
                     return new HttpHtmlGetResponse();
                 }
-                if (acceptHeaders.Contains("image/*"))
+                if (acceptHeaders.Any(h => h.StartsWith("image/", StringComparison.InvariantCultureIgnoreCase)))
                 {
                     return new HttpImageGetResponse();
                 }
