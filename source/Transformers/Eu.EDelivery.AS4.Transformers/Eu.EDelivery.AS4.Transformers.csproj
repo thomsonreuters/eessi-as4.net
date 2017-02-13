@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="AS4MessageTransformer.cs" />
     <Compile Include="ExceptionTransformer.cs" />
+    <Compile Include="MinderSubmitMessageTransformer.cs" />
     <Compile Include="PayloadTransformer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceptionAwarenessTransformer.cs" />

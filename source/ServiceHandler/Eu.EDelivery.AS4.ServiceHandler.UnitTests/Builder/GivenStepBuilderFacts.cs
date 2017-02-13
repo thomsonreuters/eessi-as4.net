@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Internal;
+﻿using System;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Common;
 using Eu.EDelivery.AS4.Steps.Receive;
@@ -126,7 +127,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                     }
                 };
 
-                return new ConditionalStepConfig(x => x.IsEmpty, thenStep, elseStep);
+                return new ConditionalStepConfig(x => String.IsNullOrEmpty(x.Prefix), thenStep, elseStep);
             }
         }
     }

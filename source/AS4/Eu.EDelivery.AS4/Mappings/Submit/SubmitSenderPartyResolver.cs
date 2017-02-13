@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
@@ -56,8 +57,16 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         private void PreCoditionParty(SubmitMessage s)
         {
             if (s?.PartyInfo?.FromParty != null && s.PMode.AllowOverride == false)
-                throw new AS4Exception(
-                    $"Submit Message is not allowed by Sending PMode{s.PMode.Id} to override Sender Party");
+            {
+                var messagePartyInfo = s.PartyInfo.FromParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
+                var pmodePartyInfo = s.PMode.MessagePackaging.PartyInfo.FromParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
+
+                if (Enumerable.SequenceEqual(messagePartyInfo, pmodePartyInfo) == false)
+                {
+                    throw new AS4Exception($"Submit Message is not allowed by Sending PMode{s.PMode.Id} to override Sender Party");
+                }
+            }
+
         }
     }
 }

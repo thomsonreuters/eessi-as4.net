@@ -116,11 +116,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <remarks>This class is not serializable.  Only used programmatically for conformonce-testing.</remarks>
     public class ConditionalStepConfig
     {
-        public Func<AS4Message, bool> Condition { get; }
+        public Func<InternalMessage, bool> Condition { get; }
         public Steps ThenStepConfig { get; }
         public Steps ElseStepConfig { get; }
 
-        public ConditionalStepConfig(Func<AS4Message, bool> condition,
+        public ConditionalStepConfig(Func<InternalMessage, bool> condition,
             Steps thenStepConfig, Steps elseStepConfig)
         {
             this.Condition = condition;

@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class ConditionalStep : IStep
     {
-        private readonly Func<AS4Message, bool> _condition;
+        private readonly Func<InternalMessage, bool> _condition;
         private readonly Model.Internal.Steps _thenStepConfig;
         private readonly Model.Internal.Steps _elseStepConfig;
 
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <param name="condition"></param>
         /// <param name="thenStepConfig"></param>
         /// <param name="elseStepConfig"></param>
-        public ConditionalStep(Func<AS4Message, bool> condition, Model.Internal.Steps thenStepConfig, Model.Internal.Steps elseStepConfig)
+        public ConditionalStep(Func<InternalMessage, bool> condition, Model.Internal.Steps thenStepConfig, Model.Internal.Steps elseStepConfig)
         {
             this._condition = condition;
             this._thenStepConfig = thenStepConfig;
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            if (this._condition(internalMessage.AS4Message))
+            if (this._condition(internalMessage))
             {
                 var steps = StepBuilder.FromSettings(this._thenStepConfig).Build();
                 return steps.ExecuteAsync(internalMessage, cancellationToken);

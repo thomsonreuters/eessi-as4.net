@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             foreach (SettingsAgent settingAgent in this._config.GetSettingsAgents())
             {
                 IAgent agent = GetAgentFromSettings(settingAgent);
-                
+
                 this._agents.Add(agent);
             }
         }
@@ -92,17 +92,19 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             var transformerConfig = new Transformer()
             {
-                Type = typeof(AS4MessageTransformer).AssemblyQualifiedName
+                Type = typeof(MinderSubmitMessageTransformer).AssemblyQualifiedName
             };
 
-            return new Agent(new AgentConfig("Minder Submit/Receive Agent"),  receiver, transformerConfig, CreateMinderSubmitReceiveStepConfig());
+            return new Agent(new AgentConfig("Minder Submit/Receive Agent"), receiver, transformerConfig, CreateMinderSubmitReceiveStepConfig());
         }
 
         private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
         {
-
-            Func<AS4Message, bool> isSubmitMessage =
-                m => m?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit") == true;
+            // If the SubmitMessage has an ID and the AS4Message does not have an ID, then we
+            // consider that the InternalMessage contains a submitmessage that needs to be submitted.
+            Func<InternalMessage, bool> isSubmitMessage =
+                m => String.IsNullOrEmpty(m?.SubmitMessage?.MessageInfo?.MessageId) == false &&
+                     String.IsNullOrEmpty(m.AS4Message?.PrimaryUserMessage?.MessageId);
 
             var submitStepConfig = CreateSubmitStep();
             var receiveStepConfig = CreateReceiveStep();
@@ -117,8 +119,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
                 Step = new Step[]
                 {
-                    new Step { Type = typeof(MinderAssembleAS4MessageStep).AssemblyQualifiedName },
+                    //new Step { Type = typeof(MinderAssembleAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(RetrieveSendingPModeStep).AssemblyQualifiedName },
+                    new Step() { Type = typeof(CreateAS4MessageStep).AssemblyQualifiedName},
                     new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
                 }

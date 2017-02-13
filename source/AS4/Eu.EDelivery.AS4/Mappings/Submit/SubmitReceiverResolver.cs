@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
@@ -56,8 +57,19 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         private void PreConditionAllowOverride(SubmitMessage message)
         {
             if (message?.PartyInfo?.ToParty != null && message.PMode.AllowOverride == false)
-                throw new AS4Exception(
-                    $"Submit Message is not allowed by the Sending PMode {message.PMode.Id} to override Receiver Party");
+            {
+                // If the ToPartyInfo is equal as the ToParty information in the PMode, then there is no problem.
+                var messagePartyInfo = message.PartyInfo.ToParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
+                var pmodePartyInfo = message.PMode.MessagePackaging.PartyInfo.ToParty.PartyIds.Select(p=>p.Id).OrderBy(p => p);
+
+                if (Enumerable.SequenceEqual(messagePartyInfo, pmodePartyInfo) == false)
+                {
+                    throw new AS4Exception(
+$"Submit Message is not allowed by the Sending PMode {message.PMode.Id} to override Receiver Party");
+                }
+
+            }
+
         }
     }
 }
