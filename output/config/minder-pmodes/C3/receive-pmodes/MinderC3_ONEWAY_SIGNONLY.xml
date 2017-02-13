@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>SIMPLE_ONEWAY</Id>
+  <Id>ACT_ONEWAY_SIGNONLY</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -48,9 +48,8 @@
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Decryption>
-      <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <Encryption>Ignored</Encryption>
+      <PrivateKeyFindType>FindByThumbprint</PrivateKeyFindType>
     </Decryption>
   </Security>
   <MessagePackaging>
@@ -75,9 +74,9 @@
 			</ToParty>
       </PartyInfo>
       <CollaborationInfo>
-        <Action>ACT_SIMPLE_ONEWAY</Action>
+        <Action>ACT_ONEWAY_SIGNONLY</Action>
         <Service>
-          <Value>SRV_SIMPLE_ONEWAY</Value>
+          <Value>SRV_ONEWAY_SIGNONLY</Value>
         </Service>
     </CollaborationInfo>
   </MessagePackaging>

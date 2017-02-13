@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>SIMPLE_TWOWAY</Id>
+  <Id>ACT_SIMPLE_ONEWAY</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -75,9 +75,9 @@
 			</ToParty>
       </PartyInfo>
       <CollaborationInfo>
-        <Action>ACT_SIMPLE_TWOWAY</Action>
+        <Action>ACT_SIMPLE_ONEWAY</Action>
         <Service>
-          <Value>SRV_SIMPLE_TWOWAY</Value>
+          <Value>SRV_SIMPLE_ONEWAY</Value>
         </Service>
     </CollaborationInfo>
   </MessagePackaging>

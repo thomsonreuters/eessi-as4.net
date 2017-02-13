@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ONEWAY_RETRY</Id>
+  <Id>ACT_SIMPLE_ONEWAY</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -21,7 +21,7 @@
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
       <RetryCount>5</RetryCount>
       <RetryInterval>00:00:05</RetryInterval>
     </ReceptionAwareness>
@@ -64,9 +64,9 @@
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>
-      <Action>ACT_ONEWAY_RETRY</Action>
+      <Action>ACT_SIMPLE_ONEWAY</Action>
       <Service>
-        <Value>SRV_ONEWAY_RETRY</Value>
+        <Value>SRV_SIMPLE_ONEWAY</Value>
       </Service>
     </CollaborationInfo>
 	<PartyInfo>

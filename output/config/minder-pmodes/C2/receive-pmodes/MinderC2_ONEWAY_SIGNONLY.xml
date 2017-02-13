@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ONEWAY_RETRY</Id>
+  <Id>ACT_ONEWAY_SIGNONLY</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
     <DuplicateElimination>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
   <ReceiptHandling>
@@ -15,10 +15,10 @@
   </ReceiptHandling>
   <ErrorHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
-<NotifyMethod>
+    <NotifyMethod>
       <Type>FILE</Type>
       <Parameters>
-        <Parameter name="location" value=".\messages\exceptions\" />
+        <Parameter name="location" value=".\messages\errors\" />
       </Parameters>
     </NotifyMethod>
     <UseSoapFault>false</UseSoapFault>
@@ -41,20 +41,19 @@
     </SigningVerification>
   <Signing>
       <IsEnabled>false</IsEnabled>
-      <KeyReferenceMethod>IssuerSerial</KeyReferenceMethod>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Decryption>
-      <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <Encryption>Ignored</Encryption>
+      <PrivateKeyFindType>FindByThumbprint</PrivateKeyFindType>
     </Decryption>
   </Security>
   <MessagePackaging>
-     <PartyInfo>
+    <PartyInfo>
         <FromParty>
 				<PartyIds>
 					<PartyId>
@@ -75,9 +74,9 @@
 			</ToParty>
       </PartyInfo>
       <CollaborationInfo>
-        <Action>ACT_ONEWAY_RETRY</Action>
+        <Action>ACT_ONEWAY_SIGNONLY</Action>
         <Service>
-          <Value>SRV_ONEWAY_RETRY</Value>
+          <Value>SRV_ONEWAY_SIGNONLY</Value>
         </Service>
     </CollaborationInfo>
   </MessagePackaging>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>SIMPLE_TWOWAY</Id>
+  <Id>ACT_ONEWAY_SIGNONLY</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -53,7 +53,7 @@
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Encryption>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <PublicKeyFindValue>as4-net-c3</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
@@ -64,9 +64,9 @@
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>
-      <Action>ACT_SIMPLE_TWOWAY</Action>
+      <Action>ACT_ONEWAY_SIGNONLY</Action>
       <Service>
-        <Value>SRV_SIMPLE_TWOWAY</Value>
+        <Value>SRV_ONEWAY_SIGNONLY</Value>
       </Service>
     </CollaborationInfo>
 	<PartyInfo>

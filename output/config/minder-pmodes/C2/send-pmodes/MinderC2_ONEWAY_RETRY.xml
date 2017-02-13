@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ONEWAY_RETRY</Id>
+  <Id>ACT_ONEWAY_RETRY</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -31,7 +31,7 @@
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://13.81.109.44:15001/corner4" />
+        <Parameter name="location" value="http://13.81.109.44:15001/corner1" />
       </Parameters>
     </NotifyMethod>
   </ReceiptHandling>
@@ -47,7 +47,7 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
@@ -55,7 +55,7 @@
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>as4-net-c2</PublicKeyFindValue>
+      <PublicKeyFindValue>as4-net-c3</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
@@ -73,7 +73,7 @@
 			<FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-cs3</Id>
+						<Id>as4-net-cs2</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Sender</Role>
@@ -81,7 +81,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-cs2</Id>
+						<Id>as4-net-cs3</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Receiver</Role>

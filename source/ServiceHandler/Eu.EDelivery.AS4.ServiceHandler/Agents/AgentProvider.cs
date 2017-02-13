@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 Step = new Step[]
                 {
                     new Step { Type = typeof(MinderAssembleAS4MessageStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(MinderRetrieveSendingPModeStep).AssemblyQualifiedName },
+                    new Step { Type = typeof(RetrieveSendingPModeStep).AssemblyQualifiedName },
                     new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
                 }

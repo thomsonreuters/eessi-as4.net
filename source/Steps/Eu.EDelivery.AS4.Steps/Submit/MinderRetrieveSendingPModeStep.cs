@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -10,6 +11,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <summary>
     /// Retrieve Sending PMode based on Service/Action information
     /// </summary>
+    [Obsolete("This specific Minder step is no longer necessary.")]
     public class MinderRetrieveSendingPModeStep : IStep
     {
         private readonly IConfig _config;
