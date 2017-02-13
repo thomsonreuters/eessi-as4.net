@@ -143,20 +143,33 @@ namespace Eu.EDelivery.AS4.Serialization
             Stream envelopeStream, string contentType, CancellationToken token)
         {
             if (envelopeStream == null)
+            {
                 throw new ArgumentNullException(nameof(envelopeStream));
+            }
 
-            Stream stream = CopyEnvelopeStream(envelopeStream);
-            XmlDocument envelopeDocument = LoadXmlDocument(stream);
-            ValidateEnvelopeDocument(envelopeDocument);
-            stream.Position = 0;
+            using (Stream stream = CopyEnvelopeStream(envelopeStream))
+            {
+                XmlDocument envelopeDocument = LoadXmlDocument(stream);
+                ValidateEnvelopeDocument(envelopeDocument);
+                stream.Position = 0;
 
-            var as4Message = new Model.Core.AS4Message { ContentType = contentType, EnvelopeDocument = envelopeDocument };
+                var as4Message = new Model.Core.AS4Message
+                {
+                    ContentType = contentType,
+                    EnvelopeDocument = envelopeDocument
+                };
 
-            using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
-                while (await reader.ReadAsync().ConfigureAwait(false))
-                    DeserializeEnvelope(envelopeDocument, as4Message, reader);
+                using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        DeserializeEnvelope(envelopeDocument, as4Message, reader);
+                    }
+                }
 
-            return as4Message;
+                return as4Message;
+            }
+
         }
 
         private static Stream CopyEnvelopeStream(Stream envelopeStream)
