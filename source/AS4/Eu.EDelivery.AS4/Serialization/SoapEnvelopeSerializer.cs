@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 builder.SetSecurityHeader(securityHeader);
             }
-           
+
             SetMultiHopHeaders(builder, message);
 
             builder.SetMessagingHeader(messagingHeader);

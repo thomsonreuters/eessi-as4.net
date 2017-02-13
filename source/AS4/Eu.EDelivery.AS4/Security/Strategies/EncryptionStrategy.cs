@@ -73,8 +73,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement);                    
             }
         }
-        
-
+               
         /// <summary>
         /// Adds an <see cref="Attachment"/>, which the strategy can use later on in the encryption/decryption logic.
         /// </summary>
