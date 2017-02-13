@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
-    public class MinderSubmitMessageTransformer : ITransformer
+    public class MinderSubmitReceiveMessageTransformer : ITransformer
     {
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {

@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             var transformerConfig = new Transformer()
             {
-                Type = typeof(MinderSubmitMessageTransformer).AssemblyQualifiedName
+                Type = typeof(MinderSubmitReceiveMessageTransformer).AssemblyQualifiedName
             };
 
             return new Agent(new AgentConfig("Minder Submit/Receive Agent"), receiver, transformerConfig, CreateMinderSubmitReceiveStepConfig());
