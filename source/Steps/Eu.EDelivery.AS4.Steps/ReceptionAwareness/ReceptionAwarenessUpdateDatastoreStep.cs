@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
                     var repository = new DatastoreRepository(context);
 
-                    this._receptionAwareness = internalMessage.ReceiptionAwareness;
+                    this._receptionAwareness = internalMessage.ReceptionAwareness;
 
                     if (IsMessageAlreadyAnswered(repository))
                     {

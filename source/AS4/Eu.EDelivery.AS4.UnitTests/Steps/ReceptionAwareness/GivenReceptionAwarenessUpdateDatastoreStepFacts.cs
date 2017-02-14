@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 ArrangeMessageIsAlreadyAwnsered(awareness.InternalMessageId);
                 base.InsertReceptionAwareness(awareness);
 
-                var internalMessage = new InternalMessage() { ReceiptionAwareness = awareness };
+                var internalMessage = new InternalMessage() { ReceptionAwareness = awareness };
                 var step = new ReceptionAwarenessUpdateDatastoreStep();
 
                 // Act
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 Entities.ReceptionAwareness awareness = base.CreateDefaultReceptionAwareness();
                 base.InsertReceptionAwareness(awareness);
 
-                var internalMessage = new InternalMessage() { ReceiptionAwareness = awareness };
+                var internalMessage = new InternalMessage() { ReceptionAwareness = awareness };
                 var step = new ReceptionAwarenessUpdateDatastoreStep();
 
                 // Act
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 base.InsertReceptionAwareness(awareness);
                 base.InsertOutMessage(awareness.InternalMessageId);
 
-                var internalMessage = new InternalMessage() { ReceiptionAwareness = awareness };
+                var internalMessage = new InternalMessage() { ReceptionAwareness = awareness };
                 var step = new ReceptionAwarenessUpdateDatastoreStep();
 
                 // Act

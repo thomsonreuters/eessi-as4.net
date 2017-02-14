@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 InternalMessage internalMessage = await transformer.
                     TransformAsync(receivedMessage, CancellationToken.None);
                 // Assert
-                Assert.Equal(awareness, internalMessage.ReceiptionAwareness);
+                Assert.Equal(awareness, internalMessage.ReceptionAwareness);
             }
         }
 

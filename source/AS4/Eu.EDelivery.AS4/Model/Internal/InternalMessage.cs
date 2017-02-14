@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public SubmitMessage SubmitMessage { get; set; }
         public DeliverMessage DeliverMessage { get; set; }
         public NotifyMessageEnvelope NotifyMessage { get; set; }
-        public Entities.ReceptionAwareness ReceiptionAwareness { get; set; }
+        public Entities.ReceptionAwareness ReceptionAwareness { get; set; }
 
         // Exposed Info
         public AS4Exception Exception { get; set; }
