@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.Submit;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
+
     public class MinderSubmitReceiveMessageTransformer : ITransformer
     {
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
@@ -19,90 +21,73 @@ namespace Eu.EDelivery.AS4.Transformers
 
             var as4Message = internalMessage.AS4Message;
 
-            if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit",
-                    StringComparison.OrdinalIgnoreCase) ?? false)
+            if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
             {
-                var submitMessage = CreateSubmitMessageFromAS4Message(as4Message);
-                return new InternalMessage(submitMessage);
+                var properties = as4Message.PrimaryUserMessage?.MessageProperties;
+
+                TransformUserMessage(as4Message.PrimaryUserMessage, properties);
+
+                AssignPMode(as4Message);
             }
-            else
-            {
-                return new InternalMessage(as4Message);
-            }
+
+            return new InternalMessage(as4Message);
         }
 
-        private SubmitMessage CreateSubmitMessageFromAS4Message(AS4Message as4message)
+        private void AssignPMode(AS4Message as4Message)
         {
-            var submitMessage = new SubmitMessage();
-
-            AssignMessageProperties(submitMessage, as4message);
-
-            return submitMessage;
+            // The PMode that must be used is defined in the CollaborationInfo.Service property.
+            var pmode = Config.Instance.GetSendingPMode(as4Message.PrimaryUserMessage.CollaborationInfo.Action);
+            as4Message.SendingPMode = pmode;
         }
 
-        private void AssignMessageProperties(SubmitMessage submitMessage, AS4Message as4Message)
+        private void TransformUserMessage(UserMessage userMessage, IList<MessageProperty> properties)
         {
-            AssignMessageInfoProperties(submitMessage, as4Message);
-            AssignConversationIdProperty(submitMessage, as4Message);
-            AssignSenderProperties(submitMessage, as4Message);
-            AssignReceiverProperties(submitMessage, as4Message);
-            AssignServiceActionProperties(submitMessage, as4Message);
+            SetMessageInfoProperties(userMessage, properties);
+            SetCollaborationInfoProperties(userMessage, properties);
+            SetPartyProperties(userMessage, properties);
+
+            RemoveMessageInfoProperties(userMessage);
+
+            userMessage.MessageProperties.Add(new MessageProperty("Operation", "Submit"));
         }
 
-        private string GetAS4MessageProperty(AS4Message as4Message, string propertyName)
+        private void RemoveMessageInfoProperties(UserMessage userMessage)
         {
-            return as4Message.PrimaryUserMessage.MessageProperties.FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.Value;
+            string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier" };
+
+            userMessage.MessageProperties = userMessage.MessageProperties.Where(p => whiteList.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                .ToList();
         }
 
-        private void AssignMessageInfoProperties(SubmitMessage submitMessage, AS4Message as4Message)
+        private void SetMessageInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
-            submitMessage.MessageInfo.MessageId = GetAS4MessageProperty(as4Message, "MessageId");
-            submitMessage.MessageInfo.RefToMessageId = GetAS4MessageProperty(as4Message, "RefToMessageId");
-
-            // userMessage.Timestamp = DateTimeOffset.UtcNow;
+            userMessage.MessageId = GetPropertyValue(properties, "MessageId");
+            userMessage.RefToMessageId = GetPropertyValue(properties, "RefToMessageId");
+            userMessage.Timestamp = DateTimeOffset.UtcNow;
         }
 
-        private void AssignConversationIdProperty(SubmitMessage submitMessage, AS4Message as4Message)
+        private void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
-            submitMessage.Collaboration.ConversationId = GetAS4MessageProperty(as4Message, "ConverstationId");
+            userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
+            userMessage.CollaborationInfo.Service.Value = GetPropertyValue(properties, "Service");
+            userMessage.CollaborationInfo.Action = GetPropertyValue(properties, "Action");
+
+            // AgreementRef must not be present in the AS4Message for minder.
+            userMessage.CollaborationInfo.AgreementReference = null;
         }
 
-        private void AssignSenderProperties(SubmitMessage userMessage, AS4Message as4Message)
+        private void SetPartyProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
-            var fromPartyId = new Model.Common.PartyId()
-            {
-                Id = GetAS4MessageProperty(as4Message, "FromPartyId"),
-                Type = ""
-            };
+            userMessage.Sender.PartyIds.First().Id = GetPropertyValue(properties, "FromPartyId");
+            userMessage.Sender.Role = GetPropertyValue(properties, "FromPartyRole");
 
-            userMessage.PartyInfo.FromParty = new Model.Common.Party()
-            {
-                PartyIds = new[] { fromPartyId },
-                Role = GetAS4MessageProperty(as4Message, "FromPartyRole")
-            };
-
+            userMessage.Receiver.PartyIds.First().Id = GetPropertyValue(properties, "ToPartyId");
+            userMessage.Receiver.Role = GetPropertyValue(properties, "ToPartyRole");
         }
 
-        private void AssignReceiverProperties(SubmitMessage userMessage, AS4Message as4message)
+        private static string GetPropertyValue(IList<MessageProperty> properties, string propertyName)
         {
-            var toPartyId = new Model.Common.PartyId()
-            {
-                Id = GetAS4MessageProperty(as4message, "ToPartyId"),
-                Type = ""
-            };
-
-            userMessage.PartyInfo.ToParty = new Model.Common.Party()
-            {
-                PartyIds = new[] { toPartyId },
-                Role = GetAS4MessageProperty(as4message, "ToPartyRole")
-            };
-        }
-
-        private void AssignServiceActionProperties(SubmitMessage userMessage, AS4Message as4message)
-        {
-            userMessage.Collaboration.Service.Value = GetAS4MessageProperty(as4message, "Service");
-            userMessage.Collaboration.Action = GetAS4MessageProperty(as4message, "Action");
-            userMessage.Collaboration.AgreementRef.PModeId = GetAS4MessageProperty(as4message, "Action");
+            return properties.FirstOrDefault(p => p.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.Value;
         }
     }
 }

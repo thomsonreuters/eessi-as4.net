@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -103,8 +104,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             // If the SubmitMessage has an ID and the AS4Message does not have an ID, then we
             // consider that the InternalMessage contains a submitmessage that needs to be submitted.
             Func<InternalMessage, bool> isSubmitMessage =
-                m => String.IsNullOrEmpty(m?.SubmitMessage?.MessageInfo?.MessageId) == false &&
-                     String.IsNullOrEmpty(m.AS4Message?.PrimaryUserMessage?.MessageId);
+                m => m.AS4Message.PrimaryUserMessage?.MessageProperties?.Any(p => p.Equals(new MessageProperty("Operation", "Submit"))) ?? false;
 
             var submitStepConfig = CreateSubmitStep();
             var receiveStepConfig = CreateReceiveStep();
@@ -118,10 +118,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             {
                 Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
                 Step = new Step[]
-                {
-                    //new Step { Type = typeof(MinderAssembleAS4MessageStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(RetrieveSendingPModeStep).AssemblyQualifiedName },
-                    new Step() { Type = typeof(CreateAS4MessageStep).AssemblyQualifiedName},
+                {                    
                     new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
                 }
