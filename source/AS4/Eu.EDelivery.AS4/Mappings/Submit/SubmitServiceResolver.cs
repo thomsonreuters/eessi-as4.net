@@ -14,6 +14,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     {
         private readonly IPModeResolver<CoreService> _pmodeResolver;
 
+        public static readonly SubmitServiceResolver Default = new SubmitServiceResolver();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SubmitServiceResolver"/> class
         /// </summary>

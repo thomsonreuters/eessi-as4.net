@@ -10,6 +10,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// </summary>
     public class SubmitMpcResolver : ISubmitResolver<string>
     {
+     
+        public static readonly SubmitMpcResolver Default = new SubmitMpcResolver();
+
         /// <summary>
         /// Resolve the Mpc from the <paramref name="submitMessage"/>
         /// </summary>
