@@ -100,9 +100,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         }
 
         private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
-        {
-            // If the SubmitMessage has an ID and the AS4Message does not have an ID, then we
-            // consider that the InternalMessage contains a submitmessage that needs to be submitted.
+        {            
             Func<InternalMessage, bool> isSubmitMessage =
                 m => m.AS4Message.PrimaryUserMessage?.MessageProperties?.Any(p => p.Equals(new MessageProperty("Operation", "Submit"))) ?? false;
 
@@ -135,7 +133,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 Step = new Step[]
                 {
                     new Step { Type = typeof(DeterminePModesStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(MinderDecryptAS4MessageStep).AssemblyQualifiedName },
+                    new Step { Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName },
                     new Step { Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName },
                     new Step { Type = typeof(ReceiveUpdateDatastoreStep).AssemblyQualifiedName},
