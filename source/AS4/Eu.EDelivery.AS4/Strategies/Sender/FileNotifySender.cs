@@ -5,7 +5,7 @@ using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
-    internal class FileNotifySender : SenderNotifier
+    internal class FileNotifySender : NotifySender
     {
         protected override void SendNotifyMessage(NotifyMessageEnvelope notifyMessage, string destinationUri)
         {

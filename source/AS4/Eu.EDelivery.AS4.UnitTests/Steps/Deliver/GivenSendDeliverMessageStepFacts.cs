@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             public async Task ThenExecuteStepSucceedsWithValidSenderAsync()
             {
                 // Arrange
-                var deliverMessage = new DeliverMessage();
+                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, "");
                 var internalMessage = new InternalMessage(deliverMessage);
                 internalMessage.AS4Message.ReceivingPMode = CreateDefaultReceivingPMode();
 
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 // Assert
                 base._mockedSender.Verify(s
-                    => s.Send(It.IsAny<DeliverMessage>()), Times.Once);
+                    => s.Send(It.IsAny<DeliverMessageEnvelope>()), Times.Once);
             }
 
             private static ReceivingProcessingMode CreateDefaultReceivingPMode()
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 // Arrange
                 SetupFailedDeliverSender();
-                var deliverMessage = new DeliverMessage();
+                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, "");
                 var internalMessage = new InternalMessage(deliverMessage);
                 // Act
                 AS4Exception exception = await Assert.ThrowsAsync<AS4Exception>(()
@@ -82,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             private void SetupFailedDeliverSender()
             {
                 base._mockedSender
-                    .Setup(s => s.Send(It.IsAny<DeliverMessage>()))
+                    .Setup(s => s.Send(It.IsAny<DeliverMessageEnvelope>()))
                     .Throws(new AS4Exception("Failed to send Deliver Message"));
                 base._step = new SendDeliverMessageStep(base._mockedProvider.Object);
             }

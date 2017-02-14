@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TrySendDeliverMessage(DeliverMessage deliverMessage)
+        private void TrySendDeliverMessage(DeliverMessageEnvelope deliverMessage)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private void SendDeliverMessage(DeliverMessage deliverMessage)
+        private void SendDeliverMessage(DeliverMessageEnvelope deliverMessage)
         {
             Method deliverMethod = this._internalMessage.AS4Message
                 .ReceivingPMode.Deliver.DeliverMethod;

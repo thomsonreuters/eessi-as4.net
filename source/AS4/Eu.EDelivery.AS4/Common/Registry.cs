@@ -43,8 +43,8 @@ namespace Eu.EDelivery.AS4.Common
         private void RegisterDeliverSenderProvider()
         {
             this.DeliverSenderProvider = new DeliverSenderProvider();
-            this.DeliverSenderProvider.Accept(s
-                => s.Equals("FILE", StringComparison.CurrentCultureIgnoreCase), new FileDeliverXmlSender());
+            this.DeliverSenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new FileDeliverySender());
+            this.DeliverSenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), new HttpDeliverySender());
         }
 
         private void RegisterNotifySenderProvider()

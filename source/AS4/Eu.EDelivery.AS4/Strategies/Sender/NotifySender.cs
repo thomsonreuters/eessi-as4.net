@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// <summary>
     /// SenderNotifiers are responsible for sending a NotificationMessage to a specific endpoint.
     /// </summary>
-    public abstract class SenderNotifier : INotifySender
+    public abstract class NotifySender : INotifySender
     {
         protected Logger Log { get; } = LogManager.GetCurrentClassLogger();
         

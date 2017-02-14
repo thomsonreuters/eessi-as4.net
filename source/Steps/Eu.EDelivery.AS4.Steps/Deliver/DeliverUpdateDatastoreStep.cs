@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return StepResult.Success(internalMessage);
         }
 
-        private async Task UpdateUserMessageAsync(DeliverMessage deliverMessage)
+        private async Task UpdateUserMessageAsync(DeliverMessageEnvelope deliverMessage)
         {
             using (var context = Registry.Instance.CreateDatastoreContext())
             {

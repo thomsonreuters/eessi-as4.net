@@ -138,7 +138,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
         {
             AssignServiceAction(userMessage);
-            AssignFromPartyRole(userMessage);
 
             if (signalMessage != null)
             {

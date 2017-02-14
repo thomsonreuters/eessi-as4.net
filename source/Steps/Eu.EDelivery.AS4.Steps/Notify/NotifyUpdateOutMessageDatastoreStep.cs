@@ -35,12 +35,12 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             var notifyMessage = internalMessage.NotifyMessage;
             this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAync(notifyMessage);
+            await UpdateDatastoreAsync(notifyMessage);
             return StepResult.Success(internalMessage);
             
         }
 
-        private static async Task UpdateDatastoreAync(NotifyMessageEnvelope notifyMessage)
+        private static async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage)
         {
             using (var context = Registry.Instance.CreateDatastoreContext())
             {

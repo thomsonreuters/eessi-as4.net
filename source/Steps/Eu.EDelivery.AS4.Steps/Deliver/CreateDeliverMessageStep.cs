@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
 
@@ -42,32 +43,28 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             this._logger.Info($"{internalMessage.Prefix} Create a Deliver Message from an AS4 Message");
 
-            BeforeDeliverMessageCreated(internalMessage);
 
-            internalMessage.DeliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
+            var deliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
 
-            AfterDeliverMessageCreated(internalMessage);
 
-            ValidateDeliverMessage(internalMessage.DeliverMessage, internalMessage);
+            var serialized = AS4XmlSerializer.Serialize(deliverMessage);
+
+            ValidateDeliverMessage(deliverMessage, internalMessage);
+
+            internalMessage.DeliverMessage = new DeliverMessageEnvelope(deliverMessage.MessageInfo,
+                                                                        System.Text.Encoding.UTF8.GetBytes(serialized),
+                                                                        "application/xml");
 
             return StepResult.SuccessAsync(internalMessage);
         }
 
         private static DeliverMessage CreateDeliverMessage(AS4Message as4Message)
-        {            
+        {
             var deliverMessage = Mapper.Map<DeliverMessage>(as4Message.PrimaryUserMessage);
             AssignSendingPModeId(as4Message, deliverMessage);
             AssignAttachmentLocations(as4Message, deliverMessage);
 
             return deliverMessage;
-        }
-
-        protected virtual void BeforeDeliverMessageCreated(InternalMessage internalMessage)
-        {
-        }
-
-        protected virtual void AfterDeliverMessageCreated(InternalMessage internalMessage)
-        {
         }
 
         private static void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)

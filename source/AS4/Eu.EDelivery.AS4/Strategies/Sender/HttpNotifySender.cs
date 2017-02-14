@@ -1,29 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Notify;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
-    internal class HttpNotifySender : SenderNotifier
-    {
-        // TODO: XML serialization should take place on another level (base class), and should be configurable.
-
+    internal class HttpNotifySender : NotifySender
+    {        
         protected override void SendNotifyMessage(NotifyMessageEnvelope notifyMessage, string destinationUri)
         {
             // TODO: verify if destinationUri is a valid http endpoint.                        
             var request = CreateWebRequest(destinationUri, notifyMessage.ContentType);
 
             Log.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {destinationUri}");
-
-            // TODO: the formatter should be given to us.
-            
+                        
             using (Stream requestStream = request.GetRequestStream())
             {
                 requestStream.Write(notifyMessage.NotifyMessage,0, notifyMessage.NotifyMessage.Length);                

@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -26,6 +30,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         public GivenCreateDeliverMessageStepFacts()
         {
+            MapInitialization.InitializeMapper();
+
             this._step = new CreateDeliverMessageStep();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
@@ -58,7 +64,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Act
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
-                Agreement agreement = result.InternalMessage.DeliverMessage.CollaborationInfo.AgreementRef;
+                var deliverMessage =
+                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                Agreement agreement = deliverMessage.CollaborationInfo.AgreementRef;
                 Assert.NotNull(agreement);
                 Assert.NotEmpty(agreement.Value);
                 Assert.NotNull(agreement.PModeId);
@@ -70,7 +78,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Act
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
-                Service service = result.InternalMessage.DeliverMessage.CollaborationInfo.Service;
+                var deliverMessage =
+                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                Service service = deliverMessage.CollaborationInfo.Service;
                 Assert.NotNull(service);
                 Assert.NotEmpty(service.Type);
                 Assert.NotEmpty(service.Value);
@@ -82,7 +92,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Act
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
-                AS4.Model.Common.Party deliverParty = result.InternalMessage.DeliverMessage.PartyInfo.FromParty;
+                var deliverMessage =
+                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                AS4.Model.Common.Party deliverParty = deliverMessage.PartyInfo.FromParty;
                 Assert.NotNull(deliverParty);
                 Assert.NotEmpty(deliverParty.Role);
                 Assert.NotEmpty(deliverParty.PartyIds);
@@ -94,7 +106,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Act
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
-                AS4.Model.Common.Party deliverParty = result.InternalMessage.DeliverMessage.PartyInfo.ToParty;
+                var deliverMessage =
+                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+
+                AS4.Model.Common.Party deliverParty = deliverMessage.PartyInfo.ToParty;
                 Assert.NotNull(deliverParty);
                 Assert.NotEmpty(deliverParty.Role);
                 Assert.NotEmpty(deliverParty.PartyIds);
@@ -106,7 +121,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Act
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
-                MessageProperty[] props = result.InternalMessage.DeliverMessage.MessageProperties;
+                var deliverMessage =
+                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                MessageProperty[] props = deliverMessage.MessageProperties;
                 Assert.NotNull(props);
                 Assert.NotEmpty(props);
             }
@@ -153,7 +170,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             return new CollaborationInfo
             {
                 Action = "StoreMessage",
-                Service = {Value = "Test", Type = "org:holodeckb2b:services"},
+                Service = { Value = "Test", Type = "org:holodeckb2b:services" },
                 ConversationId = "org:holodeckb2b:test:conversation",
                 AgreementReference = CreateAgreementReference()
             };
@@ -170,8 +187,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private AS4.Model.Core.Party CreateParty(string role, string partyId)
         {
-            var partyIds = new List<PartyId> {new PartyId(partyId)};
-            return new AS4.Model.Core.Party {Role = role, PartyIds = partyIds};
+            var partyIds = new List<PartyId> { new PartyId(partyId) };
+            return new AS4.Model.Core.Party { Role = role, PartyIds = partyIds };
         }
     }
 }
