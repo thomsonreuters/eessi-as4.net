@@ -37,6 +37,8 @@ namespace Eu.EDelivery.AS4.Transformers
                 // will be an opportunity to refactor this.
                 var result = new InternalMessage(as4Message);
                 result.SubmitMessage.Collaboration.Action = "Submit";
+
+                return result;
             }
 
             return new InternalMessage(as4Message);
