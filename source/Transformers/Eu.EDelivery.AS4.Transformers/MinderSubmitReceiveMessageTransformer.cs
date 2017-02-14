@@ -4,8 +4,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.Submit;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -28,6 +31,12 @@ namespace Eu.EDelivery.AS4.Transformers
                 TransformUserMessage(as4Message.PrimaryUserMessage, properties);
 
                 AssignPMode(as4Message);
+
+                // This is an ugly hack, but we need something to use in our ConditionalStep in order to know whether or not we should submit or receive.
+                // This needs to be reviewed later.  It is very possible that we can get rid of the SubmitMessage - property in the InternalMessage, which
+                // will be an opportunity to refactor this.
+                var result = new InternalMessage(as4Message);
+                result.SubmitMessage.Collaboration.Action = "Submit";
             }
 
             return new InternalMessage(as4Message);
@@ -46,9 +55,7 @@ namespace Eu.EDelivery.AS4.Transformers
             SetCollaborationInfoProperties(userMessage, properties);
             SetPartyProperties(userMessage, properties);
 
-            RemoveMessageInfoProperties(userMessage);
-
-            userMessage.MessageProperties.Add(new MessageProperty("Operation", "Submit"));
+            RemoveMessageInfoProperties(userMessage);            
         }
 
         private void RemoveMessageInfoProperties(UserMessage userMessage)
