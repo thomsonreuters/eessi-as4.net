@@ -23,7 +23,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public UserMessage(string messageId) : base(messageId)
         {
-            InitializeFields();
         }
 
         private void InitializeFields()
@@ -31,6 +30,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             this.Sender = new Party(new PartyId {Id = Constants.Namespaces.EbmsDefaultFrom});
             this.Receiver = new Party(new PartyId {Id = Constants.Namespaces.EbmsDefaultTo});
             this.CollaborationInfo = new CollaborationInfo();
+            this.MessageProperties = new List<MessageProperty>();
         }
 
 
