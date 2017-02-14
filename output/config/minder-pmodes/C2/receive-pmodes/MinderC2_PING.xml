@@ -28,18 +28,10 @@
   <Security>
     <SigningVerification>
       <Signature>Allowed</Signature>
-    </SigningVerification>
-  <Signing>
-      <IsEnabled>false</IsEnabled>
-      <KeyReferenceMethod>IssuerSerial</KeyReferenceMethod>
-      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
-      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
-      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
-    </Signing>
+    </SigningVerification>  
     <Decryption>
       <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
     </Decryption>
   </Security>
