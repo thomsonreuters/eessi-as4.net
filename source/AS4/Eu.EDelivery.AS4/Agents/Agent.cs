@@ -159,6 +159,12 @@ namespace Eu.EDelivery.AS4.Agents
             if (result.Exception != null)
             {
                 this._logger.Warn($"Executing {this.AgentConfig.Name} Step failed: {result.Exception.Message}");
+
+                if (result.Exception.InnerException != null && _logger.IsTraceEnabled)
+                {
+                    this._logger.Trace(result.Exception.InnerException.StackTrace);
+                }
+
             }
 
             this._logger.Debug($"{this.AgentConfig.Name} finished handling message with id {message.Id}");
