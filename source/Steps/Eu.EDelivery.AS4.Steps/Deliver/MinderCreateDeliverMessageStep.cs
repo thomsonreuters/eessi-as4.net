@@ -82,12 +82,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             deliverMessage.CollaborationInfo.Action = "Deliver";
             deliverMessage.CollaborationInfo.Service.Value = ConformanceUriPrefix;
-            deliverMessage.CollaborationInfo.ConversationId = userMessage.CollaborationInfo.ConversationId; // TODO, set to 1 ?
+            deliverMessage.CollaborationInfo.ConversationId = userMessage.CollaborationInfo.ConversationId;
 
             // Party Information: sender is the receiver of the AS4Message that has been received.
             //                    receiver is minder.
             deliverMessage.Sender = new Party($"{ConformanceUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
             deliverMessage.Receiver = new Party($"{ConformanceUriPrefix}/testdriver", new PartyId("minder"));
+
+            // Set the PayloadInfo.
+            foreach (var pi in userMessage.PayloadInfo)
+            {
+                deliverMessage.PayloadInfo.Add(pi);
+            }
 
             deliverMessage.MessageProperties.Add(new MessageProperty("MessageId", userMessage.MessageId));
             AddMessageProperty(deliverMessage, "RefToMessageId", userMessage.RefToMessageId);

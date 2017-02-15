@@ -70,9 +70,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private void AddPartInfos(AS4Message as4Message)
         {
-            as4Message.PrimaryUserMessage.PayloadInfo = new List<PartInfo>();
             foreach (Attachment attachment in as4Message.Attachments)
+            {
                 AddPartInfo(as4Message, attachment);
+            }
         }
 
         private void AddPartInfo(AS4Message as4Message, Attachment attachment)
@@ -85,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             return new PartInfo("cid:" + attachment.Id)
             {
-                Properties = new Dictionary<string, string> {["MimeType"] = attachment.ContentType}
+                Properties = new Dictionary<string, string> { ["MimeType"] = attachment.ContentType }
             };
         }
     }

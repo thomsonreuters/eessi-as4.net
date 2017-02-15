@@ -14,6 +14,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <see cref="IStep"/> implementation to assemble the <see cref="AS4Message"/>
     /// with the given Message Properties
     /// </summary>
+    [Obsolete("This Minder specific step should no longer be used.")]
     public class MinderAssembleAS4MessageStep : IStep
     {
         private IList<MessageProperty> _properties;

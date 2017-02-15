@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -11,6 +12,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <summary>
     /// Minder <see cref="IStep"/> implementation to create a Receipt
     /// </summary>
+    [Obsolete("This Minder specific step should no longer be used.")]
     public class MinderNotifyReceiptStep : IStep
     {
         private readonly ILogger _logger;
@@ -65,16 +67,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private static void AssignMessageProperties(UserMessage userMessage)
         {
-            userMessage.MessageProperties = new List<MessageProperty>
-            {
-                new MessageProperty("SignalType", "Receipt"),
-                new MessageProperty("RefToMessageId", userMessage.MessageId)
-            };
+            userMessage.MessageProperties.Add(new MessageProperty("SignalType", "Receipt"));
+            userMessage.MessageProperties.Add(new MessageProperty("RefToMessageId", userMessage.MessageId));            
         }
 
         private static void RemovePayloadInfo(UserMessage userMessage)
         {
-            userMessage.PayloadInfo = null;
+            userMessage.PayloadInfo.Clear();
         }
     }
 }
