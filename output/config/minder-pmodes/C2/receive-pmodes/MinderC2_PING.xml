@@ -72,10 +72,10 @@
         </Parameters>
     </PayloadReferenceMethod>
     <DeliverMethod>
-      <Type>FILE</Type>
+      <Type>HTTP</Type>
       <Parameters>
-          <Parameter name="location" value=".\messages\in\"/>
-        </Parameters>
+        <Parameter name="location" value="http://13.81.109.44:15001/corner1"/>
+      </Parameters>
     </DeliverMethod>
   </Deliver>
 </PMode>

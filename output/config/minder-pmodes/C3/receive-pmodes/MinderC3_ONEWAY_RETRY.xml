@@ -15,7 +15,7 @@
   </ReceiptHandling>
   <ErrorHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
-<NotifyMethod>
+    <NotifyMethod>
       <Type>FILE</Type>
       <Parameters>
         <Parameter name="location" value=".\messages\exceptions\" />
@@ -38,7 +38,7 @@
   <Security>
     <SigningVerification>
       <Signature>Allowed</Signature>
-    </SigningVerification>  
+    </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
       <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
@@ -46,46 +46,46 @@
     </Decryption>
   </Security>
   <MessagePackaging>
-     <PartyInfo>
-        <FromParty>
-				<PartyIds>
-					<PartyId>
-						<Id>as4-net-c2</Id>
-						<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
-					</PartyId>
-				</PartyIds>
-				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
-			</FromParty>
-			<ToParty>
-				<PartyIds>
-					<PartyId>
-						<Id>as4-net-c3</Id>
-						<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
-					</PartyId>
-				</PartyIds>
-				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
-			</ToParty>
-      </PartyInfo>
-      <CollaborationInfo>
-        <Action>ACT_ONEWAY_RETRY</Action>
-        <Service>
-          <Value>SRV_ONEWAY_RETRY</Value>
-        </Service>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>as4-net-c2</Id>
+            <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
+          </PartyId>
+        </PartyIds>
+        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>as4-net-c3</Id>
+            <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
+          </PartyId>
+        </PartyIds>
+        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
+      </ToParty>
+    </PartyInfo>
+    <CollaborationInfo>
+      <Action>ACT_ONEWAY_RETRY</Action>
+      <Service>
+        <Value>SRV_ONEWAY_RETRY</Value>
+      </Service>
     </CollaborationInfo>
   </MessagePackaging>
   <Deliver>
     <IsEnabled>true</IsEnabled>
-     <PayloadReferenceMethod >
+    <PayloadReferenceMethod >
       <Type>FILE</Type>
       <Parameters>
-          <Parameter name="location" value=".\messages\in\"/>
-        </Parameters>
+        <Parameter name="location" value=".\messages\in\"/>
+      </Parameters>
     </PayloadReferenceMethod>
     <DeliverMethod>
-      <Type>FILE</Type>
+      <Type>HTTP</Type>
       <Parameters>
-          <Parameter name="location" value=".\messages\in\"/>
-        </Parameters>
+        <Parameter name="location" value="http://13.81.109.44:15001/corner4"/>
+      </Parameters>
     </DeliverMethod>
   </Deliver>
 </PMode>
