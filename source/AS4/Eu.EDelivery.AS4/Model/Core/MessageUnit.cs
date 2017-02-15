@@ -13,10 +13,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string MessageId { get; set; }
         public string RefToMessageId { get; set; }
 
-        protected MessageUnit()
-        {
-            this.Timestamp = DateTimeOffset.UtcNow;
-            this.MessageId = IdentifierFactory.Instance.Create();
+        protected MessageUnit() : this(IdentifierFactory.Instance.Create())
+        {            
         }
 
         protected MessageUnit(string messageid)
