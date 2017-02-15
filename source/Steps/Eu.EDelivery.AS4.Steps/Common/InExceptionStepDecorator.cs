@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -56,6 +57,11 @@ namespace Eu.EDelivery.AS4.Steps.Common
                 }
 
                 return StepResult.Failed(exception);
+            }
+            catch (Exception exception)
+            {
+                _logger.Fatal($"An unexpected error occured: {exception.Message}");                
+                return StepResult.Failed(AS4ExceptionBuilder.WithDescription(exception.Message).WithInnerException(exception).Build());
             }
         }
 
