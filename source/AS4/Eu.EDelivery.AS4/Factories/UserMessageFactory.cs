@@ -19,13 +19,16 @@ namespace Eu.EDelivery.AS4.Factories
         /// <returns></returns>
         public UserMessage Create(SendingProcessingMode pmode)
         {
-            return new UserMessage
+            var result = new UserMessage
             {
                 Sender = new PModeSenderResolver().Resolve(pmode),
                 Receiver = new PModeReceiverResolver().Resolve(pmode),
-                CollaborationInfo = ResolveCollaborationInfo(pmode),
-                MessageProperties = pmode.MessagePackaging.MessageProperties
+                CollaborationInfo = ResolveCollaborationInfo(pmode)                
             };
+
+            pmode.MessagePackaging.MessageProperties.ForEach(p => result.MessageProperties.Add(p));
+            
+            return result;
         }
 
         private CollaborationInfo ResolveCollaborationInfo(SendingProcessingMode pmode)
