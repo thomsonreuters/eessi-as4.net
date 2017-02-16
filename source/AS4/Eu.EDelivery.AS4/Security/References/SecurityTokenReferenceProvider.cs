@@ -4,8 +4,8 @@ using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Security.References
 {
-    
-    public class SecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
+
+    internal class SecurityTokenReferenceProvider : ISecurityTokenReferenceProvider
     {
         private readonly ICertificateRepository _certificateRepository;
 
@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             this._certificateRepository = certificateRepository;
         }
-        
+
         public SecurityTokenReference Get(X509ReferenceType referenceType)
         {
             switch (referenceType)
@@ -26,34 +26,55 @@ namespace Eu.EDelivery.AS4.Security.References
                     return new KeyIdentifierSecurityTokenReference(this._certificateRepository);
 
                 default:
-                    throw new NotSupportedException($"There exists no SecurityTokenReferenceType for {referenceType}");
+                    return new BinarySecurityTokenReference();
             }
         }
 
-        public SecurityTokenReference Get(XmlElement envelopeDocument)
+        public SecurityTokenReference Get(XmlElement envelopeDocument, SecurityTokenType type)
         {
-            if (HasEnvelopeTag(envelopeDocument, tag: "BinarySecurityToken"))
+            string xpathQuery = "";
+
+            if (type == SecurityTokenType.Signing)
+            {
+                xpathQuery = "//*[local-name()='{0}']";
+            }
+            else if (type == SecurityTokenType.Encryption)
+            {
+                xpathQuery = ".//*[local-name()='{0}']";
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(type));
+            }
+
+            if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "BinarySecurityToken")))
             {
                 return new BinarySecurityTokenReference(envelopeDocument);
             }
 
-            if (HasEnvelopeTag(envelopeDocument, tag: "X509SerialNumber"))
+            if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "X509SerialNumber")))
             {
                 return new IssuerSecurityTokenReference(envelopeDocument, this._certificateRepository);
             }
 
-            if (HasEnvelopeTag(envelopeDocument, tag: "KeyIdentifier"))
+            if (HasEnvelopeTag(envelopeDocument, xpathSelector: String.Format(xpathQuery, "KeyIdentifier")))
             {
                 return new KeyIdentifierSecurityTokenReference(envelopeDocument, this._certificateRepository);
             }
 
-            throw new NotSupportedException("No matching SecurityTokenReference implementation found");
+            return new BinarySecurityTokenReference(envelopeDocument);
         }
 
-        private static bool HasEnvelopeTag(XmlNode element, string tag)
+        private static bool HasEnvelopeTag(XmlNode element, string xpathSelector)
         {
-            return element?.SelectSingleNode($"//*[local-name()='{tag}']") != null;
+            return element?.SelectSingleNode(xpathSelector) != null;
         }
+    }
+
+    public enum SecurityTokenType
+    {
+        Signing,
+        Encryption
     }
 
     /// <summary>
@@ -63,6 +84,6 @@ namespace Eu.EDelivery.AS4.Security.References
     public interface ISecurityTokenReferenceProvider
     {
         SecurityTokenReference Get(X509ReferenceType referenceType);
-        SecurityTokenReference Get(XmlElement envelopeDocument);
+        SecurityTokenReference Get(XmlElement envelopeDocument, SecurityTokenType type);
     }
 }

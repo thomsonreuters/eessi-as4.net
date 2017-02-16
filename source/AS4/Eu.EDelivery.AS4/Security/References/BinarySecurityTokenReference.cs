@@ -11,14 +11,14 @@ namespace Eu.EDelivery.AS4.Security.References
     internal class BinarySecurityTokenReference : SecurityTokenReference
     {
         public BinarySecurityTokenReference()
-        {                
+        {
         }
 
         public BinarySecurityTokenReference(XmlElement securityTokenElement)
         {
-            this.LoadXml(securityTokenElement);            
+            this.LoadXml(securityTokenElement);
         }
-          
+
         /// <summary>
         /// Append the Security Token Reference for the Binary Security Token
         /// </summary>
@@ -53,9 +53,12 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private void AppendCertificate(XmlDocument document, XmlElement binarySecurityToken)
         {
-            string rawData = Convert.ToBase64String(this.Certificate.GetRawCertData());
-            XmlNode rawDataNode = document.CreateTextNode(rawData);
-            binarySecurityToken.AppendChild(rawDataNode);
+            if (this.Certificate != null)
+            {
+                string rawData = Convert.ToBase64String(this.Certificate.GetRawCertData());
+                XmlNode rawDataNode = document.CreateTextNode(rawData);
+                binarySecurityToken.AppendChild(rawDataNode);
+            }
         }
 
         /// <summary>
@@ -94,7 +97,7 @@ namespace Eu.EDelivery.AS4.Security.References
 
             XmlElement binarySecurityTokenElement = GetBinarySecurityTokenElementFrom(element);
             if (binarySecurityTokenElement != null)
-                AssignCertificate(binarySecurityTokenElement);            
+                AssignCertificate(binarySecurityTokenElement);
         }
 
         private void AssignCertificate(XmlElement binarySecurityTokenElement)
@@ -111,7 +114,7 @@ namespace Eu.EDelivery.AS4.Security.References
         }
 
         private XmlElement GetBinarySecurityTokenElementFrom(XmlNode node)
-        {            
+        {
             XmlNode securityHeader = node.ParentNode?.ParentNode?.ParentNode;
             return securityHeader?.ChildNodes?.OfType<XmlElement>()
                 .FirstOrDefault(IsElementABinarySecurityTokenElement);

@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public string GetDigestAlgorithm()
         {
-            string xpath = $"//*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
+            string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
             var digestNode = this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
             return digestNode?.GetAttribute("Algorithm");
