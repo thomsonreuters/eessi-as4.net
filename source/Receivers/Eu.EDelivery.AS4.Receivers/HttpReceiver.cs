@@ -248,7 +248,9 @@ namespace Eu.EDelivery.AS4.Receivers
             private sealed class HttpHtmlGetResponse : HttpGetResponse
             {
                 public override byte[] GetResponse(HttpListenerContext context)
-                {                    
+                {
+                    var logoLocation = context.Request.RawUrl.TrimEnd('/') + "/assets/as4logo.png";
+                         
                     string html = 
                    $@"<html>
 <head>
@@ -256,7 +258,7 @@ namespace Eu.EDelivery.AS4.Receivers
     <title>AS4.NET</title>       
 </head>
 <body>
-    <img src="".{context.Request.RawUrl}/assets/as4logo.png"" alt=""AS4.NET logo"" Style=""width:100%; height:auto; display:block, margin:auto""></img>
+    <img src=""{logoLocation}"" alt=""AS4.NET logo"" Style=""width:100%; height:auto; display:block, margin:auto""></img>
     <div Style=""text-align:center""><p>This AS4.NET MessageHandler is online</p></div>
 </body>";
                     return System.Text.Encoding.UTF8.GetBytes(html);
