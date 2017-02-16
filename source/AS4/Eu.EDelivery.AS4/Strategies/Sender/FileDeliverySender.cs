@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Utilities;
@@ -26,6 +27,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         protected override void SendDeliverMessage(DeliverMessageEnvelope deliverMessage, string destinationUri)
         {
+            TryCreateMissingDirectoriesIfNotExists(destinationUri);
+
             string filename = FilenameSanitizer.EnsureValidFilename(deliverMessage.MessageInfo.MessageId) + ".xml";
             string location = Path.Combine(destinationUri ?? "", filename);
 
@@ -34,6 +37,21 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                 fileStream.Write(deliverMessage.DeliverMessage, 0, deliverMessage.DeliverMessage.Length);
 
                 this._logger.Info($"DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully Send to: {location}");
+            }
+        }
+
+        private void TryCreateMissingDirectoriesIfNotExists(string locationFolder)
+        {
+            try
+            {
+                if (!String.IsNullOrWhiteSpace(locationFolder) && !Directory.Exists(locationFolder))
+                {
+                    Directory.CreateDirectory(locationFolder);
+                }
+            }
+            catch (Exception exception)
+            {
+                this.Log.Error(exception.Message);
             }
         }
 
