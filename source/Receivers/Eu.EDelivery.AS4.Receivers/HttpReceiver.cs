@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.Receivers
             context.Response.KeepAlive = false;
             context.Response.StatusCode = GetHttpStatusCode(internalMessage);
 
-            if (internalMessage.AS4Message.IsEmpty)
+            if (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty)
             {
                 return;
             }
@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private void SetupResponseContent(
             HttpListenerContext context, InternalMessage internalMessage, CancellationToken token)
         {
-            if (internalMessage.AS4Message.IsEmpty)
+            if (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty)
             {
                 context.Response.StatusCode = 202;
                 this._logger.Info("Empty Http Body is send");
