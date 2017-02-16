@@ -188,7 +188,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             var statusCode = (int)HttpStatusCode.OK;
 
-            if (internalMessage.AS4Message.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
+            if (internalMessage.AS4Message?.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
             {
                 statusCode = internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
             }
