@@ -14,7 +14,7 @@
     <SendingPMode>Minder_response</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
-    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
