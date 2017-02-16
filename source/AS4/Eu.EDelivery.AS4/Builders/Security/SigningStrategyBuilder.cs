@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
                 if (securityTokenElement != null)
                 {
-                    SecurityTokenReference token = this._tokenProvider.Get(securityTokenElement);
+                    SecurityTokenReference token = this._tokenProvider.Get(securityTokenElement, SecurityTokenType.Signing);
 
                     this._logger.Debug($"Verify with Security Token Reference: {token.GetType().Name}");
 

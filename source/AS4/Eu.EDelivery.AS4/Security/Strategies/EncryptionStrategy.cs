@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 var provider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
-                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement);                    
+                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement, SecurityTokenType.Encryption);                    
             }
         }
                
