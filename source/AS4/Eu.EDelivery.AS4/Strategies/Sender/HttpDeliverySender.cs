@@ -38,23 +38,32 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private async void HandleDeliverResponse(HttpWebRequest request)
         {
-            var response = await request.GetResponseAsync() as HttpWebResponse;
+            HttpWebResponse response = null;
 
-            if (response == null)
+            try
             {
-                this.Log.Error("No WebResponse received for http delivery.");
-                return;
+                response = await request.GetResponseAsync() as HttpWebResponse;
+
+                if (response == null)
+                {
+                    Log.Error("No WebResponse received for http delivery.");
+                    return;
+                }
+            }
+            catch (WebException exception)
+            {
+                response = exception.Response as HttpWebResponse;
             }
 
             if (response.StatusCode != HttpStatusCode.Accepted && response.StatusCode != HttpStatusCode.OK)
             {
-                this.Log.Error($"Unexpected response received for http delivery: {response.StatusCode}");
+                Log.Error($"Unexpected response received for http delivery: {response.StatusCode}");
 
-                if (this.Log.IsErrorEnabled)
+                if (Log.IsErrorEnabled)
                 {
                     using (var streamReader = new StreamReader(response.GetResponseStream(), true))
                     {
-                        this.Log.Error(streamReader.ReadToEnd());
+                        Log.Error(streamReader.ReadToEnd());
                     }
                 }
             }
