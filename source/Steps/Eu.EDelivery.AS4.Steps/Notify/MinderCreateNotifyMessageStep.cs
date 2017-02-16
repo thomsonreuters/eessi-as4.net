@@ -71,7 +71,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
             if (userMessage == null)
             {
-                throw new InvalidOperationException("No UserMessage found which could be used as a Notify Message.");
+                this._logger.Warn("The related usermessage for the received signalmessage could not be found");
+                userMessage = new UserMessage();
             }
 
             AssignMinderProperties(userMessage, signalMessage);
@@ -144,7 +145,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 userMessage.MessageProperties.Add(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
                 userMessage.MessageProperties.Add(new MessageProperty("SignalType", signalMessage.GetType().Name));
 
-                userMessage.RefToMessageId = signalMessage.MessageId;
+                userMessage.RefToMessageId = signalMessage.MessageId;                
             }
         }
 
@@ -155,13 +156,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             userMessage.CollaborationInfo.ConversationId = "1";
         }
 
-        private static void AssignFromPartyRole(UserMessage userMessage)
-        {
-            userMessage.Sender.PartyIds.First().Id = "as4-net-c2";
-            userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
-            userMessage.Receiver.PartyIds.First().Id = "minder";
-            userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
-        }
+        //private static void AssignFromPartyRole(UserMessage userMessage)
+        //{
+        //    userMessage.Sender.PartyIds.First().Id = "as4-net-c2";
+        //    userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
+        //    userMessage.Receiver.PartyIds.First().Id = "minder";
+        //    userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
+        //}
 
     }
 }
