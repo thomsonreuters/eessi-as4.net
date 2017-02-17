@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -14,7 +13,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how the data store gets updated when a message is notified
     /// </summary>
-    [Obsolete]
+    [Obsolete("This Decorator should not be used anymore.")]
     public class MinderNotifyUpdateInExceptionDatastoreStep : IStep
     {
         private readonly ILogger _logger;

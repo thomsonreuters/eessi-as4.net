@@ -21,6 +21,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// </summary>
     public class MinderCreateDeliverMessageStep : IStep
     {
+        // TODO: this Step should be replaced by a Transformer.
+
         private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
         private readonly ILogger _logger;
 

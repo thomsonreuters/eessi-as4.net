@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
+    [Obsolete("This Step should not be used anymore")]
     public class MinderEncryptAS4MessageStep : EncryptAS4MessageStep
     {
         protected override Tuple<X509FindType, string> GetCertificateFindValue(AS4Message as4Message)

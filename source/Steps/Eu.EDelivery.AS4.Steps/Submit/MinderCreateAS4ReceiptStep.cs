@@ -13,6 +13,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// <summary>
     /// <see cref="IStep"/> implementation to create a Minder AS4 Error
     /// </summary>
+    [Obsolete("This Step should no longer be used")]
     public class MinderCreateAS4ReceiptStep : IStep
     {
         private InternalMessage _internalMessage;

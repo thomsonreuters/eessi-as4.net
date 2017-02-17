@@ -21,6 +21,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// </summary>
     public class MinderCreateNotifyMessageStep : IStep
     {
+        // TODO: this step should be replaced by a Transformer
+
         private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
         private readonly ILogger _logger;
 
