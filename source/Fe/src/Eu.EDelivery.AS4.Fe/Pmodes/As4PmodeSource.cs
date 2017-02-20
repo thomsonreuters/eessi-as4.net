@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .Select(Path.GetFileNameWithoutExtension));
         }
 
-        public Task<ReceivingPmode> GetReceivingByName(string name)
+        public Task<ReceivingBasePmode> GetReceivingByName(string name)
         {
             return Task.Factory.StartNew(() => Directory
                 .GetFiles(settings.Value.ReceivingPmodeFolder, "*.xml")
@@ -36,7 +37,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                     using (var reader = new FileStream(pmode, FileMode.Open))
                     {
                         var xml = new XmlSerializer(typeof(ReceivingProcessingMode));
-                        var result = new ReceivingPmode
+                        var result = new ReceivingBasePmode
                         {
                             Name = Path.GetFileNameWithoutExtension(pmode),
                             Type = PmodeType.Receiving,
@@ -55,7 +56,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .Select(Path.GetFileNameWithoutExtension));
         }
 
-        public Task<SendingPmode> GetSendingByName(string name)
+        public Task<SendingBasePmode> GetSendingByName(string name)
         {
             return Task.Factory.StartNew(() => Directory
                 .GetFiles(settings.Value.SendingPmodeFolder, "*.xml")
@@ -65,7 +66,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                     using (var reader = new FileStream(pmode, FileMode.Open))
                     {
                         var xml = new XmlSerializer(typeof(SendingProcessingMode));
-                        var result = new SendingPmode
+                        var result = new SendingBasePmode
                         {
                             Name = Path.GetFileNameWithoutExtension(pmode),
                             Type = PmodeType.Sending,
@@ -77,16 +78,16 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .FirstOrDefault());
         }
 
-        public Task CreateReceiving(ReceivingPmode pmode)
+        public Task CreateReceiving(ReceivingBasePmode basePmode)
         {
             var xmlSerializer = new XmlSerializer(typeof(ReceivingProcessingMode));
-            var path = Path.Combine(settings.Value.ReceivingPmodeFolder, $"{pmode.Name}.xml");
+            var path = Path.Combine(settings.Value.ReceivingPmodeFolder, $"{basePmode.Name}.xml");
 
             return Task.Factory.StartNew(() =>
             {
                 using (var textWriter = new StringWriter())
                 {
-                    xmlSerializer.Serialize(textWriter, pmode.Pmode);
+                    xmlSerializer.Serialize(textWriter, basePmode.Pmode);
                     File.WriteAllText(path, textWriter.ToString(), Encoding.Unicode);
                 }
             });
@@ -110,29 +111,34 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             });
         }
 
-        public Task CreateSending(SendingPmode pmode)
+        public Task CreateSending(SendingBasePmode basePmode)
         {
             var xmlSerializer = new XmlSerializer(typeof(SendingProcessingMode));
-            var path = Path.Combine(settings.Value.SendingPmodeFolder, $"{pmode.Name}.xml");
+            var path = Path.Combine(settings.Value.SendingPmodeFolder, $"{basePmode.Name}.xml");
 
             return Task.Factory.StartNew(() =>
             {
                 using (var textWriter = new StringWriter())
                 {
-                    xmlSerializer.Serialize(textWriter, pmode.Pmode);
+                    xmlSerializer.Serialize(textWriter, basePmode.Pmode);
                     File.WriteAllText(path, textWriter.ToString(), Encoding.Unicode);
                 }
             });
         }
 
-        public async Task UpdateSending(SendingPmode pmode, string originalName)
+        public string GetPmodeNumber(string pmodeString)
         {
-            await CreateSending(pmode);
+            return XDocument.Parse(pmodeString).Root?.Descendants()?.FirstOrDefault(x => x.Name.LocalName == "Id")?.Value;
         }
 
-        public async Task UpdateReceiving(ReceivingPmode pmode, string originalName)
+        public async Task UpdateSending(SendingBasePmode basePmode, string originalName)
         {
-            await CreateReceiving(pmode);
+            await CreateSending(basePmode);
+        }
+
+        public async Task UpdateReceiving(ReceivingBasePmode basePmode, string originalName)
+        {
+            await CreateReceiving(basePmode);
         }
     }
 }

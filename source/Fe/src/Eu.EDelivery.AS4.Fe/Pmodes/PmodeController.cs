@@ -27,22 +27,22 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         [HttpPost]
         [Route("receiving")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateReceiving([FromBody] ReceivingPmode pmode)
+        public async Task CreateReceiving([FromBody] ReceivingBasePmode basePmode)
         {
-            await pmodeService.CreateReceiving(pmode);
+            await pmodeService.CreateReceiving(basePmode);
         }
 
         [HttpPut]
         [Route("receiving/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateReceiving([FromBody] ReceivingPmode pmode, string originalName)
+        public async Task UpdateReceiving([FromBody] ReceivingBasePmode basePmode, string originalName)
         {
-            await pmodeService.UpdateReceiving(pmode, originalName);
+            await pmodeService.UpdateReceiving(basePmode, originalName);
         }
 
         [HttpGet]
         [Route("receiving/{name}")]
-        public async Task<ReceivingPmode> GetReceiving(string name)
+        public async Task<ReceivingBasePmode> GetReceiving(string name)
         {
             return await pmodeService.GetReceivingByName(name);
         }
@@ -65,14 +65,14 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         [HttpPost]
         [Route("sending")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateSending([FromBody] SendingPmode pmode)
+        public async Task CreateSending([FromBody] SendingBasePmode basePmode)
         {
-            await pmodeService.CreateSending(pmode);
+            await pmodeService.CreateSending(basePmode);
         }
 
         [HttpGet]
         [Route("sending/{name}")]
-        public async Task<SendingPmode> GetSending(string name)
+        public async Task<SendingBasePmode> GetSending(string name)
         {
             return await pmodeService.GetSendingByName(name);
         }
@@ -88,9 +88,9 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         [HttpPut]
         [Route("sending/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateSending([FromBody] SendingPmode pmode, string originalName)
+        public async Task UpdateSending([FromBody] SendingBasePmode basePmode, string originalName)
         {
-            await pmodeService.UpdateSending(pmode, originalName);
+            await pmodeService.UpdateSending(basePmode, originalName);
         }
     }
 }

@@ -60,6 +60,7 @@ namespace Eu.EDelivery.AS4.Fe
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddConsole(LogLevel.Debug);
             app.ExecuteStartupServices();
             app.Use(async (context, next) =>
             {

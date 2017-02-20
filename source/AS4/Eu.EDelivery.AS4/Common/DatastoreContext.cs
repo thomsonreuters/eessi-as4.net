@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Common
 
 
             this._logger = LogManager.GetCurrentClassLogger();
-        }
+        }        
 
         /// <summary>
         ///     <para>

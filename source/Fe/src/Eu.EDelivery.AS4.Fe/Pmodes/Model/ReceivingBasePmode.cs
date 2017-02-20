@@ -2,8 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
 {
-    public class SendingPmode : Pmode
+    public class ReceivingBasePmode : BasePmode<ReceivingProcessingMode>
     {
-        public SendingProcessingMode Pmode { get; set; }
     }
 }

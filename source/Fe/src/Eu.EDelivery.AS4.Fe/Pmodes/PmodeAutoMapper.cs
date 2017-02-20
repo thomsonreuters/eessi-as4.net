@@ -7,8 +7,8 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
     {
         public PmodeAutoMapper()
         {
-            CreateMap<SendingPmode, SendingPmode>();
-            CreateMap<ReceivingPmode, ReceivingPmode>();
+            CreateMap<SendingBasePmode, SendingBasePmode>();
+            CreateMap<ReceivingBasePmode, ReceivingBasePmode>();
         }
     }
 }

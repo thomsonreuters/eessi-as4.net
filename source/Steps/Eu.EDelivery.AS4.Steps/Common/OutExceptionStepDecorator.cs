@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Net;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
 using Eu.EDelivery.AS4.Receivers;

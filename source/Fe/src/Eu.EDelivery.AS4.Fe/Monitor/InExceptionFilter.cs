@@ -5,35 +5,7 @@ using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
-    public enum Direction
-    {
-        In,
-        Out
-    }
-
-    public class InMessageFilter : BaseFilter<InMessage, Message>
-    {
-        public override IQueryable<InMessage> ApplyFilter(IQueryable<InMessage> query)
-        {
-            throw new NotImplementedException();
-        }
-
-        private IQueryable<InMessage> Test(IQueryable<MessageEntity> query)
-        {
-            throw new NotImplementedException();
-
-        }
-    }
-
-    public class OutMessageFilter : BaseFilter<OutMessage, Message>
-    {
-        public override IQueryable<OutMessage> ApplyFilter(IQueryable<OutMessage> query)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class InExceptionFilter : BaseFilter<InException, Message>
+    public class InExceptionFilter : BaseFilter<InException, InException>
     {
         public int? Id { get; set; }
         public Operation? Operation { get; set; }
