@@ -19,7 +19,7 @@
                     <ng-container *ngIf="!!route.children">
                         <ng-container *ngFor="let childRoute of route.children">
                             <ul class="treeview-menu" *ngIf="!!childRoute.path">
-                                <li *ngIf="childRoute.children?.length === null && childRoute.data && childRoute.data.title !== undefined" routerLinkActive="active"><a routerLink="/{{route.path}}/{{childRoute.path}}"><i class="fa {{childRoute.data.icon ? childRoute.data.icon : 'fa-adjust'}}"></i>{{childRoute.data.title}}</a></li>
+                                <li *ngIf="childRoute.children?.length === null && childRoute.data && childRoute.data.title !== undefined && !!!childRoute.data.nomenu" routerLinkActive="active"><a routerLink="/{{route.path}}/{{childRoute.path}}"><i class="fa {{childRoute.data.icon ? childRoute.data.icon : 'fa-adjust'}}"></i>{{childRoute.data.title}}</a></li>
                                 <li *ngIf="childRoute.children?.length !== null" routerLinkActive="active">
                                     <a href="#">
                                         <i class="fa fa-table"></i><span>{{childRoute.data.title}}</span>
@@ -29,7 +29,7 @@
                                     </a>
                                     <ul class="treeview-menu">
                                         <ng-container *ngFor="let subRoute of childRoute.children">
-                                            <li *ngIf="subRoute.data && subRoute.data.title !== undefined" routerLinkActive="active"><a routerLink="/{{route.path}}/{{childRoute.path}}/{{subRoute.path}}"><i class="fa {{subRoute.data.icon ? subRoute.data.icon : 'fa-adjust'}}"></i>{{subRoute.data.title}}</a></li>
+                                            <li *ngIf="subRoute.data && subRoute.data.title !== undefined && !!!subRoute.data.nomenu" routerLinkActive="active"><a routerLink="/{{route.path}}/{{childRoute.path}}/{{subRoute.path}}"><i class="fa {{subRoute.data.icon ? subRoute.data.icon : 'fa-adjust'}}"></i>{{subRoute.data.title}}</a></li>
                                         </ng-container>
                                     </ul>
                                 </li>

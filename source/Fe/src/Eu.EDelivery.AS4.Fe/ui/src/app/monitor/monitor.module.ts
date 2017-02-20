@@ -1,3 +1,8 @@
+import { ExceptionMessageStore } from './message/exceptionmessage.store';
+import { MessageService } from './message/message.service';
+import { ErrorMessageComponent } from './errormessage/errormessage.component';
+import { MessageComponent } from './message/message.component';
+import { MessageStore } from './message/message.store';
 import { SortDirective } from './sort/sort.directive';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -22,7 +27,9 @@ import { ToNumberArrayPipe } from './numbertoarray.pipe';
         FilterComponent,
         ToNumberArrayPipe,
         PagerComponent,
-        SortDirective
+        SortDirective,
+        MessageComponent,
+        ErrorMessageComponent
     ],
     imports: [
         AuthenticationModule,
@@ -33,8 +40,11 @@ import { ToNumberArrayPipe } from './numbertoarray.pipe';
         RouterModule.forChild(ROUTES)
     ],
     providers: [
+        MessageStore,
+        MessageService,
         InExceptionService,
-        InExceptionStore
+        InExceptionStore,
+        ExceptionMessageStore
     ]
 })
 export class MonitorModule {

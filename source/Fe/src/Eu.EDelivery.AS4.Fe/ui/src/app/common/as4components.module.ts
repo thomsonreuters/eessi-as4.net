@@ -1,3 +1,5 @@
+import { RouterService } from './router.service';
+import { ToDatePipe } from './../monitor/date.pipe';
 import { ClipboardModule } from 'ngx-clipboard';
 import { ClipboardComponent } from './clipboard/clipboard.component';
 import { RolesService } from './../authentication/roles.service';
@@ -64,7 +66,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         SpinnerComponent,
         ThumbprintInputComponent,
         ClipboardComponent,
-        DateTimePickerDirective
+        DateTimePickerDirective,
+        ToDatePipe
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -74,6 +77,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         SpinnerService,
         RolesService,
         ClipboardModule,
+        RouterService,
         // {
         //     provide: ErrorHandler,
         //     useFactory: errorHandlerFactory,
@@ -116,7 +120,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         TextMaskModule,
         ThumbprintInputComponent,
         ClipboardComponent,
-        DateTimePickerDirective
+        DateTimePickerDirective,
+        ToDatePipe
     ],
     imports: [
         AuthenticationModule,

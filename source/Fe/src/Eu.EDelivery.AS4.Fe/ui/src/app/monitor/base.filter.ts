@@ -1,3 +1,4 @@
+import { MessageFilter } from './message/message.filter';
 import { URLSearchParams } from '@angular/http';
 import { Params } from '@angular/router';
 import moment from 'moment';
@@ -7,7 +8,6 @@ import { getIsDate } from './inexception/isDate.decorator';
 
 export class BaseFilter {
     public page: number = 1;
-    public sort: ISortDictionary = {};
     public toUrlParams(): URLSearchParams {
         let params = new URLSearchParams();
         Object.keys(this).forEach((param) => {

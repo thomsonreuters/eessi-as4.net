@@ -6,6 +6,7 @@ import { IPmode } from './Pmode.interface';
 export class ReceivingPmode implements IPmode {
 	type: number;
 	name: string;
+	hash: string;
 	pmode: ReceivingProcessingMode;
 
 	static FIELD_type: string = 'type';

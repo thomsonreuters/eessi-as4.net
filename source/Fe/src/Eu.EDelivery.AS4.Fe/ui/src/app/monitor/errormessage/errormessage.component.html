@@ -1,0 +1,25 @@
+<table class="table table-striped" *ngIf="(exceptions | async).exceptions.length > 0">
+    <colgroup>
+        <col width="5%">
+        <col width="5%">
+        <col width="5%">
+        <!--<col width="15%">-->
+    </colgroup>
+    <thead>
+        <tr>
+            <th>Insertion time</th>
+            <th>Modification time</th>
+            <th>Operation</th>
+            <!--<th>Exception</th>-->
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let exception of (exceptions | async).exceptions">
+            <td>{{exception.insertionTime | todate}}</td>
+            <td>{{exception.modificationTime | todate}}</td>
+            <td>{{exception.operation}}</td>
+            <!--<td>{{exception.exception}}</td>-->
+        </tr>
+    </tbody>
+</table>
+<p *ngIf="(exceptions | async).exceptions.length === 0">No exceptions found</p>
