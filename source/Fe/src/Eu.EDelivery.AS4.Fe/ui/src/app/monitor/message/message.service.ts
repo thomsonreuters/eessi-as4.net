@@ -1,3 +1,4 @@
+import { ExceptionFilter } from './../exception/exception.filter';
 import { Observable } from 'rxjs/Observable';
 import { AuthHttp } from 'angular2-jwt';
 import { Injectable } from '@angular/core';
@@ -8,13 +9,13 @@ import { MessageResult } from './../messageresult';
 import { MessageStore } from './message.store';
 import { Message } from '../../api/Messages/Message';
 import { Exception } from '../../api/Messages/Exception';
-import { ExceptionMessageStore } from './exceptionmessage.store';
 import { MessageFilter } from './message.filter';
+import { ExceptionService } from '../exception/exception.service';
 
 @Injectable()
 export class MessageService {
     private _baseUrl: string;
-    constructor(private _http: AuthHttp, private _store: MessageStore, private _exceptionMessageStore: ExceptionMessageStore) {
+    constructor(private _http: AuthHttp, private _store: MessageStore, private _exceptionService: ExceptionService) {
         this.setInMode();
     }
     public setInMode() {
@@ -43,20 +44,10 @@ export class MessageService {
             });
     }
     public getExceptions(direction: number, message: Message) {
-        let queryParams = new URLSearchParams();
-        let options = new RequestOptions();
-        queryParams.append('messageId', message.ebmsRefToMessageId);
-        options.search = queryParams;
-        this._http
-            .get(this.getUrl(direction, 'exceptions'), options)
-            .map((result) => result.json())
-            .subscribe((messages: MessageResult<Exception>) => {
-                this._exceptionMessageStore.setState({
-                    exceptions: messages.messages,
-                    total: messages.total,
-                    currentMessage: message
-                });
-            });
+        let filter = new ExceptionFilter();
+        filter.ebmsRefToMessageId = message.ebmsRefToMessageId;
+        filter.direction = direction;
+        this._exceptionService.getMessages(filter);
     }
     private getUrl(direction: number, type: string, action?: string): string {
         let url: string;

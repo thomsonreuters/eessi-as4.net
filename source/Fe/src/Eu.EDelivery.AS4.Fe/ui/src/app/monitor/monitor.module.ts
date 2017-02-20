@@ -1,4 +1,6 @@
-import { ExceptionMessageStore } from './message/exceptionmessage.store';
+import { ExceptionService } from './exception/exception.service';
+import { ExceptionStore } from './exception/exception.store';
+import { ExceptionComponent } from './exception/exception.component';
 import { MessageService } from './message/message.service';
 import { ErrorMessageComponent } from './errormessage/errormessage.component';
 import { MessageComponent } from './message/message.component';
@@ -14,8 +16,6 @@ import { As4ComponentsModule } from './../common/as4components.module';
 import { AuthenticationModule } from './../authentication/authentication.module';
 
 import { ROUTES } from './monitor.routes';
-import { InExceptionService } from './inexception/inexception.service';
-import { InExceptionComponent } from './inexception/inexception.component';
 import { FilterComponent } from './filter/filter.component';
 import { InExceptionStore } from './inexception/inexception.store';
 import { PagerComponent } from './pager/pager.component';
@@ -23,7 +23,7 @@ import { ToNumberArrayPipe } from './numbertoarray.pipe';
 
 @NgModule({
     declarations: [
-        InExceptionComponent,
+        ExceptionComponent,
         FilterComponent,
         ToNumberArrayPipe,
         PagerComponent,
@@ -42,9 +42,8 @@ import { ToNumberArrayPipe } from './numbertoarray.pipe';
     providers: [
         MessageStore,
         MessageService,
-        InExceptionService,
-        InExceptionStore,
-        ExceptionMessageStore
+        ExceptionStore,
+        ExceptionService
     ]
 })
 export class MonitorModule {

@@ -1,3 +1,4 @@
+import { MESSAGESERVICETOKEN } from './../service.token';
 import { ActivatedRoute, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Component, trigger, style, EventEmitter, Output, Inject } from '@angular/core';
@@ -11,7 +12,10 @@ import { IMessageState, MessageStore } from './message.store';
 @Component({
     selector: 'as4-messages',
     templateUrl: './message.component.html',
-    styleUrls: ['message.component.scss']
+    styleUrls: ['message.component.scss'],
+    providers: [
+        { provide: MESSAGESERVICETOKEN, useClass: MessageService }
+    ]
 })
 export class MessageComponent {
     public messages: Observable<IMessageState>;
@@ -26,12 +30,5 @@ export class MessageComponent {
             return;
         }
         this.activeMessage = message;
-    }
-    public directionChanged() {
-        if (this.messageFilter.direction === 0) {
-            this._service.setInMode();
-        } else {
-            this._service.setOutMode();
-        }
     }
 }

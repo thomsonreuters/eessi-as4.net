@@ -1,9 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper.QueryableExtensions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe.Pmodes;
-using Microsoft.EntityFrameworkCore;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
@@ -18,38 +16,9 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             this.pmodeSource = pmodeSource;
         }
 
-        public async Task<MessageResult<ExceptionMessage>> GetInExceptions(string inMessageId)
+        public async Task<MessageResult<ExceptionMessage>> GetOutExceptions(OutExceptionFilter filter)
         {
-            var data = await context
-                .InExceptions
-                .Where(msg => msg.EbmsRefToMessageId == inMessageId)
-                .ProjectTo<ExceptionMessage>()
-                .ToListAsync();
-            return new MessageResult<ExceptionMessage>
-            {
-                CurrentPage = 0,
-                Messages = data,
-                Page = 0,
-                Pages = 0,
-                Total = data.Count
-            };
-        }
-
-        public async Task<MessageResult<ExceptionMessage>> GetOutExceptions(string outMessageId)
-        {
-            var data = await context
-                .OutExceptions
-                .Where(msg => msg.EbmsRefToMessageId == outMessageId)
-                .ProjectTo<ExceptionMessage>()
-                .ToListAsync();
-            return new MessageResult<ExceptionMessage>
-            {
-                CurrentPage = 0,
-                Messages = data,
-                Page = 0,
-                Pages = 0,
-                Total = data.Count
-            };
+            return ConvertPmodeXmlToNumbers(await filter.ToResult(context.OutExceptions));
         }
 
         public async Task<MessageResult<Message>> GetInMessages(InMessageFilter filter)
@@ -82,6 +51,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             });
 
             return result;
+        }
+
+        public async Task<MessageResult<ExceptionMessage>> GetInExceptions(InExceptionFilter filter)
+        {
+            return ConvertPmodeXmlToNumbers(await filter.ToResult(context.InExceptions));
         }
 
         public async Task<MessageResult<Message>> GetOutMessages(OutMessageFilter filter)
@@ -123,9 +97,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
         private MessageResult<Message> ConvertPmodeXmlToNumbers(MessageResult<Message> result)
         {
-            foreach (var message in result.Messages)
-                message.PMode = GetPmodeNumber(message.PMode);
+            foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
+            return result;
+        }
 
+        private MessageResult<ExceptionMessage> ConvertPmodeXmlToNumbers(MessageResult<ExceptionMessage> result)
+        {
+            foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
             return result;
         }
     }

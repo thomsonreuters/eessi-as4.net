@@ -75,6 +75,8 @@
     <Compile Include="Modules\ModuleExtensions.cs" />
     <Compile Include="Modules\Scanner.cs" />
     <Compile Include="Modules\TypeInfoExtensions.cs" />
+    <Compile Include="Monitor\BaseExceptionFilter.cs" />
+    <Compile Include="Monitor\BaseExceptionJoined.cs" />
     <Compile Include="Monitor\BaseFilter.cs" />
     <Compile Include="Monitor\BaseMessageFilter.cs" />
     <Compile Include="Monitor\BaseMessageJoined.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="Monitor\MonitorController.cs" />
     <Compile Include="Monitor\MonitorService.cs" />
     <Compile Include="Monitor\MonitorSetup.cs" />
+    <Compile Include="Monitor\OutExceptionFilter.cs" />
     <Compile Include="Monitor\OutMessageFilter.cs" />
     <Compile Include="Monitor\OutMessageJoined.cs" />
     <Compile Include="Monitor\Pmode.cs" />

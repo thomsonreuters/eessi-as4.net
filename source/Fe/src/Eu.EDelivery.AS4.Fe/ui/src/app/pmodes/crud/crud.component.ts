@@ -88,7 +88,7 @@ export class CrudComponent implements OnInit, OnDestroy {
             }
             let compareTo = this._activatedRoute.snapshot.queryParams['compareto'];
             if (!!result && !!compareTo && compareTo !== result.hash) {
-                this._dialogService.error(`Pmode from the message doesn't match anymore.`);
+                this._dialogService.error(`Pmode used in the message doesn't match anymore.`);
             }
             this._routerService.setCurrentValue(this._activatedRoute, result.name);
         }));

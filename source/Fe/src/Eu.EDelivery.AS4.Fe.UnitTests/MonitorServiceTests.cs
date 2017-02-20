@@ -229,6 +229,68 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             }
         }
 
+        public class GetInExceptions : MonitorServiceTests
+        {
+            [Fact]
+            public async void Filter_Should_Filter_The_Data()
+            {
+                Setup();
+
+                var filter = new InExceptionFilter
+                {
+                    EbmsRefToMessageId = InEbmsRefToMessageId1
+                };
+                var result = await monitorService.GetInExceptions(filter);
+
+                Assert.True(result.Messages.Count() == 1);
+                Assert.True(result.Messages.First().EbmsRefToMessageId == InEbmsRefToMessageId1);
+            }
+
+            [Fact]
+            public async void Filter_Should_Return_Nothing_When_No_Match()
+            {
+                Setup();
+                var filter = new InExceptionFilter
+                {
+                    EbmsRefToMessageId = "IDONTEXIST"
+                };
+                var result = await monitorService.GetInExceptions(filter);
+
+                Assert.True(!result.Messages.Any());
+            }
+        }
+
+        public class GetOutExceptions : MonitorServiceTests
+        {
+            [Fact]
+            public async void Filter_Should_Filter_The_Data()
+            {
+                Setup();
+
+                var filter = new OutExceptionFilter
+                {
+                    EbmsRefToMessageId = OutEbmsRefToMessageId1
+                };
+                var result = await monitorService.GetOutExceptions(filter);
+
+                Assert.True(result.Messages.Count() == 1);
+                Assert.True(result.Messages.First().EbmsRefToMessageId == OutEbmsRefToMessageId1);
+            }
+
+            [Fact]
+            public async void Filter_Should_Return_Nothing_When_No_Match()
+            {
+                Setup();
+                var filter = new OutExceptionFilter
+                {
+                    EbmsRefToMessageId = "IDONTEXIST"
+                };
+                var result = await monitorService.GetOutExceptions(filter);
+
+                Assert.True(!result.Messages.Any());
+            }
+        }
+
         public class Hash : MonitorServiceTests
         {
             [Fact]

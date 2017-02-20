@@ -1,13 +1,9 @@
 import { BaseFilter } from './../base.filter';
 import { isDate } from './isDate.decorator';
 
-export class InExceptionFilter extends BaseFilter {
-    public id: number;
-    public operation: number;
-    public exceptionType: number;
-    public operationMethod: string;
+export class ExceptionFilter extends BaseFilter {
+    public operation: string;
     public ebmsRefToMessageId: string;
-    public pmode: string;
     @isDate()
     public modificationTimeFrom: Date;
     @isDate()

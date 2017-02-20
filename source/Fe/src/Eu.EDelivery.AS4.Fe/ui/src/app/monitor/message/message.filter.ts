@@ -1,7 +1,6 @@
 import { BaseFilter } from './../base.filter';
 
 export class MessageFilter extends BaseFilter {
-    public direction: number = 0;
     public ebmsMessageId: string;
     public ebmsRefToMessageId: string;
     public contentType: string;

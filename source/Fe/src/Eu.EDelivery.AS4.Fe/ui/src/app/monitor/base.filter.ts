@@ -4,10 +4,11 @@ import { Params } from '@angular/router';
 import moment from 'moment';
 
 import { ISortDictionary } from './sortdictionary.interface';
-import { getIsDate } from './inexception/isDate.decorator';
+import { getIsDate } from './exception/isDate.decorator';
 
 export class BaseFilter {
     public page: number = 1;
+    public direction: number = 0;
     public toUrlParams(): URLSearchParams {
         let params = new URLSearchParams();
         Object.keys(this).forEach((param) => {

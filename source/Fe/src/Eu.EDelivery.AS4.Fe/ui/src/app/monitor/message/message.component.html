@@ -3,7 +3,7 @@
         <as4-filter #filter [filter]="messageFilter">
             <div class="col-md-6 col-xs-12">
                 <as4-input label="Type" labelSize="3" controlSize="9">
-                    <select [(ngModel)]="filter.filter.direction" (change)="directionChanged()">
+                    <select [(ngModel)]="filter.filter.direction">
                         <option value="0" selected>In messages</option>
                         <option value="1">Out messages</option>
                     </select>

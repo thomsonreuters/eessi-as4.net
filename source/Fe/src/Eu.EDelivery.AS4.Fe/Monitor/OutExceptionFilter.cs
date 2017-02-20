@@ -2,8 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
-    public class InExceptionFilter : BaseExceptionFilter<InException, ExceptionMessage>
+    public class OutExceptionFilter : BaseExceptionFilter<OutException, ExceptionMessage>
     {
-
     }
 }

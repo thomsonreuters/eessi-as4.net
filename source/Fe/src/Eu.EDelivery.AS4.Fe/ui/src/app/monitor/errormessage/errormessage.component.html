@@ -1,25 +1,25 @@
-<table class="table table-striped" *ngIf="(exceptions | async).exceptions.length > 0">
+<table class="table table-striped" *ngIf="(exceptions | async).messages?.length > 0">
     <colgroup>
+        <col width="2%">
         <col width="5%">
         <col width="5%">
         <col width="5%">
-        <!--<col width="15%">-->
     </colgroup>
     <thead>
         <tr>
+            <th></th>
             <th>Insertion time</th>
             <th>Modification time</th>
             <th>Operation</th>
-            <!--<th>Exception</th>-->
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let exception of (exceptions | async).exceptions">
+        <tr *ngFor="let exception of (exceptions | async).messages">
+            <td><a [routerLink]="['/monitor/exceptions']" [queryParams]="{ direction: direction, ebmsRefToMessageId: exception.ebmsRefToMessageId }"><i class="fa fa-folder-open"></i></a></td>
             <td>{{exception.insertionTime | todate}}</td>
             <td>{{exception.modificationTime | todate}}</td>
             <td>{{exception.operation}}</td>
-            <!--<td>{{exception.exception}}</td>-->
         </tr>
     </tbody>
 </table>
-<p *ngIf="(exceptions | async).exceptions.length === 0">No exceptions found</p>
+<p *ngIf="(exceptions | async).messages?.length === 0">No exceptions found</p>

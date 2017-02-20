@@ -6,7 +6,7 @@ using Eu.EDelivery.AS4.Exceptions;
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
     public abstract class BaseMessageFilter<TInput, TInputType, TOutput> : BaseFilter<TInput, TOutput>
-        where TInputType: MessageEntity
+        where TInputType : MessageEntity
         where TInput : BaseMessageJoined<TInputType>
     {
         public string EbmsMessageId { get; set; }
@@ -23,8 +23,6 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
         public override IQueryable<TInput> ApplyFilter(IQueryable<TInput> query)
         {
-            if (Operation != null) query = query.Where(qr => qr.Message.Operation == Operation);
-
             if (!string.IsNullOrEmpty(EbmsMessageId))
             {
                 var filter = EbmsMessageId.Replace("*", "");

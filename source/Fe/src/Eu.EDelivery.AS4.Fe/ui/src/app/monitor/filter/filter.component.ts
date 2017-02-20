@@ -1,3 +1,4 @@
+import { MESSAGESERVICETOKEN } from './../service.token';
 import { MessageFilter } from './../message/message.filter';
 import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { Component, OnInit, OpaqueToken, Inject, EventEmitter, Output, Input } from '@angular/core';
@@ -7,12 +8,12 @@ import { MessageService } from '../message/message.service';
 
 @Component({
     selector: 'as4-filter',
-    templateUrl: './filter.component.html'
+    templateUrl: './filter.component.html',
 })
 export class FilterComponent implements OnInit {
     @Input() public filter: MessageFilter;
     @Output() public onSearch: EventEmitter<BaseFilter> = new EventEmitter();
-    constructor(private _messageService: MessageService, private _activatedRoute: ActivatedRoute, private _router: Router) {
+    constructor(@Inject(MESSAGESERVICETOKEN) private _messageService: MessageService, private _activatedRoute: ActivatedRoute, private _router: Router) {
 
     }
     public ngOnInit() {

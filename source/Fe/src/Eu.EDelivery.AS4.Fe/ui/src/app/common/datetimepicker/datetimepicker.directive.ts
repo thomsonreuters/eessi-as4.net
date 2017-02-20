@@ -35,9 +35,10 @@ export class DateTimePickerDirective implements ControlValueAccessor {
     }
     public writeValue(value: Date) {
         if (!!!value) {
+            this._control.data('DateTimePicker').date(null);
             return;
         }
-        this._control.data('DateTimePicker').date(value);
+        this._control.data('DateTimePicker').date(moment(value).toDate());
     }
     public registerOnChange(fn) {
         this._propagateChange = fn;

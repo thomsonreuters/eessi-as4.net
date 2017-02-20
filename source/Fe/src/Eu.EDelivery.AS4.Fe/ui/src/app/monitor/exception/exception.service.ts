@@ -4,26 +4,25 @@ import { Injectable } from '@angular/core';
 import { URLSearchParams, RequestOptions } from '@angular/http';
 
 import { Store } from './../../common/store';
-import { InException } from './../../api/Messages/InException';
-import { InExceptionStore } from './inexception.store';
-import { InExceptionFilter } from './inexception.filter';
+import { Exception } from './../../api/Messages/Exception';
+import { ExceptionStore } from './exception.store';
 import { MessageResult } from './../messageresult';
+import { ExceptionFilter } from './exception.filter';
 
 @Injectable()
-export class InExceptionService {
-    private _baseUrl: string = '/api/monitor/inexception';
-    constructor(private _http: AuthHttp, private _store: InExceptionStore) {
+export class ExceptionService {
+    constructor(private _http: AuthHttp, private _store: ExceptionStore) {
 
     }
-    public getMessages(filter?: InExceptionFilter) {
+    public getMessages(filter: ExceptionFilter) {
         let options = new RequestOptions();
         if (filter !== undefined) {
             options.search = filter.toUrlParams();
         }
         this._http
-            .get(this.getUrl(), options)
+            .get(this.getUrl(filter.direction), options)
             .map((result) => result.json())
-            .subscribe((messages: MessageResult<InException>) => {
+            .subscribe((messages: MessageResult<Exception>) => {
                 this._store.setState({
                     messages: messages.messages,
                     filter,
@@ -33,11 +32,12 @@ export class InExceptionService {
                 });
             });
     }
-    private getUrl(action?: string): string {
-        if (!!!action) {
-            return this._baseUrl;
+    private getUrl(direction: number = 0) {
+        if (direction === 0) {
+            return `/api/monitor/inexceptions`;
+        } else {
+            return `/api/monitor/outexceptions`;
         }
-        return `${this._baseUrl}/${action}`;
     }
 }
 
