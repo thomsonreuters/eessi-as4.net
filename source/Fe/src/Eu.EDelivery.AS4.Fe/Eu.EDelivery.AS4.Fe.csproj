@@ -126,7 +126,6 @@
     <Compile Include="Settings\IAs4SettingsService.cs" />
     <Compile Include="Settings\ISettingsSource.cs" />
     <Compile Include="Settings\SettingsAutoMapper.cs" />
-    <Compile Include="Hash\ShouldSkipHashFunctionResolver.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Hash\ObjectExtensions.cs" />
     <Compile Include="Swagger\ISwaggerSetup.cs" />

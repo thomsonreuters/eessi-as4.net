@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Fe.Hash;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Model.PMode;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
 {
@@ -63,14 +65,16 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .Where(file => Path.GetFileNameWithoutExtension(file) == name)
                 .Select(pmode =>
                 {
-                    using (var reader = new FileStream(pmode, FileMode.Open))
+                    var xmlString = File.ReadAllText(pmode);
+                    using (var reader = new MemoryStream(Encoding.ASCII.GetBytes(xmlString)))
                     {
                         var xml = new XmlSerializer(typeof(SendingProcessingMode));
                         var result = new SendingBasePmode
                         {
                             Name = Path.GetFileNameWithoutExtension(pmode),
                             Type = PmodeType.Sending,
-                            Pmode = (SendingProcessingMode) xml.Deserialize(reader)
+                            Pmode = (SendingProcessingMode) xml.Deserialize(reader),
+                            Hash = xmlString.GetMd5Hash()
                         };
                         return result;
                     }

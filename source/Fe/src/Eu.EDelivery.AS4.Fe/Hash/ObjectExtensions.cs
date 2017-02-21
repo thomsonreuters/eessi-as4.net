@@ -6,14 +6,11 @@ namespace Eu.EDelivery.AS4.Fe.Hash
 {
     public static class ObjectExtensions
     {
-        public static string GetMd5Hash(this object obj)
+        public static string GetMd5Hash(this string obj)
         {
             using (var md5 = MD5.Create())
             {
-                var inputBytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(obj, new JsonSerializerSettings
-                {
-                    ContractResolver = new ShouldSkipHashFunctionResolver()
-                }));
+                var inputBytes = Encoding.ASCII.GetBytes(obj.Replace("\r","").Replace("\n", "").Replace("\t",""));
                 var sb = new StringBuilder();
                 var hash = md5.ComputeHash(inputBytes);
                 foreach (var t in hash)

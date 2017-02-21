@@ -28,6 +28,9 @@ export class BaseFilter {
             if (isDate) {
                 this[param] = moment(params[param]).toDate();
                 return;
+            } else if (typeof(this[param]) === 'number')  {
+                this[param] = +params[param];
+                return;
             }
             this[param] = params[param];
         });

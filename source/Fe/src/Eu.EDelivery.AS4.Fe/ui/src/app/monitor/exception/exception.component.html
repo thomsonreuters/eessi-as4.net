@@ -28,7 +28,7 @@
                         </span>
                     </div>
                 </as4-input>
-                <as4-input label="Embs ref to message id" labelSize="3" controlSize="9">
+                <as4-input label="Ebms ref to message id" labelSize="3" controlSize="9">
                     <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
                 </as4-input>
             </div>
@@ -94,6 +94,7 @@
                     <th>Operation</th>
                     <th>Ebms ref message to</th>
                     <th>Modification time</th>
+                    <th>Exception</th>
                     <th>Pmode</th>
                 </tr>
             </thead>
@@ -101,12 +102,13 @@
                 <ng-container *ngFor="let message of (messages | async).messages; let i = index">
                     <tr>
                         <td>
-                            <i class="fa" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage" (click)="toggle(message)"></i>
+                            <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage" (click)="toggle(message)"></i>
                         </td>
                         <td>{{message.insertionTime}}</td>
                         <td>{{message.operation}}</td>
                         <td>{{message.ebmsRefToMessageId}}</td>
                         <td>{{message.modificationTime}}</td>
+                        <td>{{message.exceptionShort}}</td>
                         <td>
                             <a [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
                         </td>

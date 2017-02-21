@@ -28,7 +28,20 @@
                     </div>
                 </as4-input>
                 <as4-input label="Ebms ref to message id" labelSize="3" controlSize="9">
-                    <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
+                    <div class="input-group">
+                        <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
+                        <div class="input-group-btn">
+                            <button class="btn btn-secondary" type="button" (click)="switchIds()"><i class="fa fa-rotate-90 fa-exchange"></i></button>
+                        </div>
+                    </div>
+                </as4-input>
+                <as4-input label="Ebms message id" labelSize="3" controlSize="9">
+                    <div class="input-group">
+                        <input type="text" name="ebmsMessageId" [(ngModel)]="filter.filter.ebmsMessageId" />
+                        <div class="input-group-btn">
+                            <button class="btn btn-secondary" type="button" (click)="switchIds()"><i class="fa fa-rotate-90 fa-exchange"></i></button>
+                        </div>
+                    </div>
                 </as4-input>
                 <as4-input label="Message exchange pattern" labelSize="3" controlSize="9">
                     <div class="input-group">
@@ -55,9 +68,6 @@
                 </as4-input>
             </div>
             <div class="col-md-6 col-xs-12">
-                <as4-input label="Ebms message id" labelSize="3" controlSize="9">
-                    <input type="text" name="ebmsMessageId" [(ngModel)]="filter.filter.ebmsMessageId" />
-                </as4-input>
                 <as4-input label="Content type" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <select name="contentType" [(ngModel)]="filter.filter.contentType">
@@ -137,8 +147,9 @@
                         </div>
                     </div>
                 </as4-input>
-                <as4-input>
-                    <button type="submit" class="btn btn-default">Search</button>
+
+                <as4-input controlSize="12" showLabel="false">
+                    <button type="submit" class="btn btn-default pull-right">Search</button>
                 </as4-input>
             </div>
         </as4-filter>
@@ -191,7 +202,9 @@
                                 <td>{{message.ebmsMessageType}}</td>
                                 <td>{{message.operation}}</td>
                                 <td>{{message.status}}</td>
-                                <td><a [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a></td>
+                                <td>
+                                    <a [routerLink]="['/pmodes', filter.outFilter.direction === '0' ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
+                                </td>
                                 <td>{{message.ebmsRefToMessageId}}</td>
                             </tr>
                             <tr *ngIf="message === activeMessage">
@@ -202,7 +215,7 @@
                                             <p><b>Modification time</b>: {{message.modificationTime | todate}}</p>
                                         </div>
                                         <div tabitem title="Exceptions" class="exceptions">
-                                            <as4-error-message [message]="message" [direction]="filter.filter.direction"></as4-error-message>
+                                            <as4-error-message [message]="message" [direction]="filter.outFilter.direction"></as4-error-message>
                                         </div>
                                     </as4-tab>
                                 </td>

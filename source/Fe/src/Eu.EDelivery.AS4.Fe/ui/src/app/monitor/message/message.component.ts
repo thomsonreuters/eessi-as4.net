@@ -31,4 +31,9 @@ export class MessageComponent {
         }
         this.activeMessage = message;
     }
+    public switchIds() {
+        let tmp = this.messageFilter.ebmsRefToMessageId;
+        this.messageFilter.ebmsRefToMessageId = this.messageFilter.ebmsMessageId;
+        this.messageFilter.ebmsMessageId = tmp;
+    }
 }

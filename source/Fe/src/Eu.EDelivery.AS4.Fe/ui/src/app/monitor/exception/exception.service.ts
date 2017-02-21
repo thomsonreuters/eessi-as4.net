@@ -32,8 +32,11 @@ export class ExceptionService {
                 });
             });
     }
+    public reset() {
+        this._store.reset();
+    }
     private getUrl(direction: number = 0) {
-        if (direction === 0) {
+        if (+direction === 0) {
             return `/api/monitor/inexceptions`;
         } else {
             return `/api/monitor/outexceptions`;

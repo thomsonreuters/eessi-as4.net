@@ -1,25 +1,37 @@
 import { MESSAGESERVICETOKEN } from './../service.token';
 import { MessageFilter } from './../message/message.filter';
 import { ActivatedRoute, ActivatedRouteSnapshot, Router } from '@angular/router';
-import { Component, OnInit, OpaqueToken, Inject, EventEmitter, Output, Input } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    OpaqueToken,
+    Inject,
+    EventEmitter,
+    Output,
+    Input,
+    ChangeDetectionStrategy
+} from '@angular/core';
 
 import { BaseFilter } from './../base.filter';
 import { MessageService } from '../message/message.service';
 
 @Component({
     selector: 'as4-filter',
-    templateUrl: './filter.component.html',
+    templateUrl: './filter.component.html'
 })
 export class FilterComponent implements OnInit {
     @Input() public filter: MessageFilter;
+    @Output() public outFilter: MessageFilter;
     @Output() public onSearch: EventEmitter<BaseFilter> = new EventEmitter();
     constructor(@Inject(MESSAGESERVICETOKEN) private _messageService: MessageService, private _activatedRoute: ActivatedRoute, private _router: Router) {
 
     }
     public ngOnInit() {
         this._messageService.getMessages(<MessageFilter>this.filter.fromUrlParams(this._activatedRoute.snapshot.queryParams));
+        this.outFilter = Object.assign({}, this.filter);
     }
     public search(resetPage: boolean = false) {
+        this.outFilter = Object.assign({}, this.filter);
         if (resetPage) {
             this.filter.page = 1;
         }

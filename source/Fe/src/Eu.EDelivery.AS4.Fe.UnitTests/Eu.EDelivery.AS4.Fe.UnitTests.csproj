@@ -241,6 +241,7 @@
   <ItemGroup>
     <Compile Include="As4PmodeServiceTests.cs" />
     <Compile Include="As4SettingsServiceTests.cs" />
+    <Compile Include="ExceptionMessageTests.cs" />
     <Compile Include="MonitorServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeLoaderTest.cs" />

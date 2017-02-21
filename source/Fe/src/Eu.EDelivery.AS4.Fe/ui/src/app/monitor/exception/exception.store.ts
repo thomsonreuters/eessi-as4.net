@@ -23,4 +23,13 @@ export class ExceptionStore extends Store<IExceptionState> {
             page: 0
         });
     }
+    public reset() {
+        this.setState({
+            messages: new Array<Exception>(),
+            filter: null,
+            total: 0,
+            pages: 0,
+            page: 0
+        });
+    }
 }

@@ -12,11 +12,11 @@ export const ROUTES: Routes = [
             {
                 path: 'monitor', children: [
                     { path: '', pathMatch: 'full', redirectTo: 'inexception' },
-                    { path: 'messages', component: MessageComponent, data: { title: 'Messages' } },
-                    { path: 'exceptions', component: ExceptionComponent, data: { title: 'Exceptions' } },
-                    { path: 'exceptions/:messageid', component: ExceptionComponent, data: { title: 'Exceptions', nomenu: true } }
+                    { path: 'messages', component: MessageComponent, data: { title: 'Messages', icon: 'fa-inbox' } },
+                    { path: 'exceptions', component: ExceptionComponent, data: { title: 'Exceptions', icon: 'fa-warning' } },
+                    { path: 'exceptions/:messageid', component: ExceptionComponent, data: { title: 'Exceptions', nomenu: true, icon: 'fa-warning' } }
                 ],
-                data: { title: 'Monitor', weight: 100 }
+                data: { title: 'Monitor', icon: 'fa-desktop', weight: 100 }
             }
         ],
         canActivate: [MustBeAuthorizedGuard]

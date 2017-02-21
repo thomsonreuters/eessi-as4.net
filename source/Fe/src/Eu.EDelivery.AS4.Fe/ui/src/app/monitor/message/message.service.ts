@@ -44,6 +44,11 @@ export class MessageService {
             });
     }
     public getExceptions(direction: number, message: Message) {
+        if (!!!message.ebmsRefToMessageId) {
+            this._exceptionService.reset();
+            return;
+        }
+
         let filter = new ExceptionFilter();
         filter.ebmsRefToMessageId = message.ebmsRefToMessageId;
         filter.direction = direction;

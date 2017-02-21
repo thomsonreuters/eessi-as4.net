@@ -39,6 +39,7 @@ import { FocusDirective } from './focus.directive';
 import { SelectDirective } from './selectdirective';
 import { spinnerErrorhandlerDecoratorFactory } from './spinner/spinnerhideerror.handler.factory';
 import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directive';
+import { ToNumberPipe } from './tonumber.pipe';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     let result = new AuthHttp(new AuthConfig(), http, options);
@@ -67,7 +68,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ThumbprintInputComponent,
         ClipboardComponent,
         DateTimePickerDirective,
-        ToDatePipe
+        ToDatePipe,
+        ToNumberPipe
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -121,7 +123,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ThumbprintInputComponent,
         ClipboardComponent,
         DateTimePickerDirective,
-        ToDatePipe
+        ToDatePipe,
+        ToNumberPipe
     ],
     imports: [
         AuthenticationModule,
