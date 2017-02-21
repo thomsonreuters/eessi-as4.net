@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             {
                 Messages = result, // Why not use ProjectToAsync here ? Well because it throws an exception telling that the IQueryable doesn't implement IDbAsync...
                 Total = count,
-                Pages = (int)Math.Ceiling((decimal)(count / ResultsPerPage)),
+                Pages = (int)Math.Ceiling((decimal)count / (decimal)ResultsPerPage),
                 Page = Page == 0 ? 1 : Page
             };
         }

@@ -157,6 +157,7 @@
 </as4-box>
 <as4-box title="Messages">
     <div content>
+        <p>{{(messages | async).pages}}</p>
         <as4-pager [pages]="(messages | async).pages" [pageTotal]="(messages | async).messages.length" [total]="(messages | async).total"
             [page]="(messages | async).page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
             <div class="table-responsive">
