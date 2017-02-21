@@ -93,9 +93,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private X509Certificate2 RetrieveCertificate(InternalMessage internalMessage)
         {
-            var certCriteria = GetCertificateFindValue(internalMessage.AS4Message);
+            Encryption encryption = internalMessage.AS4Message.SendingPMode.Security.Encryption;
 
-            X509Certificate2 certificate = this._certificateRepository.GetCertificate(certCriteria.Item1, certCriteria.Item2);
+            X509Certificate2 certificate = this._certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
 
             if (!certificate.HasPrivateKey)
             {
@@ -104,14 +104,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             return certificate;
         }
-
-        protected virtual Tuple<X509FindType, string> GetCertificateFindValue(AS4Message as4Message)
-        {
-            Encryption encryption = as4Message.SendingPMode.Security.Encryption;
-
-            return new Tuple<X509FindType, string>(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
-        }
-
+        
         private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
             this._logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Encryption is disabled");

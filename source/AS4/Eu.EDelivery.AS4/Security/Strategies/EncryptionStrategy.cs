@@ -333,7 +333,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 inBytes: cipherData.CipherValue, inOff: 0, inLen: cipherData.CipherValue.Length);
         }
 
-        private SymmetricAlgorithm CreateSymmetricAlgorithm(string name, byte[] key)
+        private static SymmetricAlgorithm CreateSymmetricAlgorithm(string name, byte[] key)
         {
             var symmetricAlgorithm = (SymmetricAlgorithm)CryptoConfig.CreateFromName(name);
             symmetricAlgorithm.Key = key;

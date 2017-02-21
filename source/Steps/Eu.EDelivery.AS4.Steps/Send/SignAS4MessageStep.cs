@@ -98,20 +98,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private X509Certificate2 RetrieveCertificate(AS4Message as4Message)
         {
-            var certCriteria = GetCertificateFindValue(as4Message);
+            Model.PMode.Signing signing = as4Message.SendingPMode.Security.Signing;
 
-            X509Certificate2 certificate = this._repository.GetCertificate(certCriteria.Item1, certCriteria.Item2);
+            X509Certificate2 certificate = this._repository.GetCertificate(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
 
             return certificate;
         }
-
-        protected virtual Tuple<X509FindType, string> GetCertificateFindValue(AS4Message as4Message)
-        {
-            Model.PMode.Signing signing = as4Message.SendingPMode.Security.Signing;
-
-            return new Tuple<X509FindType, string>(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
-        }
-
+        
         private AS4Exception ThrowCommonSigningException(AS4Message as4Message, string description, Exception innerException = null)
         {
             this._logger.Error(description);

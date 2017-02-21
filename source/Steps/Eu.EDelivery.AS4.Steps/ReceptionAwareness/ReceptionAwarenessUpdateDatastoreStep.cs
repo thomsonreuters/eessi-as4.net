@@ -151,9 +151,11 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             AS4Exception as4Exception = CreateAS4Exception();
             string messageId = this._receptionAwareness.InternalMessageId;
 
-            OutMessage outMessage = repository.GetOutMessageById(messageId);
-
             // TODO: frgh; what is the use of the code below?
+
+            // OutMessage outMessage = repository.GetOutMessageById(messageId);
+
+            
 
             //////if (outMessage?.MessageBody != null)
             //////{
