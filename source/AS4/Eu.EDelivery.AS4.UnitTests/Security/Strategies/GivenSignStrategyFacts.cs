@@ -6,6 +6,7 @@ using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
@@ -28,6 +29,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
         public GivenSignStrategyFacts()
         {
+            MapInitialization.InitializeMapper();
+
             this._mockedCertificateRepository = new Mock<ICertificateRepository>();
         }
 
