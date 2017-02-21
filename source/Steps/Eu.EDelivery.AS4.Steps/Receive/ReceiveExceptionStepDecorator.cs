@@ -112,7 +112,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task InsertSignalsFromExceptionAsync(AS4Exception exception, OutMessageService outMessageService)
         {
             foreach (string messageId in exception.MessageIds)
+            {
                 await outMessageService.InsertErrorAsync(messageId, this._originalAS4Message);
+            }
         }
 
         private StepResult ReturnStepResult(AS4Message as4Message)

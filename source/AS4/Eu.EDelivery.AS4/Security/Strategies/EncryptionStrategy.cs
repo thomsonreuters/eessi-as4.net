@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Security.Factories;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Security.Transforms;
+using MimeKit;
 using NLog;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly XmlDocument _document;
         private readonly List<Attachment> _attachments;
 
-        private readonly EncryptionConfiguration _configuration;        
+        private readonly EncryptionConfiguration _configuration;
         private readonly List<EncryptedData> _encryptedDatas;
         private readonly AS4EncryptedKey _as4EncryptedKey;
 
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// Run once Crypto Configuration
         /// </summary>
         static EncryptionStrategy()
-        {            
+        {
             CryptoConfig.AddAlgorithm(typeof(AttachmentCiphertextTransform), AttachmentCiphertextTransform.Url);
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes128-gcm");
             CryptoConfig.AddAlgorithm(typeof(AesGcmAlgorithm), "http://www.w3.org/2009/xmlenc11#aes192-gcm");
@@ -70,10 +71,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 var provider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
-                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement, SecurityTokenType.Encryption);                    
+                this._configuration.Key.SecurityTokenReference = provider.Get(encryptedKeyElement, SecurityTokenType.Encryption);
             }
         }
-               
+
         /// <summary>
         /// Adds an <see cref="Attachment"/>, which the strategy can use later on in the encryption/decryption logic.
         /// </summary>
@@ -139,11 +140,15 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this._encryptedDatas.Clear();
 
             OaepEncoding encoding = CreateOaepEncoding();
+
             byte[] encryptionKey = GenerateSymmetricKey(encoding.GetOutputBlockSize());
             SetEncryptedKey(encoding, encryptionKey);
 
-            SymmetricAlgorithm encryptionAlgorithm = CreateSymmetricAlgorithm(this._configuration.Data.EncryptionMethod, encryptionKey);
-            EncryptAttachmentsWithAlgorithm(encryptionAlgorithm);
+            using (SymmetricAlgorithm encryptionAlgorithm =
+                CreateSymmetricAlgorithm(this._configuration.Data.EncryptionMethod, encryptionKey))
+            {
+                EncryptAttachmentsWithAlgorithm(encryptionAlgorithm);
+            }
         }
 
         private OaepEncoding CreateOaepEncoding()
@@ -160,7 +165,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private byte[] GenerateSymmetricKey(int keySize)
         {
-            using (var rijn = new RijndaelManaged { KeySize = keySize }) return rijn.Key;
+            using (var rijn = new RijndaelManaged { KeySize = keySize })
+            {
+                return rijn.Key;
+            }
         }
 
         private void SetEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
@@ -217,7 +225,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public override byte[] GetDecryptionIV(EncryptedData encryptedData, string symmetricAlgorithmUri)
         {
             if (encryptedData == null)
+            {
                 throw new ArgumentNullException(nameof(encryptedData));
+            }
+
             if (symmetricAlgorithmUri == null)
             {
                 if (encryptedData.EncryptionMethod == null)
@@ -255,7 +266,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 new EncryptedDataSerializer(this._document).SerializeEncryptedDatas();
 
             foreach (EncryptedData encryptedData in encryptedDatas)
+            {
                 TryDecryptEncryptedData(encryptedData);
+            }
         }
 
         private void TryDecryptEncryptedData(EncryptedData encryptedData)
@@ -265,10 +278,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 this._as4EncryptedKey.LoadEncryptedKey(this._document);
 
                 byte[] key = DecryptEncryptedKey();
-                SymmetricAlgorithm decryptAlgorithm = CreateSymmetricAlgorithm(
-                    encryptedData.EncryptionMethod.KeyAlgorithm, key);
 
-                DecryptAttachment(encryptedData, decryptAlgorithm);
+                using (SymmetricAlgorithm decryptAlgorithm =
+                                CreateSymmetricAlgorithm(encryptedData.EncryptionMethod.KeyAlgorithm, key))
+                {
+                    DecryptAttachment(encryptedData, decryptAlgorithm);
+                }
             }
             catch (Exception ex)
             {
@@ -294,8 +309,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
 
             byte[] decryptedData = base.DecryptData(encryptedData, decryptAlgorithm);
-            attachment.Content.Dispose();
-            attachment.Content = new MemoryStream(decryptedData);
+
+            var transformer = AttachmentTransformer.Create(encryptedData.Type);
+
+            transformer.Transform(attachment, decryptedData);
+
             attachment.ContentType = encryptedData.MimeType;
         }
 
@@ -307,7 +325,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             // We do not look at the KeyInfo element in here, but rather decrypt it with the certificate provided as argument.
             AsymmetricCipherKeyPair encryptionCertificateKeyPair =
                 DotNetUtilities.GetRsaKeyPair(this._configuration.Certificate.GetRSAPrivateKey());
-
+            
             encoding.Init(false, encryptionCertificateKeyPair.Private);
 
             CipherData cipherData = this._as4EncryptedKey.GetCipherData();
@@ -322,5 +340,85 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             return symmetricAlgorithm;
         }
+
+        #region Attachment Transformers
+
+        private abstract class AttachmentTransformer
+        {
+            public static AttachmentTransformer Create(string type)
+            {
+                switch (type)
+                {
+                    case AttachmentCompleteTransformer.Type:
+                        return AttachmentCompleteTransformer.Default;
+
+                    case AttachmentContentOnlyTransformer.Type:
+                        return AttachmentContentOnlyTransformer.Default;
+
+                    default:
+                        throw new NotSupportedException($"{type} is a not supported Attachment transformer.");
+                }
+            }
+
+            public abstract void Transform(Attachment attachment, byte[] decryptedData);
+
+            #region Implementations
+
+            private class AttachmentCompleteTransformer : AttachmentTransformer
+            {
+                public const string Type = "http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Complete";
+
+                public static readonly AttachmentCompleteTransformer Default = new AttachmentCompleteTransformer();
+
+                public override void Transform(Attachment attachment, byte[] decryptedData)
+                {
+                    // The decrypted data can contain MIME headers, therefore we'll need to parse
+                    // the decrypted data as a MimePart, and make sure that the content is set correctly
+                    // in the attachment.
+                    //var part = MimeEntity.Load(MimeKit.ContentType.Parse(decryptedData), new MemoryStream(decryptedData)) as MimePart;
+
+                    MimePart part;
+
+                    using (var stream = new MemoryStream(decryptedData))
+                    {
+                        part = MimeEntity.Load(stream) as MimePart;
+                    }
+
+                    if (part == null)
+                    {
+                        throw new InvalidOperationException("The decrypted stream could not be converted to a MIME part");
+                    }
+
+                    attachment.Content.Dispose();
+
+                    attachment.Content = part.ContentObject.Stream;
+
+                    foreach (var header in part.Headers)
+                    {
+                        attachment.Properties.Add(header.Field, header.Value);
+                    }
+                }
+            }
+
+            private class AttachmentContentOnlyTransformer : AttachmentTransformer
+            {
+                public const string Type = "http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only";
+
+                public static readonly AttachmentContentOnlyTransformer Default = new AttachmentContentOnlyTransformer();
+
+                public override void Transform(Attachment attachment, byte[] decryptedData)
+                {
+                    attachment.Content.Dispose();
+                    attachment.Content = new MemoryStream(decryptedData);
+                }
+            }
+            #endregion
+        }
+
+        #endregion
+
+
     }
+
+
 }

@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                IEncryptionStrategy strategy = CreateEncryptStrategy(internalMessage);
+                IEncryptionStrategy strategy = CreateDecryptStrategy(internalMessage);
                 internalMessage.AS4Message.SecurityHeader.Decrypt(strategy);
                 this._logger.Info($"{internalMessage.Prefix} AS4 Message is decrypted correctly");
             }
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private IEncryptionStrategy CreateEncryptStrategy(InternalMessage internalMessage)
+        private IEncryptionStrategy CreateDecryptStrategy(InternalMessage internalMessage)
         {
             X509Certificate2 certificate = GetCertificate(internalMessage);
             AS4Message as4Message = internalMessage.AS4Message;
@@ -123,17 +123,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private X509Certificate2 GetCertificate(InternalMessage internalMessage)
         {
-            var findType = GetCertificateFindValue(internalMessage);
-
-            return _certificateRepository.GetCertificate(findType.Item1, findType.Item2);
-        }
-
-        protected virtual Tuple<X509FindType, string> GetCertificateFindValue(InternalMessage internalMessage)
-        {
             Decryption decryption = internalMessage.AS4Message.ReceivingPMode.Security.Decryption;
-            return new Tuple<X509FindType, string>(decryption.PrivateKeyFindType, decryption.PrivateKeyFindValue);
+
+            return _certificateRepository.GetCertificate(decryption.PrivateKeyFindType, decryption.PrivateKeyFindValue);
         }
-       
+        
         private AS4Exception ThrowCommonAS4Exception(InternalMessage internalMessage,
             string description, ErrorCode errorCode, Exception exception = null)
         {
