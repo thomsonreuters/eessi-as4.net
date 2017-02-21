@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             var pmode = AS4XmlSerializer.Deserialize<ReceivePMode>(this._as4Exception.PMode);
             if (pmode == null) return Operation.NotApplicable;
 
- ;           return pmode.ExceptionHandling.NotifyMessageConsumer
+            return pmode.ExceptionHandling.NotifyMessageConsumer
                 ? Operation.ToBeNotified
                 : Operation.NotApplicable;
         }
