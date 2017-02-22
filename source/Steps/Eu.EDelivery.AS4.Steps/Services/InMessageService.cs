@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
             await this._repository.InsertInMessageAsync(inMessage);
         }
 
-        private InMessage CreateUserInMessage(
+        private static InMessage CreateUserInMessage(
             UserMessage userMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             InMessage inMessage = new InMessageBuilder()
@@ -90,6 +90,11 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
         private static bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
+            if (pmode == null)
+            {
+                return false;
+            }
+
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
 
