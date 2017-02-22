@@ -15,17 +15,19 @@ namespace Eu.EDelivery.AS4.Common
 
         public static readonly Registry Instance = new Registry();
 
-        public IPayloadRetrieverProvider PayloadRetrieverProvider { get; set; }
+        public IPayloadRetrieverProvider PayloadRetrieverProvider { get; private set; }
         public IDeliverSenderProvider DeliverSenderProvider { get; private set; }
-        public INotifySenderProvider NotifySenderProvider { get; set; }
+        public INotifySenderProvider NotifySenderProvider { get; private set; }
         public ICertificateRepository CertificateRepository { get; set; }
-        public ISerializerProvider SerializerProvider => new SerializerProvider();
-        public IAttachmentUploaderProvider AttachmentUploader { get; set; }
+        public ISerializerProvider SerializerProvider { get; }
+        public IAttachmentUploaderProvider AttachmentUploader { get; private set; }
 
         public Func<DatastoreContext> CreateDatastoreContext { get; set; }
 
         public Registry()
         {
+            SerializerProvider = new SerializerProvider();
+
             RegisterPayloadStrategyProvider();
             RegisterDeliverSenderProvider();
             RegisterNotifySenderProvider();
