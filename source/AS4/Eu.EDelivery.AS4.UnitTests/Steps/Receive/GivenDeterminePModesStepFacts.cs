@@ -31,9 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             var stubVisitor = new StubPModeRuleVisitor();
-            this._mockedConfig = new Mock<IConfig>();
-
-            CreateNewContextOptions();
+            this._mockedConfig = new Mock<IConfig>();            
 
             this._step = new DeterminePModesStep(
                 this._mockedConfig.Object,

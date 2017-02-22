@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 // Assert
                 Assert.NotNull(result1);
                 Assert.NotNull(result2);
-                Assert.Equal(result1, result2);
+                Assert.Equal(result1.InternalMessage.SendingPModeString, result2.InternalMessage.SendingPModeString);
             }
         }
     }

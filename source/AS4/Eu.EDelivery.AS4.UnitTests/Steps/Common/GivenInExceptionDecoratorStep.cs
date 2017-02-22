@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -29,6 +30,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
         public GivenInExceptionDecoratorStepFacts()
         {
             this._mockedStep = new Mock<IStep>();
+
+            MapInitialization.InitializeMapper();
+
             ResetStep();
         }
 

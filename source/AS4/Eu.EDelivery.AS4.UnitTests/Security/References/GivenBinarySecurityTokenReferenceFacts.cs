@@ -261,24 +261,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 return keyInfoElement;
             }
         }
-
-        /// <summary>
-        /// Testing the Reference with invalid Arguments for "GetSecurityToken" Method
-        /// </summary>
-        public class GivenInvalidArgumentsForGetSecurityToken : GivenBinarySecurityTokenReferenceFacts
-        {
-            [Fact]
-            public void ThenGetSecurityTokenFailsWithUnsettedCertificate()
-            {
-                // Arrange
-                var xmlDocument = new XmlDocument();
-                xmlDocument.AppendChild(xmlDocument.CreateElement("Security"));
-                XmlElement securityHeaderElement = base.GetSecurityHeaderElement(xmlDocument);
-
-                // Act / Assert
-                Assert.Throws<NullReferenceException>(() 
-                    => base._reference.AppendSecurityTokenTo(securityHeaderElement, xmlDocument));
-            }
-        }
+        
     }
 }

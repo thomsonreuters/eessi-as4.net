@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -29,6 +30,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public GivenReceiveExceptionDecoratorStepFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+
+            MapInitialization.InitializeMapper();
 
             SetupMockedCatchedStep();
 

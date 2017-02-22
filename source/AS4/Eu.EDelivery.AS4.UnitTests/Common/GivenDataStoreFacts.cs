@@ -2,12 +2,14 @@ using System;
 using Eu.EDelivery.AS4.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
     /// <summary>
     /// Data Store Connection Test Setup
     /// </summary>
+    [Collection("Tests that impact datastore")]  // Tests that belong to the same collection do not run in parallel.
     public class GivenDatastoreFacts
     {
         protected readonly DbContextOptions<DatastoreContext> Options;
@@ -25,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         private IServiceProvider _serviceProvider = null;
 
-        protected void ResetInMemoryDatabase()
+        private void ResetInMemoryDatabase()
         {
             // Create a fresh service provider, and therefore a fresh 
             // InMemory database instance.
@@ -34,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 .BuildServiceProvider();
         }
 
-        protected DbContextOptions<DatastoreContext> CreateNewContextOptions()
+        private DbContextOptions<DatastoreContext> CreateNewContextOptions()
         {
             if (this._serviceProvider == null)
             {

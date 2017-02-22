@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -23,6 +24,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         public GivenCreateNotifyMessageStepFacts()
         {
+            MapInitialization.InitializeMapper();
+
             this._step = new CreateNotifyMessageStep();
         }
 

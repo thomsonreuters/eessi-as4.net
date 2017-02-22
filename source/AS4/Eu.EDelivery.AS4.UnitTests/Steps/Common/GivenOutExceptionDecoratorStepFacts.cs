@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -28,6 +29,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         public GivenOutExceptionDecoratorStepFacts()
         {
+            MapInitialization.InitializeMapper();
+
             this._mockedStep = new Mock<IStep>();
             ResetStep();
         }
@@ -141,8 +144,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
         }
 
         protected void ResetStep()
-        {           
-            this._step = new OutExceptionStepDecorator(this._mockedStep.Object); 
+        {
+            this._step = new OutExceptionStepDecorator(this._mockedStep.Object);
         }
 
         protected InternalMessage CreateDefaultInternalMessage()
