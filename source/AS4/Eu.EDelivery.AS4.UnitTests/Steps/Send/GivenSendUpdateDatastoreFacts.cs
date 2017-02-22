@@ -20,11 +20,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             base.Step = new SendUpdateDataStoreStep();
         }
 
-        [Fact]
+        [Fact(Skip="This test should be reviewed.")]        
         public async Task ThenExecuteStepUpdateAsSentAsync()
         {
             // Arrange
-            SignalMessage signalMessage = base.GetSignalMessage();
+            SignalMessage signalMessage = base.GetReceipt();
             InternalMessage internalMessage = new InternalMessageBuilder()
                 .WithSignalMessage(signalMessage).Build();
             // Act

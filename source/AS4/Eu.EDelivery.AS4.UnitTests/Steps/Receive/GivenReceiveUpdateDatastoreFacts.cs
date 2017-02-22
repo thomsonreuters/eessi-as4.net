@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private readonly string _userMessageId;
 
         public GivenReceiveUpdateDatastoreFacts()
-        {            
+        {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             this._userMessageId = Guid.NewGuid().ToString();
 
@@ -67,26 +67,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepUpdatesDuplicateReceiptMessageAsync()
             {
                 // Arrange
-                SignalMessage signalMessage = CreateDefaultSignalMessage();
+                SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
                 signalMessage.IsDuplicated = false;
 
                 base.Step = new ReceiveUpdateDatastoreStep();
 
                 InternalMessage internalMessage = new InternalMessageBuilder()
                     .WithSignalMessage(signalMessage).Build();
-                // Act                
+                
+                // Act           
+                // Execute the step twice.     
                 var stepResult = await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
+                Assert.False(stepResult.InternalMessage.AS4Message.PrimarySignalMessage.IsDuplicated);
 
+                stepResult = await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
                 // Assert
                 Assert.True(stepResult.InternalMessage.AS4Message.PrimarySignalMessage.IsDuplicated);
-            }
-
-            private static SignalMessage CreateDefaultSignalMessage()
-            {
-                return new SignalMessage(messageId: "message-id")
-                {
-                    RefToMessageId = "ref-to-message-id"
-                };
             }
 
             [Fact]

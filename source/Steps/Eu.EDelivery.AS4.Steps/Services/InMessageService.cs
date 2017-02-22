@@ -89,12 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         }
 
         private static bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
-        {
-            if (pmode == null)
-            {
-                return false;
-            }
-
+        {           
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
 
