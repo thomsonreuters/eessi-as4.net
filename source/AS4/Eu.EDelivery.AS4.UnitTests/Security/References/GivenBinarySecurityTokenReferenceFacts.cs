@@ -18,9 +18,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
         public GivenBinarySecurityTokenReferenceFacts()
         {
-            this._dummyReferenceId = $"#{Guid.NewGuid()}";
+            
             this._dummyCertificate = new StubCertificateRepository().GetDummyCertificate();
+            
             this._reference = new BinarySecurityTokenReference();
+            this._dummyReferenceId = _reference.ReferenceId; // $"#{Guid.NewGuid()}";
         }
 
         protected XmlElement GetDummySecurityToken(XmlDocument document)
@@ -28,13 +30,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             XmlElement securityTokenReferenceElement = document
                 .CreateElement("SecurityTokenReference", Constants.Namespaces.WssSecuritySecExt);
 
-            XmlElement referenceElement = AddReferenceElement(document);
+            XmlElement referenceElement = CreateReferenceElement(document);
             securityTokenReferenceElement.AppendChild(referenceElement);
 
             return securityTokenReferenceElement;
         }
 
-        private XmlElement AddReferenceElement(XmlDocument document)
+        private XmlElement CreateReferenceElement(XmlDocument document)
         {
             XmlElement referenceElement = document
                 .CreateElement("Reference", Constants.Namespaces.WssSecuritySecExt);
@@ -212,9 +214,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             {
                 // Arrange
                 XmlDocument xmlDocument = base.CreateSecurityHeaderDocument();
-                XmlElement securityTokenElement = base.GetDummySecurityToken(xmlDocument);
-                BuildSecurityHeader(xmlDocument, securityTokenElement);
 
+                XmlElement securityTokenElement = base.GetDummySecurityToken(xmlDocument);
+                
+                BuildSecurityHeader(xmlDocument, securityTokenElement);
+            
                 // Act
                 base._reference.LoadXml(securityTokenElement);
                 // Assert
@@ -224,11 +228,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             private void BuildSecurityHeader(XmlDocument xmlDocument, XmlElement securityTokenElement)
             {
                 XmlElement securityHeader = CreateSecurityHeader(xmlDocument);
-                XmlElement securityHeaderElement = AppendSecurityHeader(xmlDocument, securityHeader);
-                XmlElement signatureElement = AppendSignature(xmlDocument, securityHeaderElement);
-                XmlElement keyInfoElement = AppendKeyInfoElement(xmlDocument, signatureElement);
-
-                keyInfoElement.AppendChild(securityTokenElement);
+                                
+                XmlElement signatureElement = xmlDocument.CreateElement("Signature");
+                XmlElement keyInfoElement = xmlDocument.CreateElement("KeyInfo");
+                signatureElement.AppendChild(keyInfoElement);
+                securityHeader.AppendChild(signatureElement);
+                
+                keyInfoElement.AppendChild(securityTokenElement);                
             }
 
             private XmlElement CreateSecurityHeader(XmlDocument xmlDocument)
@@ -239,27 +245,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 base._reference.Certificate = null;
                 return securityHeader;
             }
-
-            private XmlElement AppendSecurityHeader(XmlDocument xmlDocument, XmlNode securityHeader)
-            {
-                XmlElement securityHeaderElement = xmlDocument.CreateElement("SecurityHeader");
-                securityHeaderElement.AppendChild(securityHeader.FirstChild);
-                return securityHeaderElement;
-            }
-
-            private XmlElement AppendSignature(XmlDocument xmlDocument, XmlNode securityHeaderElement)
-            {
-                XmlElement signatureElement = xmlDocument.CreateElement("Signature");
-                securityHeaderElement.AppendChild(signatureElement);
-                return signatureElement;
-            }
-
-            private XmlElement AppendKeyInfoElement(XmlDocument xmlDocument, XmlNode signatureElement)
-            {
-                XmlElement keyInfoElement = xmlDocument.CreateElement("KeyInfo");
-                signatureElement.AppendChild(keyInfoElement);
-                return keyInfoElement;
-            }
+           
         }
         
     }
