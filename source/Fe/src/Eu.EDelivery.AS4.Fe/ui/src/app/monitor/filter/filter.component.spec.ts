@@ -86,10 +86,10 @@ describe('Filter component', () => {
         expect(routerSpy).not.toHaveBeenCalled();
         expect(serviceSpy).toHaveBeenCalled();
     })));
-    it('onInit calls search', inject([], () => {
-        let searchSpy = spyOn(component.componentInstance, 'search');
+    it('onInit calls executeServicecall', inject([], () => {
+        let executeServiceCallSpy = spyOn(component.componentInstance, 'executeServiceCall');
         component.componentInstance.ngOnInit();
-        expect(searchSpy).toHaveBeenCalledWith();
+        expect(executeServiceCallSpy).toHaveBeenCalledWith();
         expect(component.componentInstance.outFilter).toBeDefined();
     }));
     it('search calls router.navigate when called without parameters', () => {
