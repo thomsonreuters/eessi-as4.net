@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         private readonly IStep _step;
         private readonly ILogger _logger;
 
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OutExceptionStepDecorator"/> class
         /// with a given <paramref name="step"/> to decorate and defaults from <see cref="Registry"/>
@@ -35,8 +35,10 @@ namespace Eu.EDelivery.AS4.Steps.Common
         public OutExceptionStepDecorator(IStep step)
         {
             this._step = step;
+
             this._logger = LogManager.GetCurrentClassLogger();
         }
+
 
         /// <summary>
         /// Execute the given Step, so it can be catched
@@ -83,9 +85,14 @@ namespace Eu.EDelivery.AS4.Steps.Common
                 await repository.InsertOutExceptionAsync(outException);
                 await repository.UpdateOutMessageAsync(messageId, UpdateOutMessageType);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this._logger.Error($"{internalMessage.Prefix} Cannot Update Datastore with OutException");
+                this._logger.Error($"{internalMessage.Prefix} Cannot Update Datastore with OutException: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    this._logger.Error(ex.InnerException.Message);
+                }
+
             }
         }
 

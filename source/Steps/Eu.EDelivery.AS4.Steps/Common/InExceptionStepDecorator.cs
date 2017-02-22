@@ -30,11 +30,11 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// with a a decorated <paramref name="step"/>
         /// </summary>
         /// <param name="step"></param>
-        public InExceptionStepDecorator(IStep step)
+        public InExceptionStepDecorator(IStep step)             
         {
             this._step = step;
         }
-
+        
         /// <summary>
         /// Start executing Step
         /// so it can be catched
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
             catch (Exception exception)
             {
-                _logger.Fatal($"An unexpected error occured: {exception.Message}");                
+                _logger.Fatal($"An unexpected error occured: {exception.Message}");
                 return StepResult.Failed(AS4ExceptionBuilder.WithDescription(exception.Message).WithInnerException(exception).Build());
             }
         }
@@ -85,9 +85,14 @@ namespace Eu.EDelivery.AS4.Steps.Common
                 await repository.InsertInExceptionAsync(inException);
                 await UpdateInMessageAsync(messageId, exception.ExceptionType, repository);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this._logger.Error($"{message.Prefix} Cannot Update Datastore with InException");
+                this._logger.Error($"{message.Prefix} Cannot Update Datastore with InException: {ex.Message}");
+
+                if (ex.InnerException != null)
+                {
+                    this._logger.Error(ex.InnerException.Message);
+                }
             }
         }
 
