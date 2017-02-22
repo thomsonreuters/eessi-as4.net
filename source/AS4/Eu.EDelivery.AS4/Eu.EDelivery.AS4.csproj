@@ -323,7 +323,6 @@
     <Compile Include="Mappings\Core\ReceiptMap.cs" />
     <Compile Include="Mappings\Common\AgreementReferenceMap.cs" />
     <Compile Include="Mappings\Common\CollaborationInfoMap.cs" />
-    <Compile Include="Mappings\Common\MapInitialization.cs" />
     <Compile Include="Mappings\Common\MessagePropertyMap.cs" />
     <Compile Include="Mappings\Common\PartyIdMap.cs" />
     <Compile Include="Mappings\Common\PartyMap.cs" />
@@ -412,7 +411,6 @@
     <Compile Include="Serialization\MimeMessageSerializer.cs" />
     <Compile Include="Serialization\SoapEnvelopeSerializer.cs" />
     <Compile Include="Singletons\AS4Mapper.cs" />
-    <Compile Include="Mappings\MapInitialization.cs" />
     <Compile Include="Mappings\Core\MessageInfoMap.cs" />
     <Compile Include="Mappings\Core\PartyIdMap.cs" />
     <Compile Include="Mappings\Core\PartyInfoMap.cs" />

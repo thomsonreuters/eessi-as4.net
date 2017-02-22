@@ -26,8 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
     public class GivenReceiptMapFacts
     {
         public GivenReceiptMapFacts()
-        {
-            MapInitialization.InitializeMapper();
+        {            
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 

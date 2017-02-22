@@ -2,6 +2,7 @@
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Services;
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         private Mock<IDatastoreRepository> _mockedRepository;
 
         public GivenInExceptionServiceFacts()
-        {
+        {            
             ResetDatastoreService();
         }
 

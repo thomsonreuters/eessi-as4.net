@@ -30,9 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public GivenReceiveExceptionDecoratorStepFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-
-            MapInitialization.InitializeMapper();
-
+            
             SetupMockedCatchedStep();
 
             this._step = new ReceiveExceptionStepDecorator(this._mockedCatchedStep.Object);

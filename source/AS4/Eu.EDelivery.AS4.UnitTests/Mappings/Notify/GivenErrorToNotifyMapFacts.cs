@@ -13,11 +13,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
     /// </summary>
     public class GivenErrorToNotifyMapFacts
     {
-        public GivenErrorToNotifyMapFacts()
-        {
-            MapInitialization.InitializeMapper();
-        }
-
+        
         public class GivenValidArguments : GivenErrorToNotifyMapFacts
         {
             [Fact]

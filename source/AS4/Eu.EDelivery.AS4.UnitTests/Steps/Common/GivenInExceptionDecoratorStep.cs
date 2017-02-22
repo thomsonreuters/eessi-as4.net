@@ -29,9 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         public GivenInExceptionDecoratorStepFacts()
         {
-            this._mockedStep = new Mock<IStep>();
-
-            MapInitialization.InitializeMapper();
+            this._mockedStep = new Mock<IStep>();        
 
             ResetStep();
         }

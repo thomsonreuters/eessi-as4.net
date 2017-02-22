@@ -1,18 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using Eu.EDelivery.AS4.Mappings;
+using Eu.EDelivery.AS4.Mappings.Submit;
 
 namespace Eu.EDelivery.AS4.Singletons
 {
     /// <summary>
     /// Singleton to expose Internal Mapper
     /// </summary>
-    public sealed class AS4Mapper
-    {
-        private static readonly Lazy<AS4Mapper> Lazy =
-            new Lazy<AS4Mapper>(() => new AS4Mapper());
+    public static class AS4Mapper
+    {        
+        static AS4Mapper()
+        {
+            // static constructor is guaranteed to be executed only once, which makes it the ideal place
+            // to initialize the Automapper-mappings.            
+            Mapper.Initialize(
+                configurationExpression =>
+                {
+                    IEnumerable<Type> profiles = typeof(SubmitMessageMap).Assembly.GetTypes()
+                        .Where(x => typeof(Profile).IsAssignableFrom(x));
 
-        public static AS4Mapper Instance => Lazy.Value;
+                    foreach (Type profile in profiles)
+                        configurationExpression.AddProfile(profile);
+                });
+
+            Mapper.Configuration.AssertConfigurationIsValid();
+        }
 
         /// <summary>
         /// Map/Project the given source Model to a given Destination Model
@@ -21,7 +36,7 @@ namespace Eu.EDelivery.AS4.Singletons
         /// <param name="source"></param>
         /// <returns></returns>
         public static TDestination Map<TDestination>(object source)
-        {            
+        {
             return Mapper.Map<TDestination>(source);
         }
     }

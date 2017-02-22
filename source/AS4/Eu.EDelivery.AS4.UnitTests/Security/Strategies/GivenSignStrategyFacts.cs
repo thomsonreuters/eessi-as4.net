@@ -29,8 +29,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 
         public GivenSignStrategyFacts()
         {
-            MapInitialization.InitializeMapper();
-
             this._mockedCertificateRepository = new Mock<ICertificateRepository>();
         }
 

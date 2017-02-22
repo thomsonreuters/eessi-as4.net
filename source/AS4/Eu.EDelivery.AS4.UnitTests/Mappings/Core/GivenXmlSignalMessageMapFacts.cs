@@ -8,11 +8,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
 {
     public class GivenXmlSignalMessageMapFacts
     {
-        public GivenXmlSignalMessageMapFacts()
-        {
-            MapInitialization.InitializeMapper();
-        }
-
+        
         public class GivenValidXmlReceiptSignalMessage : GivenXmlSignalMessageMapFacts
         {
             [Fact]

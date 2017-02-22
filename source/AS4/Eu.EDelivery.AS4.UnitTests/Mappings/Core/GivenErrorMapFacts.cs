@@ -1,23 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Mappings.Common;
-using Eu.EDelivery.AS4.Mappings.Core;
-using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
-using XmlReceipt = Eu.EDelivery.AS4.Xml.Receipt;
-using CoreReceipt = Eu.EDelivery.AS4.Model.Core.Receipt;
-using XmlInformation = Eu.EDelivery.AS4.Xml.MessagePartNRInformation;
-using CoreInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
 using System;
+using Eu.EDelivery.AS4.Mappings.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
 {
@@ -27,8 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
     public class GivenErrorMapFacts
     {
         public GivenErrorMapFacts()
-        {
-            MapInitialization.InitializeMapper();
+        {            
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 

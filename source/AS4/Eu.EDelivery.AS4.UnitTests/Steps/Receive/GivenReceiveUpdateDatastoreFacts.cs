@@ -23,9 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private readonly string _userMessageId;
 
         public GivenReceiveUpdateDatastoreFacts()
-        {
-            MapInitialization.InitializeMapper();
-
+        {            
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             this._userMessageId = Guid.NewGuid().ToString();
 

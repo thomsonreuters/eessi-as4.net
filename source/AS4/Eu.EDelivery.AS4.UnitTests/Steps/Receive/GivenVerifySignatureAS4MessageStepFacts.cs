@@ -28,9 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private InternalMessage _internalMessage;
 
         public GivenVerifySignatureAS4MessageStepFacts()
-        {
-            MapInitialization.InitializeMapper();
-
+        {            
             this._mockedCertificateRespository = new Mock<ICertificateRepository>();
             this._step = new VerifySignatureAS4MessageStep(this._mockedCertificateRespository.Object);
         }

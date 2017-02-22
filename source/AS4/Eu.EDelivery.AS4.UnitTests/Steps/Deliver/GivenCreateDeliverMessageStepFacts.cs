@@ -29,9 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         private readonly CreateDeliverMessageStep _step;
 
         public GivenCreateDeliverMessageStepFacts()
-        {
-            MapInitialization.InitializeMapper();
-
+        {            
             this._step = new CreateDeliverMessageStep();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }

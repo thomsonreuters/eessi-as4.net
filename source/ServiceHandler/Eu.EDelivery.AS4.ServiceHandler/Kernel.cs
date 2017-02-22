@@ -31,8 +31,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 this._logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
             }
 
-            MapInitialization.InitializeMapper();
-
             this._agents = agents;
             this._logger = LogManager.GetCurrentClassLogger();
         }

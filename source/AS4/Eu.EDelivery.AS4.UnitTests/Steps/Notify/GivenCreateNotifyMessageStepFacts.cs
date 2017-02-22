@@ -23,9 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         protected XmlDocument EnvelopeDocument;
 
         public GivenCreateNotifyMessageStepFacts()
-        {
-            MapInitialization.InitializeMapper();
-
+        {            
             this._step = new CreateNotifyMessageStep();
         }
 
