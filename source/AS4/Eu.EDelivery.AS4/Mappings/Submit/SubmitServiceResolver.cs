@@ -3,6 +3,7 @@ using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Singletons;
 using CoreService = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -39,7 +40,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             }
 
             if (message.Collaboration.Service?.Value != null)
-                return Mapper.Map<CoreService>(message.Collaboration.Service);
+                return AS4Mapper.Map<CoreService>(message.Collaboration.Service);
 
             return this._pmodeResolver.Resolve(message.PMode);
         }

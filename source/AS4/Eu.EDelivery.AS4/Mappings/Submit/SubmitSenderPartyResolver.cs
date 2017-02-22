@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
@@ -40,21 +41,21 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return this._pmodeResolver.Resolve(submitMessage.PMode);
         }
 
-        private bool IsSubmitMessageFromPartyNotNull(SubmitMessage submitMessage)
+        private static bool IsSubmitMessageFromPartyNotNull(SubmitMessage submitMessage)
         {
             return submitMessage?.PartyInfo?.FromParty != null;
         }
 
-        private Party MapPartyFromSubmitMessage(SubmitMessage submitMessage)
+        private static Party MapPartyFromSubmitMessage(SubmitMessage submitMessage)
         {
-            var fromParty = Mapper.Map<Party>(submitMessage.PartyInfo.FromParty);
+            var fromParty = AS4Mapper.Map<Party>(submitMessage.PartyInfo.FromParty);
             // AutoMapper doesn't map "Role"
             fromParty.Role = submitMessage.PartyInfo.FromParty.Role;
 
             return fromParty;
         }
 
-        private void PreCoditionParty(SubmitMessage s)
+        private static void PreCoditionParty(SubmitMessage s)
         {
             if (s?.PartyInfo?.FromParty != null && s.PMode.AllowOverride == false)
             {

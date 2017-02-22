@@ -14,6 +14,8 @@ namespace Eu.EDelivery.AS4.Singletons
     {        
         static AS4Mapper()
         {
+            NLog.LogManager.GetCurrentClassLogger().Trace("Initializing AutoMapper ...");
+
             // static constructor is guaranteed to be executed only once, which makes it the ideal place
             // to initialize the Automapper-mappings.            
             Mapper.Initialize(
@@ -27,6 +29,8 @@ namespace Eu.EDelivery.AS4.Singletons
                 });
 
             Mapper.Configuration.AssertConfigurationIsValid();
+
+            NLog.LogManager.GetCurrentClassLogger().Trace("AutoMapper initialized.");
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using System;
 using Eu.EDelivery.AS4.Mappings.Core;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
 {
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
                 signalMessage.MessageInfo.MessageId = messageId;
 
                 // Act
-                var error = Mapper.Map<AS4.Model.Core.Error>(signalMessage);
+                var error = AS4Mapper.Map<AS4.Model.Core.Error>(signalMessage);
 
                 // Assert
                 Assert.Equal(messageId, error.MessageId);
@@ -47,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
                 signalMessage.Error[0].Description.lang = languageValue;
 
                 // Act
-                var error = Mapper.Map<AS4.Model.Core.Error>(signalMessage);
+                var error = AS4Mapper.Map<AS4.Model.Core.Error>(signalMessage);
 
                 // Assert
                 Assert.Equal(descriptionValue, error.Errors[0].Description.Value);

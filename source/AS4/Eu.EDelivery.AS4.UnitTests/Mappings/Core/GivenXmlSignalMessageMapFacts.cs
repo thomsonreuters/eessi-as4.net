@@ -1,6 +1,7 @@
 ﻿using System;
 using AutoMapper;
 using Eu.EDelivery.AS4.Mappings.Common;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
             {
                 var receipt = GetReceiptXmlSignalMessage();
 
-                var result = Mapper.Map<Eu.EDelivery.AS4.Model.Core.Receipt>(receipt);
+                var result = AS4Mapper.Map<Eu.EDelivery.AS4.Model.Core.Receipt>(receipt);
 
                 Assert.Equal(receipt.MessageInfo.MessageId, result.MessageId);
                 Assert.Equal(receipt.MessageInfo.RefToMessageId, result.RefToMessageId);
