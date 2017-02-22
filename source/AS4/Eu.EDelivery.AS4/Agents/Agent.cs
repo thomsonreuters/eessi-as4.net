@@ -191,7 +191,7 @@ namespace Eu.EDelivery.AS4.Agents
         {
             try
             {
-                var transformer = new GenericTypeBuilder().SetType(_transformerConfiguration.Type).Build<ITransformer>();
+                var transformer = GenericTypeBuilder.FromType(_transformerConfiguration.Type).Build<ITransformer>();
                 return await transformer.TransformAsync(message, cancellationToken);
             }
             catch (AS4Exception exception)

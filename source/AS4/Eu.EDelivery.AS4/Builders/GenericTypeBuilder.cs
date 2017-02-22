@@ -10,8 +10,40 @@ namespace Eu.EDelivery.AS4.Builders
     /// </summary>
     public class GenericTypeBuilder
     {
-        private Type _type;
+        private readonly Type _type;
         private object[] _args;
+
+        private GenericTypeBuilder(Type type)
+        {
+            _type = type;
+        }
+
+        /// <summary>
+        /// Initializes a new GenericTypeBuilder to instantiate a type for the specified type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static GenericTypeBuilder FromType(Type type)
+        {
+            return new GenericTypeBuilder(type);
+        }
+
+        /// <summary>
+        /// Initializes a new GenericTypeBuilder to instantiate a type for the specified typeString.
+        /// </summary>
+        /// <param name="typeString"></param>
+        /// <returns></returns>
+        public static GenericTypeBuilder FromType(string typeString)
+        {
+            var type = ResolveType(typeString);
+
+            if (type == null)
+            {
+                throw new AS4Exception($"Not given class found for given Type: {typeString}");
+            }
+
+            return FromType(type);
+        }
 
         /// <summary>
         /// Set the <paramref name="args"/>
@@ -24,25 +56,8 @@ namespace Eu.EDelivery.AS4.Builders
             this._args = args;
             return this;
         }
-
-        /// <summary>
-        /// Set the <paramref name="typeString"/>
-        /// which has to be created
-        /// </summary>
-        /// <param name="typeString"></param>
-        /// <returns></returns>
-        public GenericTypeBuilder SetType(string typeString)
-        {
-            this._type = ResolveType(typeString);
-            if (this._type == null)
-            {
-                throw new AS4Exception($"Not given class found for given Type: {typeString}");
-            }
-
-            return this;
-        }
-
-        private Type ResolveType(string type)
+       
+        private static Type ResolveType(string type)
         {
             return Type.GetType(type, throwOnError: false) ?? Type.GetType(type, name =>
             {

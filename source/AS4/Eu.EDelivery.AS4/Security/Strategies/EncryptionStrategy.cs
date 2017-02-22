@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return encoding;
         }
 
-        private byte[] GenerateSymmetricKey(int keySize)
+        private static byte[] GenerateSymmetricKey(int keySize)
         {
             using (var rijn = new RijndaelManaged { KeySize = keySize })
             {
@@ -237,7 +237,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
             int ivLength;
 
-            if (symmetricAlgorithmUri == "http://www.w3.org/2009/xmlenc11#aes128-gcm") ivLength = 12;
+            if (symmetricAlgorithmUri == "http://www.w3.org/2009/xmlenc11#aes128-gcm")
+            {
+                ivLength = 12;
+            }
             else
             {
                 if (symmetricAlgorithmUri != "http://www.w3.org/2001/04/xmlenc#des-cbc" &&
@@ -246,10 +249,16 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     if (symmetricAlgorithmUri != "http://www.w3.org/2001/04/xmlenc#aes128-cbc" &&
                         symmetricAlgorithmUri != "http://www.w3.org/2001/04/xmlenc#aes192-cbc" &&
                         symmetricAlgorithmUri != "http://www.w3.org/2001/04/xmlenc#aes256-cbc")
+                    {
                         throw new CryptographicException("Uri not supported");
+                    }
+
                     ivLength = 16;
                 }
-                else ivLength = 8;
+                else
+                {
+                    ivLength = 8;
+                }
             }
             var iv = new byte[ivLength];
             Buffer.BlockCopy(encryptedData.CipherData.CipherValue, srcOffset: 0, dst: iv, dstOffset: 0, count: iv.Length);
@@ -325,7 +334,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             // We do not look at the KeyInfo element in here, but rather decrypt it with the certificate provided as argument.
             AsymmetricCipherKeyPair encryptionCertificateKeyPair =
                 DotNetUtilities.GetRsaKeyPair(this._configuration.Certificate.GetRSAPrivateKey());
-            
+
             encoding.Init(false, encryptionCertificateKeyPair.Private);
 
             CipherData cipherData = this._as4EncryptedKey.GetCipherData();

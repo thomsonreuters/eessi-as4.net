@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                 // Arrange
                 string typeString = typeof(object).FullName;
                 // Act
-                var instance = new GenericTypeBuilder().SetType(typeString).Build<object>();
+                var instance = GenericTypeBuilder.FromType(typeString).Build<object>();
                 // Assert
                 Assert.NotNull(instance);
                 Assert.IsType<object>(instance);
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                     "Eu.EDelivery.AS4.Transformers.InvalidTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
                 // Act
                 Assert.Throws<AS4Exception>(
-                    () => new GenericTypeBuilder().SetType(typeString));
+                    () => GenericTypeBuilder.FromType(typeString));
             }
         }
     }

@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             if (!config.IsInitialized) return null;
 
             string certificateTypeRepository = config.GetSetting("CertificateRepository");
-            registry.CertificateRepository = new GenericTypeBuilder().SetType(certificateTypeRepository).Build<ICertificateRepository>();
+            registry.CertificateRepository = GenericTypeBuilder.FromType(certificateTypeRepository).Build<ICertificateRepository>();
             registry.CreateDatastoreContext = () => new DatastoreContext(config);
 
             var agentProvider = new AgentProvider(config);

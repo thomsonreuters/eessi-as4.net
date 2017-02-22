@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// <returns></returns>
         public IReceiver Build()
         {
-            var receiver = new GenericTypeBuilder().SetType(this._settingReceiver.Type).Build<IReceiver>();
+            var receiver = GenericTypeBuilder.FromType(this._settingReceiver.Type).Build<IReceiver>();
             ConfigureReceiverWithSettings(receiver, this._settingReceiver);
 
             return receiver;
