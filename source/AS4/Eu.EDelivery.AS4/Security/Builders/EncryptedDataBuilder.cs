@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         {
             encryptedData.CipherData.CipherReference = new CipherReference("cid:" + this._uri);
             encryptedData.CipherData.CipherReference.TransformChain.Add(new AttachmentCiphertextTransform());
-            encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference {ReferenceId = this._referenceId});
+            encryptedData.KeyInfo.AddClause(new ReferenceSecurityTokenReference(_referenceId));
         }
     }
 }

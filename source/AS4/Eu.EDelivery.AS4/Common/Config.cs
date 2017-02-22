@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Common
     /// <summary>
     /// Responsible for making sure that every child (ex. Step) is executed in the same Context
     /// </summary>
-    public sealed class Config : IConfig
+    public sealed class Config : IConfig, IDisposable
     {
         private static readonly IConfig Singleton = new Config();
         private readonly ILogger _logger;
@@ -26,10 +26,13 @@ namespace Eu.EDelivery.AS4.Common
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _sendingPModes;
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _receivingPModes;
 
+        private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
+        private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
+
         private Settings _settings;
         private List<SettingsAgent> _agents;
 
-        public static Config Instance => (Config) Singleton;
+        public static Config Instance => (Config)Singleton;
         public bool IsInitialized { get; private set; }
 
         internal Config()
@@ -54,10 +57,13 @@ namespace Eu.EDelivery.AS4.Common
                 this.IsInitialized = true;
                 RetrieveLocalConfiguration();
 
-                new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._sendingPModes);
-                new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._receivingPModes);
+                _sendingPModeWatcher = new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._sendingPModes);
+                _receivingPModeWatcher = new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._receivingPModes);
 
                 LoadExternalAssemblies();
+
+                _sendingPModeWatcher.Start();
+                _sendingPModeWatcher.Start();
             }
             catch (Exception exception)
             {
@@ -69,15 +75,20 @@ namespace Eu.EDelivery.AS4.Common
         private static void LoadExternalAssemblies()
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
-            if (externalDictionary == null) return;
+            if (externalDictionary == null)
+            {
+                return;
+            }
             LoadExternalAssemblies(externalDictionary);
         }
 
         private static DirectoryInfo GetExternalDirectory()
         {
             DirectoryInfo directory = null;
-            if(Directory.Exists(Properties.Resources.externalfolder))
+            if (Directory.Exists(Properties.Resources.externalfolder))
+            {
                 directory = new DirectoryInfo(Properties.Resources.externalfolder);
+            }
 
             return directory;
         }
@@ -111,8 +122,16 @@ namespace Eu.EDelivery.AS4.Common
                 Properties.Resources.configurationfolder,
                 Properties.Resources.settingsfilename);
 
+            var fullPath = Path.GetFullPath(path);
+
+            if (Path.IsPathRooted(path) == false ||                
+                File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false)
+            {
+                path = Path.Combine(".", path);
+            }
+
             this._settings = TryDeserialize<Settings>(path);
-            if(this._settings == null) throw new AS4Exception("Invalid Settings file");
+            if (this._settings == null) throw new AS4Exception("Invalid Settings file");
             AssignSettingsToGlobalConfiguration();
         }
 
@@ -122,9 +141,13 @@ namespace Eu.EDelivery.AS4.Common
             {
                 return Deserialize<T>(path);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this._logger.Error($"Cannot Deserialize file on location: {path}");
+                this._logger.Error($"Cannot Deserialize file on location {path}: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    this._logger.Error(ex.InnerException.Message);
+                }
                 return null;
             }
         }
@@ -157,16 +180,29 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomSettings()
         {
-            if (this._settings.CustomSettings?.Setting == null) return;
+            if (this._settings.CustomSettings?.Setting == null)
+            {
+                return;
+            }
             foreach (Setting setting in this._settings.CustomSettings.Setting)
+            {
                 this._configuration[setting.Key] = setting.Value;
+            }
         }
 
         private void AddCustomAgents()
         {
             this._agents = new List<SettingsAgent>();
-            this._agents.AddRange(this._settings.Agents.ReceiveAgents);
-            this._agents.AddRange(this._settings.Agents.SubmitAgents);
+
+            if (this._settings.Agents.ReceiveAgents != null)
+            {
+                this._agents.AddRange(this._settings.Agents.ReceiveAgents);
+            }
+            if (this._settings.Agents.SubmitAgents != null)
+            {
+                this._agents.AddRange(this._settings.Agents.SubmitAgents);
+            }
+
             this._agents.AddRange(this._settings.Agents.SendAgents);
             this._agents.AddRange(this._settings.Agents.DeliverAgents);
             this._agents.AddRange(this._settings.Agents.NotifyAgents);
@@ -181,14 +217,23 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
-            if (id == null)
+            if (String.IsNullOrEmpty(id))
+            {
                 throw new AS4Exception("Given Sending PMode key is null");
+            }
+
+            if (_sendingPModes.Count == 0)
+            {
+                throw new AS4Exception("There are no Sending PModes defined.");
+            }
 
             ConfiguredPMode configuredPMode = null;
             this._sendingPModes.TryGetValue(id, out configuredPMode);
 
             if (configuredPMode == null)
-                throw new AS4Exception("Multiple keys found for Sending Processing Mode");
+            {
+                throw new AS4Exception($"No Sending Processing Mode found for {id}");
+            }
 
             return configuredPMode.PMode as SendingProcessingMode;
         }
@@ -211,12 +256,38 @@ namespace Eu.EDelivery.AS4.Common
         /// Return all the configured <see cref="ReceivingProcessingMode"/>
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() 
+        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
             => this._receivingPModes.Select(p => p.Value.PMode as ReceivingProcessingMode);
 
         /// <summary>
         /// Indicates if the FE needs to be started in process
         /// </summary>
         public bool FeInProcess { get; private set; }
+
+        /// <summary>
+        /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetUrlsForEnabledMinderTestAgents()
+        {
+            if (this._settings.Agents.ConformanceTestAgent == null)
+            {
+                yield break;
+            }
+
+            foreach (var agent in this._settings.Agents.ConformanceTestAgent.Where(a => a.Enabled))
+            {
+                yield return agent.Url;
+            }
+
+        }
+
+        public void Dispose()
+        {
+            _sendingPModeWatcher?.Stop();
+            _receivingPModeWatcher?.Stop();
+            _sendingPModeWatcher?.Dispose();
+            _receivingPModeWatcher?.Dispose();
+        }
     }
 }

@@ -14,8 +14,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// Describes how the data store gets updated when an incoming message is delivered
     /// </summary>
     public class DeliverUpdateDatastoreStep : IStep
-    {
-        private readonly IDatastoreRepository _repository;
+    {        
         private readonly ILogger _logger;
 
         private InternalMessage _internalMessage;
@@ -25,19 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// </summary>
         public DeliverUpdateDatastoreStep()
         {
-            this._repository = Registry.Instance.DatastoreRepository;
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeliverUpdateDatastoreStep"/> class
-        /// Create a new Update Data store Step
-        /// for the AS4 Deliver
-        /// </summary>
-        /// <param name="repository"> </param>
-        public DeliverUpdateDatastoreStep(IDatastoreRepository repository)
-        {
-            this._repository = repository;
+     
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -52,19 +39,24 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             this._internalMessage = internalMessage;
             this._logger.Info($"{this._internalMessage.Prefix} Update AS4 UserMessages in Datastore");
 
-            await UpdateUsermessageAsync(internalMessage.DeliverMessage);
+            await UpdateUserMessageAsync(internalMessage.DeliverMessage);
             return StepResult.Success(internalMessage);
         }
 
-        private async Task UpdateUsermessageAsync(DeliverMessage deliverMessage)
+        private async Task UpdateUserMessageAsync(DeliverMessageEnvelope deliverMessage)
         {
-            string messageId = deliverMessage.MessageInfo.MessageId;
-            this._logger.Info($"{this._internalMessage.Prefix} Update InMessage with Delivered Status and Operation");
+            using (var context = Registry.Instance.CreateDatastoreContext())
+            {
+                var repository = new DatastoreRepository(context);
 
-            await this._repository.UpdateInMessageAsync(messageId, UpdateNotifiedInMessage);
+                string messageId = deliverMessage.MessageInfo.MessageId;
+                this._logger.Info($"{this._internalMessage.Prefix} Update InMessage with Delivered Status and Operation");
+
+                await repository.UpdateInMessageAsync(messageId, UpdateNotifiedInMessage);
+            }
         }
 
-        private void UpdateNotifiedInMessage(InMessage inMessage)
+        private static void UpdateNotifiedInMessage(InMessage inMessage)
         {
             inMessage.Status = InStatus.Delivered;
             inMessage.Operation = Operation.Delivered;

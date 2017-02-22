@@ -19,9 +19,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
         // Messages
         public AS4Message AS4Message { get; set; }
         public SubmitMessage SubmitMessage { get; set; }
-        public DeliverMessage DeliverMessage { get; set; }
-        public NotifyMessage NotifyMessage { get; set; }
-        public Entities.ReceptionAwareness ReceiptionAwareness { get; set; }
+        public DeliverMessageEnvelope DeliverMessage { get; set; }
+        public NotifyMessageEnvelope NotifyMessage { get; set; }
+        public Entities.ReceptionAwareness ReceptionAwareness { get; set; }
 
         // Exposed Info
         public AS4Exception Exception { get; set; }
@@ -31,12 +31,12 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         private string GetPrefix()
         {
-            string corePrefix = this.AS4Message.PrimaryUserMessage?.MessageId ?? 
+            string corePrefix = this.AS4Message.PrimaryUserMessage?.MessageId ??
                                 this.AS4Message.PrimarySignalMessage?.MessageId;
 
-            string extensionPrefix = this.DeliverMessage.MessageInfo.MessageId ??
-                                     this.SubmitMessage.MessageInfo.MessageId ?? 
-                                     this.NotifyMessage.MessageInfo.MessageId;
+            string extensionPrefix = this.SubmitMessage.MessageInfo.MessageId ??
+                                     this.DeliverMessage?.MessageInfo.MessageId ??                                     
+                                     this.NotifyMessage?.MessageInfo.MessageId;
 
             return $"[{corePrefix ?? extensionPrefix}]";
         }
@@ -49,8 +49,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             this.AS4Message = new AS4Message();
             this.SubmitMessage = new SubmitMessage();
-            this.DeliverMessage = new DeliverMessage();
-            this.NotifyMessage = new NotifyMessage();
+            this.DeliverMessage = null;
+            this.NotifyMessage = null;
         }
 
         /// <summary>
@@ -63,8 +63,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             this.SubmitMessage = new SubmitMessage();
             this.AS4Message = as4Message;
-            this.DeliverMessage = new DeliverMessage();
-            this.NotifyMessage = new NotifyMessage();
+            this.DeliverMessage = null;
+            this.NotifyMessage = null;
         }
 
         /// <summary>
@@ -77,23 +77,23 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             this.SubmitMessage = submitMessage;
             this.AS4Message = new AS4Message();
-            this.DeliverMessage = new DeliverMessage();
-            this.NotifyMessage = new NotifyMessage();
+            this.DeliverMessage = null;
+            this.NotifyMessage = null;
         }
 
-        public InternalMessage(DeliverMessage deliverMessage)
+        public InternalMessage(DeliverMessageEnvelope deliverMessage)
         {
             this.SubmitMessage = new SubmitMessage();
             this.AS4Message = new AS4Message();
             this.DeliverMessage = deliverMessage;
-            this.NotifyMessage = new NotifyMessage();
+            this.NotifyMessage = null;
         }
 
-        public InternalMessage(NotifyMessage notifyMessage)
+        public InternalMessage(NotifyMessageEnvelope notifyMessage)
         {
             this.SubmitMessage = new SubmitMessage();
             this.AS4Message = new AS4Message();
-            this.DeliverMessage = new DeliverMessage();
+            this.DeliverMessage = null;
             this.NotifyMessage = notifyMessage;
         }
 

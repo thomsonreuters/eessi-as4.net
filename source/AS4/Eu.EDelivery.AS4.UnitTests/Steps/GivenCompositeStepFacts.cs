@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                     m => m.ExecuteAsync(
                         It.IsAny<InternalMessage>(),
                         It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new Mock<StepResult>().Object);
+                .ReturnsAsync(StepResult.Success(null));
         }
 
         /// <summary>

@@ -126,8 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private VerifyConfig CreateVerifyOptionsForAS4Message()
         {
             return new VerifyConfig
-            {
-                CertificateRepository = this._certificateRepository,
+            {                
                 Attachments = this._internalMessage.AS4Message.Attachments
             };
         }
@@ -138,7 +137,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             description = this._internalMessage.Prefix + description;
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
                 .WithErrorCode(errorCode)

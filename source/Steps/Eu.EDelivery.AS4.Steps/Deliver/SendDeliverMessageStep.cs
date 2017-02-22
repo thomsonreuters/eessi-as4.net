@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TrySendDeliverMessage(DeliverMessage deliverMessage)
+        private void TrySendDeliverMessage(DeliverMessageEnvelope deliverMessage)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private void SendDeliverMessage(DeliverMessage deliverMessage)
+        private void SendDeliverMessage(DeliverMessageEnvelope deliverMessage)
         {
             Method deliverMethod = this._internalMessage.AS4Message
                 .ReceivingPMode.Deliver.DeliverMethod;
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private AS4Exception ThrowSendDeliverAS4Exception(string description, Exception innerException)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
                 .WithExceptionType(ExceptionType.ConnectionFailure)

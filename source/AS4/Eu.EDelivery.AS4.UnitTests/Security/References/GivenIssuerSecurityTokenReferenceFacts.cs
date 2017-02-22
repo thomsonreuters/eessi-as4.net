@@ -16,9 +16,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         private readonly X509Certificate2 _dummyCertificate;
 
         public GivenIssuerSecurityTokenReferenceFacts()
-        {
-            this._dummyCertificate = new StubCertificateRepository().GetDummyCertificate();
-            this._reference = new IssuerSecurityTokenReference {Certificate = this._dummyCertificate};
+        {            
+            var certRepository = new StubCertificateRepository();
+            this._dummyCertificate = certRepository.GetDummyCertificate();
+            this._reference = new IssuerSecurityTokenReference(certRepository);
+            this._reference.Certificate = certRepository.GetDummyCertificate();
         }
 
         protected XmlElement GetDummyXml()
@@ -141,7 +143,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             {
                 // Arrange
                 base._reference.Certificate = null;
-                base._reference.CertificateRepository = new StubCertificateRepository();
+                
                 XmlElement dummyXml = base.GetDummyXml();
                 // Act
                base._reference.LoadXml(dummyXml);

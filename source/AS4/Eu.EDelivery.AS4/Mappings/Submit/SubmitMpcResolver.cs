@@ -10,6 +10,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// </summary>
     public class SubmitMpcResolver : ISubmitResolver<string>
     {
+     
+        public static readonly SubmitMpcResolver Default = new SubmitMpcResolver();
+
         /// <summary>
         /// Resolve the Mpc from the <paramref name="submitMessage"/>
         /// </summary>
@@ -26,7 +29,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return submitMessage.PMode.MessagePackaging.Mpc;
         }
 
-        private bool DoesSubmitMessageTriesToOverridePModeMpc(SubmitMessage submitMessage)
+        private static bool DoesSubmitMessageTriesToOverridePModeMpc(SubmitMessage submitMessage)
         {
             return
                 submitMessage.PMode.AllowOverride == false &&

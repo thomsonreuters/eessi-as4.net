@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         private InternalMessage _internalMessage;
 
         public GivenVerifySignatureAS4MessageStepFacts()
-        {
+        {            
             this._mockedCertificateRespository = new Mock<ICertificateRepository>();
             this._step = new VerifySignatureAS4MessageStep(this._mockedCertificateRespository.Object);
         }

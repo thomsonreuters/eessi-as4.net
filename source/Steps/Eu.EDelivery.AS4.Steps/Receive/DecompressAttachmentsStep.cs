@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Serialization;
 using NLog;
+using Exception = System.Exception;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private const string GzipContentType = "application/gzip";
 
         private readonly ILogger _logger;
-        private AS4Message _as4Message;
+        
         private InternalMessage _internalMessage;
 
         /// <summary>
@@ -42,12 +43,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
-            this._as4Message = internalMessage.AS4Message;
 
-            if (!this._as4Message.HasAttachments)
+            if (!internalMessage.AS4Message.HasAttachments)
+            {
                 return ReturnSameInternalMessage(internalMessage);
+            }
 
-            await TryDecompressAttachments();
+            await TryDecompressAttachments(internalMessage.AS4Message);
             return StepResult.Success(internalMessage);
         }
 
@@ -57,51 +59,59 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Success(internalMessage);
         }
 
-        private async Task TryDecompressAttachments()
+        private async Task TryDecompressAttachments(AS4Message as4Message)
         {
             try
             {
-                await DecompressAttachments();
+                await DecompressAttachments(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), as4Message.Attachments);
                 this._logger.Info(
                     $"{this._internalMessage.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
             }
             catch (Exception exception)
             {
-                throw ThrowAS4CannotDecompressException(exception);
+                throw ThrowAS4CannotDecompressException(as4Message, exception);
             }
         }
 
-        private async Task DecompressAttachments()
-        {
-            foreach (Attachment attachment in this._as4Message.Attachments)
+        private async Task DecompressAttachments(List<Model.Core.PartInfo> messagePayloadInformation, ICollection<Attachment> attachments)
+        {            
+            foreach (Attachment attachment in attachments)
             {
-                if (IsAttachmentNotCompressed(attachment)) continue;
+                if (IsAttachmentNotCompressed(attachment))
+                {
+                    continue;
+                }
+
                 if (HasntAttachmentMimeTypePartProperty(attachment))
+                {
                     throw ThrowMissingMimeTypePartyPropertyException(attachment);
+                }
 
                 await DecompressAttachment(attachment);
-                AssignAttachmentProperties(attachment);
+                AssignAttachmentProperties(messagePayloadInformation, attachment);
             }
         }
 
-        private AS4Exception ThrowMissingMimeTypePartyPropertyException(Attachment attachment)
+        private static AS4Exception ThrowMissingMimeTypePartyPropertyException(Attachment attachment)
         {
             string description = $"Attachment {attachment.Id} hasn't got a MimeType PartProperty";
-            return new AS4ExceptionBuilder().WithDescription(description).Build();
+            return AS4ExceptionBuilder.WithDescription(description).Build();
         }
 
         private bool IsAttachmentNotCompressed(Attachment attachment)
         {
-            bool isNotCompressed = !attachment.ContentType.Equals(GzipContentType) &&
+            bool isNotCompressed = !attachment.ContentType.Equals(GzipContentType, StringComparison.OrdinalIgnoreCase) &&
                                    !attachment.Properties.ContainsKey("CompressionType");
 
             if (isNotCompressed)
+            {
                 this._logger.Debug($"{this._internalMessage.Prefix} Attachment {attachment.Id} is not Compressed");
+            }
 
             return isNotCompressed;
         }
 
-        private bool HasntAttachmentMimeTypePartProperty(Attachment attachment)
+        private static bool HasntAttachmentMimeTypePartProperty(Attachment attachment)
         {
             return !attachment.Properties.ContainsKey("MimeType");
         }
@@ -122,31 +132,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private void AssignAttachmentProperties(Attachment attachment)
+        private void AssignAttachmentProperties(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
         {
             attachment.Properties["CompressionType"] = GzipContentType;
-            string mimeType = GetMimeType(attachment);
+            string mimeType = GetMimeType(messagePayloadInfo, attachment);
             attachment.Properties["MimeType"] = mimeType;
             attachment.ContentType = mimeType;
         }
 
-        private string GetMimeType(Attachment attachment)
+        private string GetMimeType(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
         {
-            List<PartInfo> partInfos = this._as4Message.PrimaryUserMessage.PayloadInfo;
-            return partInfos.Find(i => i.Href.Equals("cid:" + attachment.Id)).Properties["MimeType"];
+            return messagePayloadInfo.Find(i => i.Href.Equals("cid:" + attachment.Id)).Properties["MimeType"];
         }
 
-        private AS4Exception ThrowAS4CannotDecompressException(Exception exception)
+        private AS4Exception ThrowAS4CannotDecompressException( AS4Message as4Message, Exception exception)
         {
             const string description = "Cannot decompress the message";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(this._as4Message.MessageIds)
+                .WithMessageIds(as4Message.MessageIds)
                 .WithErrorCode(ErrorCode.Ebms0303)
                 .WithInnerException(exception)
-                .WithReceivingPMode(this._as4Message.ReceivingPMode)
+                .WithReceivingPMode(as4Message.ReceivingPMode)
                 .Build();
         }
     }

@@ -41,6 +41,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             this.Security = new Security();
             this.MessagePackaging = new SendMessagePackaging();
         }
+        
     }
 
     public class PModeParty

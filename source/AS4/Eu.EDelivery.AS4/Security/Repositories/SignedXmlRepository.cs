@@ -40,9 +40,9 @@ namespace Eu.EDelivery.AS4.Security.Repositories
             return xmlSignature;
         }
 
-        private AS4Exception ThrowAS4SignException(string description)
+        private static AS4Exception ThrowAS4SignException(string description)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithErrorCode(ErrorCode.Ebms0101)
                 .Build();

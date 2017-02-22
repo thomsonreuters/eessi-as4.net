@@ -8,6 +8,8 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
     /// </summary>
     public class SubmitConversationIdResolver : ISubmitResolver<string>
     {
+        public static readonly SubmitConversationIdResolver Default = new SubmitConversationIdResolver();
+
         /// <summary>
         /// Resolve the Conversation Id
         /// </summary>
@@ -18,7 +20,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             const string defaultConversationId = "1";
 
             if (!string.IsNullOrEmpty(submitMessage.Collaboration.ConversationId))
+            {
                 return submitMessage.Collaboration.ConversationId;
+            }
 
             return defaultConversationId;
         }

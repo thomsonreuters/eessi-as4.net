@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
@@ -20,28 +21,54 @@ namespace Eu.EDelivery.AS4.Agents
     {
         private readonly ILogger _logger;
         private IReceiver _receiver;
-        private readonly IStep _step;
-        private readonly ITransformer _transformer;
+        private readonly Model.Internal.Steps _stepConfiguration;
+        private readonly Model.Internal.ConditionalStepConfig _conditionalStepConfig;
+        private readonly Model.Internal.Transformer _transformerConfiguration;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Agent"/> class. 
+        /// </summary>
+        /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>        
+        /// <param name="transformerConfig"> Configuration of the Transformer that should be created to transform to a Central Messaging Model</param>
+        /// <param name="stepConfiguration">StepConfiguration which describes the steps that will be executed when messages are received </param>        
+        public Agent(AgentConfig agentConfig, IReceiver receiver, Model.Internal.Transformer transformerConfig, Model.Internal.Steps stepConfiguration)
+        {
+            if( agentConfig == null) throw new ArgumentNullException(nameof(agentConfig));
+            if (receiver == null) throw new ArgumentNullException(nameof(receiver));
+            if (transformerConfig == null) throw new ArgumentNullException(nameof(transformerConfig));
+            if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
+
+            AgentConfig = agentConfig;
+
+            this._receiver = receiver;
+            this._transformerConfiguration = transformerConfig;
+            this._stepConfiguration = stepConfiguration;
+
+            this._logger = LogManager.GetCurrentClassLogger();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. 
         /// </summary>
         /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>
-        /// <param name="transformer"> Transformation needed to transform to a Central Messaging Model </param>
-        /// <param name="step"> Step which will be executed when messages are received </param>
-        public Agent(IReceiver receiver, ITransformer transformer, IStep step)
+        /// <param name="transformerConfig"> Configuration of the Transformer that should be created to transform to a Central Messaging Model</param>
+        /// <param name="stepConfiguration">ConditionalStepConfig which describes the steps that will be executed when messages are received </param>        
+        public Agent(AgentConfig agentConfig, IReceiver receiver, Model.Internal.Transformer transformerConfig, ConditionalStepConfig stepConfiguration)
         {
+            if (agentConfig == null) throw new ArgumentNullException(nameof(agentConfig));
             if (receiver == null) throw new ArgumentNullException(nameof(receiver));
-            if (transformer == null) throw new ArgumentNullException(nameof(transformer));
-            if (step == null) throw new ArgumentNullException(nameof(step));
+            if (transformerConfig == null) throw new ArgumentNullException(nameof(transformerConfig));
+            if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
+
+            AgentConfig = agentConfig;
 
             this._receiver = receiver;
-            this._transformer = transformer;
-            this._step = step;
+            this._transformerConfiguration = transformerConfig;
+            this._conditionalStepConfig = stepConfiguration;
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
-        public AgentConfig AgentConfig { get; set; } = new NullAgentConfig();
+        public AgentConfig AgentConfig { get; }
 
         /// <summary>
         /// Start the Agent with the given Settings
@@ -51,12 +78,20 @@ namespace Eu.EDelivery.AS4.Agents
         public Task Start(CancellationToken cancellationToken)
         {
             this._logger.Debug($"Start {this.AgentConfig.Name}...");
-            cancellationToken.Register(() => this._logger.Debug($"{this.AgentConfig.Name} closing.."));
+            cancellationToken.Register(() => this.Stop());
 
             Task task = Task.Factory.StartNew(() => StartReceiver(cancellationToken), TaskCreationOptions.LongRunning);
 
-            this._logger.Debug($"{this.AgentConfig.Name} Started!");
+            this._logger.Info($"{this.AgentConfig.Name} Started!");
             return task;
+        }
+
+        public void Stop()
+        {
+            this._logger.Debug($"Stopping {this.AgentConfig.Name} ...");
+            this._receiver?.StopReceiving();
+
+            this._logger.Info($"{this.AgentConfig.Name} stopped.");
         }
 
         /// <summary>
@@ -66,6 +101,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <param name="cancellationToken"></param>
         public void ResetReceiver(IReceiver receiver, CancellationToken cancellationToken)
         {
+            this._receiver?.StopReceiving();
             this._receiver = receiver;
             this._logger.Info("Restarting Receiver...");
             StartReceiver(cancellationToken);
@@ -75,14 +111,26 @@ namespace Eu.EDelivery.AS4.Agents
         {
             try
             {
-                this._logger.Debug($"{this.AgentConfig.Name} handling message...");
                 this._receiver.StartReceiving(OnReceived, cancellationToken);
-                this._logger.Debug($"{this.AgentConfig.Name} message handled");
             }
             catch (AS4Exception exception)
             {
+                _logger.Error($"An AS4 Exception occured: {exception.Message}");
+
                 var internalMessage = new InternalMessage { Exception = exception };
-                this._step.ExecuteAsync(internalMessage, cancellationToken);
+
+                var step = CreateSteps();
+
+                step.ExecuteAsync(internalMessage, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                _logger.Fatal($"An unhandled exception occured: {exception.Message}");
+                if (exception.InnerException != null)
+                {
+                    this._logger.Fatal($"Inner Exception: {exception.InnerException.Message}");
+                }
+                throw;
             }
         }
 
@@ -95,6 +143,8 @@ namespace Eu.EDelivery.AS4.Agents
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
+            this._logger.Debug($"{this.AgentConfig.Name} received and starts handling message with id {message.Id}");
+
             InternalMessage internalMessage = await TryTransform(message, cancellationToken);
 
             if (internalMessage.Exception != null)
@@ -102,19 +152,47 @@ namespace Eu.EDelivery.AS4.Agents
                 return internalMessage;
             }
 
-            StepResult result = this._step.ExecuteAsync(internalMessage, cancellationToken).GetAwaiter().GetResult();
+            var step = CreateSteps();
+
+            StepResult result = step.ExecuteAsync(internalMessage, cancellationToken).GetAwaiter().GetResult();
 
             if (result.Exception != null)
+            {
                 this._logger.Warn($"Executing {this.AgentConfig.Name} Step failed: {result.Exception.Message}");
 
+                if (result.Exception.InnerException != null && _logger.IsTraceEnabled)
+                {
+                    this._logger.Trace(result.Exception.InnerException.StackTrace);
+                }
+
+            }
+
+            this._logger.Debug($"{this.AgentConfig.Name} finished handling message with id {message.Id}");
+
             return result.InternalMessage;
+        }
+
+        private IStep CreateSteps()
+        {
+            if (this._stepConfiguration != null)
+            {
+                return StepBuilder.FromSettings(this._stepConfiguration).Build();
+            }
+
+            if (this._conditionalStepConfig != null)
+            {
+                return StepBuilder.FromConditionalConfig(this._conditionalStepConfig).Build();
+            }
+
+            throw new InvalidOperationException("There is no StepConfiguration provided.");
         }
 
         private async Task<InternalMessage> TryTransform(ReceivedMessage message, CancellationToken cancellationToken)
         {
             try
             {
-                return await this._transformer.TransformAsync(message, cancellationToken);
+                var transformer = new GenericTypeBuilder().SetType(_transformerConfiguration.Type).Build<ITransformer>();
+                return await transformer.TransformAsync(message, cancellationToken);
             }
             catch (AS4Exception exception)
             {
@@ -122,5 +200,6 @@ namespace Eu.EDelivery.AS4.Agents
                 return new InternalMessage(exception);
             }
         }
+
     }
 }

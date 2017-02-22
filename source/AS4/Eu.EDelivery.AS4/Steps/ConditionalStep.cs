@@ -7,40 +7,45 @@ using Eu.EDelivery.AS4.Model.Internal;
 namespace Eu.EDelivery.AS4.Steps
 {
     /// <summary>
-    /// Describes the condition between <see cref="AS4Message" />
+    /// <see cref="IStep"/>
     /// </summary>
     public class ConditionalStep : IStep
     {
         private readonly Func<InternalMessage, bool> _condition;
-        private readonly IStep _first;
-        private readonly IStep _second;
+        private readonly Model.Internal.Steps _thenStepConfig;
+        private readonly Model.Internal.Steps _elseStepConfig;
 
-        public async Task<StepResult> ExecuteAsync(AS4Message message, CancellationToken cancellationToken)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConditionalStep"/>
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="thenStepConfig"></param>
+        /// <param name="elseStepConfig"></param>
+        public ConditionalStep(Func<InternalMessage, bool> condition, Model.Internal.Steps thenStepConfig, Model.Internal.Steps elseStepConfig)
         {
-            return await Task.Run(() => new StepResult(), cancellationToken);
-
-            // return await (_condition(msg) ? _first : _second).TransmitMessageAsync(msg, ct);
+            this._condition = condition;
+            this._thenStepConfig = thenStepConfig;
+            this._elseStepConfig = elseStepConfig;
         }
 
+        /// <summary>
+        /// Run the selected step
+        /// </summary>
+        /// <param name="internalMessage"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
-        }
-
-        public ConditionalStep(Func<InternalMessage, bool> condition, IStep first, IStep second)
-        {
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition));
-
-            if (first == null)
-                throw new ArgumentNullException(nameof(first));
-
-            if (second == null)
-                throw new ArgumentNullException(nameof(second));
-
-            this._condition = condition;
-            this._first = first;
-            this._second = second;
+            if (this._condition(internalMessage))
+            {
+                var steps = StepBuilder.FromSettings(this._thenStepConfig).Build();
+                return steps.ExecuteAsync(internalMessage, cancellationToken);
+            }
+            else
+            {
+                var steps = StepBuilder.FromSettings(this._elseStepConfig).Build();
+                return steps.ExecuteAsync(internalMessage, cancellationToken);
+            }
         }
     }
 }

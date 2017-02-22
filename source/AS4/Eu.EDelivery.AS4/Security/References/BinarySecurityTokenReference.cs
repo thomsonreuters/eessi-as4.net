@@ -10,6 +10,15 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal class BinarySecurityTokenReference : SecurityTokenReference
     {
+        public BinarySecurityTokenReference()
+        {
+        }
+
+        public BinarySecurityTokenReference(XmlElement securityTokenElement)
+        {
+            this.LoadXml(securityTokenElement);
+        }
+
         /// <summary>
         /// Append the Security Token Reference for the Binary Security Token
         /// </summary>
@@ -44,9 +53,12 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private void AppendCertificate(XmlDocument document, XmlElement binarySecurityToken)
         {
-            string rawData = Convert.ToBase64String(this.Certificate.GetRawCertData());
-            XmlNode rawDataNode = document.CreateTextNode(rawData);
-            binarySecurityToken.AppendChild(rawDataNode);
+            if (this.Certificate != null)
+            {
+                string rawData = Convert.ToBase64String(this.Certificate.GetRawCertData());
+                XmlNode rawDataNode = document.CreateTextNode(rawData);
+                binarySecurityToken.AppendChild(rawDataNode);
+            }
         }
 
         /// <summary>
@@ -110,11 +122,16 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private bool IsElementABinarySecurityTokenElement(XmlElement x)
         {
+            // Extra check on ReferenceId. 
+            XmlAttribute idAttribute = x.Attributes["Id", Constants.Namespaces.WssSecurityUtility];
+            string pureId = this.ReferenceId.Replace("#", string.Empty);
+
             return x.LocalName == "BinarySecurityToken" &&
+                   idAttribute?.Value == pureId &&
                    x.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;
         }
 
-        private bool IsElementAReferenceElement(XmlNode element)
+        private static bool IsElementAReferenceElement(XmlNode element)
         {
             return element.FirstChild.LocalName == "Reference" &&
                    element.FirstChild.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;

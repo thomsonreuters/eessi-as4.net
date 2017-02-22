@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Services;
 using NLog;
 
@@ -18,7 +18,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class ReceiveUpdateDatastoreStep : IStep
     {
         private readonly ILogger _logger;
-        private readonly IInMessageService _service;
         private AS4Message _as4Message;
 
         /// <summary>
@@ -26,19 +25,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public ReceiveUpdateDatastoreStep()
         {
-            this._service = new InMessageService(Registry.Instance.DatastoreRepository);
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep"/> class
-        /// Create a new Update data store operation
-        /// for the Receive Operation
-        /// </summary>
-        /// <param name="service"> </param>
-        public ReceiveUpdateDatastoreStep(IInMessageService service)
-        {
-            this._service = service;
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -54,27 +40,34 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             this._logger.Info($"{internalMessage.Prefix} Update Datastore with AS4 received message");
             this._as4Message = internalMessage.AS4Message;
 
-            await UpdateUserMessagesAsync(token);
-            await UpdateSignalMessagesAsync(token);
+            using (var context = Registry.Instance.CreateDatastoreContext())
+            {
+                var repository = new DatastoreRepository(context);
+
+                var service = new InMessageService(repository);
+
+                await UpdateUserMessagesAsync(service, token);
+                await UpdateSignalMessagesAsync(service, token);
+            }
 
             return StepResult.Success(internalMessage);
         }
 
-        private async Task UpdateUserMessagesAsync(CancellationToken token)
+        private async Task UpdateUserMessagesAsync(InMessageService service, CancellationToken token)
         {
             foreach (UserMessage userMessage in this._as4Message.UserMessages)
-                await UpdateUserMessageAsync(userMessage, token);
+                await UpdateUserMessageAsync(userMessage, service, token);
         }
 
-        private async Task UpdateUserMessageAsync(UserMessage userMessage, CancellationToken token)
+        private async Task UpdateUserMessageAsync(UserMessage userMessage, InMessageService service, CancellationToken token)
         {
             if (IsUserMessageTest(userMessage))
                 userMessage.IsTest = true;
 
-            if (IsUserMessageDuplicate(userMessage))
+            if (IsUserMessageDuplicate(userMessage, service))
                 userMessage.IsDuplicate = true;
 
-            await TryUpdateUserMessageAsync(token, userMessage);
+            await TryUpdateUserMessageAsync(token, userMessage, service);
         }
 
         private bool IsUserMessageTest(UserMessage userMessage)
@@ -91,21 +84,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isTestMessage;
         }
 
-        private bool IsUserMessageDuplicate(MessageUnit userMessage)
+        private bool IsUserMessageDuplicate(MessageUnit userMessage, InMessageService service)
         {
-            bool isDuplicate = this._service.ContainsUserMessageWithId(userMessage.MessageId);
+            bool isDuplicate = service.ContainsUserMessageWithId(userMessage.MessageId);
 
-            if(isDuplicate)
+            if (isDuplicate)
                 this._logger.Info($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
 
             return isDuplicate;
         }
 
-        private async Task TryUpdateUserMessageAsync(CancellationToken token, UserMessage userMessage)
+        private async Task TryUpdateUserMessageAsync(CancellationToken token, UserMessage userMessage, InMessageService service)
         {
             try
             {
-                await this._service.InsertUserMessageAsync(userMessage, this._as4Message, token);
+                await service.InsertUserMessageAsync(userMessage, this._as4Message, token);
             }
             catch (Exception exception)
             {
@@ -113,35 +106,35 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private async Task UpdateSignalMessagesAsync(CancellationToken token)
+        private async Task UpdateSignalMessagesAsync(InMessageService service, CancellationToken token)
         {
             foreach (SignalMessage signalMessage in this._as4Message.SignalMessages)
-                await UpdateSignalMessageAsync(signalMessage, token);
+                await UpdateSignalMessageAsync(signalMessage, service, token);
         }
 
-        private async Task UpdateSignalMessageAsync(SignalMessage signalMessage, CancellationToken token)
+        private async Task UpdateSignalMessageAsync(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
-            if (IsSignalMessageDuplicate(signalMessage))
+            if (IsSignalMessageDuplicate(signalMessage, service))
                 signalMessage.IsDuplicated = true;
 
-            await TryUpdateSignalMessageAsync(signalMessage, token);
+            await TryUpdateSignalMessageAsync(signalMessage, service, token);
         }
 
-        private bool IsSignalMessageDuplicate(SignalMessage signalMessage)
+        private bool IsSignalMessageDuplicate(SignalMessage signalMessage, InMessageService service)
         {
-            bool isDuplicate = this._service.ContainsSignalMessageWithReferenceToMessageId(signalMessage.RefToMessageId);
+            bool isDuplicate = service.ContainsSignalMessageWithReferenceToMessageId(signalMessage.RefToMessageId);
 
-            if(isDuplicate)
+            if (isDuplicate)
                 this._logger.Info($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
 
             return isDuplicate;
         }
 
-        private async Task TryUpdateSignalMessageAsync(SignalMessage signalMessage, CancellationToken token)
+        private async Task TryUpdateSignalMessageAsync(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
             try
             {
-                await UpdateSignalMessage(signalMessage, token);
+                await UpdateSignalMessage(signalMessage, service, token);
             }
             catch (Exception exception)
             {
@@ -149,35 +142,35 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private async Task UpdateSignalMessage(SignalMessage signalMessage, CancellationToken token)
+        private async Task UpdateSignalMessage(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
             if (signalMessage is Receipt)
-                await UpdateReceipt(signalMessage, token);
+                await UpdateReceipt(signalMessage, service, token);
 
             else if (signalMessage is Error)
-                await UpdateError(signalMessage, token);
+                await UpdateError(signalMessage, service, token);
         }
 
-        private async Task UpdateReceipt(SignalMessage signalMessage, CancellationToken cancellationToken)
+        private async Task UpdateReceipt(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
         {
-            await this._service.InsertReceiptAsync(signalMessage, this._as4Message, cancellationToken);
+            await service.InsertReceiptAsync(signalMessage, this._as4Message, cancellationToken);
 
             OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
                 ? OutStatus.Ack
                 : OutStatus.NotApplicable;
 
-            await this._service.UpdateSignalMessage(signalMessage, status, cancellationToken);
+            await service.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
 
-        private async Task UpdateError(SignalMessage signalMessage, CancellationToken cancellationToken)
+        private async Task UpdateError(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
         {
-            await this._service.InsertErrorAsync(signalMessage, this._as4Message, cancellationToken);
+            await service.InsertErrorAsync(signalMessage, this._as4Message, cancellationToken);
 
             OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
                 ? OutStatus.Nack
                 : OutStatus.NotApplicable;
 
-            await this._service.UpdateSignalMessage(signalMessage, status, cancellationToken);
+            await service.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
 
         private bool IsSignalMessageReferenceUserMessage(SignalMessage signalMessage)
@@ -189,7 +182,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             this._logger.Error(description);
 
-            throw new AS4ExceptionBuilder()
+            throw AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(this._as4Message.MessageIds)
                 .WithInnerException(exception)

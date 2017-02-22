@@ -4,7 +4,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
     /// <summary>
-    /// Interface to describe where the <see cref="NotifyMessage"/> has to be send
+    /// Interface to describe where the <see cref="NotifyMessageEnvelope"/> contents has to be send
     /// </summary>
     public interface INotifySender
     {
@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="notifyMessage"></param>
-        void Send(NotifyMessage notifyMessage);
+        void Send(NotifyMessageEnvelope notifyMessage);
 
         /// <summary>
         /// Configure the <see cref="INotifySender"/>

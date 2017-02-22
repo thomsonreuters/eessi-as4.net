@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -59,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             string description = $"[generated: {generatedMessageId}] Unable to Create AS4 Message from Submit Message";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
                 .WithMessageIds(generatedMessageId)
@@ -82,9 +83,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private UserMessage CreateUserMessage()
         {
             this._logger.Debug("Map Submit Message to UserMessage");
-
-            MapInitialization.InitializeMapper();
-            return Mapper.Map<UserMessage>(this._internalMessage.SubmitMessage);
+            
+            return AS4Mapper.Map<UserMessage>(this._internalMessage.SubmitMessage);
         }
     }
 }

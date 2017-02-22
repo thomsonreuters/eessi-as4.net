@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Serialization
     /// <summary>
     /// Serialize <see cref="AS4Message" /> to a <see cref="Stream" />
     /// </summary>
-    internal class MimeMessageSerializer : ISerializer
+    public class MimeMessageSerializer : ISerializer
     {
         private readonly ISerializer _soapSerializer;
 
@@ -48,8 +48,10 @@ namespace Eu.EDelivery.AS4.Serialization
             }
             catch (Exception exception)
             {
-                throw new AS4ExceptionBuilder()
-                    .WithInnerException(exception).WithMessageIds(message.MessageIds).Build();
+                throw AS4ExceptionBuilder
+                    .WithDescription("An error occured while serializing the MIME message")
+                    .WithInnerException(exception)
+                    .WithMessageIds(message.MessageIds).Build();
             }
         }
 
@@ -66,7 +68,7 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private MimeMessage CreateMimeMessage(AS4Message message, Stream stream)
+        private static MimeMessage CreateMimeMessage(AS4Message message, Stream stream)
         {
             MimePart bodyPart = GetBodyPartFromStream(stream);
             Multipart bodyMultipart = CreateMultiPartFromBodyPart(bodyPart);
@@ -78,11 +80,10 @@ namespace Eu.EDelivery.AS4.Serialization
             return mimeMessage;
         }
 
-        private void AddAttachmentsToBodyMultiPart(AS4Message message, Multipart bodyMultipart)
+        private static void AddAttachmentsToBodyMultiPart(AS4Message message, Multipart bodyMultipart)
         {
             foreach (Attachment attachment in message.Attachments)
-            {
-                _logger.Debug($"Adding attachment to AS4Message: {attachment.Location}");
+            {                
                 AddAttachmentToMultipart(bodyMultipart, attachment);
             }
         }
@@ -104,7 +105,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return bodyMultipart;
         }
 
-        private void ReassignContentType(MimeEntity bodyMultipart, string type)
+        private static void ReassignContentType(MimeEntity bodyMultipart, string type)
         {
             ContentType contentType = ContentType.Parse(type);
 
@@ -119,13 +120,13 @@ namespace Eu.EDelivery.AS4.Serialization
             AddHeaderParametersToBodyMultiPart(bodyMultipart, contentType);
         }
 
-        private void AddHeaderParametersToBodyMultiPart(MimeEntity bodyMultipart, ContentType contentType)
+        private static void AddHeaderParametersToBodyMultiPart(MimeEntity bodyMultipart, ContentType contentType)
         {
             foreach (Parameter item in contentType.Parameters)
                 bodyMultipart.ContentType.Parameters.Add(item);
         }
 
-        private void AddAttachmentToMultipart(Multipart bodyMultipart, Attachment attachment)
+        private static void AddAttachmentToMultipart(Multipart bodyMultipart, Attachment attachment)
         {
             var attachmentMimePart = new MimePart(attachment.ContentType)
             {
@@ -140,13 +141,20 @@ namespace Eu.EDelivery.AS4.Serialization
             bodyMultipart.Add(attachmentMimePart);
         }
 
-        private FormatOptions GetFormatOptions()
-        {
-            var formatOptions = new FormatOptions();
-            foreach (HeaderId headerId in Enum.GetValues(typeof(HeaderId)).Cast<HeaderId>())
-                formatOptions.HiddenHeaders.Add(headerId);
+        private static FormatOptions __formatOptions;
 
-            return formatOptions;
+        private static FormatOptions GetFormatOptions()
+        {
+            if (__formatOptions == null)
+            {
+                __formatOptions = new FormatOptions();
+                foreach (HeaderId headerId in Enum.GetValues(typeof(HeaderId)).Cast<HeaderId>())
+                {
+                    __formatOptions.HiddenHeaders.Add(headerId);
+                }
+            }
+
+            return __formatOptions;
         }
 
         /// <summary>
@@ -165,14 +173,15 @@ namespace Eu.EDelivery.AS4.Serialization
 
             // I'm not 100% certain this doesn't cause a leak. 
             // It shouldn't because we only prefix it with a MemoryStream.
-            var memoryStream = new MemoryStream(
-                Encoding.UTF8.GetBytes($"Content-Type: {contentType}\r\n\r\n"));
+            using (var memoryStream = new MemoryStream(
+                Encoding.UTF8.GetBytes($"Content-Type: {contentType}\r\n\r\n")))
+            {
+                var chainedStream = new ChainedStream();
+                chainedStream.Add(memoryStream, leaveOpen: false);
+                chainedStream.Add(inputStream, leaveOpen: true);
 
-            var chainedStream = new ChainedStream();
-            chainedStream.Add(memoryStream, leaveOpen: false);
-            chainedStream.Add(inputStream, leaveOpen: true);
-
-            return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken);
+                return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken);
+            }
         }
 
         private void PreConditions(Stream inputStream, string contentType)
@@ -203,7 +212,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return message;
         }
 
-        private List<MimePart> TryParseBodyParts(Stream inputStream, CancellationToken cancellationToken)
+        private static List<MimePart> TryParseBodyParts(Stream inputStream, CancellationToken cancellationToken)
         {
             try
             {
@@ -221,15 +230,15 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static AS4Exception ThrowAS4MimeInconsistencyException(Exception exception)
         {
-            return new AS4ExceptionBuilder()
-                .WithInnerException(exception)
+            return AS4ExceptionBuilder                
                 .WithDescription("The use of MIME is not consistent with the required usage in this specification")
+                .WithInnerException(exception)
                 .WithErrorCode(ErrorCode.Ebms0007)
                 .WithExceptionType(ExceptionType.MimeInconsistency)
                 .Build();
         }
 
-        private void AddBodyPartsAsAttachmentsToMessage(IReadOnlyList<MimePart> bodyParts, AS4Message message)
+        private static void AddBodyPartsAsAttachmentsToMessage(IReadOnlyList<MimePart> bodyParts, AS4Message message)
         {
             const int startAfterSoapHeader = 1;
             for (int i = startAfterSoapHeader; i < bodyParts.Count; i++)
@@ -240,7 +249,7 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private Attachment CreateAttachment(MimePart bodyPart, AS4Message message)
+        private static Attachment CreateAttachment(MimePart bodyPart, AS4Message message)
         {
             Attachment attachment = CreateDefaultAttachment(bodyPart);
             AssignPartProperties(attachment, message);

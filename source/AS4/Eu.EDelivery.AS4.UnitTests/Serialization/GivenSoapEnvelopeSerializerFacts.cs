@@ -19,8 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     /// </summary>
     public class GivenSoapEnvelopeSerializerFacts
     {
-        private readonly AS4Message _message;
-        private readonly IRegistry _registry;
+        private readonly AS4Message _message;        
         private readonly SoapEnvelopeSerializer _serializer;
 
         public GivenSoapEnvelopeSerializerFacts()
@@ -30,12 +29,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             this._message = new AS4MessageBuilder()
                 .WithUserMessage(userMessage)
-                .Build();
-
-            this._registry = Registry.Instance;
+                .Build();            
         }
 
-        private UserMessage CreateUserMessage()
+        private static UserMessage CreateUserMessage()
         {
             return new UserMessage("message-Id")
             {

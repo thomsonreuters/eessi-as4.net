@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -104,19 +105,24 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             string description = $"Invalid configured Payload Reference Method in receive PMode {pmode.Id}";
             this._logger.Error(description);
-            throw new AS4ExceptionBuilder().WithDescription(description).Build();
+            throw AS4ExceptionBuilder.WithDescription(description).Build();
         }
 
         private AS4Exception ThrowUploadAS4Exception(string description, Exception exception = null)
         {
             this._logger.Error(description);
-            
-            return new AS4ExceptionBuilder()
-                .WithInnerException(exception)
+
+            var builder = AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(this._internalMessage.DeliverMessage.MessageInfo.MessageId)
-                .WithReceivingPMode(this._internalMessage.AS4Message.ReceivingPMode)
-                .Build();
+                .WithInnerException(exception)
+                .WithReceivingPMode(this._internalMessage.AS4Message.ReceivingPMode);
+
+            if (_internalMessage.DeliverMessage != null)
+            {
+                builder.WithMessageIds(this._internalMessage.DeliverMessage.MessageInfo.MessageId);
+            }
+
+            return builder.Build();
         }
     }
 }

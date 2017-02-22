@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -14,9 +13,9 @@ namespace Eu.EDelivery.AS4.Builders.Core
     /// </summary>
     public class AS4ExceptionBuilder
     {
-        private readonly IList<string> _messageIds;
+        private readonly IList<string> _messageIds = new List<string>();
 
-        private string _description;
+        private readonly string _description;
         private Exception _innerException;
         private ErrorCode _errorCode;
         private ExceptionType _exceptionType;
@@ -24,35 +23,19 @@ namespace Eu.EDelivery.AS4.Builders.Core
 
         private AS4Exception _as4Exception;
 
-        public AS4ExceptionBuilder()
+        private AS4ExceptionBuilder(string description)
         {
-            this._messageIds = new List<string>();
+            _description = description;
         }
 
-        /// <summary>
-        /// Add a description to the <see cref="AS4Exception"/>
-        /// </summary>
-        /// <param name="description"></param>
-        /// <returns></returns>
-        public AS4ExceptionBuilder WithDescription(string description)
+        public static AS4ExceptionBuilder WithDescription(string description)
         {
-            this._description = description;
-
-            return this;
+            return new AS4ExceptionBuilder(description);
         }
 
-        /// <summary>
-        /// Add a description to the <see cref="AS4Exception"/> and add the description from 
-        /// the specified <param name="exception"></param>
-        /// </summary>
-        /// <param name="description"></param>
-        /// <param name="exception"></param>
-        /// <returns></returns>
-        public AS4ExceptionBuilder WithDescription(string description, Exception exception)
+        public static AS4ExceptionBuilder WithDescription(string description, Exception exception)
         {
-            this._description = description + $": {GetErrorMessageFromInnerException(exception)}";
-
-            return this;
+            return new AS4ExceptionBuilder(description + $": {GetErrorMessageFromInnerException(exception)}");
         }
 
         private static string GetErrorMessageFromInnerException(Exception exception)
@@ -70,19 +53,23 @@ namespace Eu.EDelivery.AS4.Builders.Core
             this._innerException = innerException;
 
             var as4Exception = this._innerException as AS4Exception;
-            if (as4Exception == null) return this;
-            AssignPublicProperties(as4Exception);
+            if (as4Exception != null)
+            {
+                AssignPublicProperties(as4Exception);
+            }
 
             return this;
         }
 
         private void AssignPublicProperties(AS4Exception as4Exception)
         {
-            as4Exception.MessageIds.ForEach(i =>
+            foreach (string messageId in as4Exception.MessageIds)
             {
-                if (!this._messageIds.Contains(i))
-                    this._messageIds.Add(i);
-            });
+                if (_messageIds.Contains(messageId) == false)
+                {
+                    _messageIds.Add(messageId);
+                }
+            }
 
             if (as4Exception.ErrorCode != default(ErrorCode)) this._errorCode = as4Exception.ErrorCode;
             if (as4Exception.ExceptionType != default(ExceptionType)) this._exceptionType = as4Exception.ExceptionType;
@@ -96,7 +83,10 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public AS4ExceptionBuilder WithMessageIds(params string[] messageIds)
         {
-            messageIds.ForEach(i => this._messageIds.Add(i));
+            foreach (string messageId in messageIds)
+            {
+                _messageIds.Add(messageId);
+            }
 
             return this;
         }
@@ -174,7 +164,9 @@ namespace Eu.EDelivery.AS4.Builders.Core
         public AS4Exception Build()
         {
             if (this._as4Exception == null)
+            {
                 this._as4Exception = new AS4Exception(this._description, this._innerException);
+            }
 
             AssignPublicProperties();
 
@@ -184,7 +176,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         private void AssignPublicProperties()
         {
             this._as4Exception.ErrorCode = this._errorCode;
-            this._as4Exception.MessageIds = this._messageIds.ToArray();
+            this._as4Exception.SetMessageIds(_messageIds);
             this._as4Exception.ExceptionType = this._exceptionType;
             this._as4Exception.PMode = this._pmodeString;
         }

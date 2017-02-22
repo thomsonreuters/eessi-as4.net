@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
@@ -93,8 +94,8 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                         if (modelUserMessage.PayloadInfo?.Count == 0)
                             xmlUserMessage.PayloadInfo = null;
 
-                        xmlUserMessage.PartyInfo.From = Mapper.Map<Xml.From>(modelUserMessage.Receiver);
-                        xmlUserMessage.PartyInfo.To = Mapper.Map<Xml.To>(modelUserMessage.Sender);
+                        xmlUserMessage.PartyInfo.From = AS4Mapper.Map<Xml.From>(modelUserMessage.Receiver);
+                        xmlUserMessage.PartyInfo.To = AS4Mapper.Map<Xml.To>(modelUserMessage.Sender);
 
                         AssignAction(xmlUserMessage);
                         AssignMpc(xmlUserMessage);

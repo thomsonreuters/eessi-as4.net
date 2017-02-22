@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
@@ -26,8 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
     public class GivenReceiptMapFacts
     {
         public GivenReceiptMapFacts()
-        {
-            MapInitialization.InitializeMapper();
+        {            
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
                 AS4Message as4Message = await base.GetPopulatedModelReceipt();
                 var coreReceipt = as4Message.PrimarySignalMessage as CoreReceipt;
                 // Act
-                var xmlReceipt = Mapper.Map<XmlReceipt>(coreReceipt);
+                var xmlReceipt = AS4Mapper.Map<XmlReceipt>(coreReceipt);
                 // Assert
                 AssertReceiptReferences(coreReceipt, xmlReceipt);
             }

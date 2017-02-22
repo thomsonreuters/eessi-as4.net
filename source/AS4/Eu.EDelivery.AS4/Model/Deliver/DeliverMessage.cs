@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Model.Deliver
         {
             this.MessageInfo = new MessageInfo();
             this.CollaborationInfo = new CollaborationInfo();
-            this.Payloads = new Payload[] {};
+            this.Payloads = new Payload[] { };
             this.PartyInfo = new PartyInfo();
         }
     }

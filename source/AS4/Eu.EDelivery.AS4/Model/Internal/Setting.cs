@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -54,6 +55,18 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("DeliverAgent", IsNullable = false)] public SettingsAgent[] DeliverAgents { get; set; }
         [XmlElement("NotifyAgent", IsNullable = false)] public SettingsAgent[] NotifyAgents { get; set; }
         [XmlElement("ReceptionAwarenessAgent", IsNullable = false)] public SettingsAgent ReceptionAwarenessAgent { get; set; }
+        [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)] public SettingsMinderAgent[] ConformanceTestAgent { get; set; }
+    }
+
+    [Serializable]
+    [DesignerCategory("code")]
+    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
+    public class SettingsMinderAgent
+    {
+        [XmlAttribute("Enabled")]
+        public bool Enabled { get; set; }
+        [XmlAttribute("Url")]
+        public string Url { get; set; }
     }
 
     [Serializable]
@@ -95,6 +108,25 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
         [XmlAttribute(AttributeName = "undecorated")] public bool UnDecorated { get; set; }
         [XmlElement("Setting")] public Setting[] Setting { get; set; }
+    }
+
+    /// <summary>
+    /// Defines the configuration of a ConditionalStep
+    /// </summary>
+    /// <remarks>This class is not serializable.  Only used programmatically for conformonce-testing.</remarks>
+    public class ConditionalStepConfig
+    {
+        public Func<InternalMessage, bool> Condition { get; }
+        public Steps ThenStepConfig { get; }
+        public Steps ElseStepConfig { get; }
+
+        public ConditionalStepConfig(Func<InternalMessage, bool> condition,
+            Steps thenStepConfig, Steps elseStepConfig)
+        {
+            this.Condition = condition;
+            this.ThenStepConfig = thenStepConfig;
+            this.ElseStepConfig = elseStepConfig;
+        }
     }
 
     [Serializable]

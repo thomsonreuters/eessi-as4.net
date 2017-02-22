@@ -2,6 +2,8 @@
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Services;
 using Moq;
@@ -18,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         private Mock<IDatastoreRepository> _mockedRepository;
 
         public GivenInExceptionServiceFacts()
-        {
+        {            
             ResetDatastoreService();
         }
 
@@ -43,11 +45,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                     });
                 base.ResetDatastoreService();
 
-                AS4Exception as4Exception = new AS4ExceptionBuilder()
+                AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription("Test Exception").WithMessageIds(sharedId).Build();
 
                 // Act
-                await base._service.InsertAS4ExceptionAsync(exception: as4Exception);
+                await base._service.InsertAS4ExceptionAsync(exception: as4Exception, as4Message: new AS4Message());
                 // Assert
                 base._mockedRepository.Verify(r
                     => r.InsertInExceptionAsync(It.IsAny<InException>()), Times.Once);

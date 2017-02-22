@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography.Xml;
 using System.Xml;
+using Eu.EDelivery.AS4.Security.Strategies;
 
 namespace Eu.EDelivery.AS4.Security.Encryption
 {
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public string GetDigestAlgorithm()
         {
-            string xpath = $"//*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
+            string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
             var digestNode = this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
             return digestNode?.GetAttribute("Algorithm");
@@ -90,13 +91,13 @@ namespace Eu.EDelivery.AS4.Security.Encryption
             return encryptedKeyElement;
         }
 
-        private void AppendDigestMethod(XmlNode encryptionMethodNode)
+        private static void AppendDigestMethod(XmlNode encryptionMethodNode)
         {
             XmlElement digestMethod = encryptionMethodNode.OwnerDocument
                 .CreateElement("DigestMethod", Constants.Namespaces.XmlDsig);
 
             // TODO: do we need to change this algorithm (configured by the PMode)
-            digestMethod.SetAttribute("Algorithm", "http://www.w3.org/2001/04/xmlenc#sha256");
+            digestMethod.SetAttribute("Algorithm", EncryptionStrategy.XmlEncSHA1Url);
 
             encryptionMethodNode.AppendChild(digestMethod);
         }

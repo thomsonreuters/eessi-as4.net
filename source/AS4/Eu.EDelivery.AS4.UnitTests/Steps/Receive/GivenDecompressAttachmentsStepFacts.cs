@@ -104,7 +104,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 var attachments = (IList<Attachment>) base._internalMessage.AS4Message.Attachments;
-                attachments.ForEach(a => a.ContentType = "not supported MIME type");
+
+                foreach (var a in attachments)
+                {
+                    a.ContentType = "not supported MIME type";
+                }
+                
                 // Act
                 StepResult stepResult = await base._step
                     .ExecuteAsync(base._internalMessage, CancellationToken.None);

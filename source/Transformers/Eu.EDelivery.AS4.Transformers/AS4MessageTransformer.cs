@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             this._logger.Error(description);
 
-            throw new AS4ExceptionBuilder()
+            throw AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithErrorCode(ErrorCode.Ebms0009)
                 .Build();

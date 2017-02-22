@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             _logger.Info($"Transforming ReceivedMessage {message.Id} to InternalMessage");
             
-            SubmitMessage submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
+            var submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
             ValidateSubmitMessage(submitMessage);
 
             var internalMessage = new InternalMessage(submitMessage);
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        private SubmitMessage DeserializeSubmitMessage(Stream stream)
+        private static SubmitMessage DeserializeSubmitMessage(Stream stream)
         {
             var serializer = new XmlSerializer(typeof(SubmitMessage));
             return serializer.Deserialize(stream) as SubmitMessage;
@@ -73,10 +73,11 @@ namespace Eu.EDelivery.AS4.Transformers
             const string description = "Deserialize Submit Message Fails";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
-                .WithInnerException(exception)
-                .WithDescription(description)
-                .Build();
+            var builder = AS4ExceptionBuilder
+                .WithDescription(description, exception)
+                .WithInnerException(exception);
+                
+            return builder.Build();
         }
 
         private void ValidateSubmitMessage(SubmitMessage submitMessage)

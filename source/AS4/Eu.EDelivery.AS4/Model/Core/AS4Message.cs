@@ -50,6 +50,9 @@ namespace Eu.EDelivery.AS4.Model.Core
             this.Attachments = new List<Attachment>();
             this.SignalMessages = new List<SignalMessage>();
             this.UserMessages = new List<UserMessage>();
+
+            this.SendingPMode = new SendingProcessingMode();
+            this.ReceivingPMode = new ReceivingProcessingMode();
         }
 
         /// <summary>

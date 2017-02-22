@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
@@ -22,8 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         public GivenNotifyInUpdateDatastoreStepFacts()
         {
-            var repository = new DatastoreRepository(() => new DatastoreContext(base.Options));
-            this._step = new NotifyUpdateInMessageDatastoreStep(repository);
+            this._step = new NotifyUpdateInMessageDatastoreStep();
         }
 
         public class GivenValidArguments : GivenNotifyInUpdateDatastoreStepFacts
@@ -33,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             {
                 // Arrange
                 InsertDefaultInMessage(sharedId);
-                NotifyMessage notifyMessage = CreateNotifyMessage(sharedId);
+                var notifyMessage = CreateNotifyMessage(sharedId);
                 var internalMessage = new InternalMessage(notifyMessage);
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -47,15 +45,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void InsertDefaultInMessage(string sharedId)
             {
-                InMessage inMessage = base.CreateInMessage(sharedId);
+                InMessage inMessage = CreateInMessage(sharedId);
                 inMessage.Operation = Operation.Notifying;
                 inMessage.Status = InStatus.Delivered;
                 base.InsertInMessage(inMessage);
             }
 
-            private NotifyMessage CreateNotifyMessage(string id)
+            private static NotifyMessageEnvelope CreateNotifyMessage(string id)
             {
-                return new NotifyMessage {MessageInfo = {MessageId = id}};
+                var msgInfo = new MessageInfo() {MessageId = id};
+
+                return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
             }
 
             private void AssertInMessage(string messageId, Action<InMessage> assertAction)
@@ -78,9 +78,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             }
         }
 
-        private InMessage CreateInMessage(string id)
+        private static InMessage CreateInMessage(string id)
         {
-            return new InMessage {EbmsMessageId = id};
+            return new InMessage { EbmsMessageId = id };
         }
     }
 }

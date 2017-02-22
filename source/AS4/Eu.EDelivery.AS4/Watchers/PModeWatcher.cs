@@ -12,10 +12,11 @@ namespace Eu.EDelivery.AS4.Watchers
     /// <summary>
     /// Watcher to check if there's a new Sending PMode available
     /// </summary>
-    public class PModeWatcher<T> where T : class, IPMode
-    {
-        private readonly ILogger _logger;
+    public class PModeWatcher<T> : IDisposable where T : class, IPMode 
+    {        
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes;
+
+        private readonly FileSystemWatcher _watcher;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PModeWatcher{T}"/> class
@@ -24,21 +25,27 @@ namespace Eu.EDelivery.AS4.Watchers
         /// <param name="pmodes"></param>
         public PModeWatcher(string path, ConcurrentDictionary<string, ConfiguredPMode> pmodes)
         {
-            this._pmodes = pmodes;
-            this._logger = LogManager.GetCurrentClassLogger();
+            this._pmodes = pmodes;            
+            
+            _watcher = new FileSystemWatcher(path, "*.xml");
 
-            var watcher = new FileSystemWatcher(path, "*.xml");
-            AssemblyWatcher(watcher);
-            RetrievePModes(watcher.Path);
+            _watcher.Changed += OnChanged;
+            _watcher.Created += OnCreated;
+            _watcher.Deleted += OnDeleted;
+            _watcher.EnableRaisingEvents = true;
+            _watcher.NotifyFilter = GetNotifyFilters();
+
+            RetrievePModes(_watcher.Path);
         }
 
-        private void AssemblyWatcher(FileSystemWatcher watcher)
+        public void Start()
         {
-            watcher.Changed += OnChanged;
-            watcher.Created += OnCreated;
-            watcher.Deleted += OnDeleted;
-            watcher.EnableRaisingEvents = true;
-            watcher.NotifyFilter = GetNotifyFilters();
+            _watcher.EnableRaisingEvents = true;
+        }
+
+        public void Stop()
+        {
+            _watcher.EnableRaisingEvents = false;
         }
 
         private void RetrievePModes(string pmodeFolder)
@@ -47,10 +54,12 @@ namespace Eu.EDelivery.AS4.Watchers
             IEnumerable<FileInfo> files = TryGetFiles(startDir);
 
             foreach (FileInfo file in files)
+            {
                 AddOrUpdateConfiguredPMode(file.FullName);
+            }
         }
 
-        private IEnumerable<FileInfo> TryGetFiles(DirectoryInfo startDir)
+        private static IEnumerable<FileInfo> TryGetFiles(DirectoryInfo startDir)
         {
             try
             {
@@ -62,9 +71,9 @@ namespace Eu.EDelivery.AS4.Watchers
             }
         }
 
-        private NotifyFilters GetNotifyFilters()
+        private static NotifyFilters GetNotifyFilters()
         {
-            return NotifyFilters.LastAccess | NotifyFilters.LastWrite | 
+            return NotifyFilters.LastAccess | NotifyFilters.LastWrite |
                     NotifyFilters.FileName | NotifyFilters.DirectoryName;
         }
 
@@ -89,20 +98,37 @@ namespace Eu.EDelivery.AS4.Watchers
         private void AddOrUpdateConfiguredPMode(string fullPath)
         {
             IPMode pmode = TryDeserialize(fullPath);
-            if (pmode == null) return;
+            if (pmode == null)
+            {
+                return;
+            }
 
             var configuredPMode = new ConfiguredPMode(fullPath, pmode);
+
+            if (this._pmodes.ContainsKey(pmode.Id))
+            {
+                LogManager.GetCurrentClassLogger().Warn($"There already exists a configured PMode with id {pmode.Id}.");
+                LogManager.GetCurrentClassLogger().Warn($"Existing PMode will be overwritten with PMode from {fullPath}");
+            }
+
             this._pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
         }
 
-        private T TryDeserialize(string path)
+        private static T TryDeserialize(string path)
         {
             try
             {
                 return Deserialize(path);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                var logger = LogManager.GetCurrentClassLogger();
+                logger.Error($"An error occured while deserializing PMode {path}");
+                logger.Error(ex.Message);
+                if (ex.InnerException != null)
+                {
+                    logger.Error(ex.InnerException.Message);
+                }
                 return null;
             }
         }
@@ -114,6 +140,11 @@ namespace Eu.EDelivery.AS4.Watchers
                 var serializer = new XmlSerializer(typeof(T));
                 return serializer.Deserialize(fileStream) as T;
             }
+        }
+
+        public void Dispose()
+        {
+            _watcher.Dispose();
         }
     }
 }

@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Mappings.Notify;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Notify;
+using Eu.EDelivery.AS4.Singletons;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
@@ -13,11 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
     /// </summary>
     public class GivenErrorToNotifyMapFacts
     {
-        public GivenErrorToNotifyMapFacts()
-        {
-            MapInitialization.InitializeMapper();
-        }
-
+        
         public class GivenValidArguments : GivenErrorToNotifyMapFacts
         {
             [Fact]
@@ -26,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
                 // Arrange
                 var error = new Error("message-id");
                 // Act
-                var notifyMessage = Mapper.Map<NotifyMessage>(error);
+                var notifyMessage = AS4Mapper.Map<NotifyMessage>(error);
                 // Assert
                 Assert.Equal(error.MessageId, notifyMessage.MessageInfo.MessageId);
                 Assert.Equal(error.RefToMessageId, notifyMessage.MessageInfo.RefToMessageId);
@@ -38,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
                 // Arrange
                 var error = new Error("message-id");
                 // Act
-                var notifyMessage = Mapper.Map<NotifyMessage>(error);
+                var notifyMessage = AS4Mapper.Map<NotifyMessage>(error);
                 // Assert
                 Assert.Equal(Status.Error, notifyMessage.StatusInfo.Status);
             }
@@ -50,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
                 var as4Exception = new AS4Exception("Dummy Exception!");
                 var error = new Error("mesage-id") {Exception = as4Exception};
                 // Act
-                var notifyMessage = Mapper.Map<NotifyMessage>(error);
+                var notifyMessage = AS4Mapper.Map<NotifyMessage>(error);
                 // Assert
                 Assert.Equal(Status.Exception, notifyMessage.StatusInfo.Status);
             }

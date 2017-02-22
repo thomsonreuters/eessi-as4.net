@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe;
+using Eu.EDelivery.AS4.Mappings.Common;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
     /// Start point for AS4 Connection
     /// Wrapper for the Channels
     /// </summary>
-    public class Kernel
+    public class Kernel : IDisposable
     {
         private readonly IEnumerable<IAgent> _agents;
         private readonly ILogger _logger;
@@ -30,7 +31,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 this._logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
             }
 
-            
             this._agents = agents;
             this._logger = LogManager.GetCurrentClassLogger();
         }
@@ -42,6 +42,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+
             if (this._agents == null)
             {
                 return;
@@ -63,12 +64,27 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 }
             }
 
-
             this._logger.Debug("Starting...");
             Task task = Task.WhenAll(this._agents.Select(c => c.Start(cancellationToken)).ToArray());
             this._logger?.Debug("Started!");
 
             await task;
+
+            CloseAgents();
+        }
+
+        private void CloseAgents()
+        {
+            foreach (var agent in this._agents)
+            {
+                var disposableAgent = agent as IDisposable;                
+                disposableAgent?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+           CloseAgents();
         }
     }
 }

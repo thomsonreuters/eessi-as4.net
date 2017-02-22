@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Eu.EDelivery.AS4.Exceptions
 {
@@ -11,7 +12,17 @@ namespace Eu.EDelivery.AS4.Exceptions
         public ErrorCode ErrorCode { get; internal set; }
         public ExceptionType ExceptionType { get; internal set; }
         public string PMode { get; internal set; }
-        public string[] MessageIds { get; internal set; }
+        public string[] MessageIds {
+            get { return _messageIds.ToArray(); }
+        }
+
+        public void SetMessageIds(IEnumerable<string> messageIds)
+        {
+            _messageIds.Clear();
+            _messageIds.AddRange(messageIds);
+        }
+
+        private readonly List<string> _messageIds = new List<string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4Exception"/> class. 
@@ -38,10 +49,7 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <param name="messageId"></param>
         public void AddMessageId(string messageId)
         {
-            string[] messageIds = this.MessageIds;
-            Array.Resize(ref messageIds, messageIds.Length + 1);
-            messageIds[messageIds.GetUpperBound(dimension: 0)] = messageId;
-            this.MessageIds = messageIds;
+            _messageIds.Add(messageId);            
         }
 
         /// <summary>Creates and returns a string representation of the current exception.</summary>

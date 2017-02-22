@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             string description = $"{this._internalMessage.Prefix} Attachments cannot be compressed";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
