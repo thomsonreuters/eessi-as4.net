@@ -20,6 +20,7 @@ import { FilterComponent } from './filter/filter.component';
 import { InExceptionStore } from './inexception/inexception.store';
 import { PagerComponent } from './pager/pager.component';
 import { ToNumberArrayPipe } from './numbertoarray.pipe';
+import { RelatedMessagesComponent } from './relatedmessages/relatedmessages.component';
 
 @NgModule({
     declarations: [
@@ -29,7 +30,8 @@ import { ToNumberArrayPipe } from './numbertoarray.pipe';
         PagerComponent,
         SortDirective,
         MessageComponent,
-        ErrorMessageComponent
+        ErrorMessageComponent,
+        RelatedMessagesComponent
     ],
     imports: [
         AuthenticationModule,

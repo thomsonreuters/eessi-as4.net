@@ -1,5 +1,4 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { InException } from './../../api/Messages/InException';
 import { Http, ConnectionBackend } from '@angular/http';
 import {
     inject,
@@ -7,38 +6,39 @@ import {
     TestBed
 } from '@angular/core/testing';
 
+import { Exception } from './../../api/Messages/Exception';
 import { As4ComponentsModule } from './../../common/as4components.module';
-import { InExceptionService } from './inexception.service';
-import { InExceptionStore } from './inexception.store';
-import { InExceptionComponent } from './inexception.component';
+import { ExceptionService } from './exception.service';
+import { ExceptionStore } from './exception.store';
+import { ExceptionComponent } from './exception.component';
 
 describe('InException component', () => {
-    let messages: InException[];
-    let message1: InException;
+    let messages: Exception[];
+    let message1: Exception;
 
     // provide our implementations or mocks to the dependency injector
     beforeEach(() => TestBed.configureTestingModule({
         providers: [
-            InExceptionComponent,
-            InExceptionStore,
-            { provide: InExceptionService, useClass: { getMessages() { }} },
+            ExceptionComponent,
+            ExceptionStore,
+            { provide: ExceptionService, useClass: { getMessages() { } } },
             { provide: ActivatedRoute, useValue: { snapshot: { queryParams: {} } } },
-            { provide: Router, useClass: { } }
+            { provide: Router, useClass: {} }
         ],
         imports: [
             As4ComponentsModule
         ]
     }));
     beforeEach(() => {
-        messages = new Array<InException>();
-        message1 = new InException();
-        message1.id = 100;
+        messages = new Array<Exception>();
+        message1 = new Exception();
+        message1.ebmsRefToMessageId = '100';
         messages.push(message1);
     });
 
-    it('should be subscribed to the store', inject([InExceptionComponent, InExceptionStore], fakeAsync((cmp: InExceptionComponent, store: InExceptionStore) => {
+    it('should be subscribed to the store', inject([ExceptionComponent, ExceptionStore], fakeAsync((cmp: ExceptionComponent, store: ExceptionStore) => {
         cmp.messages.skip(1).subscribe((result) => {
-            expect(result.messages[0].id).toBe(message1.id);
+            expect(result.messages[0].ebmsRefToMessageId).toBe(message1.ebmsRefToMessageId);
         });
         store.update('messages', messages);
     })));

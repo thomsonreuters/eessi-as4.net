@@ -53,7 +53,9 @@
                             <button class="btn btn-secondary" type="button" (click)="filter.filter.mep = null"><i class="fa fa-trash"></i></button>
                         </span>
                     </div>
-                </as4-input>
+                </as4-input>                
+            </div>
+            <div class="col-md-6 col-xs-12">
                 <as4-input label="Ebms message type" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <select name="ebmsMessageType" [(ngModel)]="filter.filter.ebmsMessageType">
@@ -66,8 +68,6 @@
                         </span>
                     </div>
                 </as4-input>
-            </div>
-            <div class="col-md-6 col-xs-12">
                 <as4-input label="Content type" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <select name="contentType" [(ngModel)]="filter.filter.contentType">
@@ -157,7 +157,6 @@
 </as4-box>
 <as4-box title="Messages">
     <div content>
-        <p>{{(messages | async).pages}}</p>
         <as4-pager [pages]="(messages | async).pages" [pageTotal]="(messages | async).messages.length" [total]="(messages | async).total"
             [page]="(messages | async).page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
             <div class="table-responsive">
@@ -177,8 +176,6 @@
                         <col>
                         <!-- Pmode -->
                         <col width="5%">
-                        <!-- Ref to message id -->
-                        <col width="27%">
                     </colgroup>
                     <thead>
                         <tr>
@@ -189,7 +186,6 @@
                             <th>Operation</th>
                             <th>Status</th>
                             <th>Pmode</th>
-                            <th>Ref to message id</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -206,7 +202,6 @@
                                 <td>
                                     <a [routerLink]="['/pmodes', filter.outFilter.direction === '0' ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
                                 </td>
-                                <td>{{message.ebmsRefToMessageId}}</td>
                             </tr>
                             <tr *ngIf="message === activeMessage">
                                 <td colspan="9">
@@ -214,9 +209,13 @@
                                         <div tabitem title="Info">
                                             <p><b>Content type</b>: {{message.contentType}}</p>
                                             <p><b>Modification time</b>: {{message.modificationTime | todate}}</p>
+                                            <p><b>Ebms ref to message id</b>: {{!!!message.ebmsRefToMessageId ? 'N/A' : message.ebmsRefToMessageId}}</p>
                                         </div>
                                         <div tabitem title="Exceptions" class="exceptions">
-                                            <as4-error-message [message]="message" [direction]="filter.outFilter.direction"></as4-error-message>
+                                            <as4-error-message [message]="message" [direction]="+filter.outFilter.direction"></as4-error-message>
+                                        </div>
+                                        <div tabitem title="Related messages" class="related-messages">
+                                            <as4-related-messages [messageId]="message.ebmsRefToMessageId" [direction]="+filter.outFilter.direction === 0 ? 1 : 0"></as4-related-messages>
                                         </div>
                                     </as4-tab>
                                 </td>

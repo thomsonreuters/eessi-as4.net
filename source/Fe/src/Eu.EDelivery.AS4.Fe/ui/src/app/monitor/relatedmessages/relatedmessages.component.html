@@ -1,0 +1,30 @@
+<table class="table table-responsive" *ngIf="!!(messages | async).messages.length">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Insertion time</th>
+            <th>Message id</th>
+            <th>Operation</th>
+            <th>Content type</th>
+            <th>Message type</th>
+            <th>Modification time</th>
+            <th>Pmode</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let message of (messages | async).messages">
+            <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: direction, ebmsMessageId: message.ebmsMessageId }"><i class="fa fa-folder-open"></i></a></td>
+            <td>{{message.insertionTime | todate}}</td>
+            <td>{{message.ebmsMessageId}}</td>
+            <td>{{message.operation}}</td>
+            <td>{{message.contentType}}</td>
+            <td>{{message.ebmsMessageType}}</td>
+            <td>{{message.modificationTime | todate}}</td>
+            <td>
+                <a [routerLink]="['/pmodes', +direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<p *ngIf="!!!(messages | async).messages.length">No messages available</p>
