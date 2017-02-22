@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
 
@@ -60,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static DeliverMessage CreateDeliverMessage(AS4Message as4Message)
         {
-            var deliverMessage = Mapper.Map<DeliverMessage>(as4Message.PrimaryUserMessage);
+            var deliverMessage = AS4Mapper.Map<DeliverMessage>(as4Message.PrimaryUserMessage);
             AssignSendingPModeId(as4Message, deliverMessage);
             AssignAttachmentLocations(as4Message, deliverMessage);
 

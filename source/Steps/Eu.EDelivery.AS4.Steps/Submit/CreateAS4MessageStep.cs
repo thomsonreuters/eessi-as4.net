@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -83,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             this._logger.Debug("Map Submit Message to UserMessage");
             
-            return Mapper.Map<UserMessage>(this._internalMessage.SubmitMessage);
+            return AS4Mapper.Map<UserMessage>(this._internalMessage.SubmitMessage);
         }
     }
 }
