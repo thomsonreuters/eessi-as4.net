@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Watchers
     /// </summary>
     public class PModeWatcher<T> : IDisposable where T : class, IPMode
     {
-        private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>();
+        private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>(StringComparer.OrdinalIgnoreCase);
 
         private readonly FileSystemWatcher _watcher;
 
