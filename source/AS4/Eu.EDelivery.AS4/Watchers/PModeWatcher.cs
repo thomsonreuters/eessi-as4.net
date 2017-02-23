@@ -28,11 +28,10 @@ namespace Eu.EDelivery.AS4.Watchers
             this._pmodes = pmodes;            
             
             _watcher = new FileSystemWatcher(path, "*.xml");
-
+            _watcher.IncludeSubdirectories = true;
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
-            _watcher.Deleted += OnDeleted;
-            _watcher.EnableRaisingEvents = true;
+            _watcher.Deleted += OnDeleted;            
             _watcher.NotifyFilter = GetNotifyFilters();
 
             RetrievePModes(_watcher.Path);
@@ -65,8 +64,9 @@ namespace Eu.EDelivery.AS4.Watchers
             {
                 return startDir.GetFiles("*.xml", SearchOption.AllDirectories);
             }
-            catch (Exception)
+            catch (Exception ex )
             {
+                LogManager.GetCurrentClassLogger().Error($"An error occured while trying to get PMode files: {ex.Message}");
                 return new List<FileInfo>();
             }
         }
