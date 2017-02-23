@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.Xml;
+﻿using System;
+using System.Security.Cryptography.Xml;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.Strategies;
 
@@ -9,17 +10,29 @@ namespace Eu.EDelivery.AS4.Security.Encryption
     /// </summary>
     public class AS4EncryptedKey
     {
-        private EncryptedKey _encryptedKey;
+        private readonly EncryptedKey _encryptedKey;
 
-        /// <summary>
-        /// Set the internal <see cref="EncryptedKey"/>
-        /// </summary>
-        /// <param name="encryptedKey"></param>
-        public void SetEncryptedKey(EncryptedKey encryptedKey)
+        public AS4EncryptedKey(EncryptedKey encryptedKey)
         {
-            this._encryptedKey = encryptedKey;
+            _encryptedKey = encryptedKey;
         }
 
+        public static AS4EncryptedKey LoadFromXmlDocument(XmlDocument xmlDocument)
+        {            
+            var encryptedKeyElement = xmlDocument.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
+
+            if (encryptedKeyElement == null)
+            {
+                throw new ArgumentException(@"No EncryptedKey element found in XmlDocument", nameof(xmlDocument));
+            }
+
+            var encryptedKey = new EncryptedKey();
+
+            encryptedKey.LoadXml(encryptedKeyElement);
+
+            return new AS4EncryptedKey(encryptedKey);
+        }
+        
         /// <summary>
         /// Add a <see cref="DataReference"/> with a given <paramref name="uri"/>
         /// </summary>
@@ -60,17 +73,18 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         }
 
         /// <summary>
-        /// Load a the <EncryptedKey/> Element inside the <see cref="EncryptedKey"/> Model
+        /// Get the MGF (Mask Generation Function) from the <see cref="EncryptedKey"/>
         /// </summary>
-        /// <param name="xmlDocument"></param>
-        public void LoadEncryptedKey(XmlDocument xmlDocument)
+        /// <returns></returns>
+        public string GetMaskGenerationFunction()
         {
-            this._encryptedKey = new EncryptedKey();
+            string xpath = $".//*[local-name()='EncryptionMethod']";
 
-            var encryptedKeyElement = xmlDocument.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
-            this._encryptedKey.LoadXml(encryptedKeyElement);
+            var node = _encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+
+            return node?.GetAttribute("MGF");
         }
-
+        
         /// <summary>
         /// Append the <EncryptedKey/> Element to a given <paramref name="securityElement"/>
         /// </summary>
