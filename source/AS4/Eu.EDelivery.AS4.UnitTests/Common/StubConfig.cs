@@ -99,8 +99,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             return this._receivingPmodes.Values;
         }
-
-        public IEnumerable<string> GetUrlsForEnabledMinderTestAgents()
+        
+        public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
             throw new NotImplementedException();
         }

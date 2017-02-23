@@ -12,26 +12,23 @@ namespace Eu.EDelivery.AS4.Watchers
     /// <summary>
     /// Watcher to check if there's a new Sending PMode available
     /// </summary>
-    public class PModeWatcher<T> : IDisposable where T : class, IPMode 
-    {        
-        private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes;
+    public class PModeWatcher<T> : IDisposable where T : class, IPMode
+    {
+        private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>();
 
         private readonly FileSystemWatcher _watcher;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PModeWatcher{T}"/> class
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="pmodes"></param>
-        public PModeWatcher(string path, ConcurrentDictionary<string, ConfiguredPMode> pmodes)
+        /// <param name="path"></param>        
+        public PModeWatcher(string path)
         {
-            this._pmodes = pmodes;            
-            
             _watcher = new FileSystemWatcher(path, "*.xml");
             _watcher.IncludeSubdirectories = true;
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
-            _watcher.Deleted += OnDeleted;            
+            _watcher.Deleted += OnDeleted;
             _watcher.NotifyFilter = GetNotifyFilters();
 
             RetrievePModes(_watcher.Path);
@@ -45,6 +42,25 @@ namespace Eu.EDelivery.AS4.Watchers
         public void Stop()
         {
             _watcher.EnableRaisingEvents = false;
+        }
+
+        public IPMode GetPMode(string key)
+        {
+            if (String.IsNullOrWhiteSpace(key))
+            {
+                throw new ArgumentException(@"The specified PMode key is invalid.", nameof(key));
+            }
+
+            ConfiguredPMode configuredPMode;
+
+            this._pmodes.TryGetValue(key, out configuredPMode);
+
+            return configuredPMode?.PMode;
+        }
+
+        public IEnumerable<IPMode> GetPModes()
+        {
+            return _pmodes.Values.Select(p => p.PMode);
         }
 
         private void RetrievePModes(string pmodeFolder)
@@ -64,7 +80,7 @@ namespace Eu.EDelivery.AS4.Watchers
             {
                 return startDir.GetFiles("*.xml", SearchOption.AllDirectories);
             }
-            catch (Exception ex )
+            catch (Exception ex)
             {
                 LogManager.GetCurrentClassLogger().Error($"An error occured while trying to get PMode files: {ex.Message}");
                 return new List<FileInfo>();
@@ -144,6 +160,7 @@ namespace Eu.EDelivery.AS4.Watchers
 
         public void Dispose()
         {
+            _pmodes.Clear();
             _watcher.Dispose();
         }
     }

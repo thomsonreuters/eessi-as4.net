@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("DeliverAgent", IsNullable = false)] public SettingsAgent[] DeliverAgents { get; set; }
         [XmlElement("NotifyAgent", IsNullable = false)] public SettingsAgent[] NotifyAgents { get; set; }
         [XmlElement("ReceptionAwarenessAgent", IsNullable = false)] public SettingsAgent ReceptionAwarenessAgent { get; set; }
-        [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)] public SettingsMinderAgent[] ConformanceTestAgent { get; set; }
+        [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)] public SettingsMinderAgent[] MinderTestAgents { get; set; }
     }
 
     [Serializable]
@@ -63,10 +63,24 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsMinderAgent
     {
+        /// <summary>
+        /// Indicates whether the Agent should be enabled or not.
+        /// </summary>
         [XmlAttribute("Enabled")]
         public bool Enabled { get; set; }
+
+        /// <summary>
+        /// Defines the URL at which the Agent should listen to.
+        /// </summary>
         [XmlAttribute("Url")]
         public string Url { get; set; }
+
+        /// <summary>
+        /// Defines the Transformer that should be used to transform a received message.
+        /// </summary>
+        [XmlElement("Transformer")]
+        public Transformer Transformer { get; set; }
+
     }
 
     [Serializable]

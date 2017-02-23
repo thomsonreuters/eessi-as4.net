@@ -23,8 +23,6 @@ namespace Eu.EDelivery.AS4.Common
         private readonly ILogger _logger;
 
         private readonly IDictionary<string, string> _configuration;
-        private readonly ConcurrentDictionary<string, ConfiguredPMode> _sendingPModes;
-        private readonly ConcurrentDictionary<string, ConfiguredPMode> _receivingPModes;
 
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
@@ -40,10 +38,7 @@ namespace Eu.EDelivery.AS4.Common
             this._logger = LogManager.GetCurrentClassLogger();
 
             this._configuration = new Dictionary
-                <string, string>(StringComparer.CurrentCultureIgnoreCase);
-
-            this._sendingPModes = new ConcurrentDictionary<string, ConfiguredPMode>();
-            this._receivingPModes = new ConcurrentDictionary<string, ConfiguredPMode>();
+                <string, string>(StringComparer.CurrentCultureIgnoreCase);            
         }
 
         /// <summary>
@@ -57,8 +52,8 @@ namespace Eu.EDelivery.AS4.Common
                 this.IsInitialized = true;
                 RetrieveLocalConfiguration();
 
-                _sendingPModeWatcher = new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder(), this._sendingPModes);
-                _receivingPModeWatcher = new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder(), this._receivingPModes);
+                _sendingPModeWatcher = new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder());
+                _receivingPModeWatcher = new PModeWatcher<ReceivingProcessingMode>(GetReceivePModeFolder());
 
                 LoadExternalAssemblies();
 
@@ -124,7 +119,7 @@ namespace Eu.EDelivery.AS4.Common
 
             var fullPath = Path.GetFullPath(path);
 
-            if (Path.IsPathRooted(path) == false ||                
+            if (Path.IsPathRooted(path) == false ||
                 File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false)
             {
                 path = Path.Combine(".", path);
@@ -222,20 +217,14 @@ namespace Eu.EDelivery.AS4.Common
                 throw new AS4Exception("Given Sending PMode key is null");
             }
 
-            if (_sendingPModes.Count == 0)
-            {
-                throw new AS4Exception("There are no Sending PModes defined.");
-            }
+            var pmode = _sendingPModeWatcher.GetPMode(id);
 
-            ConfiguredPMode configuredPMode = null;
-            this._sendingPModes.TryGetValue(id, out configuredPMode);
-
-            if (configuredPMode == null)
+            if (pmode == null)
             {
                 throw new AS4Exception($"No Sending Processing Mode found for {id}");
             }
 
-            return configuredPMode.PMode as SendingProcessingMode;
+            return pmode as SendingProcessingMode;
         }
 
         /// <summary>
@@ -257,7 +246,7 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         /// <returns></returns>
         public IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
-            => this._receivingPModes.Select(p => p.Value.PMode as ReceivingProcessingMode);
+            => this._receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
 
         /// <summary>
         /// Indicates if the FE needs to be started in process
@@ -268,18 +257,14 @@ namespace Eu.EDelivery.AS4.Common
         /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> GetUrlsForEnabledMinderTestAgents()
+        public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
-            if (this._settings.Agents.ConformanceTestAgent == null)
+            if (this._settings.Agents.MinderTestAgents == null)
             {
-                yield break;
+                return new SettingsMinderAgent[] { };
             }
 
-            foreach (var agent in this._settings.Agents.ConformanceTestAgent.Where(a => a.Enabled))
-            {
-                yield return agent.Url;
-            }
-
+            return this._settings.Agents.MinderTestAgents.Where(a => a.Enabled);
         }
 
         public void Dispose()

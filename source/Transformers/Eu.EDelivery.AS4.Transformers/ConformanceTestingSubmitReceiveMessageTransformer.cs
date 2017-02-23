@@ -4,16 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.Submit;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
-
-    public class MinderSubmitReceiveMessageTransformer : ITransformer
+    public class ConformanceTestingSubmitReceiveMessageTransformer : ITransformer
     {
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
@@ -44,14 +41,14 @@ namespace Eu.EDelivery.AS4.Transformers
             return new InternalMessage(as4Message);
         }
 
-        private void AssignPMode(AS4Message as4Message)
+        private static void AssignPMode(AS4Message as4Message)
         {
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
             var pmode = Config.Instance.GetSendingPMode(as4Message.PrimaryUserMessage.CollaborationInfo.Action);
             as4Message.SendingPMode = pmode;
         }
 
-        private void TransformUserMessage(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void TransformUserMessage(UserMessage userMessage, IList<MessageProperty> properties)
         {
             SetMessageInfoProperties(userMessage, properties);
             SetCollaborationInfoProperties(userMessage, properties);
@@ -60,7 +57,7 @@ namespace Eu.EDelivery.AS4.Transformers
             RemoveMessageInfoProperties(userMessage);            
         }
 
-        private void RemoveMessageInfoProperties(UserMessage userMessage)
+        private static void RemoveMessageInfoProperties(UserMessage userMessage)
         {
             string[] whiteList = { "originalSender", "finalRecipient", "trackingIdentifier" };
 
@@ -68,14 +65,14 @@ namespace Eu.EDelivery.AS4.Transformers
                 .ToList();
         }
 
-        private void SetMessageInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetMessageInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
             userMessage.MessageId = GetPropertyValue(properties, "MessageId");
             userMessage.RefToMessageId = GetPropertyValue(properties, "RefToMessageId");
             userMessage.Timestamp = DateTimeOffset.UtcNow;
         }
 
-        private void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
             userMessage.CollaborationInfo.ConversationId = GetPropertyValue(properties, "ConversationId");
             userMessage.CollaborationInfo.Service.Value = GetPropertyValue(properties, "Service");
@@ -85,7 +82,7 @@ namespace Eu.EDelivery.AS4.Transformers
             userMessage.CollaborationInfo.AgreementReference = null;
         }
 
-        private void SetPartyProperties(UserMessage userMessage, IList<MessageProperty> properties)
+        private static void SetPartyProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
             userMessage.Sender.PartyIds.First().Id = GetPropertyValue(properties, "FromPartyId");
             userMessage.Sender.Role = GetPropertyValue(properties, "FromPartyRole");
