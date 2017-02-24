@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Eu.EDelivery.AS4.Exceptions;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Builders
 {
@@ -39,7 +40,9 @@ namespace Eu.EDelivery.AS4.Builders
 
             if (type == null)
             {
-                throw new AS4Exception($"Not given class found for given Type: {typeString}");
+                string message = $"Type not found: {typeString}";
+                LogManager.GetCurrentClassLogger().Fatal(message);
+                throw new TypeLoadException(message);                
             }
 
             return FromType(type);

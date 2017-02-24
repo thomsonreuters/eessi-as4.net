@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 ReleasePendingItems();
             }
         }
-        
+
 
         /// <summary>
         /// Declaration to where the Message are and can be polled
@@ -102,7 +102,18 @@ namespace Eu.EDelivery.AS4.Receivers
             CancellationToken cancellationToken)
         {
             return messagesToPoll.Where(m => m != null).Select(
-                message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken)));
+                message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))                              
+                               .ContinueWith(x =>
+                               {
+                                   if (x.Exception?.InnerExceptions != null)
+                                   {
+                                       foreach (var ex in x.Exception?.InnerExceptions)
+                                       {
+                                           LogManager.GetCurrentClassLogger().Fatal(ex.Message);
+                                           LogManager.GetCurrentClassLogger().Fatal(ex.StackTrace);
+                                       }
+                                   }
+                               }, TaskContinuationOptions.OnlyOnFaulted));
         }
     }
 }

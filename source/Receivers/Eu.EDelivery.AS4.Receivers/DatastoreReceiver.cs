@@ -236,6 +236,14 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override void HandleMessageException(Entity message, Exception exception)
         {
             this.Logger.Error(exception.Message);
+            var aggregate = exception as AggregateException;
+            if (aggregate != null)
+            {
+                foreach (var ex in aggregate.InnerExceptions)
+                {
+                    this.Logger.Error(ex.Message);
+                }
+            }
         }
 
         protected override void ReleasePendingItems()
