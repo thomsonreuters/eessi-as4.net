@@ -50,7 +50,7 @@
         <FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-c2</Id>
+            <Id>as4-net-c3</Id>
 						<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
 					</PartyId>
 				</PartyIds>
@@ -59,7 +59,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-c3</Id>
+            <Id>as4-net-c2</Id>						
 						<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
 					</PartyId>
 				</PartyIds>
