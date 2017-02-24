@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
                 // Arrange
                 var encryptedKey = new EncryptedKey { Id = id };
 
-                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey);
+                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey, "", "");
 
                 // Act
                 string referenceId = as4EncryptedKey.GetReferenceId();
@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
                 var cipherData = new CipherData { CipherValue = new byte[] { 20 } };
                 var encryptedKey = new EncryptedKey { CipherData = cipherData };
 
-                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey);
+                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey, "", "");
 
                 // Act
                 CipherData as4CipherData = as4EncryptedKey.GetCipherData();

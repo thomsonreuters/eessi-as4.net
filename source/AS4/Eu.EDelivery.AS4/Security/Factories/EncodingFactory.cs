@@ -1,4 +1,5 @@
 ﻿using System;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Encodings;
@@ -48,9 +49,9 @@ namespace Eu.EDelivery.AS4.Security.Factories
         }
 
         private static OaepEncoding CreateEncoding(IDigest digest, IDigest mgf)
-        {
+        {         
             return new OaepEncoding(
-                cipher: new RsaEngine(),
+                cipher: new RsaEngine(),                
                 hash: digest,
                 mgf1Hash: mgf,
                 encodingParams: new byte[0]);

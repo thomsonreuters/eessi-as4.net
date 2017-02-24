@@ -11,14 +11,18 @@ namespace Eu.EDelivery.AS4.Security.Encryption
     public class AS4EncryptedKey
     {
         private readonly EncryptedKey _encryptedKey;
+        private readonly string _digestAlgorithm;
+        private readonly string _mgfAlgorithm;
 
-        public AS4EncryptedKey(EncryptedKey encryptedKey)
+        public AS4EncryptedKey(EncryptedKey encryptedKey, string digestAlgorithm, string mgfAlgorithm)
         {
             _encryptedKey = encryptedKey;
+            _digestAlgorithm = digestAlgorithm;
+            _mgfAlgorithm = mgfAlgorithm;
         }
 
         public static AS4EncryptedKey LoadFromXmlDocument(XmlDocument xmlDocument)
-        {            
+        {
             var encryptedKeyElement = xmlDocument.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
 
             if (encryptedKeyElement == null)
@@ -30,9 +34,9 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
             encryptedKey.LoadXml(encryptedKeyElement);
 
-            return new AS4EncryptedKey(encryptedKey);
+            return new AS4EncryptedKey(encryptedKey, GetDigestAlgorithm(encryptedKey), GetMgfAlgorithm(encryptedKey));
         }
-        
+
         /// <summary>
         /// Add a <see cref="DataReference"/> with a given <paramref name="uri"/>
         /// </summary>
@@ -60,16 +64,34 @@ namespace Eu.EDelivery.AS4.Security.Encryption
             return this._encryptedKey.CipherData;
         }
 
+        private static string GetDigestAlgorithm(EncryptedKey encryptedKey)
+        {
+            string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
+            var digestNode = encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+
+            return digestNode?.GetAttribute("Algorithm");
+        }
+
+        private static string GetMgfAlgorithm(EncryptedKey encryptedKey)
+        {
+            string xpath = $".//*[local-name()='EncryptionMethod']";
+
+            var node = encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+
+            return node?.GetAttribute("MGF");
+        }
+
         /// <summary>
         /// Get the DigestMethod Element from the <see cref="EncryptedKey"/>
         /// </summary>
         /// <returns></returns>
         public string GetDigestAlgorithm()
         {
-            string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
-            var digestNode = this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+            return _digestAlgorithm;
+            ////string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
+            ////var digestNode = this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
-            return digestNode?.GetAttribute("Algorithm");
+            ////return digestNode?.GetAttribute("Algorithm");
         }
 
         /// <summary>
@@ -78,13 +100,14 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public string GetMaskGenerationFunction()
         {
-            string xpath = $".//*[local-name()='EncryptionMethod']";
+            ////string xpath = $".//*[local-name()='EncryptionMethod']";
 
-            var node = _encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
+            ////var node = _encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
-            return node?.GetAttribute("MGF");
+            ////return node?.GetAttribute("MGF");
+            return _mgfAlgorithm;
         }
-        
+
         /// <summary>
         /// Append the <EncryptedKey/> Element to a given <paramref name="securityElement"/>
         /// </summary>
@@ -100,20 +123,39 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         private XmlElement GetEncryptedKeyElement()
         {
             XmlElement encryptedKeyElement = this._encryptedKey.GetXml();
-            AppendDigestMethod(encryptedKeyElement.SelectSingleNode("//*[local-name()='EncryptionMethod']"));
+
+            var encryptionMethodNode = encryptedKeyElement.SelectSingleNode("//*[local-name()='EncryptionMethod']");
+
+            if (encryptionMethodNode != null)
+            {
+                AppendDigestMethod(encryptionMethodNode, _digestAlgorithm);
+
+                if (_mgfAlgorithm != null)
+                {
+
+                    AppendMgfMethod(encryptionMethodNode, _mgfAlgorithm);
+                }
+            }
 
             return encryptedKeyElement;
         }
 
-        private static void AppendDigestMethod(XmlNode encryptionMethodNode)
+        private static void AppendDigestMethod(XmlNode encryptionMethodNode, string digestAlgorithm)
         {
             XmlElement digestMethod = encryptionMethodNode.OwnerDocument
                 .CreateElement("DigestMethod", Constants.Namespaces.XmlDsig);
 
             // TODO: do we need to change this algorithm (configured by the PMode)
-            digestMethod.SetAttribute("Algorithm", EncryptionStrategy.XmlEncSHA1Url);
+            digestMethod.SetAttribute("Algorithm", digestAlgorithm); // EncryptionStrategy.XmlEncSHA1Url);
 
             encryptionMethodNode.AppendChild(digestMethod);
+        }
+
+        private static void AppendMgfMethod(XmlNode node, string mgfAlgorithm)
+        {
+            var mgfAttribute = node.OwnerDocument.CreateAttribute("MGF", mgfAlgorithm);
+
+            node.Attributes.Append(mgfAttribute);
         }
     }
 }

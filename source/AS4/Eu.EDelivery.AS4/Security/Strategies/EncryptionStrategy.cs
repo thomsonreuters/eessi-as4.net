@@ -150,10 +150,19 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             this._encryptedDatas.Clear();
 
-            OaepEncoding encoding = CreateOaepEncoding();
+            // TODO: algorithms for oaep encoding should be retrieved from pmode.
+            ////OaepEncoding encoding = CreateOaepEncoding();
 
-            byte[] encryptionKey = GenerateSymmetricKey(encoding.GetOutputBlockSize());
-            var as4EncryptedKey = GetEncryptedKey(encoding, encryptionKey);
+            ////byte[] encryptionKey = GenerateSymmetricKey(encoding.GetOutputBlockSize());
+            ////var as4EncryptedKey = GetEncryptedKey(encoding, encryptionKey);
+
+            // All defaults here for now
+
+            var encryptionKey = GenerateSymmetricKey(256);
+
+            var as4EncryptedKey = GetEncryptedKey(encryptionKey, EncryptedXml.XmlEncRSAOAEPUrl, _configuration.Certificate, _configuration.Key.DigestMethod,
+                _configuration.Key.Mgf, _configuration.Key.SecurityTokenReference);
+            
 
             using (SymmetricAlgorithm encryptionAlgorithm =
                 CreateSymmetricAlgorithm(this._configuration.Data.EncryptionMethod, encryptionKey))
@@ -164,17 +173,17 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             _as4EncryptedKey = as4EncryptedKey;
         }
 
-        private OaepEncoding CreateOaepEncoding()
-        {
-            OaepEncoding encoding = EncodingFactory.Instance
-                .Create(this._configuration.Key.DigestMethod, this._configuration.Key.Mgf);
+        ////private OaepEncoding CreateOaepEncoding()
+        ////{
+        ////    OaepEncoding encoding = EncodingFactory.Instance
+        ////        .Create(this._configuration.Key.DigestMethod, this._configuration.Key.Mgf);
 
-            RSA rsaPublicKey = this._configuration.Certificate.GetRSAPublicKey();
-            RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(rsaPublicKey);
-            encoding.Init(forEncryption: true, param: publicKey);
+        ////    RSA rsaPublicKey = this._configuration.Certificate.GetRSAPublicKey();
+        ////    RsaKeyParameters publicKey = DotNetUtilities.GetRsaPublicKey(rsaPublicKey);
+        ////    encoding.Init(forEncryption: true, param: publicKey);
 
-            return encoding;
-        }
+        ////    return encoding;
+        ////}
 
         private static byte[] GenerateSymmetricKey(int keySize)
         {
@@ -184,15 +193,28 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private AS4EncryptedKey GetEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
+        private static AS4EncryptedKey GetEncryptedKey(byte[] symmetricKey, string encryptionMethod, X509Certificate2 certificate, string digestAlgorithm, string mgfAlgorithm,
+            SecurityTokenReference securityTokenReference)
         {
-            var builder = new EncryptedKeyBuilder()
-                .WithEncoding(encoding)
-                .WithSymmetricKey(symmetricKey)
-                .WithSecurityTokenReference(this._configuration.Key.SecurityTokenReference);
+            var builder = EncryptedKeyBuilderV2.ForKey(symmetricKey, certificate)
+                .WithEncryptionMethod(encryptionMethod)
+                .WithDigest(digestAlgorithm)
+                .WithMgf(mgfAlgorithm)
+                .WithSecurityTokenReference(securityTokenReference);
+
+            return builder.Build();
+        }               
+
+        ////[Obsolete]
+        ////private AS4EncryptedKey GetEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
+        ////{
+        ////    var builder = new EncryptedKeyBuilder()
+        ////        .WithEncoding(encoding)
+        ////        .WithSymmetricKey(symmetricKey)
+        ////        .WithSecurityTokenReference(this._configuration.Key.SecurityTokenReference);
          
-            return new AS4EncryptedKey(builder.Build());
-        }
+        ////    return new AS4EncryptedKey(builder.Build());
+        ////}
 
         private void EncryptAttachmentsWithAlgorithm(AS4EncryptedKey encryptedKey, SymmetricAlgorithm encryptionAlgorithm)
         {
