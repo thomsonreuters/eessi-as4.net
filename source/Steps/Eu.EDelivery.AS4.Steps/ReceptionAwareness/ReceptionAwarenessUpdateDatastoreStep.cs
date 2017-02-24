@@ -132,18 +132,18 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             return this._receptionAwareness.CurrentRetryCount >= this._receptionAwareness.TotalRetryCount; 
         }
 
-        private void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
+        private async void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
             this._logger.Info($"[{messageId}] ebMS message is unanswered");
 
             UpdateReceptionAwareness(awareness => awareness.IsCompleted = true, repository);
-            repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.DeadLettered);
+            await repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.DeadLettered);
 
             Error errorMessage = CreateError(repository);
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
-            new InMessageService(repository).InsertErrorAsync(errorMessage, as4Message, cancellationToken).GetAwaiter();
+            await new InMessageService(repository).InsertErrorAsync(errorMessage, as4Message, cancellationToken);
         }
 
         private Error CreateError(IDatastoreRepository repository)

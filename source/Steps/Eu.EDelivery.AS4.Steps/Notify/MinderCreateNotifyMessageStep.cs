@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._logger.Info("Minder Create Notify Message");
 
@@ -57,18 +57,18 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 this._logger.Warn($"{internalMessage.Prefix} AS4Message does not contain a primary SignalMessage");
             }
 
-            var notifyEnvelope = CreateMinderNotifyMessageEnvelope(userMessage, signalMessage);
+            var notifyEnvelope = await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage);
 
             internalMessage.NotifyMessage = notifyEnvelope;
 
-            return StepResult.SuccessAsync(internalMessage);
+            return StepResult.Success(internalMessage);
         }
 
-        private NotifyMessageEnvelope CreateMinderNotifyMessageEnvelope(UserMessage userMessage, SignalMessage signalMessage)
+        private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(UserMessage userMessage, SignalMessage signalMessage)
         {
             if (userMessage == null && signalMessage != null)
             {
-                userMessage = RetrieveRelatedUserMessage(signalMessage);
+                userMessage = await RetrieveRelatedUserMessage(signalMessage);
             }
 
             if (userMessage == null)
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return new NotifyMessageEnvelope(notifyMessage.MessageInfo, notifyMessage.StatusInfo.Status, content, msg.ContentType);
         }
 
-        private static UserMessage RetrieveRelatedUserMessage(SignalMessage signalMessage)
+        private static async Task<UserMessage> RetrieveRelatedUserMessage(SignalMessage signalMessage)
         {
             using (var db = Registry.Instance.CreateDatastoreContext())
             {
@@ -119,12 +119,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 if (ent != null)
                 {
                     using (var stream = new MemoryStream(ent.MessageBody))
-
                     {
                         stream.Position = 0;
                         var s = Registry.Instance.SerializerProvider.Get(ent.ContentType);
                         var result =
-                            s.DeserializeAsync(stream, ent.ContentType, CancellationToken.None).GetAwaiter().GetResult();
+                            await s.DeserializeAsync(stream, ent.ContentType, CancellationToken.None);
 
                         if (result != null)
                         {
