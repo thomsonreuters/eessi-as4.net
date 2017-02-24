@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Transactions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -143,33 +144,48 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
-            IEnumerable<Entity> entities;
+            LogManager.GetCurrentClassLogger().Trace($"Executing GetMessagesToPoll on {this._properties["Table"]}");
 
-            // Use a TransactionScope to get the highest TransactionIsolation level.
-            using (var tx = new System.Transactions.TransactionScope())
+            try
             {
-                using (DatastoreContext context = this._storeExpression())
-                {
-                    entities = this._findExpression(context).ToList();
+                // Use a TransactionScope to get the highest TransactionIsolation level.
+                IEnumerable<Entity> entities;
 
-                    if (entities.Any())
+                using (var tx = new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.FromSeconds(25)))
+                {
+                    using (DatastoreContext context = this._storeExpression())
                     {
-                        // Make sure that all message-entities are locked before continue to process them.
-                        if (this._operation != Operation.NotApplicable)
+                        entities = this._findExpression(context).ToList();
+
+                        if (entities.Any())
                         {
-                            foreach (var messageEntity in entities.OfType<MessageEntity>())
+                            // Make sure that all message-entities are locked before continue to process them.
+                            if (this._operation != Operation.NotApplicable)
                             {
-                                messageEntity.Operation = this._operation;
+                                foreach (var messageEntity in entities.OfType<MessageEntity>())
+                                {
+                                    messageEntity.Operation = this._operation;
+                                }
                             }
+                            context.SaveChanges();
                         }
-                        context.SaveChanges();
                     }
+
+                    tx.Complete();
                 }
 
-                tx.Complete();
+                return entities;
+            }
+            catch (Exception exception)
+            {
+                var logger = LogManager.GetCurrentClassLogger();
+
+                logger.Error($"An error occured while polling the datastore: {exception.Message}");
+                logger.Error($"Polling on table {this._properties["Table"]} with interval {PollingInterval.TotalSeconds} seconds.");
+                logger.Error(exception.StackTrace);
+                return new Entity[] { };
             }
 
-            return entities;
         }
 
         /// <summary>
@@ -213,10 +229,12 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private static void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
+            LogManager.GetCurrentClassLogger().Info($"Received Message from Datastore with Id: {entity.Id}");
+
             var message = new ReceivedEntityMessage(entity);
             messageCallback(message, token);
         }
-        
+
         protected override void HandleMessageException(Entity message, Exception exception)
         {
             this.Logger.Error(exception.Message);
