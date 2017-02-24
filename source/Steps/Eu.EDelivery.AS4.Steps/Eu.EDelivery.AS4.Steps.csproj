@@ -194,7 +194,7 @@
     <Compile Include="Common\InExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
-    <Compile Include="Deliver\MinderCreateDeliverMessageStep.cs" />
+    <Compile Include="Deliver\ConformanceTestCreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />
     <Compile Include="Deliver\ZipAttachmentsStep.cs" />
