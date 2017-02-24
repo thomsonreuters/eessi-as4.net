@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     x =>
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(x.Exception?.ToString());
+                        NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());                       
                     },
                     TaskContinuationOptions.OnlyOnFaulted);
 

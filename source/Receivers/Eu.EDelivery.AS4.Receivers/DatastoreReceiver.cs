@@ -228,9 +228,7 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         private static void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
-        {
-            LogManager.GetCurrentClassLogger().Info($"Received Message from Datastore with Id: {entity.Id}");
-
+        {           
             var message = new ReceivedEntityMessage(entity);
             messageCallback(message, token);
         }
