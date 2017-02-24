@@ -224,7 +224,7 @@
     <Compile Include="Receive\Rules\PModePartyInfoRule.cs" />
     <Compile Include="Receive\Participant\PModeRuleVisitor.cs" />
     <Compile Include="Receive\Rules\PModeServiceActionRule.cs" />
-    <Compile Include="Receive\Rules\PModeUndefindPartyInfoRule.cs" />
+    <Compile Include="Receive\Rules\PModeUndefinedPartyInfoRule.cs" />
     <Compile Include="Receive\CreateAS4ReceiptStep.cs" />
     <Compile Include="Receive\VerifySignatureAS4MessageStep.cs" />
     <Compile Include="Send\CompressAttachmentsStep.cs" />

@@ -22,16 +22,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             return IsAgreementRefEqual(pmode, userMessage) ? Points : NotEqual;
         }
 
-        private bool IsAgreementRefEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
+        private static bool IsAgreementRefEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
             AgreementReference pmodeAgreementRef = pmode.MessagePackaging.CollaborationInfo?.AgreementReference;
             AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo?.AgreementReference;
 
             return AgreementRefIsPresent(pmodeAgreementRef, userMessageAgreementRef) &&
-                   pmodeAgreementRef.Equals(userMessageAgreementRef);
+                   (pmodeAgreementRef?.Equals(userMessageAgreementRef) ?? false);
         }
 
-        private bool AgreementRefIsPresent(
+        private static bool AgreementRefIsPresent(
             AgreementReference pmodeAgreementRef,
             AgreementReference userMessageAgreementRef)
         {

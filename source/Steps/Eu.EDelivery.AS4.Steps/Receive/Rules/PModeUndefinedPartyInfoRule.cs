@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
     /// <summary>
     /// PMode Rule to check if the Party Info of the PMode is set
     /// </summary>
-    internal class PModeUndefindPartyInfoRule : IPModeRule
+    internal class PModeUndefinedPartyInfoRule : IPModeRule
     {
         private const int Points = 7;
         private const int NotEqual = 0;
@@ -19,10 +19,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
         /// <returns></returns>
         public int DeterminePoints(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            return IsPartyInfoUndefined(pmode, userMessage) ? Points : NotEqual;
+            return IsPartyInfoUndefined(pmode) ? Points : NotEqual;
         }
 
-        private bool IsPartyInfoUndefined(ReceivingProcessingMode pmode, UserMessage userMessage)
+        private static bool IsPartyInfoUndefined(ReceivingProcessingMode pmode)
         {
             PartyInfo partyInfo = pmode.MessagePackaging.PartyInfo;
 

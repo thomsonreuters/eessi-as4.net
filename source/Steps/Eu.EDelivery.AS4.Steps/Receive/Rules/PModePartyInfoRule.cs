@@ -22,9 +22,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             return IsPartyInfoEqual(pmode, userMessage) ? Points : NotEqual;
         }
 
-        private bool IsPartyInfoEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
+        private static bool IsPartyInfoEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (pmode.MessagePackaging.PartyInfo == null) return false;
+            if (pmode.MessagePackaging.PartyInfo == null)
+            {
+                return false;
+            }
+
             PartyInfo partyInfo = pmode.MessagePackaging.PartyInfo;
             if (partyInfo.IsEmpty()) return false;
 
