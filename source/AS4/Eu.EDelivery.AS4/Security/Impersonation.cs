@@ -9,20 +9,23 @@ namespace Eu.EDelivery.AS4.Security
     /// </summary>
     public static class Impersonation
     {
-        [DllImport("advapi32.DLL", SetLastError = true)]
-        public static extern int LogonUser(
-            string lpszUsername,
-            string lpszDomain,
-            string lpszPassword,
-            int dwLogonType,
-            int dwLogonProvider,
-            out IntPtr phToken);
+        private static class NativeMethods
+        {
+            [DllImport("advapi32.DLL", SetLastError = true)]
+            public static extern int LogonUser(
+                string lpszUsername,
+                string lpszDomain,
+                string lpszPassword,
+                int dwLogonType,
+                int dwLogonProvider,
+                out IntPtr phToken);
 
-        [DllImport("advapi32.DLL")]
-        public static extern bool ImpersonateLoggedOnUser(IntPtr hToken); //handle to token for logged-on user 
+            [DllImport("advapi32.DLL")]
+            public static extern bool ImpersonateLoggedOnUser(IntPtr hToken); //handle to token for logged-on user 
 
-        [DllImport("advapi32.DLL")]
-        public static extern bool RevertToSelf();
+            [DllImport("advapi32.DLL")]
+            public static extern bool RevertToSelf();
+        }
 
         public static object Impersonate(string user, string password)
         {
@@ -38,7 +41,7 @@ namespace Eu.EDelivery.AS4.Security
 
             IntPtr securityToken;
 
-            LogonUser(user, domain, password, 9, 0, out securityToken);
+            NativeMethods.LogonUser(user, domain, password, 9, 0, out securityToken);
             if (securityToken == IntPtr.Zero)
                 throw new InvalidOperationException(
                     "The username or password combination was invalid, please verify your settings");

@@ -160,8 +160,18 @@ namespace Eu.EDelivery.AS4.Watchers
 
         public void Dispose()
         {
-            _pmodes.Clear();
-            _watcher.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _pmodes.Clear();
+                _watcher?.Dispose();
+            }
+        }
+
     }
 }

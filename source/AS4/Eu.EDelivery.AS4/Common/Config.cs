@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Common
             this._logger = LogManager.GetCurrentClassLogger();
 
             this._configuration = new Dictionary
-                <string, string>(StringComparer.CurrentCultureIgnoreCase);            
+                <string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
 
         /// <summary>
@@ -269,10 +269,27 @@ namespace Eu.EDelivery.AS4.Common
 
         public void Dispose()
         {
-            _sendingPModeWatcher?.Stop();
-            _receivingPModeWatcher?.Stop();
-            _sendingPModeWatcher?.Dispose();
-            _receivingPModeWatcher?.Dispose();
+            Dispose(true);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposing)
+            {
+                return;
+            }
+
+            if (_sendingPModeWatcher != null)
+            {
+                _sendingPModeWatcher.Stop();
+                _sendingPModeWatcher.Dispose();
+            }
+
+            if (_receivingPModeWatcher != null)
+            {
+                _receivingPModeWatcher.Stop();
+                _receivingPModeWatcher.Dispose();
+            }
         }
     }
 }
