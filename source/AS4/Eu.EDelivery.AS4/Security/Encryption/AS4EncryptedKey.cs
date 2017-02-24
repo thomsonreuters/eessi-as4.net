@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using Eu.EDelivery.AS4.Security.Strategies;
+
 
 namespace Eu.EDelivery.AS4.Security.Encryption
 {
@@ -14,14 +14,14 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         private readonly string _digestAlgorithm;
         private readonly string _mgfAlgorithm;
 
-        public AS4EncryptedKey(EncryptedKey encryptedKey, string digestAlgorithm, string mgfAlgorithm)
+        internal AS4EncryptedKey(EncryptedKey encryptedKey, string digestAlgorithm, string mgfAlgorithm)
         {
             _encryptedKey = encryptedKey;
             _digestAlgorithm = digestAlgorithm;
             _mgfAlgorithm = mgfAlgorithm;
         }
 
-        public static AS4EncryptedKey LoadFromXmlDocument(XmlDocument xmlDocument)
+        internal static AS4EncryptedKey LoadFromXmlDocument(XmlDocument xmlDocument)
         {
             var encryptedKeyElement = xmlDocument.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
 
@@ -87,11 +87,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public string GetDigestAlgorithm()
         {
-            return _digestAlgorithm;
-            ////string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='DigestMethod' and namespace-uri()='{Constants.Namespaces.XmlDsig}']";
-            ////var digestNode = this._encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
-
-            ////return digestNode?.GetAttribute("Algorithm");
+            return _digestAlgorithm;           
         }
 
         /// <summary>
@@ -99,12 +95,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// </summary>
         /// <returns></returns>
         public string GetMaskGenerationFunction()
-        {
-            ////string xpath = $".//*[local-name()='EncryptionMethod']";
-
-            ////var node = _encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
-
-            ////return node?.GetAttribute("MGF");
+        {            
             return _mgfAlgorithm;
         }
 
@@ -144,9 +135,8 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         {
             XmlElement digestMethod = encryptionMethodNode.OwnerDocument
                 .CreateElement("DigestMethod", Constants.Namespaces.XmlDsig);
-
-            // TODO: do we need to change this algorithm (configured by the PMode)
-            digestMethod.SetAttribute("Algorithm", digestAlgorithm); // EncryptionStrategy.XmlEncSHA1Url);
+            
+            digestMethod.SetAttribute("Algorithm", digestAlgorithm); 
 
             encryptionMethodNode.AppendChild(digestMethod);
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.Security.Strategies;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
@@ -23,7 +24,7 @@ namespace Eu.EDelivery.AS4.Security.Factories
         /// <param name="digestAlgorithm"></param>
         /// <param name="mgfAlgorithm"></param>
         /// <returns></returns>
-        public OaepEncoding Create(string digestAlgorithm = null, string mgfAlgorithm = null)
+        public OaepEncoding Create(string digestAlgorithm = EncryptionStrategy.XmlEncSHA1Url, string mgfAlgorithm = null)
         {
             var digest = !string.IsNullOrWhiteSpace(digestAlgorithm) ? GetDigest(digestAlgorithm) : new Sha1Digest();
             var mgf = !string.IsNullOrWhiteSpace(mgfAlgorithm) ? GetMgf(mgfAlgorithm) : new Sha1Digest();
