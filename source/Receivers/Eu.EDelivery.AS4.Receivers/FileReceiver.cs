@@ -64,11 +64,16 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            this.Logger.Info($"Start receiving on '{Path.GetFullPath(this.FilePath)}'...");
+            this.Logger.Debug($"Start receiving on '{Path.GetFullPath(this.FilePath)}'...");
             StartPolling(messageCallback, cancellationToken);
         }
 
         private readonly HashSet<FileInfo> _pendingFiles = new HashSet<FileInfo>();
+
+        public void StopReceiving()
+        {
+            this.Logger.Debug($"Stop receiving on '{Path.GetFullPath(this.FilePath)}'...");
+        }
 
         /// <summary>
         /// Declaration to where the Message are and can be polled

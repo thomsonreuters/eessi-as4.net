@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
-using Eu.EDelivery.AS4.UnitTests.Builders;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -18,13 +17,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     public class GivenDatastoreStepFacts : GivenDatastoreFacts
     {
         protected IStep Step;
-        protected string ReceiptMessageId, ErrorMessageId, SignalMessageId;
+        protected string ReceiptMessageId, ErrorMessageId;
+
 
         public GivenDatastoreStepFacts()
         {
             this.ReceiptMessageId = Guid.NewGuid().ToString();
-            this.ErrorMessageId = Guid.NewGuid().ToString();
-            this.SignalMessageId = Guid.NewGuid().ToString();
+            this.ErrorMessageId = Guid.NewGuid().ToString();            
 
             SeedDataStore(this.Options);
         }
@@ -44,26 +43,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 RefToMessageId = this.ErrorMessageId
             };
         }
-
-        protected SignalMessage GetSignalMessage()
-        {
-            return new SignalMessage(this.SignalMessageId)
-            {
-                RefToMessageId = this.SignalMessageId
-            };
-        }
-
+       
         protected void SeedDataStore(DbContextOptions<DatastoreContext> options)
         {
             using (var context = new DatastoreContext(options))
             {
                 var receipt = new OutMessage { EbmsMessageId = GetReceipt().MessageId };
-                var error = new OutMessage { EbmsMessageId = GetError().MessageId };
-                var signalMessage = new OutMessage { EbmsMessageId = GetSignalMessage().MessageId };
+                var error = new OutMessage { EbmsMessageId = GetError().MessageId };                
 
                 context.OutMessages.Add(receipt);
-                context.OutMessages.Add(error);
-                context.OutMessages.Add(signalMessage);
+                context.OutMessages.Add(error);                
                 context.SaveChanges();
             }
         }
@@ -74,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             // Before
             if (this.Step == null) return;
             // Arrange
-            var message = new AS4Message();
+            var message = new AS4MessageBuilder().Build();
             var internalMessage = new InternalMessage(message);
             // Act
             StepResult result = await this.Step
@@ -88,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             // Before
             if (this.Step == null) return;
-            
+
             // Arrange
             SignalMessage errorMessage = GetError();
 

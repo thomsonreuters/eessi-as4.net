@@ -3,7 +3,7 @@ using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
-using NLog;
+using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Security.References
 {
@@ -12,20 +12,25 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal class KeyIdentifierSecurityTokenReference : SecurityTokenReference
     {
-        private readonly string _securityTokenReferenceId;
         private readonly string _keyInfoId;
-        private readonly ILogger _logger;
+
+        private readonly ICertificateRepository _certificateReposistory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyIdentifierSecurityTokenReference"/> class. 
         /// Create a new <see cref="SecurityTokenReference"/>
         /// to handle <see cref="X509ReferenceType.KeyIdentifier"/> configuration
         /// </summary>
-        public KeyIdentifierSecurityTokenReference()
+        public KeyIdentifierSecurityTokenReference(ICertificateRepository certificateRepository)
         {
+            this._certificateReposistory = certificateRepository;
             this._keyInfoId = $"KI-{Guid.NewGuid()}";
-            this._securityTokenReferenceId = $"STR-{Guid.NewGuid()}";
-            this._logger = LogManager.GetCurrentClassLogger();
+        }
+
+        public KeyIdentifierSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
+        {
+            this._certificateReposistory = certificateRepository;
+            LoadXml(envelope);
         }
 
         /// <summary>
@@ -36,7 +41,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <returns></returns>
         public override XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {
-            var nodeKeyInfo = (XmlElement) element.SelectSingleNode("//*[local-name()='KeyInfo']");
+            var nodeKeyInfo = (XmlElement)element.SelectSingleNode("//*[local-name()='KeyInfo']");
             nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, this._keyInfoId);
 
             return element;
@@ -109,8 +114,7 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private void SaveCertificateWithHexBinary(SoapHexBinary soapHexBinary)
         {
-            this.Certificate = this.CertificateRepository
-                .GetCertificate(X509FindType.FindBySubjectKeyIdentifier, soapHexBinary.ToString());
+            this.Certificate = this._certificateReposistory.GetCertificate(X509FindType.FindBySubjectKeyIdentifier, soapHexBinary.ToString());
         }
 
         private SoapHexBinary RetrieveHexBinaryFromKeyIdentifier(XmlElement xmlKeyIdentifier)

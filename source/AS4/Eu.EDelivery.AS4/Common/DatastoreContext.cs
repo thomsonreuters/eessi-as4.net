@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using NLog;
 using Polly;
 using Polly.Retry;
@@ -18,8 +19,7 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public class DatastoreContext : DbContext
     {
-        private readonly IConfig _config;
-        private ILogger _logger;
+        private readonly IConfig _config;        
         private RetryPolicy _policy;
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
@@ -57,11 +57,8 @@ namespace Eu.EDelivery.AS4.Common
         {
             this._policy = Policy
                 .Handle<DbUpdateException>()
-                .RetryAsync();
-
-
-            this._logger = LogManager.GetCurrentClassLogger();
-        }        
+                .RetryAsync();            
+        }
 
         /// <summary>
         ///     <para>
@@ -89,6 +86,9 @@ namespace Eu.EDelivery.AS4.Common
             string providerKey = this._config.GetSetting("Provider");
             if (!this._providers.ContainsKey(providerKey)) throw new AS4Exception($"No Database provider found for key: {providerKey}");
             this._providers[providerKey](connectionString);
+
+            // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
+            optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
         }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
@@ -220,9 +220,9 @@ namespace Eu.EDelivery.AS4.Common
 
         private AS4Exception ThrowDatastoreUnavailableException(Exception innerException = null)
         {
-            return new AS4ExceptionBuilder()
-                .WithInnerException(innerException)
+            return AS4ExceptionBuilder
                 .WithDescription("Datastore unavailable")
+                .WithInnerException(innerException)                
                 .WithErrorCode(ErrorCode.Ebms0004)
                 .Build();
         }

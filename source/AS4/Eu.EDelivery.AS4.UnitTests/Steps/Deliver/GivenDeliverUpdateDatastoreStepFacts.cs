@@ -3,10 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -19,14 +18,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// </summary>
     public class GivenDeliverUpdateDatastoreStepFacts : GivenDatastoreFacts
     {
-        private DeliverUpdateDatastoreStep _step;
+        private readonly DeliverUpdateDatastoreStep _step;
         private readonly string _messageId;
 
         public GivenDeliverUpdateDatastoreStepFacts()
         {
             this._messageId = "message-id";
-            this._step = new DeliverUpdateDatastoreStep(
-                new DatastoreRepository(() => new DatastoreContext(base.Options)));
+            this._step = new DeliverUpdateDatastoreStep();
 
             SeedDatastore();
         }
@@ -79,9 +77,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             }
         }
 
-        protected DeliverMessage CreateDeliverMessage()
+        protected DeliverMessageEnvelope CreateDeliverMessage()
         {
-            return new DeliverMessage {MessageInfo = {MessageId = this._messageId}};
+            return new DeliverMessageEnvelope(new MessageInfo() { MessageId = this._messageId }, new byte[] { }, "");
         }
 
         protected InternalMessage CreateDefaultInternalMessage()

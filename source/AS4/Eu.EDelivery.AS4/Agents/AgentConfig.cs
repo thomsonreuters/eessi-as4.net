@@ -5,9 +5,7 @@
     /// </summary>
     public class AgentConfig
     {
-        public string Name { get; set; }
-
-        public AgentConfig() {}
+        public string Name { get; }
 
         public AgentConfig(string name)
         {
@@ -20,9 +18,10 @@
     /// </summary>
     public class NullAgentConfig : AgentConfig
     {
-        public NullAgentConfig()
-        {
-            this.Name = "[Null Agent Config]";
+        private NullAgentConfig() : base("[Null Agent Config]")
+        {            
         }
+
+        public static readonly NullAgentConfig Default = new NullAgentConfig();
     }
 }

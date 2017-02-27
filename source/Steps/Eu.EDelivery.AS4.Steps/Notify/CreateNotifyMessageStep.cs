@@ -4,6 +4,7 @@ using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
@@ -36,9 +37,16 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             this._internalMessage = internalMessage;
 
-            internalMessage.NotifyMessage = CreateNotifyMessage(internalMessage.AS4Message);
-            internalMessage.NotifyMessage.StatusInfo.Any = GetOriginalSignalMessage(internalMessage.AS4Message);
+            var notifyMessage = CreateNotifyMessage(internalMessage.AS4Message);
+            notifyMessage.StatusInfo.Any = GetOriginalSignalMessage(internalMessage.AS4Message);
 
+            var serialized = AS4XmlSerializer.Serialize(notifyMessage);
+
+            _internalMessage.NotifyMessage = new NotifyMessageEnvelope(notifyMessage.MessageInfo,
+                                                                       notifyMessage.StatusInfo.Status,
+                                                                       System.Text.Encoding.UTF8.GetBytes(serialized),
+                                                                       "application/xml");
+            
             LogInformation(internalMessage);
             return StepResult.SuccessAsync(internalMessage);
         }
@@ -55,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             const string xpath = "//*[local-name()='SignalMessage']";
             XmlNode nodeSignature = as4Message.EnvelopeDocument.SelectSingleNode(xpath);
 
-            return new[] {(XmlElement) nodeSignature};
+            return new[] { (XmlElement)nodeSignature };
         }
 
         private void LogInformation(InternalMessage internalMessage)
@@ -66,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private static string GetNotifyMessageType(InternalMessage internalMessage)
         {
-            Status status = internalMessage.NotifyMessage.StatusInfo.Status;
+            Status status = internalMessage.NotifyMessage.StatusCode;
             return status == Status.Delivered ? "Receipt" : status.ToString();
         }
     }

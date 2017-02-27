@@ -80,9 +80,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             this._logger.Info($"{this._internalMessage.Prefix} Create Receipt Message with Reference to respond");
 
-            var receipt = new Receipt {RefToMessageId = messageId};
-            AS4Message receiptMessage = new AS4MessageBuilder()
-                .WithUserMessage(this._originalAS4Message.PrimaryUserMessage).WithSignalMessage(receipt).Build();
+            var receipt = new Receipt { RefToMessageId = messageId };
+            AS4Message receiptMessage = new AS4MessageBuilder().WithSignalMessage(receipt)
+                                                               .Build();
 
             receiptMessage.SigningId = this._originalAS4Message.SigningId;
             AdaptReceiptMessage(receipt);
@@ -118,7 +118,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Exception ThrowCommonAS4Exception(AS4Exception exception)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
+                .WithDescription("An error occured while receiving a message.")
                 .WithExistingAS4Exception(exception)
                 .WithPModeString(this._internalMessage.ReceivingPModeString)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)

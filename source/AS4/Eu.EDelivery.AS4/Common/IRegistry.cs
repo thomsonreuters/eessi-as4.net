@@ -10,10 +10,9 @@ namespace Eu.EDelivery.AS4.Common
     {
         ISerializerProvider SerializerProvider { get; }
         ICertificateRepository CertificateRepository { get; set; }
-        INotifySenderProvider NotifySenderProvider { get; set; }
+        INotifySenderProvider NotifySenderProvider { get;  }
         IDeliverSenderProvider DeliverSenderProvider { get; }
-        IPayloadRetrieverProvider PayloadRetrieverProvider { get; set; }
-        IDatastoreRepository DatastoreRepository { get; set; }
-        IAttachmentUploaderProvider AttachmentUploader { get; set; }
+        IPayloadRetrieverProvider PayloadRetrieverProvider { get;  }        
+        IAttachmentUploaderProvider AttachmentUploader { get;  }
     }
 }

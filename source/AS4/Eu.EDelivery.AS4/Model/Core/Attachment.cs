@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Factories;
@@ -18,10 +19,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         public List<Schema> Schemas { get; set; }
         public IDictionary<string, string> Properties { get; set; }
 
-        public Attachment()
+        public Attachment() : this(IdentifierFactory.Instance.Create())
         {
-            this.Id = IdentifierFactory.Instance.Create();
-            InitializeDefaults();
         }
 
         public Attachment(string id)
@@ -32,7 +31,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         private void InitializeDefaults()
         {
-            this.Properties = new Dictionary<string, string>();
+            this.Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             this.Schemas = new List<Schema>();
             this.ContentType = "application/octet-stream";
         }

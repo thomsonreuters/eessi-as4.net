@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -31,7 +32,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return returnPayloads;
         }
 
-        private void ResolvePartInfosFromSubmitMessage(SubmitMessage submitMessage, List<PartInfo> returnPayloads)
+        private static void ResolvePartInfosFromSubmitMessage(SubmitMessage submitMessage, List<PartInfo> returnPayloads)
         {
             foreach (Payload submitPayload in submitMessage.Payloads)
             {
@@ -40,7 +41,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             }
         }
 
-        private PartInfo CreatePartInfo(SubmitMessage submitMessage, Payload submitPayload)
+        private static PartInfo CreatePartInfo(SubmitMessage submitMessage, Payload submitPayload)
         {
             string href = submitPayload.Id ?? IdentifierFactory.Instance.Create();
 
@@ -52,11 +53,11 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return returnPayload;
         }
 
-        private void InsertSchemasInPayload(Payload submitPayload, PartInfo returnPartInfo)
+        private static void InsertSchemasInPayload(Payload submitPayload, PartInfo returnPartInfo)
         {
             foreach (Model.Common.Schema submitSchema in submitPayload.Schemas)
             {
-                var schema = Mapper.Map<Model.Core.Schema>(submitSchema);
+                var schema = AS4Mapper.Map<Model.Core.Schema>(submitSchema);
                 if (string.IsNullOrEmpty(schema.Location))
                     throw new AS4Exception("Invalid Schema: Schema needs a location");
 
@@ -64,7 +65,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             }
         }
 
-        private void InsertPropertiesInPayload(SubmitMessage message, Payload submitPayload, PartInfo returnPartInfo)
+        private static void InsertPropertiesInPayload(SubmitMessage message, Payload submitPayload, PartInfo returnPartInfo)
         {
             if (message.PMode.MessagePackaging.UseAS4Compression)
                 AddCompressionProperties(submitPayload, returnPartInfo);
@@ -73,7 +74,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             AddPayloadProperties(submitPayload, returnPartInfo);
         }
 
-        private void AddPayloadProperties(Payload submitPayload, PartInfo returnPartInfo)
+        private static void AddPayloadProperties(Payload submitPayload, PartInfo returnPartInfo)
         {
             foreach (PayloadProperty payloadProperty in submitPayload.PayloadProperties)
             {
@@ -84,7 +85,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             }
         }
 
-        private void AddCompressionProperties(Payload submitPayload, PartInfo returnPartInfo)
+        private static void AddCompressionProperties(Payload submitPayload, PartInfo returnPartInfo)
         {
             returnPartInfo.Properties["CompressionType"] = "application/gzip";
 

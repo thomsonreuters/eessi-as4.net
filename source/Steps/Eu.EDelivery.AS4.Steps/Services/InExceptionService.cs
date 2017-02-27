@@ -1,9 +1,13 @@
 ﻿using System;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Services
@@ -34,19 +38,23 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// into the Data store
         /// </summary>
         /// <param name="exception"></param>
-        public async Task InsertAS4ExceptionAsync(AS4Exception exception)
+        /// <param name="as4Message"></param>
+        public async Task InsertAS4ExceptionAsync(AS4Exception exception, AS4Message as4Message)
         {
             foreach (string messageId in exception.MessageIds)
-                await TryStoreIncomingAS4ExceptionAsync(exception, messageId);
+            {
+                await TryStoreIncomingAS4ExceptionAsync(exception, messageId, as4Message);
+            }
         }
 
-        private async Task TryStoreIncomingAS4ExceptionAsync(AS4Exception as4Exception, string messageId)
+        private async Task TryStoreIncomingAS4ExceptionAsync(AS4Exception as4Exception, string messageId, AS4Message as4Message)
         {
             try
             {
                 this._logger.Info($"Store InException: {as4Exception.Message}");
 
                 InException inException = CreateInException(as4Exception, messageId);
+                SetMessageBody(inException, as4Message);
                 await InsertInException(inException);
             }
             catch (Exception exception)
@@ -56,7 +64,17 @@ namespace Eu.EDelivery.AS4.Steps.Services
             }
         }
 
-        private InException CreateInException(AS4Exception exception, string messageId)
+        private static void SetMessageBody(ExceptionEntity outException, AS4Message as4Message)
+        {
+            using (var messageBodyStream = new MemoryStream())
+            {
+                var serializer = new SoapEnvelopeSerializer();
+                serializer.Serialize(as4Message, messageBodyStream, CancellationToken.None);
+                outException.MessageBody = messageBodyStream.ToArray();
+            }
+        }
+
+        private static InException CreateInException(AS4Exception exception, string messageId)
         {
             return new InExceptionBuilder()
                 .WithAS4Exception(exception)
@@ -77,6 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// into the Data store
         /// </summary>
         /// <param name="exception"></param>
-        Task InsertAS4ExceptionAsync(AS4Exception exception);
+        /// <param name="as4Message"></param>
+        Task InsertAS4ExceptionAsync(AS4Exception exception, AS4Message as4Message);
     }
 }

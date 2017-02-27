@@ -1,8 +1,10 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.PMode;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Submit;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
 {
@@ -39,25 +41,36 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return this._pmodeResolver.Resolve(submitMessage.PMode);
         }
 
-        private bool IsSubmitMessageToPartyNotNull(SubmitMessage submitMessage)
+        private static bool IsSubmitMessageToPartyNotNull(SubmitMessage submitMessage)
         {
             return submitMessage?.PartyInfo?.ToParty != null;
         }
 
-        private Party MapToPartyFromSubmitMessage(SubmitMessage message)
+        private static Party MapToPartyFromSubmitMessage(SubmitMessage message)
         {
-            var toParty = Mapper.Map<Party>(message.PartyInfo.ToParty);
+            var toParty = AS4Mapper.Map<Party>(message.PartyInfo.ToParty);
             // AutoMapper doens't map "Role"
             toParty.Role = message.PartyInfo.ToParty.Role;
 
             return toParty;
         }
 
-        private void PreConditionAllowOverride(SubmitMessage message)
+        private static void PreConditionAllowOverride(SubmitMessage message)
         {
             if (message?.PartyInfo?.ToParty != null && message.PMode.AllowOverride == false)
-                throw new AS4Exception(
-                    $"Submit Message is not allowed by the Sending PMode {message.PMode.Id} to override Receiver Party");
+            {
+                // If the ToPartyInfo is equal as the ToParty information in the PMode, then there is no problem.
+                var messagePartyInfo = message.PartyInfo.ToParty.PartyIds.Select(p => p.Id).OrderBy(p => p);
+                var pmodePartyInfo = message.PMode.MessagePackaging.PartyInfo.ToParty.PartyIds.Select(p=>p.Id).OrderBy(p => p);
+
+                if (Enumerable.SequenceEqual(messagePartyInfo, pmodePartyInfo) == false)
+                {
+                    throw new AS4Exception(
+$"Submit Message is not allowed by the Sending PMode {message.PMode.Id} to override Receiver Party");
+                }
+
+            }
+
         }
     }
 }

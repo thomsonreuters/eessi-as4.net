@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
         private Mock<IStep> _mockedStep;
 
         public GivenOutExceptionDecoratorStepFacts()
-        {
+        {            
             this._mockedStep = new Mock<IStep>();
             ResetStep();
         }
@@ -98,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 });
             }
 
-            private OutMessage CreateDefaultOutMessage(string messageId)
+            private static OutMessage CreateDefaultOutMessage(string messageId)
             {
                 return new OutMessage
                 {
@@ -109,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void InsertOutMessage(OutMessage outMessage)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
                     context.OutMessages.Add(outMessage);
                     context.SaveChanges();
@@ -118,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
                     OutMessage outMessage = context.OutMessages
                         .FirstOrDefault(e => e.EbmsMessageId.Equals(messageId));
@@ -129,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected void SetupMockedStep(string messageId)
         {
-            AS4Exception as4Exception = new AS4ExceptionBuilder()
+            AS4Exception as4Exception = AS4ExceptionBuilder
                 .WithDescription("Test AS4 Exception")
                 .WithMessageIds(messageId)
                 .Build();
@@ -142,8 +143,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected void ResetStep()
         {
-            var datastoreRepository = new DatastoreRepository(() => new DatastoreContext(base.Options));
-            this._step = new OutExceptionStepDecorator(this._mockedStep.Object, datastoreRepository);
+            this._step = new OutExceptionStepDecorator(this._mockedStep.Object);
         }
 
         protected InternalMessage CreateDefaultInternalMessage()

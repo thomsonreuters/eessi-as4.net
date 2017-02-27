@@ -37,10 +37,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
                         new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
 
-                        userMessage.Mpc = new SubmitMpcResolver().Resolve(submitMessage);
-                        userMessage.CollaborationInfo.Service = new SubmitServiceResolver().Resolve(submitMessage);
-                        userMessage.CollaborationInfo.Action = new SubmitActionResolver().Resolve(submitMessage);
-                        userMessage.CollaborationInfo.ConversationId = new SubmitConversationIdResolver().Resolve(submitMessage);
+                        userMessage.Mpc = SubmitMpcResolver.Default.Resolve(submitMessage);
+                        userMessage.CollaborationInfo.Service = SubmitServiceResolver.Default.Resolve(submitMessage);
+                        userMessage.CollaborationInfo.Action =  SubmitActionResolver.Default.Resolve(submitMessage);
+                        userMessage.CollaborationInfo.ConversationId = SubmitConversationIdResolver.Default.Resolve(submitMessage);
                     });
         }
     }

@@ -38,10 +38,8 @@ namespace Eu.EDelivery.AS4.Receivers
                     IEnumerable<TIn> messagesToPoll = GetMessagesToPoll(cancellationToken);
                     tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
 
-                    TryPollOnTarget(tasks, messagesToPoll);
-                }
-
-                this.Logger.Info("Cancellation requested");
+                    TryPollOnTarget(tasks, messagesToPoll, cancellationToken);
+                }                
             }
             finally
             {
@@ -55,11 +53,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="tasks"></param>
         /// <param name="messagesToPoll"></param>
-        private void TryPollOnTarget(List<Task> tasks, IEnumerable<TIn> messagesToPoll)
+        private void TryPollOnTarget(List<Task> tasks, IEnumerable<TIn> messagesToPoll, CancellationToken cancellationToken)
         {
             try
             {
-                PollOnTarget(tasks);
+                PollOnTarget(tasks, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -70,13 +68,18 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private void PollOnTarget(List<Task> tasks)
+        private void PollOnTarget(List<Task> tasks, CancellationToken cancellationToken)
         {
             int taskCount = tasks.Count;
             Task.WaitAll(tasks.ToArray());
 
-            bool isThereWork = taskCount == 0;
-            if (isThereWork) Thread.Sleep(this.PollingInterval);
+            bool isThereWork = taskCount > 0;
+            if (isThereWork == false)
+            {
+                // TODO: modify this to Task.Delay().Wait instead ?
+                Thread.Sleep(this.PollingInterval);
+               // Task.Delay(this.PollingInterval, cancellationToken).Wait(cancellationToken);
+            }
         }
 
         /// <summary>

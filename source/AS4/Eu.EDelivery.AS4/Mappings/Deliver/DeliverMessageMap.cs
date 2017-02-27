@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.Mappings.Deliver
 {
@@ -19,8 +20,8 @@ namespace Eu.EDelivery.AS4.Mappings.Deliver
                     deliverMessage.MessageInfo.RefToMessageId = userMessage.RefToMessageId;
                     deliverMessage.MessageInfo.Mpc = userMessage.Mpc ?? string.Empty;
 
-                    deliverMessage.PartyInfo.FromParty = Mapper.Map<Model.Common.Party>(userMessage.Sender);
-                    deliverMessage.PartyInfo.ToParty = Mapper.Map<Model.Common.Party>(userMessage.Receiver);
+                    deliverMessage.PartyInfo.FromParty = AS4Mapper.Map<Model.Common.Party>(userMessage.Sender);
+                    deliverMessage.PartyInfo.ToParty = AS4Mapper.Map<Model.Common.Party>(userMessage.Receiver);
 
                     deliverMessage.CollaborationInfo.ConversationId = userMessage.CollaborationInfo.ConversationId;
                     deliverMessage.CollaborationInfo.Action = userMessage.CollaborationInfo.Action;

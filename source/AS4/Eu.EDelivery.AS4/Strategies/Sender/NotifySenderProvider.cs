@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// </summary>
         /// <param name="condition"></param>
         /// <param name="sender"></param>
-        public void Accept(Func<string, bool> condition, INotifySender sender)
+        public void Accept(Func<string, bool> condition, Func<INotifySender> sender)
         {
             this._senders.Add(new NotifySenderEntry(condition, sender));
         }
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             if (entry?.Sender == null)
                 throw new AS4Exception($"No Deliver Sender found for a given {operationMethod} Operation Method");
 
-            return entry.Sender;
+            return entry.Sender();
         }
 
         /// <summary>
@@ -56,9 +56,9 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private class NotifySenderEntry
         {
             public Func<string, bool> Condition { get; }
-            public INotifySender Sender { get; }
+            public Func<INotifySender> Sender { get; }
 
-            public NotifySenderEntry(Func<string, bool> condition, INotifySender sender)
+            public NotifySenderEntry(Func<string, bool> condition, Func<INotifySender> sender)
             {
                 this.Condition = condition;
                 this.Sender = sender;
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// </summary>
     public interface INotifySenderProvider
     {
-        void Accept(Func<string, bool> condition, INotifySender sender);
+        void Accept(Func<string, bool> condition, Func<INotifySender> sender);
         INotifySender GetNotifySender(string operationMethod);
     }
 }

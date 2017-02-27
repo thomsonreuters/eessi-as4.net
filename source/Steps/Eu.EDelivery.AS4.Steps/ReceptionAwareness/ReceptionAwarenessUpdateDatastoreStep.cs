@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -20,125 +21,150 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     /// </summary>
     public class ReceptionAwarenessUpdateDatastoreStep : IStep
     {
-        private readonly IDatastoreRepository _repository;
-        private readonly IInMessageService _service;
         private readonly ILogger _logger;
 
         private Entities.ReceptionAwareness _receptionAwareness;
+        ////private UserMessage _userMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
         /// </summary>
         public ReceptionAwarenessUpdateDatastoreStep()
         {
-            this._repository = Registry.Instance.DatastoreRepository;
-            this._service = new InMessageService(this._repository);
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
-        /// Create a <see cref="IStep"/> implementation  for the AS4 Reception Awareness
-        /// </summary>
-        /// <param name="repository">
-        /// </param>
-        /// <param name="service">
-        /// </param>
-        public ReceptionAwarenessUpdateDatastoreStep(IDatastoreRepository repository, IInMessageService service)
-        {
-            this._repository = repository;
-            this._service = service;
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
+        // Make sure that only one instance can be executed at the same time.
+        private static readonly object Sync = new object();
 
         /// <summary>
         /// Start updating the Data store
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._receptionAwareness = internalMessage.ReceiptionAwareness;
-
-            if (IsMessageAlreadyAwnsered())
+            lock (Sync)
             {
-                UpdateForAwnseredMessage();
-                return StepResult.SuccessAsync(internalMessage);
+                using (var context = Registry.Instance.CreateDatastoreContext())
+                {
+                    this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
+
+                    var repository = new DatastoreRepository(context);
+
+                    this._receptionAwareness = internalMessage.ReceptionAwareness;
+
+                    if (IsMessageAlreadyAnswered(repository))
+                    {
+                        this._logger.Debug("Message has been answered, marking as complete");
+                        UpdateForAnsweredMessage(repository);
+                        return StepResult.SuccessAsync(internalMessage);
+                    }
+
+                    if (MessageNeedsToBeResend(repository))
+                    {
+                        this._logger.Debug(
+                            $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
+                        UpdateForResendMessage(repository);
+                    }
+                    else
+                    {
+                        if (IsMessageUnanswered(repository))
+                        {
+                            this._logger.Debug("Message is unanswered.");
+                            UpdateForUnansweredMessage(repository, cancellationToken);
+                        }
+                    }
+
+
+                    // TODO: savechanges should be called here.
+                }
             }
-
-            if (MessageNeedsToBeResend())
-                UpdateForResendMessage();
-
-            if (IsMessageUnawnserd())
-                UpdateForUnawnseredMessage(cancellationToken);
 
             WaitRetryInterval("Waiting retry interval...");
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private bool IsMessageAlreadyAwnsered()
+        private bool IsMessageAlreadyAnswered(IDatastoreRepository repository)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
 
-            return this._repository.GetInMessage(
+            // TODO: frgh use another repository method.  do not retrieve the complete entity, but check count.
+            //       (optimization)
+            return repository.GetInMessage(
                 inMessage => inMessage.EbmsRefToMessageId?.Equals(messageId) == true) != null;
         }
 
-        private void UpdateForAwnseredMessage()
+        private void UpdateForAnsweredMessage(IDatastoreRepository repository)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
             this._logger.Info($"[{messageId}] Reception Awareness completed");
-            UpdateReceptionAwareness(x => x.IsCompleted = true);
+            UpdateReceptionAwareness(x => x.IsCompleted = true, repository);
         }
 
-        private bool MessageNeedsToBeResend()
+        private bool MessageNeedsToBeResend(IDatastoreRepository repository)
         {
             TimeSpan retryInterval = TimeSpan.Parse(this._receptionAwareness.RetryInterval);
-            DateTimeOffset lastSendTime = this._receptionAwareness.LastSendTime.Add(retryInterval);
+
+            TimeSpan gracePeriod = TimeSpan.FromTicks(retryInterval.Ticks);
+
+            DateTimeOffset deadlineForResend = this._receptionAwareness.LastSendTime.Add(gracePeriod);
 
             return
                 this._receptionAwareness.CurrentRetryCount < this._receptionAwareness.TotalRetryCount &&
-                DateTimeOffset.UtcNow.CompareTo(lastSendTime) > 0 &&
+                repository.GetOutMessageById(this._receptionAwareness.InternalMessageId)?.Operation != Operation.Sending &&
+                DateTimeOffset.UtcNow.CompareTo(deadlineForResend) > 0 &&
                 this._receptionAwareness.IsCompleted == false;
         }
 
-        private void UpdateForResendMessage()
+        private void UpdateForResendMessage(IDatastoreRepository repository)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend");
-            this._repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.ToBeSent);
+            this._logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {this._receptionAwareness.CurrentRetryCount + 1})");
 
-            UpdateReceptionAwareness(awareness =>
-            {
-                awareness.CurrentRetryCount = awareness.CurrentRetryCount + 1;
-                awareness.LastSendTime = DateTimeOffset.UtcNow;
-            });
+            repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.ToBeSent);
+
+        }
+        
+        private bool IsMessageUnanswered(IDatastoreRepository repository)
+        {           
+            return this._receptionAwareness.CurrentRetryCount >= this._receptionAwareness.TotalRetryCount; 
         }
 
-        private bool IsMessageUnawnserd()
-        {
-            return
-                this._receptionAwareness.CurrentRetryCount ==
-                this._receptionAwareness.TotalRetryCount;
-        }
-
-        private void UpdateForUnawnseredMessage(CancellationToken cancellationToken)
+        private void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._logger.Warn($"[{messageId}] ebMS message is unanswered");
+            this._logger.Info($"[{messageId}] ebMS message is unanswered");
 
-            UpdateReceptionAwareness(awareness => awareness.IsCompleted = true);
+            UpdateReceptionAwareness(awareness => awareness.IsCompleted = true, repository);
+            repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.DeadLettered);
 
-            Error errorMessage = CreateError();
-            AS4Message as4Message = CreateAS4Message(errorMessage);
-            this._service.InsertErrorAsync(errorMessage, as4Message, cancellationToken);
+            Error errorMessage = CreateError(repository);
+            AS4Message as4Message = CreateAS4Message(errorMessage, repository);
+
+            new InMessageService(repository).InsertErrorAsync(errorMessage, as4Message, cancellationToken).GetAwaiter();
         }
 
-        private Error CreateError()
+        private Error CreateError(IDatastoreRepository repository)
         {
             AS4Exception as4Exception = CreateAS4Exception();
             string messageId = this._receptionAwareness.InternalMessageId;
+
+            // TODO: frgh; what is the use of the code below?
+
+            // OutMessage outMessage = repository.GetOutMessageById(messageId);
+
+            
+
+            //////if (outMessage?.MessageBody != null)
+            //////{
+            //////    using (var memoryStream = new MemoryStream(outMessage.MessageBody))
+            //////    {
+            //////        ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+            //////        this._userMessage = serializer.DeserializeAsync(memoryStream, outMessage.ContentType, CancellationToken.None).Result.PrimaryUserMessage;
+            //////    }
+            //////}
 
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
@@ -150,29 +176,35 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             string messageId = this._receptionAwareness.InternalMessageId;
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription($"[{messageId}] Missing Receipt")
                 .WithMessageIds(this._receptionAwareness.InternalMessageId)
                 .WithErrorCode(ErrorCode.Ebms0301)
                 .Build();
         }
 
-        private AS4Message CreateAS4Message(SignalMessage errorMessage)
+        private AS4Message CreateAS4Message(SignalMessage errorMessage, IDatastoreRepository repository)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            OutMessage outMessage = this._repository.GetOutMessageById(messageId);
+            OutMessage outMessage = repository.GetOutMessageById(messageId);
             var pmode = AS4XmlSerializer.Deserialize<SendingProcessingMode>(outMessage.PMode);
 
-            return new AS4MessageBuilder()
+            var builder = new AS4MessageBuilder()
                 .WithSendingPMode(pmode)
-                .WithSignalMessage(errorMessage)
-                .Build();
+                .WithSignalMessage(errorMessage);
+
+            ////if (this._userMessage != null)
+            ////{
+            ////    builder.WithUserMessage(this._userMessage);
+            ////}
+
+            return builder.Build();
         }
 
-        private void UpdateReceptionAwareness(Action<Entities.ReceptionAwareness> updateAction)
+        private void UpdateReceptionAwareness(Action<Entities.ReceptionAwareness> updateAction, IDatastoreRepository repository)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
-            this._repository.UpdateReceptionAwarenessAsync(messageId, updateAction);
+            repository.UpdateReceptionAwarenessAsync(messageId, updateAction);
         }
 
         private void WaitRetryInterval(string description)
@@ -181,6 +213,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             string messageId = this._receptionAwareness.InternalMessageId;
 
             this._logger.Info($"[{messageId}] {description}");
+            // TODO: modify code below to await Task.Delay( ... ) ?
             Thread.Sleep(retryInterval);
         }
     }

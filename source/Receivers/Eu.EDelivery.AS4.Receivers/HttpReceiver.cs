@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -26,6 +27,7 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private readonly ILogger _logger;
         private readonly ISerializerProvider _provider;
+        private HttpListener _listener;
         private IDictionary<string, string> _properties;
 
         private string Prefix => this._properties.ReadMandatoryProperty("Url");
@@ -57,28 +59,57 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public async void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            var listener = new HttpListener();
-            listener.Prefixes.Add(this.Prefix);
-            StartListener(listener);
+            // TODO: for performance : call GetContextAsync multiple times to handle concurrent requests.
 
-            while (listener.IsListening && !cancellationToken.IsCancellationRequested)
+            _listener = new HttpListener();
+
+            try
             {
-                HttpListenerContext context = await listener.GetContextAsync();
-                await ProcessRequestAsync(context, messageCallback, cancellationToken);
-            }
+                _listener.Prefixes.Add(this.Prefix);
+                StartListener(_listener);
 
-            listener.Close();
+                while (_listener.IsListening && !cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        HttpListenerContext context = await _listener.GetContextAsync();
+                        await ProcessRequestAsync(context, messageCallback, cancellationToken);
+                    }
+                    catch (HttpListenerException)
+                    {
+                        this._logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        this._logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                    }
+                }
+            }
+            finally
+            {
+                _listener.Close();
+            }
+        }
+
+        public void StopReceiving()
+        {
+            this._logger.Debug($"Stop listening on {Prefix}");
+
+            if (_listener != null)
+            {
+                this._listener.Close();
+            }
         }
 
         private void StartListener(HttpListener listener)
         {
             try
             {
-                this._logger.Info($"Start receiving on '{this.Prefix}'...");
+                this._logger.Debug($"Start receiving on '{this.Prefix}'...");
                 listener.Start();
             }
             catch (HttpListenerException exception)
-            {                
+            {
                 this._logger.Error($"Http Listener Exception: {exception.Message}");
             }
         }
@@ -93,7 +124,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 DisplayHtmlStatusPage(context);
                 return;
             }
-            
+
             ReceivedMessage receivedMessage = CreateReceivedMessage(context);
             InternalMessage internalMessage = await messageCallback(receivedMessage, CancellationToken.None);
             ProcessResponse(context, internalMessage, token);
@@ -109,8 +140,8 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 response = responseBuilder.GetResponse(context);
                 context.Response.StatusCode = 200;
-            }                        
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 context.Response.StatusCode = 500;
                 response = System.Text.Encoding.UTF8.GetBytes(ex.Message);
@@ -145,32 +176,36 @@ namespace Eu.EDelivery.AS4.Receivers
             context.Response.KeepAlive = false;
             context.Response.StatusCode = GetHttpStatusCode(internalMessage);
 
-            if (internalMessage.AS4Message.IsEmpty) return;
+            if (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty)
+            {
+                return;
+            }
+
             context.Response.ContentType = internalMessage.AS4Message.ContentType;
         }
 
         private static int GetHttpStatusCode(InternalMessage internalMessage)
         {
             var statusCode = (int)HttpStatusCode.OK;
-            if (internalMessage.AS4Message.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
-                statusCode = internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
 
-            const int defaultStatusCode = 500;
-            bool isStatusCodeValid = statusCode < 100;
-            return isStatusCodeValid ? defaultStatusCode : statusCode;
+            if (internalMessage.AS4Message?.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
+            {
+                statusCode = internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
+            }
+
+            return statusCode < 100 ? 500 : statusCode;
         }
 
         private void SetupResponseContent(
             HttpListenerContext context, InternalMessage internalMessage, CancellationToken token)
         {
-            if (internalMessage.AS4Message.IsEmpty)
+            if (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty)
             {
                 context.Response.StatusCode = 202;
                 this._logger.Info("Empty Http Body is send");
                 return;
             }
 
-            LogInformation(internalMessage);
             TrySerializeResponseContent(context, internalMessage, token);
         }
 
@@ -190,12 +225,6 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private void LogInformation(InternalMessage internalMessage)
-        {
-            string type = IsAS4MessageAnError(internalMessage) ? nameof(Error) : nameof(Receipt);
-            this._logger.Info($"AS4 {type} is send to requested party");
-        }
-
         private static bool IsAS4MessageAnError(InternalMessage internalMessage)
         {
             return internalMessage.AS4Message.PrimarySignalMessage is Error;
@@ -205,11 +234,11 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             public static HttpGetResponse GetHttpGetRessponse(string[] acceptHeaders)
             {
-                if (acceptHeaders.Contains("text/html"))
+                if (acceptHeaders.Contains("text/html", StringComparer.OrdinalIgnoreCase))
                 {
                     return new HttpHtmlGetResponse();
                 }
-                if (acceptHeaders.Contains("image/*"))
+                if (acceptHeaders.Any(h => h.StartsWith("image/", StringComparison.InvariantCultureIgnoreCase)))
                 {
                     return new HttpImageGetResponse();
                 }
@@ -220,14 +249,16 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 public override byte[] GetResponse(HttpListenerContext context)
                 {
-                    const string html =
-                    @"<html>
+                    var logoLocation = context.Request.RawUrl.TrimEnd('/') + "/assets/as4logo.png";
+                         
+                    string html = 
+                   $@"<html>
 <head>
     <meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"">
     <title>AS4.NET</title>       
 </head>
 <body>
-    <img src=""assets/as4logo.png"" alt=""AS4.NET logo"" Style=""width:100%; height:auto; display:block, margin:auto""></img>
+    <img src=""{logoLocation}"" alt=""AS4.NET logo"" Style=""width:100%; height:auto; display:block, margin:auto""></img>
     <div Style=""text-align:center""><p>This AS4.NET MessageHandler is online</p></div>
 </body>";
                     return System.Text.Encoding.UTF8.GetBytes(html);

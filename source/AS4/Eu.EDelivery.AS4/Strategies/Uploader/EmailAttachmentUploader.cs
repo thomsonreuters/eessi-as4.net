@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             const string description = "Unable to Send E-Mail";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
                 .Build();

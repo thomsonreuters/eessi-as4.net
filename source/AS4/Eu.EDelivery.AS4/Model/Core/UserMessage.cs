@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
+using Castle.Components.DictionaryAdapter;
+using Eu.EDelivery.AS4.Factories;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -11,14 +13,21 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public CollaborationInfo CollaborationInfo { get; set; }
         public IList<MessageProperty> MessageProperties { get; set; }
-        public List<PartInfo> PayloadInfo { get; set; }
+        public IList<PartInfo> PayloadInfo { get; set; } 
 
-        [XmlIgnore] public bool IsDuplicate { get; set; }
-        [XmlIgnore] public bool IsTest { get; set; }
-
-        public UserMessage()
+        [XmlIgnore]
+        public bool IsDuplicate { get; set; }
+        [XmlIgnore]
+        public bool IsTest { get; set; }
+        
+        public bool ShouldSerializePayloadInfo()
         {
-            InitializeFields();
+            // When this method returns false, the XmlSerializer will not write an XmlElement for the PayloadInfo attribute.
+            return PayloadInfo != null && PayloadInfo.Count > 0;
+        }
+
+        public UserMessage() : this(IdentifierFactory.Instance.Create())
+        {
         }
 
         public UserMessage(string messageId) : base(messageId)
@@ -28,9 +37,11 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         private void InitializeFields()
         {
-            this.Sender = new Party(new PartyId {Id = Constants.Namespaces.EbmsDefaultFrom});
-            this.Receiver = new Party(new PartyId {Id = Constants.Namespaces.EbmsDefaultTo});
-            this.CollaborationInfo = new CollaborationInfo();
+            this.Sender = new Party(new PartyId { Id = Constants.Namespaces.EbmsDefaultFrom });
+            this.Receiver = new Party(new PartyId { Id = Constants.Namespaces.EbmsDefaultTo });
+            this.CollaborationInfo = new CollaborationInfo();   
+            this.MessageProperties = new List<MessageProperty>();       
+            this.PayloadInfo = new List<PartInfo>();
         }
 
 

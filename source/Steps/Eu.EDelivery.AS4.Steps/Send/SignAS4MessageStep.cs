@@ -22,9 +22,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly ICertificateRepository _repository;
         private readonly ILogger _logger;
 
-        private AS4Message _as4Message;
-        private InternalMessage _internalMessage;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SignAS4Message"/> class
         /// </summary>
@@ -56,11 +53,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (internalMessage.AS4Message.SendingPMode?.Security.Signing.IsEnabled != true)
+            {
                 return ReturnSameInternalMessage(internalMessage);
+            }
 
-            InitializeFields(internalMessage);
-            TrySignAS4Message(cancellationToken);
-            ResetAttachmentContents();
+            TrySignAS4Message(internalMessage, cancellationToken);
+            ResetAttachmentContents(internalMessage.AS4Message);
 
             return StepResult.SuccessAsync(internalMessage);
         }
@@ -71,82 +69,78 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private void InitializeFields(InternalMessage internalMessage)
-        {
-            this._internalMessage = internalMessage;
-            this._as4Message = internalMessage.AS4Message;
-        }
-
-        private void TrySignAS4Message(CancellationToken cancellationToken)
+        private void TrySignAS4Message(InternalMessage message, CancellationToken cancellationToken)
         {
             try
             {
-                this._logger.Info($"{this._internalMessage.Prefix} Sign AS4 Message with given Signing Information");
-                SignAS4Message(cancellationToken);
+                this._logger.Info($"{message.Prefix} Sign AS4 Message with given Signing Information");
+                SignAS4Message(message, cancellationToken);
             }
             catch (Exception exception)
             {
                 this._logger.Error(exception.Message);
-                throw ThrowCommonSigningException(exception.Message, exception);
+                throw ThrowCommonSigningException(message.AS4Message, exception.Message, exception);
             }
         }
 
-        private void SignAS4Message(CancellationToken cancellationToken)
+        private void SignAS4Message(InternalMessage message, CancellationToken cancellationToken)
         {
-            X509Certificate2 certificate = RetrieveCertificate();
-            ISigningStrategy signingStrategy = CreateSignStrategy(certificate, cancellationToken);
-            this._as4Message.SecurityHeader.Sign(signingStrategy);
-        }
-
-        private X509Certificate2 RetrieveCertificate()
-        {
-            Model.PMode.Signing signing = this._as4Message.SendingPMode.Security.Signing;
-            X509Certificate2 certificate = this._repository
-                .GetCertificate(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
+            X509Certificate2 certificate = RetrieveCertificate(message.AS4Message);
 
             if (!certificate.HasPrivateKey)
-                throw ThrowCommonSigningException($"{this._internalMessage.Prefix} Certificate hasn't a private key");
+            {
+                throw ThrowCommonSigningException(message.AS4Message, $"{message.Prefix} Certificate hasn't a private key");
+            }
+
+            ISigningStrategy signingStrategy = CreateSignStrategy(message.AS4Message, certificate, cancellationToken);
+            message.AS4Message.SecurityHeader.Sign(signingStrategy);
+        }
+
+        private X509Certificate2 RetrieveCertificate(AS4Message as4Message)
+        {
+            Model.PMode.Signing signing = as4Message.SendingPMode.Security.Signing;
+
+            X509Certificate2 certificate = this._repository.GetCertificate(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
 
             return certificate;
         }
-
-        private AS4Exception ThrowCommonSigningException(string description, Exception innerException = null)
+        
+        private AS4Exception ThrowCommonSigningException(AS4Message as4Message, string description, Exception innerException = null)
         {
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
-                .WithMessageIds(this._as4Message.MessageIds)
-                .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
+                .WithMessageIds(as4Message.MessageIds)
+                .WithSendingPMode(as4Message.SendingPMode)
                 .Build();
         }
 
-        private ISigningStrategy CreateSignStrategy(X509Certificate2 certificate, CancellationToken cancellationToken)
+        private static ISigningStrategy CreateSignStrategy(AS4Message message, X509Certificate2 certificate, CancellationToken cancellationToken)
         {
-            Model.PMode.Signing signing = this._as4Message.SendingPMode.Security.Signing;
+            Model.PMode.Signing signing = message.SendingPMode.Security.Signing;
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(this._as4Message, cancellationToken)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(message, cancellationToken)
                 .WithSecurityTokenReference(signing.KeyReferenceMethod)
                 .WithSignatureAlgorithm(signing.Algorithm)
                 .WithCertificate(certificate)
-                .WithSigningId(this._as4Message.SigningId, signing.HashFunction);
+                .WithSigningId(message.SigningId, signing.HashFunction);
 
-            AddAttachmentsToBuilder(builder, signing);
+            foreach (var attachment in message.Attachments)
+            {
+                builder.WithAttachment(attachment, signing.HashFunction);
+            }
 
             return builder.Build();
         }
 
-        private void AddAttachmentsToBuilder(SigningStrategyBuilder builder, Model.PMode.Signing signing)
+        private static void ResetAttachmentContents(AS4Message as4Message)
         {
-            foreach (Attachment attachment in this._as4Message.Attachments)
-                builder.WithAttachment(attachment, signing.HashFunction);
-        }
-
-        private void ResetAttachmentContents()
-        {
-            foreach (Attachment attachment in this._as4Message.Attachments)
+            foreach (Attachment attachment in as4Message.Attachments)
+            {
                 attachment.Content.Position = 0;
+            }
         }
     }
 }

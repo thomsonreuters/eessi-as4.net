@@ -8,6 +8,18 @@ namespace Eu.EDelivery.AS4.Model.Common
         public string Type { get; set; }
         public string Value { get; set; }
 
+        public MessageProperty() : this(string.Empty, string.Empty, string.Empty)
+        {
+            // Default constructor is necessary for serialization.
+        }
+
+        public MessageProperty(string name, string type, string value)
+        {
+            this.Name = name;
+            this.Type = type;
+            this.Value = value;
+        }
+
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
@@ -38,7 +50,7 @@ namespace Eu.EDelivery.AS4.Model.Common
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
 
-            return obj.GetType() == GetType() && Equals((MessageProperty) obj);
+            return obj.GetType() == GetType() && Equals((MessageProperty)obj);
         }
 
         /// <summary>
@@ -52,9 +64,9 @@ namespace Eu.EDelivery.AS4.Model.Common
             unchecked
             {
                 int hashCode = this.Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name) : 0;
-                hashCode = (hashCode*397) ^
+                hashCode = (hashCode * 397) ^
                            (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
-                hashCode = (hashCode*397) ^
+                hashCode = (hashCode * 397) ^
                            (this.Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Value) : 0);
                 return hashCode;
             }

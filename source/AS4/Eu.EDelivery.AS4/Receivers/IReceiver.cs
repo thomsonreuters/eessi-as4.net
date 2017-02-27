@@ -26,5 +26,7 @@ namespace Eu.EDelivery.AS4.Receivers
         void StartReceiving(
             Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
             CancellationToken cancellationToken);
+
+        void StopReceiving();
     }
 }

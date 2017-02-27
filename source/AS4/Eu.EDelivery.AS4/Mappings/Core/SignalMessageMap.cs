@@ -3,6 +3,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using AutoMapper;
+using Eu.EDelivery.AS4.Singletons;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     {
                         var serializer = new XmlSerializer(typeof(Xml.NonRepudiationInformation));
                         object deserialize = serializer.Deserialize(new XmlNodeReader(message.Receipt.Any.FirstOrDefault()));
-                        receipt.NonRepudiationInformation = Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
+                        receipt.NonRepudiationInformation = AS4Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
                     }
                 }));
         }

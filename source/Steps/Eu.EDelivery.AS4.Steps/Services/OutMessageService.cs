@@ -19,7 +19,6 @@ namespace Eu.EDelivery.AS4.Steps.Services
     {
         private readonly ILogger _logger;
         private readonly IDatastoreRepository _repository;
-        private AS4Message _as4Message;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService"/> class. 
@@ -43,8 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <returns></returns>
         public async Task InsertReceiptAsync(string refToMessageId, AS4Message as4Message)
         {
-            this._as4Message = as4Message;
-            await TryInsertOutcomingOutMessageAsync(refToMessageId, MessageType.Receipt);
+            await TryInsertOutcomingOutMessageAsync(refToMessageId, as4Message, MessageType.Receipt);
         }
 
         /// <summary>
@@ -56,66 +54,76 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <returns></returns>
         public async Task InsertErrorAsync(string refToMessageId, AS4Message as4Message)
         {
-            this._as4Message = as4Message;
-            await TryInsertOutcomingOutMessageAsync(refToMessageId, MessageType.Error);
+            await TryInsertOutcomingOutMessageAsync(refToMessageId, as4Message, MessageType.Error);
         }
 
-        private async Task TryInsertOutcomingOutMessageAsync(string messageId, MessageType messageType)
+        private async Task TryInsertOutcomingOutMessageAsync(string messageId, AS4Message as4Message, MessageType messageType)
         {
             try
             {
                 this._logger.Debug($"Store OutMessage: {messageId}");
-                OutMessage outMessage = CreateOutMessage(messageId, messageType);
+                OutMessage outMessage = CreateOutMessage(messageId, as4Message, messageType);
                 await this._repository.InsertOutMessageAsync(outMessage);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this._logger.Error("Cannot insert Error OutMessage into the Datastore");
+                _logger.Error($"Cannot insert Error OutMessage into the Datastore: {ex.Message}");
+
+                if (ex.InnerException != null)
+                {
+                    _logger.Error(ex.InnerException.Message);
+                }
             }
         }
 
-        private OutMessage CreateOutMessage(string messageId, MessageType messageType)
+        private static OutMessage CreateOutMessage(string messageId, AS4Message message, MessageType messageType)
         {
-            OutMessage outMessage = CreateDefaultOutMessage(messageId, messageType);
+            OutMessage outMessage = CreateDefaultOutMessage(messageId, message, messageType);
             AdaptToSignalOutMessage(outMessage);
-            AssignRightReplyPattern(outMessage);
+
+            Operation operation;
+            OutStatus status;
+
+            DetermineCorrectReplyPattern(messageType, message, out operation, out status);
+
+            outMessage.Status = status;
+            outMessage.Operation = operation;
 
             return outMessage;
         }
 
-        private OutMessage CreateDefaultOutMessage(string messageId, MessageType messageType)
+        private static OutMessage CreateDefaultOutMessage(string messageId, AS4Message as4Message, MessageType messageType)
         {
             return new OutMessageBuilder()
-                .WithAS4Message(this._as4Message)
+                .WithAS4Message(as4Message)
                 .WithEbmsMessageId(messageId)
                 .WithEbmsMessageType(messageType)
                 .Build(CancellationToken.None);
         }
 
-        private void AdaptToSignalOutMessage(MessageEntity outMessage)
+        private static void AdaptToSignalOutMessage(MessageEntity outMessage)
         {
             outMessage.EbmsRefToMessageId = outMessage.EbmsMessageId;
             outMessage.EbmsMessageId = string.Empty;
         }
 
-        private void AssignRightReplyPattern(OutMessage outMessage)
+        private static void DetermineCorrectReplyPattern(MessageType outMessageType, AS4Message message, out Operation operation, out OutStatus status)
         {
-            bool isCallback = outMessage.EbmsMessageType == MessageType.Error
-                ? IsErrorReplyPatternCallback()
-                : IsReceiptReplyPatternCallback();
+            bool isCallback = outMessageType == MessageType.Error ? IsErrorReplyPatternCallback(message)
+                                                                  : IsReceiptReplyPatternCallback(message);
 
-            outMessage.Operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
-            outMessage.Status = isCallback ? OutStatus.Created : OutStatus.Sent;
+            operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
+            status = isCallback ? OutStatus.Created : OutStatus.Sent;
         }
 
-        private bool IsErrorReplyPatternCallback()
+        private static bool IsErrorReplyPatternCallback(AS4Message as4Message)
         {
-            return this._as4Message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
+            return as4Message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
-        private bool IsReceiptReplyPatternCallback()
+        private static bool IsReceiptReplyPatternCallback(AS4Message as4Message)
         {
-            return this._as4Message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
+            return as4Message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
     }
 

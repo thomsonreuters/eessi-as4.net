@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
-using Eu.EDelivery.AS4.Steps.Services;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -31,12 +26,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             this._userMessageId = Guid.NewGuid().ToString();
-            var registry = new Registry();
 
-            IInMessageService repository = new InMessageService(
-                new DatastoreRepository(() => new DatastoreContext(base.Options)));
-
-            base.Step = new ReceiveUpdateDatastoreStep(repository);
+            base.Step = new ReceiveUpdateDatastoreStep();
         }
 
         protected UserMessage GetUserMessage()
@@ -64,10 +55,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 pmode.Reliability.DuplicateElimination.IsEnabled = false;
                 pmode.Deliver.IsEnabled = true;
                 internalMessage.AS4Message.ReceivingPMode = pmode;
-                
+
                 // Act
                 await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
-                
+
                 // Assert
                 await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.ToBeDelivered);
             }
@@ -76,37 +67,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepUpdatesDuplicateReceiptMessageAsync()
             {
                 // Arrange
-                SignalMessage signalMessage = CreateDefaultSignalMessage();
+                SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
                 signalMessage.IsDuplicated = false;
 
-                Mock<IInMessageService> mockedMessageService = CreateMockedInMessageService();
-                base.Step = new ReceiveUpdateDatastoreStep(mockedMessageService.Object);
+                base.Step = new ReceiveUpdateDatastoreStep();
 
                 InternalMessage internalMessage = new InternalMessageBuilder()
                     .WithSignalMessage(signalMessage).Build();
-                // Act
-                StepResult stepResult = await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
+                
+                // Act           
+                // Execute the step twice.     
+                var stepResult = await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
+                Assert.False(stepResult.InternalMessage.AS4Message.PrimarySignalMessage.IsDuplicated);
 
+                stepResult = await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
                 // Assert
                 Assert.True(stepResult.InternalMessage.AS4Message.PrimarySignalMessage.IsDuplicated);
-            }
-
-            private Mock<IInMessageService> CreateMockedInMessageService()
-            {
-                var mockedMessageService = new Mock<IInMessageService>();
-                mockedMessageService
-                    .Setup(s => s.ContainsSignalMessageWithReferenceToMessageId(It.IsAny<string>()))
-                    .Returns(true);
-
-                return mockedMessageService;
-            }
-
-            private SignalMessage CreateDefaultSignalMessage()
-            {
-                return new SignalMessage(messageId: "message-id")
-                {
-                    RefToMessageId = "ref-to-message-id"
-                };
             }
 
             [Fact]
@@ -124,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Act
                 await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
-                
+
                 // Assert
                 await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
             }
@@ -144,12 +120,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Act
                 await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
-                
+
+
                 // Assert
                 await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
             }
 
-            private void AddTestableDataToUserMessage(UserMessage userMessage)
+            private static void AddTestableDataToUserMessage(UserMessage userMessage)
             {
                 userMessage.CollaborationInfo.Action = Constants.Namespaces.TestAction;
                 userMessage.CollaborationInfo.Service.Value = Constants.Namespaces.TestService;
@@ -157,9 +134,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private async Task InsertDuplicateUserMessage(UserMessage userMessage)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
-                    var inMessage = new InMessage {EbmsMessageId = userMessage.MessageId};
+                    var inMessage = new InMessage { EbmsMessageId = userMessage.MessageId };
                     context.InMessages.Add(inMessage);
                     await context.SaveChangesAsync();
                 }
@@ -168,7 +145,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private async Task AssertUserInMessageAsync(
                 MessageUnit userMessage, Func<InMessage, bool> condition = null)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = this.GetDataStoreContext())
                 {
                     InMessage inMessage = await context.InMessages.FirstOrDefaultAsync(
                         m => m.EbmsMessageId.Equals(userMessage.MessageId));

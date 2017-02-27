@@ -44,9 +44,12 @@ namespace Eu.EDelivery.AS4.Security.Serializers
             IEnumerable<XmlElement> encryptedDataElements = this._document
                 .SelectNodes("//enc:EncryptedData", namespaceManager)
                 ?.OfType<XmlElement>();
-                
-            encryptedDataElements.ForEach(SerializeEncryptedData);
 
+            foreach (var e in encryptedDataElements)
+            {
+                SerializeEncryptedData(e);
+            }
+            
             if (encryptedDataElements == null)
                 throw new AS4Exception("No EncryptedData elements found to decrypt");
         }

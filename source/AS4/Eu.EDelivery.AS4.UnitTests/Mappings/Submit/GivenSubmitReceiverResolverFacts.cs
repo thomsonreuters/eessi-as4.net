@@ -17,11 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
     /// </summary>
     public class GivenSubmitReceiverResolverFacts
     {
-        public GivenSubmitReceiverResolverFacts()
-        {
-            MapInitialization.InitializeMapper();
-        }
-
+        
         public class GivenValidArguments : GivenSubmitReceiverResolverFacts
         {
             [Fact]

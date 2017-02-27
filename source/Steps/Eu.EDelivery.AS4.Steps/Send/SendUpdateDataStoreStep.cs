@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Data;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Services;
 using NLog;
 
@@ -20,7 +20,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
     public class SendUpdateDataStoreStep : IStep
     {
         private readonly ILogger _logger;
-        private readonly IInMessageService _inMessageService;
         private AS4Message _as4Message;
 
         /// <summary>
@@ -28,20 +27,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         public SendUpdateDataStoreStep()
         {
-            this._inMessageService = new InMessageService(Registry.Instance.DatastoreRepository);
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class. 
-        /// Create an Update Data Store step
-        /// with a given Repository
-        /// </summary>
-        /// <param name="inMessageService">
-        /// </param>
-        public SendUpdateDataStoreStep(IInMessageService inMessageService)
-        {
-            this._inMessageService = inMessageService;
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -55,20 +40,25 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             this._as4Message = internalMessage.AS4Message;
 
-            foreach (SignalMessage signalMessage in internalMessage.AS4Message.SignalMessages)
+            using (var context = Registry.Instance.CreateDatastoreContext())
             {
-                this._logger.Info($"{internalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
-                await TryUpdateSignalMessage(signalMessage, cancellationToken);
+                var inMessageService = new InMessageService(new DatastoreRepository(context));
+
+                foreach (SignalMessage signalMessage in internalMessage.AS4Message.SignalMessages)
+                {
+                    this._logger.Info($"{internalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
+                    await TryUpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
+                }
             }
 
             return StepResult.Success(internalMessage);
         }
 
-        private async Task TryUpdateSignalMessage(SignalMessage signalMessage, CancellationToken cancellationToken)
+        private async Task TryUpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
             try
             {
-                await UpdateSignalMessage(signalMessage, cancellationToken);
+                await UpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -77,33 +67,46 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private async Task UpdateSignalMessage(SignalMessage signalMessage, CancellationToken cancellationToken)
+        private async Task UpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
-            if (signalMessage is Receipt) await UpdateReceipt(signalMessage, cancellationToken);
-            else if (signalMessage is Error) await UpdateError(signalMessage, cancellationToken);
-            else await UpdateOther(signalMessage, cancellationToken);
+            if (signalMessage is Receipt) await UpdateReceipt(signalMessage, inMessageService, cancellationToken);
+            else if (signalMessage is Error) await UpdateError(signalMessage, inMessageService, cancellationToken);
+            else await UpdateOther(signalMessage, inMessageService, cancellationToken);
         }
 
-        private async Task UpdateReceipt(SignalMessage signalMessage, CancellationToken cancellationToken)
+        private async Task UpdateReceipt(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
-            await this._inMessageService.InsertReceiptAsync(signalMessage, this._as4Message, cancellationToken);
+            var receipt = signalMessage as Receipt;
+
+            if (receipt != null && receipt.NonRepudiationInformation == null)
+                receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
+
+            await inMessageService.InsertReceiptAsync(signalMessage, this._as4Message, cancellationToken);
 
             OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
                 ? OutStatus.Ack
                 : OutStatus.NotApplicable;
 
-            await this._inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
+            await inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
 
-        private async Task UpdateError(SignalMessage signalMessage, CancellationToken cancellationToken)
+        private NonRepudiationInformation CreateNonRepudiationInformation()
         {
-            await this._inMessageService.InsertErrorAsync(signalMessage, this._as4Message, cancellationToken);
+            ArrayList references = this._as4Message.SecurityHeader.GetReferences();
+
+            return new NonRepudiationInformationBuilder()
+                .WithSignedReferences(references).Build();
+        }
+
+        private async Task UpdateError(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
+        {
+            await inMessageService.InsertErrorAsync(signalMessage, this._as4Message, cancellationToken);
 
             OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
                 ? OutStatus.Nack
                 : OutStatus.NotApplicable;
 
-            await this._inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
+            await inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
 
         private bool IsSignalMessageReferenceUserMessage(SignalMessage signalMessage)
@@ -111,16 +114,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return signalMessage.RefToMessageId?.Equals(this._as4Message.PrimaryUserMessage?.MessageId) ?? false;
         }
 
-        private async Task UpdateOther(SignalMessage signalMessage, CancellationToken cancellationToken)
+        private static async Task UpdateOther(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
-            await this._inMessageService.UpdateSignalMessage(signalMessage, OutStatus.Sent, cancellationToken);
+            await inMessageService.UpdateSignalMessage(signalMessage, OutStatus.Sent, cancellationToken);
         }
 
         private AS4Exception ThrowAS4UpdateDatastoreException(string description, Exception innerException)
         {
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
                 .WithMessageIds(this._as4Message.MessageIds)

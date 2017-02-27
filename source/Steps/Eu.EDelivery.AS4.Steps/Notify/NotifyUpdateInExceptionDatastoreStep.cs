@@ -15,23 +15,12 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     public class NotifyUpdateInExceptionDatastoreStep : IStep
     {
         private readonly ILogger _logger;
-        private readonly IDatastoreRepository _respository;
 
         /// <summary>
         /// Initializes a new instance of the type <see cref="NotifyUpdateInExceptionDatastoreStep"/> class
         /// </summary>
         public NotifyUpdateInExceptionDatastoreStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-            this._respository = Registry.Instance.DatastoreRepository;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the type <see cref="NotifyUpdateInExceptionDatastoreStep"/> class
-        /// </summary>
-        public NotifyUpdateInExceptionDatastoreStep(IDatastoreRepository repository)
-        {
-            this._respository = repository;
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -43,20 +32,24 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            NotifyMessage notifyMessage = internalMessage.NotifyMessage;
-            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            var notifyMessageEnv = internalMessage.NotifyMessage;
+            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage);
+            using (var context = Registry.Instance.CreateDatastoreContext())
+            {
+                await UpdateDatastoreAsync(notifyMessageEnv, new DatastoreRepository(context));
+            }
+
             return StepResult.Success(internalMessage);
         }
 
-        private async Task UpdateDatastoreAsync(NotifyMessage notifyMessage)
+        private static async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage, DatastoreRepository repository)
         {
-            await this._respository.UpdateInExceptionAsync(
+            await repository.UpdateInExceptionAsync(
                 notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedInException);
         }
 
-        private void UpdateNotifiedInException(InException inException)
+        private static void UpdateNotifiedInException(InException inException)
         {
             inException.Operation = Operation.Notified;
         }

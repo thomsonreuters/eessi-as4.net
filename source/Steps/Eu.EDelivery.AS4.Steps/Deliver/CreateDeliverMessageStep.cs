@@ -3,11 +3,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Validators;
 using NLog;
 
@@ -21,8 +22,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     {
         private readonly ILogger _logger;
         private readonly IValidator<DeliverMessage> _validator;
-
-        private InternalMessage _internalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateDeliverMessageStep"/> class. 
@@ -44,19 +43,25 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._logger.Info($"{internalMessage.Prefix} Create a Deliver Message from an AS4 Message");
-            this._internalMessage = internalMessage;
 
-            internalMessage.DeliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
-            ValidateDeliverMessage(internalMessage.DeliverMessage);
+
+            var deliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
+
+
+            var serialized = AS4XmlSerializer.Serialize(deliverMessage);
+
+            ValidateDeliverMessage(deliverMessage, internalMessage);
+
+            internalMessage.DeliverMessage = new DeliverMessageEnvelope(deliverMessage.MessageInfo,
+                                                                        System.Text.Encoding.UTF8.GetBytes(serialized),
+                                                                        "application/xml");
 
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private DeliverMessage CreateDeliverMessage(AS4Message as4Message)
+        private static DeliverMessage CreateDeliverMessage(AS4Message as4Message)
         {
-            MapInitialization.InitializeMapper();
-
-            var deliverMessage = Mapper.Map<DeliverMessage>(as4Message.PrimaryUserMessage);
+            var deliverMessage = AS4Mapper.Map<DeliverMessage>(as4Message.PrimaryUserMessage);
             AssignSendingPModeId(as4Message, deliverMessage);
             AssignAttachmentLocations(as4Message, deliverMessage);
 
@@ -77,12 +82,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private void ValidateDeliverMessage(DeliverMessage deliverMessage)
+        private void ValidateDeliverMessage(DeliverMessage deliverMessage, InternalMessage internalMessage)
         {
-            if (!this._validator.Validate(deliverMessage)) return;
+            if (!this._validator.Validate(deliverMessage))
+            {
+                _logger.Error($"{internalMessage.Prefix} DeliverMessage is not valid.");
+                return;
+            }
 
             string messageId = deliverMessage.MessageInfo.MessageId;
-            string message = $"{this._internalMessage.Prefix} Deliver Message {messageId} was valid";
+            string message = $"{internalMessage.Prefix} Deliver Message {messageId} was valid";
             this._logger.Debug(message);
         }
     }

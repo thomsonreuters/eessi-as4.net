@@ -15,8 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
     public class GivenReceiptToNotifyMapFacts
     {
         public GivenReceiptToNotifyMapFacts()
-        {
-            MapInitialization.InitializeMapper();
+        {            
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 

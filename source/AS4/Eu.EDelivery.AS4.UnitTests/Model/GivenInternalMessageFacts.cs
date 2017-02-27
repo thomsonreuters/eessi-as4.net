@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenInternalMessageHasPrefixFromSignalMessage()
             {
                 // Arrange
-                var signalMessage = new SignalMessage("message-Id");
+                var signalMessage = new Receipt("message-Id");
                 var as4Message = new AS4Message();
                 as4Message.SignalMessages.Add(signalMessage);
                 var internalMessage = new InternalMessage(as4Message);

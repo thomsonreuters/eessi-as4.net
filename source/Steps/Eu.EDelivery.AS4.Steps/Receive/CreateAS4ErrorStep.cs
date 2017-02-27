@@ -69,7 +69,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4MessageBuilder builder = new AS4MessageBuilder().WithSignalMessage(error);
             ReceivingProcessingMode receivingPMode = this._originalAS4Message.ReceivingPMode;
-            if (receivingPMode != null) builder.WithReceivingPMode(receivingPMode);
+            if (receivingPMode != null)
+            {
+                builder.WithReceivingPMode(receivingPMode);
+            }
 
             return builder.Build();
         }

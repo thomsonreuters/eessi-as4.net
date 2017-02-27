@@ -1,5 +1,5 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.ServiceHandler.Builder;
+﻿using Eu.EDelivery.AS4.Builders;
+using Eu.EDelivery.AS4.Exceptions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder

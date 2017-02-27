@@ -104,9 +104,9 @@ namespace Eu.EDelivery.AS4.Transformers
                 .Build();
         }
 
-        private AS4Exception CreateAS4Exception(ExceptionEntity exceptionEntity)
+        private static AS4Exception CreateAS4Exception(ExceptionEntity exceptionEntity)
         {
-            return new AS4ExceptionBuilder()
+            return AS4ExceptionBuilder
                 .WithDescription(exceptionEntity.Exception)
                 .WithMessageIds(exceptionEntity.EbmsRefToMessageId)
                 .WithPModeString(exceptionEntity.PMode)
@@ -135,8 +135,7 @@ namespace Eu.EDelivery.AS4.Transformers
             const string description = "Exception Transformer only supports Exception Entities";
             this._logger.Error(description);
 
-            return new AS4ExceptionBuilder()
-                .WithDescription(description).Build();
+            return AS4ExceptionBuilder.WithDescription(description).Build();
         }
     }
 }

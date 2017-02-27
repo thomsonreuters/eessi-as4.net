@@ -42,14 +42,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 Assert.Equal(2, properties.Length);
             }
 
-            private MessageProperty CreatePopulatedMessageProperty()
+            private static MessageProperty CreatePopulatedMessageProperty()
             {
-                return new MessageProperty
-                {
-                    Name = "pmode-name",
-                    Type = "pmode-type",
-                    Value = "pmode-value"
-                };
+                return new MessageProperty("pmode-name", "pmode-type", "pmode-value");                
             }
         }
 
