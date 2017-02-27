@@ -114,9 +114,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             X509Certificate2 certificate = GetCertificate(internalMessage);
             AS4Message as4Message = internalMessage.AS4Message;
 
-            EncryptionStrategyBuilder builder = new EncryptionStrategyBuilder(as4Message.EnvelopeDocument)
-                .WithCertificate(certificate)
-                .WithAttachments(as4Message.Attachments);
+            var builder = EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
+                                                     .WithCertificate(certificate)
+                                                     .WithAttachments(as4Message.Attachments);
+           
 
             return builder.Build();
         }

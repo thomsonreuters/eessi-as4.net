@@ -2,12 +2,19 @@
 
 namespace Eu.EDelivery.AS4.Security.Encryption
 {
-    internal class DataEncryptionConfiguration
+    public class DataEncryptionConfiguration
     {
-        public string EncryptionMethod { get; set; } = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+        public string EncryptionMethod { get; private set; }
 
-        public string EncryptionType { get; set; } = "http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only";
+        public string EncryptionType { get; private set; }
 
-        public string TransformAlgorithm { get; set; } = AttachmentCiphertextTransform.Url;
+        public string TransformAlgorithm { get; private set; }
+
+        public DataEncryptionConfiguration(string encryptionMethod, string encryptionType = "http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only", string transformAlgorithm = AttachmentCiphertextTransform.Url)
+        {
+            EncryptionMethod = encryptionMethod;
+            EncryptionType = encryptionType;
+            TransformAlgorithm = transformAlgorithm;
+        }
     }
 }

@@ -274,7 +274,9 @@ namespace Eu.EDelivery.AS4.Serialization
             while (reader.Read() && !IsReadersNameSecurityHeader(reader))
             {
                 if (IsReadersNameEncryptedData(reader) && encryptionStrategy == null)
-                    encryptionStrategy = new EncryptionStrategyBuilder(envelopeDocument).Build();
+                {                    
+                    encryptionStrategy = EncryptionStrategyBuilder.Create(envelopeDocument).Build();
+                }
 
                 if (IsReadersNameSignature(reader))
                     signingStrategy = new SigningStrategyBuilder(envelopeDocument).Build();

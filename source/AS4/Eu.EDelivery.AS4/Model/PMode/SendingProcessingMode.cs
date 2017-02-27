@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Security.References;
+using Eu.EDelivery.AS4.Security.Strategies;
 
 namespace Eu.EDelivery.AS4.Model.PMode
 {
@@ -67,13 +69,40 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsEnabled { get; set; }
         public string Algorithm { get; set; }
         public X509FindType PublicKeyFindType { get; set; }
-        public string PublicKeyFindValue { get; set; }
-        public string KeyTransport { get; set; }
+        public string PublicKeyFindValue { get; set; }        
+
+        public KeyEncryption KeyEncryptionInfo { get; set; }
 
         public Encryption()
         {
             this.IsEnabled = false;
+            this.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+            this.KeyEncryptionInfo = new KeyEncryption();
         }
+
+        /// <summary>
+        /// An Encryption instance which contains the default settings.
+        /// </summary>
+        public static readonly Encryption Default = new Encryption();
+    }
+
+    public class KeyEncryption
+    {
+        public string Algorithm { get; set; }
+        public string DigestAlgorithm { get; set; }
+        public string MgfAlgorithm { get; set; }
+
+        public KeyEncryption()
+        {
+            Algorithm = EncryptedXml.XmlEncRSAOAEPUrl;
+            DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
+            MgfAlgorithm = null;
+        }
+
+        /// <summary>
+        /// A KeyEncryption instance which contains the default settings.
+        /// </summary>
+        public static readonly KeyEncryption Default = new KeyEncryption();
     }
 
     public class Signing

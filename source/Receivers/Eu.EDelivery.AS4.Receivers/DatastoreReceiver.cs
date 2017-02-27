@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
-            LogManager.GetCurrentClassLogger().Trace($"Executing GetMessagesToPoll on {this._properties["Table"]}");
+            LogManager.GetCurrentClassLogger().Trace($"Executing GetMessagesToPoll on {this._properties?["Table"]}");
 
             try
             {

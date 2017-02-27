@@ -4,9 +4,11 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Security.Encryption;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Builders.Security
 {
@@ -15,77 +17,82 @@ namespace Eu.EDelivery.AS4.Builders.Security
     /// </summary>
     public class EncryptionStrategyBuilder
     {
-        private readonly ILogger _logger;
-        private readonly EncryptionStrategy _strategy;
+        private readonly XmlDocument _soapEnvelope;
+        private readonly List<Attachment> _attachments = new List<Attachment>();
 
-        private EncryptionStrategyBuilder()
+        private X509Certificate2 _certificate;
+
+        private KeyEncryptionConfiguration _keyConfiguration = new KeyEncryptionConfiguration(new BinarySecurityTokenReference(),
+            KeyEncryption.Default.Algorithm, KeyEncryption.Default.DigestAlgorithm, KeyEncryption.Default.MgfAlgorithm);
+
+        private DataEncryptionConfiguration _dataConfiguration = new DataEncryptionConfiguration(Encryption.Default.Algorithm);
+
+        private EncryptionStrategyBuilder(XmlDocument soapEnvelope)
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _soapEnvelope = soapEnvelope;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class
+        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="soapEnvelope"/>
         /// </summary>
         /// <param name="soapEnvelope"></param>
-        public EncryptionStrategyBuilder(XmlDocument soapEnvelope) : this()
+        public static EncryptionStrategyBuilder Create(XmlDocument soapEnvelope)
         {
-            if (soapEnvelope == null)
-                throw new ArgumentNullException(nameof(soapEnvelope));
-
-            this._strategy = new EncryptionStrategy(soapEnvelope);
+            return new EncryptionStrategyBuilder(soapEnvelope);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class
+        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="as4Message"/>
         /// </summary>
         /// <param name="as4Message"></param>
-        public EncryptionStrategyBuilder(AS4Message as4Message) : this()
+        public static EncryptionStrategyBuilder Create(AS4Message as4Message)
         {
             if (as4Message == null)
+            {
                 throw new ArgumentNullException(nameof(as4Message));
+            }
 
-            XmlDocument soapEnvelope = as4Message.EnvelopeDocument 
-                ?? AS4XmlSerializer.Serialize(as4Message, default(CancellationToken));
+            XmlDocument soapEnvelope = as4Message.EnvelopeDocument
+               ?? AS4XmlSerializer.Serialize(as4Message, default(CancellationToken));
 
-            this._strategy = new EncryptionStrategy(soapEnvelope);
+            return new EncryptionStrategyBuilder(soapEnvelope);
         }
 
-        public EncryptionStrategyBuilder WithEncryptionAlgorithm(string encryptionAlgorithm)
+        public EncryptionStrategyBuilder WithKeyEncryptionConfiguration(KeyEncryptionConfiguration keyEncryptionConfig)
         {
-            this._logger.Debug($"Encryption Algorithm: {encryptionAlgorithm}");
-
-            this._strategy.SetEncryptionAlgorithm(encryptionAlgorithm);
-
+            _keyConfiguration = keyEncryptionConfig;
             return this;
         }
 
+        public EncryptionStrategyBuilder WithDataEncryptionConfiguration(
+            DataEncryptionConfiguration dataEncryptionConfig)
+        {
+            _dataConfiguration = dataEncryptionConfig;
+            return this;
+        }
 
         public EncryptionStrategyBuilder WithCertificate(X509Certificate2 certificate)
         {
-            this._logger.Debug($"Encryption certificate: {certificate.Subject}");
-
-            this._strategy.SetCertificate(certificate);
-
+            _certificate = certificate;
             return this;
         }
 
         public EncryptionStrategyBuilder WithAttachment(Attachment attachment)
         {
-            this._strategy.AddAttachment(attachment);
+            _attachments.Add(attachment);
             return this;
         }
 
         public EncryptionStrategyBuilder WithAttachments(IEnumerable<Attachment> attachments)
         {
-            foreach (Attachment attachment in attachments)
-                WithAttachment(attachment);
-
+            _attachments.AddRange(attachments);
             return this;
         }
 
-        public IEncryptionStrategy Build()
+        public EncryptionStrategy Build()
         {
-            return this._strategy;
+            return new EncryptionStrategy(_soapEnvelope, _keyConfiguration, _dataConfiguration, _certificate, _attachments);
         }
     }
+
 }

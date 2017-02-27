@@ -1,6 +1,10 @@
-﻿using System.Security.Cryptography.Xml;
+﻿using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.Encryption;
+using Eu.EDelivery.AS4.Security.Strategies;
+using Org.BouncyCastle.Crypto.Engines;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
@@ -18,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
                 // Arrange
                 var encryptedKey = new EncryptedKey { Id = id };
 
-                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey, "", "");
+                var as4EncryptedKey = AS4EncryptedKey.FromEncryptedKey(encryptedKey);
 
                 // Act
                 string referenceId = as4EncryptedKey.GetReferenceId();
@@ -33,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
                 var cipherData = new CipherData { CipherValue = new byte[] { 20 } };
                 var encryptedKey = new EncryptedKey { CipherData = cipherData };
 
-                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey, "", "");
+                var as4EncryptedKey = AS4EncryptedKey.FromEncryptedKey(encryptedKey);
 
                 // Act
                 CipherData as4CipherData = as4EncryptedKey.GetCipherData();
@@ -71,6 +75,65 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
                 // Assert
                 Assert.Equal("EncryptedKey", securityElement.FirstChild.LocalName);
             }
+        }
+    }
+
+    public class AS4EncryptedKeyBuilderFacts
+    {
+        public class GivenDefaultAlgorithms
+        {
+            [Fact]
+            public void ThenCreateAS4EncryptedKeySucceeds()
+            {
+
+                var encryptionKey = GenerateEncryptionKey();
+
+                var key = AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(encryptionKey, GetCertificate()).Build();
+
+                Assert.Equal(EncryptedXml.XmlEncRSAOAEPUrl, key.GetEncryptionAlgorithm());
+                Assert.Equal(EncryptionStrategy.XmlEncSHA1Url, key.GetDigestAlgorithm());
+            }
+        }
+
+        public class GivenSpecificAlgorithms
+        {
+            [Theory,
+                InlineData("http://www.w3.org/2009/xmlenc11#rsa-oaep", EncryptedXml.XmlEncSHA256Url, null),
+                InlineData("http://www.w3.org/2009/xmlenc11#rsa-oaep", EncryptedXml.XmlEncSHA256Url, "http://www.w3.org/2009/xmlenc11#mgf1sha256")]
+            public void ThenCreateAS4EncryptedKeySucceeds(string algorithm, string digest, string mgf)
+            {
+                var encryptionKey = GenerateEncryptionKey();
+
+                var key = AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(encryptionKey, GetCertificate())
+                    .WithEncryptionMethod("http://www.w3.org/2009/xmlenc11#rsa-oaep")
+                    .WithDigest(EncryptedXml.XmlEncSHA256Url)
+                    .WithMgf(mgf)
+                    .Build();
+
+                Assert.Equal(algorithm, key.GetEncryptionAlgorithm());
+                Assert.Equal(digest, key.GetDigestAlgorithm());
+                Assert.Equal(mgf, key.GetMaskGenerationFunction());
+            }            
+        }
+
+        private static byte[] GenerateEncryptionKey()
+        {
+            byte[] encryptionKey;
+
+            using (var generator = new RijndaelManaged() { BlockSize = 256 })
+            {
+                encryptionKey = generator.Key;
+            }
+
+            return encryptionKey;
+        }
+
+        private static X509Certificate2 GetCertificate()
+        {
+            return new X509Certificate2(
+                rawData: Properties.Resources.holodeck_partyc_certificate,
+                password: "ExampleC",
+                keyStorageFlags: X509KeyStorageFlags.Exportable);
         }
     }
 }
