@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -8,7 +10,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
     /// </summary>
     internal class PModePartyInfoRule : IPModeRule
     {
-        private const int Points = 15;
+        private const int PartyIdPoints = 15;
+        private const int PartyRolePoints = 1;
         private const int NotEqual = 0;
 
         /// <summary>
@@ -19,22 +22,44 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
         /// <returns></returns>
         public int DeterminePoints(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            return IsPartyInfoEqual(pmode, userMessage) ? Points : NotEqual;
-        }
-
-        private static bool IsPartyInfoEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
-        {
             if (pmode.MessagePackaging.PartyInfo == null)
             {
-                return false;
+                return NotEqual;
             }
 
-            PartyInfo partyInfo = pmode.MessagePackaging.PartyInfo;
-            if (partyInfo.IsEmpty()) return false;
+            var pmodePartyInfo = pmode.MessagePackaging.PartyInfo;
 
-            return 
-                partyInfo.FromParty.Equals(userMessage.Sender) && 
-                partyInfo.ToParty.Equals(userMessage.Receiver);
+            if (pmodePartyInfo.IsEmpty())
+            {
+                return NotEqual;
+            }
+
+            int points = NotEqual;
+
+            if (ArePartyInfoIdsEqual(pmodePartyInfo, userMessage))
+            {
+                points += PartyIdPoints;
+            }
+
+            if (IsPartyInfoRoleEqual(pmodePartyInfo, userMessage))
+            {
+                points += PartyRolePoints;
+            }
+
+            return points;
         }
+
+        private static bool ArePartyInfoIdsEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
+        {
+            return pmodePartyInfo.FromParty.PartyIds.All(userMessage.Sender.PartyIds.Contains) &&
+                   pmodePartyInfo.ToParty.PartyIds.All(userMessage.Receiver.PartyIds.Contains);
+        }
+
+        private static bool IsPartyInfoRoleEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
+        {
+            return pmodePartyInfo.FromParty.Role.Equals(userMessage.Sender.Role, StringComparison.OrdinalIgnoreCase) &&
+                   pmodePartyInfo.ToParty.Role.Equals(userMessage.Receiver.Role, StringComparison.OrdinalIgnoreCase);
+        }
+
     }
 }
