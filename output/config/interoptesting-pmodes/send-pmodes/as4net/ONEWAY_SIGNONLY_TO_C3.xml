@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_ONEWAY_SIGNONLY_TO_AS4.NET-C3</Id>
+  <Id>ACT_ONEWAY_SIGNONLY_FROM_AS4.NET-C2_TO_AS4.NET-C3</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>

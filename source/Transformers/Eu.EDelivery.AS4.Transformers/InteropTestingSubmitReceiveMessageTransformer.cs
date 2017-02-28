@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Transformers
             // - CollaborationInfo.Action
             // - ToParty
 
-            string pModeKey = $"{as4Message.PrimaryUserMessage.CollaborationInfo.Action}_TO_{as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id}";
+            string pModeKey = $"{as4Message.PrimaryUserMessage.CollaborationInfo.Action}_FROM_{as4Message.PrimaryUserMessage.Sender.PartyIds.First().Id}_TO_{as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id}";
 
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
             var pmode = Config.Instance.GetSendingPMode(pModeKey);
