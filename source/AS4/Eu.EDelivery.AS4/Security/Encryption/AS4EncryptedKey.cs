@@ -189,11 +189,11 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
         private static string GetMgfAlgorithm(EncryptedKey encryptedKey)
         {
-            string xpath = $".//*[local-name()='EncryptionMethod']";
+            string xpath = $".//*[local-name()='EncryptionMethod']/*[local-name()='MGF']";
 
             var node = encryptedKey.GetXml().SelectSingleNode(xpath) as XmlElement;
 
-            return node?.GetAttribute("MGF");
+            return node?.GetAttribute("Algorithm");
         }
 
         public string GetEncryptionAlgorithm()
@@ -266,9 +266,11 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
         private static void AppendMgfMethod(XmlNode node, string mgfAlgorithm)
         {
-            var mgfAttribute = node.OwnerDocument.CreateAttribute("MGF", mgfAlgorithm);
-
-            node.Attributes.Append(mgfAttribute);
+            //var mgfAttribute = node.OwnerDocument.CreateAttribute("MGF", mgfAlgorithm);
+            //node.Attributes.Append(mgfAttribute);
+            var mgfElement = node.OwnerDocument.CreateElement("MGF");
+            mgfElement.SetAttribute("Algorithm", mgfAlgorithm);
+            node.AppendChild(mgfElement);
         }
     }
 }

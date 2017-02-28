@@ -75,6 +75,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
             var key = new RSACryptoServiceProvider(cspParams);
+            // TODO: remove the line below ?
             using (certificate.GetRSAPrivateKey()) { }
             string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
             key.FromXmlString(keyXml);
