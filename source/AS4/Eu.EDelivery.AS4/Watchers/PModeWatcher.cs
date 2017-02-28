@@ -3,8 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.PMode;
+using Microsoft.Extensions.Caching.Memory;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Watchers
@@ -113,6 +115,14 @@ namespace Eu.EDelivery.AS4.Watchers
 
         private void AddOrUpdateConfiguredPMode(string fullPath)
         {
+            if (_fileEventCache.Contains(fullPath))
+            {
+                LogManager.GetCurrentClassLogger().Trace($"PMode {fullPath} has already been handled.");
+                return;
+            }
+
+            _fileEventCache.Add(fullPath, fullPath, _cachePolicy);
+
             IPMode pmode = TryDeserialize(fullPath);
             if (pmode == null)
             {
@@ -129,6 +139,12 @@ namespace Eu.EDelivery.AS4.Watchers
 
             this._pmodes.AddOrUpdate(pmode.Id, configuredPMode, (key, value) => configuredPMode);
         }
+
+        // cache which keeps track of the date and time a PMode file was last handled by the FileSystemWatcher.
+        // Due to an issue with FileSystemWatcher, events can be triggered multiple times for the same operation on the 
+        // same file.
+        private readonly System.Runtime.Caching.MemoryCache _fileEventCache = System.Runtime.Caching.MemoryCache.Default;
+        private readonly CacheItemPolicy _cachePolicy = new CacheItemPolicy() { AbsoluteExpiration = DateTimeOffset.Now.AddMilliseconds(500) };
 
         private static T TryDeserialize(string path)
         {
