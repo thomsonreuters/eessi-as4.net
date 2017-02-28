@@ -91,9 +91,11 @@ namespace Eu.EDelivery.AS4.Transformers
         private static void SetPartyProperties(UserMessage userMessage, IList<MessageProperty> properties)
         {
             userMessage.Sender.PartyIds.First().Id = GetPropertyValue(properties, "FromPartyId");
+            userMessage.Sender.PartyIds.First().Type = GetPropertyValue(properties, "FromPartyType");
             userMessage.Sender.Role = GetPropertyValue(properties, "FromPartyRole");
 
             userMessage.Receiver.PartyIds.First().Id = GetPropertyValue(properties, "ToPartyId");
+            userMessage.Receiver.PartyIds.First().Type = GetPropertyValue(properties, "ToPartyType");
             userMessage.Receiver.Role = GetPropertyValue(properties, "ToPartyRole");
         }
 
