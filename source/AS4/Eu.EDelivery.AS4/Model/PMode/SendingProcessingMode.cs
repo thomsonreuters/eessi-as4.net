@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml.Serialization;
@@ -15,6 +16,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     /// </summary>
     [XmlType(Namespace = "eu:edelivery:as4:pmode")]
     [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
+    [DebuggerDisplay("{Id}")]
     public class SendingProcessingMode : IPMode
     {
         [Info("The id of the sending pmode")]

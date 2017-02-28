@@ -43,7 +43,14 @@ namespace Eu.EDelivery.AS4.Receivers
 
                         try
                         {
-                            Task.WaitAll(tasks.ToArray());
+                            try
+                            {
+                                Task.WaitAll(tasks.ToArray());
+                            }
+                            catch (AggregateException err)
+                            {
+                                err.Handle(e => e is TaskCanceledException);
+                            }
                         }
                         catch (Exception exception)
                         {
