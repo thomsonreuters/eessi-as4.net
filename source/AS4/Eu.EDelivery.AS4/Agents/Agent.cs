@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             var step = CreateSteps();
 
-            StepResult result = step.ExecuteAsync(internalMessage, cancellationToken).GetAwaiter().GetResult();
+            StepResult result = await step.ExecuteAsync(internalMessage, cancellationToken);
 
             if (result.Exception != null)
             {
