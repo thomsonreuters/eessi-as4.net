@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_SIMPLE_ONEWAY_RCV_AS4NET_C3</Id>
+  <Id>ACT_SIMPLE_ONEWAY_SENDER_HOLODECK-C3_RCV_AS4NET-C3</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -11,34 +11,35 @@
   <ReceiptHandling>
     <UseNNRFormat>true</UseNNRFormat>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>AS4NET_RESPONSE_TO_C4</SendingPMode>
+    <SendingPMode>AS4NET_RESPONSE_TO_C1</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
-    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner4"/>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner1"/>
       </Parameters>
     </NotifyMethod>
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>
-    <SendingPMode>AS4NET_RESPONSE_TO_C4</SendingPMode>
+    <SendingPMode>AS4NET_RESPONSE_TO_C1</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
-    <NotifyMessageConsumer>true</NotifyMessageConsumer>
+    <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner4"/>
-      </Parameters>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner1"/>
+        </Parameters>
     </NotifyMethod>
   </ExceptionHandling>
   <Security>
     <SigningVerification>
       <Signature>Allowed</Signature>
-    </SigningVerification>  
+    </SigningVerification>
+ 
     <Decryption>
       <Encryption>Allowed</Encryption>
       <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
@@ -50,9 +51,9 @@
         <FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4.net-c2</Id>
+            <Id>holodeck-c3</Id>
             <Type/>
-            <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
+						<!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
 					</PartyId>
 				</PartyIds>
 				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
@@ -60,7 +61,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4.net-c3</Id>
+            <Id>as4.net-c3</Id>
             <Type/>
             <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
 					</PartyId>
@@ -86,7 +87,7 @@
     <DeliverMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner4"/>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner1"/>
       </Parameters>
     </DeliverMethod>
   </Deliver>

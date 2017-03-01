@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PMode 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
-  <Id>pmode</Id>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+  <Id>ACT_ONEWAY_SIGNONLY_FROM_AS4.NET-C2_TO_HOLODECK-C2</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://localhost:6060/msh</Url>
+      <Url>http://interop.holodeck-b2b.com:8080/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -26,16 +23,26 @@
     <ReceptionAwareness>
       <IsEnabled>false</IsEnabled>
       <RetryCount>5</RetryCount>
-      <RetryInterval />
+      <RetryInterval>00:00:05</RetryInterval>
     </ReceptionAwareness>
   </Reliability>
   <ReceiptHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod />
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>HTTP</Type>
+      <Parameters>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner1" />
+      </Parameters>
+    </NotifyMethod>
   </ReceiptHandling>
   <ErrorHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod />
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>HTTP</Type>
+      <Parameters>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner1" />
+      </Parameters>
+    </NotifyMethod>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageProducer>false</NotifyMessageProducer>
@@ -45,13 +52,16 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>PartyA</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Encryption>
       <IsEnabled>false</IsEnabled>
+      <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
+      <PublicKeyFindValue>holodeck-c2</PublicKeyFindValue>
+      <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
   <MessagePackaging>
@@ -59,16 +69,16 @@
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>
+      <Action>ACT_ONEWAY_SIGNONLY</Action>
       <Service>
-        <Name>demo:service</Name>
+        <Value>SRV_ONEWAY_SIGNONLY</Value>
       </Service>
-      <Action>demo:action:send</Action>
     </CollaborationInfo>
     <PartyInfo>
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+            <Id>as4-net-c2</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -76,21 +86,11 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>org:holodeckb2b:example:accesspoint:B</Id>
+            <Id>holodeck-c2</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
-    <MessageProperties>
-      <MessageProperty>
-        <Name>OriginalSender</Name>
-        <Value>organization:A1</Value>
-      </MessageProperty>
-      <MessageProperty>
-        <Name>FinalRecipient</Name>
-        <Value>organization:A2</Value>
-      </MessageProperty>
-    </MessageProperties>
   </MessagePackaging>
 </PMode>

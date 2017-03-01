@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>8.1.7-pmode</Id>
+  <Id>ACT_SIMPLE_ONEWAY_FROM_AS4.NET-C3_TO_HOLODECK-C2</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://localhost:9090/msh</Url>
+      <Url>http://interop.holodeck-b2b.com:8080/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -23,21 +23,23 @@
     <ReceptionAwareness>
       <IsEnabled>false</IsEnabled>
       <RetryCount>5</RetryCount>
-      <RetryInterval />
+      <RetryInterval>00:00:05</RetryInterval>
     </ReceptionAwareness>
   </Reliability>
   <ReceiptHandling>
     <NotifyMessageProducer>true</NotifyMessageProducer>
     <NotifyMethod>
-      <Type>FILE</Type>
+      <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value=".\messages\receipts\" />
+        <Parameter name="location" value="http://193.140.74.199:15001/corner4" />
       </Parameters>
     </NotifyMethod>
   </ReceiptHandling>
   <ErrorHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod />
+    <Type>HTTP</Type>
+    <Parameters>
+      <Parameter name="location" value="http://193.140.74.199:15001/corner4" />
+    </Parameters>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageProducer>false</NotifyMessageProducer>
@@ -45,9 +47,9 @@
   </ExceptionHandling>
   <Security>
     <Signing>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>PartyA</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
@@ -55,7 +57,7 @@
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>PartyA</PublicKeyFindValue>
+      <PublicKeyFindValue>holodeck-c2</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
@@ -63,11 +65,17 @@
     <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
+    <CollaborationInfo>
+      <Action>ACT_SIMPLE_ONEWAY</Action>
+      <Service>
+        <Value>SRV_SIMPLE_ONEWAY</Value>
+      </Service>
+    </CollaborationInfo>
 	<PartyInfo>
 			<FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>org:eu:europa:as4:example</Id>
+						<Id>as4-net-c3</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Sender</Role>
@@ -75,7 +83,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-						<Id>org:holodeckb2b:example:company:B</Id>
+						<Id>holodeck-c2</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Receiver</Role>
