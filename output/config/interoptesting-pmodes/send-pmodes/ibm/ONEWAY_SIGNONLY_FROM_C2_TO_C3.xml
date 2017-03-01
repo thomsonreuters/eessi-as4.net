@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_ONEWAY_SIGNONLY_FROM_AS4.NET-C2_TO_HOLODECK-C3</Id>
+  <Id>ACT_ONEWAY_SIGNONLY_FROM_AS4.NET-C2_TO_IBMGW-C3</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://interop.holodeck-b2b.com:8080/msh</Url>
+      <Url>http://5.153.46.50:29010/interop</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -60,7 +60,7 @@
     <Encryption>
       <IsEnabled>false</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>holodeck-c3</PublicKeyFindValue>
+      <PublicKeyFindValue>ibmgw-c3</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
@@ -78,7 +78,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>as4-net-c2</Id>
+            <Id>as4.net-c2</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -86,7 +86,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>holodeck-c3</Id>
+            <Id>ibmgw-c3</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>

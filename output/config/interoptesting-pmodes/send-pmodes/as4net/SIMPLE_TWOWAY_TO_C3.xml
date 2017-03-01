@@ -78,7 +78,7 @@
 			<FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-c2</Id>
+						<Id>as4.net-c2</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Sender</Role>
@@ -86,7 +86,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-						<Id>as4-net-c3</Id>
+						<Id>as4.net-c3</Id>
 					</PartyId>
 				</PartyIds>
 				<Role>Receiver</Role>
