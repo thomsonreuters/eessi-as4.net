@@ -46,6 +46,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                         case ConsoleKey.C:
                             Console.Clear();
                             break;
+                        default:
+                            Console.WriteLine("Unknown key pressed.");
+                            break;
                     }
 
 
