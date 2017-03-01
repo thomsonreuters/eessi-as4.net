@@ -101,12 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             Encryption encryption = internalMessage.AS4Message.SendingPMode.Security.Encryption;
 
             X509Certificate2 certificate = this._certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
-
-            if (!certificate.HasPrivateKey)
-            {
-                throw ThrowCommonEncryptionException(internalMessage, $"{internalMessage.Prefix} Failed Authentication");
-            }
-
+           
             return certificate;
         }
         

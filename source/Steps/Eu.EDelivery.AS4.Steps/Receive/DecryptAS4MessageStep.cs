@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private readonly ICertificateRepository _certificateRepository;
         private readonly ILogger _logger;
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DecryptAS4MessageStep"/> class
         /// Create a <see cref="IStep"/> implementation
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {            
+        {
             if (internalMessage.AS4Message.IsSignalMessage)
                 return StepResult.SuccessAsync(internalMessage);
 
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var builder = EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
                                                      .WithCertificate(certificate)
                                                      .WithAttachments(as4Message.Attachments);
-           
+
 
             return builder.Build();
         }
@@ -126,9 +126,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Decryption decryption = internalMessage.AS4Message.ReceivingPMode.Security.Decryption;
 
-            return _certificateRepository.GetCertificate(decryption.PrivateKeyFindType, decryption.PrivateKeyFindValue);
+            var certificate = _certificateRepository.GetCertificate(decryption.PrivateKeyFindType, decryption.PrivateKeyFindValue);
+
+            if (!certificate.HasPrivateKey)
+            {
+                throw ThrowCommonAS4Exception(internalMessage, "Decryption failed - No private key found.", ErrorCode.Ebms0102);
+            }
+
+            return certificate;
         }
-        
+      
         private AS4Exception ThrowCommonAS4Exception(InternalMessage internalMessage,
             string description, ErrorCode errorCode, Exception exception = null)
         {
@@ -138,7 +145,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithInnerException(exception)                
+                .WithInnerException(exception)
                 .WithMessageIds(as4Message.MessageIds)
                 .WithErrorCode(errorCode)
                 .WithReceivingPMode(as4Message.ReceivingPMode)

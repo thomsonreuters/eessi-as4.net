@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.PMode;
-using Microsoft.Extensions.Caching.Memory;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Watchers
