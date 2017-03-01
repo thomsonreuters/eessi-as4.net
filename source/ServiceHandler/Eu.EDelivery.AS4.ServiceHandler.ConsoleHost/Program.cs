@@ -29,11 +29,28 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     x =>
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());                       
+                        NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
                     },
                     TaskContinuationOptions.OnlyOnFaulted);
 
-                Console.ReadLine();
+                ConsoleKeyInfo key;
+
+                do
+                {
+                    Console.WriteLine("Press c to clear the screen, q to stop.");
+
+                    key = Console.ReadKey();
+
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.C:
+                            Console.Clear();
+                            break;
+                    }
+
+
+                } while (key.Key != ConsoleKey.Q);
+
 
                 Console.WriteLine(@"Stopping...");
                 cancellationTokenSource.Cancel();
@@ -49,7 +66,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 kernel.Dispose();
                 Config.Instance.Dispose();
             }
-            
+
             Console.ReadLine();
         }
 
