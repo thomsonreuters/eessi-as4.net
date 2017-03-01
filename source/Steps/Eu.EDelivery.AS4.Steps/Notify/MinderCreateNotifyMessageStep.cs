@@ -137,8 +137,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
+        private static void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
         {
+            AssignToPartyIdentification(userMessage);
             AssignServiceAction(userMessage);
 
             if (signalMessage != null)
@@ -157,13 +158,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             userMessage.CollaborationInfo.ConversationId = "1";
         }
 
-        //private static void AssignFromPartyRole(UserMessage userMessage)
-        //{
-        //    userMessage.Sender.PartyIds.First().Id = "as4-net-c2";
-        //    userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
-        //    userMessage.Receiver.PartyIds.First().Id = "minder";
-        //    userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
-        //}
+        private static void AssignToPartyIdentification(UserMessage userMessage)
+        {
+            //userMessage.Sender.PartyIds.First().Id = "as4-net-c2";
+            //userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
+            userMessage.Receiver.PartyIds.First().Id = "minder";
+            userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
+        }
 
     }
 }
