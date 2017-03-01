@@ -149,8 +149,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private void AssignServiceAction(UserMessage userMessage)
         {
             userMessage.CollaborationInfo.Action = "Notify";
-            userMessage.CollaborationInfo.Service.Value = MinderUriPrefix;
-            userMessage.CollaborationInfo.ConversationId = "1";
+            userMessage.CollaborationInfo.Service.Value = MinderUriPrefix;            
         }
 
         private void AssignToPartyIdentification(UserMessage userMessage)
@@ -158,7 +157,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             //userMessage.Sender.PartyIds.First().Id = "as4-net-c2";
             //userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
 
-            userMessage.Sender = new Party($"{MinderUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
+//            userMessage.Sender = new Party($"{MinderUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
 
             userMessage.Receiver.PartyIds.First().Id = "minder";
             userMessage.Receiver.Role = $"{MinderUriPrefix}/testdriver";
