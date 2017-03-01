@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.Watchers
                 return;
             }
 
-            _fileEventCache.Add(fullPath, fullPath, _cachePolicy);
+            _fileEventCache.Add(fullPath, fullPath, _policy);
 
             IPMode pmode = TryDeserialize(fullPath);
             if (pmode == null)
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.Watchers
         // Due to an issue with FileSystemWatcher, events can be triggered multiple times for the same operation on the 
         // same file.
         private readonly System.Runtime.Caching.MemoryCache _fileEventCache = System.Runtime.Caching.MemoryCache.Default;
-        private readonly CacheItemPolicy _cachePolicy = new CacheItemPolicy() { AbsoluteExpiration = DateTimeOffset.Now.AddMilliseconds(500) };
+        private readonly System.Runtime.Caching.CacheItemPolicy _policy = new CacheItemPolicy() { SlidingExpiration = TimeSpan.FromMilliseconds(500) };
 
         private static T TryDeserialize(string path)
         {
