@@ -11,27 +11,27 @@
   <ReceiptHandling>
     <UseNNRFormat>true</UseNNRFormat>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>AS4NET_RESPONSE_TO_C1</SendingPMode>
+    <SendingPMode>AS4NET_RESPONSE_TO_C4</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner1"/>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner4"/>
       </Parameters>
     </NotifyMethod>
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>
-    <SendingPMode>AS4NET_RESPONSE_TO_C1</SendingPMode>
+    <SendingPMode>AS4NET_RESPONSE_TO_C4</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner1"/>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner4"/>
       </Parameters>
     </NotifyMethod>
   </ExceptionHandling>
@@ -86,7 +86,7 @@
     <DeliverMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner1"/>
+        <Parameter name="location" value="http://193.140.74.199:15001/corner4"/>
       </Parameters>
     </DeliverMethod>
   </Deliver>
