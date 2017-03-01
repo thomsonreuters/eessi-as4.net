@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_ONEWAY_SIGNONLY_SENDER_HOLODECK-C3_RCV_AS4NET-C3</Id>
+  <Id>ACT_ONEWAY_SIGNONLY_FROM_FLAME-C2_RCV_AS4NET-C3</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -49,7 +49,7 @@
         <FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>holodeck-c3</Id>
+						<Id>flame-c2</Id>
             <Type/>
             <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
 					</PartyId>

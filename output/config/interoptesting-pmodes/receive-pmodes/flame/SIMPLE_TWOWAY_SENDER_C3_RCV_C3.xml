@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_ONEWAY_SIGNONLY_SENDER_HOLODECK-C3_RCV_AS4NET-C3</Id>
+  <Id>ACT_SIMPLE_TWOWAY_FROM_FLAME-C3_RCV_AS4NET-C3</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -27,7 +27,7 @@
     <SendingPMode>AS4NET_RESPONSE_TO_C4</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
-    <NotifyMessageConsumer>false</NotifyMessageConsumer>
+    <NotifyMessageConsumer>true</NotifyMessageConsumer>
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
@@ -38,10 +38,11 @@
   <Security>
     <SigningVerification>
       <Signature>Allowed</Signature>
-    </SigningVerification>  
+    </SigningVerification>
     <Decryption>
-      <Encryption>Ignored</Encryption>
-      <PrivateKeyFindType>FindByThumbprint</PrivateKeyFindType>
+      <Encryption>Allowed</Encryption>
+      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
     </Decryption>
   </Security>
   <MessagePackaging>
@@ -49,9 +50,9 @@
         <FromParty>
 				<PartyIds>
 					<PartyId>
-						<Id>holodeck-c3</Id>
+						<Id>flame-c3</Id>
+						<!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
             <Type/>
-            <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
 					</PartyId>
 				</PartyIds>
 				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
@@ -60,17 +61,17 @@
 				<PartyIds>
 					<PartyId>
 						<Id>as4.net-c3</Id>
-            <Type/>
             <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
+            <Type/>
 					</PartyId>
 				</PartyIds>
 				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder</Role>
 			</ToParty>
       </PartyInfo>
       <CollaborationInfo>
-        <Action>ACT_ONEWAY_SIGNONLY</Action>
+        <Action>ACT_SIMPLE_TWOWAY</Action>
         <Service>
-          <Value>SRV_ONEWAY_SIGNONLY</Value>
+          <Value>SRV_SIMPLE_TWOWAY</Value>
         </Service>
     </CollaborationInfo>
   </MessagePackaging>
