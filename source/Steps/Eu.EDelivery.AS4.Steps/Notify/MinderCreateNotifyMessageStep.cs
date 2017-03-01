@@ -1,36 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
-using System.Linq;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using NLog;
-using System.IO;
-using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Singletons;
-using SignalMessage = Eu.EDelivery.AS4.Model.Core.SignalMessage;
-using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
-    /// <summary>
-    /// Assemble a <see cref="AS4Message"/> as Notify Message
-    /// </summary>
-    public class MinderCreateNotifyMessageStep : IStep
+    public abstract class MinderCreateNotifyMessageStep : IStep
     {
         // TODO: this step should be replaced by a Transformer
-
-        private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
+       
         private readonly ILogger _logger;
 
+        protected abstract string MinderUriPrefix { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MinderCreateNotifyMessageStep"/> class
+        /// Initializes a new instance of the <see cref="ConformanceTestCreateNotifyMessageStep"/> class
         /// </summary>
-        public MinderCreateNotifyMessageStep()
+        protected MinderCreateNotifyMessageStep()
         {
             this._logger = LogManager.GetCurrentClassLogger();
         }
@@ -43,8 +40,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._logger.Info("Minder Create Notify Message");
-
             UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
             SignalMessage signalMessage = internalMessage.AS4Message.PrimarySignalMessage;
 
@@ -137,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private static void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
+        private void AssignMinderProperties(UserMessage userMessage, SignalMessage signalMessage)
         {
             AssignToPartyIdentification(userMessage);
             AssignServiceAction(userMessage);
@@ -147,23 +142,26 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 userMessage.MessageProperties.Add(new MessageProperty("RefToMessageId", signalMessage.RefToMessageId));
                 userMessage.MessageProperties.Add(new MessageProperty("SignalType", signalMessage.GetType().Name));
 
-                userMessage.RefToMessageId = signalMessage.MessageId;                
+                userMessage.RefToMessageId = signalMessage.MessageId;
             }
         }
 
-        private static void AssignServiceAction(UserMessage userMessage)
+        private void AssignServiceAction(UserMessage userMessage)
         {
             userMessage.CollaborationInfo.Action = "Notify";
-            userMessage.CollaborationInfo.Service.Value = ConformanceUriPrefix;
+            userMessage.CollaborationInfo.Service.Value = MinderUriPrefix;
             userMessage.CollaborationInfo.ConversationId = "1";
         }
 
-        private static void AssignToPartyIdentification(UserMessage userMessage)
+        private void AssignToPartyIdentification(UserMessage userMessage)
         {
             //userMessage.Sender.PartyIds.First().Id = "as4-net-c2";
             //userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
+
+            userMessage.Sender = new Party($"{MinderUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
+
             userMessage.Receiver.PartyIds.First().Id = "minder";
-            userMessage.Receiver.Role = $"{ConformanceUriPrefix}/testdriver";
+            userMessage.Receiver.Role = $"{MinderUriPrefix}/testdriver";
         }
 
     }

@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -16,20 +15,17 @@ using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
-    /// <summary>
-    /// Assemble a <see cref="AS4Message"/> as Deliver Message
-    /// </summary>
-    public class ConformanceTestCreateDeliverMessageStep : IStep
+    public class InteropTestCreateDeliverMessageStep : IStep
     {
         // TODO: this Step should be replaced by a Transformer.
 
-        private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
+        private const string ConformanceUriPrefix = "http://www.esens.eu/as4/interoptest";
         private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConformanceTestCreateDeliverMessageStep"/>
         /// </summary>
-        public ConformanceTestCreateDeliverMessageStep()
+        public InteropTestCreateDeliverMessageStep()
         {
             this._logger = LogManager.GetCurrentClassLogger();
         }
@@ -38,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             this._logger.Info("Create Deliver Message");
 
-            var deliverMessage = CreateMinderDeliverMessage(internalMessage);
+            var deliverMessage = CreateDeliverMessage(internalMessage);
 
             // The Minder Deliver Message should be an AS4-Message.
             var builder = new AS4MessageBuilder();
@@ -64,17 +60,17 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
 
             internalMessage.DeliverMessage = new DeliverMessageEnvelope(new MessageInfo()
-            {
-                MessageId = deliverMessage.MessageId,
-                RefToMessageId = deliverMessage.RefToMessageId
-            },
+                {
+                    MessageId = deliverMessage.MessageId,
+                    RefToMessageId = deliverMessage.RefToMessageId
+                },
                 content,
                 msg.ContentType);
 
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private UserMessage CreateMinderDeliverMessage(InternalMessage internalMessage)
+        private UserMessage CreateDeliverMessage(InternalMessage internalMessage)
         {
             UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
 
