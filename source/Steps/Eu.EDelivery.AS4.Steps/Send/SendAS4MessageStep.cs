@@ -203,14 +203,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
 
         private async Task<StepResult> PrepareStepResult(HttpWebResponse webResponse, InternalMessage internalMessage, CancellationToken cancellationToken)
-        {
-            //this._stepResult.InternalMessage.AS4Message = this._as4Message;
+        {            
             internalMessage.AS4Message = this._originalAS4Message;
 
             if (webResponse == null || webResponse.StatusCode == HttpStatusCode.Accepted)
             {
                 internalMessage.AS4Message.SignalMessages.Clear();
-                // this._stepResult.InternalMessage.AS4Message.SignalMessages.Clear();
+         
                 this._logger.Info("Empty Soap Body is returned, no further action is needed");
                 return StepResult.Success(internalMessage);
             }
@@ -233,12 +232,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             ISerializer serializer = this._provider.Get(contentType: contentType);
             return await serializer.DeserializeAsync(responseStream, contentType, cancellationToken);
         }
-
-        //private void AddExtraInfoToReceivedAS4Message()
-        //{
-        //    this._stepResult.InternalMessage.AS4Message.SendingPMode = this._as4Message.SendingPMode;
-        //    this._stepResult.InternalMessage.AS4Message.UserMessages.Add(this._as4Message.PrimaryUserMessage);
-        //}
 
         protected AS4Exception CreateFailedSendAS4Exception(InternalMessage internalMessage, Exception exception)
         {

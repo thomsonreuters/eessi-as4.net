@@ -153,10 +153,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         }
 
         private void AssignToPartyIdentification(UserMessage userMessage)
-        {
-            //userMessage.Sender.PartyIds.First().Id = "as4-net-c2";
-            //userMessage.Sender.Role = $"{ConformanceUriPrefix}/sut";
-
+        {            
 //            userMessage.Sender = new Party($"{MinderUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
 
             userMessage.Receiver.PartyIds.First().Id = "minder";
