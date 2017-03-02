@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Exception ThrowAS4CannotDecompressException( AS4Message as4Message, Exception exception)
         {
-            const string description = "Cannot decompress the message";
+            string description = $"Cannot decompress the message: {exception.Message}";
             this._logger.Error(description);
 
             return AS4ExceptionBuilder

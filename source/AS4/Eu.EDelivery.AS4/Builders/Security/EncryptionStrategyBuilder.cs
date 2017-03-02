@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
         private X509Certificate2 _certificate;
 
         private KeyEncryptionConfiguration _keyConfiguration = new KeyEncryptionConfiguration(new BinarySecurityTokenReference(),
-            KeyEncryption.Default.Algorithm, KeyEncryption.Default.DigestAlgorithm, KeyEncryption.Default.MgfAlgorithm);
+            KeyEncryption.Default.TransportAlgorithm, KeyEncryption.Default.DigestAlgorithm, KeyEncryption.Default.MgfAlgorithm);
 
         private DataEncryptionConfiguration _dataConfiguration = new DataEncryptionConfiguration(Encryption.Default.Algorithm);
 

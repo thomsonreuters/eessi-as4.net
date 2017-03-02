@@ -90,13 +90,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class KeyEncryption
     {
-        public string Algorithm { get; set; }
+        public string TransportAlgorithm { get; set; }
         public string DigestAlgorithm { get; set; }
         public string MgfAlgorithm { get; set; }
 
         public KeyEncryption()
         {
-            Algorithm = EncryptedXml.XmlEncRSAOAEPUrl;
+            TransportAlgorithm = EncryptedXml.XmlEncRSAOAEPUrl;
             DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
             MgfAlgorithm = null;
         }
