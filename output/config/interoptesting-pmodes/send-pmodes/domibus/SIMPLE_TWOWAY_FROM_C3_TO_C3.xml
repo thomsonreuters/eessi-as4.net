@@ -59,9 +59,9 @@
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <PublicKeyFindValue>domibus-c3</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-      <KeyEncryptionInfo>
+      <KeyTransport>
         <TransportAlgorithm>http://www.w3.org/2009/xmlenc11#rsa-oaep</TransportAlgorithm>        
-      </KeyEncryptionInfo>
+      </KeyTransport>
     </Encryption>
   </Security>
   <MessagePackaging>

@@ -73,13 +73,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public X509FindType PublicKeyFindType { get; set; }
         public string PublicKeyFindValue { get; set; }        
 
-        public KeyEncryption KeyEncryptionInfo { get; set; }
+        public KeyEncryption KeyTransport { get; set; }
 
         public Encryption()
         {
             this.IsEnabled = false;
             this.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
-            this.KeyEncryptionInfo = new KeyEncryption();
+            this.KeyTransport = new KeyEncryption();
         }
 
         /// <summary>

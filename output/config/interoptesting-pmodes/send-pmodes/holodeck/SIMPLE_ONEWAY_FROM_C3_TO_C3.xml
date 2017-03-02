@@ -59,6 +59,9 @@
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <PublicKeyFindValue>holodeck-c3</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+      <KeyTransport>
+        <TransportAlgorithm>http://www.w3.org/2009/xmlenc11#rsa-oaep</TransportAlgorithm>
+      </KeyTransport>
     </Encryption>
   </Security>
   <MessagePackaging>

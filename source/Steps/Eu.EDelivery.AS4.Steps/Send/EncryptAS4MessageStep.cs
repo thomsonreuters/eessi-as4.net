@@ -87,8 +87,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             builder.WithDataEncryptionConfiguration(new DataEncryptionConfiguration(encryption.Algorithm));
             builder.WithKeyEncryptionConfiguration(new KeyEncryptionConfiguration(null,
-                encryption.KeyEncryptionInfo.TransportAlgorithm, encryption.KeyEncryptionInfo.DigestAlgorithm,
-                encryption.KeyEncryptionInfo.MgfAlgorithm));
+                encryption.KeyTransport.TransportAlgorithm, encryption.KeyTransport.DigestAlgorithm,
+                encryption.KeyTransport.MgfAlgorithm));
             
             builder.WithCertificate(certificate);
             builder.WithAttachments(as4Message.Attachments);
