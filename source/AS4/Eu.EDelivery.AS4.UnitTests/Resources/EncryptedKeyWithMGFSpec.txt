@@ -1,7 +1,7 @@
 <EncryptedKey Id="ek-bca3dc7d-e1cf-4766-bfa1-d2f84552f43a" xmlns="http://www.w3.org/2001/04/xmlenc#">
-	<EncryptionMethod Algorithm="
-http://www.w3.org/2009/xmlenc11#rsa-oaep" MGF="http://www.w3.org/2009/xmlenc11#mgf1sha256">
-		<DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" xmlns="http://www.w3.org/2000/09/xmldsig#" />
+	<EncryptionMethod Algorithm="http://www.w3.org/2009/xmlenc11#rsa-oaep">
+		<ds:DigestMethod xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+		<xenc11:MGF xmlns:xenc11="http://www.w3.org/2009/xmlenc11#" Algorithm="http://www.w3.org/2009/xmlenc11#mgf1sha256"/>
 	</EncryptionMethod>
 	<KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
 		<SecurityTokenReference xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
@@ -16,3 +16,5 @@ http://www.w3.org/2009/xmlenc11#rsa-oaep" MGF="http://www.w3.org/2009/xmlenc11#m
 		<DataReference URI="ed-b39802ee-7d67-4d27-b322-ce4f9355f2f3" />
 	</ReferenceList>
 </EncryptedKey>
+
+

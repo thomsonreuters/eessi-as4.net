@@ -51,12 +51,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
 
         private static bool ArePartyInfoIdsEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
         {
+            if (userMessage.Sender == null || userMessage.Receiver == null)
+            {
+                return false;
+            }
+
             return pmodePartyInfo.FromParty.PartyIds.All(userMessage.Sender.PartyIds.Contains) &&
                    pmodePartyInfo.ToParty.PartyIds.All(userMessage.Receiver.PartyIds.Contains);
         }
 
         private static bool IsPartyInfoRoleEqual(PartyInfo pmodePartyInfo, UserMessage userMessage)
         {
+            if (userMessage.Sender == null || userMessage.Receiver == null)
+            {
+                return false;
+            }
+
             return pmodePartyInfo.FromParty.Role.Equals(userMessage.Sender.Role, StringComparison.OrdinalIgnoreCase) &&
                    pmodePartyInfo.ToParty.Role.Equals(userMessage.Receiver.Role, StringComparison.OrdinalIgnoreCase);
         }
