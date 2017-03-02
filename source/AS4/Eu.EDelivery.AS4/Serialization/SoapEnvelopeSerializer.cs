@@ -208,7 +208,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return __envelopeSchema;
         }
 
-        private void TryValidateEnvelopeDocument(XmlDocument envelopeDocument)
+        private static void TryValidateEnvelopeDocument(XmlDocument envelopeDocument)
         {
             try
             {
@@ -258,8 +258,16 @@ namespace Eu.EDelivery.AS4.Serialization
         private void DeserializeEnvelope(
             XmlDocument envelopeDocument, Model.Core.AS4Message as4Message, XmlReader reader)
         {
-            DeserializeSecurityHeader(reader, envelopeDocument, as4Message);
+            // Try to Deserialize the Messaging-Headers first since here an 
+            // XmlSerializer is used to perform the deserialization.  
+            // XmlSerializer will be positioned on the next node after deserializing, which
+            // causes a next Read to position on the next node.
+            // By doing this, it could be possible that the Security node is skipped when we
+            // try to deserialize the security header first.
             DeserializeMessagingHeader(reader, as4Message);
+
+            DeserializeSecurityHeader(reader, envelopeDocument, as4Message);
+
             DeserializeBody(reader, as4Message);
         }
 
@@ -271,10 +279,10 @@ namespace Eu.EDelivery.AS4.Serialization
             ISigningStrategy signingStrategy = null;
             IEncryptionStrategy encryptionStrategy = null;
 
-            while (reader.Read() && !IsReadersNameSecurityHeader(reader))
+            while (reader.Read() && reader.LocalName.Equals("Security", StringComparison.OrdinalIgnoreCase) == false) //!IsReadersNameSecurityHeader(reader))
             {
                 if (IsReadersNameEncryptedData(reader) && encryptionStrategy == null)
-                {                    
+                {
                     encryptionStrategy = EncryptionStrategyBuilder.Create(envelopeDocument).Build();
                 }
 
@@ -292,9 +300,9 @@ namespace Eu.EDelivery.AS4.Serialization
             => reader.NodeType == XmlNodeType.Element && StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "EncryptedData");
 
         private static bool IsReadersNameSecurityHeader(XmlReader reader)
-            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Security");
+            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Security") && reader.IsStartElement();
 
-        private void DeserializeMessagingHeader(XmlReader reader, Model.Core.AS4Message as4Message)
+        private static void DeserializeMessagingHeader(XmlReader reader, Model.Core.AS4Message as4Message)
         {
             if (!IsReadersNameMessaging(reader)) return;
 
@@ -305,9 +313,9 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static bool IsReadersNameMessaging(XmlReader reader)
-            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Messaging") && IsReadersNamespace(reader);
+            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Messaging") && IsReadersNamespace(reader) && reader.IsStartElement();
 
-        private List<Model.Core.SignalMessage> GetSignalMessagesFromHeader(Xml.Messaging messagingHeader)
+        private static List<Model.Core.SignalMessage> GetSignalMessagesFromHeader(Xml.Messaging messagingHeader)
         {
             if (messagingHeader.SignalMessage == null)
             {
@@ -370,7 +378,7 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         private static bool IsReadersNameBody(XmlReader reader)
-            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Body") && IsReadersNamespace(reader);
+            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Body") && IsReadersNamespace(reader) && reader.IsStartElement();
 
         private static bool IsReadersNamespace(XmlReader reader)
             => reader.NamespaceURI.Equals(Constants.Namespaces.EbmsXmlCore);
