@@ -265,10 +265,8 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         }
 
         private static void AppendMgfMethod(XmlNode node, string mgfAlgorithm)
-        {
-            //var mgfAttribute = node.OwnerDocument.CreateAttribute("MGF", mgfAlgorithm);
-            //node.Attributes.Append(mgfAttribute);
-            var mgfElement = node.OwnerDocument.CreateElement("MGF");
+        {            
+            var mgfElement = node.OwnerDocument.CreateElement("MGF", Constants.Namespaces.XmlEnc11);
             mgfElement.SetAttribute("Algorithm", mgfAlgorithm);
             node.AppendChild(mgfElement);
         }
