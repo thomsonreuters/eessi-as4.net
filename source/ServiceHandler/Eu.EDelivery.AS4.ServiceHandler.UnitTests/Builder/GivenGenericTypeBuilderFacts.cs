@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Builders;
+﻿using System;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Exceptions;
 using Xunit;
 
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                 const string typeString =
                     "Eu.EDelivery.AS4.Transformers.InvalidTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
                 // Act
-                Assert.Throws<AS4Exception>(
+                Assert.Throws<TypeLoadException>(
                     () => GenericTypeBuilder.FromType(typeString));
             }
         }
