@@ -265,7 +265,6 @@
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
-    <Compile Include="Security\Builders\EncryptedKeyBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
     <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />
     <Compile Include="Common\IRegistry.cs" />
@@ -295,7 +294,6 @@
     <Compile Include="Security\Algorithms\RsaPkCs1Sha512SignatureAlgorithm.cs" />
     <Compile Include="Security\Encryption\AS4EncryptedKey.cs" />
     <Compile Include="Security\Encryption\DataEncryptionConfiguration.cs" />
-    <Compile Include="Security\Encryption\EncryptionConfiguration.cs" />
     <Compile Include="Security\Encryption\KeyEncryptionConfiguration.cs" />
     <Compile Include="Security\Factories\EncodingFactory.cs" />
     <Compile Include="Security\References\ReferenceSecurityTokenReference.cs" />

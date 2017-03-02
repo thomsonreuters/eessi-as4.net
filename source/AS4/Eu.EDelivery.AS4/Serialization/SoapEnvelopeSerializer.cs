@@ -279,7 +279,7 @@ namespace Eu.EDelivery.AS4.Serialization
             ISigningStrategy signingStrategy = null;
             IEncryptionStrategy encryptionStrategy = null;
 
-            while (reader.Read() && reader.LocalName.Equals("Security", StringComparison.OrdinalIgnoreCase) == false) //!IsReadersNameSecurityHeader(reader))
+            while (reader.Read() && reader.LocalName.Equals("Security", StringComparison.OrdinalIgnoreCase) == false) 
             {
                 if (IsReadersNameEncryptedData(reader) && encryptionStrategy == null)
                 {
