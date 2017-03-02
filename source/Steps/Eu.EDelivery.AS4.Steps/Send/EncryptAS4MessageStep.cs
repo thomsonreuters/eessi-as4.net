@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
 
@@ -82,9 +83,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             X509Certificate2 certificate = RetrieveCertificate(internalMessage);
 
-            var builder = new EncryptionStrategyBuilder(as4Message);
+            var builder = EncryptionStrategyBuilder.Create(as4Message);
 
-            builder.WithEncryptionAlgorithm(encryption.Algorithm);
+            builder.WithDataEncryptionConfiguration(new DataEncryptionConfiguration(encryption.Algorithm));
+            builder.WithKeyEncryptionConfiguration(new KeyEncryptionConfiguration(null,
+                encryption.KeyTransport.TransportAlgorithm, encryption.KeyTransport.DigestAlgorithm,
+                encryption.KeyTransport.MgfAlgorithm));
+            
             builder.WithCertificate(certificate);
             builder.WithAttachments(as4Message.Attachments);
 
@@ -96,12 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             Encryption encryption = internalMessage.AS4Message.SendingPMode.Security.Encryption;
 
             X509Certificate2 certificate = this._certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
-
-            if (!certificate.HasPrivateKey)
-            {
-                throw ThrowCommonEncryptionException(internalMessage, $"{internalMessage.Prefix} Failed Authentication");
-            }
-
+           
             return certificate;
         }
         

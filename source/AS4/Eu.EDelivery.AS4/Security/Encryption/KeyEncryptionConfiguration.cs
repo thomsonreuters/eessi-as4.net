@@ -7,12 +7,25 @@ namespace Eu.EDelivery.AS4.Security.Encryption
     /// <summary>
     /// Wrapper for specific Key Encryption Configuration
     /// </summary>
-    internal class KeyEncryptionConfiguration
+    public class KeyEncryptionConfiguration
     {
-        public string EncryptionMethod { get; set; } = EncryptedXml.XmlEncRSAOAEPUrl;
-        public string DigestMethod { get; set; } = EncryptionStrategy.XmlEncSHA1Url;
+        public string EncryptionMethod { get; private set; } 
+        public string DigestMethod { get; private set; } 
+        public string Mgf { get; private set; } 
 
         // TODO: load/select the right Security Token Reference
-        public SecurityTokenReference SecurityTokenReference { get; set; } = new BinarySecurityTokenReference();
+        public SecurityTokenReference SecurityTokenReference { get; set; } 
+
+        public KeyEncryptionConfiguration(SecurityTokenReference tokenReference, string encryptionMethod, string digestMethod, string mgf)
+        {
+            if (tokenReference == null)
+            {
+                tokenReference = new BinarySecurityTokenReference();
+            }
+            this.SecurityTokenReference = tokenReference;
+            this.EncryptionMethod = encryptionMethod;
+            this.DigestMethod = digestMethod;
+            this.Mgf = mgf;
+        }
     }
 }

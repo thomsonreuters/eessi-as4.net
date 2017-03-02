@@ -29,11 +29,28 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     x =>
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(x.Exception?.ToString());
+                        NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
                     },
                     TaskContinuationOptions.OnlyOnFaulted);
 
-                Console.ReadLine();
+                ConsoleKeyInfo key;
+
+                do
+                {
+                    Console.WriteLine("Press c to clear the screen, q to stop.");
+
+                    key = Console.ReadKey();
+
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.C:
+                            Console.Clear();
+                            break;                        
+                    }
+
+
+                } while (key.Key != ConsoleKey.Q);
+
 
                 Console.WriteLine(@"Stopping...");
                 cancellationTokenSource.Cancel();
@@ -49,7 +66,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 kernel.Dispose();
                 Config.Instance.Dispose();
             }
-            
+
             Console.ReadLine();
         }
 
@@ -65,7 +82,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             if (!config.IsInitialized) return null;
 
             string certificateTypeRepository = config.GetSetting("CertificateRepository");
-            registry.CertificateRepository = new GenericTypeBuilder().SetType(certificateTypeRepository).Build<ICertificateRepository>();
+            registry.CertificateRepository = GenericTypeBuilder.FromType(certificateTypeRepository).Build<ICertificateRepository>();
             registry.CreateDatastoreContext = () => new DatastoreContext(config);
 
             var agentProvider = new AgentProvider(config);

@@ -47,6 +47,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
 
         private IEnumerable<T> GetEntities<T>(IQueryable<T> queryable)
         {
+            // TODO FRGH: enable throthling.
             return queryable.Where(dbSet => Where(dbSet)).ToList();
         }
 

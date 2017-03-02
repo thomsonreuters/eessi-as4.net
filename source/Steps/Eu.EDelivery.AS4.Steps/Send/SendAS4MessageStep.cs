@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly ISerializerProvider _provider;
         private readonly ICertificateRepository _repository;
 
-        private  AS4Message _originalAS4Message;
+        private AS4Message _originalAS4Message;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep"/> class
@@ -58,11 +58,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+
+
             this._originalAS4Message = internalMessage.AS4Message;
 
-            return await TrySendAS4MessageAsync(internalMessage, cancellationToken);
+            return TrySendAS4MessageAsync(internalMessage, cancellationToken);
         }
 
         private async Task<StepResult> TrySendAS4MessageAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -155,7 +157,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private async Task TryHandleHttpRequestAsync(WebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             try
-            {                
+            {
                 this._logger.Info($"Send AS4 Message to: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
                 await HandleHttpRequestAsync(request, internalMessage.AS4Message, cancellationToken);
             }
@@ -178,7 +180,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private async Task<StepResult> TryHandleHttpResponseAsync(WebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             try
-            {                
+            {
                 this._logger.Debug($"AS4 Message received from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
                 return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }

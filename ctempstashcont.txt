@@ -1,0 +1,2247 @@
+diff --git a/output/config/send-pmodes/8.1.9-pmode.xml b/output/config/send-pmodes/8.1.9-pmode.xml
+deleted file mode 100644
+index 57cf844..0000000
+Binary files a/output/config/send-pmodes/8.1.9-pmode.xml and /dev/null differ
+diff --git a/output/messages/out/8.1.1-sample.accepted b/output/messages/out/8.1.1-sample.accepted
+deleted file mode 100644
+index d1a8bf2..0000000
+--- a/output/messages/out/8.1.1-sample.accepted
++++ /dev/null
+@@ -1,42 +0,0 @@
+-<?xml version="1.0"?>
+-<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+-  <Collaboration>
+-    <AgreementRef>
+-      <PModeId>8.1.1-pmode</PModeId>
+-      <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
+-    </AgreementRef>
+-    <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+-    <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
+-    <Service>
+-      <Value>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Value>
+-      <Type>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Type>
+-    </Service>
+-  </Collaboration>
+-
+-  <MessageProperties>
+-    <MessageProperty>
+-      <Name>Test</Name>
+-      <Type>Test</Type>
+-      <Value>Test</Value>
+-    </MessageProperty>
+-    <MessageProperty>
+-      <Name>Test</Name>
+-      <Type>Test</Type>
+-      <Value>Test</Value>
+-    </MessageProperty>
+-  </MessageProperties>
+-
+-  <Payloads>
+-    <Payload>
+-      <Id>earth2</Id>
+-      <MimeType>image/jpeg</MimeType>
+-      <Location>file:///C:\temp\inspectors.zip</Location>
+-      <PayloadProperties>
+-        <PayloadProperty>
+-           <Name>Test</Name>
+-          <Value>Test</Value>
+-        </PayloadProperty>
+-      </PayloadProperties>
+-    </Payload>
+-  </Payloads>
+-</SubmitMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/0faca6fc-6a74-4848-8e04-a0422343d70f@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/0faca6fc-6a74-4848-8e04-a0422343d70f@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 083acbd..0000000
+--- a/output/messages/receipts/0faca6fc-6a74-4848-8e04-a0422343d70f@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>0faca6fc-6a74-4848-8e04-a0422343d70f@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>8c0a20f6-b2ea-4c0c-bdfe-15c20a6001ad@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T15:12:38.687Z</eb:Timestamp>
+-        <eb:MessageId>0faca6fc-6a74-4848-8e04-a0422343d70f@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>8c0a20f6-b2ea-4c0c-bdfe-15c20a6001ad@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T15:10:02.740624Z</eb:Timestamp>
+-            <eb:MessageId>8c0a20f6-b2ea-4c0c-bdfe-15c20a6001ad@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/1ace1626-fc89-4c46-9560-9fbc5f5c31e3@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/1ace1626-fc89-4c46-9560-9fbc5f5c31e3@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index a93cfdb..0000000
+--- a/output/messages/receipts/1ace1626-fc89-4c46-9560-9fbc5f5c31e3@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>1ace1626-fc89-4c46-9560-9fbc5f5c31e3@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>26c09dd9-e5bf-4660-ba2c-6349df0a6f91@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-04T14:44:04.096Z</eb:Timestamp>
+-        <eb:MessageId>1ace1626-fc89-4c46-9560-9fbc5f5c31e3@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>26c09dd9-e5bf-4660-ba2c-6349df0a6f91@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-04T14:43:54.2592794Z</eb:Timestamp>
+-            <eb:MessageId>26c09dd9-e5bf-4660-ba2c-6349df0a6f91@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/32bb0099-d71c-4193-a9af-55d4e47c9044@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/32bb0099-d71c-4193-a9af-55d4e47c9044@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 43dce5f..0000000
+--- a/output/messages/receipts/32bb0099-d71c-4193-a9af-55d4e47c9044@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>32bb0099-d71c-4193-a9af-55d4e47c9044@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>9a984907-32eb-48f6-ae1e-abdee9126670@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T14:30:47.191Z</eb:Timestamp>
+-        <eb:MessageId>32bb0099-d71c-4193-a9af-55d4e47c9044@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>9a984907-32eb-48f6-ae1e-abdee9126670@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T14:28:54.4488002Z</eb:Timestamp>
+-            <eb:MessageId>9a984907-32eb-48f6-ae1e-abdee9126670@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/357b42e4-cc81-4b7f-8721-bf6dcd71915d@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/357b42e4-cc81-4b7f-8721-bf6dcd71915d@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index a9e0d81..0000000
+--- a/output/messages/receipts/357b42e4-cc81-4b7f-8721-bf6dcd71915d@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>357b42e4-cc81-4b7f-8721-bf6dcd71915d@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>e6a6e87e-d394-4ff7-92c6-aa40405424df@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-05T15:13:17.696Z</eb:Timestamp>
+-        <eb:MessageId>357b42e4-cc81-4b7f-8721-bf6dcd71915d@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>e6a6e87e-d394-4ff7-92c6-aa40405424df@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-05T15:13:04.5098512Z</eb:Timestamp>
+-            <eb:MessageId>e6a6e87e-d394-4ff7-92c6-aa40405424df@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/389606db-961a-4c0d-94b2-5fb59fd82f3c@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/389606db-961a-4c0d-94b2-5fb59fd82f3c@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 3ecda43..0000000
+--- a/output/messages/receipts/389606db-961a-4c0d-94b2-5fb59fd82f3c@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>389606db-961a-4c0d-94b2-5fb59fd82f3c@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>779808cd-6854-44b9-a52a-2e2adbea6714@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T12:20:20.128Z</eb:Timestamp>
+-        <eb:MessageId>389606db-961a-4c0d-94b2-5fb59fd82f3c@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>779808cd-6854-44b9-a52a-2e2adbea6714@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T12:20:18.2937253Z</eb:Timestamp>
+-            <eb:MessageId>779808cd-6854-44b9-a52a-2e2adbea6714@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/3d0632cb-eb9d-4e05-8372-2ccd58c45b8b@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/3d0632cb-eb9d-4e05-8372-2ccd58c45b8b@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 035ae5e..0000000
+--- a/output/messages/receipts/3d0632cb-eb9d-4e05-8372-2ccd58c45b8b@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>3d0632cb-eb9d-4e05-8372-2ccd58c45b8b@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>d2225b79-b5e8-4a97-aee9-001ad3ccad09@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T10:26:16.599Z</eb:Timestamp>
+-        <eb:MessageId>3d0632cb-eb9d-4e05-8372-2ccd58c45b8b@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>d2225b79-b5e8-4a97-aee9-001ad3ccad09@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T10:26:10.9530321Z</eb:Timestamp>
+-            <eb:MessageId>d2225b79-b5e8-4a97-aee9-001ad3ccad09@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/3e0d5edd-6902-46d5-99cb-49d557d1610e@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/3e0d5edd-6902-46d5-99cb-49d557d1610e@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 24becef..0000000
+--- a/output/messages/receipts/3e0d5edd-6902-46d5-99cb-49d557d1610e@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>3e0d5edd-6902-46d5-99cb-49d557d1610e@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>b1acfe82-aaaa-49ae-aaab-25f95607b81f@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-10T13:40:15.807Z</eb:Timestamp>
+-        <eb:MessageId>3e0d5edd-6902-46d5-99cb-49d557d1610e@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>b1acfe82-aaaa-49ae-aaab-25f95607b81f@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-10T13:40:10.4328006Z</eb:Timestamp>
+-            <eb:MessageId>b1acfe82-aaaa-49ae-aaab-25f95607b81f@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/403437c8-9db8-4617-9234-f1382abc0274@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/403437c8-9db8-4617-9234-f1382abc0274@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 0f8c2e7..0000000
+--- a/output/messages/receipts/403437c8-9db8-4617-9234-f1382abc0274@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>403437c8-9db8-4617-9234-f1382abc0274@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>555d637f-f1df-49c2-a48a-6b54f9a2851e@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-10T09:23:40.445Z</eb:Timestamp>
+-        <eb:MessageId>403437c8-9db8-4617-9234-f1382abc0274@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>555d637f-f1df-49c2-a48a-6b54f9a2851e@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-10T09:23:37.131113Z</eb:Timestamp>
+-            <eb:MessageId>555d637f-f1df-49c2-a48a-6b54f9a2851e@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/4159acde-e45f-4f44-b9c4-a823bd57f284@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/4159acde-e45f-4f44-b9c4-a823bd57f284@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 74d6bdb..0000000
+--- a/output/messages/receipts/4159acde-e45f-4f44-b9c4-a823bd57f284@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>4159acde-e45f-4f44-b9c4-a823bd57f284@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>e0643c1f-b68c-4cb6-b171-96ed54e51846@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T15:16:11.309Z</eb:Timestamp>
+-        <eb:MessageId>4159acde-e45f-4f44-b9c4-a823bd57f284@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>e0643c1f-b68c-4cb6-b171-96ed54e51846@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T15:13:49.2922207Z</eb:Timestamp>
+-            <eb:MessageId>e0643c1f-b68c-4cb6-b171-96ed54e51846@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/4d7f853e-66b8-4280-a8a1-1ac205d1fe8b@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/4d7f853e-66b8-4280-a8a1-1ac205d1fe8b@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index b8246b9..0000000
+--- a/output/messages/receipts/4d7f853e-66b8-4280-a8a1-1ac205d1fe8b@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>4d7f853e-66b8-4280-a8a1-1ac205d1fe8b@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>5a80cfa4-80cb-41f1-955c-7d83c283435a@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-10T09:23:40.622Z</eb:Timestamp>
+-        <eb:MessageId>4d7f853e-66b8-4280-a8a1-1ac205d1fe8b@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>5a80cfa4-80cb-41f1-955c-7d83c283435a@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-10T09:23:37.1571126Z</eb:Timestamp>
+-            <eb:MessageId>5a80cfa4-80cb-41f1-955c-7d83c283435a@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/6fe0cdb3-eebc-4485-a513-3bff1eaf7ae4@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/6fe0cdb3-eebc-4485-a513-3bff1eaf7ae4@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 5f433d5..0000000
+--- a/output/messages/receipts/6fe0cdb3-eebc-4485-a513-3bff1eaf7ae4@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>6fe0cdb3-eebc-4485-a513-3bff1eaf7ae4@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>1d9ae8d2-4b96-4a95-bb4e-139fe91e5b9e@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-10T09:22:53.777Z</eb:Timestamp>
+-        <eb:MessageId>6fe0cdb3-eebc-4485-a513-3bff1eaf7ae4@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>1d9ae8d2-4b96-4a95-bb4e-139fe91e5b9e@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-10T09:22:50.1774086Z</eb:Timestamp>
+-            <eb:MessageId>1d9ae8d2-4b96-4a95-bb4e-139fe91e5b9e@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/725c3eee-6d13-4c8d-9907-f2a509419242@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/725c3eee-6d13-4c8d-9907-f2a509419242@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 3991852..0000000
+--- a/output/messages/receipts/725c3eee-6d13-4c8d-9907-f2a509419242@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>725c3eee-6d13-4c8d-9907-f2a509419242@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>ca304bdc-4045-48b3-8769-166bf7cb3a8b@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T14:29:32.599Z</eb:Timestamp>
+-        <eb:MessageId>725c3eee-6d13-4c8d-9907-f2a509419242@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>ca304bdc-4045-48b3-8769-166bf7cb3a8b@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T14:28:54.4175487Z</eb:Timestamp>
+-            <eb:MessageId>ca304bdc-4045-48b3-8769-166bf7cb3a8b@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/764579f7-270d-4063-99a9-33c9bdcb1475@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/764579f7-270d-4063-99a9-33c9bdcb1475@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 30d83cd..0000000
+--- a/output/messages/receipts/764579f7-270d-4063-99a9-33c9bdcb1475@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>764579f7-270d-4063-99a9-33c9bdcb1475@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>a66c6c4b-4863-43ee-b3e9-8eb230e97b26@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T14:19:13.443Z</eb:Timestamp>
+-        <eb:MessageId>764579f7-270d-4063-99a9-33c9bdcb1475@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>a66c6c4b-4863-43ee-b3e9-8eb230e97b26@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T14:19:10.0109752Z</eb:Timestamp>
+-            <eb:MessageId>a66c6c4b-4863-43ee-b3e9-8eb230e97b26@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/79dff583-efc4-41b7-8717-3dbf906988b6@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/79dff583-efc4-41b7-8717-3dbf906988b6@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 9c9ad0e..0000000
+--- a/output/messages/receipts/79dff583-efc4-41b7-8717-3dbf906988b6@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>79dff583-efc4-41b7-8717-3dbf906988b6@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>586164d6-f4e5-438d-8f53-f67656b0a2fa@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T09:19:00.951Z</eb:Timestamp>
+-        <eb:MessageId>79dff583-efc4-41b7-8717-3dbf906988b6@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>586164d6-f4e5-438d-8f53-f67656b0a2fa@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T09:17:09.029489Z</eb:Timestamp>
+-            <eb:MessageId>586164d6-f4e5-438d-8f53-f67656b0a2fa@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/7b88acae-8dc6-4949-b82e-1647696dbc58@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/7b88acae-8dc6-4949-b82e-1647696dbc58@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 68f818c..0000000
+--- a/output/messages/receipts/7b88acae-8dc6-4949-b82e-1647696dbc58@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>7b88acae-8dc6-4949-b82e-1647696dbc58@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>71c447ae-77b4-402d-ae08-c5f1a432e832@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T09:46:12.533Z</eb:Timestamp>
+-        <eb:MessageId>7b88acae-8dc6-4949-b82e-1647696dbc58@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>71c447ae-77b4-402d-ae08-c5f1a432e832@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T09:43:57.0565463Z</eb:Timestamp>
+-            <eb:MessageId>71c447ae-77b4-402d-ae08-c5f1a432e832@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/8b38f916-bc12-4acf-805c-5f3aa933294c@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/8b38f916-bc12-4acf-805c-5f3aa933294c@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index a9366b9..0000000
+--- a/output/messages/receipts/8b38f916-bc12-4acf-805c-5f3aa933294c@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>8b38f916-bc12-4acf-805c-5f3aa933294c@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>f99e0ff9-0261-4b64-8314-4ede5d2b3fc7@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-10T09:24:15.844Z</eb:Timestamp>
+-        <eb:MessageId>8b38f916-bc12-4acf-805c-5f3aa933294c@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>f99e0ff9-0261-4b64-8314-4ede5d2b3fc7@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-10T09:24:13.487484Z</eb:Timestamp>
+-            <eb:MessageId>f99e0ff9-0261-4b64-8314-4ede5d2b3fc7@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/9328b6de-05aa-4bfc-8795-0d5fa3cd8b2e@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/9328b6de-05aa-4bfc-8795-0d5fa3cd8b2e@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 12a3dc3..0000000
+--- a/output/messages/receipts/9328b6de-05aa-4bfc-8795-0d5fa3cd8b2e@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>9328b6de-05aa-4bfc-8795-0d5fa3cd8b2e@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>460d7b7b-fbc4-4dd2-822f-1959dd4f3396@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T10:18:49.556Z</eb:Timestamp>
+-        <eb:MessageId>9328b6de-05aa-4bfc-8795-0d5fa3cd8b2e@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>460d7b7b-fbc4-4dd2-822f-1959dd4f3396@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T10:18:35.6289227Z</eb:Timestamp>
+-            <eb:MessageId>460d7b7b-fbc4-4dd2-822f-1959dd4f3396@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/a9ec0e47-ce2b-48e8-a7f3-f96f2764f4f8@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/a9ec0e47-ce2b-48e8-a7f3-f96f2764f4f8@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index dffde42..0000000
+--- a/output/messages/receipts/a9ec0e47-ce2b-48e8-a7f3-f96f2764f4f8@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>a9ec0e47-ce2b-48e8-a7f3-f96f2764f4f8@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>1047afa6-d03e-4ba2-be9a-daff2d34fe53@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T13:13:02.128Z</eb:Timestamp>
+-        <eb:MessageId>a9ec0e47-ce2b-48e8-a7f3-f96f2764f4f8@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>1047afa6-d03e-4ba2-be9a-daff2d34fe53@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T13:12:59.3601276Z</eb:Timestamp>
+-            <eb:MessageId>1047afa6-d03e-4ba2-be9a-daff2d34fe53@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/aa9d8ab3-41c7-4f4d-b1fa-862d28237ec4@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/aa9d8ab3-41c7-4f4d-b1fa-862d28237ec4@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index f89b777..0000000
+--- a/output/messages/receipts/aa9d8ab3-41c7-4f4d-b1fa-862d28237ec4@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>aa9d8ab3-41c7-4f4d-b1fa-862d28237ec4@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>b6f81242-e12c-4756-9c6d-09815797572c@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T10:37:27.77Z</eb:Timestamp>
+-        <eb:MessageId>aa9d8ab3-41c7-4f4d-b1fa-862d28237ec4@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>b6f81242-e12c-4756-9c6d-09815797572c@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T10:37:24.5247574Z</eb:Timestamp>
+-            <eb:MessageId>b6f81242-e12c-4756-9c6d-09815797572c@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/ad91bc69-e13b-4586-b79b-0f12431c0673@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/ad91bc69-e13b-4586-b79b-0f12431c0673@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 8489d90..0000000
+--- a/output/messages/receipts/ad91bc69-e13b-4586-b79b-0f12431c0673@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>ad91bc69-e13b-4586-b79b-0f12431c0673@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>3c8bdb59-7d9c-43a2-9963-cfda34a95169@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-09T09:17:45.745Z</eb:Timestamp>
+-        <eb:MessageId>ad91bc69-e13b-4586-b79b-0f12431c0673@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>3c8bdb59-7d9c-43a2-9963-cfda34a95169@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-09T09:17:39.1159364Z</eb:Timestamp>
+-            <eb:MessageId>3c8bdb59-7d9c-43a2-9963-cfda34a95169@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/b1b386a4-cb82-46c2-9040-55cd442f5f43@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/b1b386a4-cb82-46c2-9040-55cd442f5f43@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index e38560e..0000000
+--- a/output/messages/receipts/b1b386a4-cb82-46c2-9040-55cd442f5f43@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>b1b386a4-cb82-46c2-9040-55cd442f5f43@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>118f2c07-1873-40f3-b1bb-a3fa4a6c6957@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T12:29:01.05Z</eb:Timestamp>
+-        <eb:MessageId>b1b386a4-cb82-46c2-9040-55cd442f5f43@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>118f2c07-1873-40f3-b1bb-a3fa4a6c6957@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T12:26:43.0949665Z</eb:Timestamp>
+-            <eb:MessageId>118f2c07-1873-40f3-b1bb-a3fa4a6c6957@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/bdb1cf6b-e8f1-47d3-8820-f9a7adef3bb3@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/bdb1cf6b-e8f1-47d3-8820-f9a7adef3bb3@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 76be186..0000000
+--- a/output/messages/receipts/bdb1cf6b-e8f1-47d3-8820-f9a7adef3bb3@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>bdb1cf6b-e8f1-47d3-8820-f9a7adef3bb3@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>50e7e092-a2fe-4518-aefc-8358af3ea192@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T11:33:22.746Z</eb:Timestamp>
+-        <eb:MessageId>bdb1cf6b-e8f1-47d3-8820-f9a7adef3bb3@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>50e7e092-a2fe-4518-aefc-8358af3ea192@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T11:33:20.4748467Z</eb:Timestamp>
+-            <eb:MessageId>50e7e092-a2fe-4518-aefc-8358af3ea192@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/c95e93bc-ff4d-4178-8c4b-f098d3d1b882@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/c95e93bc-ff4d-4178-8c4b-f098d3d1b882@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index f22338a..0000000
+--- a/output/messages/receipts/c95e93bc-ff4d-4178-8c4b-f098d3d1b882@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>c95e93bc-ff4d-4178-8c4b-f098d3d1b882@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>d008ade3-6da0-4df8-a4a0-1a40488bbae8@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-05T15:14:54.59Z</eb:Timestamp>
+-        <eb:MessageId>c95e93bc-ff4d-4178-8c4b-f098d3d1b882@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>d008ade3-6da0-4df8-a4a0-1a40488bbae8@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-05T15:14:52.3885148Z</eb:Timestamp>
+-            <eb:MessageId>d008ade3-6da0-4df8-a4a0-1a40488bbae8@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/cba99745-f9a1-4b1e-b289-037e10ef9045@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/cba99745-f9a1-4b1e-b289-037e10ef9045@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 9bbda63..0000000
+--- a/output/messages/receipts/cba99745-f9a1-4b1e-b289-037e10ef9045@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>cba99745-f9a1-4b1e-b289-037e10ef9045@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>f99e0ff9-0261-4b64-8314-4ede5d2b3fc7@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-10T09:24:21.577Z</eb:Timestamp>
+-        <eb:MessageId>cba99745-f9a1-4b1e-b289-037e10ef9045@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>f99e0ff9-0261-4b64-8314-4ede5d2b3fc7@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-10T09:24:13.487484Z</eb:Timestamp>
+-            <eb:MessageId>f99e0ff9-0261-4b64-8314-4ede5d2b3fc7@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/ccd22112-9cb3-4b10-818b-059125c961ab@CLT-SNEIRINCK.xml b/output/messages/receipts/ccd22112-9cb3-4b10-818b-059125c961ab@CLT-SNEIRINCK.xml
+deleted file mode 100644
+index 5490bd7..0000000
+--- a/output/messages/receipts/ccd22112-9cb3-4b10-818b-059125c961ab@CLT-SNEIRINCK.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>ccd22112-9cb3-4b10-818b-059125c961ab@CLT-SNEIRINCK</MessageId>
+-    <RefToMessageId>ad3ebf8a-da62-4a92-b7d9-81e51a11ac3d@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-04T14:25:31.517Z</eb:Timestamp>
+-        <eb:MessageId>ccd22112-9cb3-4b10-818b-059125c961ab@CLT-SNEIRINCK</eb:MessageId>
+-        <eb:RefToMessageId>ad3ebf8a-da62-4a92-b7d9-81e51a11ac3d@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-04T14:25:23.2129379Z</eb:Timestamp>
+-            <eb:MessageId>ad3ebf8a-da62-4a92-b7d9-81e51a11ac3d@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/dbd03e8e-aaad-4e03-9fa5-3bfa63bb6b68@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/dbd03e8e-aaad-4e03-9fa5-3bfa63bb6b68@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index eb8644b..0000000
+--- a/output/messages/receipts/dbd03e8e-aaad-4e03-9fa5-3bfa63bb6b68@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>dbd03e8e-aaad-4e03-9fa5-3bfa63bb6b68@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>42b48a66-c989-46a8-9890-b243f5327bee@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T14:34:51.591Z</eb:Timestamp>
+-        <eb:MessageId>dbd03e8e-aaad-4e03-9fa5-3bfa63bb6b68@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>42b48a66-c989-46a8-9890-b243f5327bee@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T14:34:46.7441749Z</eb:Timestamp>
+-            <eb:MessageId>42b48a66-c989-46a8-9890-b243f5327bee@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/e66b92fe-165f-4d5a-a03b-b44c6c31c204@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/e66b92fe-165f-4d5a-a03b-b44c6c31c204@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index fe6b9f4..0000000
+--- a/output/messages/receipts/e66b92fe-165f-4d5a-a03b-b44c6c31c204@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>e66b92fe-165f-4d5a-a03b-b44c6c31c204@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>d956a9ea-0da0-45c1-a1df-341b6a533aaf@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T13:00:23.228Z</eb:Timestamp>
+-        <eb:MessageId>e66b92fe-165f-4d5a-a03b-b44c6c31c204@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>d956a9ea-0da0-45c1-a1df-341b6a533aaf@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T13:00:13.7349841Z</eb:Timestamp>
+-            <eb:MessageId>d956a9ea-0da0-45c1-a1df-341b6a533aaf@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/ef5544d5-d907-48e8-a823-aedb839be2a9@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/ef5544d5-d907-48e8-a823-aedb839be2a9@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 3c6e6f4..0000000
+--- a/output/messages/receipts/ef5544d5-d907-48e8-a823-aedb839be2a9@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>ef5544d5-d907-48e8-a823-aedb839be2a9@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>209da96e-a7fb-4f73-9a67-7e7ef8b3f149@10.124.29.192</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-10T09:24:27.617Z</eb:Timestamp>
+-        <eb:MessageId>ef5544d5-d907-48e8-a823-aedb839be2a9@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>209da96e-a7fb-4f73-9a67-7e7ef8b3f149@10.124.29.192</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-10T09:24:13.5004832Z</eb:Timestamp>
+-            <eb:MessageId>209da96e-a7fb-4f73-9a67-7e7ef8b3f149@10.124.29.192</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/f15bbd21-c848-4d82-a8be-8ef80e9fb9de@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/f15bbd21-c848-4d82-a8be-8ef80e9fb9de@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 65b6630..0000000
+--- a/output/messages/receipts/f15bbd21-c848-4d82-a8be-8ef80e9fb9de@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>f15bbd21-c848-4d82-a8be-8ef80e9fb9de@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>6129d7f7-3d8e-411a-b83e-470bc6fa5309@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T10:26:16.474Z</eb:Timestamp>
+-        <eb:MessageId>f15bbd21-c848-4d82-a8be-8ef80e9fb9de@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>6129d7f7-3d8e-411a-b83e-470bc6fa5309@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T10:26:10.9530321Z</eb:Timestamp>
+-            <eb:MessageId>6129d7f7-3d8e-411a-b83e-470bc6fa5309@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/output/messages/receipts/ffe6f9a3-ebc9-428e-8f35-4c692bc0d9ec@CLT-FGHEYSELS.ad.codit.eu.xml b/output/messages/receipts/ffe6f9a3-ebc9-428e-8f35-4c692bc0d9ec@CLT-FGHEYSELS.ad.codit.eu.xml
+deleted file mode 100644
+index 9be4ee3..0000000
+--- a/output/messages/receipts/ffe6f9a3-ebc9-428e-8f35-4c692bc0d9ec@CLT-FGHEYSELS.ad.codit.eu.xml
++++ /dev/null
+@@ -1,52 +0,0 @@
+-<?xml version="1.0"?>
+-<NotifyMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+-  <MessageInfo>
+-    <MessageId>ffe6f9a3-ebc9-428e-8f35-4c692bc0d9ec@CLT-FGHEYSELS.ad.codit.eu</MessageId>
+-    <RefToMessageId>d956a9ea-0da0-45c1-a1df-341b6a533aaf@10.124.29.197</RefToMessageId>
+-  </MessageInfo>
+-  <StatusInfo>
+-    <Status>Delivered</Status>
+-    <eb:SignalMessage xmlns:eb="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+-      <eb:MessageInfo>
+-        <eb:Timestamp>2017-01-06T13:00:16.672Z</eb:Timestamp>
+-        <eb:MessageId>ffe6f9a3-ebc9-428e-8f35-4c692bc0d9ec@CLT-FGHEYSELS.ad.codit.eu</eb:MessageId>
+-        <eb:RefToMessageId>d956a9ea-0da0-45c1-a1df-341b6a533aaf@10.124.29.197</eb:RefToMessageId>
+-      </eb:MessageInfo>
+-      <eb:Receipt>
+-        <eb:UserMessage>
+-          <eb:MessageInfo>
+-            <eb:Timestamp>2017-01-06T13:00:13.7349841Z</eb:Timestamp>
+-            <eb:MessageId>d956a9ea-0da0-45c1-a1df-341b6a533aaf@10.124.29.197</eb:MessageId>
+-          </eb:MessageInfo>
+-          <eb:PartyInfo>
+-            <eb:From>
+-              <eb:PartyId>org:eu:europa:as4:example</eb:PartyId>
+-              <eb:Role>Sender</eb:Role>
+-            </eb:From>
+-            <eb:To>
+-              <eb:PartyId>org:holodeckb2b:example:company:B</eb:PartyId>
+-              <eb:Role>Receiver</eb:Role>
+-            </eb:To>
+-          </eb:PartyInfo>
+-          <eb:CollaborationInfo>
+-            <eb:AgreementRef pmode="8.1.1-pmode">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
+-            <eb:Service type="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+-            <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
+-            <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
+-          </eb:CollaborationInfo>
+-          <eb:MessageProperties>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-            <eb:Property name="Test" type="Test">Test</eb:Property>
+-          </eb:MessageProperties>
+-          <eb:PayloadInfo>
+-            <eb:PartInfo href="cid:earth2">
+-              <eb:PartProperties>
+-                <eb:Property name="Test">Test</eb:Property>
+-              </eb:PartProperties>
+-            </eb:PartInfo>
+-          </eb:PayloadInfo>
+-        </eb:UserMessage>
+-      </eb:Receipt>
+-    </eb:SignalMessage>
+-  </StatusInfo>
+-</NotifyMessage>
+\ No newline at end of file
+diff --git a/source/AS4/Eu.EDelivery.AS4.UnitTests/Security/Encryption/GivenAS4EncryptedKeyFacts.cs b/source/AS4/Eu.EDelivery.AS4.UnitTests/Security/Encryption/GivenAS4EncryptedKeyFacts.cs
+index beee792..646458f 100644
+--- a/source/AS4/Eu.EDelivery.AS4.UnitTests/Security/Encryption/GivenAS4EncryptedKeyFacts.cs
++++ b/source/AS4/Eu.EDelivery.AS4.UnitTests/Security/Encryption/GivenAS4EncryptedKeyFacts.cs
+@@ -17,8 +17,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
+             {
+                 // Arrange
+                 var encryptedKey = new EncryptedKey {Id = id};
+-                var as4EncryptedKey = new AS4EncryptedKey();
+-                as4EncryptedKey.SetEncryptedKey(encryptedKey);
++                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey);
++                
+                 // Act
+                 string referenceId = as4EncryptedKey.GetReferenceId();
+                 // Assert
+@@ -31,8 +31,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
+                 // Arrange
+                 var cipherData = new CipherData {CipherValue = new byte[] {20}};
+                 var encryptedKey = new EncryptedKey {CipherData = cipherData};
+-                var as4EncryptedKey = new AS4EncryptedKey();
+-                as4EncryptedKey.SetEncryptedKey(encryptedKey);
++                var as4EncryptedKey = new AS4EncryptedKey(encryptedKey);
++                
+                 // Act
+                 CipherData as4CipherData = as4EncryptedKey.GetCipherData();
+                 // Assert
+@@ -45,11 +45,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
+                 // Arrange
+                 var xmlDocument = new XmlDocument();
+                 xmlDocument.LoadXml(Properties.Resources.as4_encrypted_envelope);
+-                var as4EncryptedKey = new AS4EncryptedKey();
++
+                 // Act
+-                as4EncryptedKey.LoadEncryptedKey(xmlDocument);
++                var as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(xmlDocument);
+                 // Assert
+-               Assert.Equal("EK-501d4b2b-5d8459ed-c0c0-45a5-a0c4-4bde7cf06a38", as4EncryptedKey.GetReferenceId());
++                Assert.Equal("EK-501d4b2b-5d8459ed-c0c0-45a5-a0c4-4bde7cf06a38", as4EncryptedKey.GetReferenceId());
+             }
+ 
+             [Fact]
+@@ -58,8 +58,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
+                 // Arrange
+                 var xmlDocument = new XmlDocument();
+                 xmlDocument.LoadXml(Properties.Resources.as4_encrypted_envelope);
+-                var as4EncryptedKey = new AS4EncryptedKey();
+-                as4EncryptedKey.LoadEncryptedKey(xmlDocument);
++                var as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(xmlDocument);
++                
+ 
+                 xmlDocument = new XmlDocument();
+                 XmlElement securityElement = xmlDocument
+diff --git a/source/AS4/Eu.EDelivery.AS4/Builders/Security/EncryptionStrategyBuilder.cs b/source/AS4/Eu.EDelivery.AS4/Builders/Security/EncryptionStrategyBuilder.cs
+index 83f8846..4d7be9d 100644
+--- a/source/AS4/Eu.EDelivery.AS4/Builders/Security/EncryptionStrategyBuilder.cs
++++ b/source/AS4/Eu.EDelivery.AS4/Builders/Security/EncryptionStrategyBuilder.cs
+@@ -59,6 +59,16 @@ namespace Eu.EDelivery.AS4.Builders.Security
+             return this;
+         }
+ 
++        // FRGH
++        public EncryptionStrategyBuilder WithDigestMethod(string digestMethod)
++        {
++            this._logger.Debug($"Digest Method: {digestMethod}");
++
++            _strategy.SetDigestMethod(digestMethod);
++
++            return this;
++        }
++
+ 
+         public EncryptionStrategyBuilder WithCertificate(X509Certificate2 certificate)
+         {
+diff --git a/source/AS4/Eu.EDelivery.AS4/Security/Encryption/AS4EncryptedKey.cs b/source/AS4/Eu.EDelivery.AS4/Security/Encryption/AS4EncryptedKey.cs
+index e5abecf..0b3f109 100644
+--- a/source/AS4/Eu.EDelivery.AS4/Security/Encryption/AS4EncryptedKey.cs
++++ b/source/AS4/Eu.EDelivery.AS4/Security/Encryption/AS4EncryptedKey.cs
+@@ -1,5 +1,7 @@
+-﻿using System.Security.Cryptography.Xml;
++﻿using System;
++using System.Security.Cryptography.Xml;
+ using System.Xml;
++using Eu.EDelivery.AS4.Security.Strategies;
+ 
+ namespace Eu.EDelivery.AS4.Security.Encryption
+ {
+@@ -8,15 +10,15 @@ namespace Eu.EDelivery.AS4.Security.Encryption
+     /// </summary>
+     public class AS4EncryptedKey
+     {
+-        private EncryptedKey _encryptedKey;
++        private readonly EncryptedKey _encryptedKey;
+ 
+         /// <summary>
+-        /// Set the internal <see cref="EncryptedKey"/>
++        /// Initializes a new instance of AS4EncryptedKey
+         /// </summary>
+-        /// <param name="encryptedKey"></param>
+-        public void SetEncryptedKey(EncryptedKey encryptedKey)
++        /// <param name="encryptedKey">The internal <see cref="EncryptedKey"/></param>
++        public AS4EncryptedKey(EncryptedKey encryptedKey)
+         {
+-            this._encryptedKey = encryptedKey;
++            _encryptedKey = encryptedKey;
+         }
+ 
+         /// <summary>
+@@ -58,45 +60,43 @@ namespace Eu.EDelivery.AS4.Security.Encryption
+             return digestNode?.GetAttribute("Algorithm");
+         }
+ 
+-        /// <summary>
+-        /// Load a the <EncryptedKey/> Element inside the <see cref="EncryptedKey"/> Model
+-        /// </summary>
+-        /// <param name="xmlDocument"></param>
+-        public void LoadEncryptedKey(XmlDocument xmlDocument)
++        public static AS4EncryptedKey LoadFromXmlDocument(XmlDocument xmlDocument)
+         {
+-            this._encryptedKey = new EncryptedKey();
+-
++            var encryptedKey = new EncryptedKey();
+             var encryptedKeyElement = xmlDocument.SelectSingleNode("//*[local-name()='EncryptedKey']") as XmlElement;
+-            this._encryptedKey.LoadXml(encryptedKeyElement);
++
++            if (encryptedKeyElement == null)
++            {
++                throw new ArgumentException(@"No EncryptedKey element found in XmlDocument", nameof(xmlDocument));
++            }
++
++            encryptedKey.LoadXml(encryptedKeyElement);
++
++            return new AS4EncryptedKey(encryptedKey);
+         }
+ 
+         /// <summary>
+         /// Append the <EncryptedKey/> Element to a given <paramref name="securityElement"/>
+         /// </summary>
+         /// <param name="securityElement"></param>
+-        public void AppendEncryptedKey(XmlElement securityElement)
++        public void AppendEncryptedKey(XmlElement securityElement, string digest)
+         {
+-            XmlElement encryptedKeyElement = GetEncryptedKeyElement();
+-            XmlNode importedEncryptedKeyNode = securityElement.OwnerDocument.ImportNode(encryptedKeyElement, deep: true);
++            XmlElement encryptedKeyElement = this._encryptedKey.GetXml();
+ 
+-            securityElement.AppendChild(importedEncryptedKeyNode);
+-        }
++            AppendDigestMethod(encryptedKeyElement.SelectSingleNode("//*[local-name()='EncryptionMethod']"), digest);
+ 
+-        private XmlElement GetEncryptedKeyElement()
+-        {
+-            XmlElement encryptedKeyElement = this._encryptedKey.GetXml();
+-            AppendDigestMethod(encryptedKeyElement.SelectSingleNode("//*[local-name()='EncryptionMethod']"));
++            XmlNode importedEncryptedKeyNode = securityElement.OwnerDocument.ImportNode(encryptedKeyElement, deep: true);
+ 
+-            return encryptedKeyElement;
++            securityElement.AppendChild(importedEncryptedKeyNode);
+         }
+-
+-        private void AppendDigestMethod(XmlNode encryptionMethodNode)
++       
++        private static void AppendDigestMethod(XmlNode encryptionMethodNode, string digestMode)
+         {
+             XmlElement digestMethod = encryptionMethodNode.OwnerDocument
+                 .CreateElement("DigestMethod", Constants.Namespaces.XmlDsig);
+ 
+             // TODO: do we need to change this algorithm (configured by the PMode)
+-            digestMethod.SetAttribute("Algorithm", "http://www.w3.org/2001/04/xmlenc#sha256");
++            digestMethod.SetAttribute("Algorithm", EncryptionStrategy.XmlEncSHA1Url); //"http://www.w3.org/2001/04/xmlenc#sha256");//digestMode); // EncryptionStrategy.XmlEncSHA1Url); // "http://www.w3.org/2001/04/xmlenc#sha256");
+ 
+             encryptionMethodNode.AppendChild(digestMethod);
+         }
+diff --git a/source/AS4/Eu.EDelivery.AS4/Security/Encryption/KeyEncryptionConfiguration.cs b/source/AS4/Eu.EDelivery.AS4/Security/Encryption/KeyEncryptionConfiguration.cs
+index 120427b..bb42b79 100644
+--- a/source/AS4/Eu.EDelivery.AS4/Security/Encryption/KeyEncryptionConfiguration.cs
++++ b/source/AS4/Eu.EDelivery.AS4/Security/Encryption/KeyEncryptionConfiguration.cs
+@@ -1,16 +1,20 @@
+-﻿using System.Security.Cryptography.Xml;
++﻿using System;
++using System.Security.Cryptography.Xml;
++using Eu.EDelivery.AS4.Security.Factories;
+ using Eu.EDelivery.AS4.Security.References;
++using Eu.EDelivery.AS4.Security.Strategies;
+ 
+ namespace Eu.EDelivery.AS4.Security.Encryption
+ {
+     /// <summary>
+     /// Wrapper for specific Key Encryption Configuration
+     /// </summary>
++    [Obsolete("This is never used")]
+     internal class KeyEncryptionConfiguration
+     {
+         public string EncryptionMethod { get; set; } = EncryptedXml.XmlEncRSAOAEPUrl;
+-        public string DigestMethod { get; set; } = EncryptedXml.XmlEncSHA256Url;
+-        
++        public string DigestMethod { get; set; } = EncryptionStrategy.XmlEncSHA1Url; // TODO: default sha1?
++
+         // TODO: load/select the right Security Token Reference
+         public SecurityTokenReference SecurityTokenReference { get; set; } = new BinarySecurityTokenReference();
+     }
+diff --git a/source/AS4/Eu.EDelivery.AS4/Security/Factories/EncodingFactory.cs b/source/AS4/Eu.EDelivery.AS4/Security/Factories/EncodingFactory.cs
+index 41a5e07..3d0601d 100644
+--- a/source/AS4/Eu.EDelivery.AS4/Security/Factories/EncodingFactory.cs
++++ b/source/AS4/Eu.EDelivery.AS4/Security/Factories/EncodingFactory.cs
+@@ -24,16 +24,16 @@ namespace Eu.EDelivery.AS4.Security.Factories
+         /// <returns></returns>
+         public OaepEncoding Create(string digestAlgorithm = null)
+         {
+-            IDigest digest = digestAlgorithm != null ? GetDigest(digestAlgorithm) : new Sha256Digest();
++            IDigest digest = digestAlgorithm != null ? GetDigest(digestAlgorithm) : new Sha1Digest();
+             return CreateEncoding(digest);
+         }
+ 
+-        private IDigest GetDigest(string algorithm)
++        private static IDigest GetDigest(string algorithm)
+         {
+             return DigestUtilities.GetDigest(algorithm.Substring(algorithm.IndexOf('#') + 1));
+         }
+ 
+-        private OaepEncoding CreateEncoding(IDigest digest)
++        private static OaepEncoding CreateEncoding(IDigest digest)
+         {
+             return new OaepEncoding(
+                 cipher: new RsaEngine(),
+diff --git a/source/AS4/Eu.EDelivery.AS4/Security/Strategies/EncryptionStrategy.cs b/source/AS4/Eu.EDelivery.AS4/Security/Strategies/EncryptionStrategy.cs
+index 453ab86..1aef13d 100644
+--- a/source/AS4/Eu.EDelivery.AS4/Security/Strategies/EncryptionStrategy.cs
++++ b/source/AS4/Eu.EDelivery.AS4/Security/Strategies/EncryptionStrategy.cs
+@@ -32,7 +32,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+ 
+         private readonly EncryptionConfiguration _configuration;
+         private readonly List<EncryptedData> _encryptedDatas;
+-        private readonly AS4EncryptedKey _as4EncryptedKey;
++        private AS4EncryptedKey _as4EncryptedKey;
++
++        public const string XmlEncSHA1Url = "http://www.w3.org/2000/09/xmldsig#sha1";
+ 
+         /// <summary>
+         /// Run once Crypto Configuration
+@@ -58,7 +60,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+             this._configuration = new EncryptionConfiguration();
+             this._attachments = new List<Attachment>();
+             this._encryptedDatas = new List<EncryptedData>();
+-            this._as4EncryptedKey = new AS4EncryptedKey();
++            // this._as4EncryptedKey = new AS4EncryptedKey();
+         }
+ 
+         /// <summary>
+@@ -85,7 +87,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+ 
+             // Add additional elements such as certificate references
+             this._configuration.Key.SecurityTokenReference.AppendSecurityTokenTo(securityElement, securityDocument);
+-            this._as4EncryptedKey.AppendEncryptedKey(securityElement);
++            
++            // FRGH has modified this
++            this._as4EncryptedKey.AppendEncryptedKey(securityElement, _configuration.Key.DigestMethod );
+             AppendEncryptedDataElements(securityElement, securityDocument);
+         }
+ 
+@@ -109,6 +113,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+             this._configuration.Data.EncryptionMethod = encryptionAlgorithm;
+         }
+ 
++        // FRGH
++        public void SetDigestMethod(string digestMethod)
++        {
++            _configuration.Key.DigestMethod = digestMethod;
++        }
++
+         /// <summary>
+         /// Sets the certificate to use when encrypting/decrypting.
+         /// </summary>
+@@ -145,9 +155,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+             return encoding;
+         }
+ 
+-        private byte[] GenerateSymmetricKey(int keySize)
++        private static byte[] GenerateSymmetricKey(int keySize)
+         {
+-            using (var rijn = new RijndaelManaged {KeySize = keySize}) return rijn.Key;
++            using (var rijn = new RijndaelManaged { KeySize = keySize }) return rijn.Key;
+         }
+ 
+         private void SetEncryptedKey(OaepEncoding encoding, byte[] symmetricKey)
+@@ -157,7 +167,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+                 .WithSymmetricKey(symmetricKey)
+                 .WithSecurityTokenReference(this._configuration.Key.SecurityTokenReference);
+ 
+-            this._as4EncryptedKey.SetEncryptedKey(builder.Build());
++            _as4EncryptedKey = new AS4EncryptedKey(builder.Build());
++
++            //this._as4EncryptedKey.SetEncryptedKey(builder.Build());
+         }
+ 
+         private void EncryptAttachmentsWithAlgorithm(SymmetricAlgorithm encryptionAlgorithm)
+@@ -249,7 +261,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+         {
+             try
+             {
+-                this._as4EncryptedKey.LoadEncryptedKey(this._document);
++                //  this._as4EncryptedKey.LoadEncryptedKey(this._document);
++
++                this._as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(_document);
+ 
+                 byte[] key = DecryptEncryptedKey();
+                 SymmetricAlgorithm decryptAlgorithm = CreateSymmetricAlgorithm(
+@@ -296,7 +310,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+                 inBytes: cipherData.CipherValue, inOff: 0, inLen: cipherData.CipherValue.Length);
+         }
+ 
+-        private SymmetricAlgorithm CreateSymmetricAlgorithm(string name, byte[] key)
++        private static SymmetricAlgorithm CreateSymmetricAlgorithm(string name, byte[] key)
+         {
+             var symmetricAlgorithm = (SymmetricAlgorithm)CryptoConfig.CreateFromName(name);
+             symmetricAlgorithm.Key = key;
+diff --git a/source/AS4/Eu.EDelivery.AS4/Security/Strategies/SigningStrategy.cs b/source/AS4/Eu.EDelivery.AS4/Security/Strategies/SigningStrategy.cs
+index cd2ac9c..b74dba7 100644
+--- a/source/AS4/Eu.EDelivery.AS4/Security/Strategies/SigningStrategy.cs
++++ b/source/AS4/Eu.EDelivery.AS4/Security/Strategies/SigningStrategy.cs
+@@ -69,9 +69,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+             this.KeyInfo.AddClause(this.SecurityTokenReference);
+         }
+ 
+-        private RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
++        private static RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
+         {
+-            var cspParams = new CspParameters(24) {KeyContainerName = "XML_DISG_RSA_KEY"};
++            var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
+             var key = new RSACryptoServiceProvider(cspParams);
+             using (certificate.GetRSAPrivateKey()) { }
+             string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
+@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+         /// <param name="hashFunction"></param>
+         public void AddXmlReference(string id, string hashFunction)
+         {
+-            var reference = new CryptoReference("#" + id) {DigestMethod = hashFunction};
++            var reference = new CryptoReference("#" + id) { DigestMethod = hashFunction };
+             Transform transform = new XmlDsigExcC14NTransform();
+             reference.AddTransform(transform);
+             base.AddReference(reference);
+@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+         /// <param name="digestMethod"></param>
+         public void AddAttachmentReference(Attachment attachment, string digestMethod)
+         {
+-            var attachmentReference = new CryptoReference(uri: CidPrefix + attachment.Id) {DigestMethod = digestMethod};
++            var attachmentReference = new CryptoReference(uri: CidPrefix + attachment.Id) { DigestMethod = digestMethod };
+             attachmentReference.AddTransform(new AttachmentSignatureTransform());
+             base.AddReference(attachmentReference);
+ 
+@@ -158,7 +158,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+         {
+             foreach (SecurityTokenReference reference in this.KeyInfo.OfType<SecurityTokenReference>())
+             {
+-                if(reference.Certificate == null) reference.LoadXml(this._document);
++                if (reference.Certificate == null) reference.LoadXml(this._document);
+                 reference.AppendSecurityTokenTo(securityElement, securityElement.OwnerDocument);
+             }
+         }
+@@ -234,14 +234,16 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+                 throw ThrowAS4SignException("The signing certificate is not trusted");
+         }
+ 
+-        private bool VerifyCertificate(X509Certificate2 certificate)
+-        {
+-            X509Chain chain = new X509Chain();
+-            chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
+-            return chain.Build(certificate);
++        private static bool VerifyCertificate(X509Certificate2 certificate)
++        {
++            using (X509Chain chain = new X509Chain())
++            {
++                chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
++                return chain.Build(certificate);
++            }
+         }
+ 
+-        private AS4Exception ThrowAS4SignException(string description)
++        private static AS4Exception ThrowAS4SignException(string description)
+         {
+             return new AS4ExceptionBuilder()
+                 .WithDescription(description)
+@@ -258,12 +260,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+             {
+                 string pureReferenceId = reference.Uri.Substring(CidPrefix.Length);
+                 Attachment attachment = attachments.FirstOrDefault(x => x.Id.Equals(pureReferenceId));
+-                this.SetReferenceStream(reference, attachment);
+-                this.SetAttachmentTransformContentType(reference, attachment);
++                SetReferenceStream(reference, attachment);
++                SetAttachmentTransformContentType(reference, attachment);
+             }
+         }
+ 
+-        private Func<CryptoReference, bool> ReferenceIsCicReference()
++        private static Func<CryptoReference, bool> ReferenceIsCicReference()
+         {
+             return x => x?.Uri != null && x.Uri.StartsWith(CidPrefix) && x.Uri.Length > CidPrefix.Length;
+         }
+@@ -273,7 +275,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+         /// </summary>
+         /// <param name="reference"></param>
+         /// <param name="attachment"></param>
+-        private void SetReferenceStream(CryptoReference reference, Attachment attachment)
++        private static void SetReferenceStream(CryptoReference reference, Attachment attachment)
+         {
+             // We need reflection to set these 2 types. They are implicitly set to Xml references, 
+             // but this causes problems with cid: references, since they're not part of the original stream.
+@@ -289,7 +291,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+             fieldInfo?.SetValue(reference, new NonCloseableStream(attachment.Content));
+         }
+ 
+-        private void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
++        private static void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
+         {
+             foreach (object transform in reference.TransformChain)
+             {
+@@ -303,7 +305,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
+         /// Resets the reference stream position to 0.
+         /// </summary>
+         /// <param name="reference"></param>
+-        private void ResetReferenceStreamPosition(CryptoReference reference)
++        private static void ResetReferenceStreamPosition(CryptoReference reference)
+         {
+             FieldInfo fieldInfo = typeof(CryptoReference).GetField(
+                 "m_refTarget",

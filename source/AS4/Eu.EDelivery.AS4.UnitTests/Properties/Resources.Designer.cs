@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos;?&gt;
         ///&lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot;&gt;
         ///  &lt;soapenv:Header&gt;
-        ///    &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1 [rest of string was truncated]&quot;;.
+        ///    &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0. [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string as4_encrypted_envelope {
             get {
@@ -162,6 +162,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;EncryptedKey Id=&quot;ek-bca3dc7d-e1cf-4766-bfa1-d2f84552f43a&quot; xmlns=&quot;http://www.w3.org/2001/04/xmlenc#&quot;&gt;
+        ///	&lt;EncryptionMethod Algorithm=&quot;http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p&quot; MGF=&quot;http://www.w3.org/2009/xmlenc11#mgf1sha256&quot;&gt;
+        ///		&lt;DigestMethod Algorithm=&quot;http://www.w3.org/2000/09/xmldsig#sha1&quot; xmlns=&quot;http://www.w3.org/2000/09/xmldsig#&quot; /&gt;
+        ///	&lt;/EncryptionMethod&gt;
+        ///	&lt;KeyInfo xmlns=&quot;http://www.w3.org/2000/09/xmldsig#&quot;&gt;
+        ///		&lt;SecurityTokenReference xmlns=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EncryptedKeyWithMGFSpec {
+            get {
+                return ResourceManager.GetString("EncryptedKeyWithMGFSpec", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] flower1 {
@@ -211,16 +225,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
-        ///&lt;eb:Receipt&gt;
-        ///  &lt;eb:NonRepudiationInformation&gt;
-        ///    &lt;MessagePartNRInformation xmlns=&quot;http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0&quot;&gt;
-        ///      &lt;Reference URI=&quot;#header-23848796-df22-46e9-b508-f37be2331312&quot; xmlns=&quot;http://www.w3.org/2000/09/xmldsig#&quot;&gt;
-        ///        &lt;Transforms&gt;
-        ///          &lt;Transform Algorithm=&quot;http://www.w3.org/2001/10/xml-exc-c14n#&quot; /&gt;
-        ///        &lt;/Transforms&gt;
-        ///        &lt;DigestMethod Algorithm=&quot;http://www.w3.org/2001/04/xmlenc#sha256&quot; /&gt;
-        ///        &lt;DigestValue&gt;c1Y1Qm05d3RXYW [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to &lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot;&gt;
+        ///  &lt;soapenv:Header&gt;
+        ///    &lt;eb3:Messaging soapenv:mustUnderstand=&quot;true&quot;&gt;
+        ///      &lt;eb3:SignalMessage&gt;
+        ///        &lt;eb3:MessageInfo&gt;
+        ///          &lt;eb3:Timestamp&gt;2016-11-17T15:19:59.710Z&lt;/eb3:Timestamp&gt;
+        ///          &lt;eb3:MessageId&gt;e0d253ea-b6f9-4774-86df-4f64767eb8c6@CLT-SMOREELS. [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string receipt {
             get {
@@ -235,7 +246,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///    &lt;eb:Messaging xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:eb=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot;&gt;
         ///      &lt;eb:SignalMessage&gt;
         ///        &lt;eb:MessageInfo&gt;
-        /// [rest of string was truncated]&quot;;.
+        ///       [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string receipt_message {
             get {
@@ -258,7 +269,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///    &lt;UseNNRFormat&gt;true&lt;/UseNNRFormat&gt;
         ///    &lt;ReplyPattern&gt;Response&lt;/ReplyPattern&gt;
         ///  &lt;/ReceiptHandling&gt;
-        ///  &lt;ErrorHandli [rest of string was truncated]&quot;;.
+        ///  &lt;ErrorHandling&gt;
+        ///    &lt;Notif [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string receive_01 {
             get {
@@ -280,7 +292,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///      &lt;UseHttpCompression&gt;false&lt;/UseHttpCompression&gt;
         ///    &lt;/Protocol&gt;
         ///    &lt;TlsConfiguration&gt;
-        /// [rest of string was truncated]&quot;;.
+        ///      &lt;IsEnab [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string send_01 {
             get {
@@ -301,7 +313,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///      &lt;UseChunking&gt;false&lt;/UseChunking&gt;
         ///      &lt;UseHttpCompression&gt;false&lt;/UseHttpCompression&gt;
         ///    &lt;/Protocol&gt;
-        ///    &lt;TlsConfigura [rest of string was truncated]&quot;;.
+        ///    &lt;TlsConfiguration&gt;
+        ///       [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string sendingprocessingmode {
             get {
@@ -331,7 +344,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         ///  &lt;/MessageProperties&gt;
         ///  
         ///  &lt;Payloads&gt;
-        ///    &lt;Payloa [rest of string was truncated]&quot;;.
+        ///    &lt;Payload&gt;
+        ///      &lt;Id&gt;earth&lt;/I [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string submitmessage {
             get {

@@ -31,8 +31,10 @@ namespace Eu.EDelivery.AS4.Security.References
 
         public IssuerSecurityTokenReference(XmlElement envelope, ICertificateRepository certifcateRepository)
         {
-            LoadXml(envelope);
+            // First assign _certificateRepository since LoadXml will use this member.            
             _certifcateRepository = certifcateRepository;
+
+            LoadXml(envelope);
         }
 
         /// <summary>

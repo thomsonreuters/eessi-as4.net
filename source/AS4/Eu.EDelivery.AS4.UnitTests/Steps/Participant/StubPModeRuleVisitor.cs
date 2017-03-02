@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Participant
             {
                 new PModeIdRule(),
                 new PModePartyInfoRule(),
-                new PModeUndefindPartyInfoRule(),
+                new PModeUndefinedPartyInfoRule(),
                 new PModeAgreementRefRule(),
                 new PModeServiceActionRule()
             };

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
         public class GivenValidArguments : GivenPModePartyInfoRuleFacts
         {
             [Theory, InlineData("role", "party-id")]
-            public void ThenRuleApply(string role, string partyId)
+            public void ThenMaxPointsWhenPartyIdAndRoleMatch(string role, string partyId)
             {
                 // Arrange
                 ReceivingProcessingMode receivingPMode = 
@@ -25,11 +26,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 // Act
                 int points = rule.DeterminePoints(receivingPMode, userMessage);
                 // Assert
-                Assert.Equal(15, points);
+                Assert.Equal(16, points);
             }
 
             [Theory, InlineData("role", "party-id")]
-            public void ThenRuleDontApply(string role, string partyId)
+            public void Then15PointsWhenOnlyPartyIdMatches(string role, string partyId)
             {
                 // Arrange
                 ReceivingProcessingMode receivingPMode = 
@@ -39,9 +40,42 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 
                 var rule = new PModePartyInfoRule();
                 // Act
-                int poitns = rule.DeterminePoints(receivingPMode, userMessage);
+                int points = rule.DeterminePoints(receivingPMode, userMessage);
                 // Assert
-                Assert.Equal(0, poitns);
+                Assert.Equal(15, points);
+            }
+
+            [Theory, InlineData("role", "party-id")]
+            public void Then1PointWhenOnlyRoleMatches(string role, string partyId)
+            {
+                // Arrange
+                ReceivingProcessingMode receivingPMode =
+                    CreateReceivingPModeWithParties(role, partyId);
+                receivingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Id = "not-equal";
+                UserMessage userMessage = CreateUserMessageWithParties(role, partyId);
+
+                var rule = new PModePartyInfoRule();
+                // Act
+                int points = rule.DeterminePoints(receivingPMode, userMessage);
+                // Assert
+                Assert.Equal(1, points);
+            }
+
+            [Theory, InlineData("role", "party-id")]
+            public void ThenZeroPointsWhenPartyIdAndRoleDontMatch(string role, string partyId)
+            {
+                // Arrange
+                ReceivingProcessingMode receivingPMode =
+                    CreateReceivingPModeWithParties(role, partyId);
+                receivingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Id = "not-equal";
+                receivingPMode.MessagePackaging.PartyInfo.FromParty.Role = "not-equal";
+                UserMessage userMessage = CreateUserMessageWithParties(role, partyId);
+
+                var rule = new PModePartyInfoRule();
+                // Act
+                int points = rule.DeterminePoints(receivingPMode, userMessage);
+                // Assert
+                Assert.Equal(0, points);
             }
         }
 

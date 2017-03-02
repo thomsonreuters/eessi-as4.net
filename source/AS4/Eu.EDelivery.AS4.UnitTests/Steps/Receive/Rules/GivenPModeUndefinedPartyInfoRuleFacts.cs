@@ -6,7 +6,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
 {
     /// <summary>
-    /// Testing <see cref="PModeUndefindPartyInfoRule"/>
+    /// Testing <see cref="PModeUndefinedPartyInfoRule"/>
     /// </summary>
     public class GivenPModeUndefinedPartyInfoRuleFacts
     {
@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 // Arrange
                 var receivingPMode = new ReceivingProcessingMode {MessagePackaging = {PartyInfo = new PartyInfo()}};
                 var userMessage = new UserMessage(messageId: "message-id");
-                var rule = new PModeUndefindPartyInfoRule();
+                var rule = new PModeUndefinedPartyInfoRule();
                 // Act
                 int points = rule.DeterminePoints(receivingPMode, userMessage);
                 // Assert
@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 // Arrange
                 var receivingPMode = new ReceivingProcessingMode {MessagePackaging = {PartyInfo = null}};
                 var userMessage = new UserMessage(messageId: "message-id");
-                var rule = new PModeUndefindPartyInfoRule();
+                var rule = new PModeUndefinedPartyInfoRule();
                 // Act
                 int points = rule.DeterminePoints(receivingPMode, userMessage);
                 // Assert
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                     MessagePackaging = {PartyInfo = new PartyInfo {ToParty = new Party(), FromParty = new Party()}}
                 };
                 var userMessage = new UserMessage(messageId: "message-id");
-                var rule = new PModeUndefindPartyInfoRule();
+                var rule = new PModeUndefinedPartyInfoRule();
                 // Act
                 int points = rule.DeterminePoints(receivingPMode, userMessage);
                 // Assert
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive.Rules
                 // Arrange
                 ReceivingProcessingMode receivingPMode = CreateFilledPartiesReceivingPMode();
                 var userMessage = new UserMessage(messageId: "message-id");
-                var rule = new PModeUndefindPartyInfoRule();
+                var rule = new PModeUndefinedPartyInfoRule();
                 // Act
                 int points = rule.DeterminePoints(receivingPMode, userMessage);
                 // Assert

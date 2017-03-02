@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>AS4NET_RESPONSE_TO_C1</Id>
+  <AllowOverride>false</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <PushConfiguration>
+    <Protocol>
+      <Url>http://193.140.74.199:15001/corner1</Url>
+      <UseChunking>false</UseChunking>
+      <UseHttpCompression>false</UseHttpCompression>
+    </Protocol>
+    <TlsConfiguration>
+      <IsEnabled>false</IsEnabled>
+      <TlsVersion>Tls12</TlsVersion>
+      <ClientCertificateReference/>
+    </TlsConfiguration>
+  </PushConfiguration>
+  <Security>
+    <Signing>
+      <IsEnabled>false</IsEnabled>
+    </Signing>
+  </Security>
+</PMode>

@@ -22,9 +22,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             return ServiceActionCondition(pmode, userMessage) ? Points : NotEqual;
         }
 
-        private bool ServiceActionCondition(ReceivingProcessingMode pmode, UserMessage userMessage)
+        private static bool ServiceActionCondition(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (pmode.MessagePackaging.CollaborationInfo == null) return false;
+            if (pmode.MessagePackaging.CollaborationInfo == null)
+            {
+                return false;
+            }
+
             CollaborationInfo pmodeCollaboration = pmode.MessagePackaging.CollaborationInfo;
             CollaborationInfo messageCollaboration = userMessage.CollaborationInfo;
 

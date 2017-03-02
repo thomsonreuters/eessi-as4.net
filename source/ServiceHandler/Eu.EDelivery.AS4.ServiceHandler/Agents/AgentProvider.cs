@@ -56,11 +56,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             {
                 AddCustomAgentsToProvider();
 
-                var minderUrls = this._config.GetUrlsForEnabledMinderTestAgents();
+                var minderTestAgents = this._config.GetEnabledMinderTestAgents();
 
-                foreach (var url in minderUrls)
+                foreach (var agent in minderTestAgents)
                 {
-                    this._agents.Add(CreateMinderTestAgent(url));
+                    this._agents.Add(CreateMinderTestAgent(agent.Url, agent.Transformer));
                 }
             }
             catch (AS4Exception exception)
@@ -86,16 +86,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return new Agent(new AgentConfig(agent.Name), receiver, agent.Transformer, agent.Steps);
         }
 
-        private static Agent CreateMinderTestAgent(string url)
+        private static Agent CreateMinderTestAgent(string url, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
+
             receiver.Configure(new Dictionary<string, string> { ["Url"] = url });
-
-            var transformerConfig = new Transformer()
-            {
-                Type = typeof(MinderSubmitReceiveMessageTransformer).AssemblyQualifiedName
-            };
-
+           
             return new Agent(new AgentConfig("Minder Submit/Receive Agent"), receiver, transformerConfig, CreateMinderSubmitReceiveStepConfig());
         }
 

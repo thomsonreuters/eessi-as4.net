@@ -27,6 +27,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,6 +36,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=5.0.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
@@ -194,11 +196,14 @@
     <Compile Include="Common\InExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
-    <Compile Include="Deliver\MinderCreateDeliverMessageStep.cs" />
+    <Compile Include="Deliver\ConformanceTestCreateDeliverMessageStep.cs" />
+    <Compile Include="Deliver\InteropTestCreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />
     <Compile Include="Deliver\ZipAttachmentsStep.cs" />
     <Compile Include="Notify\CreateNotifyMessageStep.cs" />
+    <Compile Include="Notify\ConformanceTestCreateNotifyMessageStep.cs" />
+    <Compile Include="Notify\InteropTestCreateNotifyMessageStep.cs" />
     <Compile Include="Notify\MinderCreateNotifyMessageStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateInExceptionDatastoreStep.cs" />
@@ -224,7 +229,7 @@
     <Compile Include="Receive\Rules\PModePartyInfoRule.cs" />
     <Compile Include="Receive\Participant\PModeRuleVisitor.cs" />
     <Compile Include="Receive\Rules\PModeServiceActionRule.cs" />
-    <Compile Include="Receive\Rules\PModeUndefindPartyInfoRule.cs" />
+    <Compile Include="Receive\Rules\PModeUndefinedPartyInfoRule.cs" />
     <Compile Include="Receive\CreateAS4ReceiptStep.cs" />
     <Compile Include="Receive\VerifySignatureAS4MessageStep.cs" />
     <Compile Include="Send\CompressAttachmentsStep.cs" />
