@@ -134,7 +134,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="element"></param>
         public override void LoadXml(XmlElement element)
         {
-            var xmlIssuerSerial = (XmlElement)element.SelectSingleNode("//*[local-name()='X509SerialNumber']");
+            var xmlIssuerSerial = (XmlElement)element.SelectSingleNode(".//*[local-name()='X509SerialNumber']");
 
             this.Certificate = this._certifcateRepository.GetCertificate(X509FindType.FindBySerialNumber, xmlIssuerSerial.InnerText);
         }
