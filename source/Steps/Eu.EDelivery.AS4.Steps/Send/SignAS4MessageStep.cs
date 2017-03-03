@@ -50,17 +50,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Thrown when Signing Fails</exception>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (internalMessage.AS4Message.SendingPMode?.Security.Signing.IsEnabled != true)
             {
-                return ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(internalMessage);
             }
 
             TrySignAS4Message(internalMessage, cancellationToken);
             ResetAttachmentContents(internalMessage.AS4Message);
 
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)

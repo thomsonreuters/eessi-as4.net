@@ -46,17 +46,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!internalMessage.AS4Message.HasAttachments)
             {
-                return ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(internalMessage);
             }
 
             await TryDecompressAttachments(internalMessage.AS4Message);
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private StepResult ReturnSameInternalMessage(InternalMessage internalMessage)
+        private async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
             this._logger.Debug($"{this._internalMessage.Prefix} AS4Message hasn't got any Attachments");
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task TryDecompressAttachments(AS4Message as4Message)

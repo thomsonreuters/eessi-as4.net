@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
 
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                                                                        "application/xml");
             
             LogInformation(internalMessage);
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private static NotifyMessage CreateNotifyMessage(AS4Message as4Message)

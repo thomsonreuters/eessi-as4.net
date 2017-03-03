@@ -38,18 +38,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (!internalMessage.AS4Message.SendingPMode.MessagePackaging.UseAS4Compression)
-                return ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(internalMessage);
 
             this._internalMessage = internalMessage;
             await TryCompressAS4MessageAsync(internalMessage.AS4Message.Attachments);
 
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private StepResult ReturnSameInternalMessage(InternalMessage internalMessage)
+        private async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
             this._logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Compression is disabled");
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task TryCompressAS4MessageAsync(IEnumerable<Attachment> attachments)

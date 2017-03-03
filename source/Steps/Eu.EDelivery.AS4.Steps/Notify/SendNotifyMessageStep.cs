@@ -54,13 +54,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AS4Exception">Throws exception when Notify Message is send incorrectly</exception>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
             this._logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
 
             TrySendNotifyMessage(internalMessage.NotifyMessage);
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private void TrySendNotifyMessage(NotifyMessageEnvelope notifyMessage)

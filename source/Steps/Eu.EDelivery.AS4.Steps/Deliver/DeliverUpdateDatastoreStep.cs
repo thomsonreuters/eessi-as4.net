@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             this._logger.Info($"{this._internalMessage.Prefix} Update AS4 UserMessages in Datastore");
 
             await UpdateUserMessageAsync(internalMessage.DeliverMessage);
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task UpdateUserMessageAsync(DeliverMessageEnvelope deliverMessage)

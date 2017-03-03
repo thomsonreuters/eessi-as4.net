@@ -34,17 +34,17 @@ namespace Eu.EDelivery.AS4.Steps
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (this._condition(internalMessage))
             {
                 var steps = StepBuilder.FromSettings(this._thenStepConfig).Build();
-                return steps.ExecuteAsync(internalMessage, cancellationToken);
+                return await steps.ExecuteAsync(internalMessage, cancellationToken);
             }
             else
             {
                 var steps = StepBuilder.FromSettings(this._elseStepConfig).Build();
-                return steps.ExecuteAsync(internalMessage, cancellationToken);
+                return await steps.ExecuteAsync(internalMessage, cancellationToken);
             }
         }
     }

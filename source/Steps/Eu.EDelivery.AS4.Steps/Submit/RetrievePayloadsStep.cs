@@ -48,15 +48,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             _logger.Info($"{internalMessage.Prefix} Executing RetrievePayloadsStep");
 
             if (!internalMessage.SubmitMessage.HasPayloads)
-                return ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(internalMessage);
 
             TryRetrievePayloads(internalMessage);
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)

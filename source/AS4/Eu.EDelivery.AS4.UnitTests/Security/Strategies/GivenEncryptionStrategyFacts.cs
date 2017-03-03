@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -115,7 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                     X509KeyStorageFlags.Exportable);
 
                 // Act&Assert
-                Assert.Throws<AS4Exception>(() => encryptionStrategy.DecryptMessage());
+                Assert.ThrowsAny<Exception>(() => encryptionStrategy.DecryptMessage());
             }
         }
 

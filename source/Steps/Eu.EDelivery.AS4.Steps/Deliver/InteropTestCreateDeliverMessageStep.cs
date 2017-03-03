@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._logger.Info("Create Deliver Message");
 
@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 content,
                 msg.ContentType);
 
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private UserMessage CreateDeliverMessage(InternalMessage internalMessage)

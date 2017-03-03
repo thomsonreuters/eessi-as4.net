@@ -32,14 +32,14 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             ReceivedEntityMessage entityMessage = RetrieveEntityMessage(message);
             ReceptionAwareness awareness = RetrieveReceptionAwareness(entityMessage);
-            var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
+            var internalMessage = new InternalMessage { ReceptionAwareness = awareness };
 
             this._logger.Info($"[{awareness.InternalMessageId}] Receiption Awareness is successfully transformed");
-            return Task.FromResult(internalMessage);
+            return await Task.FromResult(internalMessage);
         }
 
         private ReceptionAwareness RetrieveReceptionAwareness(ReceivedEntityMessage messageEntity)
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Transformers
             const string description =
                 "Current Transformer cannot be used for the given Received Message, expecting type of ReceivedEntityMessage";
             this._logger.Error(description);
-            
+
             return AS4ExceptionBuilder.WithDescription(description).Build();
         }
     }

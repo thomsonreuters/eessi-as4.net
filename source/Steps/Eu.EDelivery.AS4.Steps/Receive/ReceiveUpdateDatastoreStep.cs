@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 await UpdateSignalMessagesAsync(service, token);
             }
 
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task UpdateUserMessagesAsync(InMessageService service, CancellationToken token)

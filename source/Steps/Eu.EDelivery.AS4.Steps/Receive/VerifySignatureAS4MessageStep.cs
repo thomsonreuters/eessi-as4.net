@@ -52,16 +52,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AS4Exception">Throws exception when the signature cannot be verified</exception>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
 
             PreConditions();
             if (MessageDoesNotNeedToBeVerified())
-                return StepResult.SuccessAsync(internalMessage);
-            StepResult stepResult = TryVerifyingSignature();
+            {
+                return await StepResult.SuccessAsync(internalMessage);
+            }
 
-            return Task.FromResult(stepResult);
+            return await TryVerifyingSignature();
         }
 
         private void PreConditions()
@@ -93,11 +94,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                        .SigningVerification.Signature == Limit.Ignored;
         }
 
-        private StepResult TryVerifyingSignature()
+        private async Task<StepResult> TryVerifyingSignature()
         {
             try
             {
-                return VerifySignature();
+                return await VerifySignature();
             }
             catch (Exception exception)
             {
@@ -106,13 +107,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private StepResult VerifySignature()
+        private async Task<StepResult> VerifySignature()
         {
             if (!IsValidSignature())
                 throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101);
 
             this._logger.Info($"{this._internalMessage.Prefix} AS4 Message has a valid Signature present");
-            return StepResult.Success(this._internalMessage);
+            return await StepResult.SuccessAsync(this._internalMessage);
         }
 
         private bool IsValidSignature()
@@ -126,7 +127,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private VerifyConfig CreateVerifyOptionsForAS4Message()
         {
             return new VerifyConfig
-            {                
+            {
                 Attachments = this._internalMessage.AS4Message.Attachments
             };
         }

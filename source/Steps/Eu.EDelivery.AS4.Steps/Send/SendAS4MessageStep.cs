@@ -58,13 +58,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
 
 
             this._originalAS4Message = internalMessage.AS4Message;
 
-            return TrySendAS4MessageAsync(internalMessage, cancellationToken);
+            return await TrySendAS4MessageAsync(internalMessage, cancellationToken);
         }
 
         private async Task<StepResult> TrySendAS4MessageAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -211,7 +211,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 internalMessage.AS4Message.SignalMessages.Clear();
          
                 this._logger.Info("Empty Soap Body is returned, no further action is needed");
-                return StepResult.Success(internalMessage);
+                return await StepResult.SuccessAsync(internalMessage);
             }
 
             var response = await DeserializeHttpResponse(webResponse, cancellationToken);
@@ -220,8 +220,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             internalMessage.AS4Message = response;
 
-            return StepResult.Success(internalMessage);
-
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task<AS4Message> DeserializeHttpResponse(HttpWebResponse webResponse, CancellationToken cancellationToken)

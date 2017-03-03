@@ -53,12 +53,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Thrown when PMode doesn't get retrieved</exception>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage message, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage message, CancellationToken cancellationToken)
         {
             try
             {                
                 RetrieveSendPMode(message);
-                return StepResult.SuccessAsync(message);
+                return await StepResult.SuccessAsync(message);
             }
             catch (Exception exception)
             {

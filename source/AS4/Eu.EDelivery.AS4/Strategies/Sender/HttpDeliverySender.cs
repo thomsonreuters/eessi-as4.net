@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             var request = CreateWebRequest(destinationUri, deliverMessage.ContentType);
 
             this.Log.Info($"Send Notification {deliverMessage.MessageInfo.MessageId} to {destinationUri}");
-            
+
             using (Stream requestStream = request.GetRequestStream())
             {
                 requestStream.Write(deliverMessage.DeliverMessage, 0, deliverMessage.DeliverMessage.Length);
@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             HandleDeliverResponse(request);
         }
 
-        private HttpWebRequest CreateWebRequest(string targetUrl, string contentType)
+        private static HttpWebRequest CreateWebRequest(string targetUrl, string contentType)
         {
             var request = (HttpWebRequest)WebRequest.Create(targetUrl);
             request.Method = "POST";
@@ -42,30 +42,37 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             try
             {
-                response = await request.GetResponseAsync() as HttpWebResponse;
-
-                if (response == null)
+                try
                 {
-                    Log.Error("No WebResponse received for http delivery.");
-                    return;
-                }
-            }
-            catch (WebException exception)
-            {
-                response = exception.Response as HttpWebResponse;
-            }
+                    response = await request.GetResponseAsync() as HttpWebResponse;
 
-            if (response.StatusCode != HttpStatusCode.Accepted && response.StatusCode != HttpStatusCode.OK)
-            {
-                Log.Error($"Unexpected response received for http delivery: {response.StatusCode}");
-
-                if (Log.IsErrorEnabled)
-                {
-                    using (var streamReader = new StreamReader(response.GetResponseStream(), true))
+                    if (response == null)
                     {
-                        Log.Error(streamReader.ReadToEnd());
+                        Log.Error("No WebResponse received for http delivery.");
+                        return;
                     }
                 }
+                catch (WebException exception)
+                {
+                    response = exception.Response as HttpWebResponse;
+                }
+
+                if ( response != null && response.StatusCode != HttpStatusCode.Accepted && response.StatusCode != HttpStatusCode.OK)
+                {
+                    Log.Error($"Unexpected response received for http delivery: {response.StatusCode}");
+
+                    if (Log.IsErrorEnabled)
+                    {
+                        using (var streamReader = new StreamReader(response.GetResponseStream(), true))
+                        {
+                            Log.Error(streamReader.ReadToEnd());
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                response?.Close();                 
             }
         }
     }

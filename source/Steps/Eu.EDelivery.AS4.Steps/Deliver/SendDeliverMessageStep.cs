@@ -50,14 +50,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
             this._logger.Info($"{internalMessage.Prefix} Start sending the Deliver Message " +
                               "to the consuming Business Application");
 
             TrySendDeliverMessage(internalMessage.DeliverMessage);
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private void TrySendDeliverMessage(DeliverMessageEnvelope deliverMessage)

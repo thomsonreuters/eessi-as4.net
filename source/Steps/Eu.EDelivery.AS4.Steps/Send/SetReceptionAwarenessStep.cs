@@ -43,17 +43,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
             string pmodeId = this._internalMessage.AS4Message.SendingPMode.Id;
 
             if (!IsReceptionAwarenessEnabled())
-                return ReturnSameResult(internalMessage, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
+                return await ReturnSameResult(internalMessage, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
 
             await InsertReceptionAwarenessAsync();
 
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private StepResult ReturnSameResult(InternalMessage internalMessage, string description)
+        private async Task<StepResult> ReturnSameResult(InternalMessage internalMessage, string description)
         {
             this._logger.Info($"{internalMessage.Prefix} {description}");
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private bool IsReceptionAwarenessEnabled()
