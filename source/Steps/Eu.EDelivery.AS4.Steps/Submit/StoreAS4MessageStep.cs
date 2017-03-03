@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             IList<MessageUnit> messageUnits = GetMessageUnits(internalMessage).ToList();
             await TryStoreOutMessagesAsync(messageUnits, token);
 
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private static IEnumerable<MessageUnit> GetMessageUnits(InternalMessage internalMessage)

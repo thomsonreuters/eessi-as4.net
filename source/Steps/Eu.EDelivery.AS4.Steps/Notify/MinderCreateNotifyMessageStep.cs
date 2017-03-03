@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
             internalMessage.NotifyMessage = notifyEnvelope;
 
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(UserMessage userMessage, SignalMessage signalMessage)
