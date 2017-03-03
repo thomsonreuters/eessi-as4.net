@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             var internalMessage = new InternalMessage();
 
@@ -36,10 +36,10 @@ namespace Eu.EDelivery.AS4.Transformers
             internalMessage.AS4Message.AddAttachment(attachment);
 
             this._logger.Info("Transform the given Payload to a AS4 Attachment");
-            return Task.FromResult(internalMessage);
+            return await Task.FromResult(internalMessage);
         }
 
-        private Attachment CreateAttachmentFromReceivedMessage(ReceivedMessage receivedMessage)
+        private static Attachment CreateAttachmentFromReceivedMessage(ReceivedMessage receivedMessage)
         {
             return new Attachment
             {

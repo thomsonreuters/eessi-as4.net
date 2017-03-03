@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             ReceivedEntityMessage messageEntity = RetrieveEntityMessage(message);
             ExceptionEntity exceptionEntity = RetrieveExceptionEntity(messageEntity);
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var internalMessage = new InternalMessage(as4Message);
 
             this._logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
-            return Task.FromResult(internalMessage);
+            return await Task.FromResult(internalMessage);
         }
 
         private AS4Message CreateErrorAS4Message(ExceptionEntity exceptionEntity, CancellationToken cancellationTokken)
