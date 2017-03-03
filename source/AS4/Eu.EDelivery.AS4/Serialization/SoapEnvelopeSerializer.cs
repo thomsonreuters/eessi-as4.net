@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,7 +12,6 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Mappings;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
@@ -36,8 +34,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// Create a new <see cref="SoapEnvelopeSerializer"/>
         /// </summary>
         public SoapEnvelopeSerializer()
-        {
-            //this._builder = new SoapEnvelopeBuilder();
+        {            
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -52,9 +49,7 @@ namespace Eu.EDelivery.AS4.Serialization
             Xml.Messaging messagingHeader = CreateMessagingHeader(message);
 
             var builder = new SoapEnvelopeBuilder();
-
-            builder.BreakDown();
-
+            
             var securityHeader = GetSecurityHeader(message);
             if (securityHeader != null)
             {
@@ -88,7 +83,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return pmode?.MessagePackaging.IsMultiHop == true;
         }
 
-        private XmlNode GetSecurityHeader(AS4Message message)
+        private static XmlNode GetSecurityHeader(AS4Message message)
         {
             if (message.SecurityHeader.IsSigned == false && message.SecurityHeader.IsEncrypted == false)
             {
