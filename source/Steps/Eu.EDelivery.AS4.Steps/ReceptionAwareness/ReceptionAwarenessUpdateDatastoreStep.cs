@@ -43,47 +43,47 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            lock (Sync)
+            //lock (Sync)
+            //{
+            using (var context = Registry.Instance.CreateDatastoreContext())
             {
-                using (var context = Registry.Instance.CreateDatastoreContext())
+                this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
+
+                var repository = new DatastoreRepository(context);
+
+                this._receptionAwareness = internalMessage.ReceptionAwareness;
+
+                if (IsMessageAlreadyAnswered(repository))
                 {
-                    this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
-
-                    var repository = new DatastoreRepository(context);
-
-                    this._receptionAwareness = internalMessage.ReceptionAwareness;
-
-                    if (IsMessageAlreadyAnswered(repository))
-                    {
-                        this._logger.Debug("Message has been answered, marking as complete");
-                        UpdateForAnsweredMessage(repository);
-                        return StepResult.SuccessAsync(internalMessage);
-                    }
-
-                    if (MessageNeedsToBeResend(repository))
-                    {
-                        this._logger.Debug(
-                            $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
-                        UpdateForResendMessage(repository);
-                    }
-                    else
-                    {
-                        if (IsMessageUnanswered(repository))
-                        {
-                            this._logger.Debug("Message is unanswered.");
-                            UpdateForUnansweredMessage(repository, cancellationToken);
-                        }
-                    }
-
-
-                    // TODO: savechanges should be called here.
+                    this._logger.Debug("Message has been answered, marking as complete");
+                    UpdateForAnsweredMessage(repository);
+                    return await StepResult.SuccessAsync(internalMessage);
                 }
+
+                if (MessageNeedsToBeResend(repository))
+                {
+                    this._logger.Debug(
+                        $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
+                    UpdateForResendMessage(repository);
+                }
+                else
+                {
+                    if (IsMessageUnanswered(repository))
+                    {
+                        this._logger.Debug("Message is unanswered.");
+                        UpdateForUnansweredMessage(repository, cancellationToken);
+                    }
+                }
+
+
+                // TODO: savechanges should be called here.
             }
+            //}
 
             WaitRetryInterval("Waiting retry interval...");
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private bool IsMessageAlreadyAnswered(IDatastoreRepository repository)
@@ -126,10 +126,10 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.ToBeSent);
 
         }
-        
+
         private bool IsMessageUnanswered(IDatastoreRepository repository)
-        {           
-            return this._receptionAwareness.CurrentRetryCount >= this._receptionAwareness.TotalRetryCount; 
+        {
+            return this._receptionAwareness.CurrentRetryCount >= this._receptionAwareness.TotalRetryCount;
         }
 
         private async void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
@@ -155,7 +155,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             // OutMessage outMessage = repository.GetOutMessageById(messageId);
 
-            
+
 
             //////if (outMessage?.MessageBody != null)
             //////{

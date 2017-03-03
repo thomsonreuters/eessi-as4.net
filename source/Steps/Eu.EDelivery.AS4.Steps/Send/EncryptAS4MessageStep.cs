@@ -47,18 +47,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {
-            ////_internalMessage = internalMessage;
-
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        {            
             if (!internalMessage.AS4Message.SendingPMode.Security.Encryption.IsEnabled)
             {
-                return ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(internalMessage);
             }
 
             TryEncryptAS4Message(internalMessage);
 
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private void TryEncryptAS4Message(InternalMessage internalMessage)

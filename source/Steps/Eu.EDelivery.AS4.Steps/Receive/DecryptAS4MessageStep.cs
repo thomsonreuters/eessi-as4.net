@@ -46,20 +46,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (internalMessage.AS4Message.IsSignalMessage)
-                return StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(internalMessage);
 
             PreConditions(internalMessage);
 
             if (IsEncryptedIgnored(internalMessage) || !internalMessage.AS4Message.IsEncrypted)
             {
-                return StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(internalMessage);
             }
 
             TryDecryptAS4Message(internalMessage);
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
 

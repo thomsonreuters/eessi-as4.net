@@ -52,16 +52,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AS4Exception">Throws exception when the signature cannot be verified</exception>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
 
             PreConditions();
             if (MessageDoesNotNeedToBeVerified())
-                return StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(internalMessage);
             StepResult stepResult = TryVerifyingSignature();
 
-            return Task.FromResult(stepResult);
+            return await Task.FromResult(stepResult);
         }
 
         private void PreConditions()

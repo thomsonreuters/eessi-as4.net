@@ -31,13 +31,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._internalMessage = internalMessage;
             
-            return IsReplyPatternCallback()
-                ? CreateEmptySoapResult()
-                : ReturnSameStepResult();
+            return  IsReplyPatternCallback()
+                ? await CreateEmptySoapResult()
+                : await ReturnSameStepResult();
         }
 
         private bool IsReplyPatternCallback()
@@ -46,13 +46,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 .ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
-        private Task<StepResult> CreateEmptySoapResult()
+        private async Task<StepResult> CreateEmptySoapResult()
         {
             this._logger.Info($"{this._internalMessage.Prefix} Empty SOAP Envelope will be send to requested party");
 
             AS4Message emptyAS4Message = CreateEmptyAS4Message();
             var emptyInternalMessage = new InternalMessage(emptyAS4Message);
-            return StepResult.SuccessAsync(emptyInternalMessage);
+            return await StepResult.SuccessAsync(emptyInternalMessage);
         }
 
         private AS4Message CreateEmptyAS4Message()
@@ -61,12 +61,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return new AS4MessageBuilder().WithReceivingPMode(pmode).Build();
         }
 
-        private Task<StepResult> ReturnSameStepResult()
+        private async Task<StepResult> ReturnSameStepResult()
         {
             string messageId = this._internalMessage.AS4Message.PrimarySignalMessage.MessageId;
             this._logger.Info($"{this._internalMessage.Prefix} Receipt {messageId} is prepared to send to requested party");
 
-            return StepResult.SuccessAsync(this._internalMessage);
+            return await StepResult.SuccessAsync(this._internalMessage);
         }
     }
 }
