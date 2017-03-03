@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                     X509KeyStorageFlags.Exportable);
 
                 // Act&Assert
-                Assert.Throws<Exception>(() => encryptionStrategy.DecryptMessage());
+                Assert.ThrowsAny<Exception>(() => encryptionStrategy.DecryptMessage());
             }
         }
 
