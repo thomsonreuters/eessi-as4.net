@@ -118,7 +118,7 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             try
             {
-                return Convert.ToUInt64($"0x{certificate}", 16).ToString();
+                return Convert.ToUInt64($"0x{certificate.SerialNumber}", 16).ToString();
             }
             catch (Exception ex)
             {
