@@ -51,8 +51,8 @@
 				<PartyIds>
 					<PartyId>
             <Id>rssbus-c2</Id>
-            <!--<Type/>-->
-            <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
+            <Type/>
+            <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
 					</PartyId>
 				</PartyIds>
 				<Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
