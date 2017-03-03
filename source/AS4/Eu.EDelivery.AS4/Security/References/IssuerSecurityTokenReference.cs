@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Security.References
             return securityTokenReferenceElement;
         }
 
-        private XmlElement CreateX509DataElement(XmlDocument xmlDocument, XmlElement securityTokenReferenceElement)
+        private static XmlElement CreateX509DataElement(XmlDocument xmlDocument, XmlElement securityTokenReferenceElement)
         {
             XmlElement x509DataElement = xmlDocument
                 .CreateElement("ds", "X509Data", Constants.Namespaces.XmlDsig);
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Security.References
             return x509DataElement;
         }
 
-        private XmlElement CreateX509IssuerSerialElement(XmlDocument xmlDocument, XmlElement x509DataElement)
+        private static XmlElement CreateX509IssuerSerialElement(XmlDocument xmlDocument, XmlElement x509DataElement)
         {
             XmlElement x509IssuerSerialElement = xmlDocument
                 .CreateElement("ds", "X509IssuerSerial", Constants.Namespaces.XmlDsig);
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Security.References
             XmlElement x509IssuerNameElement = xmlDocument
                 .CreateElement("ds", "X509IssuerName", Constants.Namespaces.XmlDsig);
             x509IssuerSerialElement.AppendChild(x509IssuerNameElement);
-            x509IssuerNameElement.InnerText = base.Certificate.IssuerName.Name;
+            x509IssuerNameElement.InnerText = this.Certificate.IssuerName.Name;
         }
 
         private void CreateX509SerialNumberElement(XmlDocument xmlDocument, XmlElement x509IssuerSerialElement)
@@ -111,18 +111,19 @@ namespace Eu.EDelivery.AS4.Security.References
             XmlElement x509SerialNumberElement = xmlDocument
                 .CreateElement("ds", "X509SerialNumber", Constants.Namespaces.XmlDsig);
             x509IssuerSerialElement.AppendChild(x509SerialNumberElement);
-            x509SerialNumberElement.InnerText = TryGetIssuerSerialNumber();
+            x509SerialNumberElement.InnerText = TryGetIssuerSerialNumber(this.Certificate);
         }
 
-        private string TryGetIssuerSerialNumber()
+        private static string TryGetIssuerSerialNumber(X509Certificate2 certificate)
         {
             try
             {
-                return Convert.ToUInt64($"0x{base.Certificate.SerialNumber}", 16).ToString();
+                return Convert.ToUInt64($"0x{certificate.SerialNumber}", 16).ToString();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this._logger.Debug($"Failed to convert {base.Certificate.SerialNumber} to ulong.");
+                LogManager.GetCurrentClassLogger().Debug($"Failed to convert {certificate.SerialNumber} to ulong.");
+                LogManager.GetCurrentClassLogger().Trace($"Exception details: {ex.Message}");
                 return string.Empty;
             }
         }
