@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return message.SecurityHeader?.GetXml();
         }
 
-        private void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
+        private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
             if (!IsMultiHop(as4Message.SendingPMode) || !as4Message.IsSignalMessage) return;
 
@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Serialization
             builder.SetRoutingInput(routingInput);
         }
 
-        private void WriteSoapEnvelopeTo(XmlDocument soapEnvelopeDocument, Stream stream)
+        private static void WriteSoapEnvelopeTo(XmlDocument soapEnvelopeDocument, Stream stream)
         {
             using (XmlWriter writer = XmlWriter.Create(stream, DefaultXmlWriterSettings))
             {
@@ -237,12 +237,12 @@ namespace Eu.EDelivery.AS4.Serialization
         private static XmlDocument LoadXmlDocument(Stream stream)
         {
             stream.Position = 0;
-            using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
-            {
-                var document = new XmlDocument();
-                document.Load(reader);
-                return document;
-            }
+
+            var document = new XmlDocument();
+            document.PreserveWhitespace = true;
+            document.Load(stream);
+            return document;
+
         }
 
         private static readonly XmlReaderSettings DefaultXmlReaderSettings =
@@ -255,7 +255,7 @@ namespace Eu.EDelivery.AS4.Serialization
             };
 
 
-        private void DeserializeEnvelope(
+        private static void DeserializeEnvelope(
             XmlDocument envelopeDocument, Model.Core.AS4Message as4Message, XmlReader reader)
         {
             // Try to Deserialize the Messaging-Headers first since here an 
@@ -279,7 +279,7 @@ namespace Eu.EDelivery.AS4.Serialization
             ISigningStrategy signingStrategy = null;
             IEncryptionStrategy encryptionStrategy = null;
 
-            while (reader.Read() && reader.LocalName.Equals("Security", StringComparison.OrdinalIgnoreCase) == false) 
+            while (reader.Read() && reader.LocalName.Equals("Security", StringComparison.OrdinalIgnoreCase) == false)
             {
                 if (IsReadersNameEncryptedData(reader) && encryptionStrategy == null)
                 {
