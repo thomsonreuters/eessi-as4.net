@@ -45,44 +45,51 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            //lock (Sync)
-            //{
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            bool shouldWait = true;
+
+            lock (Sync)
             {
-                this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
-
-                var repository = new DatastoreRepository(context);
-
-                this._receptionAwareness = internalMessage.ReceptionAwareness;
-
-                if (IsMessageAlreadyAnswered(repository))
+                using (var context = Registry.Instance.CreateDatastoreContext())
                 {
-                    this._logger.Debug("Message has been answered, marking as complete");
-                    UpdateForAnsweredMessage(repository);
-                    return await StepResult.SuccessAsync(internalMessage);
-                }
+                    this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
 
-                if (MessageNeedsToBeResend(repository))
-                {
-                    this._logger.Debug(
-                        $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
-                    UpdateForResendMessage(repository);
-                }
-                else
-                {
-                    if (IsMessageUnanswered(repository))
+                    var repository = new DatastoreRepository(context);
+
+                    this._receptionAwareness = internalMessage.ReceptionAwareness;
+
+                    if (IsMessageAlreadyAnswered(repository))
                     {
-                        this._logger.Debug("Message is unanswered.");
-                        UpdateForUnansweredMessage(repository, cancellationToken);
+                        this._logger.Debug("Message has been answered, marking as complete");
+                        UpdateForAnsweredMessage(repository);
                     }
+                    else
+                    {
+                        if (MessageNeedsToBeResend(repository))
+                        {
+                            this._logger.Debug(
+                                $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
+                            UpdateForResendMessage(repository);
+                            shouldWait = false;
+                        }
+                        else
+                        {
+                            if (IsMessageUnanswered(repository))
+                            {
+                                this._logger.Debug("Message is unanswered.");
+                                UpdateForUnansweredMessage(repository, cancellationToken);
+                            }
+                        }
+                    }
+
+                    // TODO: savechanges should be called here.
                 }
-
-
-                // TODO: savechanges should be called here.
             }
-            //}
 
-            WaitRetryInterval("Waiting retry interval...");
+            if (shouldWait)
+            {
+                WaitRetryInterval("Waiting retry interval...");
+            }
+
             return await StepResult.SuccessAsync(internalMessage);
         }
 
