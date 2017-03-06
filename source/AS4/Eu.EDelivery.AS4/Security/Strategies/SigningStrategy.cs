@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             this.KeyInfo.AddClause(this.SecurityTokenReference);
         }
 
-        private RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
+        private static RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
         {
             var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
             var key = new RSACryptoServiceProvider(cspParams);
@@ -131,9 +131,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             LoadSignature();
 
-            AppendSignatureElement(securityElement);
             AddSecurityTokenReferenceToKeyInfo();
             AppendSecurityTokenElements(securityElement);
+            AppendSignatureElement(securityElement);
         }
 
         private void LoadSignature()
