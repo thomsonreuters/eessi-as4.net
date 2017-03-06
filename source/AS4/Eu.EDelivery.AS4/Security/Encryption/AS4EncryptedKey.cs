@@ -137,7 +137,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <param name="certificate">The certificate that should be used for encryption.</param>
         /// <returns></returns>
         internal static EncryptedKeyBuilder CreateEncryptedKeyBuilderForKey(byte[] symmetricKey, X509Certificate2 certificate)
-        {            
+        {
             return EncryptedKeyBuilder.ForKey(symmetricKey, certificate);
         }
 
@@ -158,7 +158,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <param name="uri"></param>
         public void AddDataReference(string uri)
         {
-            this._encryptedKey.ReferenceList.Add(new DataReference(uri));
+            this._encryptedKey.ReferenceList.Add(new DataReference("#" + uri));
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public string GetDigestAlgorithm()
         {
-            return _digestAlgorithm;           
+            return _digestAlgorithm;
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// </summary>
         /// <returns></returns>
         public string GetMaskGenerationFunction()
-        {            
+        {
             return _mgfAlgorithm;
         }
 
@@ -258,14 +258,14 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         {
             XmlElement digestMethod = encryptionMethodNode.OwnerDocument
                 .CreateElement("DigestMethod", Constants.Namespaces.XmlDsig);
-            
-            digestMethod.SetAttribute("Algorithm", digestAlgorithm); 
+
+            digestMethod.SetAttribute("Algorithm", digestAlgorithm);
 
             encryptionMethodNode.AppendChild(digestMethod);
         }
 
         private static void AppendMgfMethod(XmlNode node, string mgfAlgorithm)
-        {            
+        {
             var mgfElement = node.OwnerDocument.CreateElement("MGF", Constants.Namespaces.XmlEnc11);
             mgfElement.SetAttribute("Algorithm", mgfAlgorithm);
             node.AppendChild(mgfElement);
