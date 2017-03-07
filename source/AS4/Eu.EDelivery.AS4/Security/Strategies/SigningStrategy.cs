@@ -236,7 +236,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return xmlSignature;
         }
         
-        private bool VerifyCertificate(X509Certificate2 certificate, out X509ChainStatus[] errorMessages)
+        private static bool VerifyCertificate(X509Certificate2 certificate, out X509ChainStatus[] errorMessages)
         {
             using (X509Chain chain = new X509Chain())
             {
@@ -260,18 +260,18 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void AddUnreconizedAttachmentReferences(ICollection<Attachment> attachments)
         {
             IEnumerable<CryptoReference> references = this.SignedInfo
-                .References.Cast<CryptoReference>().Where(ReferenceIsCicReference());
+                .References.Cast<CryptoReference>().Where(ReferenceIsCidReference());
 
             foreach (CryptoReference reference in references)
             {
                 string pureReferenceId = reference.Uri.Substring(CidPrefix.Length);
                 Attachment attachment = attachments.FirstOrDefault(x => x.Id.Equals(pureReferenceId));
-                this.SetReferenceStream(reference, attachment);
-                this.SetAttachmentTransformContentType(reference, attachment);
+                SetReferenceStream(reference, attachment);
+                SetAttachmentTransformContentType(reference, attachment);
             }
         }
 
-        private Func<CryptoReference, bool> ReferenceIsCicReference()
+        private static Func<CryptoReference, bool> ReferenceIsCidReference()
         {
             return x => x?.Uri != null && x.Uri.StartsWith(CidPrefix) && x.Uri.Length > CidPrefix.Length;
         }
@@ -281,7 +281,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         /// <param name="reference"></param>
         /// <param name="attachment"></param>
-        private void SetReferenceStream(CryptoReference reference, Attachment attachment)
+        private static void SetReferenceStream(CryptoReference reference, Attachment attachment)
         {
             // We need reflection to set these 2 types. They are implicitly set to Xml references, 
             // but this causes problems with cid: references, since they're not part of the original stream.
@@ -297,7 +297,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             fieldInfo?.SetValue(reference, new NonCloseableStream(attachment.Content));
         }
 
-        private void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
+        private static void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
         {
             foreach (object transform in reference.TransformChain)
             {
@@ -311,7 +311,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// Resets the reference stream position to 0.
         /// </summary>
         /// <param name="reference"></param>
-        private void ResetReferenceStreamPosition(CryptoReference reference)
+        private static void ResetReferenceStreamPosition(CryptoReference reference)
         {
             FieldInfo fieldInfo = typeof(CryptoReference).GetField(
                 "m_refTarget",
