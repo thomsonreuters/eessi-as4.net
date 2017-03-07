@@ -170,6 +170,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static Stream CopyEnvelopeStream(Stream envelopeStream)
         {
             Stream stream = new MemoryStream();
+            envelopeStream.Position = 0;
             envelopeStream.CopyTo(stream);
             stream.Position = 0;
 
@@ -236,15 +237,7 @@ namespace Eu.EDelivery.AS4.Serialization
             var document = new XmlDocument();
             document.PreserveWhitespace = true;
             document.Load(stream);
-
-            // Remove any linebreaks that might occur in the signature value.
-            var sigval = document.SelectSingleNode("//*[local-name()='SignatureValue']");
-
-            if (sigval != null)
-            {
-                sigval.InnerText = sigval.InnerText.Replace("\r", "").Replace("\n", "");
-            }
-
+            
             return document;
         }
 
@@ -289,7 +282,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
 
                 if (IsReadersNameSignature(reader))
+                {
                     signingStrategy = new SigningStrategyBuilder(envelopeDocument).Build();
+                }
             }
 
             as4Message.SecurityHeader = new Model.Core.SecurityHeader(signingStrategy, encryptionStrategy);
