@@ -236,6 +236,15 @@ namespace Eu.EDelivery.AS4.Serialization
             var document = new XmlDocument();
             document.PreserveWhitespace = true;
             document.Load(stream);
+
+            // Remove any linebreaks that might occur in the signature value.
+            var sigval = document.SelectSingleNode("//*[local-name()='SignatureValue']");
+
+            if (sigval != null)
+            {
+                sigval.InnerText = sigval.InnerText.Replace("\r", "").Replace("\n", "");
+            }
+
             return document;
         }
 
