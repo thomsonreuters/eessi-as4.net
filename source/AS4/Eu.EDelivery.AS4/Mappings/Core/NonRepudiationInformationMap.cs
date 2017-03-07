@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     {
                         URI = modelReference.URI,
                         DigestMethod = new Xml.DigestMethodType { Algorithm = modelReference.DigestMethod.Algorithm },
-                        DigestValue = Encoding.UTF8.GetBytes(modelInfo.Reference.DigestValue),
+                        DigestValue = modelInfo.Reference.DigestValue,
                         Transforms = modelReference.Transforms
                             .Select(t => new Xml.TransformType { Algorithm = t.Algorithm }).ToArray()
                     };
