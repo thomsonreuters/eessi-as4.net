@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public XmlElement GetXml()
         {
-            var xmlDocument = new XmlDocument();
+            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
             XmlElement securityElement = xmlDocument
                 .CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
 

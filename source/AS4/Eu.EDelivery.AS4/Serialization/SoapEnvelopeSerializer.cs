@@ -237,7 +237,6 @@ namespace Eu.EDelivery.AS4.Serialization
             document.PreserveWhitespace = true;
             document.Load(stream);
             return document;
-
         }
 
         private static readonly XmlReaderSettings DefaultXmlReaderSettings =
@@ -245,8 +244,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 Async = true,
                 CloseInput = false,
-                IgnoreComments = true,
-                IgnoreWhitespace = true,
+                IgnoreComments = true,           
             };
 
 
