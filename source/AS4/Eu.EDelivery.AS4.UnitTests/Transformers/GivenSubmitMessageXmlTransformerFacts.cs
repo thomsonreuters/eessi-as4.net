@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -57,17 +58,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var submitMessage = new SubmitMessage
                 {
-                    Collaboration = {AgreementRef = {PModeId = "pmode-id"}},
+                    Collaboration = { AgreementRef = { PModeId = "pmode-id" } },
                     PMode = base.GetStubProcessingMode()
                 };
-                MemoryStream memoryStream = WriteSubmitMessageToStream(submitMessage);
-                var receivedmessage = new ReceivedMessage(memoryStream);
-                // Act
-                InternalMessage internalMessage =
-                    await base._transformer.TransformAsync(receivedmessage, CancellationToken.None);
-                // Assert
-                Assert.NotNull(internalMessage);
-                Assert.Null(internalMessage.SubmitMessage.PMode);
+
+                using (MemoryStream memoryStream = WriteSubmitMessageToStream(submitMessage))
+                {
+                    var receivedmessage = new ReceivedMessage(memoryStream);
+
+                    // Act
+                    InternalMessage internalMessage =
+                        await base._transformer.TransformAsync(receivedmessage, CancellationToken.None);
+                    // Assert
+                    Assert.NotNull(internalMessage);
+                    Assert.Null(internalMessage.SubmitMessage.PMode);
+                }
             }
 
             [Fact]
@@ -76,16 +81,39 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var submitMessage = new SubmitMessage
                 {
-                    Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = this._pmodeId}}
+                    Collaboration = new CollaborationInfo { AgreementRef = new Agreement { PModeId = this._pmodeId } }
                 };
-                MemoryStream memoryStream = WriteSubmitMessageToStream(submitMessage);
-                var receivedMessage = new ReceivedMessage(memoryStream);
-                // Act
-                InternalMessage internalMessage =
-                    await base._transformer.TransformAsync(receivedMessage, CancellationToken.None);
-                // Assert
-                Assert.NotNull(internalMessage);
-                Assert.Equal(base._pmodeId, internalMessage.SubmitMessage.Collaboration.AgreementRef.PModeId);
+
+                using (MemoryStream memoryStream = WriteSubmitMessageToStream(submitMessage))
+                {
+                    var receivedMessage = new ReceivedMessage(memoryStream);
+                    // Act
+                    InternalMessage internalMessage =
+                        await base._transformer.TransformAsync(receivedMessage, CancellationToken.None);
+                    // Assert
+                    Assert.NotNull(internalMessage);
+                    Assert.Equal(base._pmodeId, internalMessage.SubmitMessage.Collaboration.AgreementRef.PModeId);
+                }
+            }
+        }
+
+        public class GivenInvalidArgumentsToTransform : GivenSubmitMessageXmlTransformerFacts
+        {
+            [Fact]
+            public async void SubmitMessageWithoutPModeIdIsNotAccepted()
+            {
+                var submitMessage = new SubmitMessage
+                {
+                    Collaboration = new CollaborationInfo { AgreementRef = new Agreement { PModeId = "" } }
+                };
+
+                using (var memoryStream = WriteSubmitMessageToStream(submitMessage))
+                {
+                    var receivedMessage = new ReceivedMessage(memoryStream);
+                    // Act
+                    await Assert.ThrowsAsync<AS4Exception>(() =>
+                       base._transformer.TransformAsync(receivedMessage, CancellationToken.None));                    
+                }
             }
         }
     }

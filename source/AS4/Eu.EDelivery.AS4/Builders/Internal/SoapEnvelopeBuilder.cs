@@ -134,9 +134,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
 
             return this;
         }
-
         
-
         /// <summary>
         /// Set the BodyId for the <Body/> Element
         /// </summary>
