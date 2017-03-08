@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     {
                         URI = modelReference.URI,
                         DigestMethod = new Xml.DigestMethodType { Algorithm = modelReference.DigestMethod.Algorithm },
-                        DigestValue = Encoding.UTF8.GetBytes(modelInfo.Reference.DigestValue),
+                        DigestValue = modelInfo.Reference.DigestValue,
                         Transforms = modelReference.Transforms
                             .Select(t => new Xml.TransformType { Algorithm = t.Algorithm }).ToArray()
                     };
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
             CreateMap<Xml.ReferenceType, Model.Core.Reference>()
                 .ForMember(dest => dest.Transforms, src => src.MapFrom(t => t.Transforms))
                 .ForMember(dest => dest.DigestMethod, src => src.MapFrom(t => t.DigestMethod))
-                .ForMember(dest => dest.DigestValue, src => src.MapFrom(t => Convert.ToBase64String(t.DigestValue)))
+                .ForMember(dest => dest.DigestValue, src => src.MapFrom(t => t.DigestValue))
                 .ForMember(dest => dest.URI, src => src.MapFrom(t => t.URI))
                 .ForAllOtherMembers(x => x.Ignore());
 

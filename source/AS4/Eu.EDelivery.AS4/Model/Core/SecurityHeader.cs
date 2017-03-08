@@ -25,32 +25,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityHeader"/> class. 
-        /// Set the used <see cref="ISigningStrategy"/> 
-        /// without signing the <see cref="SecurityHeader"/>
-        /// This is used if the <see cref="SecurityHeader"/> 
-        /// is already signed with a <see cref="ISigningStrategy"/>
-        /// </summary>
-        /// <param name="signingStrategy">
-        /// </param>
-        public SecurityHeader(ISigningStrategy signingStrategy)
-        {
-            this._signingStrategy = signingStrategy;
-        }
-
-        /// <summary>
-        /// Set the used <see cref="IEncryptionStrategy"/> 
-        /// without signing the <see cref="SecurityHeader"/>
-        /// This is used if the <see cref="SecurityHeader"/> 
-        /// is already signed with a <see cref="IEncryptionStrategy"/>
-        /// </summary>
-        /// <param name="encryptionStrategy"></param>
-        public SecurityHeader(IEncryptionStrategy encryptionStrategy)
-        {
-            this._encryptionStrategy = encryptionStrategy;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SecurityHeader"/> class. 
         /// Set the used Strategies
         /// without signing the <see cref="SecurityHeader"/>
         /// This is used if the <see cref="SecurityHeader"/> 
@@ -83,7 +57,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public XmlElement GetXml()
         {
-            var xmlDocument = new XmlDocument();
+            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
             XmlElement securityElement = xmlDocument
                 .CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
 

@@ -145,7 +145,11 @@ namespace Eu.EDelivery.AS4.Serialization
             using (Stream stream = CopyEnvelopeStream(envelopeStream))
             {
                 XmlDocument envelopeDocument = LoadXmlDocument(stream);
-                ValidateEnvelopeDocument(envelopeDocument);
+
+                // FRGH
+                // [Conformance Testing]
+                // Temporarely disabled.
+                //ValidateEnvelopeDocument(envelopeDocument);
                 stream.Position = 0;
 
                 var as4Message = new Model.Core.AS4Message
@@ -170,6 +174,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static Stream CopyEnvelopeStream(Stream envelopeStream)
         {
             Stream stream = new MemoryStream();
+            
             envelopeStream.CopyTo(stream);
             stream.Position = 0;
 
@@ -207,11 +212,8 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-                // FRGH
-                // [Conformance Testing]
-                // Temporarely disabled.
-                ////envelopeDocument.Validate((sender, args)
-                ////    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
+                envelopeDocument.Validate((sender, args)
+                    => LogManager.GetCurrentClassLogger().Error($"Invalid ebMS Envelope Document: {args.Message}"));
             }
             catch (XmlSchemaValidationException exception)
             {
@@ -236,8 +238,8 @@ namespace Eu.EDelivery.AS4.Serialization
             var document = new XmlDocument();
             document.PreserveWhitespace = true;
             document.Load(stream);
+            
             return document;
-
         }
 
         private static readonly XmlReaderSettings DefaultXmlReaderSettings =
@@ -245,8 +247,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 Async = true,
                 CloseInput = false,
-                IgnoreComments = true,
-                IgnoreWhitespace = true,
+                IgnoreComments = true,           
             };
 
 
@@ -282,7 +283,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
 
                 if (IsReadersNameSignature(reader))
+                {
                     signingStrategy = new SigningStrategyBuilder(envelopeDocument).Build();
+                }
             }
 
             as4Message.SecurityHeader = new Model.Core.SecurityHeader(signingStrategy, encryptionStrategy);

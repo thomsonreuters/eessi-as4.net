@@ -60,10 +60,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 AssertReferenceDigest(reference, nonRepudiation);
             }
 
-            private void AssertReferenceDigest(Reference reference, NonRepudiationInformation nonRepudiation)
+            private static void AssertReferenceDigest(Reference reference, NonRepudiationInformation nonRepudiation)
             {
                 MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
-                Assert.Equal(Convert.ToBase64String(reference.DigestValue), partNRInformation.Reference.DigestValue);
+                Assert.True(Enumerable.SequenceEqual(reference.DigestValue, partNRInformation.Reference.DigestValue));
                 var referenceDigestMethod = new ReferenceDigestMethod(reference.DigestMethod);
                 Assert.Equal(referenceDigestMethod.Algorithm, partNRInformation.Reference.DigestMethod.Algorithm);
             }

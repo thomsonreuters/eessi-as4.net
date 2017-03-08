@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Model.Core
     {
         public ICollection<ReferenceTransform> Transforms { get; set; }
         public ReferenceDigestMethod DigestMethod { get; set; }
-        public string DigestValue { get; set; }
+        public byte[] DigestValue { get; set; }
         public string URI { get; set; }
     }
 

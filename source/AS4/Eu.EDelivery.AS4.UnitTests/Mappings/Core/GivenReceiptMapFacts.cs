@@ -60,21 +60,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
                 }
             }
 
-            private void AssertReceiptReference(ReferenceType xmlReference, Reference coreReference)
+            private static void AssertReceiptReference(ReferenceType xmlReference, Reference coreReference)
             {
                 AssertDigestValue(xmlReference.DigestValue, coreReference.DigestValue);
                 AssertDigestMethod(xmlReference.DigestMethod.Algorithm, coreReference.DigestMethod.Algorithm);
             }
 
-            private void AssertDigestValue(byte[] xmlDigestValue, string coreDigestValue)
-            {
-                string xmlDigestValueString = Encoding.UTF8.GetString(xmlDigestValue);
-                Assert.Equal(xmlDigestValueString, coreDigestValue);
+            private static void AssertDigestValue(byte[] xmlDigestValue, byte[] coreDigestValue)
+            {                
+                Assert.True(Enumerable.SequenceEqual(xmlDigestValue, coreDigestValue));
             }
 
-            private void AssertDigestMethod(string xmlDigestMethod, string coreDigestMethod)
+            private static void AssertDigestMethod(string xmlDigestMethod,string coreDigestMethod)
             {
-                Assert.Equal(xmlDigestMethod, coreDigestMethod);
+                Assert.Equal(xmlDigestMethod,  coreDigestMethod);
             }
         }
 
