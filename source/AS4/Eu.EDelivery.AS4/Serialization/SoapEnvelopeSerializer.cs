@@ -145,7 +145,11 @@ namespace Eu.EDelivery.AS4.Serialization
             using (Stream stream = CopyEnvelopeStream(envelopeStream))
             {
                 XmlDocument envelopeDocument = LoadXmlDocument(stream);
-                ValidateEnvelopeDocument(envelopeDocument);
+
+                // FRGH
+                // [Conformance Testing]
+                // Temporarely disabled.
+                //ValidateEnvelopeDocument(envelopeDocument);
                 stream.Position = 0;
 
                 var as4Message = new Model.Core.AS4Message
@@ -170,7 +174,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static Stream CopyEnvelopeStream(Stream envelopeStream)
         {
             Stream stream = new MemoryStream();
-            envelopeStream.Position = 0;
+            
             envelopeStream.CopyTo(stream);
             stream.Position = 0;
 
@@ -208,11 +212,8 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-                // FRGH
-                // [Conformance Testing]
-                // Temporarely disabled.
-                ////envelopeDocument.Validate((sender, args)
-                ////    => this._logger.Error($"Invalid ebMS Envelope Document: {args.Message}"));
+                envelopeDocument.Validate((sender, args)
+                    => LogManager.GetCurrentClassLogger().Error($"Invalid ebMS Envelope Document: {args.Message}"));
             }
             catch (XmlSchemaValidationException exception)
             {

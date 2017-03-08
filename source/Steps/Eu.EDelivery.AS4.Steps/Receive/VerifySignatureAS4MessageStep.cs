@@ -19,29 +19,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class VerifySignatureAS4MessageStep : IStep
     {
-        private readonly ICertificateRepository _certificateRepository;
         private readonly ILogger _logger;
 
         private InternalMessage _internalMessage;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep"/> class
-        /// </summary>
-        public VerifySignatureAS4MessageStep()
-        {
-            this._certificateRepository = Registry.Instance.CertificateRepository;
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep"/> class
+        /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep"/> class.
         /// Create a new Verify Signature AS4 Message Step,
         /// which will verify the Signature in the AS4 Message (if present)
         /// </summary>
-        /// <param name="certificateRepository">The certificate Repository.</param>
-        public VerifySignatureAS4MessageStep(ICertificateRepository certificateRepository)
+        public VerifySignatureAS4MessageStep()
         {
-            this._certificateRepository = certificateRepository;
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
