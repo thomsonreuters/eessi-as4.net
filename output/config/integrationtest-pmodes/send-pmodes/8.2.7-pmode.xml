@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+  <Id>8.2.7-pmode</Id>
+  <AllowOverride>false</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <PushConfiguration>
+    <Protocol>
+      <Url>http://NonExistingUrl</Url>
+      <UseChunking>false</UseChunking>
+      <UseHttpCompression>false</UseHttpCompression>
+    </Protocol>
+    <TlsConfiguration>
+      <IsEnabled>false</IsEnabled>
+      <TlsVersion>Tls12</TlsVersion>
+      <ClientCertificateReference/>
+    </TlsConfiguration>
+  </PushConfiguration>
+  <PullConfiguration>
+    <SubChannel />
+  </PullConfiguration>
+  <Reliability>
+    <ReceptionAwareness>
+      <IsEnabled>false</IsEnabled>
+      <RetryCount>5</RetryCount>
+      <RetryInterval />
+    </ReceptionAwareness>
+  </Reliability>
+  <ReceiptHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod />
+  </ReceiptHandling>
+  <ErrorHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod />
+  </ErrorHandling>
+  <ExceptionHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\exceptions\" />
+      </Parameters>
+    </NotifyMethod>
+  </ExceptionHandling>
+  <Security>
+    <Signing>
+      <IsEnabled>true</IsEnabled>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <PrivateKeyFindValue>NotExistingKey</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </Signing>
+    <Encryption>
+      <IsEnabled>false</IsEnabled>
+    </Encryption>
+  </Security>
+  <MessagePackaging>
+    <Mpc>TestMpc</Mpc>
+    <UseAS4Compression>false</UseAS4Compression>
+    <IsMultiHop>false</IsMultiHop>
+    <IncludePModeId>true</IncludePModeId>
+	<PartyInfo>
+			<FromParty>
+				<PartyIds>
+					<PartyId>
+						<Id>org:eu:europa:as4:example</Id>
+					</PartyId>
+				</PartyIds>
+				<Role>Sender</Role>
+			</FromParty>
+			<ToParty>
+				<PartyIds>
+					<PartyId>
+						<Id>org:holodeckb2b:example:company:B</Id>
+					</PartyId>
+				</PartyIds>
+				<Role>Receiver</Role>
+			</ToParty>
+		</PartyInfo>
+  </MessagePackaging>
+</PMode>
