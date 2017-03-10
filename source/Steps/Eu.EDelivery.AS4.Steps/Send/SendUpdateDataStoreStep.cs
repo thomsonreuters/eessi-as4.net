@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 }
             }
 
-            return StepResult.Success(internalMessage);
+            return  await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task TryUpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)

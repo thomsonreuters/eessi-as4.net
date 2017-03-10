@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -35,7 +36,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 AS4Message as4Message = await GetEncryptedMessageAsync();
                 X509Certificate2 decryptCertificate = CreateDecryptCertificate();
 
-                IEncryptionStrategy encryptionStrategy = new EncryptionStrategyBuilder(as4Message.EnvelopeDocument)
+                ////IEncryptionStrategy encryptionStrategy = new EncryptionStrategyBuilder(as4Message.EnvelopeDocument)
+                ////    .WithCertificate(decryptCertificate)
+                ////    .WithAttachments(as4Message.Attachments)
+                ////    .Build();
+
+                var encryptionStrategy = EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
                     .WithCertificate(decryptCertificate)
                     .WithAttachments(as4Message.Attachments)
                     .Build();
@@ -73,15 +79,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 XmlDocument xmlDocument = SerializeAS4Message(message);
                 X509Certificate2 certificate = CreateDecryptCertificate();
 
-                return new EncryptionStrategyBuilder(xmlDocument)
-                        .WithCertificate(certificate)
-                        .WithAttachments(message.Attachments)
-                        .Build()
-                    ;
+                return EncryptionStrategyBuilder.Create(xmlDocument)
+                    .WithCertificate(certificate)
+                    .WithAttachments(message.Attachments)
+                    .Build();
+                
+
+                ////return new EncryptionStrategyBuilder(xmlDocument)
+                ////        .WithCertificate(certificate)
+                ////        .WithAttachments(message.Attachments)
+                ////        .Build()
+                ////    ;
             }
         }
 
-        private X509Certificate2 CreateDecryptCertificate()
+        private static X509Certificate2 CreateDecryptCertificate()
         {
             return new X509Certificate2(
                 rawData: Properties.Resources.holodeck_partyc_certificate,
@@ -96,14 +108,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
-                var encryptionStrategy = new EncryptionStrategy(as4Message.EnvelopeDocument);
+                var encryptionStrategy = EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument).Build();
+
                 var decryptCertificate = new X509Certificate2(
                     Properties.Resources.certificate_as4,
                     Properties.Resources.certificate_password,
                     X509KeyStorageFlags.Exportable);
 
                 // Act&Assert
-                Assert.Throws<AS4Exception>(() => encryptionStrategy.DecryptMessage());
+                Assert.ThrowsAny<Exception>(() => encryptionStrategy.DecryptMessage());
             }
         }
 
@@ -117,7 +130,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             return LoadEnvelopeToDocument(memoryStream);
         }
 
-        private XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
+        private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
             envelopeStream.Position = 0;
             var envelopeXmlDocument = new XmlDocument();

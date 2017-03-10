@@ -42,11 +42,11 @@ namespace Eu.EDelivery.AS4.Common
         IEnumerable<SettingsAgent> GetSettingsAgents();
 
         /// <summary>
-        /// Gets the urls on which a HttpReceiver should listen to perform the conformance-tests.
+        /// Gets the configuration of the Minder Test-Agents that are enabled.
         /// </summary>        
-        /// <returns>A collection of strings.  Each item represents an url.</returns>        
-        /// <remarks>For every Url that is returned, a special Minder-Agent will be instantiated.</remarks>
-        IEnumerable<string> GetUrlsForEnabledMinderTestAgents();
+        /// <returns></returns>        
+        /// <remarks>For every SettingsMinderAgent that is returned, a special Minder-Agent will be instantiated.</remarks>
+        IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents();
     }
 
     public enum PropertyType

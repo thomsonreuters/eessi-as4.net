@@ -43,8 +43,10 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            bool shouldWait = true;
+
             lock (Sync)
             {
                 using (var context = Registry.Instance.CreateDatastoreContext())
@@ -59,31 +61,36 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                     {
                         this._logger.Debug("Message has been answered, marking as complete");
                         UpdateForAnsweredMessage(repository);
-                        return StepResult.SuccessAsync(internalMessage);
-                    }
-
-                    if (MessageNeedsToBeResend(repository))
-                    {
-                        this._logger.Debug(
-                            $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
-                        UpdateForResendMessage(repository);
                     }
                     else
                     {
-                        if (IsMessageUnanswered(repository))
+                        if (MessageNeedsToBeResend(repository))
                         {
-                            this._logger.Debug("Message is unanswered.");
-                            UpdateForUnansweredMessage(repository, cancellationToken);
+                            this._logger.Debug(
+                                $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
+                            UpdateForResendMessage(repository);
+                            shouldWait = false;
+                        }
+                        else
+                        {
+                            if (IsMessageUnanswered(repository))
+                            {
+                                this._logger.Debug("Message is unanswered.");
+                                UpdateForUnansweredMessage(repository, cancellationToken);
+                            }
                         }
                     }
-
 
                     // TODO: savechanges should be called here.
                 }
             }
 
-            WaitRetryInterval("Waiting retry interval...");
-            return StepResult.SuccessAsync(internalMessage);
+            if (shouldWait)
+            {
+                WaitRetryInterval("Waiting retry interval...");
+            }
+
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private bool IsMessageAlreadyAnswered(IDatastoreRepository repository)
@@ -126,24 +133,24 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.ToBeSent);
 
         }
-        
+
         private bool IsMessageUnanswered(IDatastoreRepository repository)
-        {           
-            return this._receptionAwareness.CurrentRetryCount >= this._receptionAwareness.TotalRetryCount; 
+        {
+            return this._receptionAwareness.CurrentRetryCount >= this._receptionAwareness.TotalRetryCount;
         }
 
-        private void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
+        private async void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
         {
             string messageId = this._receptionAwareness.InternalMessageId;
             this._logger.Info($"[{messageId}] ebMS message is unanswered");
 
             UpdateReceptionAwareness(awareness => awareness.IsCompleted = true, repository);
-            repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.DeadLettered);
+            await repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.DeadLettered);
 
             Error errorMessage = CreateError(repository);
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
-            new InMessageService(repository).InsertErrorAsync(errorMessage, as4Message, cancellationToken).GetAwaiter();
+            await new InMessageService(repository).InsertErrorAsync(errorMessage, as4Message, cancellationToken);
         }
 
         private Error CreateError(IDatastoreRepository repository)
@@ -155,7 +162,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             // OutMessage outMessage = repository.GetOutMessageById(messageId);
 
-            
+
 
             //////if (outMessage?.MessageBody != null)
             //////{

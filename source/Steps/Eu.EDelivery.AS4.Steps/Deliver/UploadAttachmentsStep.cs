@@ -51,15 +51,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (!internalMessage.AS4Message.HasAttachments)
-                return StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(internalMessage);
 
             this._internalMessage = internalMessage;
 
             UploadAttachments(internalMessage.AS4Message.Attachments);
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private void UploadAttachments(IEnumerable<Attachment> attachments)

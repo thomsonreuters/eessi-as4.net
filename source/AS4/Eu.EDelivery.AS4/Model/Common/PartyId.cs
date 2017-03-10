@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// Initializes a new instance of the <see cref="PartyId"/> class. 
         /// Xml Serializer needs a parameter less constructor
         /// </summary>
-        public PartyId() {}
+        public PartyId() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PartyId"/> class. 
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Model.Common
 
             return
                 string.Equals(this.Id, other.Id, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.Type, other.Type, StringComparison.OrdinalIgnoreCase);
+                string.Equals(this.Type ?? string.Empty, other.Type ?? string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -57,7 +57,14 @@ namespace Eu.EDelivery.AS4.Model.Common
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
 
-            return obj.GetType() == GetType() && Equals((PartyId) obj);
+            var other = obj as PartyId;
+
+            if (other == null)
+            {
+                return false;
+            }
+
+            return Equals(other);
         }
 
         /// <summary>

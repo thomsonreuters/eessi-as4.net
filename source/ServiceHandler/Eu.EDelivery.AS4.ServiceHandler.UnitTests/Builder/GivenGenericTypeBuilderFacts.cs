@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Builders;
+﻿using System;
+using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Exceptions;
 using Xunit;
 
@@ -17,7 +18,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                 // Arrange
                 string typeString = typeof(object).FullName;
                 // Act
-                var instance = new GenericTypeBuilder().SetType(typeString).Build<object>();
+                var instance = GenericTypeBuilder.FromType(typeString).Build<object>();
                 // Assert
                 Assert.NotNull(instance);
                 Assert.IsType<object>(instance);
@@ -33,8 +34,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                 const string typeString =
                     "Eu.EDelivery.AS4.Transformers.InvalidTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
                 // Act
-                Assert.Throws<AS4Exception>(
-                    () => new GenericTypeBuilder().SetType(typeString));
+                Assert.Throws<TypeLoadException>(
+                    () => GenericTypeBuilder.FromType(typeString));
             }
         }
     }

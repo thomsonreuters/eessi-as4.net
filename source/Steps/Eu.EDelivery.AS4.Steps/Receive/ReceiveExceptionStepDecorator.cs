@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 catch (AS4Exception exception)
                 {
                     if (internalMessage.AS4Message?.IsSignalMessage == true)
-                        return ReturnStepResult(internalMessage.AS4Message);
+                        return await ReturnStepResult(internalMessage.AS4Message);
 
                     InitializeFields(internalMessage);
                     return await HandleInException(exception, internalMessage.AS4Message, inExceptionService,
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 catch (Exception)
                 {
                     AssignResponseHttpCode(internalMessage);
-                    return ReturnStepResult(internalMessage.AS4Message);
+                    return await ReturnStepResult(internalMessage.AS4Message);
                 }
             }
         }
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (errorMessage?.Exception != null)
                 await inExceptionService.InsertAS4ExceptionAsync(errorMessage.Exception, as4Message);
 
-            return ReturnStepResult(as4Message);
+            return await ReturnStepResult(as4Message);
         }
 
         private void InitializeFields(InternalMessage internalMessage)
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             await inExceptionService.InsertAS4ExceptionAsync(exception, as4Message);
             await InsertSignalsFromExceptionAsync(exception, outMessageService);
 
-            StepResult stepResult = ReturnStepResult(this._originalAS4Message);
+            StepResult stepResult = await ReturnStepResult(this._originalAS4Message);
             stepResult.InternalMessage.Exception = exception;
 
             return stepResult;
@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private StepResult ReturnStepResult(AS4Message as4Message)
+        private async Task<StepResult> ReturnStepResult(AS4Message as4Message)
         {
             this._logger.Info("Handled AS4 Exception");
 
@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 as4Message = CreateEmptySoapEnvelope();
 
             var internalMessage = new InternalMessage(as4Message);
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private AS4Message CreateEmptySoapEnvelope()

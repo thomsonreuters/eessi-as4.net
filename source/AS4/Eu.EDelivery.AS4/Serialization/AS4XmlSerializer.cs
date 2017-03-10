@@ -66,13 +66,10 @@ namespace Eu.EDelivery.AS4.Serialization
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
             envelopeStream.Position = 0;
-            var envelopeXmlDocument = new XmlDocument();
-            var readerSettings = DefaultXmlReaderSettings;
+            var envelopeXmlDocument = new XmlDocument() {PreserveWhitespace = true};
 
-            using (XmlReader reader = XmlReader.Create(envelopeStream, readerSettings))
-            {
-                envelopeXmlDocument.Load(reader);
-            }
+            envelopeXmlDocument.Load(envelopeStream);
+            
 
             return envelopeXmlDocument;
         }
@@ -82,8 +79,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 Async = true,
                 CloseInput = false,
-                IgnoreComments = true,
-                IgnoreWhitespace = true,
+                IgnoreComments = true,            
             };
 
         /// <summary>

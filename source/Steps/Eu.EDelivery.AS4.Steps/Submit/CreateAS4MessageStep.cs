@@ -40,13 +40,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Thrown when creating an <see cref="AS4Message"/> Fails (Mapping, Building...)</exception>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             try
             {
                 this._internalMessage = internalMessage;
                 this._internalMessage.AS4Message = CreateAS4Message();
-                return StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(internalMessage);
             }
             catch (Exception exception)
             {

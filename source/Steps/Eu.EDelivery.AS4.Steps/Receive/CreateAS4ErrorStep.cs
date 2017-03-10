@@ -33,16 +33,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (IsEmptySoapBody(internalMessage))
-                return StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(internalMessage);
 
             this._originalAS4Message = internalMessage.AS4Message;
-            return ReturnAS4ErrorMessage(internalMessage);
+            return await ReturnAS4ErrorMessage(internalMessage);
         }
 
-        private Task<StepResult> ReturnAS4ErrorMessage(InternalMessage internalMessage)
+        private async Task<StepResult> ReturnAS4ErrorMessage(InternalMessage internalMessage)
         {
             this._logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
 
@@ -51,10 +51,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             errorMessage.SendingPMode = this._originalAS4Message.SendingPMode;
             var errorInternalMessage = new InternalMessage(errorMessage);
 
-            return StepResult.SuccessAsync(errorInternalMessage);
+            return await StepResult.SuccessAsync(errorInternalMessage);
         }
 
-        private bool IsEmptySoapBody(InternalMessage internalMessage)
+        private static bool IsEmptySoapBody(InternalMessage internalMessage)
         {
             return internalMessage.Exception == null;
         }

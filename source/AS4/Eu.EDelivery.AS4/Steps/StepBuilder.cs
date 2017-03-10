@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps
 
         private static T CreateInstance<T>(string typeString, params object[] args) where T : class
         {
-            return new GenericTypeBuilder().SetType(typeString).SetArgs(args).Build<T>();
+            return GenericTypeBuilder.FromType(typeString).SetArgs(args).Build<T>();
         }
     }
 

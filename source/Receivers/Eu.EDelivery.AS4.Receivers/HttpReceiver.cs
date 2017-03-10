@@ -73,6 +73,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     try
                     {
                         HttpListenerContext context = await _listener.GetContextAsync();
+
                         await ProcessRequestAsync(context, messageCallback, cancellationToken);
                     }
                     catch (HttpListenerException)
@@ -132,7 +133,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private static void DisplayHtmlStatusPage(HttpListenerContext context)
         {
-            var responseBuilder = HttpGetResponseFactory.GetHttpGetRessponse(context.Request.AcceptTypes);
+            var responseBuilder = HttpGetResponseFactory.GetHttpGetResponse(context.Request.AcceptTypes);
 
             byte[] response;
 
@@ -232,7 +233,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private static class HttpGetResponseFactory
         {
-            public static HttpGetResponse GetHttpGetRessponse(string[] acceptHeaders)
+            public static HttpGetResponse GetHttpGetResponse(string[] acceptHeaders)
             {
                 if (acceptHeaders.Contains("text/html", StringComparer.OrdinalIgnoreCase))
                 {

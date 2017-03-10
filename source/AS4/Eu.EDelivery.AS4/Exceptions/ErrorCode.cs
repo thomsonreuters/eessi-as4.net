@@ -25,6 +25,9 @@ namespace Eu.EDelivery.AS4.Exceptions
 
         // Security Processing Errors
         Ebms0101 = 101,
+        /// <summary>
+        /// Decryption Failed.
+        /// </summary>
         Ebms0102 = 102,
         Ebms0103 = 103,
 

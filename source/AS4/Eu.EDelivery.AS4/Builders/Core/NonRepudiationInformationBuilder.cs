@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return nrrInformation;
         }
 
-        private void AddMessagePartNRInformation(NonRepudiationInformation nrrInformation, CryptoReference reference)
+        private static void AddMessagePartNRInformation(NonRepudiationInformation nrrInformation, CryptoReference reference)
         {
             var partInfo = new MessagePartNRInformation
             {
@@ -58,22 +58,24 @@ namespace Eu.EDelivery.AS4.Builders.Core
             throw new AS4Exception(description);
         }
 
-        private CoreReference CreateReferenceFromCryptoRef(CryptoReference reference)
+        private static CoreReference CreateReferenceFromCryptoRef(CryptoReference reference)
         {
             return new CoreReference
             {
                 DigestMethod = new ReferenceDigestMethod(reference.DigestMethod),
-                DigestValue = Convert.ToBase64String(reference.DigestValue),
+                DigestValue = reference.DigestValue,
                 URI = reference.Uri,
                 Transforms = CreateTransformsFromChain(reference.TransformChain)
             };
         }
 
-        private Collection<ReferenceTransform> CreateTransformsFromChain(TransformChain transformChain)
+        private static Collection<ReferenceTransform> CreateTransformsFromChain(TransformChain transformChain)
         {
             var transforms = new Collection<ReferenceTransform>();
             foreach (Transform transform in transformChain)
+            {
                 transforms.Add(new ReferenceTransform(transform.Algorithm));
+            }
 
             return transforms;
         }

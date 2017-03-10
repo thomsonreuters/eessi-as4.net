@@ -33,14 +33,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._as4Message = internalMessage.AS4Message;
 
             if (HasAS4MessageMultipleAttachments()) ZipAttachments();
 
             this._logger.Info($"{internalMessage.Prefix} Zip the Attachments to a single file");
-            return Task.FromResult(StepResult.Success(internalMessage));
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private bool HasAS4MessageMultipleAttachments()

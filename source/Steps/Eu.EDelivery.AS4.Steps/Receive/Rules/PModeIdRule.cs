@@ -22,9 +22,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Rules
             return IsPModeIdEqual(pmode, userMessage) ? Points : NotEqual;
         }
 
-        private bool IsPModeIdEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
+        private static bool IsPModeIdEqual(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            if (userMessage.CollaborationInfo.AgreementReference == null) return false;
+            if (userMessage.CollaborationInfo.AgreementReference == null)
+            {
+                return false;
+            }
+
             string userMessagePModeId = userMessage.CollaborationInfo.AgreementReference.PModeId;
 
             return userMessagePModeId != null && userMessagePModeId.Equals(pmode.Id);

@@ -29,6 +29,7 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,6 +38,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=5.0.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
@@ -202,6 +204,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Runtime.CompilerServices.Unsafe.4.3.0\lib\netstandard1.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <Private>True</Private>
@@ -263,7 +266,6 @@
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
-    <Compile Include="Security\Builders\EncryptedKeyBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
     <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />
     <Compile Include="Common\IRegistry.cs" />
@@ -293,7 +295,6 @@
     <Compile Include="Security\Algorithms\RsaPkCs1Sha512SignatureAlgorithm.cs" />
     <Compile Include="Security\Encryption\AS4EncryptedKey.cs" />
     <Compile Include="Security\Encryption\DataEncryptionConfiguration.cs" />
-    <Compile Include="Security\Encryption\EncryptionConfiguration.cs" />
     <Compile Include="Security\Encryption\KeyEncryptionConfiguration.cs" />
     <Compile Include="Security\Factories\EncodingFactory.cs" />
     <Compile Include="Security\References\ReferenceSecurityTokenReference.cs" />

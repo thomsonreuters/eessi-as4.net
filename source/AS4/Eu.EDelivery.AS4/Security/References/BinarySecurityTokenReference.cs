@@ -92,12 +92,18 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <param name="element"></param>
         public override void LoadXml(XmlElement element)
         {
-            if (IsElementAReferenceElement(element))
-                AssignReferenceId(element);
+            var referenceElement = GetReferenceElement(element);
+
+            if (referenceElement != null)
+            {
+                AssignReferenceId(referenceElement);
+            }
 
             XmlElement binarySecurityTokenElement = GetBinarySecurityTokenElementFrom(element);
             if (binarySecurityTokenElement != null)
+            {
                 AssignCertificate(binarySecurityTokenElement);
+            }
         }
 
         private void AssignCertificate(XmlElement binarySecurityTokenElement)
@@ -106,11 +112,18 @@ namespace Eu.EDelivery.AS4.Security.References
             this.Certificate = new X509Certificate2(base64String);
         }
 
-        private void AssignReferenceId(XmlElement element)
+        private void AssignReferenceId(XmlElement referenceElement)
         {
-            XmlAttribute uriAttribute = element.FirstChild.Attributes?["URI"];
+            if (referenceElement.LocalName.Equals("Reference", StringComparison.OrdinalIgnoreCase) == false)
+            {
+                throw new ArgumentException(@"The given XmlElement is not a Reference element", nameof(referenceElement));
+            }
+
+            XmlAttribute uriAttribute = referenceElement.Attributes?["URI"];
             if (uriAttribute != null)
+            {
                 this.ReferenceId = uriAttribute.Value;
+            }
         }
 
         private XmlElement GetBinarySecurityTokenElementFrom(XmlNode node)
@@ -131,10 +144,9 @@ namespace Eu.EDelivery.AS4.Security.References
                    x.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;
         }
 
-        private static bool IsElementAReferenceElement(XmlNode element)
+        private static XmlElement GetReferenceElement(XmlNode node)
         {
-            return element.FirstChild.LocalName == "Reference" &&
-                   element.FirstChild.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;
+            return node.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.LocalName == "Reference" && e.NamespaceURI == Constants.Namespaces.WssSecuritySecExt);
         }
     }
 }

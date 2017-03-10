@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps
                 }
             }
 
-            return StepResult.Success(messageToSend);
+            return await StepResult.SuccessAsync(messageToSend);
         }        
     }
 }

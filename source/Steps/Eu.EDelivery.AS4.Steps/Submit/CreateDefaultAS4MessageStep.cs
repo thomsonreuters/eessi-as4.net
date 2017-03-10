@@ -44,12 +44,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             AddDefaultAS4Message(internalMessage);
             this._logger.Info($"{internalMessage.Prefix} Default AS4 Message is created");
 
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private void AddDefaultAS4Message(InternalMessage internalMessage)

@@ -46,17 +46,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!internalMessage.AS4Message.HasAttachments)
             {
-                return ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(internalMessage);
             }
 
             await TryDecompressAttachments(internalMessage.AS4Message);
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private StepResult ReturnSameInternalMessage(InternalMessage internalMessage)
+        private async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
             this._logger.Debug($"{this._internalMessage.Prefix} AS4Message hasn't got any Attachments");
-            return StepResult.Success(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task TryDecompressAttachments(AS4Message as4Message)
@@ -132,23 +132,34 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private void AssignAttachmentProperties(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
+        private static void AssignAttachmentProperties(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
         {
             attachment.Properties["CompressionType"] = GzipContentType;
             string mimeType = GetMimeType(messagePayloadInfo, attachment);
+
+            if (String.IsNullOrWhiteSpace(mimeType))
+            {
+                throw new InvalidDataException($"MimeType is not specified for attachment {attachment.Id}");
+            }
+
+            if (mimeType.IndexOf("/", StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                throw new InvalidDataException($"Invalid MimeType specified for attachment {attachment.Id}");
+            }
+
             attachment.Properties["MimeType"] = mimeType;
             attachment.ContentType = mimeType;
         }
 
-        private string GetMimeType(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
+        private static string GetMimeType(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
         {
             return messagePayloadInfo.Find(i => i.Href.Equals("cid:" + attachment.Id)).Properties["MimeType"];
         }
 
-        private AS4Exception ThrowAS4CannotDecompressException( AS4Message as4Message, Exception exception)
+        private static AS4Exception ThrowAS4CannotDecompressException( AS4Message as4Message, Exception exception)
         {
-            const string description = "Cannot decompress the message";
-            this._logger.Error(description);
+            string description = $"Cannot decompress the message: {exception.Message}";
+            LogManager.GetCurrentClassLogger().Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)

@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
 
         private void InitializeBuilder()
         {
-            this._document = new XmlDocument();
+            this._document = new XmlDocument() {PreserveWhitespace = true};
 
             this._envelopeElement = CreateElement(SoapNamespace.Soap, "Envelope");
             this._bodyElement = CreateElement(SoapNamespace.Soap, "Body");
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
 
         private static XmlDocument SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
         {
-            var xmlDocument = new XmlDocument();
+            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
 
             using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
             {
@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// <returns></returns>
         public SoapEnvelopeBuilder SetRoutingInput(RoutingInput routingInput)
         {
-            var xmlDocument = new XmlDocument();
+            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
 
             using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
             {

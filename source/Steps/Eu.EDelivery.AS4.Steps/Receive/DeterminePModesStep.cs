@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Throws exception when a PMode cannot be retrieved</exception>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._as4Message = internalMessage.AS4Message;
 
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 this._as4Message.SendingPMode = GetReferencedSendingPMode();
 
             internalMessage.AS4Message = this._as4Message;
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private SendPMode GetPModeFromDatastore()

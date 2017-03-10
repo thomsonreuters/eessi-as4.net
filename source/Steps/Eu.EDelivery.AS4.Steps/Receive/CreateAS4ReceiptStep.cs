@@ -37,12 +37,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Throws exception when AS4 Receipt cannot be created</exception>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             InitializeFields(internalMessage);
             TryCreateAS4ReceiptMessage(internalMessage);
 
-            return StepResult.SuccessAsync(this._internalMessage);
+            return await StepResult.SuccessAsync(this._internalMessage);
         }
 
         private void InitializeFields(InternalMessage internalMessage)

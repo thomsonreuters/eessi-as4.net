@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             ReceivedEntityMessage messageEntity = RetrieveEntityMessage(message);
             ExceptionEntity exceptionEntity = RetrieveExceptionEntity(messageEntity);
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var internalMessage = new InternalMessage(as4Message);
 
             this._logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
-            return Task.FromResult(internalMessage);
+            return await Task.FromResult(internalMessage);
         }
 
         private AS4Message CreateErrorAS4Message(ExceptionEntity exceptionEntity, CancellationToken cancellationTokken)
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Transformers
             ISerializer serializer = this._provider.Get(Constants.ContentTypes.Soap);
             serializer.Serialize(as4Message, memoryStream, cancellationToken);
 
-            var xmlDocument = new XmlDocument();
+            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
             memoryStream.Position = 0;
             xmlDocument.Load(memoryStream);
 
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Transformers
             return AS4XmlSerializer.Deserialize<T>(pmode);
         }
 
-        private Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
+        private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
         {
             AS4Exception as4Exception = CreateAS4Exception(exceptionEntity);
 

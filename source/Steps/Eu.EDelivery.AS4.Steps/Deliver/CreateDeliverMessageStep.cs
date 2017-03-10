@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             this._logger.Info($"{internalMessage.Prefix} Create a Deliver Message from an AS4 Message");
 
@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                                                                         System.Text.Encoding.UTF8.GetBytes(serialized),
                                                                         "application/xml");
 
-            return StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private static DeliverMessage CreateDeliverMessage(AS4Message as4Message)

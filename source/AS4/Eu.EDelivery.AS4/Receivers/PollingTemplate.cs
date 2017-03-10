@@ -36,10 +36,37 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     var tasks = new List<Task>();
                     IEnumerable<TIn> messagesToPoll = GetMessagesToPoll(cancellationToken);
-                    tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
 
-                    TryPollOnTarget(tasks, messagesToPoll, cancellationToken);
-                }                
+                    if (messagesToPoll.Any())
+                    {
+                        tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
+
+                        try
+                        {
+                            try
+                            {
+                                Task.WaitAll(tasks.ToArray());
+                            }
+                            catch (AggregateException err)
+                            {
+                                err.Handle(e => e is TaskCanceledException);
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            foreach (TIn message in messagesToPoll)
+                            {
+                                HandleMessageException(message, exception);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // TODO: modify this to Task.Delay().Wait instead ?
+                        Thread.Sleep(this.PollingInterval);
+                        // Task.Delay(this.PollingInterval, cancellationToken).Wait(cancellationToken);
+                    }
+                }
             }
             finally
             {
@@ -48,39 +75,6 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        /// <summary>
-        /// Poll on a given Target
-        /// </summary>
-        /// <param name="tasks"></param>
-        /// <param name="messagesToPoll"></param>
-        private void TryPollOnTarget(List<Task> tasks, IEnumerable<TIn> messagesToPoll, CancellationToken cancellationToken)
-        {
-            try
-            {
-                PollOnTarget(tasks, cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                foreach (TIn message in messagesToPoll)
-                {
-                    HandleMessageException(message, exception);
-                }
-            }
-        }
-
-        private void PollOnTarget(List<Task> tasks, CancellationToken cancellationToken)
-        {
-            int taskCount = tasks.Count;
-            Task.WaitAll(tasks.ToArray());
-
-            bool isThereWork = taskCount > 0;
-            if (isThereWork == false)
-            {
-                // TODO: modify this to Task.Delay().Wait instead ?
-                Thread.Sleep(this.PollingInterval);
-               // Task.Delay(this.PollingInterval, cancellationToken).Wait(cancellationToken);
-            }
-        }
 
         /// <summary>
         /// Declaration to where the Message are and can be polled
@@ -115,7 +109,18 @@ namespace Eu.EDelivery.AS4.Receivers
             CancellationToken cancellationToken)
         {
             return messagesToPoll.Where(m => m != null).Select(
-                message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken)));
+                message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))                              
+                               .ContinueWith(x =>
+                               {
+                                   if (x.Exception?.InnerExceptions != null)
+                                   {
+                                       foreach (var ex in x.Exception?.InnerExceptions)
+                                       {
+                                           LogManager.GetCurrentClassLogger().Fatal(ex.Message);
+                                           LogManager.GetCurrentClassLogger().Fatal(ex.StackTrace);
+                                       }
+                                   }
+                               }, TaskContinuationOptions.OnlyOnFaulted));
         }
     }
 }

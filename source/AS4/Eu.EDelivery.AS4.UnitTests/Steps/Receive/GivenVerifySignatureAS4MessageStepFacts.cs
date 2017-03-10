@@ -23,14 +23,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     public class GivenVerifySignatureAS4MessageStepFacts
     {
         private const string ContentType = "multipart/related; boundary=\"=-dXYE+NJdacou7AbmYZgUPw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
-        private readonly Mock<ICertificateRepository> _mockedCertificateRespository;
+        
         private readonly VerifySignatureAS4MessageStep _step;
         private InternalMessage _internalMessage;
 
         public GivenVerifySignatureAS4MessageStepFacts()
         {            
-            this._mockedCertificateRespository = new Mock<ICertificateRepository>();
-            this._step = new VerifySignatureAS4MessageStep(this._mockedCertificateRespository.Object);
+            this._step = new VerifySignatureAS4MessageStep();
         }
 
         /// <summary>
