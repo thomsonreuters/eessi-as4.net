@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsEnabled { get; set; }
         public string PrivateKeyFindValue { get; set; }
         public X509FindType PrivateKeyFindType { get; set; }
-        public X509ReferenceType KeyReferenceMethod { get; set; }
+        public X509ReferenceType KeyReferenceMethod { get; set; }   
         public string Algorithm { get; set; }
         public string HashFunction { get; set; }
 

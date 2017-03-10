@@ -2,13 +2,14 @@
 import { FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { Validators } from '@angular/forms';
 import { thumbPrintValidation } from '../validators/thumbprintValidator';
+import { KeyEncryption } from './KeyEncryption';
 
 export class Encryption {
 	isEnabled: boolean;
 	algorithm: string;
 	publicKeyFindType: number;
 	publicKeyFindValue: string;
-	keyTransport: string;
+	keyTransport: KeyEncryption;
 
 	static FIELD_isEnabled: string = 'isEnabled';
 	static FIELD_algorithm: string = 'algorithm';
@@ -22,7 +23,7 @@ export class Encryption {
 			algorithm: [current && current.algorithm, Validators.required],
 			publicKeyFindType: [current && current.publicKeyFindType, Validators.required],
 			publicKeyFindValue: [current && current.publicKeyFindValue, Validators.required],
-			keyTransport: [current && current.keyTransport, Validators.required],
+			keyTransport: KeyEncryption.getForm(formBuilder, current && current.keyTransport),
 		});
 		this.setupForm(form);
 		return form;
@@ -33,6 +34,7 @@ export class Encryption {
 		form.get(this.FIELD_algorithm).reset({ value: current && current.algorithm, disabled: !!!current || !current.isEnabled });
 		form.get(this.FIELD_publicKeyFindType).reset({ value: current && current.publicKeyFindType, disabled: !!!current || !current.isEnabled });
 		form.get(this.FIELD_publicKeyFindValue).reset({ value: current && current.publicKeyFindValue, disabled: !!!current || !current.isEnabled });
+		KeyEncryption.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_keyTransport), current && current.keyTransport);
 		form.get(this.FIELD_keyTransport).reset({ value: current && current.keyTransport, disabled: !!!current || !current.isEnabled });
 	}
 	static setupForm(form: FormGroup) {
