@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         public DateTimeOffset InsertionTime { get; set; }
         public string ExceptionType { get; set; }
         public string Status { get; set; }
+        public Direction Direction { get; set; }
 
         public string PMode
         {

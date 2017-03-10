@@ -8,13 +8,15 @@ import { Store } from '../../common/store';
     pages?: number;
     page?: number;
     filter?: MessageFilter;
+    relatedMessages?: Message[];
 }
 
 export class MessageStore extends Store<IMessageState> {
     constructor() {
         super({
             messages: new Array<Message>(),
-            filter: new MessageFilter()
+            filter: new MessageFilter(),
+            relatedMessages: new Array<Message>()
         });
     }
 }

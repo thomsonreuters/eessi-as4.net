@@ -1,3 +1,4 @@
+import { ToDirectionPipe } from './todirection.pipe';
 import { ExceptionService } from './exception/exception.service';
 import { ExceptionStore } from './exception/exception.store';
 import { ExceptionComponent } from './exception/exception.component';
@@ -31,7 +32,8 @@ import { RelatedMessagesComponent } from './relatedmessages/relatedmessages.comp
         SortDirective,
         MessageComponent,
         ErrorMessageComponent,
-        RelatedMessagesComponent
+        RelatedMessagesComponent,
+        ToDirectionPipe
     ],
     imports: [
         AuthenticationModule,

@@ -80,6 +80,7 @@
     <Compile Include="Monitor\BaseFilter.cs" />
     <Compile Include="Monitor\BaseMessageFilter.cs" />
     <Compile Include="Monitor\BaseMessageJoined.cs" />
+    <Compile Include="Monitor\Direction.cs" />
     <Compile Include="Monitor\ExceptionMessage.cs" />
     <Compile Include="Monitor\IMonitorService.cs" />
     <Compile Include="Monitor\IMonitorSetup.cs" />

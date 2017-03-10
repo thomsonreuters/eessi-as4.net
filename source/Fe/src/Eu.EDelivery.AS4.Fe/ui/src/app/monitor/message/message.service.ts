@@ -54,6 +54,19 @@ export class MessageService {
         filter.direction = direction;
         this._exceptionService.getMessages(filter);
     }
+    public getRelatedMessages(direction: number, messageId: string) {
+        let urlParams = new URLSearchParams();
+        urlParams.append('direction', '' + direction);
+        urlParams.append('messageId', messageId);
+        let options = new RequestOptions();
+        options.search = urlParams;
+        this._http
+            .get(`/api/monitor/relatedmessages`, options)
+            .map((result) => result.json())
+            .subscribe((messages: MessageResult<Message>) => {
+                this._store.update('relatedMessages', messages.messages);
+            });
+    }
     private getUrl(direction: number, type: string, action?: string): string {
         let url: string;
         if (direction === 0) {

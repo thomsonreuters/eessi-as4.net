@@ -437,21 +437,6 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 // Assert
                 await test.Source.UpdateReceiving(Arg.Is<ReceivingBasePmode>(x => x.Name == "NEW"), Arg.Is(ReceivingBasePmode.Name));
             }
-        }
-
-        public class PmodesShouldContainHash : As4PmodeServiceTests
-        {
-            [Fact]
-            public async Task Validate_That_Pmodes_Contain_Hash()
-            {
-                Setup();
-
-                var sendingPmode = await Service.GetSendingByName(SendingBasePmode.Name);
-                var receivingPmode = await Service.GetReceivingByName(ReceivingBasePmode.Name);
-
-                Assert.True(!string.IsNullOrEmpty(sendingPmode.Hash));
-                Assert.True(!string.IsNullOrEmpty(receivingPmode.Hash));
-            }
-        }
+        }       
     }
 }

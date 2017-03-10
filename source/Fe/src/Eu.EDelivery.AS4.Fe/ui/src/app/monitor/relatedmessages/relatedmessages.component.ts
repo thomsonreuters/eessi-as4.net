@@ -25,9 +25,6 @@ export class RelatedMessagesComponent implements OnInit {
             return;
         }
 
-        let filter = new MessageFilter();
-        filter.ebmsMessageId = this.messageId;
-        filter.direction = this.direction;
-        this._messageService.getMessages(filter);
+        this._messageService.getRelatedMessages(this.direction, this.messageId);
     }
 }

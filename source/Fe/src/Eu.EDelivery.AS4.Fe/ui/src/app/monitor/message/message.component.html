@@ -2,10 +2,10 @@
     <div content>
         <as4-filter #filter [filter]="messageFilter">
             <div class="col-md-6 col-xs-12">
-                <as4-input label="Type" labelSize="3" controlSize="9">
+                <as4-input label="Direction" labelSize="3" controlSize="9">
                     <select [(ngModel)]="filter.filter.direction">
-                        <option value="0" selected>In messages</option>
-                        <option value="1">Out messages</option>
+                        <option value="0" selected>Inbound</option>
+                        <option value="1">Outbound</option>
                     </select>
                 </as4-input>
                 <as4-input label="Operation" labelSize="3" controlSize="9">
@@ -27,14 +27,6 @@
                         </span>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms ref to message id" labelSize="3" controlSize="9">
-                    <div class="input-group">
-                        <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
-                        <div class="input-group-btn">
-                            <button class="btn btn-secondary" type="button" (click)="switchIds()"><i class="fa fa-rotate-90 fa-exchange"></i></button>
-                        </div>
-                    </div>
-                </as4-input>
                 <as4-input label="Ebms message id" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <input type="text" name="ebmsMessageId" [(ngModel)]="filter.filter.ebmsMessageId" />
@@ -43,19 +35,14 @@
                         </div>
                     </div>
                 </as4-input>
-                <as4-input label="Message exchange pattern" labelSize="3" controlSize="9">
+                <as4-input label="Ebms ref to message id" labelSize="3" controlSize="9">
                     <div class="input-group">
-                        <select name="MEP" [(ngModel)]="filter.filter.mep">
-                            <option value="0">Push</option>
-                            <option value="1">Pull</option>
-                        </select>
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary" type="button" (click)="filter.filter.mep = null"><i class="fa fa-trash"></i></button>
-                        </span>
+                        <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
+                        <div class="input-group-btn">
+                            <button class="btn btn-secondary" type="button" (click)="switchIds()"><i class="fa fa-rotate-90 fa-exchange"></i></button>
+                        </div>
                     </div>
-                </as4-input>                
-            </div>
-            <div class="col-md-6 col-xs-12">
+                </as4-input>            
                 <as4-input label="Ebms message type" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <select name="ebmsMessageType" [(ngModel)]="filter.filter.ebmsMessageType">
@@ -65,6 +52,19 @@
                         </select>
                         <span class="input-group-btn">
                             <button class="btn btn-secondary" type="button" (click)="filter.filter.ebmsMessageType = null"><i class="fa fa-trash"></i></button>
+                        </span>
+                    </div>
+                </as4-input>
+            </div>
+            <div class="col-md-6 col-xs-12">
+                <as4-input label="Message exchange pattern" labelSize="3" controlSize="9">
+                    <div class="input-group">
+                        <select name="MEP" [(ngModel)]="filter.filter.mep">
+                            <option value="0">Push</option>
+                            <option value="1">Pull</option>
+                        </select>
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary" type="button" (click)="filter.filter.mep = null"><i class="fa fa-trash"></i></button>
                         </span>
                     </div>
                 </as4-input>
@@ -81,14 +81,14 @@
                 </as4-input>
                 <as4-input label="Status" labelSize="3" controlSize="9">
                     <div class="input-group">
-                        <select name="status" [(ngModel)]="filter.filter.status" *ngIf="!!!filter.filter.direction || filter.filter.direction === '0'">
+                        <select name="status" [(ngModel)]="filter.filter.status" *ngIf="!!!filter.filter.direction || +filter.filter.direction === 0 || filter.filter.direction === '0'">
                             <option value="0">Received</option>
                             <option value="1">Delivered</option>
                             <option value="2">Created</option>
                             <option value="3">Notified</option>
                             <option value="4">Exception</option>
                         </select>
-                        <select name="status" [(ngModel)]="filter.filter.status" *ngIf="filter.filter.direction === '1'">
+                        <select name="status" [(ngModel)]="filter.filter.status" *ngIf="+filter.filter.direction === 1 || filter.filter.direction === '1'">
                             <option value="0">Not applicable</option>
                             <option value="1">Submitted</option>
                             <option value="2">Nack</option>
@@ -161,25 +161,10 @@
             [page]="(messages | async).page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
             <div class="table-responsive">
                 <table class="table table-striped">
-                    <colgroup>
-                        <!-- actions -->
-                        <col width="2%">
-                        <!-- Insertion time -->
-                        <col width="12%">
-                        <!-- Message id -->
-                        <col width="27%">
-                        <!-- Message type -->
-                        <col width="8%">
-                        <!-- Operation -->
-                        <col>
-                        <!-- Status -->
-                        <col>
-                        <!-- Pmode -->
-                        <col width="5%">
-                    </colgroup>
                     <thead>
                         <tr>
                             <th></th>
+                            <th>Direction</th>
                             <th>Insertion time</th>
                             <th>Message id</th>
                             <th>Message type</th>
@@ -194,6 +179,7 @@
                                 <td (click)="toggle(message)" class="clickable">
                                     <i class="fa" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage"></i>
                                 </td>
+                                <td>{{message.direction | todirection}}</td>
                                 <td>{{message.insertionTime | todate}}</td>
                                 <td>{{message.ebmsMessageId}}</td>
                                 <td>{{message.ebmsMessageType}}</td>
@@ -212,10 +198,10 @@
                                             <p><b>Ebms ref to message id</b>: {{!!!message.ebmsRefToMessageId ? 'N/A' : message.ebmsRefToMessageId}}</p>
                                         </div>
                                         <div tabitem title="Exceptions" class="exceptions">
-                                            <as4-error-message [message]="message" [direction]="+filter.outFilter.direction"></as4-error-message>
+                                            <as4-error-message [message]="message" [direction]="+filter.outFilter.direction === 0 ? 1 : 0"></as4-error-message>
                                         </div>
                                         <div tabitem title="Related messages" class="related-messages">
-                                            <as4-related-messages [messageId]="message.ebmsRefToMessageId" [direction]="+filter.outFilter.direction === 0 ? 1 : 0"></as4-related-messages>
+                                            <as4-related-messages [messageId]="message.ebmsMessageId" [direction]="filter.outFilter.direction"></as4-related-messages>
                                         </div>
                                     </as4-tab>
                                 </td>

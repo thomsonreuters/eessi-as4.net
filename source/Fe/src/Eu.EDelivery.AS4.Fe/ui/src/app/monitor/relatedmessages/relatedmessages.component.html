@@ -1,7 +1,8 @@
-<table class="table table-responsive" *ngIf="!!(messages | async).messages.length">
+<table class="table table-responsive" *ngIf="!!(messages | async).relatedMessages.length">
     <thead>
         <tr>
             <th></th>
+            <th>Direction</th>
             <th>Insertion time</th>
             <th>Message id</th>
             <th>Operation</th>
@@ -12,8 +13,9 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let message of (messages | async).messages">
-            <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: direction, ebmsMessageId: message.ebmsMessageId }"><i class="fa fa-folder-open"></i></a></td>
+        <tr *ngFor="let message of (messages | async).relatedMessages">
+            <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: message.direction, ebmsMessageId: message.ebmsMessageId }"><i class="fa fa-folder-open"></i></a></td>
+            <td>{{message.direction | todirection}}</td>
             <td>{{message.insertionTime | todate}}</td>
             <td>{{message.ebmsMessageId}}</td>
             <td>{{message.operation}}</td>
@@ -27,4 +29,4 @@
     </tbody>
 </table>
 
-<p *ngIf="!!!(messages | async).messages.length">No messages available</p>
+<p *ngIf="!!!(messages | async).relatedMessages.length">No messages available</p>
