@@ -1,51 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Fe.Monitor;
 using Eu.EDelivery.AS4.Fe.Pmodes;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using NSubstitute;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.Fe.Tests
+namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
     public class As4PmodeServiceTests
     {
         protected IAs4PmodeService Service { get; private set; }
         protected IAs4PmodeSource Source { get; private set; }
-        protected IEnumerable<SendingPmode> SendingPmodes { get; private set; }
-        protected IEnumerable<ReceivingPmode> ReceivingPmodes { get; private set; }
-        protected ReceivingPmode ReceivingPmode { get; private set; }
-        protected SendingPmode SendingPmode { get; private set; }
+        protected IEnumerable<SendingBasePmode> SendingPmodes { get; private set; }
+        protected IEnumerable<ReceivingBasePmode> ReceivingPmodes { get; private set; }
+        protected ReceivingBasePmode ReceivingBasePmode { get; private set; }
+        protected SendingBasePmode SendingBasePmode { get; private set; }
+        protected IMonitorService MonitorService { get; set; }
+        protected string Pmode { get; private set; }
 
         protected As4PmodeServiceTests Setup()
         {
             Source = Substitute.For<IAs4PmodeSource>();
-            Service = new As4PmodeService(Source);
+            MonitorService = Substitute.For<IMonitorService>();
+            Service = new As4PmodeService(Source, MonitorService);
             SetupPmodes();
+            Pmode = File.ReadAllText(@"receivingpmode.xml");
             return this;
         }
 
         private void SetupPmodes()
         {
-            ReceivingPmode = new ReceivingPmode()
+            ReceivingBasePmode = new ReceivingBasePmode()
             {
                 Name = "test1",
                 Type = PmodeType.Receiving
             };
-            SendingPmode = new SendingPmode()
+            SendingBasePmode = new SendingBasePmode()
             {
                 Name = "test2",
                 Type = PmodeType.Sending
             };
-            ReceivingPmodes = new List<ReceivingPmode>() { ReceivingPmode };
-            SendingPmodes = new List<SendingPmode> { SendingPmode };
+            ReceivingPmodes = new List<ReceivingBasePmode> { ReceivingBasePmode };
+            SendingPmodes = new List<SendingBasePmode> { SendingBasePmode };
 
             Source.GetReceivingNames().Returns(ReceivingPmodes.Select(pmode => pmode.Name));
-            Source.GetReceivingByName(Arg.Is(ReceivingPmode.Name)).Returns(ReceivingPmode);
+            Source.GetReceivingByName(Arg.Is(ReceivingBasePmode.Name)).Returns(ReceivingBasePmode);
 
             Source.GetSendingNames().Returns(SendingPmodes.Select(pmode => pmode.Name));
-            Source.GetSendingByName(Arg.Is(SendingPmode.Name)).Returns(SendingPmode);
+            Source.GetSendingByName(Arg.Is(SendingBasePmode.Name)).Returns(SendingBasePmode);
         }
 
         public class GetReceivingNames : As4PmodeServiceTests
@@ -61,7 +67,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Assert
                 await test.Source.Received().GetReceivingNames();
-                Assert.True(result.First() == ReceivingPmode.Name);
+                Assert.True(result.First() == ReceivingBasePmode.Name);
             }
 
             [Fact]
@@ -115,7 +121,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.True(result.First() == SendingPmode.Name);
+                Assert.True(result.First() == SendingBasePmode.Name);
                 await test.Source.Received().GetSendingNames();
             }
 
@@ -144,11 +150,11 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 var test = Setup();
 
                 // Act
-                var result = await test.Service.GetSendingByName(SendingPmode.Name);
+                var result = await test.Service.GetSendingByName(SendingBasePmode.Name);
 
                 // Assert
-                await test.Source.Received().GetSendingByName(Arg.Is(SendingPmode.Name));
-                Assert.True(result == SendingPmode);
+                await test.Source.Received().GetSendingByName(Arg.Is(SendingBasePmode.Name));
+                Assert.True(result == SendingBasePmode);
             }
 
             [Fact]
@@ -179,9 +185,9 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                var pmode = new ReceivingPmode()
+                var pmode = new ReceivingBasePmode()
                 {
-                    Name = ReceivingPmode.Name
+                    Name = ReceivingBasePmode.Name
                 };
 
                 await Assert.ThrowsAsync(typeof(Exception), () => test.Service.CreateReceiving(pmode));
@@ -192,7 +198,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                var pmode = new ReceivingPmode()
+                var pmode = new ReceivingBasePmode()
                 {
                     Name = "newPmode"
                 };
@@ -201,7 +207,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 await test.Service.CreateReceiving(pmode);
 
                 // Assert
-                await test.Source.Received().CreateReceiving(Arg.Is<ReceivingPmode>(x => x.Name == "newPmode"));
+                await test.Source.Received().CreateReceiving(Arg.Is<ReceivingBasePmode>(x => x.Name == "newPmode"));
             }
         }
 
@@ -232,12 +238,12 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                
+
                 // Act
-                await test.Service.DeleteReceiving(ReceivingPmode.Name);
+                await test.Service.DeleteReceiving(ReceivingBasePmode.Name);
 
                 // Assert
-                await test.Source.Received().DeleteReceiving(ReceivingPmode.Name);
+                await test.Source.Received().DeleteReceiving(ReceivingBasePmode.Name);
             }
         }
 
@@ -260,7 +266,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 var test = Setup();
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.CreateSending(SendingPmode));
+                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.CreateSending(SendingBasePmode));
             }
 
             [Fact]
@@ -268,7 +274,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                var pmode = new SendingPmode()
+                var pmode = new SendingBasePmode()
                 {
                     Name = "newPmode"
                 };
@@ -277,7 +283,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 await test.Service.CreateSending(pmode);
 
                 // Assert
-                await test.Source.Received().CreateSending(Arg.Is<SendingPmode>(x => x.Name == pmode.Name));
+                await test.Source.Received().CreateSending(Arg.Is<SendingBasePmode>(x => x.Name == pmode.Name));
             }
         }
 
@@ -310,10 +316,10 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 var test = Setup();
 
                 // Act
-                await test.Service.DeleteSending(SendingPmode.Name);
+                await test.Service.DeleteSending(SendingBasePmode.Name);
 
                 // Assert
-                await test.Source.Received().DeleteSending(Arg.Is(SendingPmode.Name));
+                await test.Source.Received().DeleteSending(Arg.Is(SendingBasePmode.Name));
             }
         }
 
@@ -327,7 +333,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Act & Assert
                 await Assert.ThrowsAsync(typeof(ArgumentNullException), () => test.Service.UpdateSending(null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => test.Service.UpdateSending(SendingPmode, null));
+                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => test.Service.UpdateSending(SendingBasePmode, null));
             }
 
             [Fact]
@@ -335,9 +341,9 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                var newPmode = new SendingPmode()
+                var newPmode = new SendingBasePmode()
                 {
-                    Name = SendingPmode.Name
+                    Name = SendingBasePmode.Name
                 };
 
                 // Act
@@ -349,16 +355,16 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                var newPmode = new SendingPmode()
+                var newPmode = new SendingBasePmode()
                 {
                     Name = "NEW"
                 };
 
                 // Act
-                await test.Service.UpdateSending(newPmode, SendingPmode.Name);
+                await test.Service.UpdateSending(newPmode, SendingBasePmode.Name);
 
                 // Assert
-                await test.Source.UpdateSending(Arg.Is<SendingPmode>(x => x.Name == "NEW"), Arg.Is(SendingPmode.Name));
+                await test.Source.UpdateSending(Arg.Is<SendingBasePmode>(x => x.Name == "NEW"), Arg.Is(SendingBasePmode.Name));
             }
 
             [Fact]
@@ -368,10 +374,10 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 var test = Setup();
 
                 // Act
-                await test.Service.UpdateSending(SendingPmode, SendingPmode.Name);
+                await test.Service.UpdateSending(SendingBasePmode, SendingBasePmode.Name);
 
                 // Assert
-                await test.Source.UpdateSending(Arg.Is<SendingPmode>(x => x.Name == "NEW"), Arg.Is(SendingPmode.Name));
+                await test.Source.UpdateSending(Arg.Is<SendingBasePmode>(x => x.Name == "NEW"), Arg.Is(SendingBasePmode.Name));
             }
         }
 
@@ -385,7 +391,7 @@ namespace Eu.EDelivery.AS4.Fe.Tests
 
                 // Act & Assert
                 await Assert.ThrowsAsync(typeof(ArgumentNullException), () => test.Service.UpdateReceiving(null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => test.Service.UpdateReceiving(ReceivingPmode, null));
+                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => test.Service.UpdateReceiving(ReceivingBasePmode, null));
             }
 
             [Fact]
@@ -393,9 +399,9 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                var newPmode = new ReceivingPmode()
+                var newPmode = new ReceivingBasePmode()
                 {
-                    Name = ReceivingPmode.Name
+                    Name = ReceivingBasePmode.Name
                 };
 
                 // Act
@@ -407,16 +413,16 @@ namespace Eu.EDelivery.AS4.Fe.Tests
             {
                 // Setup
                 var test = Setup();
-                var newPmode = new ReceivingPmode()
+                var newPmode = new ReceivingBasePmode()
                 {
                     Name = "NEW"
                 };
 
                 // Act
-                await test.Service.UpdateReceiving(newPmode, ReceivingPmode.Name);
+                await test.Service.UpdateReceiving(newPmode, ReceivingBasePmode.Name);
 
                 // Assert
-                await test.Source.UpdateReceiving(Arg.Is<ReceivingPmode>(x => x.Name == "NEW"), Arg.Is(ReceivingPmode.Name));
+                await test.Source.UpdateReceiving(Arg.Is<ReceivingBasePmode>(x => x.Name == "NEW"), Arg.Is(ReceivingBasePmode.Name));
             }
 
             [Fact]
@@ -426,11 +432,11 @@ namespace Eu.EDelivery.AS4.Fe.Tests
                 var test = Setup();
 
                 // Act
-                await test.Service.UpdateReceiving(ReceivingPmode, ReceivingPmode.Name);
+                await test.Service.UpdateReceiving(ReceivingBasePmode, ReceivingBasePmode.Name);
 
                 // Assert
-                await test.Source.UpdateReceiving(Arg.Is<ReceivingPmode>(x => x.Name == "NEW"), Arg.Is(ReceivingPmode.Name));
+                await test.Source.UpdateReceiving(Arg.Is<ReceivingBasePmode>(x => x.Name == "NEW"), Arg.Is(ReceivingBasePmode.Name));
             }
-        }
+        }       
     }
 }

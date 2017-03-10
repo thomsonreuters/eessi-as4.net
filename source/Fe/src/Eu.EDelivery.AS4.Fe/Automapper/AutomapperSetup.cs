@@ -11,7 +11,9 @@ namespace Eu.EDelivery.AS4.Fe.Automapper
     {
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
-            var assembliesToScan = AppDomain.CurrentDomain.GetAssemblies().ToArray();
+            var assembliesToScan = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(x => !x.FullName.StartsWith("Microsoft") && !x.FullName.StartsWith("System") && !x.IsDynamic)
+                .ToArray();
             var allTypes = assembliesToScan.SelectMany(a => a.ExportedTypes).ToArray();
             var profiles = allTypes
                 .Where(t => typeof(Profile).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()))

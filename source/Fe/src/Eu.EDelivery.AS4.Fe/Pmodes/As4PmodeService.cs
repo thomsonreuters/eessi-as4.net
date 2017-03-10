@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EnsureThat;
+using Eu.EDelivery.AS4.Fe.Monitor;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
@@ -9,10 +10,12 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
     public class As4PmodeService : IAs4PmodeService
     {
         private readonly IAs4PmodeSource source;
+        private readonly IMonitorService monitorService;
 
-        public As4PmodeService(IAs4PmodeSource source)
+        public As4PmodeService(IAs4PmodeSource source, IMonitorService monitorService)
         {
             this.source = source;
+            this.monitorService = monitorService;
         }
 
         public async Task<IEnumerable<string>> GetReceivingNames()
@@ -20,7 +23,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             return await source.GetReceivingNames();
         }
 
-        public async Task<ReceivingPmode> GetReceivingByName(string name)
+        public async Task<ReceivingBasePmode> GetReceivingByName(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             return await source.GetReceivingByName(name);
@@ -31,33 +34,33 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             return await source.GetSendingNames();
         }
 
-        public async Task<SendingPmode> GetSendingByName(string name)
+        public async Task<SendingBasePmode> GetSendingByName(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             return await source.GetSendingByName(name);
         }
 
-        public async Task CreateReceiving(ReceivingPmode pmode)
+        public async Task CreateReceiving(ReceivingBasePmode basePmode)
         {
-            EnsureArg.IsNotNull(pmode, nameof(pmode));
-            var exists = await source.GetReceivingByName(pmode.Name);
-            if (exists != null) throw new Exception($"Pmode with name {pmode.Name} already exists.");
-            await source.CreateReceiving(pmode);
+            EnsureArg.IsNotNull(basePmode, nameof(basePmode));
+            var exists = await source.GetReceivingByName(basePmode.Name);
+            if (exists != null) throw new Exception($"BasePmode with name {basePmode.Name} already exists.");
+            await source.CreateReceiving(basePmode);
         }
 
-        public async Task CreateSending(SendingPmode pmode)
+        public async Task CreateSending(SendingBasePmode basePmode)
         {
-            EnsureArg.IsNotNull(pmode, nameof(pmode));
-            var exists = await source.GetSendingByName(pmode.Name);
-            if (exists != null) throw new Exception($"Pmode with name {pmode.Name} already exists.");
-            await source.CreateSending(pmode);
+            EnsureArg.IsNotNull(basePmode, nameof(basePmode));
+            var exists = await source.GetSendingByName(basePmode.Name);
+            if (exists != null) throw new Exception($"BasePmode with name {basePmode.Name} already exists.");
+            await source.CreateSending(basePmode);
         }
 
         public async Task DeleteReceiving(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             var exists = await source.GetReceivingByName(name);
-            if (exists == null) throw new Exception($"Pmode with name {name} doesn't exist");
+            if (exists == null) throw new Exception($"BasePmode with name {name} doesn't exist");
             await source.DeleteReceiving(name);
         }
 
@@ -65,36 +68,41 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             var exists = await source.GetSendingByName(name);
-            if (exists == null) throw new Exception($"Pmode with name {name} doesn't exist");
+            if (exists == null) throw new Exception($"BasePmode with name {name} doesn't exist");
             await source.DeleteSending(name);
         }
 
-        public async Task UpdateSending(SendingPmode pmode, string originalName)
+        public async Task UpdateSending(SendingBasePmode basePmode, string originalName)
         {
-            EnsureArg.IsNotNull(pmode, nameof(pmode));
+            EnsureArg.IsNotNull(basePmode, nameof(basePmode));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
 
-            if (pmode.Name != originalName)
+            if (basePmode.Name != originalName)
             {
-                var newExists = await GetSendingByName(pmode.Name);
-                if (newExists != null) throw new Exception($"Pmode with {originalName} already exists");
+                var newExists = await GetSendingByName(basePmode.Name);
+                if (newExists != null) throw new Exception($"BasePmode with {originalName} already exists");
             }
 
-            await source.UpdateSending(pmode, originalName);
+            await source.UpdateSending(basePmode, originalName);
         }
 
-        public async Task UpdateReceiving(ReceivingPmode pmode, string originalName)
+        public async Task UpdateReceiving(ReceivingBasePmode basePmode, string originalName)
         {
-            EnsureArg.IsNotNull(pmode, nameof(pmode));
+            EnsureArg.IsNotNull(basePmode, nameof(basePmode));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
 
-            if (pmode.Name != originalName)
+            if (basePmode.Name != originalName)
             {
-                var newExists = await GetReceivingByName(pmode.Name);
-                if (newExists != null) throw new Exception($"Pmode with {originalName} already exists");
+                var newExists = await GetReceivingByName(basePmode.Name);
+                if (newExists != null) throw new Exception($"BasePmode with {originalName} already exists");
             }
 
-            await source.UpdateReceiving(pmode, originalName);
+            await source.UpdateReceiving(basePmode, originalName);
+        }
+
+        public Task<bool> ValidateSendingPmodes(string messageId, string destinationPmodeName)
+        {
+            return Task.FromResult(false);
         }
     }
 }

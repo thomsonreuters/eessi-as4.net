@@ -1,3 +1,11 @@
+import { ToDirectionPipe } from './todirection.pipe';
+import { ExceptionService } from './exception/exception.service';
+import { ExceptionStore } from './exception/exception.store';
+import { ExceptionComponent } from './exception/exception.component';
+import { MessageService } from './message/message.service';
+import { ErrorMessageComponent } from './errormessage/errormessage.component';
+import { MessageComponent } from './message/message.component';
+import { MessageStore } from './message/message.store';
 import { SortDirective } from './sort/sort.directive';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -9,20 +17,23 @@ import { As4ComponentsModule } from './../common/as4components.module';
 import { AuthenticationModule } from './../authentication/authentication.module';
 
 import { ROUTES } from './monitor.routes';
-import { InExceptionService } from './inexception/inexception.service';
-import { InExceptionComponent } from './inexception/inexception.component';
 import { FilterComponent } from './filter/filter.component';
 import { InExceptionStore } from './inexception/inexception.store';
 import { PagerComponent } from './pager/pager.component';
 import { ToNumberArrayPipe } from './numbertoarray.pipe';
+import { RelatedMessagesComponent } from './relatedmessages/relatedmessages.component';
 
 @NgModule({
     declarations: [
-        InExceptionComponent,
+        ExceptionComponent,
         FilterComponent,
         ToNumberArrayPipe,
         PagerComponent,
-        SortDirective
+        SortDirective,
+        MessageComponent,
+        ErrorMessageComponent,
+        RelatedMessagesComponent,
+        ToDirectionPipe
     ],
     imports: [
         AuthenticationModule,
@@ -33,8 +44,10 @@ import { ToNumberArrayPipe } from './numbertoarray.pipe';
         RouterModule.forChild(ROUTES)
     ],
     providers: [
-        InExceptionService,
-        InExceptionStore
+        MessageStore,
+        MessageService,
+        ExceptionStore,
+        ExceptionService
     ]
 })
 export class MonitorModule {

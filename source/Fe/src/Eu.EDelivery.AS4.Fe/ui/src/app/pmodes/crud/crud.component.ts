@@ -1,3 +1,5 @@
+import { RouterService } from './../../common/router.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Component, OnInit, OpaqueToken, Inject, Output, OnDestroy } from '@angular/core';
 
@@ -53,15 +55,42 @@ export class CrudComponent implements OnInit, OnDestroy {
     public actionType: string;
     public newName: string;
     private subscriptions: Subscription[] = new Array<Subscription>();
-    constructor(private dialogService: DialogService, @Inject(PMODECRUD_SERVICE) private crudService: ICrudPmodeService, private modalService: ModalService) {
-        this.form = this.crudService.getForm(null);
+    constructor(private _dialogService: DialogService, @Inject(PMODECRUD_SERVICE) private _crudService: ICrudPmodeService, private _modalService: ModalService, private _activatedRoute: ActivatedRoute,
+        private _router: Router, private _routerService: RouterService) {
+        this.form = this._crudService.getForm(null);
     }
     public ngOnInit() {
-        this.subscriptions.push(this.crudService.obsGetAll().subscribe((result) => this.pmodes = result));
-        this.subscriptions.push(this.crudService.obsGet().subscribe((result) => {
+        this.subscriptions.push(this._crudService
+            .obsGetAll()
+            .subscribe((result) => {
+                this.pmodes = result;
+                let pmodeQueryParam = this._activatedRoute.snapshot.params['pmode'];
+                if (!!!pmodeQueryParam) {
+                    return;
+                }
+                if (result.length === 0) {
+                    return;
+                }
+                // Validate that the requested pmode exists
+                let exists = result.find((search) => search === pmodeQueryParam);
+                if (!!!exists) {
+                    this._dialogService.message(`Pmode ${pmodeQueryParam} doesn't exist`);
+                    return;
+                }
+                this._crudService.get(pmodeQueryParam);
+            }));
+        this.subscriptions.push(this._crudService.obsGet().subscribe((result) => {
             this.currentPmode = result;
-            this.crudService.patchForm(this.form, result);
+            this._crudService.patchForm(this.form, result);
             this.form.markAsPristine();
+            if (!!!result) {
+                return;
+            }
+            let compareTo = this._activatedRoute.snapshot.queryParams['compareto'];
+            if (!!result && !!compareTo && compareTo !== result.hash) {
+                this._dialogService.error(`Pmode used in the message doesn't match anymore.`);
+            }
+            this._routerService.setCurrentValue(this._activatedRoute, result.name);
         }));
     }
     public ngOnDestroy() {
@@ -71,10 +100,10 @@ export class CrudComponent implements OnInit, OnDestroy {
         let select = () => {
             this.isNewMode = false;
             let lookupPmode = this.pmodes.find((pmode) => pmode === name);
-            this.crudService.get(name);
+            this._crudService.get(name);
         };
         if (this.form.dirty || this.isNewMode) {
-            this.dialogService
+            this._dialogService
                 .confirmUnsavedChanges()
                 .filter((result) => result)
                 .subscribe(() => {
@@ -96,20 +125,20 @@ export class CrudComponent implements OnInit, OnDestroy {
             this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode.name);
             this.currentPmode = undefined;
         }
-        this.crudService.patchForm(this.form, this.currentPmode);
+        this._crudService.patchForm(this.form, this.currentPmode);
         this.form.markAsPristine();
     }
     public delete() {
         if (!!!this.currentPmode) {
             return;
         }
-        this.dialogService
+        this._dialogService
             .deleteConfirm('pmode')
             .filter((result) => result)
-            .subscribe((result) => this.crudService.delete(this.currentPmode.name));
+            .subscribe((result) => this._crudService.delete(this.currentPmode.name));
     }
     public add() {
-        this.modalService
+        this._modalService
             .show('new-pmode')
             .filter((result) => result)
             .subscribe(() => {
@@ -121,7 +150,7 @@ export class CrudComponent implements OnInit, OnDestroy {
                 }
                 let newPmode: IPmode;
                 if (+this.actionType !== -1) {
-                    this.crudService
+                    this._crudService
                         .getByName(this.pmodes.find((name) => name === this.actionType))
                         .subscribe((existingPmode) => {
                             this.currentPmode = Object.assign({}, existingPmode);
@@ -131,30 +160,30 @@ export class CrudComponent implements OnInit, OnDestroy {
                         });
                     return;
                 }
-                this.currentPmode = this.crudService.getNew(this.newName);
+                this.currentPmode = this._crudService.getNew(this.newName);
                 this.afterAdd();
             });
     }
     public rename() {
-        this.dialogService
+        this._dialogService
             .prompt('Please enter a new name')
             .filter((result) => !!result)
             .subscribe((newName) => {
                 if (this.checkIfExists(newName)) {
                     return;
                 }
-                this.crudService.patchName(this.form, newName);
+                this._crudService.patchName(this.form, newName);
                 this.form.markAsDirty();
             });
     }
     public save() {
         if (this.form.invalid) {
-            this.dialogService.incorrectForm();
+            this._dialogService.incorrectForm();
             return;
         }
 
         if (this.isNewMode) {
-            this.crudService
+            this._crudService
                 .create(getRawFormValues(this.form))
                 .subscribe(() => {
                     this.isNewMode = false;
@@ -163,7 +192,7 @@ export class CrudComponent implements OnInit, OnDestroy {
             return;
         }
 
-        this.crudService
+        this._crudService
             .update(getRawFormValues(this.form), this.currentPmode.name)
             .subscribe(() => {
                 this.isNewMode = false;
@@ -173,14 +202,14 @@ export class CrudComponent implements OnInit, OnDestroy {
     private checkIfExists(name: string): boolean {
         let exists = this.pmodes.findIndex((pmode) => pmode.toLowerCase() === name.toLowerCase()) > -1;
         if (exists) {
-            this.dialogService.message(`Pmode with name ${name} already exists`);
+            this._dialogService.message(`Pmode with name ${name} already exists`);
         }
         return exists;
     }
     private afterAdd() {
         this.pmodes.push(this.newName);
         this.isNewMode = true;
-        this.crudService.patchForm(this.form, this.currentPmode);
+        this._crudService.patchForm(this.form, this.currentPmode);
         this.form.markAsDirty();
     }
 }

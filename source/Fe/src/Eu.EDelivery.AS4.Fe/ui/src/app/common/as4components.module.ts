@@ -1,3 +1,5 @@
+import { RouterService } from './router.service';
+import { ToDatePipe } from './../monitor/date.pipe';
 import { ClipboardModule } from 'ngx-clipboard';
 import { ClipboardComponent } from './clipboard/clipboard.component';
 import { RolesService } from './../authentication/roles.service';
@@ -37,6 +39,7 @@ import { FocusDirective } from './focus.directive';
 import { SelectDirective } from './selectdirective';
 import { spinnerErrorhandlerDecoratorFactory } from './spinner/spinnerhideerror.handler.factory';
 import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directive';
+import { ToNumberPipe } from './tonumber.pipe';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     let result = new AuthHttp(new AuthConfig(), http, options);
@@ -64,7 +67,9 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         SpinnerComponent,
         ThumbprintInputComponent,
         ClipboardComponent,
-        DateTimePickerDirective
+        DateTimePickerDirective,
+        ToDatePipe,
+        ToNumberPipe
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -74,6 +79,7 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         SpinnerService,
         RolesService,
         ClipboardModule,
+        RouterService,
         // {
         //     provide: ErrorHandler,
         //     useFactory: errorHandlerFactory,
@@ -116,7 +122,9 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         TextMaskModule,
         ThumbprintInputComponent,
         ClipboardComponent,
-        DateTimePickerDirective
+        DateTimePickerDirective,
+        ToDatePipe,
+        ToNumberPipe
     ],
     imports: [
         AuthenticationModule,

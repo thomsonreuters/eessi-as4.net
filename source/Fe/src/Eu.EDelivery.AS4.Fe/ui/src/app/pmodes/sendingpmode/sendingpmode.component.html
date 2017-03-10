@@ -41,7 +41,7 @@
                     <input type="text" formControlName="url" />
                 </as4-input>
                 <as4-input label="Use chunking" formGroupName="protocol" runtimeTooltip="protocol.usechunking">
-                    <input type="checkbox" formControlName="useChunking"/>
+                    <input type="checkbox" formControlName="useChunking" />
                 </as4-input>
                 <as4-input label="Use http compression" formGroupName="protocol" runtimeTooltip="protocol.usehttpcompression">
                     <input type="checkbox" formControlName="useHttpCompression" />
@@ -166,9 +166,36 @@
                     <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyfindvalue">
                         <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
                     </as4-input>
-                    <as4-input label="Key transport" runtimeTooltip="security.encryption.keytransport">
-                        <input type="text" formControlName="keyTransport" />
-                    </as4-input>
+                    <div formGroupName="keyTransport">
+                        <as4-input label="Transport algorithm" runtimeTooltip="security.encruption.keytransport.transportAlgorithm">
+                            <select formControlName="transportAlgorithm">
+                                <option value="XmlEncNamespaceUrl">XmlEncNamespaceUrl</option>
+                                <option value="XmlEncSHA512Url">XmlEncSHA512Url</option>
+                                <option value="XmlEncSHA256Url">XmlEncSHA256Url</option>
+                                <option value="XmlEncAES192KeyWrapUrl">XmlEncAES192KeyWrapUrl</option>
+                                <option value="XmlEncAES256KeyWrapUrl">XmlEncAES256KeyWrapUrl</option>
+                                <option value="XmlEncTripleDESKeyWrapUrl">XmlEncTripleDESKeyWrapUrl</option>
+                                <option value="XmlEncRSAOAEPUrl">XmlEncRSAOAEPUrl</option>
+                                <option value="XmlEncAES128KeyWrapUrl">XmlEncAES128KeyWrapUrl</option>
+                                <option value="XmlEncAES256Url">XmlEncAES256Url</option>
+                                <option value="XmlEncAES128Url">XmlEncAES128Url</option>
+                                <option value="XmlEncTripleDESUrl">XmlEncTripleDESUrl</option>
+                                <option value="XmlEncDESUrl">XmlEncDESUrl</option>
+                                <option value="XmlEncEncryptedKeyUrl">XmlEncEncryptedKeyUrl</option>
+                                <option value="XmlEncElementContentUrl">XmlEncElementContentUrl</option>
+                                <option value="XmlEncElementUrl">XmlEncElementUrl</option>
+                                <option value="XmlEncAES192Url">XmlEncAES192Url</option>
+                            </select>
+                        </as4-input>
+                        <as4-input label="Digest algorithm" runtimeTooltip="security.encryption.keytransport.digestAlgorithm">
+                            <select formControlName="digestAlgorithm">
+                                <option value="XmlEncSHA1Url">XmlEncSHA1Url</option>
+                            </select>
+                        </as4-input>
+                        <as4-input label="Mgf algorithm" runtimeTooltip="security.encryption.keytransport.mgfAlgorithm">
+                            <input type="text" formControlName="mgfAlgorithm" />
+                        </as4-input>
+                    </div>
                 </div>
             </div>
             <div tabitem title="Reliability" formGroupName="reliability" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.reliability').valid">

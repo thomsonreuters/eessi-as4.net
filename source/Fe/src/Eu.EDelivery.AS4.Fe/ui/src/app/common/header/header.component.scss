@@ -1,5 +1,34 @@
-.logo {
-    img {
-        width: 59%;
+body.sidebar-collapse {
+    .main-header {
+        .logo {
+            width: 50px;
+            padding-top: 15px;
+            padding-left: 0px;
+            padding-right: 0px;
+            padding-bottom: 10px;
+            img:not(.on-collapse) {
+                display: none;
+            }
+            img.on-collapse {
+                display: block;
+                width: 46px;
+                height: auto;
+                padding-left: 3px;
+            }
+        }
+    }
+}
+
+body:not(.sidebar-collapse) {
+    .main-header {
+        .logo {
+            img.on-collapse {
+                display: none;
+            }
+            img:not(.on-collapse) {
+                width: auto;
+                height: 48px;
+            }
+        }
     }
 }

@@ -1,8 +1,8 @@
 .nav-tabs {
     li.invalid {
-        border-top-color: red;
+        border-top-color: red !important;
     }
     li.active.invalid {
-        border-top-color: red;
+        border-top-color: red !important;
     }
 }

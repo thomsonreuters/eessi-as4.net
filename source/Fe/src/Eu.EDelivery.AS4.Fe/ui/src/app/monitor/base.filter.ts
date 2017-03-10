@@ -1,13 +1,14 @@
+import { MessageFilter } from './message/message.filter';
 import { URLSearchParams } from '@angular/http';
 import { Params } from '@angular/router';
 import moment from 'moment';
 
 import { ISortDictionary } from './sortdictionary.interface';
-import { getIsDate } from './inexception/isDate.decorator';
+import { getIsDate } from './exception/isDate.decorator';
 
 export class BaseFilter {
     public page: number = 1;
-    public sort: ISortDictionary = {};
+    public direction: number = 0;
     public toUrlParams(): URLSearchParams {
         let params = new URLSearchParams();
         Object.keys(this).forEach((param) => {
@@ -26,6 +27,9 @@ export class BaseFilter {
             let isDate = !!getIsDate(this, param);
             if (isDate) {
                 this[param] = moment(params[param]).toDate();
+                return;
+            } else if (typeof(this[param]) === 'number')  {
+                this[param] = +params[param];
                 return;
             }
             this[param] = params[param];

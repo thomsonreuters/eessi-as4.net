@@ -1,3 +1,4 @@
+import { RouterTestingModule } from '@angular/router/testing';
 import { FormsModule, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import {
@@ -47,7 +48,8 @@ describe('Pmode crud', () => {
         ],
         imports: [
             ReactiveFormsModule,
-            As4ComponentsModule
+            As4ComponentsModule,
+            RouterTestingModule
         ],
         providers: [
             CrudComponent,

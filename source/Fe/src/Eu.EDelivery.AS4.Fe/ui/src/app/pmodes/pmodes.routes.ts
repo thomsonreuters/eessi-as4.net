@@ -14,7 +14,9 @@ export const ROUTES: Routes = [
                 path: 'pmodes', children: [
                     { path: '', pathMatch: 'full', redirectTo: 'receiving', canDeactivate: [CanDeactivateGuard] },
                     { path: 'receiving', component: ReceivingPmodeComponent, data: { title: 'Receiving', mode: 'receiving' }, canDeactivate: [CanDeactivateGuard], canActivate: [MustBeAuthorizedGuard] },
+                    { path: 'receiving/:pmode', component: ReceivingPmodeComponent, data: { title: 'Receiving', mode: 'receiving', nomenu: true }, canDeactivate: [CanDeactivateGuard], canActivate: [MustBeAuthorizedGuard] },
                     { path: 'sending', component: SendingPmodeComponent, data: { title: 'Sending', mode: 'sending' }, canDeactivate: [CanDeactivateGuard] },
+                    { path: 'sending/:pmode', component: SendingPmodeComponent, data: { title: 'Sending', mode: 'sending', nomenu: true }, canDeactivate: [CanDeactivateGuard] },
                 ],
                 data: { title: 'Pmodes' },
                 canActivate: [MustBeAuthorizedGuard]

@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Throws_Exception_When_Agent_With_Name_Already_Exists()
             {
                 // Setup
-                var newAgent = new SettingsAgent {Name = SubmitAgentName};
+                var newAgent = new SettingsAgent { Name = SubmitAgentName };
 
                 var service = Setup().settingsService;
 

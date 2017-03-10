@@ -30,7 +30,7 @@ export const ROUTES: Routes = [
                         ]
                     }
                 ],
-                data: { title: 'Settings' },
+                data: { title: 'Settings', icon: 'fa-toggle-on' },
                 canDeactivate: [CanDeactivateGuard]
             }
         ],
