@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
@@ -23,13 +24,15 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.NonRepudiationInformation, src => src.MapFrom(t => t.Receipt.NonRepudiationInformation))
                 .AfterMap(((message, receipt) =>
                 {
-                    if (message.Receipt.Any?.FirstOrDefault()?.LocalName.Contains("NonRepudiationInformation") == true)
+                    if (message.Receipt.Any?.FirstOrDefault()?.LocalName.IndexOf("NonRepudiationInformation", StringComparison.OrdinalIgnoreCase) < 0)
                     {
-                        var serializer = new XmlSerializer(typeof(Xml.NonRepudiationInformation));
-                        object deserialize = serializer.Deserialize(new XmlNodeReader(message.Receipt.Any.FirstOrDefault()));
-                        receipt.NonRepudiationInformation = AS4Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
+                        return;
                     }
-                }));
+                    var serializer = new XmlSerializer(typeof(Xml.NonRepudiationInformation));
+                    object deserialize = serializer.Deserialize(new XmlNodeReader(message.Receipt.Any.FirstOrDefault()));
+                    receipt.NonRepudiationInformation = AS4Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
+                }))
+                .ForAllOtherMembers(t => t.Ignore());
         }
     }
 }

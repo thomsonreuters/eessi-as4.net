@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 });
         }
 
-        private void MapAgreementReference(Model.Core.CollaborationInfo modelInfo, Xml.CollaborationInfo xmlInfo)
+        private static void MapAgreementReference(Model.Core.CollaborationInfo modelInfo, Xml.CollaborationInfo xmlInfo)
         {
             if (!IsAgreementReferenceEmpty(modelInfo)) return;
 
@@ -103,13 +103,13 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForAllOtherMembers(x => x.Ignore());
         }
 
-        private void AssignAction(RoutingInputUserMessage xmlUserMessage)
+        private static void AssignAction(RoutingInputUserMessage xmlUserMessage)
         {
             if (xmlUserMessage.CollaborationInfo?.Action != null)
                 xmlUserMessage.CollaborationInfo.Action = $"{xmlUserMessage.CollaborationInfo.Action}.response";
         }
 
-        private void AssignMpc(RoutingInputUserMessage xmlUserMessage)
+        private static void AssignMpc(RoutingInputUserMessage xmlUserMessage)
         {
             if (string.IsNullOrEmpty(xmlUserMessage.mpc))
                 xmlUserMessage.mpc = Constants.Namespaces.EbmsDefaultMpc;

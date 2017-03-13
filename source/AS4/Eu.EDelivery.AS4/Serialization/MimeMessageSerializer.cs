@@ -170,9 +170,7 @@ namespace Eu.EDelivery.AS4.Serialization
             CancellationToken cancellationToken)
         {
             PreConditions(inputStream, contentType);
-
-            // I'm not 100% certain this doesn't cause a leak. 
-            // It shouldn't because we only prefix it with a MemoryStream.
+            
             using (var memoryStream = new MemoryStream(
                 Encoding.UTF8.GetBytes($"Content-Type: {contentType}\r\n\r\n")))
             {
