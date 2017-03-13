@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
             var key = new RSACryptoServiceProvider(cspParams);
-            
+
             string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
             key.FromXmlString(keyXml);
 
@@ -235,7 +235,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             return xmlSignature;
         }
-        
+
         private static bool VerifyCertificate(X509Certificate2 certificate, out X509ChainStatus[] errorMessages)
         {
             using (X509Chain chain = new X509Chain())
@@ -276,6 +276,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return x => x?.Uri != null && x.Uri.StartsWith(CidPrefix) && x.Uri.Length > CidPrefix.Length;
         }
 
+        private static readonly FieldInfo RefTargetTypeField = typeof(CryptoReference).GetField("m_refTargetType", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo RefTargetField = typeof(CryptoReference).GetField("m_refTarget", BindingFlags.Instance | BindingFlags.NonPublic);
+
         /// <summary>
         /// Sets the stream of a SignedInfo reference.
         /// </summary>
@@ -287,14 +290,17 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             // but this causes problems with cid: references, since they're not part of the original stream.
             // If performance is slow on this, we can investigate the Delegate.CreateDelegate method to speed things up, 
             // however keep in mind that the reference object changes with every call, so we can't just keep the same delegate and call that.
-            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            FieldInfo fieldInfo = typeof(CryptoReference).GetField("m_refTargetType", bindingFlags);
 
-            const int streamReferenceTargetType = 0;
-            fieldInfo?.SetValue(reference, streamReferenceTargetType);
+            if (RefTargetTypeField != null)
+            {
+                const int streamReferenceTargetType = 0;
+                RefTargetTypeField.SetValue(reference, streamReferenceTargetType);
+            }
 
-            fieldInfo = typeof(CryptoReference).GetField("m_refTarget", bindingFlags);
-            fieldInfo?.SetValue(reference, new NonCloseableStream(attachment.Content));
+            if (RefTargetField != null)
+            {
+                RefTargetField.SetValue(reference, new NonCloseableStream(attachment.Content));
+            }            
         }
 
         private static void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
@@ -313,11 +319,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="reference"></param>
         private static void ResetReferenceStreamPosition(CryptoReference reference)
         {
-            FieldInfo fieldInfo = typeof(CryptoReference).GetField(
-                "m_refTarget",
-                BindingFlags.Instance | BindingFlags.NonPublic);
-            if (fieldInfo == null) return;
-            var referenceStream = fieldInfo.GetValue(reference) as Stream;
+            if (RefTargetField == null)
+            {
+                return;
+            }
+            
+            var referenceStream = RefTargetField.GetValue(reference) as Stream;
 
             Stream streamToWorkOn = referenceStream;
             if (streamToWorkOn != null)

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Signing;
@@ -11,6 +12,7 @@ namespace Eu.EDelivery.AS4.Security.Repositories
     /// <summary>
     /// Repository that updates the Attachment <see cref="Reference"/>
     /// </summary>
+    [Obsolete("This class is never used.")]
     public class AttachmentReferenceRepository
     {
         private readonly Reference _reference;
