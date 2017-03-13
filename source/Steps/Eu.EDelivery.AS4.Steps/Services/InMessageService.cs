@@ -82,14 +82,17 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithPModeString(AS4XmlSerializer.Serialize(as4Message.ReceivingPMode))
                 .Build(cancellationToken);
 
-            if (!NeedUserMessageBeDelivered(as4Message.ReceivingPMode, userMessage)) return inMessage;
-            AddOperationDelivered(inMessage);
+            if (NeedUserMessageBeDelivered(as4Message.ReceivingPMode, userMessage))
+            {
+                AddOperationDelivered(inMessage);
+            }
+
 
             return inMessage;
         }
 
         private static bool NeedUserMessageBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
-        {           
+        {
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
 
