@@ -58,6 +58,16 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return this;
         }
 
+        public ErrorBuilder WithOriginalAS4Message(AS4Message message)
+        {
+            if (message.SendingPMode.MessagePackaging.IsMultiHop)
+            {
+                _errorMessage.RelatedUserMessage = message.PrimaryUserMessage;
+            }
+
+            return this;
+        }
+
         private IList<ErrorDetail> CreateErrorDetails(AS4Exception exception)
         {
             var errorDetails = new List<ErrorDetail>();

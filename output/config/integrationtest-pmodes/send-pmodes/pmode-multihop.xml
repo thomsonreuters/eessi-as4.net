@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>pmode-multihop</Id>
+  <AllowOverride>false</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <PushConfiguration>
+    <Protocol>
+      <Url>http://localhost:6060/msh</Url>
+      <UseChunking>false</UseChunking>
+      <UseHttpCompression>false</UseHttpCompression>
+    </Protocol>
+    <TlsConfiguration>
+      <IsEnabled>false</IsEnabled>
+      <TlsVersion>Tls12</TlsVersion>
+      <ClientCertificateReference/>
+    </TlsConfiguration>
+  </PushConfiguration>
+  <PullConfiguration>
+    <SubChannel />
+  </PullConfiguration>
+  <Reliability>
+    <ReceptionAwareness>
+      <IsEnabled>false</IsEnabled>
+      <RetryCount>5</RetryCount>
+      <RetryInterval />
+    </ReceptionAwareness>
+  </Reliability>
+  <ReceiptHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod />
+  </ReceiptHandling>
+  <ErrorHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod />
+  </ErrorHandling>
+  <ExceptionHandling>
+    <NotifyMessageProducer>false</NotifyMessageProducer>
+    <NotifyMethod />
+  </ExceptionHandling>
+  <Security>
+    <Signing>
+      <IsEnabled>true</IsEnabled>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <PrivateKeyFindValue>PartyA</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </Signing>
+    <Encryption>
+      <IsEnabled>false</IsEnabled>
+    </Encryption>
+  </Security>
+  <MessagePackaging>
+    <UseAS4Compression>true</UseAS4Compression>
+    <IsMultiHop>true</IsMultiHop>
+    <IncludePModeId>true</IncludePModeId>
+    <CollaborationInfo>
+      <Service>
+        <Name>demo:service</Name>
+      </Service>
+      <Action>demo:action:send</Action>
+    </CollaborationInfo>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:holodeckb2b:example:accesspoint:B</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+    <MessageProperties>
+      <IsMultiHop>true</IsMultiHop>
+      <MessageProperty>
+        <Name>OriginalSender</Name>
+        <Value>organization:A1</Value>
+      </MessageProperty>
+      <MessageProperty>
+        <Name>FinalRecipient</Name>
+        <Value>organization:A2</Value>
+      </MessageProperty>
+    </MessageProperties>
+  </MessagePackaging>
+</PMode>

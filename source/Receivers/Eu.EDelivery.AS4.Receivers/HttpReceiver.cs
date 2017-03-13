@@ -202,7 +202,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             if (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty)
             {
-                context.Response.StatusCode = 202;
+                context.Response.StatusCode = (int)HttpStatusCode.Accepted;
                 this._logger.Info("Empty Http Body is send");
                 return;
             }

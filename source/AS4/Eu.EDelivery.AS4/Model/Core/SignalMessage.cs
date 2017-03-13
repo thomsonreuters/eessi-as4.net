@@ -15,5 +15,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             return string.Empty;
         }
+
+        /// <summary>
+        /// Contains the UserMessage for which this is a signalmessage.
+        /// In MultiHop scenario's, we'll need to make use of this.
+        /// </summary>
+        [XmlIgnore]
+        public UserMessage RelatedUserMessage { get; set; }
     }
 }

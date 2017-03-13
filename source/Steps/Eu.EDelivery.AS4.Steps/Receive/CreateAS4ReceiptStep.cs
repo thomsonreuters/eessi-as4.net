@@ -58,6 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             try
             {
                 AS4Message receiptMessage = CreateReceiptAS4Message();
+                
                 AssignPModesToReceiptAS4Message(receiptMessage);
                 this._internalMessage = new InternalMessage(receiptMessage);
             }
@@ -105,7 +106,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{this._internalMessage.Prefix} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
                 receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
             }
-            else receipt.UserMessage = this._originalAS4Message.PrimaryUserMessage;
+            
+            // If the receipt should not contain NonRepudiationInformation, or the 
+            // Receipt is a Receipt on a MultihopMessage, then we'll need the original
+            // UserMessage.
+            if( this._sendPMode.MessagePackaging.IsMultiHop )
+            {
+                receipt.RelatedUserMessage = this._originalAS4Message.PrimaryUserMessage;
+            }
         }
 
         private NonRepudiationInformation CreateNonRepudiationInformation()
