@@ -24,13 +24,20 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.NonRepudiationInformation, src => src.MapFrom(t => t.Receipt.NonRepudiationInformation))
                 .AfterMap(((message, receipt) =>
                 {
-                    if (message.Receipt.Any?.FirstOrDefault()?.LocalName.IndexOf("NonRepudiationInformation", StringComparison.OrdinalIgnoreCase) < 0)
+                    if (message.Receipt.Any != null)
                     {
-                        return;
+                        var firstElement = message.Receipt.Any.FirstOrDefault();
+
+                        if (firstElement != null &&
+                            firstElement.LocalName.IndexOf("NonRepudiationInformation", StringComparison.OrdinalIgnoreCase) > -1)
+                        {
+                            var serializer = new XmlSerializer(typeof(Xml.NonRepudiationInformation));
+                            object deserialize = serializer.Deserialize(new XmlNodeReader(firstElement));
+
+                            receipt.NonRepudiationInformation =
+                                AS4Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
+                        }
                     }
-                    var serializer = new XmlSerializer(typeof(Xml.NonRepudiationInformation));
-                    object deserialize = serializer.Deserialize(new XmlNodeReader(message.Receipt.Any.FirstOrDefault()));
-                    receipt.NonRepudiationInformation = AS4Mapper.Map<Model.Core.NonRepudiationInformation>(deserialize);
                 }))
                 .ForAllOtherMembers(t => t.Ignore());
         }
