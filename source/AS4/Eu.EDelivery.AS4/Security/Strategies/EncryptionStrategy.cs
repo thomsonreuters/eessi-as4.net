@@ -43,6 +43,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private AS4EncryptedKey _as4EncryptedKey;
 
+        public const string XmlEncRSAOAEPUrlWithMgf = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
+
         public const string XmlEncSHA1Url = "http://www.w3.org/2000/09/xmldsig#sha1";
 
         /// <summary>

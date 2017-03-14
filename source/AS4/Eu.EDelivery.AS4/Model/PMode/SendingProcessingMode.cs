@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public KeyEncryption()
         {
-            TransportAlgorithm = EncryptedXml.XmlEncRSAOAEPUrl;
+            TransportAlgorithm = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
             DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
             MgfAlgorithm = null;
         }
