@@ -243,7 +243,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var message = new InternalMessage()
                 {
                     AS4Message = as4Message,
-                    Exception = new AS4Exception("AS4 Multihop Error test")
+                    Exception = AS4ExceptionBuilder.WithDescription("AS4 Multihop Error test").WithErrorCode(ErrorCode.Ebms0103).Build()
                 };
 
                 // Create a receipt for this message.
@@ -289,7 +289,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.Equal(as4Message.PrimaryUserMessage.Receiver.Role, routingInput.UserMessage.PartyInfo.From.Role);
                 Assert.Equal(as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id, routingInput.UserMessage.PartyInfo.From.PartyId.First().Value);
             }
-           
+
             private static AS4Message CreateAs4Message(SendingProcessingMode pmode)
             {
                 var sender = new Party("sender", new PartyId("senderId"));
