@@ -112,15 +112,20 @@ namespace Eu.EDelivery.AS4.Watchers
             if (key != null) this._pmodes.TryRemove(key, out pmode);
         }
 
+        private readonly object _cacheLock = new object();
+
         private void AddOrUpdateConfiguredPMode(string fullPath)
         {
-            if (_fileEventCache.Contains(fullPath))
+            lock (_cacheLock)
             {
-                LogManager.GetCurrentClassLogger().Trace($"PMode {fullPath} has already been handled.");
-                return;
-            }
+                if (_fileEventCache.Contains(fullPath))
+                {
+                    LogManager.GetCurrentClassLogger().Trace($"PMode {fullPath} has already been handled.");
+                    return;
+                }
 
-            _fileEventCache.Add(fullPath, fullPath, _policy);
+                _fileEventCache.Add(fullPath, fullPath, _policy);
+            }
 
             IPMode pmode = TryDeserialize(fullPath);
             if (pmode == null)
@@ -164,8 +169,32 @@ namespace Eu.EDelivery.AS4.Watchers
             }
         }
 
+        private static bool IsFileLocked(string path)
+        {
+            try
+            {
+                using (File.Open(path, FileMode.Open, FileAccess.Read))
+                {
+                    return false;
+                }
+            }
+            catch (IOException)
+            {
+                return true;
+            }
+        }
+
         private static T Deserialize(string path)
         {
+            int retryCount = 0;
+
+            while (IsFileLocked(path) && retryCount < 10)
+            {
+                // Wait till the filelock is released ...
+                System.Threading.Thread.Sleep(50);
+                retryCount++;
+            }
+
             using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
                 var serializer = new XmlSerializer(typeof(T));

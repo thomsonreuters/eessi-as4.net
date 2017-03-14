@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
@@ -147,11 +148,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return;
             }
 
+            _logger.Info("Adding Client TLS Certificate to Http Request.");
+
             ClientCertificateReference certReference = configuration.ClientCertificateReference;
             X509Certificate2 certificate = this._repository
                 .GetCertificate(certReference.ClientCertificateFindType, certReference.ClientCertificateFindValue);
 
-            request.ClientCertificates.Add(certificate);
+            if (certificate == null)
+            {
+                throw new ConfigurationErrorsException($"The Client TLS Certificate could not be found (FindType:{certReference.ClientCertificateFindType}/FindValue:{certReference.ClientCertificateFindValue})");
+            }
+            else
+            {
+                request.ClientCertificates.Add(certificate);
+            }
         }
 
         private async Task TryHandleHttpRequestAsync(WebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -203,13 +213,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
 
         private async Task<StepResult> PrepareStepResult(HttpWebResponse webResponse, InternalMessage internalMessage, CancellationToken cancellationToken)
-        {            
+        {
             internalMessage.AS4Message = this._originalAS4Message;
 
             if (webResponse == null || webResponse.StatusCode == HttpStatusCode.Accepted)
             {
                 internalMessage.AS4Message.SignalMessages.Clear();
-         
+
                 this._logger.Info("Empty Soap Body is returned, no further action is needed");
                 return await StepResult.SuccessAsync(internalMessage);
             }
