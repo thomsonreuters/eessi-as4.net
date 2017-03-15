@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.Entities
     /// <summary>
     /// AS4 Message Entity
     /// </summary>
-    public class MessageEntity : Entity
+    public abstract class MessageEntity : Entity
     {
         public string EbmsMessageId { get; set; }
         public string EbmsRefToMessageId { get; set; }
@@ -22,8 +22,8 @@ namespace Eu.EDelivery.AS4.Entities
         [Column("Operation")]
         public string OperationString
         {
-            get { return this.Operation.ToString(); }
-            set { this.Operation = (Operation)Enum.Parse(typeof(Operation), value, true); }
+            get { return Operation.ToString(); }
+            set { Operation = (Operation)Enum.Parse(typeof(Operation), value, true); }
         }
 
         public DateTimeOffset InsertionTime { get; set; }
@@ -35,22 +35,25 @@ namespace Eu.EDelivery.AS4.Entities
         [Column("MEP")]
         public string MEPString
         {
-            get { return this.MEP.ToString(); }
-            set { this.MEP = (MessageExchangePattern) Enum.Parse(typeof(MessageExchangePattern), value, true); }
+            get { return MEP.ToString(); }
+            set { MEP = (MessageExchangePattern)Enum.Parse(typeof(MessageExchangePattern), value, true); }
         }
 
         [Column("EbmsMessageType")]
         public string EbmsMessageTypeString
         {
-            get { return this.EbmsMessageType.ToString(); }
-            set { this.EbmsMessageType = (MessageType)Enum.Parse(typeof(MessageType), value, true); }
+            get { return EbmsMessageType.ToString(); }
+            set { EbmsMessageType = (MessageType)Enum.Parse(typeof(MessageType), value, true); }
         }
 
         [Column("ExceptionType")]
         public string ExceptionTypeString
         {
-            get { return this.ExceptionType.ToString(); }
-            set { this.ExceptionType = (ExceptionType)Enum.Parse(typeof(ExceptionType), value, true); }
+            get { return ExceptionType.ToString(); }
+            set { ExceptionType = (ExceptionType)Enum.Parse(typeof(ExceptionType), value, true); }
         }
+
+        [Column("Status")]
+        public abstract string StatusString { get; set; }
     }
 }

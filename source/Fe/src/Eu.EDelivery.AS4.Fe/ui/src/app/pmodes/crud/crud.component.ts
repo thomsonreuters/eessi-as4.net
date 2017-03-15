@@ -148,7 +148,6 @@ export class CrudComponent implements OnInit, OnDestroy {
                 if (!!!this.newName) {
                     return;
                 }
-                let newPmode: IPmode;
                 if (+this.actionType !== -1) {
                     this._crudService
                         .getByName(this.pmodes.find((name) => name === this.actionType))

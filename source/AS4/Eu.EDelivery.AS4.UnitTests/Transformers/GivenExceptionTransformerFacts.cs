@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenMessageIsNotSupportedWithReceivedMessageEntityAsync()
             {
                 // Arrange
-                var messageEntity = new MessageEntity();
+                var messageEntity = new InMessage();
                 var receivedMessage = new ReceivedEntityMessage(messageEntity);
                 var transformer = new ExceptionTransformer();
                 // Act / Assert

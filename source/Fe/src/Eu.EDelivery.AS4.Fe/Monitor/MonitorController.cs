@@ -14,31 +14,17 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     }
 
     [HttpGet]
-    [Route("inexceptions")]
-    public async Task<IActionResult> GetInExceptions(InExceptionFilter filter)
+    [Route("exceptions")]
+    public async Task<IActionResult> GetInExceptions(ExceptionFilter filter)
     {
-      return new OkObjectResult(await monitorService.GetInExceptions(filter));
+      return new OkObjectResult(await monitorService.GetExceptions(filter));
     }
 
     [HttpGet]
-    [Route("outexceptions")]
-    public async Task<IActionResult> GetOutExceptions(OutExceptionFilter filter)
+    [Route("messages")]
+    public async Task<IActionResult> GetMessages(MessageFilter filter)
     {
-      return new OkObjectResult(await monitorService.GetOutExceptions(filter));
-    }
-
-    [HttpGet]
-    [Route("inmessages")]
-    public async Task<IActionResult> GetInMessages(InMessageFilter filter)
-    {
-      return new OkObjectResult(await monitorService.GetInMessages(filter));
-    }
-
-    [HttpGet]
-    [Route("outmessages")]
-    public async Task<IActionResult> GetOutMessages(OutMessageFilter filter)
-    {
-      return new OkObjectResult(await monitorService.GetOutMessages(filter));
+      return new OkObjectResult(await monitorService.GetMessages(filter));
     }
 
     [HttpGet]

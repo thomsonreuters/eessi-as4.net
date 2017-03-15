@@ -40,6 +40,10 @@ import { SelectDirective } from './selectdirective';
 import { spinnerErrorhandlerDecoratorFactory } from './spinner/spinnerhideerror.handler.factory';
 import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directive';
 import { ToNumberPipe } from './tonumber.pipe';
+import { MultiSelectDirective } from './multiselect/multiselect.directive';
+import { ContainsPipe } from './contains.pipe';
+
+import { Select2Module } from 'ng2-select2';
 
 export function authHttpServiceFactory(http: Http, options: RequestOptions) {
     let result = new AuthHttp(new AuthConfig(), http, options);
@@ -69,7 +73,9 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ClipboardComponent,
         DateTimePickerDirective,
         ToDatePipe,
-        ToNumberPipe
+        ToNumberPipe,
+        MultiSelectDirective,
+        ContainsPipe
     ],
     providers: [
         MustBeAuthorizedGuard,
@@ -124,7 +130,9 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ClipboardComponent,
         DateTimePickerDirective,
         ToDatePipe,
-        ToNumberPipe
+        ToNumberPipe,
+        MultiSelectDirective,
+        ContainsPipe
     ],
     imports: [
         AuthenticationModule,
@@ -133,7 +141,8 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ReactiveFormsModule,
         FormsModule,
         TextMaskModule,
-        ClipboardModule
+        ClipboardModule,
+        Select2Module
     ]
 })
 export class As4ComponentsModule {

@@ -193,6 +193,18 @@
       "description": ""
     }
   },
+  "keyencryption": {
+    "description": "",
+    "transportalgorithm": {
+      "description": ""
+    },
+    "digestalgorithm": {
+      "description": ""
+    },
+    "mgfalgorithm": {
+      "description": ""
+    }
+  },
   "sendmessagepackaging": {
     "description": "",
     "mpc": {

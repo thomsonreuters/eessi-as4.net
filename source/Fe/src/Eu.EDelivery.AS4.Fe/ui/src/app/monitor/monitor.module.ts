@@ -22,6 +22,7 @@ import { InExceptionStore } from './inexception/inexception.store';
 import { PagerComponent } from './pager/pager.component';
 import { ToNumberArrayPipe } from './numbertoarray.pipe';
 import { RelatedMessagesComponent } from './relatedmessages/relatedmessages.component';
+import { Select2Module } from 'ng2-select2';
 
 @NgModule({
     declarations: [
@@ -41,7 +42,8 @@ import { RelatedMessagesComponent } from './relatedmessages/relatedmessages.comp
         FormsModule,
         CommonModule,
         ClipboardModule,
-        RouterModule.forChild(ROUTES)
+        RouterModule.forChild(ROUTES),
+        Select2Module
     ],
     providers: [
         MessageStore,

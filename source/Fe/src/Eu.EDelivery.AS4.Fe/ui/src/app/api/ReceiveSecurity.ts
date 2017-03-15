@@ -18,7 +18,7 @@ export class ReceiveSecurity {
 	}
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ReceiveSecurity) {
-		SigningVerification.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_signingVerification), current && current.signingVerification);
-		Decryption.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_decryption), current && current.decryption);
+		SigningVerification.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_signingVerification), current && current.signingVerification || new SigningVerification());
+		Decryption.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_decryption), current && current.decryption || new Decryption());
 	}
 }

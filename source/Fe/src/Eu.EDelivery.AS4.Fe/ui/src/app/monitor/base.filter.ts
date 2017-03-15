@@ -8,7 +8,7 @@ import { getIsDate } from './exception/isDate.decorator';
 
 export class BaseFilter {
     public page: number = 1;
-    public direction: number = 0;
+    public direction: number[] = [0, 1];
     public toUrlParams(): URLSearchParams {
         let params = new URLSearchParams();
         Object.keys(this).forEach((param) => {
@@ -16,6 +16,11 @@ export class BaseFilter {
                 return;
             } else if (this[param] instanceof Date) {
                 params.append(param, moment(this[param]).toISOString());
+            } else if (this[param] instanceof Array) {
+                let result = <any[]>this[param];
+                result.forEach((value) => {
+                    params.append(param, value);
+                });
             } else {
                 params.append(param, this[param]);
             }
@@ -28,8 +33,11 @@ export class BaseFilter {
             if (isDate) {
                 this[param] = moment(params[param]).toDate();
                 return;
-            } else if (typeof(this[param]) === 'number')  {
+            } else if (typeof (this[param]) === 'number') {
                 this[param] = +params[param];
+                return;
+            } else if (Array.isArray(this[param])) {
+                this[param] = params[param].split(',');
                 return;
             }
             this[param] = params[param];

@@ -1,0 +1,54 @@
+$focusColor: #3c8dbc;
+$borderColor: #d2d6de;
+
+.select2 {
+    border: 1px solid $borderColor;
+    height: 34px;
+    overflow: hidden;
+    overflow-y: auto;
+    margin-right: 36px;
+    width: 99.9% !important;
+    &-results__option {
+        &--highlighted {
+            background-color: #1E90FF;
+        }
+        height: 30px;
+    }
+    &-container--focus {
+        border: 1px solid $focusColor;
+    }
+    &-selection__choice__remove {
+        margin-right: 2px;
+    }
+    &-selection__rendered {
+        margin-bottom: 0;
+        width: 100%;
+        list-style: none;
+        ul {
+            margin: 0;
+        }
+       
+        &-search {
+            width: 99.9%;
+        }
+        li {
+            float: left;
+            margin-bottom: 2px;
+            &:not(:last-child) {
+                margin-top: 5px;
+            }
+            &:not(:first-child) {
+                padding-left: 5px;
+            }
+            &:hover:not(:last-child) {
+                border-radius: 2px;
+            }
+        }
+        input {
+            border: none !important;
+        }
+    }
+    &-selection__rendered:after {
+        clear: both;
+    }
+}
