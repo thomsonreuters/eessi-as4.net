@@ -11,19 +11,16 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped]
         public OutStatus Status { get; set; }
 
-        //[Column("Status")]
-        //public string OutStatusString
-        //{
-        //    get { return Status.ToString(); }
-        //    set
-        //    {
-        //        Status = (OutStatus)Enum.Parse(typeof(OutStatus), value, true);
-        //    }
-        //}
         public override string StatusString
         {
-            get => Status.ToString();
-            set => Status = (OutStatus)Enum.Parse(typeof(OutStatus), value, true);
+            get
+            {
+                return Status.ToString();
+            }
+            set
+            {
+                Status = (OutStatus)Enum.Parse(typeof(OutStatus), value, true);
+            }
         }
     }
 }
