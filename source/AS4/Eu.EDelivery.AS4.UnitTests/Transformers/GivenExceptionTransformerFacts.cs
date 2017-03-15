@@ -12,7 +12,6 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Steps.Send;
-using Eu.EDelivery.AS4.Utilities;
 using Moq;
 using Xunit;
 
