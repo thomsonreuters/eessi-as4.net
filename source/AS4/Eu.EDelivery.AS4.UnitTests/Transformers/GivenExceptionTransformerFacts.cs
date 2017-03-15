@@ -12,7 +12,6 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Steps.Send;
-using Eu.EDelivery.AS4.Utilities;
 using Moq;
 using Xunit;
 
@@ -95,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenMessageIsNotSupportedWithReceivedMessageEntityAsync()
             {
                 // Arrange
-                var messageEntity = new MessageEntity();
+                var messageEntity = new InMessage();
                 var receivedMessage = new ReceivedEntityMessage(messageEntity);
                 var transformer = new ExceptionTransformer();
                 // Act / Assert

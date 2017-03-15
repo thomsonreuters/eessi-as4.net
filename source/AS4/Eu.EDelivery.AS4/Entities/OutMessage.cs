@@ -4,18 +4,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Eu.EDelivery.AS4.Entities
 {
     /// <summary>
-    ///     Outcomming Message Data Entity Schema
+    ///     Outgoing Message Data Entity Schema
     /// </summary>
     public class OutMessage : MessageEntity
     {
         [NotMapped]
         public OutStatus Status { get; set; }
 
-        [Column("Status")]
-        public string OutOutStatusString
+        public override string StatusString
         {
-            get { return Status.ToString(); }
-            set { Status = (OutStatus) Enum.Parse(typeof(OutStatus), value, true); }
+            get
+            {
+                return Status.ToString();
+            }
+            set
+            {
+                Status = (OutStatus)Enum.Parse(typeof(OutStatus), value, true);
+            }
         }
     }
 }

@@ -4,7 +4,9 @@
     "debugType": "portable",
     "emitEntryPoint": true
   },
-  "dependencies": { },
+  "dependencies": {
+    "Microsoft.EntityFrameworkCore": "1.1.1"
+  },
   "frameworks": {
     ".NETFramework, Version=v4.6.1": {
       "dependencies": {
@@ -17,7 +19,7 @@
     }
   },
   "runtimes": {
-    "win10-x86": { },
-    "win": { }
+    "win10-x86": {},
+    "win": {}
   }
 }

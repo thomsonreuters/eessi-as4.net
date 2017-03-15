@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     {
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.AddDbContext<DatastoreContext>(options => { options.UseSqlite(@"FileName=C:\Users\jtilburgh\Documents\My Received Files\messages\messages.db"); });
+            services.AddDbContext<DatastoreContext>(options => { options.UseSqlite(@"FileName=database\messages.db"); });
             services.AddTransient<IMonitorService, MonitorService>();
         }
     }

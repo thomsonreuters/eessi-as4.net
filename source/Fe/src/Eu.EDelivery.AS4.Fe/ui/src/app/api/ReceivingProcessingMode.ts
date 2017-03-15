@@ -13,13 +13,13 @@ export class ReceivingProcessingMode {
     id: string;
     mep: number;
     mepBinding: number;
-    reliability: ReceiveReliability;
-    receiptHandling: ReceiveReceiptHandling;
-    errorHandling: ReceiveErrorHandling;
-    exceptionHandling: Receivehandling;
-    security: ReceiveSecurity;
-    messagePackaging: MessagePackaging;
-    deliver: Deliver;
+    reliability: ReceiveReliability = new ReceiveReliability();
+    receiptHandling: ReceiveReceiptHandling = new ReceiveReceiptHandling();
+    errorHandling: ReceiveErrorHandling = new ReceiveErrorHandling();
+    exceptionHandling: Receivehandling = new Receivehandling();
+    security: ReceiveSecurity = new ReceiveSecurity();
+    messagePackaging: MessagePackaging = new MessagePackaging();
+    deliver: Deliver = new Deliver();
 
     static FIELD_id: string = 'id';
     static FIELD_mep: string = 'mep';

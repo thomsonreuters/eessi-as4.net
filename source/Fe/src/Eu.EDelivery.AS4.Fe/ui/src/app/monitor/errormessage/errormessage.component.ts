@@ -18,9 +18,6 @@ export class ErrorMessageComponent implements OnInit {
         this.exceptions = _messageStore.changes;
     }
     public ngOnInit() {
-        if (!this.message.hasExceptions) {
-            return;
-        }
         this._messageService.getExceptions(this.direction, this.message);
     }
 }

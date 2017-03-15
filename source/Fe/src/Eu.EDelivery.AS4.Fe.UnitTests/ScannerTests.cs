@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.Fe.Tests
+namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
     public class ScannerTests
     {

@@ -5,10 +5,10 @@
             <th>Direction</th>
             <th>Insertion time</th>
             <th>Message id</th>
-            <th>Operation</th>
-            <th>Content type</th>
             <th>Message type</th>
-            <th>Modification time</th>
+            <th>Operation</th>
+            <th>Status</th>
+            <th>Content type</th>
             <th>Pmode</th>
         </tr>
     </thead>
@@ -18,10 +18,10 @@
             <td>{{message.direction | todirection}}</td>
             <td>{{message.insertionTime | todate}}</td>
             <td>{{message.ebmsMessageId}}</td>
-            <td>{{message.operation}}</td>
-            <td>{{message.contentType}}</td>
             <td>{{message.ebmsMessageType}}</td>
-            <td>{{message.modificationTime | todate}}</td>
+            <td>{{message.operation}}</td>
+            <td>{{message.status}}</td>
+            <td>{{message.contentType}}</td>
             <td>
                 <a [routerLink]="['/pmodes', +direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
             </td>

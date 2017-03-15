@@ -6,6 +6,9 @@ using Eu.EDelivery.AS4.Fe.Pmodes;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using EnsureThat;
+using Eu.EDelivery.AS4.Entities;
+using System;
+using AutoMapper;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
@@ -13,90 +16,59 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
   {
     private readonly DatastoreContext context;
     private readonly IAs4PmodeSource pmodeSource;
+    private readonly IMapper mapper;
 
-    public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource)
+    public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource, IMapper mapper)
     {
       this.context = context;
       this.pmodeSource = pmodeSource;
+      this.mapper = mapper;
     }
 
-    public async Task<MessageResult<ExceptionMessage>> GetOutExceptions(OutExceptionFilter filter)
+    public async Task<MessageResult<ExceptionMessage>> GetExceptions(ExceptionFilter filter)
     {
-      return ConvertPmodeXmlToNumbers(await filter.ToResult(context.OutExceptions));
-    }
+      if (filter == null) throw new ArgumentNullException(nameof(filter), "Filter must be supplied");
+      if (filter.Direction == null) throw new ArgumentNullException(nameof(filter.Direction), "Direction cannot be null");
+      var inExceptions = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(context.InExceptions).ProjectTo<ExceptionMessage>() : null;
+      var outExceptions = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(context.OutExceptions).ProjectTo<ExceptionMessage>() : null;
 
-    public async Task<MessageResult<Message>> GetInMessages(InMessageFilter filter)
-    {
-      var messages = context
-          .InMessages
-          .OrderByDescending(msg => msg.InsertionTime)
-          .Select(x => new InMessageJoined
-          {
-            Message = x
-          });
+      IQueryable<ExceptionMessage> result = null;
+      if (inExceptions != null && outExceptions != null) result = inExceptions.Concat(outExceptions);
+      else if (inExceptions != null) result = inExceptions;
+      else if (outExceptions != null) result = outExceptions;
 
-      var result = ConvertPmodeXmlToNumbers(await filter.ToResult(messages));
-      var messageIDs = result
-          .Messages
-          .Select(msg => msg.EbmsRefToMessageId)
-          .Distinct();
+      var returnValue = ConvertPmodeXmlToNumbers(await filter.ToResult(result.OrderByDescending(msg => msg.InsertionTime)));
 
-      var exceptions = context
-          .OutExceptions
-          .Select(ex => ex.EbmsRefToMessageId)
-          .Where(ex => messageIDs.Contains(ex))
-          .Distinct()
-          .ToList();
-
-      result.Messages = result.Messages.Select(msg =>
-      {
-        msg.HasExceptions = exceptions.Any(ex => ex == msg.EbmsRefToMessageId);
-        return msg;
-      });
-
-      return result;
-    }
-
-    public async Task<MessageResult<ExceptionMessage>> GetInExceptions(InExceptionFilter filter)
-    {
-      return ConvertPmodeXmlToNumbers(await filter.ToResult(context.InExceptions));
-    }
-
-    public async Task<MessageResult<Message>> GetOutMessages(OutMessageFilter filter)
-    {
-      var messages = context
-          .OutMessages
-          .OrderByDescending(msg => msg.InsertionTime)
-          .Select(x => new OutMessageJoined
-          {
-            Message = x
-          });
-
-      var result = ConvertPmodeXmlToNumbers(await filter.ToResult(messages));
-      var messageIDs = result
-          .Messages
-          .Select(msg => msg.EbmsRefToMessageId)
-          .Distinct();
-
-      var exceptions = context
-          .InExceptions
-          .Select(ex => ex.EbmsRefToMessageId)
-          .Where(ex => messageIDs.Contains(ex))
-          .Distinct()
-          .ToList();
-
-      result.Messages = result.Messages.Select(msg =>
-      {
-        msg.HasExceptions = exceptions.Any(ex => ex == msg.EbmsRefToMessageId);
-        return msg;
-      });
-
-      return result;
+      return returnValue;
     }
 
     public string GetPmodeNumber(string pmode)
     {
       return string.IsNullOrEmpty(pmode) ? string.Empty : pmodeSource.GetPmodeNumber(pmode);
+    }
+
+    public async Task<MessageResult<Message>> GetMessages(MessageFilter filter)
+    {
+      if (filter == null) throw new ArgumentNullException(nameof(filter), "Filter cannot be null");
+      if (filter.Direction == null) throw new ArgumentNullException(nameof(filter.Direction), "Direction filter cannot be empty");
+
+      IQueryable<InMessage> inMessageQuery = context.InMessages;
+      IQueryable<OutMessage> outMessageQuery = context.OutMessages;
+
+      var inMessages = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(inMessageQuery).ProjectTo<Message>() : null;
+      var outMessages = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(outMessageQuery).ProjectTo<Message>() : null;
+
+      IQueryable<Message> result = null;
+
+      if (inMessages != null && outMessages != null) result = inMessages.Concat(outMessages);
+      else if (inMessages != null) result = inMessages;
+      else if (outMessages != null) result = outMessages;
+      if (result == null) throw new BusinessException("No messages found");
+
+      var returnValue = ConvertPmodeXmlToNumbers(await filter.ToResult(filter.ApplyStatusFilter(result).OrderByDescending(msg => msg.InsertionTime)));
+      UpdateHasExceptions(returnValue, await GetExceptionIds(returnValue));
+
+      return returnValue;
     }
 
     public async Task<MessageResult<Message>> GetRelatedMessages(Direction direction, string messageId)
@@ -150,9 +122,34 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
       });
     }
 
+    private static void UpdateHasExceptions(MessageResult<Message> returnValue, List<string> exceptionIds)
+    {
+      returnValue.Messages = returnValue.Messages.Select(x =>
+      {
+        x.HasExceptions = exceptionIds.Any(ex => ex == x.EbmsRefToMessageId);
+        return x;
+      });
+    }
+
+    private async Task<List<string>> GetExceptionIds(MessageResult<Message> returnValue)
+    {
+      var ids = returnValue.Messages.Select(msg => msg.EbmsRefToMessageId).ToList();
+
+      var inExceptions = context.InExceptions.Where(ex => ids.Contains(ex.EbmsRefToMessageId)).Select(ex => ex.EbmsRefToMessageId);
+      var outExceptions = context.OutExceptions.Where(ex => ids.Contains(ex.EbmsRefToMessageId)).Select(ex => ex.EbmsRefToMessageId);
+
+      return await inExceptions.Union(outExceptions).ToListAsync();
+    }
+
     private MessageResult<Message> ConvertPmodeXmlToNumbers(MessageResult<Message> result)
     {
       foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
+      return result;
+    }
+
+    private IEnumerable<Message> ConvertPmodeXmlToNumbers(IEnumerable<Message> result)
+    {
+      foreach (var message in result) message.PMode = GetPmodeNumber(message.PMode);
       return result;
     }
 

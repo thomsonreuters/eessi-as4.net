@@ -20,7 +20,7 @@ export class ExceptionService {
             options.search = filter.toUrlParams();
         }
         this._http
-            .get(this.getUrl(filter.direction), options)
+            .get(this.getUrl(), options)
             .map((result) => result.json())
             .subscribe((messages: MessageResult<Exception>) => {
                 this._store.setState({
@@ -35,12 +35,8 @@ export class ExceptionService {
     public reset() {
         this._store.reset();
     }
-    private getUrl(direction: number = 0) {
-        if (+direction === 0) {
-            return `/api/monitor/inexceptions`;
-        } else {
-            return `/api/monitor/outexceptions`;
-        }
+    private getUrl() {
+        return `/api/monitor/exceptions`;
     }
 }
 

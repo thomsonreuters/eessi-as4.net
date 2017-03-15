@@ -13,11 +13,16 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string Attachments { get; set; }
 
-        [Column("Status")]
-        public string InStatusString
+        public override string StatusString
         {
-            get { return Status.ToString(); }
-            set { Status = (InStatus) Enum.Parse(typeof(InStatus), value, true); }
+            get
+            {
+                return Status.ToString();
+            }
+            set
+            {
+                Status = (InStatus)Enum.Parse(typeof(InStatus), value, true);
+            }
         }
     }
 }

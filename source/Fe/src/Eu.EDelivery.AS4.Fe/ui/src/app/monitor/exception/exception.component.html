@@ -2,27 +2,32 @@
     <div content>
         <as4-filter #filter [filter]="inExceptionFilter">
             <div class="col-md-6 col-xs-12">
-                <as4-input label="Type" labelSize="3" controlSize="9">
-                    <select [(ngModel)]="filter.filter.direction">
-                        <option value="0" selected>In exceptions</option>
-                        <option value="1">Out exeptions</option>
-                    </select>
+                <as4-input label="Direction" labelSize="3" controlSize="9">
+                    <div class="input-group">
+                        <select [(ngModel)]="filter.filter.direction" multiselect>
+                            <option value="0" selected>Inbound</option>
+                            <option value="1">Outbound</option>
+                        </select>
+                        <div class="input-group-btn">
+                            <button class="btn btn-secondary" type="button" (click)="filter.filter.direction = null"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </div>
                 </as4-input>
                 <as4-input label="Operation" labelSize="3" controlSize="9">
                     <div class="input-group">
-                        <select name="operation" [(ngModel)]="filter.filter.operation">
-                        <option value="undefined">None</option>
-                        <option value="0">Not applicable</option>
-                        <option value="1">To be sent</option>
-                        <option value="2">Sending</option>
-                        <option value="3">Sent</option>
-                        <option value="4">To be notified</option>
-                        <option value="5">Notifying</option>
-                        <option value="6">Notified</option>
-                        <option value="7">To be delivered</option>
-                        <option value="8">Delivering</option>
-                        <option value="9">Delivered</option>
-                    </select>
+                        <select name="operation" [(ngModel)]="filter.filter.operation" multiselect>
+                            <option value="undefined">None</option>
+                            <option value="0">Not applicable</option>
+                            <option value="1">To be sent</option>
+                            <option value="2">Sending</option>
+                            <option value="3">Sent</option>
+                            <option value="4">To be notified</option>
+                            <option value="5">Notifying</option>
+                            <option value="6">Notified</option>
+                            <option value="7">To be delivered</option>
+                            <option value="8">Delivering</option>
+                            <option value="9">Delivered</option>
+                        </select>
                         <span class="input-group-btn">
                             <button class="btn btn-secondary" type="button" (click)="filter.filter.operation = null"><i class="fa fa-trash"></i></button>
                         </span>
@@ -77,17 +82,18 @@
                         </div>
                     </div>
                 </as4-input>
-                <as4-input>
-                    <button type="submit" class="btn btn-default">Search</button>
+                <as4-input [showLabel]="false" controlSize="12">
+                    <button type="submit" class="btn btn-default pull-right"><i class="fa fa-search"></i></button>
                 </as4-input>
             </div>
         </as4-filter>
     </div>
 </as4-box>
-<as4-box title="Messages in exception">
+<as4-box title="Messages">
     <div content>
         <table class="table table-striped">
             <colgroup>
+                <col width="2%">
                 <col width="2%">
                 <col width="8%">
                 <col width="5%">
@@ -99,9 +105,10 @@
             <thead>
                 <tr>
                     <th></th>
+                    <th>Direction</th>
                     <th>Insertion time</th>
                     <th>Operation</th>
-                    <th>Ebms ref message to</th>
+                    <th>Ebms ref to message id</th>
                     <th>Modification time</th>
                     <th>Exception</th>
                     <th>Pmode</th>
@@ -111,11 +118,13 @@
                 <ng-container *ngFor="let message of (messages | async).messages; let i = index">
                     <tr>
                         <td>
-                            <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage" (click)="toggle(message)"></i>
+                            <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage"
+                                (click)="toggle(message)"></i>
                         </td>
+                        <td>{{message.direction | todirection}}</td>
                         <td>{{message.insertionTime | todate}}</td>
                         <td>{{message.operation}}</td>
-                        <td>{{message.ebmsRefToMessageId}}</td>
+                        <td><a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}">{{message.ebmsRefToMessageId}}</a></td>
                         <td>{{message.modificationTime | todate}}</td>
                         <td>{{message.exceptionShort}}</td>
                         <td>
