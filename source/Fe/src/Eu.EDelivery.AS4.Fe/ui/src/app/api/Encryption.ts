@@ -9,13 +9,15 @@ export class Encryption {
 	algorithm: string;
 	publicKeyFindType: number;
 	publicKeyFindValue: string;
-	keyTransport: KeyEncryption;
+	keyTransport: KeyEncryption = new KeyEncryption();
 
 	static FIELD_isEnabled: string = 'isEnabled';
 	static FIELD_algorithm: string = 'algorithm';
 	static FIELD_publicKeyFindType: string = 'publicKeyFindType';
 	static FIELD_publicKeyFindValue: string = 'publicKeyFindValue';
 	static FIELD_keyTransport: string = 'keyTransport';
+
+	static defaultAlgorithm: string = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
 
 	static getForm(formBuilder: FormBuilder, current: Encryption): FormGroup {
 		let form = formBuilder.group({
@@ -31,11 +33,10 @@ export class Encryption {
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Encryption) {
 		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
-		form.get(this.FIELD_algorithm).reset({ value: current && current.algorithm, disabled: !!!current || !current.isEnabled });
+		form.get(this.FIELD_algorithm).reset({ value: (current && current.algorithm) || this.defaultAlgorithm, disabled: !!!current || !current.isEnabled });
 		form.get(this.FIELD_publicKeyFindType).reset({ value: current && current.publicKeyFindType, disabled: !!!current || !current.isEnabled });
 		form.get(this.FIELD_publicKeyFindValue).reset({ value: current && current.publicKeyFindValue, disabled: !!!current || !current.isEnabled });
-		KeyEncryption.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_keyTransport), current && current.keyTransport);
-		form.get(this.FIELD_keyTransport).reset({ value: current && current.keyTransport, disabled: !!!current || !current.isEnabled });
+		KeyEncryption.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_keyTransport), current && current.keyTransport, !!!current || !current.isEnabled);
 	}
 	static setupForm(form: FormGroup) {
 		let fields = [this.FIELD_algorithm, this.FIELD_keyTransport, this.FIELD_publicKeyFindType, this.FIELD_publicKeyFindValue];
@@ -55,8 +56,13 @@ export class Encryption {
 			.valueChanges
 			.map(result => !!result)
 			.subscribe(result => {
-				if (result) fields.forEach(el => form.get(el).enable());
-				else fields.forEach(el => form.get(el).disable());
+				if (result) {
+					fields.forEach(el => form.get(el).enable());
+					form.get(this.FIELD_keyTransport).enable();
+				} else {
+					fields.forEach(el => form.get(el).disable());
+					form.get(this.FIELD_keyTransport).disable();
+				}
 			});
 	}
 }

@@ -13,14 +13,14 @@ export class SendingProcessingMode {
 	allowOverride: boolean;
 	mep: number;
 	mepBinding: number;
-	pushConfiguration: PushConfiguration;
-	pullConfiguration: PullConfiguration;
-	reliability: SendReliability;
-	receiptHandling: SendHandling;
-	errorHandling: SendHandling;
-	exceptionHandling: SendHandling;
-	security: Security;
-	messagePackaging: SendMessagePackaging;
+	pushConfiguration: PushConfiguration = new PushConfiguration();
+	pullConfiguration: PullConfiguration = new PullConfiguration();
+	reliability: SendReliability = new SendReliability(); 
+	receiptHandling: SendHandling = new SendHandling();
+	errorHandling: SendHandling = new SendHandling();
+	exceptionHandling: SendHandling = new SendHandling();
+	security: Security = new Security();
+	messagePackaging: SendMessagePackaging = new SendMessagePackaging();
 
 	static FIELD_id: string = 'id';
 	static FIELD_allowOverride: string = 'allowOverride';
