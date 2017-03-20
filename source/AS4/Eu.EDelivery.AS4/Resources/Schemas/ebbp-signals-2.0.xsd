@@ -25,7 +25,7 @@ This document and the information contained herein is provided on an "AS IS" bas
             targetNamespace="http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0" elementFormDefault="qualified"
             attributeFormDefault="unqualified" version="2.0">
   <xsd:import namespace="http://www.w3.org/1999/xlink"
-              schemaLocationParameter="http://www.oasis-open.org/committees/ebxml-msg/schema/xlink.xsd" />
+              schemaLocation="http://www.oasis-open.org/committees/ebxml-msg/schema/xlink.xsd" />
   <xsd:annotation>
     <xsd:documentation>
       The version of digital signature specification supported is identified
@@ -33,13 +33,13 @@ This document and the information contained herein is provided on an "AS IS" bas
     </xsd:documentation>
   </xsd:annotation>
   <xsd:import namespace="http://www.w3.org/2000/09/xmldsig#"
-              schemaLocationParameter="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd" />
-  <xsd:simpleExceptionType name="non-empty-string">
+              schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd" />
+  <xsd:simpleType name="non-empty-string">
     <xsd:restriction base="xsd:string">
       <xsd:minLength value="1" />
     </xsd:restriction>
-  </xsd:simpleExceptionType>
-  <xsd:complexExceptionType name="PartyInfoExceptionType">
+  </xsd:simpleType>
+  <xsd:complexType name="PartyInfoExceptionType">
     <xsd:annotation>
       <xsd:documentation>
         This type defines the structure for PartyInfo Definition. The "type"
@@ -52,8 +52,8 @@ This document and the information contained herein is provided on an "AS IS" bas
         <xsd:attribute name="type" type="bpssignal:non-empty-string" />
       </xsd:extension>
     </xsd:simpleContent>
-  </xsd:complexExceptionType>
-  <xsd:complexExceptionType name="RoleExceptionType">
+  </xsd:complexType>
+  <xsd:complexType name="RoleExceptionType">
     <xsd:annotation>
       <xsd:documentation>
         This type defines the structure for Role Definition.
@@ -61,7 +61,7 @@ This document and the information contained herein is provided on an "AS IS" bas
     </xsd:annotation>
     <xsd:attribute name="name" type="bpssignal:non-empty-string" use="required" />
     <xsd:attributeGroup ref="bpssignal:xlink.grp" />
-  </xsd:complexExceptionType>
+  </xsd:complexType>
   <xsd:attributeGroup name="xlink.grp">
     <xsd:annotation>
       <xsd:documentation>
@@ -75,7 +75,7 @@ This document and the information contained herein is provided on an "AS IS" bas
     <xsd:attribute ref="xlink:type" fixed="simple" />
     <xsd:attribute ref="xlink:href" use="required" />
   </xsd:attributeGroup>
-  <xsd:complexExceptionType name="ProcessSpecificationInfoExceptionType">
+  <xsd:complexType name="ProcessSpecificationInfoExceptionType">
     <xsd:annotation>
       <xsd:documentation>
         This defines the content structure for identifying the
@@ -96,8 +96,8 @@ This document and the information contained herein is provided on an "AS IS" bas
     <xsd:attribute name="name" type="xsd:string" use="optional" />
     <xsd:attributeGroup ref="bpssignal:xlink.grp" />
     <xsd:attribute name="uuid" type="xsd:string" use="required" />
-  </xsd:complexExceptionType>
-  <xsd:complexExceptionType name="SignalIdentificationInformation">
+  </xsd:complexType>
+  <xsd:complexType name="SignalIdentificationInformation">
     <xsd:annotation>
       <xsd:documentation>
         This defines the content structure for identiying various parameters
@@ -143,7 +143,7 @@ This document and the information contained herein is provided on an "AS IS" bas
       <xsd:element name="CollaborationIdentifier" type="bpssignal:non-empty-string" minOccurs="0" />
       <xsd:element name="BusinessActivityIdentifier" type="bpssignal:non-empty-string" minOccurs="0" />
     </xsd:sequence>
-  </xsd:complexExceptionType>
+  </xsd:complexType>
   <xsd:element name="Exception">
     <xsd:annotation>
       <xsd:documentation>
@@ -168,38 +168,38 @@ This document and the information contained herein is provided on an "AS IS" bas
         exception
       </xsd:documentation>
     </xsd:annotation>
-    <xsd:complexExceptionType>
+    <xsd:complexType>
       <xsd:complexContent>
         <xsd:extension base="bpssignal:SignalIdentificationInformation">
           <xsd:sequence>
             <xsd:element name="ExceptionType">
-              <xsd:complexExceptionType>
+              <xsd:complexType>
                 <xsd:choice>
                   <xsd:element name="ReceiptException">
-                    <xsd:simpleExceptionType>
+                    <xsd:simpleType>
                       <xsd:restriction base="xsd:string">
                         <xsd:enumeration value="Syntax" />
                         <xsd:enumeration value="Authorization" />
                         <xsd:enumeration value="Signature" />
                         <xsd:enumeration value="Sequence" />
                       </xsd:restriction>
-                    </xsd:simpleExceptionType>
+                    </xsd:simpleType>
                   </xsd:element>
                   <xsd:element name="AcceptanceException">
-                    <xsd:simpleExceptionType>
+                    <xsd:simpleType>
                       <xsd:restriction base="xsd:string">
                         <xsd:enumeration value="Business" />
                         <xsd:enumeration value="Performance" />
                       </xsd:restriction>
-                    </xsd:simpleExceptionType>
+                    </xsd:simpleType>
                   </xsd:element>
                   <xsd:element name="GeneralException">
-                    <xsd:simpleExceptionType>
+                    <xsd:simpleType>
                       <xsd:restriction base="xsd:string" />
-                    </xsd:simpleExceptionType>
+                    </xsd:simpleType>
                   </xsd:element>
                 </xsd:choice>
-              </xsd:complexExceptionType>
+              </xsd:complexType>
             </xsd:element>
             <xsd:element name="Reason" type="bpssignal:non-empty-string" />
             <xsd:element name="ExceptionMessage" type="bpssignal:non-empty-string" minOccurs="0" />
@@ -207,7 +207,7 @@ This document and the information contained herein is provided on an "AS IS" bas
           </xsd:sequence>
         </xsd:extension>
       </xsd:complexContent>
-    </xsd:complexExceptionType>
+    </xsd:complexType>
   </xsd:element>
   <xsd:element name="ReceiptAcknowledgement">
     <xsd:annotation>
@@ -232,7 +232,7 @@ This document and the information contained herein is provided on an "AS IS" bas
         namespace.
       </xsd:documentation>
     </xsd:annotation>
-    <xsd:complexExceptionType>
+    <xsd:complexType>
       <xsd:complexContent>
         <xsd:extension base="bpssignal:SignalIdentificationInformation">
           <xsd:sequence>
@@ -241,22 +241,22 @@ This document and the information contained herein is provided on an "AS IS" bas
           </xsd:sequence>
         </xsd:extension>
       </xsd:complexContent>
-    </xsd:complexExceptionType>
+    </xsd:complexType>
   </xsd:element>
   <xsd:element name="NonRepudiationInformation">
-    <xsd:complexExceptionType>
+    <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="bpssignal:MessagePartNRInformation" maxOccurs="unbounded" />
       </xsd:sequence>
-    </xsd:complexExceptionType>
+    </xsd:complexType>
   </xsd:element>
   <xsd:element name="MessagePartNRInformation">
-    <xsd:complexExceptionType>
+    <xsd:complexType>
       <xsd:choice>
         <xsd:element name="MessagePartIdentifier" type="bpssignal:non-empty-string" />
         <xsd:element ref="ds:Reference" />
       </xsd:choice>
-    </xsd:complexExceptionType>
+    </xsd:complexType>
   </xsd:element>
   <xsd:element name="AcceptanceAcknowledgement">
     <xsd:annotation>
@@ -270,7 +270,7 @@ This document and the information contained herein is provided on an "AS IS" bas
         XML Digital Signature namespace.
       </xsd:documentation>
     </xsd:annotation>
-    <xsd:complexExceptionType>
+    <xsd:complexType>
       <xsd:complexContent>
         <xsd:extension base="bpssignal:SignalIdentificationInformation">
           <xsd:sequence>
@@ -278,6 +278,6 @@ This document and the information contained herein is provided on an "AS IS" bas
           </xsd:sequence>
         </xsd:extension>
       </xsd:complexContent>
-    </xsd:complexExceptionType>
+    </xsd:complexType>
   </xsd:element>
 </xsd:schema>

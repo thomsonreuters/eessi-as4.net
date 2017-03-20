@@ -12,14 +12,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Describes how a AS4 Receipt gets stores in the Data store
     /// </summary>
-    public class StoreAS4ReiptStep : IStep
+    public class StoreAS4ReceiptStep : IStep
     {
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreAS4ReiptStep"/> class
+        /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class
         /// </summary>
-        public StoreAS4ReiptStep()
+        public StoreAS4ReceiptStep()
         {
             this._logger = LogManager.GetCurrentClassLogger();
         }

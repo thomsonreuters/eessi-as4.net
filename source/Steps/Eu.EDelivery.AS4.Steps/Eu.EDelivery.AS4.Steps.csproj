@@ -116,6 +116,7 @@
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Console, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Console.4.3.0\lib\net46\System.Console.dll</HintPath>
       <Private>True</Private>
@@ -207,7 +208,7 @@
     <Compile Include="Receive\CreateAS4ErrorStep.cs" />
     <Compile Include="Receive\DecryptAS4MessageStep.cs" />
     <Compile Include="Receive\SendAS4ReceiptStep.cs" />
-    <Compile Include="Receive\StoreAS4ReiptStep.cs" />
+    <Compile Include="Receive\StoreAS4ReceiptStep.cs" />
     <Compile Include="ReceptionAwareness\ReceptionAwarenessUpdateDatastoreStep.cs" />
     <Compile Include="Send\SetReceptionAwarenessStep.cs" />
     <Compile Include="Services\InExceptionService.cs" />

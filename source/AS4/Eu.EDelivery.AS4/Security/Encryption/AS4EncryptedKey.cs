@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         {
             private readonly X509Certificate2 _certificate;
             private byte[] _key;
-            private string _algorithmUri = EncryptedXml.XmlEncRSAOAEPUrl;
+            private string _algorithmUri = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
             private string _digestAlgorithmUri = EncryptionStrategy.XmlEncSHA1Url;
             private string _mgfAlgorithmUri = null;
             private SecurityTokenReference _securityTokenReference;

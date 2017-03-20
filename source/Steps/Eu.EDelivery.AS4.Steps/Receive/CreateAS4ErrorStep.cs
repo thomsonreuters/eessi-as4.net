@@ -46,9 +46,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             this._logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
 
-            AS4Message errorMessage = CreateErrorAS4Message(internalMessage.Exception);
+            AS4Message errorMessage = CreateErrorAS4Message(internalMessage.Exception, internalMessage.AS4Message);
             errorMessage.SigningId = this._originalAS4Message.SigningId;
             errorMessage.SendingPMode = this._originalAS4Message.SendingPMode;
+            
             var errorInternalMessage = new InternalMessage(errorMessage);
 
             return await StepResult.SuccessAsync(errorInternalMessage);
@@ -59,9 +60,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return internalMessage.Exception == null;
         }
 
-        private AS4Message CreateErrorAS4Message(AS4Exception exception)
+        private AS4Message CreateErrorAS4Message(AS4Exception exception, AS4Message originalAS4Message)
         {
-            Error error = CreateError(exception);
+            Error error = CreateError(exception, originalAS4Message);
             return CreateMessage(error);
         }
 
@@ -77,13 +78,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return builder.Build();
         }
 
-        private Error CreateError(AS4Exception exception)
+        private Error CreateError(AS4Exception exception, AS4Message originalAS4Message)
         {
             string messageId = GetMessageId();
 
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
-                .WithAS4Exception(exception)
+                .WithOriginalAS4Message(originalAS4Message)
+                .WithAS4Exception(exception)                
                 .Build();
         }
 

@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// Create a new <see cref="SoapEnvelopeSerializer"/>
         /// </summary>
         public SoapEnvelopeSerializer()
-        {            
+        {
             this._logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Serialization
             Xml.Messaging messagingHeader = CreateMessagingHeader(message);
 
             var builder = new SoapEnvelopeBuilder();
-            
+
             var securityHeader = GetSecurityHeader(message);
             if (securityHeader != null)
             {
@@ -73,7 +73,11 @@ namespace Eu.EDelivery.AS4.Serialization
             else messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
 
             if (IsMultiHop(message.SendingPMode))
+            {
                 messagingHeader.role = Constants.Namespaces.EbmsNextMsh;
+                messagingHeader.mustUnderstand1 = true;
+                messagingHeader.mustUnderstand1Specified = true;
+            }
 
             return messagingHeader;
         }
@@ -95,7 +99,17 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
-            if (!IsMultiHop(as4Message.SendingPMode) || !as4Message.IsSignalMessage) return;
+            // TODO: i'd like to see this refactored.
+            //       AS4Message could have a property 'IsMultihop', and based on that, the
+            //       correct multihop-headers could be set.
+
+            // If the AS4Message is a signalmessage, check if the related usermessage
+            // was a multihop.
+
+            if (!IsMultiHop(as4Message.SendingPMode) || !as4Message.IsSignalMessage)
+            {
+                return;
+            }
 
             var to = new Xml.To { Role = Constants.Namespaces.EbmsNextMsh };
             builder.SetToHeader(to);
@@ -105,7 +119,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             var routingInput = new Xml.RoutingInput
             {
-                UserMessage = AS4Mapper.Map<Xml.RoutingInputUserMessage>(as4Message.PrimaryUserMessage)
+                UserMessage = AS4Mapper.Map<Xml.RoutingInputUserMessage>(as4Message.PrimarySignalMessage.RelatedUserMessage)
             };
 
             builder.SetRoutingInput(routingInput);
@@ -174,7 +188,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static Stream CopyEnvelopeStream(Stream envelopeStream)
         {
             Stream stream = new MemoryStream();
-            
+
             envelopeStream.CopyTo(stream);
             stream.Position = 0;
 
@@ -235,10 +249,9 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             stream.Position = 0;
 
-            var document = new XmlDocument();
-            document.PreserveWhitespace = true;
+            var document = new XmlDocument { PreserveWhitespace = true };
             document.Load(stream);
-            
+
             return document;
         }
 
@@ -247,7 +260,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 Async = true,
                 CloseInput = false,
-                IgnoreComments = true,           
+                IgnoreComments = true,
             };
 
 

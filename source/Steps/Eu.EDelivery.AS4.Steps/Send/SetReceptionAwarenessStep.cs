@@ -32,8 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Start configuring Reception Awareness
         /// </summary>
-        /// <param name="internalMessage"></param>
-        /// <param name="context"></param>
+        /// <param name="internalMessage"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
