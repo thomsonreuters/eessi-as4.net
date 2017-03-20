@@ -58,6 +58,13 @@ export class MessageService {
                 this._store.update('relatedMessages', messages.messages);
             });
     }
+    public getMessageBody(direction: number, messageId: string): Observable<string> {
+        let requestOptions = new RequestOptions();
+        requestOptions.search = new URLSearchParams();
+        requestOptions.search.append('direction', '' + direction);
+        requestOptions.search.append('messageId', messageId);
+        return this._http.get('/api/monitor/messagebody', requestOptions).map((data) => data.text());
+    }
     private getUrl(): string {
         return `/api/monitor/messages/`;
     }
