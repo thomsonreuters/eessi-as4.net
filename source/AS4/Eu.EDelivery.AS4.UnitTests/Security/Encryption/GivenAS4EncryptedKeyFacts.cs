@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Encryption
 
                 var key = AS4EncryptedKey.CreateEncryptedKeyBuilderForKey(encryptionKey, GetCertificate()).Build();
 
-                Assert.Equal(EncryptedXml.XmlEncRSAOAEPUrl, key.GetEncryptionAlgorithm());
+                Assert.Equal(EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf, key.GetEncryptionAlgorithm());
                 Assert.Equal(EncryptionStrategy.XmlEncSHA1Url, key.GetDigestAlgorithm());
             }
         }
