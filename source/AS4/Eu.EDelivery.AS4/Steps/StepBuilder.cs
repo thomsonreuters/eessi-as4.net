@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps
         }
 
 
-        private IStep CreateDecoratorStep(Model.Internal.Steps settingsSteps)
+        private static IStep CreateDecoratorStep(Model.Internal.Steps settingsSteps)
         {
             IStep[] decoratedSteps = settingsSteps.Step
                 .Where(s => s.UnDecorated == false)
@@ -74,14 +74,14 @@ namespace Eu.EDelivery.AS4.Steps
                 : compositeStep;
         }
 
-        private IStep CreateInstance(Step settingStep)
+        private static IStep CreateInstance(Step settingStep)
         {
             return settingStep.Setting != null
                 ? CreateConfigurableStep(settingStep)
                 : CreateInstance<IStep>(settingStep.Type);
         }
 
-        private IConfigStep CreateConfigurableStep(Step settingStep)
+        private static IConfigStep CreateConfigurableStep(Step settingStep)
         {
             var step = CreateInstance<IConfigStep>(settingStep.Type);
 
@@ -113,21 +113,5 @@ namespace Eu.EDelivery.AS4.Steps
         UseDatastore = 2,
         UseDefaults = 1
     }
-
-    public class StepEntry
-    {
-        public IStep Step { get; set; }
-        public StepOptions Options { get; set; }
-
-        private StepEntry(IStep step, StepOptions options)
-        {
-            this.Step = step;
-            this.Options = options;
-        }
-
-        public static StepEntry Create(StepOptions options, IStep step)
-        {
-            return new StepEntry(step, options);
-        }
-    }
+    
 }
