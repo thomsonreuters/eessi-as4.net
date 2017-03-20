@@ -1,3 +1,4 @@
+import { ToDirectionPipe } from './../todirection.pipe';
 import { RouterTestingModule } from '@angular/router/testing';
 import { As4ComponentsModule } from './../../common/as4components.module';
 import { OpaqueToken } from '@angular/core';
@@ -25,7 +26,8 @@ import { MESSAGESERVICETOKEN } from './../service.token';
 import { MessageStore } from './../message/message.store';
 
 let messageService: any = {
-    getMessages() { }
+    getMessages() { },
+    getRelatedMessages() { }
 };
 
 let SERVICETOKEN = new OpaqueToken('MOCKTOKEN');
@@ -35,6 +37,7 @@ describe('Related messages', () => {
     beforeEach(() => TestBed.configureTestingModule({
         declarations: [
             RelatedMessagesComponent,
+            ToDirectionPipe
         ],
         imports: [
             As4ComponentsModule,
@@ -95,14 +98,8 @@ describe('Related messages', () => {
         expect(serviceSpy).not.toHaveBeenCalled();
     }));
     it('calls service with the messageid', inject([], () => {
-        let serviceSpy = spyOn(service, 'getMessages');
-
+        let serviceSpy = spyOn(service, 'getRelatedMessages');
         component.componentInstance.ngOnInit();
-
-        let filter = new MessageFilter();
-        filter.page = 1;
-        filter.direction = direction;
-        filter.ebmsMessageId = messageId;
-        expect(serviceSpy).toHaveBeenCalledWith(filter);
+        expect(serviceSpy).toHaveBeenCalledWith(direction, messageId);
     }));
 });

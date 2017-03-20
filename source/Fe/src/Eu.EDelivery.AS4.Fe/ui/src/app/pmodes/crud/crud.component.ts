@@ -48,7 +48,7 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
     `
 })
 export class CrudComponent implements OnInit, OnDestroy {
-    public isNewMode: boolean;
+    public isNewMode: boolean = false;
     public pmodes: string[];
     public form: FormGroup;
     public currentPmode: IPmode;
