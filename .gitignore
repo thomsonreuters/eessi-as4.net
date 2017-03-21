@@ -29,6 +29,7 @@ output/
 !output/messages/
 !output/samples/
 !output/doc/
+!output/assets/
 output/messages/out/
 output/messages/receipts/
 output/messages/errors/
