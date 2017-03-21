@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Common
                 LoadExternalAssemblies();
 
                 _sendingPModeWatcher.Start();
-                _sendingPModeWatcher.Start();
+                _receivingPModeWatcher.Start();
             }
             catch (Exception exception)
             {
