@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Security.Serializers
     internal class EncryptedDataSerializer
     {
         private readonly XmlDocument _document;
-        private readonly IList<EncryptedData> _encryptedDatas;
+                
         private const string EncNamespace = "http://www.w3.org/2001/04/xmlenc#";
 
         /// <summary>
@@ -22,8 +22,7 @@ namespace Eu.EDelivery.AS4.Security.Serializers
         /// <param name="document"></param>
         public EncryptedDataSerializer(XmlDocument document)
         {
-            this._document = document;
-            this._encryptedDatas = new List<EncryptedData>();
+            this._document = document;            
         }
 
         /// <summary>
@@ -32,12 +31,13 @@ namespace Eu.EDelivery.AS4.Security.Serializers
         /// <returns></returns>
         public IEnumerable<EncryptedData> SerializeEncryptedDatas()
         {
-            SerializeEncryptedDataElements();
-            return this._encryptedDatas;
+            return SerializeEncryptedDataElements();            
         }
 
-        private void SerializeEncryptedDataElements()
+        private List<EncryptedData> SerializeEncryptedDataElements()
         {
+            var result = new List<EncryptedData>();
+
             var namespaceManager = new XmlNamespaceManager(this._document.NameTable);
             namespaceManager.AddNamespace("enc", EncNamespace);
 
@@ -45,20 +45,24 @@ namespace Eu.EDelivery.AS4.Security.Serializers
                 .SelectNodes("//enc:EncryptedData", namespaceManager)
                 ?.OfType<XmlElement>();
 
+            if (encryptedDataElements == null)
+            {
+                throw new AS4Exception("No EncryptedData elements found to decrypt");
+            }
+
             foreach (var e in encryptedDataElements)
             {
-                SerializeEncryptedData(e);
+                result.Add(SerializeEncryptedData(e));
             }
-            
-            if (encryptedDataElements == null)
-                throw new AS4Exception("No EncryptedData elements found to decrypt");
+
+            return result;
         }
 
-        private void SerializeEncryptedData(XmlElement e)
+        private static EncryptedData SerializeEncryptedData(XmlElement e)
         {
             var encryptedData = new EncryptedData();
             encryptedData.LoadXml(e);
-            this._encryptedDatas.Add(encryptedData);
+            return encryptedData;
         }
     }
 }
