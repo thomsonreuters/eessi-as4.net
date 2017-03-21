@@ -24,6 +24,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+source/output/
 output/
 !output/config/
 !output/messages/
