@@ -19,9 +19,9 @@ export class DownloadMessageBodyComponent {
     public download() {
         let service;
         if (this.type === 'exception') {
-         service = this._messageService.getMessageBody(this.direction, this.messageId);
-        } else {
             service = this._exceptionService.getExceptionBody(this.direction, this.messageId);
+        } else {
+            service = this._messageService.getMessageBody(this.direction, this.messageId);
         }
 
         service.subscribe((result) => {

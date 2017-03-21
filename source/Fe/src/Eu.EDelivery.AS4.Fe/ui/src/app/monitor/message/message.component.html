@@ -200,7 +200,7 @@
                                 <a [routerLink]="['/pmodes', filter.outFilter.direction === '0' ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
                             </td>
                             <td>
-                                <downloadmessagebody [type]="message" [direction]="message.direction" [messageId]="message.ebmsMessageId"></downloadmessagebody>
+                                <downloadmessagebody [type]="'message'" [direction]="message.direction" [messageId]="message.ebmsMessageId"></downloadmessagebody>
                             </td>
                         </tr>
                         <tr *ngIf="message === activeMessage">
