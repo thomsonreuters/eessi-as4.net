@@ -32,11 +32,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            if (internalMessage.AS4Message.IsEmpty)
+            {
+                return await StepResult.SuccessAsync(internalMessage);
+            }
+
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
                 await StoreReceiptInDatastore(internalMessage.AS4Message, new OutMessageService(repository));
-                this._logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
+                _logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
             }
 
             return await StepResult.SuccessAsync(internalMessage);
@@ -44,8 +49,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static async Task StoreReceiptInDatastore(AS4Message as4Message, OutMessageService service)
         {
-            string messageId = as4Message.PrimarySignalMessage.MessageId;
-            await service.InsertReceiptAsync(messageId, as4Message);
+            // TODO: what if there are multiple Receipts in our message ? (Bundling)            
+            await service.InsertReceiptAsync(as4Message);
         }
     }
 }

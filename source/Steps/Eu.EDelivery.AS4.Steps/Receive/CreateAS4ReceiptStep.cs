@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -58,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             try
             {
                 AS4Message receiptMessage = CreateReceiptAS4Message();
-                
+
                 AssignPModesToReceiptAS4Message(receiptMessage);
                 this._internalMessage = new InternalMessage(receiptMessage);
             }
@@ -77,25 +78,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Message CreateReceiptAS4Message()
         {
-            string messageId = GetMessageId();
+            // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
+            // If no UserMessages are present, an Empty AS4Message should be returned.
+            AS4MessageBuilder messageBuilder = new AS4MessageBuilder();
 
-            this._logger.Info($"{this._internalMessage.Prefix} Create Receipt Message with Reference to respond");
+            foreach (var messageId in _originalAS4Message.UserMessages.Select(m => m.MessageId))
+            {
+                var receipt = new Receipt { RefToMessageId = messageId };
+                AdaptReceiptMessage(receipt);
 
-            var receipt = new Receipt { RefToMessageId = messageId };
-            AS4Message receiptMessage = new AS4MessageBuilder().WithSignalMessage(receipt)
-                                                               .Build();
+                messageBuilder.WithSignalMessage(receipt);
+            }
 
-            receiptMessage.SigningId = this._originalAS4Message.SigningId;
-            AdaptReceiptMessage(receipt);
+            var receiptMessage = messageBuilder.Build();
+
+            receiptMessage.SigningId = _originalAS4Message.SigningId;
 
             return receiptMessage;
-        }
-
-        private string GetMessageId()
-        {
-            return this._originalAS4Message.PrimaryUserMessage != null
-                ? this._originalAS4Message.PrimaryUserMessage.MessageId
-                : this._originalAS4Message.PrimarySignalMessage.MessageId;
         }
 
         private void AdaptReceiptMessage(Receipt receipt)
@@ -106,11 +105,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     $"{this._internalMessage.Prefix} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
                 receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
             }
-            
+
             // If the receipt should not contain NonRepudiationInformation, or the 
             // Receipt is a Receipt on a MultihopMessage, then we'll need the original
             // UserMessage.
-            if( this._sendPMode.MessagePackaging.IsMultiHop )
+            if (_sendPMode.MessagePackaging.IsMultiHop)
             {
                 receipt.RelatedUserMessage = this._originalAS4Message.PrimaryUserMessage;
             }

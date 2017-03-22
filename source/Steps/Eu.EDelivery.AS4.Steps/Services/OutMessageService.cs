@@ -36,33 +36,42 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <summary>
         /// Insert <see cref="Model.Core.Receipt"/>
         /// into the Data store
-        /// </summary>
-        /// <param name="refToMessageId"></param>
+        /// </summary>        
         /// <param name="as4Message"></param>
         /// <returns></returns>
-        public async Task InsertReceiptAsync(string refToMessageId, AS4Message as4Message)
+        public async Task InsertReceiptAsync(AS4Message as4Message)
         {
-            await TryInsertOutcomingOutMessageAsync(refToMessageId, as4Message, MessageType.Receipt);
+            // The Primary SignalMessage of the given AS4Message should be a Receipt
+            if (!(as4Message.IsSignalMessage && as4Message.PrimarySignalMessage is Receipt))
+            {
+                throw new ArgumentException(@"The AS4Message should represent a Receipt", nameof(AS4Message));
+            }
+
+            await TryInsertOutcomingOutMessageAsync(as4Message, MessageType.Receipt);
         }
 
         /// <summary>
         /// Insert <see cref="Model.Core.Error"/>
         /// into the Data store
-        /// </summary>
-        /// <param name="refToMessageId"></param>
+        /// </summary>        
         /// <param name="as4Message"></param>
         /// <returns></returns>
-        public async Task InsertErrorAsync(string refToMessageId, AS4Message as4Message)
+        public async Task InsertErrorAsync(AS4Message as4Message)
         {
-            await TryInsertOutcomingOutMessageAsync(refToMessageId, as4Message, MessageType.Error);
+            if (!(as4Message.IsSignalMessage && as4Message.PrimarySignalMessage is Error))
+            {
+                throw new ArgumentException(@"The AS4Message should represent an Error", nameof(AS4Message));
+            }
+
+            await TryInsertOutcomingOutMessageAsync(as4Message, MessageType.Error);
         }
 
-        private async Task TryInsertOutcomingOutMessageAsync(string messageId, AS4Message as4Message, MessageType messageType)
+        private async Task TryInsertOutcomingOutMessageAsync(AS4Message as4Message, MessageType messageType)
         {
             try
             {
-                this._logger.Debug($"Store OutMessage: {messageId}");
-                OutMessage outMessage = CreateOutMessage(messageId, as4Message, messageType);
+                //this._logger.Debug($"Store OutMessage: {messageId}");
+                OutMessage outMessage = CreateOutMessageForSignal(as4Message, messageType);
                 await this._repository.InsertOutMessageAsync(outMessage);
             }
             catch (Exception ex)
@@ -76,10 +85,18 @@ namespace Eu.EDelivery.AS4.Steps.Services
             }
         }
 
-        private static OutMessage CreateOutMessage(string messageId, AS4Message message, MessageType messageType)
+        private static OutMessage CreateOutMessageForSignal(AS4Message message, MessageType messageType)
         {
-            OutMessage outMessage = CreateDefaultOutMessage(messageId, message, messageType);
-            AdaptToSignalOutMessage(outMessage);
+
+            var primarySignalMessage = message.PrimarySignalMessage;
+            
+            OutMessage outMessage = new OutMessageBuilder()
+                .WithAS4Message(message)
+                .WithEbmsMessageId(primarySignalMessage.MessageId)
+                .WithEbmsMessageType(messageType)
+                .Build(CancellationToken.None);
+
+            outMessage.EbmsRefToMessageId = primarySignalMessage.RefToMessageId;
 
             Operation operation;
             OutStatus status;
@@ -92,20 +109,6 @@ namespace Eu.EDelivery.AS4.Steps.Services
             return outMessage;
         }
 
-        private static OutMessage CreateDefaultOutMessage(string messageId, AS4Message as4Message, MessageType messageType)
-        {
-            return new OutMessageBuilder()
-                .WithAS4Message(as4Message)
-                .WithEbmsMessageId(messageId)
-                .WithEbmsMessageType(messageType)
-                .Build(CancellationToken.None);
-        }
-
-        private static void AdaptToSignalOutMessage(MessageEntity outMessage)
-        {
-            outMessage.EbmsRefToMessageId = outMessage.EbmsMessageId;
-            outMessage.EbmsMessageId = string.Empty;
-        }
 
         private static void DetermineCorrectReplyPattern(MessageType outMessageType, AS4Message message, out Operation operation, out OutStatus status)
         {
@@ -129,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
     public interface IOutMessageService
     {
-        Task InsertErrorAsync(string messageId, AS4Message as4Message);
-        Task InsertReceiptAsync(string refToMessageId, AS4Message as4Message);
+        Task InsertErrorAsync(AS4Message as4Message);
+        Task InsertReceiptAsync(AS4Message as4Message);
     }
 }

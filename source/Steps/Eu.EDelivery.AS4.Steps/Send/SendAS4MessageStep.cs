@@ -61,9 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-
-
-            this._originalAS4Message = internalMessage.AS4Message;
+            _originalAS4Message = internalMessage.AS4Message;
 
             return await TrySendAS4MessageAsync(internalMessage, cancellationToken);
         }
@@ -91,21 +89,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateOperation(internalMessage, Operation.Undetermined);
+                UpdateOperation(_originalAS4Message, Operation.Undetermined);
 
                 return StepResult.Failed(AS4ExceptionBuilder.WithDescription("Failed to send AS4Message").WithInnerException(exception).Build());
             }
             else
             {
-                var as4exception = CreateFailedSendAS4Exception(internalMessage, exception);
-                return StepResult.Failed(as4exception);
+                var as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
+                return StepResult.Failed(as4Exception);
             }
         }
 
-        private static void UpdateOperation(InternalMessage message, Operation operation)
-        {
-            var as4Message = message.AS4Message;
-
+        private static void UpdateOperation(AS4Message as4Message, Operation operation)
+        {            
             if (as4Message != null)
             {
                 using (var context = Registry.Instance.CreateDatastoreContext())
@@ -208,6 +204,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             using (WebResponse responseStream = await request.GetResponseAsync().ConfigureAwait(false))
             {
+                UpdateOperation(_originalAS4Message, Operation.Sent);
+
                 return await PrepareStepResult(responseStream as HttpWebResponse, internalMessage, cancellationToken);
             }
         }
