@@ -34,7 +34,9 @@ export class MultiSelectDirective implements OnInit, ControlValueAccessor {
             let val = this._el.val().map((data) => {
                 return this.normalizeValue(data);
             });
-            console.log(val);
+            if (Array.isArray(val) && val.length === 0) {
+                val = null;
+            }
             this._propagateChange(val);
             this._currentVal = val;
         });

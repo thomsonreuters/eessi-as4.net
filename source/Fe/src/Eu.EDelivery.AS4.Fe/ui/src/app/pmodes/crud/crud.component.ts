@@ -60,38 +60,40 @@ export class CrudComponent implements OnInit, OnDestroy {
         this.form = this._crudService.getForm(null);
     }
     public ngOnInit() {
-        this.subscriptions.push(this._crudService
-            .obsGetAll()
-            .subscribe((result) => {
-                this.pmodes = result;
-                let pmodeQueryParam = this._activatedRoute.snapshot.params['pmode'];
-                if (!!!pmodeQueryParam) {
+        this.subscriptions
+            .push(this._crudService
+                .obsGetAll()
+                .subscribe((result) => {
+                    this.pmodes = result;
+                    let pmodeQueryParam = this._activatedRoute.snapshot.params['pmode'];
+                    if (!!!pmodeQueryParam) {
+                        return;
+                    }
+                    if (result.length === 0) {
+                        return;
+                    }
+                    // Validate that the requested pmode exists
+                    let exists = result.find((search) => search === pmodeQueryParam);
+                    if (!!!exists) {
+                        this._dialogService.message(`Pmode ${pmodeQueryParam} doesn't exist`);
+                        return;
+                    }
+                    this._crudService.get(pmodeQueryParam);
+                }));
+        this.subscriptions
+            .push(this._crudService.obsGet().subscribe((result) => {
+                this.currentPmode = result;
+                this._crudService.patchForm(this.form, result);
+                this.form.markAsPristine();
+                if (!!!result) {
                     return;
                 }
-                if (result.length === 0) {
-                    return;
+                let compareTo = this._activatedRoute.snapshot.queryParams['compareto'];
+                if (!!result && !!compareTo && compareTo !== result.hash) {
+                    this._dialogService.error(`Pmode used in the message doesn't match anymore.`);
                 }
-                // Validate that the requested pmode exists
-                let exists = result.find((search) => search === pmodeQueryParam);
-                if (!!!exists) {
-                    this._dialogService.message(`Pmode ${pmodeQueryParam} doesn't exist`);
-                    return;
-                }
-                this._crudService.get(pmodeQueryParam);
+                this._routerService.setCurrentValue(this._activatedRoute, result.name);
             }));
-        this.subscriptions.push(this._crudService.obsGet().subscribe((result) => {
-            this.currentPmode = result;
-            this._crudService.patchForm(this.form, result);
-            this.form.markAsPristine();
-            if (!!!result) {
-                return;
-            }
-            let compareTo = this._activatedRoute.snapshot.queryParams['compareto'];
-            if (!!result && !!compareTo && compareTo !== result.hash) {
-                this._dialogService.error(`Pmode used in the message doesn't match anymore.`);
-            }
-            this._routerService.setCurrentValue(this._activatedRoute, result.name);
-        }));
     }
     public ngOnDestroy() {
         this.subscriptions.forEach((subs) => subs.unsubscribe());

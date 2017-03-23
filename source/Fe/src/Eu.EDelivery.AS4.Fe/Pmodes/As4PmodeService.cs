@@ -18,7 +18,6 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
       this.monitorService = monitorService;
     }
 
-
     public async Task<IEnumerable<string>> GetReceivingNames()
     {
       return await source.GetReceivingNames();

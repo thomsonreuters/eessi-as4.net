@@ -72,7 +72,7 @@
             <div class="col-md-6 col-xs-12">
                 <as4-input label="Message exchange pattern" labelSize="3" controlSize="9">
                     <div class="input-group">
-                        <select name="MEP" [(ngModel)]="filter.filter.mep">
+                        <select name="MEP" [(ngModel)]="filter.filter.mep" multiselect>
                             <option value="0">Push</option>
                             <option value="1">Pull</option>
                         </select>
