@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -237,6 +239,32 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         [XmlText]
         public string Value { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Setting"/> class.
+        /// </summary>
+        public Setting() {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Setting"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        public Setting(string key, string value)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        /// <summary>
+        /// Gets the attribute for a given <paramref name="name"/>.
+        /// </summary>
+        /// <param name="name">Name for which an Attribute is retrieved.</param>
+        /// <returns></returns>
+        public XmlAttribute this[string name]
+        {
+            get { return Attributes?.FirstOrDefault(a => a.LocalName.Equals(name)); }
+        }
     }
 
     [Serializable]

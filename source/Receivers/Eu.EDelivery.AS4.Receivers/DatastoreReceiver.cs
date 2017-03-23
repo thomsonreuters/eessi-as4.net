@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Transactions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Specifications;
 using NLog;
-
-using Function = System.Func<
-    Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
-    System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.InternalMessage>>;
+using Function =
+    System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
+        System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.InternalMessage>>;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class
+        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
         /// Create a Data Store Out Message Receiver with a given Data Store Context Delegate
         /// </summary>
         /// <param name="storeExpression">
@@ -86,6 +86,15 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         /// <summary>
+        /// Configure the receiver with a given settings dictionary.
+        /// </summary>
+        /// <param name="settings"></param>
+        public void Configure(IEnumerable<Setting> settings)
+        {
+            Configure(settings.ToDictionary(s => s.Key, s => s.Value));
+        }
+
+        /// <summary>
         /// Configure the receiver with a given Property Dictionary
         /// </summary>
         /// <param name="properties"></param>
@@ -96,14 +105,9 @@ namespace Eu.EDelivery.AS4.Receivers
             _findExpression = _specification.GetExpression().Compile();
             _storeExpression = () => new DatastoreContext(Config.Instance);
 
-            if (properties.ContainsKey("Update"))
-            {
-                _operation = (Operation)Enum.Parse(typeof(Operation), properties["Update"]);
-            }
-            else
-            {
-                _operation = Operation.NotApplicable;
-            }
+            _operation = properties.ContainsKey("Update")
+                             ? (Operation)Enum.Parse(typeof(Operation), properties["Update"])
+                             : Operation.NotApplicable;
         }
 
         /// <summary>
@@ -111,9 +115,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
-        public void StartReceiving(
-            Function messageCallback,
-            CancellationToken cancellationToken)
+        public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
             LogReceiverSpecs();
             StartPolling(messageCallback, cancellationToken);
@@ -121,24 +123,12 @@ namespace Eu.EDelivery.AS4.Receivers
 
         public void StopReceiving()
         {
-            if (_properties == null)
-            {
-                return;
-            }
-
-            string table = _properties["Table"];
-            string field = _properties["Field"];
-            string value = _properties["Value"];
-
-            Logger.Debug($"Stop Receiving on Datastore FROM {table} WHERE {field} == {value}");
+            LogReceiverSpecs();
         }
 
         private void LogReceiverSpecs()
         {
-            if (_properties == null)
-            {
-                return;
-            }
+            if (_properties == null) return;
 
             string table = _properties["Table"];
             string field = _properties["Field"];
@@ -157,55 +147,56 @@ namespace Eu.EDelivery.AS4.Receivers
             LogManager.GetCurrentClassLogger().Trace($"Executing GetMessagesToPoll on {_properties?["Table"]}");
 
             try
-            {                
-                IEnumerable<Entity> entities;
-
-                using (DatastoreContext context = _storeExpression())
-                {
-                    var tx = context.Database.BeginTransaction();
-                    
-                    try
-                    {
-                        entities = _findExpression(context).ToList();
-
-                        if (entities.Any())
-                        {
-                            // Make sure that all message-entities are locked before continue to process them.
-                            if (_operation != Operation.NotApplicable)
-                            {
-                                foreach (var messageEntity in entities.OfType<MessageEntity>())
-                                {
-                                    messageEntity.Operation = _operation;
-                                }
-                            }
-                            context.SaveChanges();
-                        }
-
-                        tx.Commit();
-                    }
-                    catch(Exception ex)
-                    {
-                        Logger.Error(ex.Message);
-                        tx.Rollback();
-                        throw;
-                    }
-                }
-
-                return entities;
+            {
+                return GetMessagesEntitiesForConfiguredExpression();
             }
             catch (Exception exception)
             {
-                var logger = LogManager.GetCurrentClassLogger();
+                Logger logger = LogManager.GetCurrentClassLogger();
 
                 logger.Error($"An error occured while polling the datastore: {exception.Message}");
-                if (_properties != null)
-                {
-                    logger.Error($"Polling on table {_properties["Table"]} with interval {PollingInterval.TotalSeconds} seconds.");
-                }
+                logger.Error(
+                    $"Polling on table {_properties.ReadMandatoryProperty("Table")} with interval {PollingInterval.TotalSeconds} seconds.");
                 logger.Error(exception.StackTrace);
-                return new Entity[] { };
+
+                return new Entity[] {};
+            }
+        }
+
+        private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
+        {
+            // Use a TransactionScope to get the highest TransactionIsolation level.
+            IEnumerable<Entity> entities;
+
+            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.FromSeconds(25)))
+            {
+                using (DatastoreContext context = _storeExpression())
+                {
+                    entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+                }
+
+                transaction.Complete();
             }
 
+            return entities;
+        }
+
+        private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
+        {
+            IEnumerable<Entity> entities = _findExpression(context).ToList();
+            if (!entities.Any()) return entities;
+
+            // Make sure that all message-entities are locked before continue to process them.
+            if (_operation != Operation.NotApplicable)
+            {
+                foreach (MessageEntity messageEntity in entities.OfType<MessageEntity>())
+                {
+                    messageEntity.Operation = _operation;
+                }
+            }
+
+            context.SaveChanges();
+            return entities;
         }
 
         /// <summary>
@@ -217,6 +208,7 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override void MessageReceived(Entity entity, Function messageCallback, CancellationToken token)
         {
             var messageEntity = entity as MessageEntity;
+
             if (messageEntity != null)
             {
                 ReceiveMessageEntity(messageEntity, messageCallback, token);
@@ -257,12 +249,11 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             Logger.Error(exception.Message);
             var aggregate = exception as AggregateException;
-            if (aggregate != null)
+            if (aggregate == null) return;
+
+            foreach (Exception ex in aggregate.InnerExceptions)
             {
-                foreach (var ex in aggregate.InnerExceptions)
-                {
-                    Logger.Error(ex.Message);
-                }
+                Logger.Error(ex.Message);
             }
         }
 
@@ -272,5 +263,4 @@ namespace Eu.EDelivery.AS4.Receivers
             // DataStoreReceiver so that they won't be locked forever.
         }
     }
-
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private HttpListener _listener;
         private IDictionary<string, string> _properties;
 
-        private string Prefix => _properties.ReadMandatoryProperty("Url");
+        private string Prefix => this._properties.ReadMandatoryProperty("Url");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpReceiver"/> class. 
@@ -38,17 +38,17 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public HttpReceiver()
         {
-            _provider = new Registry().SerializerProvider;
-            _logger = LogManager.GetCurrentClassLogger();
+            this._provider = new Registry().SerializerProvider;
+            this._logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
-        /// Configure the receiver with a given Property Dictionary
+        /// Configure the receiver with a given settings dictionary.
         /// </summary>
-        /// <param name="properties"></param>
-        public void Configure(IDictionary<string, string> properties)
+        /// <param name="settings"></param>
+        public void Configure(IEnumerable<Setting> settings)
         {
-            _properties = properties;
+            this._properties = settings.ToDictionary(s => s.Key, s => s.Value);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             try
             {
-                _listener.Prefixes.Add(Prefix);
+                _listener.Prefixes.Add(this.Prefix);
                 StartListener(_listener);
 
                 while (_listener.IsListening && !cancellationToken.IsCancellationRequested)
@@ -78,11 +78,11 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     catch (HttpListenerException)
                     {
-                        _logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                        this._logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
                     }
                     catch (ObjectDisposedException)
                     {
-                        _logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                        this._logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
                     }
                 }
             }
@@ -94,11 +94,11 @@ namespace Eu.EDelivery.AS4.Receivers
 
         public void StopReceiving()
         {
-            _logger.Debug($"Stop listening on {Prefix}");
+            this._logger.Debug($"Stop listening on {Prefix}");
 
             if (_listener != null)
             {
-                _listener.Close();
+                this._listener.Close();
             }
         }
 
@@ -106,19 +106,19 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-                _logger.Debug($"Start receiving on '{Prefix}'...");
+                this._logger.Debug($"Start receiving on '{this.Prefix}'...");
                 listener.Start();
             }
             catch (HttpListenerException exception)
             {
-                _logger.Error($"Http Listener Exception: {exception.Message}");
+                this._logger.Error($"Http Listener Exception: {exception.Message}");
             }
         }
 
         private async Task ProcessRequestAsync(
             HttpListenerContext context, Function messageCallback, CancellationToken token)
         {
-            _logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
+            this._logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
 
             if (context.Request.HttpMethod.Equals("GET"))
             {
@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Receivers
             catch (Exception ex)
             {
                 context.Response.StatusCode = 500;
-                response = Encoding.UTF8.GetBytes(ex.Message);
+                response = System.Text.Encoding.UTF8.GetBytes(ex.Message);
             }
 
             var responseLength = response.Length;
@@ -177,30 +177,21 @@ namespace Eu.EDelivery.AS4.Receivers
             context.Response.KeepAlive = false;
             context.Response.StatusCode = GetHttpStatusCode(internalMessage);
 
-            if (internalMessage.AS4Message != null && !internalMessage.AS4Message.IsEmpty)
+            if (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty)
             {
-                context.Response.ContentType = internalMessage.AS4Message.ContentType;
+                return;
             }
-            else if (internalMessage.Exception != null)
-            {
-                context.Response.ContentType = "text/plain";
-            }
+
+            context.Response.ContentType = internalMessage.AS4Message.ContentType;
         }
 
         private static int GetHttpStatusCode(InternalMessage internalMessage)
         {
-            // Default statusCode should depend on the result.
-            // When the Response contains information (an AS4Message), the statuscode should be OK.
-            // When the Response will have no content (because the receipt or error f.i. is sent later), the statuscode should be 'Accepted'.
-            var statusCode = (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty) ? (int)HttpStatusCode.Accepted : (int)HttpStatusCode.OK;
+            var statusCode = (int)HttpStatusCode.OK;
 
             if (internalMessage.AS4Message?.ReceivingPMode != null && IsAS4MessageAnError(internalMessage))
             {
                 statusCode = internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
-            }
-            else if (internalMessage.Exception != null)
-            {
-                statusCode = 500;
             }
 
             return statusCode < 100 ? 500 : statusCode;
@@ -209,35 +200,31 @@ namespace Eu.EDelivery.AS4.Receivers
         private void SetupResponseContent(
             HttpListenerContext context, InternalMessage internalMessage, CancellationToken token)
         {
-            if ((internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty) && internalMessage.Exception == null)
+            if (internalMessage.AS4Message == null || internalMessage.AS4Message.IsEmpty)
             {
-                _logger.Info("Empty Http Body is send");
+                context.Response.StatusCode = (int)HttpStatusCode.Accepted;
+                this._logger.Info("Empty Http Body is send");
                 return;
             }
 
-            try
-            {
-                using (Stream responseStream = context.Response.OutputStream)
-                {
-                    if (internalMessage.AS4Message?.IsEmpty == false)
-                    {
-                        ISerializer serializer = _provider.Get(internalMessage.AS4Message.ContentType);
-                        serializer.Serialize(internalMessage.AS4Message, responseStream, token);
-                    }
-                    else if (internalMessage.Exception != null)
-                    {
-                        byte[] responseMessage = Encoding.UTF8.GetBytes(internalMessage.Exception.Message);
-
-                        responseStream.Write(responseMessage, 0, responseMessage.Length);
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                _logger.Error(exception.Message);
-            }
+            TrySerializeResponseContent(context, internalMessage, token);
         }
 
+        private void TrySerializeResponseContent(
+            HttpListenerContext context, InternalMessage internalMessage, CancellationToken token)
+        {
+            try
+            {
+                Stream responseStream = context.Response.OutputStream;
+                ISerializer serializer = this._provider.Get(internalMessage.AS4Message.ContentType);
+                serializer.Serialize(internalMessage.AS4Message, responseStream, token);
+                responseStream.Close();
+            }
+            catch (System.Exception exception)
+            {
+                this._logger.Error(exception.Message);
+            }
+        }
 
         private static bool IsAS4MessageAnError(InternalMessage internalMessage)
         {
@@ -264,8 +251,8 @@ namespace Eu.EDelivery.AS4.Receivers
                 public override byte[] GetResponse(HttpListenerContext context)
                 {
                     var logoLocation = context.Request.RawUrl.TrimEnd('/') + "/assets/as4logo.png";
-
-                    string html =
+                         
+                    string html = 
                    $@"<html>
 <head>
     <meta http-equiv=""Content-Type"" content=""text/html; charset=UTF-8"">

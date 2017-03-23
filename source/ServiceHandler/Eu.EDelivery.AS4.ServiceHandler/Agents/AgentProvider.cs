@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
@@ -13,7 +11,6 @@ using Eu.EDelivery.AS4.Steps.Common;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.Steps.Submit;
-using Eu.EDelivery.AS4.Transformers;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.Agents
@@ -29,9 +26,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Create a <see cref="AgentProvider" />
-        /// with the Core and Custom Agents
+        /// Initializes a new instance of the <see cref="AgentProvider"/> class. Create a <see cref="AgentProvider"/> with the Core and Custom Agents
         /// </summary>
+        /// <param name="config">The config.</param>
         public AgentProvider(IConfig config)
         {
             this._config = config;
@@ -55,13 +52,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             try
             {
                 AddCustomAgentsToProvider();
-
-                var minderTestAgents = this._config.GetEnabledMinderTestAgents();
-
-                foreach (var agent in minderTestAgents)
-                {
-                    this._agents.Add(CreateMinderTestAgent(agent.Url, agent.Transformer));
-                }
+                AddMinderAgentsToProvider();
             }
             catch (AS4Exception exception)
             {
@@ -79,6 +70,16 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             }
         }
 
+        private void AddMinderAgentsToProvider()
+        {
+            IEnumerable<SettingsMinderAgent> minderTestAgents = this._config.GetEnabledMinderTestAgents();
+
+            foreach (SettingsMinderAgent agent in minderTestAgents)
+            {
+                this._agents.Add(CreateMinderTestAgent(agent.Url, agent.Transformer));
+            }
+        }
+
         private static IAgent GetAgentFromSettings(SettingsAgent agent)
         {
             IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
@@ -90,17 +91,23 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             var receiver = new HttpReceiver();
 
-            receiver.Configure(new Dictionary<string, string> { ["Url"] = url });
-           
-            return new Agent(new AgentConfig("Minder Submit/Receive Agent"), receiver, transformerConfig, CreateMinderSubmitReceiveStepConfig());
+            receiver.Configure(new[] {new Setting("Url", url)});
+
+            return new Agent(
+                new AgentConfig("Minder Submit/Receive Agent"),
+                receiver,
+                transformerConfig,
+                CreateMinderSubmitReceiveStepConfig());
         }
 
         private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
-        {            
-            Func<InternalMessage, bool> isSubmitMessage = m => m.SubmitMessage.Collaboration?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false;
+        {
+            Func<InternalMessage, bool> isSubmitMessage =
+                m =>
+                    m.SubmitMessage.Collaboration?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false;
 
-            var submitStepConfig = CreateSubmitStep();
-            var receiveStepConfig = CreateReceiveStep();
+            Model.Internal.Steps submitStepConfig = CreateSubmitStep();
+            Model.Internal.Steps receiveStepConfig = CreateReceiveStep();
 
             return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
         }
@@ -110,11 +117,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             var s = new Model.Internal.Steps()
             {
                 Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
-                Step = new Step[]
-                {                    
-                    new Step { Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
-                }
+                Step =
+                    new[]
+                    {
+                        new Step {Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
+                    }
             };
 
             return s;
@@ -125,21 +133,21 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return new Model.Internal.Steps()
             {
                 Decorator = typeof(ReceiveExceptionStepDecorator).AssemblyQualifiedName,
-                Step = new Step[]
-                {
-                    new Step { Type = typeof(DeterminePModesStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(ReceiveUpdateDatastoreStep).AssemblyQualifiedName},
-                    new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
-                    new Step { Type = typeof(SignAS4MessageStep).AssemblyQualifiedName },
-                    new Step { Type = typeof(SendAS4ReceiptStep).AssemblyQualifiedName },
-                    new Step { UnDecorated = true,Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName },
-                    new Step { UnDecorated = true, Type=typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                    new Step { UnDecorated = true, Type=typeof(SendAS4ErrorStep).AssemblyQualifiedName},
-                }
+                Step =
+                    new[]
+                    {
+                        new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(ReceiveUpdateDatastoreStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(SendAS4ReceiptStep).AssemblyQualifiedName},
+                        new Step {UnDecorated = true, Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
+                        new Step {UnDecorated = true, Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
+                    }
             };
         }
     }

@@ -17,8 +17,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
             {
                 // Arrange
                 Receiver settingReceiver = CreateDefaultReceiverSettings();
+
                 // Act
                 IReceiver receiver = new ReceiverBuilder().SetSettings(settingReceiver).Build();
+
                 // Assert
                 Assert.NotNull(receiver);
                 Assert.IsType<FileReceiver>(receiver);
@@ -26,10 +28,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
 
             private Receiver CreateDefaultReceiverSettings()
             {
-                return new Receiver()
+                return new Receiver
                 {
                     Type = typeof(FileReceiver).AssemblyQualifiedName,
-                    Setting = new[] { new Setting() { Key = "Test", Value = "Test" } }
+                    Setting = new[] { new Setting { Key = "Test", Value = "Test" } }
                 };
             }
         }
