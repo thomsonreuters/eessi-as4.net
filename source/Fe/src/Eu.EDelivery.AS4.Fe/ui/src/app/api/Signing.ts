@@ -18,6 +18,10 @@ export class Signing {
 	static FIELD_algorithm: string = 'algorithm';
 	static FIELD_hashFunction: string = 'hashFunction';
 
+	static defaultHashFunction: string = 'http://www.w3.org/2001/04/xmlenc#sha256';
+	static defaultAlgorithm: string = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
+	static defaultKeyReferenceMethod: number = 0;
+
 	static getForm(formBuilder: FormBuilder, current: Signing): FormGroup {
 		let form = formBuilder.group({
 			[this.FIELD_isEnabled]: [!!(current && current.isEnabled)],
@@ -35,9 +39,9 @@ export class Signing {
 		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
 		form.get(this.FIELD_privateKeyFindValue).reset({ value: current && current.privateKeyFindValue, disabled: !!!current || !current.isEnabled });
 		form.get(this.FIELD_privateKeyFindType).reset({ value: current && current.privateKeyFindType, disabled: !!!current || !current.isEnabled });
-		form.get(this.FIELD_keyReferenceMethod).reset({ value: current && current.keyReferenceMethod, disabled: !!!current || !current.isEnabled });
-		form.get(this.FIELD_algorithm).reset({ value: current && current.algorithm, disabled: !!!current || !current.isEnabled });
-		form.get(this.FIELD_hashFunction).reset({ value: current && current.hashFunction, disabled: !!!current || !current.isEnabled });
+		form.get(this.FIELD_keyReferenceMethod).reset({ value: (current && current.keyReferenceMethod) || this.defaultKeyReferenceMethod, disabled: !!!current || !current.isEnabled });
+		form.get(this.FIELD_algorithm).reset({ value: (current && current.algorithm) || this.defaultAlgorithm, disabled: !!!current || !current.isEnabled });
+		form.get(this.FIELD_hashFunction).reset({ value: (current && current.hashFunction) || this.defaultHashFunction, disabled: !!!current || !current.isEnabled });
 	}
 
 	static setupForm(form: FormGroup) {

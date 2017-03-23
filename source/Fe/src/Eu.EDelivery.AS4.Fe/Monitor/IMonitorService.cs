@@ -8,5 +8,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     string GetPmodeNumber(string pmode);
     Task<MessageResult<Message>> GetRelatedMessages(Direction direction, string messageId);
     Task<MessageResult<Message>> GetMessages(MessageFilter filter);
+    Task<byte[]> DownloadMessageBody(Direction direction, string messageId);
+    Task<byte[]> DownloadExceptionBody(Direction direction, string messageId);
   }
 }

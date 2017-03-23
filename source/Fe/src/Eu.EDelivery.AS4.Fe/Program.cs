@@ -22,9 +22,9 @@ namespace Eu.EDelivery.AS4.Fe
             var host = new WebHostBuilder()
                 .UseEnvironment(isInProcess ? "inprocess" : "production")
                 .UseKestrel()
-                .UseWebRoot("ui/dist")
-                .UseUrls(httpPort)
+                .UseWebRoot(Path.Combine(Directory.GetCurrentDirectory(), "ui/dist"))
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseUrls(httpPort)
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .Build();

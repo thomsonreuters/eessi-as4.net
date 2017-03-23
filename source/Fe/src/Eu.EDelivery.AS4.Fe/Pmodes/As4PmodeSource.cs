@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.Fe.Hash;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Model.PMode;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System.Xml;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
@@ -25,8 +24,9 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
     public Task<IEnumerable<string>> GetReceivingNames()
     {
-      return Task.Factory.StartNew(() => Directory
-          .GetFiles(settings.Value.ReceivingPmodeFolder, "*.xml")
+      return Task
+          .Factory
+          .StartNew(() => Directory.GetFiles(settings.Value.ReceivingPmodeFolder, "*.xml")
           .Select(Path.GetFileNameWithoutExtension));
     }
 
@@ -54,15 +54,17 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
 
     public Task<IEnumerable<string>> GetSendingNames()
     {
-      return Task.Factory.StartNew(() => Directory
-          .GetFiles(settings.Value.SendingPmodeFolder, "*.xml")
+      return Task
+          .Factory
+          .StartNew(() => Directory.GetFiles(settings.Value.SendingPmodeFolder, "*.xml")
           .Select(Path.GetFileNameWithoutExtension));
     }
 
     public Task<SendingBasePmode> GetSendingByName(string name)
     {
-      return Task.Factory.StartNew(() => Directory
-          .GetFiles(settings.Value.SendingPmodeFolder, "*.xml")
+      return Task
+          .Factory
+          .StartNew(() => Directory.GetFiles(settings.Value.SendingPmodeFolder, "*.xml")
           .Where(file => Path.GetFileNameWithoutExtension(file) == name)
           .Select(pmode =>
           {

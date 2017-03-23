@@ -23,6 +23,7 @@ import { PagerComponent } from './pager/pager.component';
 import { ToNumberArrayPipe } from './numbertoarray.pipe';
 import { RelatedMessagesComponent } from './relatedmessages/relatedmessages.component';
 import { Select2Module } from 'ng2-select2';
+import { DownloadMessageBodyComponent } from './downloadmessagebody/downloadmessagebody.component';
 
 @NgModule({
     declarations: [
@@ -34,7 +35,8 @@ import { Select2Module } from 'ng2-select2';
         MessageComponent,
         ErrorMessageComponent,
         RelatedMessagesComponent,
-        ToDirectionPipe
+        ToDirectionPipe,
+        DownloadMessageBodyComponent
     ],
     imports: [
         AuthenticationModule,

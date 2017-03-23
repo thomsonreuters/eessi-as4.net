@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 using System;
+using System.Text;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
@@ -35,6 +36,8 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private readonly string OutEbmsRefToMessageId1 = "OutEbmsRefToMessageId1";
         private readonly string OutEbmsRefToMessageId2 = "OutEbmsRefToMessageId2";
         private readonly string pmodeString;
+        private readonly string MessageBody1 = "TEST";
+        private readonly string MessageBody2 = "TEST2";
         private DatastoreContext datastoreContext;
         private MonitorService monitorService;
         private DbContextOptions<DatastoreContext> options;
@@ -90,52 +93,60 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                     EbmsMessageId = InEbmsMessageId1,
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Status = InStatus.Created
+                    Status = InStatus.Created,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.InMessages.Add(new InMessage
                 {
                     EbmsMessageId = InEbmsMessageId2,
                     EbmsRefToMessageId = InEbmsRefToMessageId2,
                     PMode = pmodeString,
-                    Status = InStatus.Received
+                    Status = InStatus.Received,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.OutMessages.Add(new OutMessage
                 {
                     EbmsMessageId = OutEbmsMessageId1,
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Status = OutStatus.Created
+                    Status = OutStatus.Created,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody2)
                 });
                 datastoreContext.OutMessages.Add(new OutMessage
                 {
                     EbmsMessageId = OutEbmsMessageId2,
                     EbmsRefToMessageId = OutEbmsRefToMessageId2,
                     PMode = pmodeString,
-                    Status = OutStatus.Created
+                    Status = OutStatus.Created,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 12
+                    Id = 12,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 13
+                    Id = 13,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 14
+                    Id = 14,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 15
+                    Id = 15,
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.SaveChanges();
             }
@@ -471,6 +482,47 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 public async Task Throws_Exception_When_Parames_Are_Null()
                 {
                     await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().monitorService.GetRelatedMessages(Direction.Outbound, null));
+                }
+            }
+
+            public class DownloadMessageBody : MonitorServiceTests
+            {
+                [Fact]
+                public async Task Throws_Exception_When_Parameters_Are_Invalid()
+                {
+                    Setup();
+                    await ExpectExceptionAsync(() => monitorService.DownloadMessageBody(Direction.Inbound, null), typeof(ArgumentNullException));
+                }
+
+                [Fact]
+                public async Task Gets_The_MessageBody()
+                {
+                    var testBody = Encoding.ASCII.GetBytes(MessageBody1);
+                    var testBody2 = Encoding.ASCII.GetBytes(MessageBody2);
+                    var result = await Setup().monitorService.DownloadMessageBody(Direction.Inbound, InEbmsMessageId1);
+                    var result2 = await Setup().monitorService.DownloadMessageBody(Direction.Outbound, OutEbmsMessageId1);
+                    Assert.True(Encoding.ASCII.GetString(testBody) == MessageBody1);
+                    Assert.True(Encoding.ASCII.GetString(testBody2) == MessageBody2);
+                }
+            }
+
+            public class DownloadExceptionBody : MonitorServiceTests
+            {
+                [Fact]
+                public async Task Throws_Exception_When_Parameters_Are_Invalid()
+                {
+                    Setup();
+                    await ExpectExceptionAsync(() => monitorService.DownloadExceptionBody(Direction.Inbound, null), typeof(ArgumentNullException));
+                }
+
+                [Theory]
+                [InlineData(Direction.Inbound, "ebmsMessageId1")]
+                [InlineData(Direction.Outbound, "OutEbmsMessageId1")]
+                public async Task Gets_The_MesageBody(Direction direction, string ebmsMessageId)
+                {
+                    var testBody = Encoding.ASCII.GetBytes(MessageBody1);
+                    var result = await Setup().monitorService.DownloadExceptionBody(direction, ebmsMessageId);
+                    Assert.True(testBody == result);
                 }
             }
         }
