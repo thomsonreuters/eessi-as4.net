@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
 using FluentValidation.Results;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
@@ -16,6 +17,8 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class PModeToPullMessageTransformer : ITransformer
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
         /// </summary>
@@ -77,6 +80,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static AS4Exception CreateAS4Exception(string description)
         {
+            Logger.Error(description);
             return AS4ExceptionBuilder.WithDescription(description).Build();
         }
     }
