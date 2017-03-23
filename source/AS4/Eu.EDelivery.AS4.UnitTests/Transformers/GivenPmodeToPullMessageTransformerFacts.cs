@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
@@ -9,7 +8,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Xunit;
 
@@ -50,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             const string expectedMpc = "expected-mpc";
             var transformer = new PModeToPullMessageTransformer();
             var expectedSendingPMode = new ValidStubSendingPMode("expected-id") {MessagePackaging = {Mpc = expectedMpc}};
-            var receivedMessage = new ReceivedPullMessage(new AS4Message().ToStream(), Constants.ContentTypes.Soap, expectedSendingPMode);
+            var receivedMessage = new ReceivedPullMessage(expectedSendingPMode);
 
             // Act
             InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
@@ -82,12 +80,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public IEnumerator<object[]> GetEnumerator()
             {
                 yield return new object[] {new ReceivedMessage(requestStream: null)};
-                yield return new object[] {new ReceivedMessage(Stream.Null)};
 
                 var invalidSendingPMode = new ValidStubSendingPMode("my id") {PullConfiguration = new PullConfiguration()};
-                MemoryStream messageStream = new AS4Message {SendingPMode = invalidSendingPMode}.ToStream();
-
-                yield return new object[] {new ReceivedPullMessage(messageStream, Constants.ContentTypes.Soap, invalidSendingPMode) };
+                yield return new object[] {new ReceivedPullMessage(invalidSendingPMode) };
             }
         }
     }
