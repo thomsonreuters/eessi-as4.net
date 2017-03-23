@@ -43,12 +43,12 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         /// <summary>
-        /// Configure the receiver with a given Property Dictionary
+        /// Configure the receiver with a given settings dictionary.
         /// </summary>
-        /// <param name="properties"></param>
-        public void Configure(IDictionary<string, string> properties)
+        /// <param name="settings"></param>
+        public void Configure(IEnumerable<Setting> settings)
         {
-            this._properties = properties;
+            this._properties = settings.ToDictionary(s => s.Key, s => s.Value);
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,21 +61,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             public void ThenConfigureSucceeds()
             {
                 // Arrange
-                IDictionary<string, string> properties = CreateDefaultDatastoreReceiverProperties();
+               IEnumerable<Setting> properties = CreateDefaultDatastoreReceiverSettings();
+
                 // Act
                 this._receiver.Configure(properties);
+
                 // Assert
                 Assert.Same(properties, properties);
             }
 
-            private IDictionary<string, string> CreateDefaultDatastoreReceiverProperties()
+            private IEnumerable<Setting> CreateDefaultDatastoreReceiverSettings()
             {
-                return new ConcurrentDictionary<string, string>()
+                return new[]
                 {
-                    ["Table"] = "OutMessages",
-                    ["Field"] = "Operation",
-                    ["Value"] = "ToBeSend",
-                    ["Update"] = "Sending",
+                    new Setting("Table", "OutMessages"),
+                    new Setting("Field", "Operation"),
+                    new Setting("Value", "ToBeSend"),
+                    new Setting("Update", "Sending")    
                 };
             }
 
@@ -85,6 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 // Arrange
                 var source = new CancellationTokenSource();
+
                 // Act
                 base._receiver.StartReceiving(
                     (message, token) => AssertOnReceivedMessage(message, source), source.Token);

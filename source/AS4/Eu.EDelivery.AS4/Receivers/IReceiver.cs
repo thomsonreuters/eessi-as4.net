@@ -12,10 +12,10 @@ namespace Eu.EDelivery.AS4.Receivers
     public interface IReceiver
     {
         /// <summary>
-        /// Configure the receiver with a given Property Dictionary
+        /// Configure the receiver with a given settings dictionary.
         /// </summary>
-        /// <param name="properties"></param>
-        void Configure(IDictionary<string, string> properties);
+        /// <param name="settings"></param>
+        void Configure(IEnumerable<Setting> settings);
 
         /// <summary>
         /// Start receiving on a configured Target
@@ -28,5 +28,5 @@ namespace Eu.EDelivery.AS4.Receivers
             CancellationToken cancellationToken);
 
         void StopReceiving();
-    }
+    }   
 }
