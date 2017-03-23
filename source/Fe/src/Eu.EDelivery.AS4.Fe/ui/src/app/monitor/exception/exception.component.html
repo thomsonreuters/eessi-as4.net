@@ -95,12 +95,13 @@
             <colgroup>
                 <col width="2%">
                 <col width="2%">
-                <col width="8%">
+                <col width="10%">
                 <col width="5%">
+                <col width="25%">
                 <col width="15%">
-                <col width="8%">
-                <col width="15%">
+                <col width="28%">
                 <col width="5%">
+                <col/>
             </colgroup>
             <thead>
                 <tr>
@@ -112,6 +113,7 @@
                     <th>Modification time</th>
                     <th>Exception</th>
                     <th>Pmode</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -129,6 +131,9 @@
                         <td>{{message.exceptionShort}}</td>
                         <td>
                             <a [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
+                        </td>
+                        <td>
+                            <downloadmessagebody [type]="'exception'" [direction]="message.direction" [messageId]="message.ebmsRefToMessageId"></downloadmessagebody>
                         </td>
                     </tr>
                     <tr *ngIf="message === activeMessage">

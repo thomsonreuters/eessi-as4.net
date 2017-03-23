@@ -158,5 +158,39 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
       foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
       return result;
     }
+
+    public async Task<byte[]> DownloadMessageBody(Direction direction, string messageId)
+    {
+      if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
+      if (direction == Direction.Inbound)
+      {
+        return await context.InMessages
+            .Where(msg => msg.EbmsMessageId == messageId)
+            .Select(msg => msg.MessageBody)
+            .FirstOrDefaultAsync();
+      }
+
+      return await context.OutMessages
+          .Where(msg => msg.EbmsMessageId == messageId)
+          .Select(msg => msg.MessageBody)
+          .FirstOrDefaultAsync();
+    }
+
+    public async Task<byte[]> DownloadExceptionBody(Direction direction, string messageId)
+    {
+      if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
+      if (direction == Direction.Inbound)
+      {
+        return await context.InExceptions
+            .Where(msg => msg.EbmsRefToMessageId == messageId)
+            .Select(msg => msg.MessageBody)
+            .FirstOrDefaultAsync();
+      }
+
+      return await context.OutExceptions
+          .Where(msg => msg.EbmsRefToMessageId == messageId)
+          .Select(msg => msg.MessageBody)
+          .FirstOrDefaultAsync();
+    }
   }
 }

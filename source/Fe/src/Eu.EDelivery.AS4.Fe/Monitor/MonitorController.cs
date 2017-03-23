@@ -33,5 +33,19 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     {
       return new OkObjectResult(await monitorService.GetRelatedMessages(direction, messageId));
     }
+
+    [HttpGet]
+    [Route("messagebody")]
+    public async Task<FileContentResult> GetMessageBody(Direction direction, string messageId)
+    {
+      return File(await monitorService.DownloadMessageBody(direction, messageId), "application/txt");
+    }
+
+    [HttpGet]
+    [Route("exceptionbody")]
+    public async Task<FileContentResult> GetExceptionBody(Direction direction, string messageId)
+    {
+      return File(await monitorService.DownloadExceptionBody(direction, messageId), "application/txt");
+    }
   }
 }

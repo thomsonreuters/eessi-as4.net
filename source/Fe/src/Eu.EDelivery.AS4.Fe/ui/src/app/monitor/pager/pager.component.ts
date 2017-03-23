@@ -5,7 +5,7 @@ import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output, OnChan
     template: `
         <div class="row">
             <div *ngIf="!!pageTotal && !!total" class="col-xs-6 summary text-right">{{pageTotal}} of {{total}}</div>
-            <div class="col-xs-6 text-right">
+            <div *ngIf="!!pageTotal && !!total" class="col-xs-6 text-right">
                 <ul *ngIf="pager.pages && pager.pages.length" class="pagination">
                     <li [ngClass]="{disabled:pager.currentPage === 1}">
                         <a (click)="!(pager.currentPage === 1) && onChangePage.emit(1)" class="hover">First</a>

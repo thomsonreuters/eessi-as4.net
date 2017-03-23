@@ -13,9 +13,9 @@ export class TlsConfiguration {
 
 	static getForm(formBuilder: FormBuilder, current: TlsConfiguration): FormGroup {
 		let form = formBuilder.group({
-			isEnabled: [!!(current && current.isEnabled)],
-			tlsVersion: [(current == null || current.tlsVersion == null) ? 3 : current.tlsVersion],
-			clientCertificateReference: ClientCertificateReference.getForm(formBuilder, current && current.clientCertificateReference),
+			[this.FIELD_isEnabled]: [!!(current && current.isEnabled)],
+			[this.FIELD_tlsVersion]: [(current == null || current.tlsVersion == null) ? 3 : current.tlsVersion],
+			[this.FIELD_clientCertificateReference]: ClientCertificateReference.getForm(formBuilder, current && current.clientCertificateReference),
 		});
 		TlsConfiguration.setupForm(form);
 		return form;
@@ -23,15 +23,13 @@ export class TlsConfiguration {
 	/// Patch up all the formArray controls
 	static patchForm(formBuilder: FormBuilder, form: FormGroup, current: TlsConfiguration) {
 		form.get(this.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
-		form.get(this.FIELD_tlsVersion).reset({ value: current && current.isEnabled, disabled: !!!current });
+		form.get(this.FIELD_tlsVersion).reset({ value: current && current.isEnabled, disabled: !!!current || !current.isEnabled });
 		ClientCertificateReference.patchForm(formBuilder, <FormGroup>form.get(this.FIELD_clientCertificateReference), current && current.clientCertificateReference);
 	}
-
 	static setupForm(form: FormGroup) {
 		this.processEnabled(form);
 		form.get(TlsConfiguration.FIELD_isEnabled).valueChanges.subscribe(() => this.processEnabled(form));
 	}
-
 	static processEnabled(form: FormGroup) {
 		let isEnabled = form.get(TlsConfiguration.FIELD_isEnabled).value;
 		if (isEnabled) {
