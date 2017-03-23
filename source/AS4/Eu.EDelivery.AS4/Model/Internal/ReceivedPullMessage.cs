@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Validators;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -14,10 +15,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceivedPullMessage" /> class.
         /// </summary>
-        /// <param name="requestStream">Received request stream.</param>
-        /// <param name="contentType">Content Type of the request stream.</param>
         /// <param name="sendingPMode">Sending Processing Mode for the given Pull Message</param>
-        public ReceivedPullMessage(Stream requestStream, string contentType, SendingProcessingMode sendingPMode) : base(requestStream, contentType)
+        public ReceivedPullMessage(SendingProcessingMode sendingPMode) : base(Stream.Null, Constants.ContentTypes.Soap)
         {
             _sendingPMode = sendingPMode;
         }
@@ -30,7 +29,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             base.AssignProperties(message);
 
+            IValidator<SendingProcessingMode> pmodeValidator = new SendingProcessingModeValidator();
+            pmodeValidator.Validate(_sendingPMode);
+
             message.SendingPMode = _sendingPMode;
+            message.SignalMessages.Add(new PullRequest(_sendingPMode.MessagePackaging.Mpc));
         }
     }
 }
