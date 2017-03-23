@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly IConfig _configuration;
         private readonly Timer _timer;
         private readonly IDictionary<DateTime, List<PModeRequest>> _runSchedulePModes;
+
         private Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> _onPModeReceived;
         private bool _running;
 
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 pmodeRequest.CalculateNewInterval();
 
                 Console.WriteLine(pmodeRequest);
-                tasks.Add(Task.Run(() => _onPModeReceived(new ReceivedPullMessage(Stream.Null, Constants.ContentTypes.Soap, pmodeRequest.PMode), CancellationToken.None)));
+                tasks.Add(Task.Run(() => _onPModeReceived(new ReceivedPullMessage(pmodeRequest.PMode), CancellationToken.None)));
             }
 
             Task.WaitAll(tasks.ToArray());
