@@ -244,6 +244,7 @@
     <Compile Include="Common\GivenRegistryFacts.cs" />
     <Compile Include="Common\NullInternalMessage.cs" />
     <Compile Include="Common\StubConfig.cs" />
+    <Compile Include="Extensions\AS4MessageExtensions.cs" />
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
@@ -274,6 +275,8 @@
     <Compile Include="Model\GivenSendingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenServiceFacts.cs" />
     <Compile Include="Model\GivenUserMessageFacts.cs" />
+    <Compile Include="Model\Internal\GivenReceivedPullMessageFacts.cs" />
+    <Compile Include="Model\Internal\GivenSettingsFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenCollaborationInfoFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

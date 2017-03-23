@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Xml;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -12,10 +12,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class Settings
     {
         public string IdFormat { get; set; }
+
         public SettingsDatabase Database { get; set; }
+
         public CertificateStore CertificateStore { get; set; }
+
         public CustomSettings CustomSettings { get; set; }
+
         public SettingsAgents Agents { get; set; }
+
         public bool FeInProcess { get; set; }
     }
 
@@ -25,6 +30,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class CertificateStore
     {
         public string StoreName { get; set; }
+
         public Repository Repository { get; set; }
     }
 
@@ -33,7 +39,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Repository
     {
-        [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
+        [XmlAttribute(AttributeName = "type")]
+        public string Type { get; set; }
     }
 
     [Serializable]
@@ -41,7 +48,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class CustomSettings
     {
-        [XmlElement("Setting")] public Setting[] Setting { get; set; }
+        [XmlElement("Setting")]
+        public Setting[] Setting { get; set; }
     }
 
     [Serializable]
@@ -49,13 +57,29 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsAgents
     {
-        [XmlElement("SubmitAgent", IsNullable = false)] public SettingsAgent[] SubmitAgents { get; set; }
-        [XmlElement("ReceiveAgent", IsNullable = false)] public SettingsAgent[] ReceiveAgents { get; set; }
-        [XmlElement("SendAgent", IsNullable = false)] public SettingsAgent[] SendAgents { get; set; }
-        [XmlElement("DeliverAgent", IsNullable = false)] public SettingsAgent[] DeliverAgents { get; set; }
-        [XmlElement("NotifyAgent", IsNullable = false)] public SettingsAgent[] NotifyAgents { get; set; }
-        [XmlElement("ReceptionAwarenessAgent", IsNullable = false)] public SettingsAgent ReceptionAwarenessAgent { get; set; }
-        [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)] public SettingsMinderAgent[] MinderTestAgents { get; set; }
+        [XmlElement("SubmitAgent", IsNullable = false)]
+        public SettingsAgent[] SubmitAgents { get; set; }
+
+        [XmlElement("ReceiveAgent", IsNullable = false)]
+        public SettingsAgent[] ReceiveAgents { get; set; }
+
+        [XmlElement("SendAgent", IsNullable = false)]
+        public SettingsAgent[] SendAgents { get; set; }
+
+        [XmlElement("DeliverAgent", IsNullable = false)]
+        public SettingsAgent[] DeliverAgents { get; set; }
+
+        [XmlElement("NotifyAgent", IsNullable = false)]
+        public SettingsAgent[] NotifyAgents { get; set; }
+
+        [XmlElement("ReceptionAwarenessAgent", IsNullable = false)]
+        public SettingsAgent ReceptionAwarenessAgent { get; set; }
+
+        [XmlElement("PullReceiveAgent", IsNullable = false)]
+        public SettingsAgent[] PullReceiveAgents { get; set; }
+
+        [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)]
+        public SettingsMinderAgent[] MinderTestAgents { get; set; }
     }
 
     [Serializable]
@@ -64,23 +88,22 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class SettingsMinderAgent
     {
         /// <summary>
-        /// Indicates whether the Agent should be enabled or not.
+        /// Gets or sets a value indicating whether the Agent should be enabled or not.
         /// </summary>
         [XmlAttribute("Enabled")]
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Defines the URL at which the Agent should listen to.
+        /// Gets or sets a value indicating wheter the URL at which the Agent should listen to.
         /// </summary>
         [XmlAttribute("Url")]
         public string Url { get; set; }
 
         /// <summary>
-        /// Defines the Transformer that should be used to transform a received message.
+        /// Gets or sets a value indicating wheter the Transformer that should be used to transform a received message.
         /// </summary>
         [XmlElement("Transformer")]
         public Transformer Transformer { get; set; }
-
     }
 
     [Serializable]
@@ -89,6 +112,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class SettingsDatabase
     {
         public string Provider { get; set; }
+
         public string ConnectionString { get; set; }
     }
 
@@ -97,12 +121,21 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class SettingsAgent
     {
-        [XmlElement("Receiver")] public Receiver Receiver { get; set; }
-        [XmlElement("Transformer")] public Transformer Transformer { get; set; }
-        [XmlElement("Steps")] public Steps Steps { get; set; }
+        [XmlElement("Receiver")]
+        public Receiver Receiver { get; set; }
+
+        [XmlElement("Transformer")]
+        public Transformer Transformer { get; set; }
+
+        [XmlElement("Steps")]
+        public Steps Steps { get; set; }
+
         // TODO: define decorator strategy for the .xml document
-        [XmlElement("Decorator")] public Decorator Decorator { get; set; }
-        [XmlAttribute(AttributeName = "name")] public string Name { get; set; }
+        [XmlElement("Decorator")]
+        public Decorator Decorator { get; set; }
+
+        [XmlAttribute(AttributeName = "name")]
+        public string Name { get; set; }
     }
 
     [Serializable]
@@ -110,8 +143,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Steps
     {
-        [XmlAttribute(AttributeName = "decorator")] public string Decorator { get; set; }
-        [XmlElement("Step")] public Step[] Step { get; set; }
+        [XmlAttribute(AttributeName = "decorator")]
+        public string Decorator { get; set; }
+
+        [XmlElement("Step")]
+        public Step[] Step { get; set; }
     }
 
     [Serializable]
@@ -119,9 +155,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Step
     {
-        [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
-        [XmlAttribute(AttributeName = "undecorated")] public bool UnDecorated { get; set; }
-        [XmlElement("Setting")] public Setting[] Setting { get; set; }
+        [XmlAttribute(AttributeName = "type")]
+        public string Type { get; set; }
+
+        [XmlAttribute(AttributeName = "undecorated")]
+        public bool UnDecorated { get; set; }
+
+        [XmlElement("Setting")]
+        public Setting[] Setting { get; set; }
     }
 
     /// <summary>
@@ -130,17 +171,18 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <remarks>This class is not serializable.  Only used programmatically for conformonce-testing.</remarks>
     public class ConditionalStepConfig
     {
-        public Func<InternalMessage, bool> Condition { get; }
-        public Steps ThenStepConfig { get; }
-        public Steps ElseStepConfig { get; }
-
-        public ConditionalStepConfig(Func<InternalMessage, bool> condition,
-            Steps thenStepConfig, Steps elseStepConfig)
+        public ConditionalStepConfig(Func<InternalMessage, bool> condition, Steps thenStepConfig, Steps elseStepConfig)
         {
-            this.Condition = condition;
-            this.ThenStepConfig = thenStepConfig;
-            this.ElseStepConfig = elseStepConfig;
+            Condition = condition;
+            ThenStepConfig = thenStepConfig;
+            ElseStepConfig = elseStepConfig;
         }
+
+        public Func<InternalMessage, bool> Condition { get; }
+
+        public Steps ThenStepConfig { get; }
+
+        public Steps ElseStepConfig { get; }
     }
 
     [Serializable]
@@ -148,8 +190,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Decorator
     {
-        [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
-        [XmlElement("Steps")] public Steps Steps { get; set; }
+        [XmlAttribute(AttributeName = "type")]
+        public string Type { get; set; }
+
+        [XmlElement("Steps")]
+        public Steps Steps { get; set; }
     }
 
     [Serializable]
@@ -157,8 +202,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class ReceiveAgent
     {
-        [XmlElement("Receiver")] public Receiver Receiver { get; set; }
-        [XmlElement("Transformer")] public Transformer Transformer { get; set; }
+        [XmlElement("Receiver")]
+        public Receiver Receiver { get; set; }
+
+        [XmlElement("Transformer")]
+        public Transformer Transformer { get; set; }
     }
 
     [Serializable]
@@ -166,9 +214,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Receiver
     {
-        [XmlElement("Setting")] public Setting[] Setting { get; set; }
-        [XmlText] public string[] Text { get; set; }
-        [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
+        [XmlElement("Setting")]
+        public Setting[] Setting { get; set; }
+
+        [XmlText]
+        public string[] Text { get; set; }
+
+        [XmlAttribute(AttributeName = "type")]
+        public string Type { get; set; }
     }
 
     [Serializable]
@@ -176,8 +229,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Setting
     {
-        [XmlAttribute(AttributeName = "key")] public string Key { get; set; }
-        [XmlText] public string Value { get; set; }
+        [XmlAttribute(AttributeName = "key")]
+        public string Key { get; set; }
+
+        [XmlAnyAttribute]
+        public XmlAttribute[] Attributes { get; set; }
+
+        [XmlText]
+        public string Value { get; set; }
     }
 
     [Serializable]
@@ -185,7 +244,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
     public class Transformer
     {
-        [XmlAttribute(AttributeName = "type")] public string Type { get; set; }
+        [XmlAttribute(AttributeName = "type")]
+        public string Type { get; set; }
     }
 
     public enum AgentType
