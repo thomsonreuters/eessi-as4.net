@@ -325,6 +325,7 @@
     <Compile Include="Mappings\PMode\PModeSenderResolver.cs" />
     <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
+    <Compile Include="Model\Internal\ReceivedPullMessage.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
