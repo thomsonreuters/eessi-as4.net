@@ -47,6 +47,11 @@ output/messages/exceptions/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# xUnit+OpenCover test Results
+coverage/
+coverage.xml
+results.xml
+
 # NUNIT
 *.VisualState.xml
 TestResult.xml
