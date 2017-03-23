@@ -49,8 +49,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             const string expectedMpc = "expected-mpc";
             var transformer = new PModeToPullMessageTransformer();
-            var sendingPMode = new ValidStubSendingPMode("expected-id") {MessagePackaging = {Mpc = expectedMpc}};
-            var receivedMessage = new ReceivedPullMessage(new AS4Message().ToStream(), Constants.ContentTypes.Soap, sendingPMode);
+            var expectedSendingPMode = new ValidStubSendingPMode("expected-id") {MessagePackaging = {Mpc = expectedMpc}};
+            var receivedMessage = new ReceivedPullMessage(new AS4Message().ToStream(), Constants.ContentTypes.Soap, expectedSendingPMode);
 
             // Act
             InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
@@ -58,6 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Assert
             var actualSignalMessage = message.AS4Message.PrimarySignalMessage as PullRequest;
             Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
+            Assert.Equal(expectedSendingPMode, message.AS4Message.SendingPMode);
         }
 
         /// <summary>
