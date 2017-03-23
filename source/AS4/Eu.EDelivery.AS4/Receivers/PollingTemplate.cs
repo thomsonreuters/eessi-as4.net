@@ -62,7 +62,8 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     else
                     {
-                        Task.Delay(PollingInterval, cancellationToken).Wait(cancellationToken);
+                       // Task.Delay(PollingInterval, cancellationToken).Wait(cancellationToken);
+                       Thread.Sleep(PollingInterval);
                     }
                 }
             }
