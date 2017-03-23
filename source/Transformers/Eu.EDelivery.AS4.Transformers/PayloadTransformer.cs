@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Transformers
         private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PayloadTransformer"/>
+        /// Initializes a new instance of the <see cref="PayloadTransformer"/> class.
         /// </summary>
         public PayloadTransformer()
         {

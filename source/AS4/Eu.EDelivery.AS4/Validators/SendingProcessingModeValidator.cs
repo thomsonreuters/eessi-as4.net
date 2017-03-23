@@ -22,12 +22,19 @@ namespace Eu.EDelivery.AS4.Validators
 
             RuleFor(pmode => pmode.Id).NotEmpty();
 
+            RulesForPullConfiguration();
             RulesForPushConfiguration();
             RulesForReceiptHandling();
             RulesForErrorHandling();
             RulesForExceptionHandling();
             RulesForSigning();
             RulesForEncryption();
+        }
+
+        private void RulesForPullConfiguration()
+        {
+            RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull();
+            RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty();
         }
 
         private void RulesForPushConfiguration()
