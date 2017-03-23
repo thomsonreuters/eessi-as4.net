@@ -1,7 +1,6 @@
 ﻿using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
@@ -17,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
             // Arrange
             var as4Message = new AS4Message();
             var sendingPMode = new SendingProcessingMode();
-            var receivedMessage = new ReceivedPullMessage(as4Message.ToStream(), Constants.ContentTypes.Soap, sendingPMode);
+            var receivedMessage = new ReceivedPullMessage(sendingPMode);
 
             // Act
             receivedMessage.AssignProperties(as4Message);
