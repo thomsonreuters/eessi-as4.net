@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
@@ -28,8 +27,8 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </param>
         public InMessageService(IDatastoreRepository respository)
         {
-            this._repository = respository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _repository = respository;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -39,8 +38,8 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <returns></returns>
         public bool ContainsUserMessageWithId(string messageId)
         {
-            this._logger.Debug($"Find UserMessage for EbmsMessageId: {messageId}");
-            return this._repository.GetInMessageById(messageId) != null;
+            _logger.Debug($"Find UserMessage for EbmsMessageId: {messageId}");
+            return _repository.GetInMessageById(messageId) != null;
         }
 
         /// <summary>
@@ -50,10 +49,8 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <returns></returns>
         public bool ContainsSignalMessageWithReferenceToMessageId(string refToMessageId)
         {
-            this._logger.Debug($"Find SignalMessage for RefToEbmsMessageId: {refToMessageId}");
-            return
-                this._repository.GetInMessage(inMessage => inMessage.EbmsRefToMessageId?.Equals(refToMessageId) == true) !=
-                null;
+            _logger.Debug($"Find SignalMessage for RefToEbmsMessageId: {refToMessageId}");
+            return _repository.GetInMessage(inMessage => inMessage.EbmsRefToMessageId?.Equals(refToMessageId) == true) != null;
         }
 
         /// <summary>
@@ -66,10 +63,10 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public async Task InsertUserMessageAsync(
             UserMessage usermessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
-            this._logger.Info($"Update Message: {usermessage.MessageId} as User Message");
+            _logger.Info($"Update Message: {usermessage.MessageId} as User Message");
             InMessage inMessage = CreateUserInMessage(usermessage, as4Message, cancellationToken);
 
-            await this._repository.InsertInMessageAsync(inMessage);
+            await _repository.InsertInMessageAsync(inMessage);
         }
 
         private static InMessage CreateUserInMessage(
@@ -112,13 +109,13 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public async Task InsertReceiptAsync(
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
-            this._logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
+            _logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
             InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, cancellationToken);
 
-            await this._repository.InsertInMessageAsync(inMessage);
+            await _repository.InsertInMessageAsync(inMessage);
         }
 
-        private InMessage CreateReceiptInMessage(
+        private static InMessage CreateReceiptInMessage(
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             InMessage inMessage = new InMessageBuilder()
@@ -128,7 +125,11 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithPModeString(AS4XmlSerializer.Serialize(as4Message.SendingPMode))
                 .Build(cancellationToken);
 
-            if (ReceiptDoesNotNeedToBeNotified(as4Message) || signalMessage.IsDuplicated) return inMessage;
+            if (ReceiptDoesNotNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)
+            {
+                return inMessage;
+            }
+
             AddOperationNotified(inMessage);
 
             return inMessage;
@@ -149,7 +150,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public async Task InsertErrorAsync(
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
-            this._logger.Info($"Update Message: {signalMessage.MessageId} as Error");
+            _logger.Info($"Update Message: {signalMessage.MessageId} as Error");
 
             if (_logger.IsWarnEnabled)
             {
@@ -166,10 +167,10 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, cancellationToken);
 
-            await this._repository.InsertInMessageAsync(inMessage);
+            await _repository.InsertInMessageAsync(inMessage);
         }
 
-        private InMessage CreateErrorInMessage(
+        private static InMessage CreateErrorInMessage(
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             InMessage inMessage = new InMessageBuilder()
@@ -210,12 +211,13 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public async Task UpdateSignalMessage(
             SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken)
         {
-            await this._repository.UpdateOutMessageAsync(signalMessage.RefToMessageId,
+            await _repository.UpdateOutMessageAsync(signalMessage.RefToMessageId,
                 outMessage =>
                 {
-                    outMessage.Operation = Operation.Sent;
                     if (status != OutStatus.NotApplicable)
+                    {
                         outMessage.Status = status;
+                    }
                 });
         }
     }

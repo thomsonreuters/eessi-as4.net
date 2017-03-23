@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 : await ReturnSameStepResult(internalMessage);
         }
 
-        private bool IsReplyPatternCallback(AS4Message as4Message)
+        private static bool IsReplyPatternCallback(AS4Message as4Message)
         {
             return as4Message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
@@ -57,12 +57,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(emptyInternalMessage);
         }
 
-        private AS4Message CreateEmptyAS4Message(ReceivingProcessingMode receivingPMode)
+        private static AS4Message CreateEmptyAS4Message(ReceivingProcessingMode receivingPMode)
         {            
             return new AS4MessageBuilder().WithReceivingPMode(receivingPMode).Build();
         }
 
-        private async Task<StepResult> ReturnSameStepResult(InternalMessage internalMessage)
+        private static async Task<StepResult> ReturnSameStepResult(InternalMessage internalMessage)
         {            
             return await StepResult.SuccessAsync(internalMessage);
         }
