@@ -43,6 +43,7 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 PullRequest pullRequest = await CreatePullRequest(receivedMessage, cancellationToken);
                 transformedMessage.AS4Message.SignalMessages.Add(pullRequest);
+                receivedMessage.AssignProperties(transformedMessage.AS4Message);
             }
             catch (AS4Exception exception)
             {
@@ -59,12 +60,11 @@ namespace Eu.EDelivery.AS4.Transformers
         private static async Task<PullRequest> CreatePullRequest(ReceivedMessage receivedMessage, CancellationToken cancellationToken)
         {
             var as4MessageTransformer = new AS4MessageTransformer();
-            InternalMessage internalMessage = await as4MessageTransformer.TransformAsync(receivedMessage, cancellationToken);
 
+            InternalMessage internalMessage = await as4MessageTransformer.TransformAsync(receivedMessage, cancellationToken);
             await ValidateSendingPMode(internalMessage.AS4Message.SendingPMode, cancellationToken);
 
-            string pmodeMpc = internalMessage.AS4Message.SendingPMode.MessagePackaging.Mpc;
-            return new PullRequest(pmodeMpc);
+            return new PullRequest(internalMessage.AS4Message.SendingPMode.MessagePackaging.Mpc);
         }
 
         private static async Task ValidateSendingPMode(SendingProcessingMode sendingPMode, CancellationToken cancellationToken)
