@@ -1,5 +1,5 @@
 import { DialogService } from './../../common/dialog.service';
-import { PartyId } from './../../api/PartyId';
+import { PartyIdForm } from './../../api/PartyIdForm';
 import { Party } from './../../api/Party';
 import { Component, Input } from '@angular/core';
 import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/forms';
@@ -62,7 +62,7 @@ export class PartyComponent {
     }
     public addParty() {
         let form = <FormArray>this.group.controls[Party.FIELD_partyIds];
-        form.push(PartyId.getForm(this.formBuilder, null));
+        form.push(PartyIdForm.getForm(this.formBuilder, null));
         this.group.markAsDirty();
     }
     public removeParty(index: number) {

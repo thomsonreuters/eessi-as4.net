@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Eu.EDelivery.AS4.Fe.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -76,13 +75,6 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             {
                 scanner.Register(iface, services, baseTypes, moduleAssemblies, mappings);
             }
-
-            //scanner.Register<IModular>(services, baseTypes, moduleAssemblies, mappings);
-            //scanner
-            //    .Register<IAs4SettingsService>(services, baseTypes, moduleAssemblies, mappings)
-            //    .Register<IRunAtServicesStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
-            //    .Register<IRunAtAppStartup>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient)
-            //    .Register<IRunAtConfiguration>(services, baseTypes, moduleAssemblies, mappings, ServiceLifetime.Transient);
         }
 
         private static void CallStartup<T>(IServiceCollection services, Action<T> caller)

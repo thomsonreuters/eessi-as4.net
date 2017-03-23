@@ -1,4 +1,4 @@
-#r "System.Text.Encoding"
+﻿#r "System.Text.Encoding"
 #r "System.Runtime"
 #r "System.Threading.Tasks"
 
@@ -95,6 +95,7 @@ public class Entity
         public string Type { get; set; }
         public object ConstantValue { get; set; }
         public bool IsNullable { get; set; }
+        public bool IsPrimitive { get; set; }
     }
 
     public enum EntityType
@@ -137,8 +138,32 @@ static string enumTemplate =
     }{{#newline}}
     {{/each}}";
 
-static void ParseDirectory(string dir, string outputFile)
+static void ParseDirectory(string dir, string outputFile, string classTemplatePath, string enumTemplatePath)
 {
+    if(string.IsNullOrEmpty(dir))
+    {
+        throw new ArgumentException("Folder to scan is required");
+    }
+    else if(!Directory.Exists(dir))
+    {
+        throw new ArgumentException("Folder to scan does not exist");
+    }
+
+    if(string.IsNullOrEmpty(outputFile))
+    {
+        outputFile = Path.Combine(dir, "dto.d.ts");
+    }
+
+    if(!string.IsNullOrEmpty(classTemplatePath) && !File.Exists(classTemplatePath))
+    {
+        throw new ArgumentException("ClassTemplate file does not exist");
+    }
+
+    if (!string.IsNullOrEmpty(enumTemplatePath) && !File.Exists(enumTemplatePath))
+    {
+        throw new ArgumentException("EnumTemplate file does not exist");
+    }
+
     ParsedFiles = new List<ParsedFile>();
     ParseFiles(dir);
     foreach(var subdir in Directory.GetDirectories(dir))
@@ -155,7 +180,7 @@ static void ParseDirectory(string dir, string outputFile)
         }
     }
 
-    RenderDto(entities, outputFile);
+    RenderDto(entities, outputFile, classTemplatePath, enumTemplatePath);
 }
 
 static void ParseFiles(string dir)
@@ -199,7 +224,7 @@ static List<Entity> ProcessFile(ParsedFile file)
 static Entity ProcessClass(ClassDeclarationSyntax cls, SemanticModel model)
 {
     var classSymbol = model.GetDeclaredSymbol(cls);
-    var entity = new Entity { Type = Entity.EntityType.@class};
+    var entity = new Entity { Type = Entity.EntityType.@class };
     entity.Name = classSymbol.Name;
 
     var properties = cls.DescendantNodes().OfType<PropertyDeclarationSyntax>().ToList();
@@ -229,7 +254,7 @@ static Entity ProcessEnum(EnumDeclarationSyntax e, SemanticModel model)
     return entity;
 }
 
-static void RenderDto(List<Entity> entities, string fileName)
+static void RenderDto(List<Entity> entities, string outputFile, string classTemplatePath, string enumTemplatePath)
 {
     var dtoBuilder = new StringBuilder();
     var classes = new List<object>();
@@ -252,7 +277,7 @@ static void RenderDto(List<Entity> entities, string fileName)
             classMembers = classMembers.ToArray()
         });
     }
-    dtoBuilder.Append(CompileTemplate(classTemplate, new { classes = classes.ToArray() }));
+    dtoBuilder.Append(CompileTemplate(GetTemplate(classTemplatePath, classTemplate), new { classes = classes.ToArray() }));
 
     var enums = new List<object>();
     foreach(var entity in entities.Where(o => o.Type == Entity.EntityType.@enum))
@@ -273,9 +298,19 @@ static void RenderDto(List<Entity> entities, string fileName)
             enumMembers = enumMembers.ToArray()
         });
     }
-    dtoBuilder.Append(CompileTemplate(enumTemplate, new { enums = enums.ToArray() }));
+    dtoBuilder.Append(CompileTemplate(GetTemplate(enumTemplatePath, enumTemplate), new { enums = enums.ToArray() }));
 
-    File.WriteAllText(fileName, dtoBuilder.ToString());
+    if (Path.IsPathRooted(outputFile) && !Directory.Exists(Path.GetDirectoryName(outputFile)))
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(outputFile));
+    }
+
+    File.WriteAllText(outputFile, dtoBuilder.ToString());
+}
+
+static string GetTemplate(string templatePath, string template)
+{
+    return !string.IsNullOrEmpty(templatePath) ? File.ReadAllText(templatePath) : enumTemplate;
 }
 
 static string CompileTemplate(string template, object data)
@@ -414,5 +449,9 @@ static bool IsNullable(TypeSyntax type)
     return type as NullableTypeSyntax != null;
 }
 
-var dir = @"C:\TFS\Codit\Codit Integration Dashboard\v4\Dev\source\Portal\Codit.Dashboard.Domain\Dtos";
-ParseDirectory(Env.ScriptArgs[0], Env.ScriptArgs[1]);
+
+ParseDirectory(
+    Env.ScriptArgs.ElementAtOrDefault(0) != null ? Env.ScriptArgs[0] : "", 
+    Env.ScriptArgs.ElementAtOrDefault(1) != null ? Env.ScriptArgs[1] : "",
+    Env.ScriptArgs.ElementAtOrDefault(2) != null ? Env.ScriptArgs[2] : "",
+    Env.ScriptArgs.ElementAtOrDefault(3) != null ? Env.ScriptArgs[3] : "");

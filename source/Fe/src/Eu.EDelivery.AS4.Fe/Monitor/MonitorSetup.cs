@@ -6,13 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
-  public class MonitorSetup : IMonitorSetup
-  {
-    public void Run(IServiceCollection services, IConfigurationRoot configuration)
+    public class MonitorSetup : IMonitorSetup
     {
-      var appSettings = configuration.GetSection("Settings").Get<ApplicationSettings>();
-      services.AddDbContext<DatastoreContext>(options => { options.UseSqlite($"FileName={appSettings.MessagesDatabase}"); });
-      services.AddTransient<IMonitorService, MonitorService>();
+        public void Run(IServiceCollection services, IConfigurationRoot configuration)
+        {
+            var appSettings = configuration.GetSection("Settings").Get<ApplicationSettings>();
+            services.AddDbContext<DatastoreContext>(options => { options.UseSqlite($"FileName={appSettings.MessagesDatabase}"); });
+            services.AddTransient<IMonitorService, MonitorService>();
+        }
     }
-  }
 }

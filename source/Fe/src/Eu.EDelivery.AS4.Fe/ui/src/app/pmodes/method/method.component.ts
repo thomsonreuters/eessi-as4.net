@@ -2,7 +2,7 @@ import { Method } from './../../api/Method';
 import { Component, Input } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, AbstractControl } from '@angular/forms';
 
-import { Parameter } from './../../api/Parameter';
+import { ParameterForm } from './../../api/ParameterForm';
 import { DialogService } from './../../common/dialog.service';
 import { ItemType } from './../../api/ItemType';
 
@@ -42,7 +42,7 @@ export class MethodComponent {
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) { }
     public typeChanged(result: string) {
         let type = this.types.find((method) => method.name === result);
-        this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!type || !!!type.properties ? [] : type.properties.map(prop => Parameter.getForm(this.formBuilder, {
+        this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!type || !!!type.properties ? [] : type.properties.map(prop => ParameterForm.getForm(this.formBuilder, {
             name: prop.friendlyName,
             value: ''
         }))));

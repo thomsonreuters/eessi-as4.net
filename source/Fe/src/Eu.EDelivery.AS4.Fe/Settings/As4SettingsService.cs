@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             EnsureArg.IsNotNull(setAgents, nameof(setAgents));
 
             var file = await GetSettings();
-            var agents = GetAgents(getAgents, file);    
+            var agents = GetAgents(getAgents, file);
             var existing = agents.FirstOrDefault(agent => agent.Name == settingsAgent.Name);
             if (existing != null)
                 throw new Exception($"Agent with name {settingsAgent.Name} already exists");
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             setAgents(file.Agents, agents.ToArray());
 
             await settingsSource.Save(file);
-        }        
+        }
 
         public async Task UpdateAgent(SettingsAgent settingsAgent, string originalAgentName, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
         {

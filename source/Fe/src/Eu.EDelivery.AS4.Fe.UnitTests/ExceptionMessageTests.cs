@@ -1,4 +1,5 @@
 ﻿using Eu.EDelivery.AS4.Fe.Monitor;
+using Eu.EDelivery.AS4.Fe.Monitor.Model;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests

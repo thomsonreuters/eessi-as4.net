@@ -7,6 +7,6 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
         public PmodeType Type { get; set; }
         public string Name { get; set; }
         public TPmode Pmode { get; set; }
-        public string Hash;
+        public string Hash { get; set; }
     }
 }

@@ -1,0 +1,7 @@
+{{#each classes}}
+    export interface {{name}} {{{#newline}}
+        {{#each classMembers}}
+            {{#tab}}{{name}}{{nullable}}: {{type}};{{#newline}}
+        {{/each}}
+    }{{#newline}}
+{{/each}}

@@ -7,6 +7,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { DialogService } from './../common/dialog.service';
 import { RuntimeStore } from './runtime.store';
 import { Base } from './../api/Base';
+import { BaseForm } from './../api/BaseForm';
 import { SettingsService } from './settings.service';
 import { ItemType } from './../api/ItemType';
 import '../common/rxjs/toBehaviorSubject';
@@ -39,7 +40,7 @@ export class BaseSettingsComponent implements CanComponentDeactivate {
         return this._settings;
     }
     public set settings(baseSetting: Base) {
-        this.form = Base.getForm(this.formBuilder, baseSetting);
+        this.form = BaseForm.getForm(this.formBuilder, baseSetting);
         this.isDirty = this
             .form
             .valueChanges

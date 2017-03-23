@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
                 using (var reader = new FileStream(appSettings.Value.SettingsXml, FileMode.Open))
                 {
                     var xml = new XmlSerializer(typeof(Model.Internal.Settings));
-                    return (Model.Internal.Settings) xml.Deserialize(reader);
+                    return (Model.Internal.Settings)xml.Deserialize(reader);
                 }
             });
         }
