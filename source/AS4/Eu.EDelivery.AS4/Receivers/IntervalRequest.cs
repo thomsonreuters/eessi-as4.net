@@ -1,10 +1,11 @@
 using System;
-using System.Xml;
-using Eu.EDelivery.AS4.Model.PMode;
 
-namespace Eu.EDelivery.AS4.Receivers.Pull
+namespace Eu.EDelivery.AS4.Receivers
 {
-    public abstract class IntervalRequest
+    /// <summary>
+    /// Request implementation to use at each interval in the <see cref="ExponentialIntervalReceiver{T}"/>.
+    /// </summary>
+    public class IntervalRequest
     {
         private const double Factor = 1.75;
 
@@ -24,10 +25,10 @@ namespace Eu.EDelivery.AS4.Receivers.Pull
             _maxInterval = maxInterval;
         }
 
-        public TimeSpan CurrentInterval { get; set; }
+        public TimeSpan CurrentInterval { get; private set; }
 
         /// <summary>
-        /// Reset the PMode Request.
+        /// Reset the <see cref="IntervalRequest"/> interval.
         /// </summary>
         public void ResetInterval()
         {
@@ -35,7 +36,7 @@ namespace Eu.EDelivery.AS4.Receivers.Pull
         }
 
         /// <summary>
-        /// Recalculate when the Request must be resend.
+        /// Recalculate when the <see cref="IntervalRequest"/> must be resend.
         /// </summary>
         public void CalculateNewInterval()
         {
@@ -45,7 +46,6 @@ namespace Eu.EDelivery.AS4.Receivers.Pull
             }
 
             var ticks = (long)(_minInterval.Ticks * Math.Pow(Factor, _runs));
-
             CurrentInterval = TimeSpan.FromTicks(ticks);
 
             if (CurrentInterval > _maxInterval)
@@ -55,22 +55,5 @@ namespace Eu.EDelivery.AS4.Receivers.Pull
 
             _runs++;
         }
-    }
-
-    public class PModeRequest : IntervalRequest
-    {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PModeRequest"/> class.
-        /// </summary>
-        /// <param name="pmode">The pmode.</param>
-        /// <param name="minInterval">The min Interval.</param>
-        /// <param name="maxInterval">The max Interval.</param>
-        public PModeRequest(SendingProcessingMode pmode, XmlAttribute minInterval, XmlAttribute maxInterval)
-            : base(TimeSpan.Parse(minInterval.Value), TimeSpan.Parse(maxInterval.Value))
-        {
-            PMode = pmode;
-        }
-
-        public SendingProcessingMode PMode { get; }
     }
 }

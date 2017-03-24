@@ -69,6 +69,16 @@ namespace Eu.EDelivery.AS4.Common
         }
 
         /// <summary>
+        /// Verify if the <see cref="IConfig"/> implementation contains a <see cref="SendingProcessingMode"/> for a given <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">The Sending Processing Mode id for which the verification is done.</param>
+        /// <returns></returns>
+        public bool ContainsSendingPMode(string id)
+        {
+            return _sendingPModeWatcher.ContainsPMode(id);
+        }
+
+        /// <summary>
         /// Retrieve the PMode from the Global Settings
         /// </summary>
         /// <param name="id"></param>
@@ -76,11 +86,13 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
-            if (string.IsNullOrEmpty(id)) throw new AS4Exception("Given Sending PMode key is null");
+            if (string.IsNullOrEmpty(id))
+                throw new AS4Exception("Given Sending PMode key is null");
 
             IPMode pmode = _sendingPModeWatcher.GetPMode(id);
 
-            if (pmode == null) throw new AS4Exception($"No Sending Processing Mode found for {id}");
+            if (pmode == null)
+                throw new AS4Exception($"No Sending Processing Mode found for {id}");
 
             return pmode as SendingProcessingMode;
         }

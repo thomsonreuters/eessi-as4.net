@@ -5,11 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Receivers.Pull;
-using Eu.EDelivery.AS4.Serialization;
 using Timer = System.Timers.Timer;
 
 namespace Eu.EDelivery.AS4.Receivers
@@ -18,32 +14,26 @@ namespace Eu.EDelivery.AS4.Receivers
     /// Receive in a exponential interval <see cref="IntervalRequest"/> instances.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class ExponentialIntervalTemplate<T> where T : IntervalRequest
+    public abstract class ExponentialIntervalReceiver<T> : IReceiver where T : IntervalRequest
     {
         private readonly IDictionary<DateTime, List<T>> _runSchedulePModes;
         private readonly List<T> _intervalRequests;
         private readonly Timer _timer;
-        private bool _running;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExponentialIntervalTemplate{T}"/> class.
+        /// Initializes a new instance of the <see cref="ExponentialIntervalReceiver{T}"/> class.
         /// </summary>
-        protected ExponentialIntervalTemplate()
+        protected ExponentialIntervalReceiver()
         {
             _runSchedulePModes = new ConcurrentDictionary<DateTime, List<T>>();
             _intervalRequests = new List<T>();
-            _timer = new Timer();
-            _timer.Elapsed += TimerEnlapsed;
+            _timer = new Timer {Enabled = false};
+            _timer.Elapsed += TimerElapsed;
         }
 
-        private void TimerEnlapsed(object sender, ElapsedEventArgs eventArgs)
+        private void TimerElapsed(object sender, ElapsedEventArgs eventArgs)
         {
             _timer.Stop();
-
-            if (!_running)
-            {
-                return;
-            }
 
             List<T> intervalRequests = SelectAllRequestsForThisEvent(eventArgs);
             RemoveAllSelectedRequestsForThisEvent(eventArgs);
@@ -94,10 +84,11 @@ namespace Eu.EDelivery.AS4.Receivers
                 AddIntervalRequest(currentTime + intervalRequest.CurrentInterval, intervalRequest);
             }
 
-            if (!_runSchedulePModes.Any()) return;
-
-            _timer.Interval = CalculateNextTriggerInterval(currentTime);
-            _timer.Start();
+            if (_runSchedulePModes.Any())
+            {
+                _timer.Interval = CalculateNextTriggerInterval(currentTime);
+                _timer.Start();
+            }
         }
 
         private void AddIntervalRequest(DateTime dateTime, T intervalRequest)
@@ -127,13 +118,6 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         /// <summary>
-        /// <paramref name="intervalRequest"/> is received.
-        /// </summary>
-        /// <param name="intervalRequest"></param>
-        /// <returns></returns>
-        protected abstract Task<bool> OnRequestReceived(T intervalRequest);
-
-        /// <summary>
         /// Add a interval request to the schedule.
         /// </summary>
         /// <param name="intervalRequest"></param>
@@ -142,49 +126,27 @@ namespace Eu.EDelivery.AS4.Receivers
             _intervalRequests.Add(intervalRequest);
         }
 
+        /// <summary>
+        /// Start the <see cref="ExponentialIntervalReceiver{T}"/> with pulling.
+        /// </summary>
         protected void StartInterval()
         {
-            _running = true;
+            _timer.Enabled = true;
             DetermineNextRuns(_intervalRequests);
-        }
-
-        /// <summary>
-        /// Stop the 
-        /// </summary>
-        protected void StopInterval()
-        {
-            _running = false;
-            _timer.Dispose();
-        }
-    }
-
-    public class TestReceiver : ExponentialIntervalTemplate<PModeRequest>, IReceiver
-    {
-        private readonly IConfig _configuration;
-
-        private Func<PModeRequest, Task<InternalMessage>> _messageCallback;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TestReceiver"/> class.
-        /// </summary>
-        /// <param name="configuration">Configuration used to retrieve the pmodes.</param>
-        public TestReceiver(IConfig configuration)
-        {
-            _configuration = configuration;
         }
 
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
         /// </summary>
         /// <param name="settings"></param>
-        public void Configure(IEnumerable<Setting> settings)
-        {
-            foreach (Setting setting in settings)
-            {
-                SendingProcessingMode pmode = _configuration.GetSendingPMode(setting.Key);
-                AddIntervalRequest(new PModeRequest(pmode, setting["tmin"], setting["tmax"]));
-            }
-        }
+        public abstract void Configure(IEnumerable<Setting> settings);
+
+        /// <summary>
+        /// <paramref name="intervalRequest"/> is received.
+        /// </summary>
+        /// <param name="intervalRequest"></param>
+        /// <returns></returns>
+        protected abstract Task<bool> OnRequestReceived(T intervalRequest);
 
         /// <summary>
         /// Start receiving on a configured Target
@@ -192,37 +154,17 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
-        public void StartReceiving(
+        public abstract void StartReceiving(
             Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
-            CancellationToken cancellationToken)
-        {
-            _messageCallback = message =>
-            {
-                var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(message.PMode));
-                return messageCallback(receivedMessage, cancellationToken);
-            };
-
-            StartInterval();
-        }
+            CancellationToken cancellationToken);
 
         /// <summary>
         /// Stop the receiver from pulling.
         /// </summary>
         public void StopReceiving()
         {
-            StopInterval();
-        }
-
-        /// <summary>
-        /// <paramref name="intervalRequest"/> is received.
-        /// </summary>
-        /// <param name="intervalRequest"></param>
-        /// <returns></returns>
-        protected override async Task<bool> OnRequestReceived(PModeRequest intervalRequest)
-        {
-            InternalMessage resultedMessage = await _messageCallback(intervalRequest);
-
-            return resultedMessage.AS4Message.IsUserMessage;
+            _timer.Enabled = false;
+            _timer.Dispose();
         }
     }
 }
