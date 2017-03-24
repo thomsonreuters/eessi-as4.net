@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Xunit;
 
@@ -18,14 +17,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenPModeToPullMessageTransformerFacts
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GivenPModeToPullMessageTransformerFacts"/> class.
-        /// </summary>
-        public GivenPModeToPullMessageTransformerFacts()
-        {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-        }
-
         [Theory]
         [ClassData(typeof(ReceivedPullMessageSource))]
         public async Task FailsWithNoPullConfigurationSection(ReceivedMessage receivedMessage)
@@ -47,8 +38,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             const string expectedMpc = "expected-mpc";
             var transformer = new PModeToPullMessageTransformer();
-            var expectedSendingPMode = new ValidStubSendingPMode("expected-id") {MessagePackaging = {Mpc = expectedMpc}};
-            var receivedMessage = new ReceivedPullMessage(expectedSendingPMode);
+            SendingProcessingMode expectedSendingPMode = new ValidStubSendingPModeFactory().Create("expected-id");
+            expectedSendingPMode.MessagePackaging.Mpc = expectedMpc;
+
+            var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(expectedSendingPMode));
 
             // Act
             InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
@@ -56,11 +49,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Assert
             var actualSignalMessage = message.AS4Message.PrimarySignalMessage as PullRequest;
             Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
-            Assert.Equal(expectedSendingPMode, message.AS4Message.SendingPMode);
+            Assert.Equal(expectedSendingPMode.Id, message.AS4Message.SendingPMode.Id);
         }
 
         /// <summary>
-        /// Source of different <see cref="ReceivedPullMessage"/> instances.
+        /// Source of different <see cref="ReceivedMessage"/> instances.
         /// </summary>
         private class ReceivedPullMessageSource : IEnumerable<object[]>
         {
@@ -81,8 +74,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             {
                 yield return new object[] {new ReceivedMessage(requestStream: null)};
 
-                var invalidSendingPMode = new ValidStubSendingPMode("my id") {PullConfiguration = new PullConfiguration()};
-                yield return new object[] {new ReceivedPullMessage(invalidSendingPMode) };
+                SendingProcessingMode invalidSendingPMode = new ValidStubSendingPModeFactory().Create("my id");
+                invalidSendingPMode.PullConfiguration = new PullConfiguration();
+                yield return new object[] {new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
             }
         }
     }
