@@ -15,6 +15,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { Decryption } from './Decryption';
+import { DecryptionForm } from './DecryptionForm';
 
 describe('Decryption', () => {
     beforeEach(() => TestBed.configureTestingModule({
@@ -23,14 +24,14 @@ describe('Decryption', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = Decryption.getForm(formBuilder, null);
+        let form = DecryptionForm.getForm(formBuilder, null);
 
         expect(form.get(Decryption.FIELD_encryption).value).toBe(0);
     }));
     it('should have the correct value when a value is used', inject([FormBuilder], (formBuilder: FormBuilder) => {
         let data = new Decryption();
         data.encryption = 3;
-        let form = Decryption.getForm(formBuilder, data);
+        let form = DecryptionForm.getForm(formBuilder, data);
 
         expect(form.get(Decryption.FIELD_encryption).value).toBe(3);
     }));

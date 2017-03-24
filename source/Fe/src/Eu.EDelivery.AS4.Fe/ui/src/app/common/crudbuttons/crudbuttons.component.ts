@@ -8,7 +8,7 @@ import { FormGroup } from '@angular/forms';
         <button type="button" as4-auth class="btn btn-flat add-button" (click)="add.emit()" [attr.disabled]="isNewMode || null"><i class="fa fa-plus"></i></button>
         <button type="button" as4-auth class="btn btn-flat save-button" (click)="save.emit()" [class.btn-primary]="form.dirty || isNewMode" [attr.disabled]="(!form.dirty && !isNewMode) || null"><i class="fa fa-save"></i></button>
         <button type="button" as4-auth class="btn btn-flat delete-button" (click)="delete.emit()" [attr.disabled]="!!!current || null"><i class="fa fa-trash-o"></i></button>
-        <button type="button" as4-auth class="btn btn-flat reset-button" (click)="reset.emit()" [class.btn-primary]="form.dirty || isNewMode" [attr.disabled]="!isNewMode || null"><i class="fa fa-undo"></i></button>
+        <button type="button" as4-auth class="btn btn-flat reset-button" (click)="reset.emit()" [class.btn-primary]="form.dirty || isNewMode" [attr.disabled]="(!form.dirty && !isNewMode) || null"><i class="fa fa-undo"></i></button>
         <ng-content></ng-content>
     `
 })

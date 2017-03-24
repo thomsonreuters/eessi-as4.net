@@ -46,6 +46,10 @@ export class FilterComponent implements OnInit, OnDestroy {
         }
         this._router.navigate(this.getPath(this._activatedRoute), { queryParams: this.filter.sanitize() });
     }
+    public executeServiceCall() {
+        this.queryParamsToFilter();
+        this._messageService.getMessages(this.filter);
+    }
     private getPath(route: ActivatedRoute): string[] {
         let path = new Array<string>();
         let test: ActivatedRouteSnapshot = route.snapshot;
@@ -59,9 +63,5 @@ export class FilterComponent implements OnInit, OnDestroy {
     private queryParamsToFilter() {
         this.filter.fromUrlParams(this._activatedRoute.snapshot.queryParams);
         this.outFilter = Object.assign({}, this.filter);
-    }
-    private executeServiceCall() {
-        this.queryParamsToFilter();
-        this._messageService.getMessages(this.filter);
     }
 }

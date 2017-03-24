@@ -15,6 +15,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { ReceiveReceiptHandling } from './ReceiveReceiptHandling';
+import { ReceiveReceiptHandlingForm } from './ReceiveReceiptHandlingForm';
 
 describe('Receive receipt handling', () => {
     beforeEach(() => TestBed.configureTestingModule({
@@ -23,7 +24,7 @@ describe('Receive receipt handling', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = ReceiveReceiptHandling.getForm(formBuilder, null);
+        let form = ReceiveReceiptHandlingForm.getForm(formBuilder, null);
 
         expect(form.get(ReceiveReceiptHandling.FIELD_useNNRFormat).value).toBeFalsy();
         expect(form.get(ReceiveReceiptHandling.FIELD_replyPattern).value).toBe(0);
@@ -32,7 +33,7 @@ describe('Receive receipt handling', () => {
         let data = new ReceiveReceiptHandling();
         data.replyPattern = 1;
         data.useNNRFormat = true;
-        let form = ReceiveReceiptHandling.getForm(formBuilder, data);
+        let form = ReceiveReceiptHandlingForm.getForm(formBuilder, data);
 
         expect(form.get(ReceiveReceiptHandling.FIELD_replyPattern).value).toBeTruthy();
         expect(form.get(ReceiveReceiptHandling.FIELD_replyPattern).value).toBe(1);

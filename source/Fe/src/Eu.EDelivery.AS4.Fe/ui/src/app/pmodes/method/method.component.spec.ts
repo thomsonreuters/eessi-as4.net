@@ -25,6 +25,7 @@ import { ModalService } from './../../common/modal/modal.service';
 import { Property } from './../../api/Property';
 import { RuntimeStore } from './../../settings/runtime.store';
 import { Method } from './../../api/Method';
+import { MethodForm } from './../../api/MethodForm';
 import { InfoComponent } from './../../common/info/info.component';
 
 describe('Notify method', () => {
@@ -71,7 +72,7 @@ describe('Notify method', () => {
     afterEach(() => fixture.destroy());
     describe('typechanged', () => {
         it('should set the parameters form value', inject([FormBuilder], (formBuilder: FormBuilder) => {
-            instance.group = Method.getForm(formBuilder, method);
+            instance.group = MethodForm.getForm(formBuilder, method);
             instance.types = types;
             instance.typeChanged(itemType1.name);
 

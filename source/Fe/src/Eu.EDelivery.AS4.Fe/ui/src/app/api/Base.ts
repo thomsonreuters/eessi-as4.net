@@ -3,9 +3,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CertificateStore } from './CertificateStore';
 
 export class Base {
-    idFormat: string;
-    certificateStore: CertificateStore;
+    public static FIELD_idFormat: string = 'idFormat';
+    public static FIELD_certificateStore: string = 'certificateStore';
 
-    static FIELD_idFormat: string = 'idFormat';
-    static FIELD_certificateStore: string = 'certificateStore';
+    public idFormat: string;
+    public certificateStore: CertificateStore;
 }

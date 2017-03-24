@@ -1,6 +1,6 @@
 import { BaseSettings } from './BaseSettings';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { CertificateStoreForm } from './CertificateStore';
+import { CertificateStoreForm } from './CertificateStoreForm';
 
 export class BaseSettingsForm {
     public static getForm(formBuilder: FormBuilder, current: BaseSettings): FormGroup {

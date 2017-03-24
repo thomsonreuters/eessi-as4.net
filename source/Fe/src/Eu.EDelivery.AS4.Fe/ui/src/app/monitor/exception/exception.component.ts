@@ -1,10 +1,8 @@
-import { ActivatedRoute, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
-import { Component, trigger, style, transition, state, animate, EventEmitter, Output } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { Exception } from './../../api/Messages/Exception';
 import { ExceptionService } from './exception.service';
-import { DialogService } from './../../common/dialog.service';
 import { ExceptionStore, IExceptionState } from './exception.store';
 import { ExceptionFilter } from './exception.filter';
 import { MESSAGESERVICETOKEN } from '../service.token';

@@ -15,6 +15,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { ReceiveSecurity } from './ReceiveSecurity';
+import { ReceiveSecurityForm } from './ReceiveSecurityForm';
 
 describe('Receive security', () => {
     beforeEach(() => TestBed.configureTestingModule({
@@ -23,7 +24,7 @@ describe('Receive security', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = ReceiveSecurity.getForm(formBuilder, null);
+        let form = ReceiveSecurityForm.getForm(formBuilder, null);
 
         expect(form.get('signingVerification.signature').value).toBe(0);
     }));
@@ -31,7 +32,7 @@ describe('Receive security', () => {
         let data = new ReceiveSecurity();
         data.signingVerification = new SigningVerification();
         data.signingVerification.signature = 2;
-        let form = ReceiveSecurity.getForm(formBuilder, data);
+        let form = ReceiveSecurityForm.getForm(formBuilder, data);
 
         expect(form.get('signingVerification.signature').value).toBe(2);
     }));

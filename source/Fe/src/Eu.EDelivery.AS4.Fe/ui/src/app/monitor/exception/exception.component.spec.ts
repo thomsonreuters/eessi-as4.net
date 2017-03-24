@@ -22,8 +22,7 @@ describe('InException component', () => {
             ExceptionComponent,
             ExceptionStore,
             { provide: ExceptionService, useClass: { getMessages() { } } },
-            { provide: ActivatedRoute, useValue: { snapshot: { queryParams: {} } } },
-            { provide: Router, useClass: {} }
+            { provide: ActivatedRoute, useValue: { snapshot: { queryParams: {} } } }
         ],
         imports: [
             As4ComponentsModule

@@ -42,7 +42,7 @@ describe('Pmode crud', () => {
     let pmode1: IPmode;
     let form: FormGroup;
 
-    beforeEach(async(() => TestBed.configureTestingModule({
+    beforeEach(() => TestBed.configureTestingModule({
         declarations: [
 
         ],
@@ -58,7 +58,7 @@ describe('Pmode crud', () => {
             { provide: PMODECRUD_SERVICE, useClass: PmodeServiceMock },
             { provide: ModalService, useClass: ModalServiceMock }
         ]
-    })));
+    }));
     beforeEach(inject([CrudComponent], (component: CrudComponent) => {
         instance = component;
     }));
@@ -198,15 +198,14 @@ describe('Pmode crud', () => {
     });
     describe('when save', () => {
         it('should call dialogService.incorrectForm when form is not valid', inject([DialogService], (dialogService: DialogService) => {
-            instance.form.invalid = true;
             let dialogSpy = spyOn(dialogService, 'incorrectForm');
+            (<any>instance.form).invalid = true;
 
             instance.save();
 
             expect(dialogSpy).toHaveBeenCalled();
         }));
         it('should call crudService.create when in new mode', inject([PMODECRUD_SERVICE], (service: ICrudPmodeService) => {
-            instance.form.invalid = false;
             instance.isNewMode = true;
             let serviceSpy = spyOn(service, 'create').and.returnValue(Observable.of(true));
 
@@ -216,7 +215,6 @@ describe('Pmode crud', () => {
             expect(instance.isNewMode).toBeFalsy();
         }));
         it('should call crudService.update when not in new mode', inject([PMODECRUD_SERVICE], (service: ICrudPmodeService) => {
-            instance.form.invalid = false;
             instance.isNewMode = false;
             instance.currentPmode = pmode1;
             let serviceSpy = spyOn(service, 'update').and.returnValue(Observable.of(true));

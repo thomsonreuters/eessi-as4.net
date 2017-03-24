@@ -15,6 +15,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { TlsConfiguration } from './TlsConfiguration';
+import { TlsConfigurationForm } from './TlsConfigurationForm';
 
 describe('Tls configuration', () => {
     beforeEach(() => TestBed.configureTestingModule({
@@ -23,14 +24,14 @@ describe('Tls configuration', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = TlsConfiguration.getForm(formBuilder, null);
+        let form = TlsConfigurationForm.getForm(formBuilder, null);
 
         expect(form.get(TlsConfiguration.FIELD_tlsVersion).value).toBe(3);
     }));
     it('should have the correct value when a value is used', inject([FormBuilder], (formBuilder: FormBuilder) => {
         let data = new TlsConfiguration();
         data.tlsVersion = 3;
-        let form = TlsConfiguration.getForm(formBuilder, data);
+        let form = TlsConfigurationForm.getForm(formBuilder, data);
 
         expect(form.get(TlsConfiguration.FIELD_tlsVersion).value).toBe(3);
     }));

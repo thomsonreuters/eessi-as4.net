@@ -81,7 +81,9 @@ module.exports = function (options) {
             // these packages have problems with their sourcemaps
             helpers.root('node_modules/rxjs'),
             helpers.root('node_modules/@angular'),
-            helpers.root('node_modules/angular2-jwt')
+            helpers.root('node_modules/angular2-jwt'),
+            helpers.root('node_modules/ngx-clipboard'),
+            helpers.root('node_modules/ng2-select')
           ]
         },
 
