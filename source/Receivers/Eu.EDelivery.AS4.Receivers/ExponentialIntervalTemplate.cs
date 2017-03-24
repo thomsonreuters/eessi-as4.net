@@ -63,18 +63,26 @@ namespace Eu.EDelivery.AS4.Receivers
             keys.ForEach(k => _runSchedulePModes.Remove(k));
         }
 
-        private void WaitForAllRequests(IEnumerable<T> pmodeRequests)
+        private void WaitForAllRequests(IEnumerable<T> intervalRequests)
         {
             var tasks = new List<Task>();
 
-            foreach (T intervalRequest in pmodeRequests)
+            foreach (T intervalRequest in intervalRequests)
             {
                 intervalRequest.CalculateNewInterval();
 
-                tasks.Add(Task.Run(() => OnRequestReceived(intervalRequest)));
+                tasks.Add(Task.Run(() => OnIntervalRequestReceived(intervalRequest)));
             }
 
             Task.WaitAll(tasks.ToArray());
+        }
+
+        private async Task OnIntervalRequestReceived(T intervalRequest)
+        {
+            if (await OnRequestReceived(intervalRequest))
+            {
+                intervalRequest.ResetInterval();
+            }
         }
 
         private void DetermineNextRuns(IEnumerable<T> intervalRequests)
@@ -123,7 +131,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="intervalRequest"></param>
         /// <returns></returns>
-        protected abstract Task OnRequestReceived(T intervalRequest);
+        protected abstract Task<bool> OnRequestReceived(T intervalRequest);
 
         /// <summary>
         /// Add a interval request to the schedule.
@@ -153,6 +161,7 @@ namespace Eu.EDelivery.AS4.Receivers
     public class TestReceiver : ExponentialIntervalTemplate<PModeRequest>, IReceiver
     {
         private readonly IConfig _configuration;
+
         private Func<PModeRequest, Task<InternalMessage>> _messageCallback;
 
         /// <summary>
@@ -173,7 +182,7 @@ namespace Eu.EDelivery.AS4.Receivers
             foreach (Setting setting in settings)
             {
                 SendingProcessingMode pmode = _configuration.GetSendingPMode(setting.Key);
-                base.AddIntervalRequest(new PModeRequest(pmode, setting["tmin"], setting["tmax"]));
+                AddIntervalRequest(new PModeRequest(pmode, setting["tmin"], setting["tmax"]));
             }
         }
 
@@ -183,7 +192,9 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
-        public void StartReceiving(Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback, CancellationToken cancellationToken)
+        public void StartReceiving(
+            Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
+            CancellationToken cancellationToken)
         {
             _messageCallback = message =>
             {
@@ -191,7 +202,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 return messageCallback(receivedMessage, cancellationToken);
             };
 
-            base.StartInterval();
+            StartInterval();
         }
 
         /// <summary>
@@ -199,7 +210,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public void StopReceiving()
         {
-            base.StopInterval();
+            StopInterval();
         }
 
         /// <summary>
@@ -207,14 +218,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="intervalRequest"></param>
         /// <returns></returns>
-        protected override async Task OnRequestReceived(PModeRequest intervalRequest)
+        protected override async Task<bool> OnRequestReceived(PModeRequest intervalRequest)
         {
             InternalMessage resultedMessage = await _messageCallback(intervalRequest);
 
-            if (resultedMessage.AS4Message.IsUserMessage)
-            {
-                intervalRequest.ResetInterval();
-            }
+            return resultedMessage.AS4Message.IsUserMessage;
         }
     }
 }
