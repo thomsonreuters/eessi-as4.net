@@ -34,7 +34,7 @@
                         </span>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms message id" labelSize="3" controlSize="9">
+                <as4-input label="ebMS message id" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <input type="text" name="ebmsMessageId" [(ngModel)]="filter.filter.ebmsMessageId" />
                         <div class="input-group-btn">
@@ -42,7 +42,7 @@
                         </div>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms ref to message id" labelSize="3" controlSize="9">
+                <as4-input label="ebMS ref to message id" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
                         <div class="input-group-btn">
@@ -50,7 +50,7 @@
                         </div>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms message type" labelSize="3" controlSize="9">
+                <as4-input label="ebMS message type" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <select name="ebmsMessageType" [(ngModel)]="filter.filter.ebmsMessageType" multiselect>
                             <option value="0">User message</option>
@@ -203,7 +203,7 @@
                                     <div tabitem title="Info">
                                         <p><b>Content type</b>: {{message.contentType}}</p>
                                         <p><b>Modification time</b>: {{message.modificationTime | todate}}</p>
-                                        <p><b>Ebms ref to message id</b>: {{!!!message.ebmsRefToMessageId ? 'N/A' : message.ebmsRefToMessageId}}</p>
+                                        <p><b>ebMS ref to message id</b>: {{!!!message.ebmsRefToMessageId ? 'N/A' : message.ebmsRefToMessageId}}</p>
                                     </div>
                                     <div tabitem title="Exceptions" class="exceptions">
                                         <as4-error-message [message]="message" [direction]="+filter.outFilter.direction === 0 ? 1 : 0"></as4-error-message>
