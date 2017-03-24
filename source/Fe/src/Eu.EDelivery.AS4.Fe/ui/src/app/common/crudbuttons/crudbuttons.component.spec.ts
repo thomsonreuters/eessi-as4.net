@@ -1,4 +1,4 @@
-import { By } from '@angular/platform-browser/src/dom/debug/by';
+import { By } from '@angular/platform-browser';
 import { Observable } from 'rxjs';
 import {
     inject,
@@ -11,7 +11,7 @@ import {
     ConnectionBackend,
     Http
 } from '@angular/http';
-import { MockBackend } from '@angular/http/testing';
+import { MockBackend } from '@angular/testing';
 
 import { CrudButtonsComponent } from './crudbuttons.component';
 
@@ -21,11 +21,12 @@ describe('crudbuttons', () => {
             CrudButtonsComponent
         ]
     }));
-    function getInstance() {
+    function getInstance(): ComponentFixture<CrudButtonsComponent> {
         let cmp = TestBed.createComponent(CrudButtonsComponent);
         let instance = cmp.componentInstance;
         instance.form = <any>{
-            dirty: false
+            dirty: false,
+            markAsPristine: () => { }
         };
         return cmp;
     }
@@ -92,7 +93,6 @@ describe('crudbuttons', () => {
     describe('form dirty state', () => {
         it('should disable save when form is not dirty', () => {
             let instance = getInstance();
-            instance.componentInstance.form.dirty = false;
 
             let saveButton = instance.debugElement.query(By.css('.save-button'));
             let resetButton = instance.debugElement.query(By.css('.reset-button'));
@@ -103,7 +103,7 @@ describe('crudbuttons', () => {
         });
         it('should enable save when form is dirty', () => {
             let instance = getInstance();
-            instance.componentInstance.form.dirty = true;
+            (<any>instance.componentInstance.form).dirty = true;
 
             let saveButton = instance.debugElement.query(By.css('.save-button'));
             let resetButton = instance.debugElement.query(By.css('.reset-button'));

@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
     {
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.Configure<AuthenticationConfiguration>(configuration.GetSection("Authentication"));
+            RegisterOptions(services, configuration);
 
             var databaseName = configuration.GetSection("Authentication")["Database"];
 
@@ -25,7 +25,8 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
             var connectionString = connectionStringBuilder.ToString();
             var connection = new SqliteConnection(connectionString);
 
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
+            services
+                .AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
             services
                 .AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -72,27 +73,13 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
 
                 userManager.AddClaimsAsync(user1, new[] { new Claim(ClaimTypes.Role, Roles.Admin) }).Wait();
                 userManager.AddClaimsAsync(user2, new[] { new Claim(ClaimTypes.Role, Roles.Readonly) }).Wait();
-
-                //var adminRole = new IdentityRole("admin");
-                //var readonlyRole = new IdentityRole("readonly");
-                //var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<IdentityRole>>();
-                //var admin = roleManager.CreateAsync(adminRole).Result;
-                //var read = roleManager.CreateAsync(readonlyRole).Result;
-
-                //var result1 = roleManager.AddClaimAsync(adminRole, new Claim(ClaimTypes.Role, "admin")).Result;
-                //var result2 = roleManager.AddClaimAsync(readonlyRole, new Claim(ClaimTypes.Role, "readonly")).Result;
-
-                //var db = serviceScope.ServiceProvider.GetService<UserManager<ApplicationUser>>();
-
-                //var user1 = new ApplicationUser { UserName = "test" };
-                //var user2 = new ApplicationUser { UserName = "test2" };
-
-                //db.CreateAsync(user1, "gl0M+`pxas").Wait();
-                //db.CreateAsync(user2, "gl0M+`pxas").Wait();
-
-                //var role1 = db.AddToRoleAsync(user1, "admin").Result;
-                //var role2 = db.AddToRoleAsync(user2, "readonly").Result;
             }
+        }
+
+        private static void RegisterOptions(IServiceCollection services, IConfigurationRoot configuration)
+        {
+            services.Configure<AuthenticationConfiguration>(configuration.GetSection("Authentication"));
+            services.Configure<JwtOptions>(configuration.GetSection("Authentication:JwtOptions"));
         }
     }
 }

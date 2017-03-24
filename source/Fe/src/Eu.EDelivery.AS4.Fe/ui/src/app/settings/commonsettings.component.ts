@@ -5,10 +5,12 @@ import { Component, Input, Output } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { DialogService } from './../common/dialog.service';
+import { CustomSettingsForm } from './../api/CustomSettingsForm';
 import { CustomSettings } from './../api/CustomSettings';
 import { SettingsService } from './settings.service';
-import { Setting } from './../api/Setting';
 import '../common/rxjs/toBehaviorSubject';
+import { SettingForm } from '../api/SettingForm';
+import { Setting } from '../api/Setting';
 
 @Component({
     selector: 'as4-custom-settings',
@@ -40,7 +42,7 @@ export class CommonSettingsComponent implements CanComponentDeactivate {
         return this._settings;
     }
     public set settings(settings: CustomSettings) {
-        this.form = CustomSettings.getForm(this.formBuilder, settings);
+        this.form = CustomSettingsForm.getForm(this.formBuilder, settings);
         this._settings = settings;
         this.isDirty = this.form.valueChanges.map(() => this.form.dirty).toBehaviorSubject(this.form.dirty);
     }
@@ -65,7 +67,7 @@ export class CommonSettingsComponent implements CanComponentDeactivate {
     public addSetting() {
         this.form.markAsDirty();
         let settings = <FormArray>this.form.controls['setting'];
-        settings.push(Setting.getForm(this.formBuilder, new Setting()));
+        settings.push(SettingForm.getForm(this.formBuilder, new Setting()));
     }
     public removeSetting(index: number) {
         if (!this.dialogService.confirm('Please confirm that you want to delete the setting')) {

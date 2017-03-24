@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Modules
 {
-    public interface IRunAtConfiguration : ILifecylceHook
+    public interface IRunAtConfiguration : ILifeCycleHook
     {
         void Run(IConfigurationBuilder configBuilder);
     }

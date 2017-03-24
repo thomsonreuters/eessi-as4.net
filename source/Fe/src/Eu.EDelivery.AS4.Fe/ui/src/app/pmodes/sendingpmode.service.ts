@@ -10,6 +10,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { PmodeStore } from './pmode.store';
 import { SendingPmode } from './../api/SendingPmode';
+import { SendingPmodeForm } from './../api/SendingPmodeForm';
 import { ReceivingPmode } from './../api/ReceivingPmode';
 import { IPmode } from './../api/Pmode.interface';
 import { ICrudPmodeService } from './crudpmode.service.interface';
@@ -84,10 +85,10 @@ export class SendingPmodeService implements ICrudPmodeService {
         return obs.asObservable();
     }
     public patchForm(form: FormGroup, pmode: IPmode) {
-        SendingPmode.patchForm(this.formBuilder, form, <SendingPmode>pmode);
+        SendingPmodeForm.patchForm(this.formBuilder, form, <SendingPmode>pmode);
     }
     public getForm(pmode: IPmode): FormGroup {
-        return SendingPmode.getForm(this.formBuilder, <SendingPmode>pmode);
+        return SendingPmodeForm.getForm(this.formBuilder, <SendingPmode>pmode);
     }
     public patchName(form: FormGroup, name: string) {
         form.setValue({ [SendingPmode.FIELD_name]: name });

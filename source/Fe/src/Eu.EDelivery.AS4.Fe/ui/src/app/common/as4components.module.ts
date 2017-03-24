@@ -84,7 +84,6 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ModalService,
         SpinnerService,
         RolesService,
-        ClipboardModule,
         RouterService,
         // {
         //     provide: ErrorHandler,
@@ -135,16 +134,15 @@ export function authHttpServiceFactory(http: Http, options: RequestOptions) {
         ContainsPipe
     ],
     imports: [
+        ClipboardModule,
         AuthenticationModule,
         RouterModule,
         CommonModule,
         ReactiveFormsModule,
         FormsModule,
         TextMaskModule,
-        ClipboardModule,
         Select2Module
     ]
 })
 export class As4ComponentsModule {
-
 }

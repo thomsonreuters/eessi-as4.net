@@ -19,14 +19,12 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         protected IEnumerable<ReceivingBasePmode> ReceivingPmodes { get; private set; }
         protected ReceivingBasePmode ReceivingBasePmode { get; private set; }
         protected SendingBasePmode SendingBasePmode { get; private set; }
-        protected IMonitorService MonitorService { get; set; }
         protected string Pmode { get; private set; }
 
         protected As4PmodeServiceTests Setup()
         {
             Source = Substitute.For<IAs4PmodeSource>();
-            MonitorService = Substitute.For<IMonitorService>();
-            Service = new As4PmodeService(Source, MonitorService);
+            Service = new As4PmodeService(Source);
             SetupPmodes();
             Pmode = File.ReadAllText(@"receivingpmode.xml");
             return this;

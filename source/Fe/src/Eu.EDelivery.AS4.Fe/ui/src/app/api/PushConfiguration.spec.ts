@@ -1,4 +1,5 @@
 import { PushConfiguration } from './PushConfiguration';
+import { PushConfigurationForm } from './PushConfigurationForm';
 import { FormBuilder } from '@angular/forms';
 import { Observer } from 'rxjs/Observer';
 import { Observable } from 'rxjs/Observable';
@@ -21,7 +22,7 @@ describe('Receiving processing mode', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = PushConfiguration.getForm(formBuilder, null);
+        let form = PushConfigurationForm.getForm(formBuilder, null);
 
         // expect(form.get(PushConfiguration.FIELD_mep).value).toBe(0);
     }));

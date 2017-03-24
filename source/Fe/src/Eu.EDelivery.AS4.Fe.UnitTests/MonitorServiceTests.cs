@@ -13,6 +13,7 @@ using NSubstitute;
 using Xunit;
 using System;
 using System.Text;
+using Eu.EDelivery.AS4.Fe.Monitor.Model;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {

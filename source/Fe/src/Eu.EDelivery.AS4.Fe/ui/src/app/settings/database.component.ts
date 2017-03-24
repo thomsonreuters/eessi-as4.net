@@ -7,6 +7,7 @@ import { Observable } from 'rxjs/Observable';
 import { DialogService } from './../common/dialog.service';
 import { SettingsService } from './settings.service';
 import { SettingsDatabase } from './../api/SettingsDatabase';
+import { SettingsDatabaseForm } from './../api/SettingsDatabaseForm';
 import '../common/rxjs/toBehaviorSubject';
 
 @Component({
@@ -27,7 +28,7 @@ export class DatabaseSettingsComponent implements CanComponentDeactivate {
         return this._settings;
     }
     public set settings(settingsDatabase: SettingsDatabase) {
-        this.form = SettingsDatabase.getForm(this.formBuilder, settingsDatabase);
+        this.form = SettingsDatabaseForm.getForm(this.formBuilder, settingsDatabase);
         this._settings = settingsDatabase;
         this.isDirty = this.form.valueChanges.map(() => this.form.dirty).toBehaviorSubject(this.form.dirty);
     }

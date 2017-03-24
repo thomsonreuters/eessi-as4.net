@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 
 import { RuntimeStore } from './runtime.store';
 import { Receiver } from './../api/Receiver';
-import { Setting } from './../api/Setting';
+import { SettingForm } from './../api/SettingForm';
 import { ItemType } from './../api/ItemType';
 
 @Component({
@@ -43,7 +43,7 @@ export class ReceiverComponent implements OnDestroy {
         this.group
             .addControl('setting', this.formBuilder.array(this.currentReceiver
                 .properties
-                .map((prop) => Setting.getForm(this.formBuilder, {
+                .map((prop) => SettingForm.getForm(this.formBuilder, {
                     key: prop.friendlyName,
                     value: ''
                 }))));

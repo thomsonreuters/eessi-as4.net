@@ -15,6 +15,7 @@ import { Transformer } from './../../api/Transformer';
 import { Receiver } from './../../api/Receiver';
 import { ReceiverComponent } from '../receiver.component';
 import { SettingsAgent } from '../../api/SettingsAgent';
+import { SettingsAgentForm } from '../../api/SettingsAgentForm';
 import { SettingsService } from '../settings.service';
 import { SettingsStore } from '../settings.store';
 import { DialogService } from './../../common/dialog.service';
@@ -55,7 +56,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
 
     constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder,
         private runtimeStore: RuntimeStore, private dialogService: DialogService, private modalService: ModalService) {
-        this.form = SettingsAgent.getForm(this.formBuilder, null);
+        this.form = SettingsAgentForm.getForm(this.formBuilder, null);
         this.form.disable();
         if (!!this.activatedRoute.snapshot.data['type']) {
             this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
@@ -79,7 +80,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                 this.settings = result;
                 this.currentAgent = result.find((agt) => agt.name === this.form.value.name);
                 if (!!this.currentAgent) {
-                    SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
+                    SettingsAgentForm.patchForm(this.formBuilder, this.form, this.currentAgent);
                     this.form.reset(this.currentAgent);
                 }
             });
@@ -102,7 +103,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                     this.settings.push(newAgent);
                     this.currentAgent = newAgent;
                     this.currentAgent.name = this.newName;
-                    SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
+                    SettingsAgentForm.patchForm(this.formBuilder, this.form, this.currentAgent);
                     this.isNewMode = true;
                     this.form.reset(newAgent);
                     this.form.patchValue({ [SettingsAgent.FIELD_name]: this.newName });
@@ -114,7 +115,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         let select = () => {
             this.isNewMode = false;
             this.currentAgent = this.settings.find((agent) => agent.name === selectedAgent);
-            SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
+            SettingsAgentForm.patchForm(this.formBuilder, this.form, this.currentAgent);
             this.form.reset(this.currentAgent);
         };
 
@@ -160,7 +161,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             this.currentAgent = undefined;
         }
         this.isNewMode = false;
-        SettingsAgent.patchForm(this.formBuilder, this.form, this.currentAgent);
+        SettingsAgentForm.patchForm(this.formBuilder, this.form, this.currentAgent);
         this.form.reset(this.currentAgent);
     }
     public rename() {

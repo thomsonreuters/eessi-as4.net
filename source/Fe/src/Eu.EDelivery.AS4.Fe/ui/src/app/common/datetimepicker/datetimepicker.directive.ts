@@ -19,7 +19,7 @@ export class DateTimePickerDirective implements ControlValueAccessor {
     private _propagateChange: (_: Date) => {};
     private _control: any;
     constructor(private _elementRef: ElementRef) {
-        this._control = $(this._elementRef.nativeElement).datetimepicker({
+        this._control = (<any>$(this._elementRef.nativeElement)).datetimepicker({
             format: 'DD/MM/YYYY HH:mm:ss'
         });
         this._control.on('dp.change', (data) => {
