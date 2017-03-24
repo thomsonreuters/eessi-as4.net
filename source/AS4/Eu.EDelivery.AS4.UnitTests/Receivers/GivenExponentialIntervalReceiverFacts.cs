@@ -1,8 +1,11 @@
 ﻿using System;
-using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
@@ -13,29 +16,58 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
     /// </summary>
     public class GivenExponentialIntervalReceiverFacts
     {
-        private class StubXmlAttribute : XmlAttribute
+        private readonly ManualResetEvent _waitHandle;
+        private readonly Seriewatch _seriewatch;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GivenExponentialIntervalReceiverFacts"/> class.
+        /// </summary>
+        public GivenExponentialIntervalReceiverFacts()
         {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="StubXmlAttribute"/> class.
-            /// </summary>
-            /// <param name="localName">The local name of the attribute.</param>
-            /// <param name="value">The value.</param>
-            public StubXmlAttribute(string localName, string value)
-                : base(string.Empty, localName, string.Empty, new XmlDocument())
+            _waitHandle = new ManualResetEvent(initialState: false);
+            _seriewatch = new Seriewatch();
+        }
+
+        [Fact]
+        public void StartReceiver()
+        {
+            // Arrange
+            var receiver = new ExponentialIntervalReceiver(StubConfig.Instance);
+            Setting receiverSetting = CreateMockReceiverSetting();
+            receiver.Configure(new[] {receiverSetting});
+
+            // Act
+            receiver.StartReceiving(OnMessageReceived, CancellationToken.None);
+
+            // Assert
+            Assert.True(_waitHandle.WaitOne(timeout: TimeSpan.FromMinutes(1)));
+        }
+
+        private static Setting CreateMockReceiverSetting()
+        {
+            var minTimeAttribute = new StubXmlAttribute("tmin", "0:00:01");
+            var maxTimeAttribute = new StubXmlAttribute("tmax", "0:00:25");
+
+            return new Setting("01-send", string.Empty)
             {
-                Value = value;
+                Attributes = new XmlAttribute[] {minTimeAttribute, maxTimeAttribute}
+            };
+        }
+
+        private Task<InternalMessage> OnMessageReceived(
+            ReceivedMessage receivedMessage,
+            CancellationToken cancellationToken)
+        {
+            var actualPMode = AS4XmlSerializer.Deserialize<SendingProcessingMode>(receivedMessage.RequestStream);
+            Assert.Equal("01-pmode", actualPMode.Id);
+
+            if (_seriewatch.TrackSerie(maxSerieCount: 3))
+            {
+                Assert.True(_seriewatch.GetSerie(1) > _seriewatch.GetSerie(0));
+                _waitHandle.Set();
             }
 
-            /// <summary>
-            /// Gets or sets the value of the node.
-            /// </summary>
-            /// <returns>The value returned depends on the <see cref="P:System.Xml.XmlNode.NodeType" /> of the node. For XmlAttribute nodes, this property is the value of attribute.</returns>
-            /// <exception cref="T:System.ArgumentException">The node is read-only and a set operation is called.</exception>
-            public override sealed string Value
-            {
-                get { return base.Value; }
-                set { base.Value = value; }
-            }
+            return Task.FromResult(new InternalMessage());
         }
     }
 }

@@ -37,6 +37,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         public SignalMessage PrimarySignalMessage => this.SignalMessages.FirstOrDefault();
 
         public bool IsSignalMessage => this.SignalMessages.Count > 0;
+
+        public bool IsUserMessage => this.UserMessages.Count > 0;
         public bool IsSigned => this.SecurityHeader.IsSigned;
         public bool IsEncrypted => this.SecurityHeader.IsEncrypted;
         public bool HasAttachments => this.Attachments?.Count != 0;

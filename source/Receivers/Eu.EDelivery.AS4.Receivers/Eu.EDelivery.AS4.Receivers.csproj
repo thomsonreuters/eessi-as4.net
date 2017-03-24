@@ -59,6 +59,7 @@
     <Compile Include="ExponentialIntervalReceiver.cs" />
     <Compile Include="FileReceiver.cs" />
     <Compile Include="HttpReceiver.cs" />
+    <Compile Include="Pull\PModeRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Specifications\DatastoreSpecification.cs" />
   </ItemGroup>

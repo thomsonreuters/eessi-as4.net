@@ -277,7 +277,6 @@
     <Compile Include="Model\GivenSendingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenServiceFacts.cs" />
     <Compile Include="Model\GivenUserMessageFacts.cs" />
-    <Compile Include="Model\Internal\GivenReceivedPullMessageFacts.cs" />
     <Compile Include="Model\Internal\GivenSettingsFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenCollaborationInfoFacts.cs" />
@@ -290,8 +289,10 @@
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
     <Compile Include="Receivers\GivenExponentialIntervalReceiverFacts.cs" />
     <Compile Include="Receivers\GivenPollingReceiverFacts.cs" />
+    <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubValidPollingTemplate.cs" />
     <Compile Include="Receivers\StubInvalidPollingTemplate.cs" />
+    <Compile Include="Receivers\StubXmlAttribute.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -305,6 +306,7 @@
     <Compile Include="Security\Repositories\GivenSignedXmlRepositoryFacts.cs" />
     <Compile Include="Security\Serializers\GivenEncryptedDataSerializerFacts.cs" />
     <Compile Include="Security\Strategies\GivenEncryptionStrategyFacts.cs" />
+    <Compile Include="Serialization\GivenAS4XmlSerializerFacts.cs" />
     <Compile Include="Serialization\GivenMimeMessageSerializerFacts.cs" />
     <Compile Include="Serialization\GivenSerializerProviderFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeSerializerFacts.cs" />
