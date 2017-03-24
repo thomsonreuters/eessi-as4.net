@@ -64,6 +64,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     {
                         // TODO: modify this to Task.Delay().Wait instead ?
                         Thread.Sleep(this.PollingInterval);
+
                         // Task.Delay(this.PollingInterval, cancellationToken).Wait(cancellationToken);
                     }
                 }
@@ -110,11 +111,11 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             return messagesToPoll.Where(m => m != null).Select(
                 message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))                              
-                               .ContinueWith(x =>
+                               .ContinueWith(task =>
                                {
-                                   if (x.Exception?.InnerExceptions != null)
+                                   if (task.Exception?.InnerExceptions != null)
                                    {
-                                       foreach (var ex in x.Exception?.InnerExceptions)
+                                       foreach (Exception ex in task.Exception?.InnerExceptions)
                                        {
                                            LogManager.GetCurrentClassLogger().Fatal(ex.Message);
                                            LogManager.GetCurrentClassLogger().Fatal(ex.StackTrace);
