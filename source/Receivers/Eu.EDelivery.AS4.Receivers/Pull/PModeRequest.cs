@@ -4,7 +4,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.Receivers.Pull
 {
-    public class PModeRequest
+    public abstract class IntervalRequest
     {
         private const double Factor = 1.75;
 
@@ -13,22 +13,18 @@ namespace Eu.EDelivery.AS4.Receivers.Pull
 
         private int _runs;
 
-        public TimeSpan CurrentInterval { get; set; }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="PModeRequest"/> class.
+        /// Initializes a new instance of the <see cref="IntervalRequest"/> class.
         /// </summary>
-        /// <param name="pmode">The pmode.</param>
         /// <param name="minInterval">The min Interval.</param>
         /// <param name="maxInterval">The max Interval.</param>
-        public PModeRequest(SendingProcessingMode pmode, XmlAttribute minInterval, XmlAttribute maxInterval)
+        protected IntervalRequest(TimeSpan minInterval, TimeSpan maxInterval)
         {
-            PMode = pmode;
-            _minInterval = TimeSpan.Parse(minInterval.Value);
-            _maxInterval = TimeSpan.Parse(maxInterval.Value);
+            _minInterval = minInterval;
+            _maxInterval = maxInterval;
         }
 
-        public SendingProcessingMode PMode { get; }
+        public TimeSpan CurrentInterval { get; set; }
 
         /// <summary>
         /// Reset the PMode Request.
@@ -59,5 +55,22 @@ namespace Eu.EDelivery.AS4.Receivers.Pull
 
             _runs++;
         }
+    }
+
+    public class PModeRequest : IntervalRequest
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PModeRequest"/> class.
+        /// </summary>
+        /// <param name="pmode">The pmode.</param>
+        /// <param name="minInterval">The min Interval.</param>
+        /// <param name="maxInterval">The max Interval.</param>
+        public PModeRequest(SendingProcessingMode pmode, XmlAttribute minInterval, XmlAttribute maxInterval)
+            : base(TimeSpan.Parse(minInterval.Value), TimeSpan.Parse(maxInterval.Value))
+        {
+            PMode = pmode;
+        }
+
+        public SendingProcessingMode PMode { get; }
     }
 }

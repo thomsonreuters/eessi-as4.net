@@ -12,7 +12,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
 {
     /// <summary>
-    /// Testing <see cref="ExponentialIntervalReceiver"/>
+    /// Testing <see cref="PullRequestReceiver"/>
     /// </summary>
     public class GivenExponentialIntervalReceiverFacts
     {
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         public void StartReceiver()
         {
             // Arrange
-            var receiver = new ExponentialIntervalReceiver(StubConfig.Instance);
+            var receiver = new PullRequestReceiver(StubConfig.Instance);
             Setting receiverSetting = CreateMockReceiverSetting();
             receiver.Configure(new[] {receiverSetting});
 

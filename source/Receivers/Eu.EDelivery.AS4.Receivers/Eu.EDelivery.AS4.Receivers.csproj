@@ -56,7 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatastoreReceiver.cs" />
-    <Compile Include="ExponentialIntervalReceiver.cs" />
+    <Compile Include="ExponentialIntervalTemplate.cs" />
+    <Compile Include="PullRequestReceiver.cs" />
     <Compile Include="FileReceiver.cs" />
     <Compile Include="HttpReceiver.cs" />
     <Compile Include="Pull\PModeRequest.cs" />
