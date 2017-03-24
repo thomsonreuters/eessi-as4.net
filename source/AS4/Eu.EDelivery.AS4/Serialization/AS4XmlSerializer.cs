@@ -11,12 +11,24 @@ using Eu.EDelivery.AS4.Model.Core;
 namespace Eu.EDelivery.AS4.Serialization
 {
     /// <summary>
-    /// <see cref="AS4Message" /> Serializer to Xml
+    /// <see cref="AS4Message" /> Serializer to Xml.
     /// </summary>
     public static class AS4XmlSerializer
     {
         private static readonly IDictionary<Type, XmlSerializer> Serializers =
             new ConcurrentDictionary<Type, XmlSerializer>();
+
+        /// <summary>
+        /// Serializer a given data model to a Xml Stream.
+        /// </summary>
+        /// <typeparam name="T">Type of the class to which the data model must be serialized.</typeparam>
+        /// <param name="data">Given data instance to serialize.</param>
+        /// <returns></returns>
+        public static Stream ToStream<T>(T data)
+        {
+            string xml = Serialize(data);
+            return new MemoryStream(Encoding.UTF8.GetBytes(xml));
+        }
 
         /// <summary>
         /// Serialize Model into Xml String
@@ -56,12 +68,11 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static readonly XmlWriterSettings DefaultXmlWriterSettings =
-            new XmlWriterSettings
-            {
-                CloseOutput = false,
-                Encoding = new UTF8Encoding(false)
-            };
+        private static readonly XmlWriterSettings DefaultXmlWriterSettings = new XmlWriterSettings
+        {
+            CloseOutput = false,
+            Encoding = new UTF8Encoding(false)
+        };
 
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
@@ -69,18 +80,35 @@ namespace Eu.EDelivery.AS4.Serialization
             var envelopeXmlDocument = new XmlDocument() {PreserveWhitespace = true};
 
             envelopeXmlDocument.Load(envelopeStream);
-            
 
             return envelopeXmlDocument;
         }
 
-        private static readonly XmlReaderSettings DefaultXmlReaderSettings =
-            new XmlReaderSettings
+        private static readonly XmlReaderSettings DefaultXmlReaderSettings = new XmlReaderSettings
+        {
+            Async = true,
+            CloseInput = false,
+            IgnoreComments = true,
+        };
+
+        /// <summary>
+        /// Deserialize a Xml stream to a Model.
+        /// </summary>
+        /// <typeparam name="T">Type to which the given stream must be deserialized.</typeparam>
+        /// <param name="stream">Stream containing the Xml.</param>
+        /// <returns></returns>
+        public static T Deserialize<T>(Stream stream) where T : class
+        {
+            using (var memoryStream = new MemoryStream())
             {
-                Async = true,
-                CloseInput = false,
-                IgnoreComments = true,            
-            };
+                stream.Position = 0;
+                stream.CopyTo(memoryStream);
+                memoryStream.Position = 0;
+
+                string xml = Encoding.UTF8.GetString(memoryStream.ToArray());
+                return Deserialize<T>(xml);
+            }
+        }
 
         /// <summary>
         /// Deserialize Xml String to Model
@@ -94,6 +122,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 return null;
             }
+
             using (XmlReader reader = XmlReader.Create(new StringReader(xml)))
             {
                 var serializer = new XmlSerializer(typeof(T));
@@ -120,8 +149,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlSerializer GetSerializerForType(Type type)
         {
-            if (!Serializers.ContainsKey(type))
-                Serializers[type] = new XmlSerializer(type);
+            if (!Serializers.ContainsKey(type)) Serializers[type] = new XmlSerializer(type);
             return Serializers[type];
         }
     }

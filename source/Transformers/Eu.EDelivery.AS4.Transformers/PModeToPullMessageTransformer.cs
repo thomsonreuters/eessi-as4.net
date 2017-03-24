@@ -3,7 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Validators;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -28,10 +32,10 @@ namespace Eu.EDelivery.AS4.Transformers
                 return Task.FromResult(new InternalMessage(CreateAS4Exception("Invalid incoming request stream.")));
             }
 
-            return TryCreatePullRequest(receivedMessage, cancellationToken);
+            return TryCreatePullRequest(receivedMessage);
         }
 
-        private static Task<InternalMessage> TryCreatePullRequest(ReceivedMessage receivedMessage, CancellationToken cancellationToken)
+        private static Task<InternalMessage> TryCreatePullRequest(ReceivedMessage receivedMessage)
         {
             var transformedMessage = new InternalMessage();
 
@@ -39,8 +43,10 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 receivedMessage.AssignProperties(transformedMessage.AS4Message);
 
-                if (transformedMessage.AS4Message.PrimarySignalMessage == null)
-                    throw CreateAS4Exception("Invalid incoming received message");
+                SendingProcessingMode pmode = DeserializeValidPMode(receivedMessage);
+                transformedMessage.AS4Message.SendingPMode = pmode;
+                transformedMessage.AS4Message.SignalMessages.Add(new PullRequest(pmode.MessagePackaging.Mpc));
+
             }
             catch (AS4Exception exception)
             {
@@ -52,6 +58,15 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             return Task.FromResult(transformedMessage);
+        }
+
+        private static SendingProcessingMode DeserializeValidPMode(ReceivedMessage receivedMessage)
+        {
+            var pmode = AS4XmlSerializer.Deserialize<SendingProcessingMode>(receivedMessage.RequestStream);
+            IValidator<SendingProcessingMode> validator = new SendingProcessingModeValidator();
+            validator.Validate(pmode);
+
+            return pmode;
         }
 
         private static AS4Exception CreateAS4Exception(string description)
