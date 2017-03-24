@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Xunit;
@@ -16,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
     {
         private readonly StubInvalidPollingTemplate _invalidTemplate;
         private readonly StubValidPollingTemplate _validTemplate;
-        protected CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public GivenPollingReceiverFacts()
         {
@@ -44,6 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 // Arrange
                 base._cancellationTokenSource = new CancellationTokenSource();
+
                 // Act
                 base._validTemplate.Start(AssertMessageReceived, base._cancellationTokenSource.Token);
             }
@@ -64,6 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 // Arrange
                 base._cancellationTokenSource = new CancellationTokenSource();
+
                 // Act
                 Assert.Throws<ApplicationException>(
                     () => base._invalidTemplate.Start(AssertMessageReceived, base._cancellationTokenSource.Token));

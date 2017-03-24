@@ -72,6 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 // Arrange
                 var internalMessage = new InternalMessage(base.GetStubSubmitMessage());
                 base._step = new RetrieveSendingPModeStep(base._mockedConfig.Object);
+                
                 // Act / Assert
                 await
                     Assert.ThrowsAsync<AS4Exception>(
@@ -86,7 +87,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 base._mockedConfig = new Mock<IConfig>();
                 base._mockedConfig
                     .Setup(c => c.GetSendingPMode(It.IsAny<string>()))
-                    .Returns(new ValidStubSendingPMode(_pmodeId));
+                    .Returns(new ValidStubSendingPModeFactory().Create(_pmodeId));
+                
                 // Act
                 var step1 = new RetrieveSendingPModeStep(base._mockedConfig.Object);
                 var step2 = new RetrieveSendingPModeStep(base._mockedConfig.Object);

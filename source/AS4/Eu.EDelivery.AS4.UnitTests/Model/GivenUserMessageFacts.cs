@@ -19,6 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Act
                 var userMessage = new UserMessage(messageId: "message-id");
+
                 // Assert
                 Assert.NotNull(userMessage.Sender);
                 string firstSenderPartyId = userMessage.Sender.PartyIds.First().Id;
@@ -30,6 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Act
                 var userMessage = new UserMessage(messageId: "message-id");
+
                 // Assert
                 Assert.NotNull(userMessage.Receiver);
                 string firstReceiverPartyId = userMessage.Receiver.PartyIds.First().Id;
@@ -41,8 +43,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var userMessage = new UserMessage(messageId: messageId);
+
                 // Act
                 string userMessageString = userMessage.ToString();
+
                 // Assert
                 Assert.NotNull(userMessage);
                 Assert.Equal($"UserMessage [${messageId}]", userMessageString);

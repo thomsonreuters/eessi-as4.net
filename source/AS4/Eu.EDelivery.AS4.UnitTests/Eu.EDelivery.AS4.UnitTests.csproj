@@ -275,10 +275,9 @@
     <Compile Include="Model\GivenSendingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenServiceFacts.cs" />
     <Compile Include="Model\GivenUserMessageFacts.cs" />
-    <Compile Include="Model\Internal\GivenReceivedPullMessageFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenCollaborationInfoFacts.cs" />
-    <Compile Include="Model\PMode\ValidStubSendingPMode.cs" />
+    <Compile Include="Model\PMode\ValidStubSendingPModeFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -302,6 +301,7 @@
     <Compile Include="Security\Repositories\GivenSignedXmlRepositoryFacts.cs" />
     <Compile Include="Security\Serializers\GivenEncryptedDataSerializerFacts.cs" />
     <Compile Include="Security\Strategies\GivenEncryptionStrategyFacts.cs" />
+    <Compile Include="Serialization\GivenAS4XmlSerializerfacts.cs" />
     <Compile Include="Serialization\GivenMimeMessageSerializerFacts.cs" />
     <Compile Include="Serialization\GivenSerializerProviderFacts.cs" />
     <Compile Include="Serialization\GivenSoapEnvelopeSerializerFacts.cs" />
@@ -359,7 +359,7 @@
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
-    <Compile Include="Transformers\GivenPModeToPullMessageTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenPmodeToPullMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenReceptionAwarenessTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
@@ -436,6 +436,7 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Model\Internal\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
