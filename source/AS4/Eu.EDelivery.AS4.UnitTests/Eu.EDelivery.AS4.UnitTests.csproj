@@ -246,6 +246,7 @@
     <Compile Include="Common\StubConfig.cs" />
     <Compile Include="Extensions\AS4MessageExtensions.cs" />
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
+    <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
     <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
@@ -285,7 +286,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
-    <Compile Include="Receivers\GivenExponentialIntervalReceiverFacts.cs" />
+    <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\GivenPollingReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubValidPollingTemplate.cs" />

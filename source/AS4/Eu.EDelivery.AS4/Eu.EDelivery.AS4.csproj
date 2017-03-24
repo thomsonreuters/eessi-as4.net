@@ -311,6 +311,7 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
+    <Compile Include="Extensions\XmlAttributeExtensions.cs" />
     <Compile Include="Factories\UserMessageFactory.cs" />
     <Compile Include="InfoAttribute.cs" />
     <Compile Include="Mappings\PMode\IPModeResolver.cs" />
