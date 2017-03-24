@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// <summary>
     /// Testing <see cref="CreateAS4ErrorStep"/>
     /// </summary>
-    public class GivenCreateAS4ErrorStepFacts
+    public class GivenCreateAS4ErrorStepFacts : GivenDatastoreFacts
     {
         public GivenCreateAS4ErrorStepFacts()
         {
