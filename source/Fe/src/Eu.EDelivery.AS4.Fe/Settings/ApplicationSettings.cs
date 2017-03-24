@@ -8,6 +8,5 @@ namespace Eu.EDelivery.AS4.Fe.Settings
         public Dictionary<string, string> Modules { get; set; }
         public string SettingsXml { get; set; }
         public string Runtime { get; set; }
-        public string MessagesDatabase { get; set; }
     }
 }

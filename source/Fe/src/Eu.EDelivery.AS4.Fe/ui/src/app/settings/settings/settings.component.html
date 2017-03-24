@@ -10,7 +10,7 @@
     </div>
     <button [disabled]="!(customSettings.isDirty | async)" action type="button" class="btn btn-box-tool" (click)="customSettings.save()"><i class="fa fa-save" [class.active]="customSettings.isDirty | async"></i></button>
 </as4-box>
-<as4-box [title]="'Database settings'">
+<as4-box [title]="'ConnectionString settings'">
     <div content>
         <as4-database-settings [settings]="settings && settings.database" #databaseSettings #dirtycheck></as4-database-settings>
     </div>

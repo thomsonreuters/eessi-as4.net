@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using NLog;
 using Polly;
 using Polly.Retry;
 
@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Common
     /// </summary>
     public class DatastoreContext : DbContext
     {
-        private readonly IConfig _config;        
+        private readonly IConfig _config;
         private RetryPolicy _policy;
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             this._policy = Policy
                 .Handle<DbUpdateException>()
-                .RetryAsync();            
+                .RetryAsync();
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             return AS4ExceptionBuilder
                 .WithDescription("Datastore unavailable")
-                .WithInnerException(innerException)                
+                .WithInnerException(innerException)
                 .WithErrorCode(ErrorCode.Ebms0004)
                 .Build();
         }

@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Fe.Logging
             this.env = env;
         }
 
-        public void Run(IConfigurationBuilder configBuilder)
+        public void Run(IConfigurationBuilder configBuilder, IServiceCollection services, IConfigurationRoot localConfig)
         {
             if (env.IsEnvironment("Development")) configBuilder.AddApplicationInsightsSettings();
         }

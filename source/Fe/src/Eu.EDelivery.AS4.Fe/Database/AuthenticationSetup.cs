@@ -1,16 +1,15 @@
-﻿using System;
+using System;
 using System.Security.Claims;
+using Eu.EDelivery.AS4.Fe.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Eu.EDelivery.AS4.Fe.Authentication
+namespace Eu.EDelivery.AS4.Fe.Database
 {
     public class AuthenticationSetup : IAuthenticationSetup
     {
@@ -18,15 +17,9 @@ namespace Eu.EDelivery.AS4.Fe.Authentication
         {
             RegisterOptions(services, configuration);
 
-            var databaseName = configuration.GetSection("Authentication")["Database"];
+            var databaseSettings = configuration.GetSection("Authentication").Get<AuthenticationConfiguration>();
 
-            // Setup Identity
-            var connectionStringBuilder = new SqliteConnectionStringBuilder { DataSource = databaseName };
-            var connectionString = connectionStringBuilder.ToString();
-            var connection = new SqliteConnection(connectionString);
-
-            services
-                .AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
+            services.AddDbContext<ApplicationDbContext>(options => SqlConnectionBuilder.Build(databaseSettings.Provider, databaseSettings.ConnectionString, options));
             services
                 .AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()

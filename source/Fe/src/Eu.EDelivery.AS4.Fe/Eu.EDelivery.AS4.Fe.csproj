@@ -50,7 +50,6 @@
     <Compile Include="Authentication\ApplicationUser.cs" />
     <Compile Include="Authentication\AuthenticationConfiguration.cs" />
     <Compile Include="Authentication\AuthenticationController.cs" />
-    <Compile Include="Authentication\AuthenticationSetup.cs" />
     <Compile Include="Authentication\IAuthenticationSetup.cs" />
     <Compile Include="Authentication\ITokenService.cs" />
     <Compile Include="Authentication\JwtOptions.cs" />
@@ -60,6 +59,8 @@
     <Compile Include="Automapper\IAutomapperSetup.cs" />
     <Compile Include="BusinessException.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
+    <Compile Include="Database\AuthenticationSetup.cs" />
+    <Compile Include="Database\SqlConnectionBuilder.cs" />
     <Compile Include="Logging\ApplicationInsightsSetup.cs" />
     <Compile Include="Logging\IApplicationInsightsSetup.cs" />
     <Compile Include="Logging\ILoggerSetup.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Monitor\MonitorAutoMapper.cs" />
     <Compile Include="Monitor\MonitorController.cs" />
     <Compile Include="Monitor\MonitorService.cs" />
+    <Compile Include="Monitor\MonitorSettings.cs" />
     <Compile Include="Monitor\MonitorSetup.cs" />
     <Compile Include="Monitor\Model\Pmode.cs" />
     <Compile Include="Monitor\Model\SortOrder.cs" />

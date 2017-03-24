@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
-    public interface IMonitorSetup : IModular, IRunAtServicesStartup
+    public interface IMonitorSetup : IModular, IRunAtServicesStartup, IRunAtConfiguration
     {
     }
 }
