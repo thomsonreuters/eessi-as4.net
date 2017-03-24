@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Signing;
 using NLog;
 
@@ -30,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public VerifySignatureAS4MessageStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -42,8 +39,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="AS4Exception">Throws exception when the signature cannot be verified</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._internalMessage = internalMessage;
-
+            _internalMessage = internalMessage;
+            
             PreConditions();
             if (MessageDoesNotNeedToBeVerified())
             {
@@ -77,8 +74,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private bool MessageDoesNotNeedToBeVerified()
         {
-            return !this._internalMessage.AS4Message.IsSigned ||
-                   this._internalMessage.AS4Message.ReceivingPMode?.Security
+            return !_internalMessage.AS4Message.IsSigned ||
+                    _internalMessage.AS4Message.ReceivingPMode?.Security
                        .SigningVerification.Signature == Limit.Ignored;
         }
 
@@ -90,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (Exception exception)
             {
-                this._logger.Error(exception.Message);
+                _logger.Error(exception.Message);
                 throw ThrowVerifySignatureAS4Exception(exception.Message, ErrorCode.Ebms0101, exception);
             }
         }
@@ -98,15 +95,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task<StepResult> VerifySignature()
         {
             if (!IsValidSignature())
+            {
                 throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101);
+            }
 
-            this._logger.Info($"{this._internalMessage.Prefix} AS4 Message has a valid Signature present");
-            return await StepResult.SuccessAsync(this._internalMessage);
+            _logger.Info($"{_internalMessage.Prefix} AS4 Message has a valid Signature present");
+
+            return await StepResult.SuccessAsync(_internalMessage);
         }
 
         private bool IsValidSignature()
         {
-            AS4Message as4Message = this._internalMessage.AS4Message;
+            AS4Message as4Message = _internalMessage.AS4Message;
             VerifyConfig options = CreateVerifyOptionsForAS4Message();
 
             return as4Message.SecurityHeader.Verify(options);
@@ -116,22 +116,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             return new VerifyConfig
             {
-                Attachments = this._internalMessage.AS4Message.Attachments
+                Attachments = _internalMessage.AS4Message.Attachments
             };
         }
 
         private AS4Exception ThrowVerifySignatureAS4Exception(
             string description, ErrorCode errorCode, Exception innerException = null)
         {
-            description = this._internalMessage.Prefix + description;
-            this._logger.Error(description);
+            description = _internalMessage.Prefix + description;
+            _logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
+                .WithMessageIds(_internalMessage.AS4Message.MessageIds)
                 .WithErrorCode(errorCode)
                 .WithInnerException(innerException)
-                .WithReceivingPMode(this._internalMessage.AS4Message.ReceivingPMode)
+                .WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode)
                 .Build();
         }
     }

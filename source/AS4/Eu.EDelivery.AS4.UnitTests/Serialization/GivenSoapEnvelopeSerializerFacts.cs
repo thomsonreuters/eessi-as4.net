@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 AssertXmlDocumentContainsMessagingTag(memoryStream);
             }
 
-            private void AssertXmlDocumentContainsMessagingTag(Stream stream)
+            private static void AssertXmlDocumentContainsMessagingTag(Stream stream)
             {
                 stream.Position = 0;
                 using (var reader = new XmlTextReader(stream))
@@ -236,25 +236,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
 
             [Fact]
-            public async void ErrorMessageForMultihopUserMessageIsMultihop()
+            public void ErrorMessageForMultihopUserMessageIsMultihop()
             {
-                var as4Message = CreateAs4Message(CreateMultihopPMode());
+                var receivedUserMessage = CreateAs4Message(CreateMultihopPMode());
 
-                var message = new InternalMessage()
-                {
-                    AS4Message = as4Message,
-                    Exception = AS4ExceptionBuilder.WithDescription("AS4 Multihop Error test").WithErrorCode(ErrorCode.Ebms0103).Build()
-                };
+                var error =
+                    new ErrorBuilder().WithOriginalAS4Message(receivedUserMessage)
+                                      .WithRefToEbmsMessageId(receivedUserMessage.PrimaryUserMessage.MessageId)
+                                      .Build();
 
-                // Create a receipt for this message.
-                // Use the CreateReceiptStep, since there is no other way.
-                var step = new CreateAS4ErrorStep();
-                var result = await step.ExecuteAsync(message, CancellationToken.None);
-
-                // The result should contain a signalmessage, which is a receipt.
-                Assert.True(result.InternalMessage.AS4Message.IsSignalMessage);
-
-                var doc = AS4XmlSerializer.Serialize(result.InternalMessage.AS4Message, CancellationToken.None);
+                var errorMessage = new AS4MessageBuilder().WithSignalMessage(error).WithSendingPMode(CreateMultihopPMode()).Build();
+             
+                var doc = AS4XmlSerializer.Serialize(errorMessage, CancellationToken.None);
 
                 // Following elements should be present:
                 // - To element in the wsa namespace
@@ -276,18 +269,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var messaging = AS4XmlSerializer.Deserialize<Xml.Messaging>(messagingNode.OuterXml);
                 Assert.True(messaging.mustUnderstand1);
                 Assert.Equal(Constants.Namespaces.EbmsNextMsh, messaging.role);
-                Assert.Equal(as4Message.PrimaryUserMessage.MessageId,
-                    messaging.SignalMessage.First().MessageInfo.RefToMessageId);
-
+                
                 // Check if sender and receiver are reversed.
                 var routingInputNode = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
                 Assert.NotNull(routingInputNode);
                 var routingInput = AS4XmlSerializer.Deserialize<Xml.RoutingInput>(routingInputNode.OuterXml);
 
-                Assert.Equal(as4Message.PrimaryUserMessage.Sender.Role, routingInput.UserMessage.PartyInfo.To.Role);
-                Assert.Equal(as4Message.PrimaryUserMessage.Sender.PartyIds.First().Id, routingInput.UserMessage.PartyInfo.To.PartyId.First().Value);
-                Assert.Equal(as4Message.PrimaryUserMessage.Receiver.Role, routingInput.UserMessage.PartyInfo.From.Role);
-                Assert.Equal(as4Message.PrimaryUserMessage.Receiver.PartyIds.First().Id, routingInput.UserMessage.PartyInfo.From.PartyId.First().Value);
+                Assert.Equal(receivedUserMessage.PrimaryUserMessage.Sender.Role, routingInput.UserMessage.PartyInfo.To.Role);
+                Assert.Equal(receivedUserMessage.PrimaryUserMessage.Sender.PartyIds.First().Id, routingInput.UserMessage.PartyInfo.To.PartyId.First().Value);
+                Assert.Equal(receivedUserMessage.PrimaryUserMessage.Receiver.Role, routingInput.UserMessage.PartyInfo.From.Role);
+                Assert.Equal(receivedUserMessage.PrimaryUserMessage.Receiver.PartyIds.First().Id, routingInput.UserMessage.PartyInfo.From.PartyId.First().Value);
             }
 
             private static AS4Message CreateAs4Message(SendingProcessingMode pmode)

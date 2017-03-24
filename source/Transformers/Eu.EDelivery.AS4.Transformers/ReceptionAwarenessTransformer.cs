@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
@@ -23,7 +22,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// </summary>
         public ReceptionAwarenessTransformer()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -38,14 +37,17 @@ namespace Eu.EDelivery.AS4.Transformers
             ReceptionAwareness awareness = RetrieveReceptionAwareness(entityMessage);
             var internalMessage = new InternalMessage { ReceptionAwareness = awareness };
 
-            this._logger.Info($"[{awareness.InternalMessageId}] Receiption Awareness is successfully transformed");
+            _logger.Info($"[{awareness.InternalMessageId}] Reception Awareness is successfully transformed");
             return await Task.FromResult(internalMessage);
         }
 
         private ReceptionAwareness RetrieveReceptionAwareness(ReceivedEntityMessage messageEntity)
         {
             var receptionAwareness = messageEntity.Entity as ReceptionAwareness;
-            if (receptionAwareness == null) throw ThrowNotSupportedAS4Exception();
+            if (receptionAwareness == null)
+            {
+                throw ThrowNotSupportedAS4Exception();
+            }
 
             return receptionAwareness;
         }

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Security.Serializers
@@ -22,7 +21,7 @@ namespace Eu.EDelivery.AS4.Security.Serializers
         /// <param name="document"></param>
         public EncryptedDataSerializer(XmlDocument document)
         {
-            this._document = document;            
+            _document = document;            
         }
 
         /// <summary>
@@ -38,10 +37,10 @@ namespace Eu.EDelivery.AS4.Security.Serializers
         {
             var result = new List<EncryptedData>();
 
-            var namespaceManager = new XmlNamespaceManager(this._document.NameTable);
+            var namespaceManager = new XmlNamespaceManager(_document.NameTable);
             namespaceManager.AddNamespace("enc", EncNamespace);
 
-            IEnumerable<XmlElement> encryptedDataElements = this._document
+            IEnumerable<XmlElement> encryptedDataElements = _document
                 .SelectNodes("//enc:EncryptedData", namespaceManager)
                 ?.OfType<XmlElement>();
 

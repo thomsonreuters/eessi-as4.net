@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Empty(result.InternalMessage.AS4Message.UserMessages);
                 Assert.Empty(result.InternalMessage.AS4Message.SignalMessages);
             }
-
+            
             private InternalMessage CreateDefaultInternalMessage()
             {
                 var receipt = new Receipt("message-id") {RefToMessageId = this._sharedId};
@@ -62,5 +62,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 return new InternalMessage(receiptMessage);
             }
         }
+        
     }
 }

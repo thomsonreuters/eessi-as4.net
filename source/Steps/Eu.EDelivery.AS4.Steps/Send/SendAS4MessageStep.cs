@@ -61,9 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-
-
-            this._originalAS4Message = internalMessage.AS4Message;
+            _originalAS4Message = internalMessage.AS4Message;
 
             return await TrySendAS4MessageAsync(internalMessage, cancellationToken);
         }
@@ -82,7 +80,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     $"{internalMessage.Prefix} An error occured while trying to send the message: {exception.Message}");
 
                 return HandleSendAS4Exception(internalMessage, exception);
-
             }
         }
 
@@ -91,21 +88,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateOperation(internalMessage, Operation.Undetermined);
+                UpdateOperation(_originalAS4Message, Operation.Undetermined);
 
                 return StepResult.Failed(AS4ExceptionBuilder.WithDescription("Failed to send AS4Message").WithInnerException(exception).Build());
             }
             else
             {
-                var as4exception = CreateFailedSendAS4Exception(internalMessage, exception);
-                return StepResult.Failed(as4exception);
+                var as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
+                internalMessage.AS4Message?.SignalMessages?.Clear();
+                return StepResult.Failed(as4Exception, internalMessage);
             }
         }
 
-        private static void UpdateOperation(InternalMessage message, Operation operation)
-        {
-            var as4Message = message.AS4Message;
-
+        private static void UpdateOperation(AS4Message as4Message, Operation operation)
+        {            
             if (as4Message != null)
             {
                 using (var context = Registry.Instance.CreateDatastoreContext())
@@ -191,23 +187,29 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                this._logger.Debug($"AS4 Message received from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
+                _logger.Debug($"AS4 Message received from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
                 return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }
             catch (WebException exception)
-            {
+            {                                
                 if (exception.Response != null &&
                     ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
+                {
                     return await PrepareStepResult(exception.Response as HttpWebResponse, internalMessage, cancellationToken);
-
-                else throw CreateFailedSendAS4Exception(internalMessage, exception);
+                }
+                
+                throw CreateFailedSendAS4Exception(internalMessage, exception);
             }
         }
 
         private async Task<StepResult> HandleHttpResponseAsync(WebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
+            // we've sent the message, so update the status to sent.
+            UpdateOperation(_originalAS4Message, Operation.Sent);
+
             using (WebResponse responseStream = await request.GetResponseAsync().ConfigureAwait(false))
-            {
+            {                
                 return await PrepareStepResult(responseStream as HttpWebResponse, internalMessage, cancellationToken);
             }
         }

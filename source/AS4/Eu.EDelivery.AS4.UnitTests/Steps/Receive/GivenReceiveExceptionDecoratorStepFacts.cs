@@ -25,15 +25,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     public class GivenReceiveExceptionDecoratorStepFacts : GivenDatastoreFacts
     {
         private Mock<IStep> _mockedCatchedStep;
-        private ReceiveExceptionStepDecorator _step;
+        private CompositeStep _step;
 
         public GivenReceiveExceptionDecoratorStepFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-            
+
             SetupMockedCatchedStep();
 
-            this._step = new ReceiveExceptionStepDecorator(this._mockedCatchedStep.Object);
+            InitializeTestedStep();
+        }
+
+        protected void InitializeTestedStep()
+        {
+            _step = new CompositeStep(new ReceiveExceptionStepDecorator(_mockedCatchedStep.Object), new CreateAS4ErrorStep(), new SendAS4ErrorStep());
         }
 
         public class GivenValidArguments : GivenReceiveExceptionDecoratorStepFacts
@@ -56,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 SetupCatchedStepWithException();
-                ResetTestedStep();
+                InitializeTestedStep();
                 InternalMessage internalMessage = base.CreateDefaultInternalMessage();
 
                 // Act
@@ -75,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 SetupCatchedStepWithException();
-                ResetTestedStep();
+                InitializeTestedStep();
                 InternalMessage internalMessage = base.CreateDefaultInternalMessage();
 
                 // Act
@@ -93,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 SetupCatchedStepWithException(messageId);
-                ResetTestedStep();
+                InitializeTestedStep();
                 InternalMessage internalMessage = base.CreateDefaultInternalMessage();
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -101,27 +106,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AssertInException(messageId, Assert.NotNull);
 
             }
-
-            [Theory, InlineData("shared-message-id")]
-            public async Task ThenExecuteStepSucceedsWithInsertedOutMessageAsync(string messageId)
-            {
-                // Arrange
-                SetupCatchedStepWithException(messageId);
-                ResetTestedStep();
-                InternalMessage internalMessage = base.CreateDefaultInternalMessage();
-                // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                AssertOutMessage(messageId, Assert.NotNull);
-            }
-
+          
             [Fact]
             public async Task ThenExecuteStepSucceedsWithCallbackReplyPatternAsync()
             {
                 // Arrange
                 SetupCatchedStepWithException();
-                ResetTestedStep();
+                InitializeTestedStep();
                 InternalMessage internalMessage = base.CreateDefaultInternalMessage();
                 internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
                 // Act
@@ -131,13 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Empty(result.InternalMessage.AS4Message.UserMessages);
                 Assert.Empty(result.InternalMessage.AS4Message.SignalMessages);
             }
-
-            private void ResetTestedStep()
-            {
-                this._step = new ReceiveExceptionStepDecorator(
-                    this._mockedCatchedStep.Object);
-            }
-
+            
             private void AssertInException(string messageId, Action<InException> condition)
             {
                 using (var context = GetDataStoreContext())
@@ -165,8 +150,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenCertificateCannotBeRetrievedFromStoreAsync()
             {
                 // Arrange
-                SetupCatchedStepWithException();
-                ResetTestedStepWithInvalidCertificateRepository();
+                SetupCatchedStepWithException();                
+                InitializeTestedStep();
                 InternalMessage internalMessage = CreateDefaultInternalMessage();
 
                 // Act / Assert
@@ -175,11 +160,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             }
 
-            private void ResetTestedStepWithInvalidCertificateRepository()
-            {
-                this._step = new ReceiveExceptionStepDecorator(
-                    this._mockedCatchedStep.Object);
-            }
+            //private void ResetTestedStepWithInvalidCertificateRepository()
+            //{
+            //    this._step = new ReceiveExceptionStepDecorator(
+            //        this._mockedCatchedStep.Object);
+            //}
         }
 
         private void SetupMockedCatchedStep()
