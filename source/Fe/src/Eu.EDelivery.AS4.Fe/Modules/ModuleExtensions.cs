@@ -35,10 +35,10 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             RegisterInterfaces(services, mappings, scanner, baseTypes, moduleAssemblies);
 
             var configurationBuilder = new ConfigurationBuilder();
-            configBuilder(configurationBuilder, services.BuildServiceProvider().GetService<IHostingEnvironment>());            
-            CallStartup<IRunAtConfiguration>(services, service => service.Run(configurationBuilder));
+            configBuilder(configurationBuilder, services.BuildServiceProvider().GetService<IHostingEnvironment>());
             var localConfig = configurationBuilder.Build();
             configuration = localConfig;
+            CallStartup<IRunAtConfiguration>(services, service => service.Run(configurationBuilder, services, localConfig));
 
             CallStartup<IRunAtServicesStartup>(services, service => service.Run(services, localConfig));
         }

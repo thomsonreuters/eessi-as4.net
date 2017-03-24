@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
+﻿using AutoMapper.QueryableExtensions;
 using EnsureThat;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -17,13 +16,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     {
         private readonly DatastoreContext context;
         private readonly IAs4PmodeSource pmodeSource;
-        private readonly IMapper mapper;
 
-        public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource, IMapper mapper)
+        public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource)
         {
             this.context = context;
             this.pmodeSource = pmodeSource;
-            this.mapper = mapper;
         }
 
         public async Task<MessageResult<ExceptionMessage>> GetExceptions(ExceptionFilter filter)
