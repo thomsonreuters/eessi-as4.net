@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// <see cref="IReceiver"/> implementation to pull exponentially for Pull Requests.
     /// </summary>
-    public class ExponentialIntervalReceiver : IReceiver
+    public class PullRequestReceiver : IReceiver
     {
         private readonly IConfig _configuration;
         private readonly Timer _timer;
@@ -29,15 +29,15 @@ namespace Eu.EDelivery.AS4.Receivers
         private bool _running;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExponentialIntervalReceiver"/> class.
+        /// Initializes a new instance of the <see cref="PullRequestReceiver"/> class.
         /// </summary>
-        public ExponentialIntervalReceiver() : this(Config.Instance) {}
+        public PullRequestReceiver() : this(Config.Instance) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExponentialIntervalReceiver"/> class.
+        /// Initializes a new instance of the <see cref="PullRequestReceiver"/> class.
         /// </summary>
         /// <param name="configuration"><see cref="IConfig"/> implementation to collection PModes.</param>
-        public ExponentialIntervalReceiver(IConfig configuration)
+        public PullRequestReceiver(IConfig configuration)
         {
             _configuration = configuration;
             _timer = new Timer();
