@@ -22,8 +22,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 .ForMember(x => x.EbmsMessageType, x => x.MapFrom(y => y.EbmsMessageTypeString))
                 .ForMember(x => x.Operation, x => x.MapFrom(y => y.OperationString))
                 .ForMember(x => x.ContentType, x => x.MapFrom(y => y.SimplifyContentType()))
-                .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound))
-                .ForAllOtherMembers(x => x.Ignore());
+                .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound));
             CreateMap<InException, ExceptionMessage>()
               .ForMember(x => x.Direction, x => x.UseValue(Direction.Inbound));
             CreateMap<OutException, ExceptionMessage>()
