@@ -137,12 +137,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 }
             }
 
-            private XmlAttribute GetMpcAttribute(XmlDocument document)
+            private static XmlAttribute GetMpcAttribute(XmlDocument document)
             {
                 const string node = "/s:Envelope/s:Header/ebms:Messaging/ebms:SignalMessage/ebms:PullRequest";
                 XmlAttributeCollection attributes = document.SelectXmlNode(node).Attributes;
-                XmlAttribute mpcAttribute = attributes.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
-                return mpcAttribute;
+
+                return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
             }
 
             [Fact]
@@ -164,6 +164,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                     Assert.NotNull(document.DocumentElement);
                     Assert.Contains("Envelope", document.DocumentElement.Name);
                 }
+            }
+        }
+
+        public class IsUserMessage : GivenAS4MessageFacts
+        {
+            [Fact]
+            public void IsTrueWhenMessageContainsUserMessage()
+            {
+                // Arrange
+                AS4Message as4Message = base.BuildAS4Message("mpc", CreateUserMessage());
+                
+                // Act
+                bool isUserMessage = as4Message.IsUserMessage;
+
+                // Assert
+                Assert.True(isUserMessage);
             }
         }
     }

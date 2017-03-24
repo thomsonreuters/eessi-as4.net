@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Receivers.Pull;
+using Eu.EDelivery.AS4.Serialization;
 using Timer = System.Timers.Timer;
 
 namespace Eu.EDelivery.AS4.Receivers
@@ -21,8 +23,9 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly IConfig _configuration;
         private readonly Timer _timer;
         private readonly IDictionary<DateTime, List<PModeRequest>> _runSchedulePModes;
+        private readonly ICollection<PModeRequest> _pmodeRequests;
 
-        private Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> _onPModeReceived;
+        private Func<PModeRequest, Task<InternalMessage>> _messageCallback;
         private bool _running;
 
         /// <summary>
@@ -39,11 +42,8 @@ namespace Eu.EDelivery.AS4.Receivers
             _configuration = configuration;
             _timer = new Timer();
             _runSchedulePModes = new ConcurrentDictionary<DateTime, List<PModeRequest>>();
-
-            PModeRequests = new List<PModeRequest>();
+            _pmodeRequests = new List<PModeRequest>();
         }
-
-        public ICollection<PModeRequest> PModeRequests { get; set; }
 
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Receivers
             foreach (Setting setting in settings)
             {
                 SendingProcessingMode pmode = _configuration.GetSendingPMode(setting.Key);
-                PModeRequests.Add(new PModeRequest(pmode, setting["tmin"], setting["tmax"]));
+                _pmodeRequests.Add(new PModeRequest(pmode, setting["tmin"], setting["tmax"]));
             }
 
             _timer.Elapsed += TimerEnlapsed;
@@ -64,62 +64,51 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _timer.Stop();
 
-            IEnumerable<PModeRequest> pmodeRequests = _runSchedulePModes
-                .Where(s => s.Key <= eventArgs.SignalTime)
-                .SelectMany(p => p.Value);
+            if (!_running)
+            {
+                return;
+            }
 
+            List<PModeRequest> pmodeRequests = SelectAllPModeRequestsForThisEvent(eventArgs);
+            RemoveAllSelectedPModeRequestsForThisEvent(eventArgs);
+
+            WaitForAllRequests(pmodeRequests);
+            DetermineNextRuns(pmodeRequests);
+        }
+
+        private List<PModeRequest> SelectAllPModeRequestsForThisEvent(ElapsedEventArgs eventArgs)
+        {
+            return _runSchedulePModes.Where(s => s.Key <= eventArgs.SignalTime).SelectMany(p => p.Value).ToList();
+        }
+
+        private void RemoveAllSelectedPModeRequestsForThisEvent(ElapsedEventArgs eventArgs)
+        {
             List<DateTime> keys = _runSchedulePModes.Keys.Where(k => k <= eventArgs.SignalTime).ToList();
             keys.ForEach(k => _runSchedulePModes.Remove(k));
+        }
 
+        private void WaitForAllRequests(IEnumerable<PModeRequest> pmodeRequests)
+        {
             var tasks = new List<Task>();
 
             foreach (PModeRequest pmodeRequest in pmodeRequests)
             {
                 pmodeRequest.CalculateNewInterval();
 
-                Console.WriteLine(pmodeRequest);
-                tasks.Add(Task.Run(() => _onPModeReceived(new ReceivedPullMessage(pmodeRequest.PMode), CancellationToken.None)));
+                tasks.Add(Task.Run(() => OnPModeReceived(pmodeRequest)));
             }
 
             Task.WaitAll(tasks.ToArray());
-
-            DetermineNextRuns(pmodeRequests);
         }
 
-        private void DetermineNextRuns(IEnumerable<PModeRequest> pmodeRequests)
+        private async Task OnPModeReceived(PModeRequest pmodeRequest)
         {
-            if (!_running)
+            InternalMessage resultedMessage = await _messageCallback(pmodeRequest);
+
+            if (resultedMessage.AS4Message.IsUserMessage)
             {
-                return;
+                pmodeRequest.ResetInterval();
             }
-
-            DateTime now = DateTime.Now;
-
-            foreach (PModeRequest pmodeRequest in pmodeRequests)
-            {
-                AddPModeRequest(now + pmodeRequest.CurrentInterval, pmodeRequest);
-            }
-
-            if (!_runSchedulePModes.Any()) return;
-
-            DateTime firstRunDate = this._runSchedulePModes.Min(t => t.Key);
-            Console.WriteLine($"Next runDate = {firstRunDate} - current date {DateTime.Now}");
-
-            TimeSpan triggerTime = firstRunDate - now;
-            _timer.Interval = triggerTime.TotalMilliseconds <= 0 ? 1 : triggerTime.TotalMilliseconds;
-            _timer.Start();
-        }
-
-        private void AddPModeRequest(DateTime dateTime, PModeRequest pmodeRequest)
-        {
-            dateTime = new DateTime(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second);
-
-            if (_runSchedulePModes.ContainsKey(dateTime) == false)
-            {
-                _runSchedulePModes.Add(dateTime, new List<PModeRequest>());
-            }
-
-            _runSchedulePModes[dateTime].Add(pmodeRequest);
         }
 
         /// <summary>
@@ -132,72 +121,65 @@ namespace Eu.EDelivery.AS4.Receivers
             Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
             CancellationToken cancellationToken)
         {
-            _onPModeReceived = messageCallback;
+            _messageCallback = message =>
+            {
+                var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(message.PMode));
+                return messageCallback(receivedMessage, cancellationToken);
+            };
+
             _running = true;
-            DetermineNextRuns(PModeRequests);
+
+            DetermineNextRuns(_pmodeRequests);
         }
 
+        private void DetermineNextRuns(IEnumerable<PModeRequest> pmodeRequests)
+        {
+            DateTime currentTime = DateTime.Now;
+
+            foreach (PModeRequest pmodeRequest in pmodeRequests)
+            {
+                AddPModeRequest(currentTime + pmodeRequest.CurrentInterval, pmodeRequest);
+            }
+
+            if (!_runSchedulePModes.Any()) return;
+
+            _timer.Interval = CalculateNextTriggerInterval(currentTime);
+            _timer.Start();
+        }
+
+        private void AddPModeRequest(DateTime dateTime, PModeRequest pmodeRequest)
+        {
+            var timeTrimmedOnSeconds = new DateTime(
+                dateTime.Year,
+                dateTime.Month,
+                dateTime.Day,
+                dateTime.Hour,
+                dateTime.Minute,
+                dateTime.Second);
+
+            if (_runSchedulePModes.ContainsKey(timeTrimmedOnSeconds) == false)
+            {
+                _runSchedulePModes.Add(timeTrimmedOnSeconds, new List<PModeRequest>());
+            }
+
+            _runSchedulePModes[timeTrimmedOnSeconds].Add(pmodeRequest);
+        }
+
+        private double CalculateNextTriggerInterval(DateTime now)
+        {
+            DateTime firstRunDate = _runSchedulePModes.Min(t => t.Key);
+            TimeSpan triggerTime = firstRunDate - now;
+
+            return triggerTime.TotalMilliseconds <= 0 ? 1 : triggerTime.TotalMilliseconds;
+        }
+
+        /// <summary>
+        /// Stop the given receiver from pulling Pull Requests.
+        /// </summary>
         public void StopReceiving()
         {
             _running = false;
             _timer.Dispose();
-        }
-
-        public class PModeRequest
-        {
-            private const double Factor = 1.75;
-
-            private readonly TimeSpan _minInterval;
-            private readonly TimeSpan _maxInterval;
-           
-            private int _runs;
-
-            public TimeSpan CurrentInterval { get; set; }
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="PModeRequest"/> class.
-            /// </summary>
-            /// <param name="pmode">The pmode.</param>
-            /// <param name="minInterval">The min Interval.</param>
-            /// <param name="maxInterval">The max Interval.</param>
-            public PModeRequest(SendingProcessingMode pmode, XmlAttribute minInterval, XmlAttribute maxInterval)
-            {
-                PMode = pmode;
-                _minInterval = TimeSpan.Parse(minInterval.Value);
-                _maxInterval = TimeSpan.Parse(maxInterval.Value);
-            }
-
-            public SendingProcessingMode PMode { get; }
-
-            /// <summary>
-            /// Reset the PMode Request.
-            /// </summary>
-            public void Reset()
-            {
-                _runs = 0;
-            }
-
-            /// <summary>
-            /// Recalculate when the Request must be resend.
-            /// </summary>
-            public void CalculateNewInterval()
-            {
-                if (CurrentInterval >= _maxInterval)
-                {
-                    return;
-                }
-
-                var ticks = (long)(_minInterval.Ticks * Math.Pow(Factor, _runs));
-
-                CurrentInterval = TimeSpan.FromTicks(ticks);
-
-                if (CurrentInterval > _maxInterval)
-                {
-                    CurrentInterval = _maxInterval;
-                }
-
-                _runs++;
-            }
         }
     }
 }
