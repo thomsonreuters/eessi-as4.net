@@ -23,8 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     {
         private readonly ILogger _logger;
 
-        private Entities.ReceptionAwareness _receptionAwareness;
-        ////private UserMessage _userMessage;
+        private Entities.ReceptionAwareness _receptionAwareness;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
@@ -33,9 +32,6 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             this._logger = LogManager.GetCurrentClassLogger();
         }
-
-        // Make sure that only one instance can be executed at the same time.
-        private static readonly object Sync = new object();
 
         /// <summary>
         /// Start updating the Data store
@@ -47,43 +43,40 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             bool shouldWait = true;
 
-            lock (Sync)
+
+            using (var context = Registry.Instance.CreateDatastoreContext())
             {
-                using (var context = Registry.Instance.CreateDatastoreContext())
+                this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
+
+                var repository = new DatastoreRepository(context);
+
+                this._receptionAwareness = internalMessage.ReceptionAwareness;
+
+                if (IsMessageAlreadyAnswered(repository))
                 {
-                    this._logger.Debug("Executing ReceptionAwarenessDataStoreStep");
-
-                    var repository = new DatastoreRepository(context);
-
-                    this._receptionAwareness = internalMessage.ReceptionAwareness;
-
-                    if (IsMessageAlreadyAnswered(repository))
+                    this._logger.Debug("Message has been answered, marking as complete");
+                    UpdateForAnsweredMessage(repository);
+                }
+                else
+                {
+                    if (MessageNeedsToBeResend(repository))
                     {
-                        this._logger.Debug("Message has been answered, marking as complete");
-                        UpdateForAnsweredMessage(repository);
+                        this._logger.Debug(
+                            $"Updating message for resending.  RetryCount = {_receptionAwareness.CurrentRetryCount}");
+                        UpdateForResendMessage(repository);
+                        shouldWait = false;
                     }
                     else
                     {
-                        if (MessageNeedsToBeResend(repository))
+                        if (IsMessageUnanswered(repository))
                         {
-                            this._logger.Debug(
-                                $"Updating message for resending.  RetryCount = {this._receptionAwareness.CurrentRetryCount}");
-                            UpdateForResendMessage(repository);
-                            shouldWait = false;
-                        }
-                        else
-                        {
-                            if (IsMessageUnanswered(repository))
-                            {
-                                this._logger.Debug("Message is unanswered.");
-                                UpdateForUnansweredMessage(repository, cancellationToken);
-                            }
+                            this._logger.Debug("Message is unanswered.");
+                            UpdateForUnansweredMessage(repository, cancellationToken);
                         }
                     }
-
-                    // TODO: savechanges should be called here.
                 }
             }
+
 
             if (shouldWait)
             {
@@ -97,8 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             string messageId = this._receptionAwareness.InternalMessageId;
 
-            // TODO: frgh use another repository method.  do not retrieve the complete entity, but check count.
-            //       (optimization)
+            // TODO: Optimization:  do not retrieve the complete entity, but check count.            
             return repository.GetInMessage(
                 inMessage => inMessage.EbmsRefToMessageId?.Equals(messageId) == true) != null;
         }
@@ -147,31 +139,17 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             UpdateReceptionAwareness(awareness => awareness.IsCompleted = true, repository);
             await repository.UpdateOutMessageAsync(messageId, x => x.Operation = Operation.DeadLettered);
 
-            Error errorMessage = CreateError(repository);
+            Error errorMessage = CreateError();
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
             await new InMessageService(repository).InsertErrorAsync(errorMessage, as4Message, cancellationToken);
         }
 
-        private Error CreateError(IDatastoreRepository repository)
+        private Error CreateError()
         {
             AS4Exception as4Exception = CreateAS4Exception();
-            string messageId = this._receptionAwareness.InternalMessageId;
-
-            // TODO: frgh; what is the use of the code below?
-
-            // OutMessage outMessage = repository.GetOutMessageById(messageId);
-
-
-
-            //////if (outMessage?.MessageBody != null)
-            //////{
-            //////    using (var memoryStream = new MemoryStream(outMessage.MessageBody))
-            //////    {
-            //////        ISerializer serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-            //////        this._userMessage = serializer.DeserializeAsync(memoryStream, outMessage.ContentType, CancellationToken.None).Result.PrimaryUserMessage;
-            //////    }
-            //////}
+            string messageId = _receptionAwareness.InternalMessageId;
+            
 
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
@@ -200,11 +178,6 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 .WithSendingPMode(pmode)
                 .WithSignalMessage(errorMessage);
 
-            ////if (this._userMessage != null)
-            ////{
-            ////    builder.WithUserMessage(this._userMessage);
-            ////}
-
             return builder.Build();
         }
 
@@ -220,7 +193,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             string messageId = this._receptionAwareness.InternalMessageId;
 
             this._logger.Info($"[{messageId}] {description}");
-            // TODO: modify code below to await Task.Delay( ... ) ?
+
             Thread.Sleep(retryInterval);
         }
     }

@@ -45,29 +45,41 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
                 var inExceptionService = new InExceptionService(new DatastoreRepository(context));
-                var outMessageService = new OutMessageService(new DatastoreRepository(context));
-
+                
                 try
                 {
                     AS4Exception exception = GetPossibleThrownAS4Exception(internalMessage);
-                    if (exception == null)
-                        return await this._step.ExecuteAsync(internalMessage, cancellationToken);
 
-                    this._originalAS4Message = internalMessage.AS4Message;
+                    if (exception == null)
+                    {
+                        return await _step.ExecuteAsync(internalMessage, cancellationToken);
+                    }
+
+                    _originalAS4Message = internalMessage.AS4Message;
 
                     return await HandleImplicitError(internalMessage.AS4Message, inExceptionService);
                 }
                 catch (AS4Exception exception)
                 {
                     if (internalMessage.AS4Message?.IsSignalMessage == true)
-                        return await ReturnStepResult(internalMessage.AS4Message);
+                    {
+                        // We were unable to process the received signal-message.  
+                        // Make sure the InternalMessage contains an empty AS4Message so that
+                        // no AS4 Message is written to the response stream.
+
+                        internalMessage.Exception = exception;
+                        internalMessage.AS4Message = new AS4MessageBuilder().Build();
+
+                        return StepResult.Failed(exception, internalMessage);
+                    }
 
                     InitializeFields(internalMessage);
-                    return await HandleInException(exception, internalMessage.AS4Message, inExceptionService,
-                        outMessageService);
+                    return await HandleInException(exception, internalMessage.AS4Message, inExceptionService);
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
+                    _logger.Error($"An unexpected error occured: {exception.Message}");
+                    _logger.Trace(exception.StackTrace);
                     AssignResponseHttpCode(internalMessage);
                     return await ReturnStepResult(internalMessage.AS4Message);
                 }
@@ -84,7 +96,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             var errorMessage = as4Message.PrimarySignalMessage as Error;
             if (errorMessage?.Exception != null)
+            {
                 await inExceptionService.InsertAS4ExceptionAsync(errorMessage.Exception, as4Message);
+            }
 
             return await ReturnStepResult(as4Message);
         }
@@ -93,47 +107,31 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (internalMessage.AS4Message?.SecurityHeader.IsSigned == true ||
                 internalMessage.AS4Message?.SecurityHeader.IsEncrypted == true)
+            {
                 internalMessage.AS4Message.SecurityHeader = new SecurityHeader();
+            }
 
-            this._originalAS4Message = internalMessage?.AS4Message;
+            _originalAS4Message = internalMessage.AS4Message;
         }
 
-        private async Task<StepResult> HandleInException(AS4Exception exception, AS4Message as4Message, InExceptionService inExceptionService, OutMessageService outMessageService)
+        private async Task<StepResult> HandleInException(AS4Exception exception, AS4Message as4Message, InExceptionService inExceptionService)
         {
             await inExceptionService.InsertAS4ExceptionAsync(exception, as4Message);
-            await InsertSignalsFromExceptionAsync(exception, outMessageService);
 
-            StepResult stepResult = await ReturnStepResult(this._originalAS4Message);
+            StepResult stepResult = await ReturnStepResult(_originalAS4Message);
             stepResult.InternalMessage.Exception = exception;
 
             return stepResult;
-        }
-
-        private async Task InsertSignalsFromExceptionAsync(AS4Exception exception, OutMessageService outMessageService)
-        {
-            foreach (string messageId in exception.MessageIds)
-            {
-                await outMessageService.InsertErrorAsync(messageId, this._originalAS4Message);
-            }
         }
 
         private async Task<StepResult> ReturnStepResult(AS4Message as4Message)
         {
             this._logger.Info("Handled AS4 Exception");
 
-            // TODO: is it the responsibility of the Decorator to create the empty SOAP envelope here?
-            if (as4Message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback)
-                as4Message = CreateEmptySoapEnvelope();
-
             var internalMessage = new InternalMessage(as4Message);
             return await StepResult.SuccessAsync(internalMessage);
         }
-
-        private AS4Message CreateEmptySoapEnvelope()
-        {
-            return new AS4MessageBuilder()
-                .WithReceivingPMode(this._originalAS4Message.ReceivingPMode).Build();
-        }
+       
 
         private static void AssignResponseHttpCode(InternalMessage internalMessage)
         {

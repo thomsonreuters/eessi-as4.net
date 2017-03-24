@@ -80,7 +80,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     $"{internalMessage.Prefix} An error occured while trying to send the message: {exception.Message}");
 
                 return HandleSendAS4Exception(internalMessage, exception);
-
             }
         }
 
@@ -96,7 +95,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             else
             {
                 var as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
-                return StepResult.Failed(as4Exception);
+                internalMessage.AS4Message?.SignalMessages?.Clear();
+                return StepResult.Failed(as4Exception, internalMessage);
             }
         }
 
@@ -187,25 +187,29 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                this._logger.Debug($"AS4 Message received from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
+                _logger.Debug($"AS4 Message received from: {internalMessage.AS4Message.SendingPMode.PushConfiguration.Protocol.Url}");
                 return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }
             catch (WebException exception)
-            {
+            {                                
                 if (exception.Response != null &&
                     ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
+                {
                     return await PrepareStepResult(exception.Response as HttpWebResponse, internalMessage, cancellationToken);
-
-                else throw CreateFailedSendAS4Exception(internalMessage, exception);
+                }
+                
+                throw CreateFailedSendAS4Exception(internalMessage, exception);
             }
         }
 
         private async Task<StepResult> HandleHttpResponseAsync(WebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            using (WebResponse responseStream = await request.GetResponseAsync().ConfigureAwait(false))
-            {
-                UpdateOperation(_originalAS4Message, Operation.Sent);
+            // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
+            // we've sent the message, so update the status to sent.
+            UpdateOperation(_originalAS4Message, Operation.Sent);
 
+            using (WebResponse responseStream = await request.GetResponseAsync().ConfigureAwait(false))
+            {                
                 return await PrepareStepResult(responseStream as HttpWebResponse, internalMessage, cancellationToken);
             }
         }
