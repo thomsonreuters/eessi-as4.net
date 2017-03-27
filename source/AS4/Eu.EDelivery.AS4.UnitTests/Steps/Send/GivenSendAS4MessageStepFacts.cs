@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static SendingProcessingMode CreateValidSendingPMode()
         {
-            return new SendingProcessingMode {PushConfiguration = {Protocol = {Url = "http://localhost:1122/"}}};
+            return new SendingProcessingMode {PullConfiguration = {Protocol = {Url = "http://localhost:1122/"}}};
         }
     }
 }
