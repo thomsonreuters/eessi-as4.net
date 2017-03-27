@@ -20,6 +20,12 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly List<T> _intervalRequests;
         private readonly Timer _timer;
 
+        protected enum Interval
+        {
+            Reset,
+            Increase
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ExponentialIntervalReceiver{T}"/> class.
         /// </summary>
@@ -63,13 +69,13 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 tasks.Add(Task.Run(() => OnIntervalRequestReceived(intervalRequest)));
             }
-
+            
             Task.WaitAll(tasks.ToArray());
         }
 
         private async Task OnIntervalRequestReceived(T intervalRequest)
         {
-            if (await OnRequestReceived(intervalRequest))
+            if (await OnRequestReceived(intervalRequest) == Interval.Reset)
             {
                 intervalRequest.ResetInterval();
             }
@@ -93,13 +99,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void AddIntervalRequest(DateTime dateTime, T intervalRequest)
         {
-            var timeTrimmedOnSeconds = new DateTime(
-                dateTime.Year,
-                dateTime.Month,
-                dateTime.Day,
-                dateTime.Hour,
-                dateTime.Minute,
-                dateTime.Second);
+            DateTime timeTrimmedOnSeconds = TrimOnSeconds(dateTime);
 
             if (_runSchedulePModes.ContainsKey(timeTrimmedOnSeconds) == false)
             {
@@ -107,6 +107,17 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             _runSchedulePModes[timeTrimmedOnSeconds].Add(intervalRequest);
+        }
+
+        private static DateTime TrimOnSeconds(DateTime dateTime)
+        {
+            return new DateTime(
+                dateTime.Year,
+                dateTime.Month,
+                dateTime.Day,
+                dateTime.Hour,
+                dateTime.Minute,
+                dateTime.Second);
         }
 
         private double CalculateNextTriggerInterval(DateTime now)
@@ -146,7 +157,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="intervalRequest"></param>
         /// <returns></returns>
-        protected abstract Task<bool> OnRequestReceived(T intervalRequest);
+        protected abstract Task<Interval> OnRequestReceived(T intervalRequest);
 
         /// <summary>
         /// Start receiving on a configured Target
