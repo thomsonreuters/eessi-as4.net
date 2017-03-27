@@ -45,9 +45,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 if (!_configuration.ContainsSendingPMode(setting.Key)) continue;
 
                 SendingProcessingMode pmode = _configuration.GetSendingPMode(setting.Key);
-                var pullRequest = new PModePullRequest(pmode, setting["tmin"].AsTimeSpan(), setting["tmax"].AsTimeSpan());
+                var pullRequest = new PModePullRequest(
+                    pmode,
+                    setting["tmin"].AsTimeSpan(),
+                    setting["tmax"].AsTimeSpan());
 
-                base.AddIntervalRequest(pullRequest);
+                this.AddIntervalRequest(pullRequest);
             }
         }
 
@@ -67,7 +70,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 return messageCallback(receivedMessage, cancellationToken);
             };
 
-            base.StartInterval();
+            this.StartInterval();
         }
 
         /// <summary>
@@ -75,11 +78,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="intervalPullRequest"></param>
         /// <returns></returns>
-        protected override async Task<bool> OnRequestReceived(PModePullRequest intervalPullRequest)
+        protected override async Task<Interval> OnRequestReceived(PModePullRequest intervalPullRequest)
         {
             InternalMessage resultedMessage = await _messageCallback(intervalPullRequest);
 
-            return resultedMessage.AS4Message.IsUserMessage;
+            return resultedMessage.AS4Message.IsUserMessage ? Interval.Reset : Interval.Increase;
         }
     }
 }
