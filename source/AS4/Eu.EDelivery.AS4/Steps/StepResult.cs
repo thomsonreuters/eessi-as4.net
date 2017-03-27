@@ -9,7 +9,10 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class StepResult
     {
-        private StepResult() {}
+        private StepResult()
+        {
+            CanExecute = true;
+        }
 
         /// <summary>
         /// Gets the included <see cref="AS4Exception"/> occurred during the step execution.
