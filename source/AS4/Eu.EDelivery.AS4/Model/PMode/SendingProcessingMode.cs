@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             this.Security = new Security();
             this.MessagePackaging = new SendMessagePackaging();
         }
-        
+
     }
 
     public class PModeParty
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsEnabled { get; set; }
         public string Algorithm { get; set; }
         public X509FindType PublicKeyFindType { get; set; }
-        public string PublicKeyFindValue { get; set; }        
+        public string PublicKeyFindValue { get; set; }
 
         public KeyEncryption KeyTransport { get; set; }
 
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsEnabled { get; set; }
         public string PrivateKeyFindValue { get; set; }
         public X509FindType PrivateKeyFindType { get; set; }
-        public X509ReferenceType KeyReferenceMethod { get; set; }   
+        public X509ReferenceType KeyReferenceMethod { get; set; }
         public string Algorithm { get; set; }
         public string HashFunction { get; set; }
 
@@ -167,14 +167,29 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
     }
 
-    [Serializable]
-    public class PullConfiguration
+    public interface ISendConfiguration
     {
-        public string SubChannel { get; set; }
+        Protocol Protocol { get; set; }
+        TlsConfiguration TlsConfiguration { get; set; }
     }
 
     [Serializable]
-    public class PushConfiguration
+    public class PullConfiguration : ISendConfiguration
+    {
+        public string SubChannel { get; set; }
+
+        public Protocol Protocol { get; set; }
+        public TlsConfiguration TlsConfiguration { get; set; }
+
+        public PullConfiguration()
+        {
+            this.Protocol = new Protocol();
+            this.TlsConfiguration = new TlsConfiguration();
+        }
+    }
+
+    [Serializable]
+    public class PushConfiguration : ISendConfiguration
     {
         public Protocol Protocol { get; set; }
         public TlsConfiguration TlsConfiguration { get; set; }
