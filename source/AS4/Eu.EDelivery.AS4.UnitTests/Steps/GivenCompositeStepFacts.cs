@@ -14,23 +14,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
     /// </summary>
     public class GivenCompositeStepFacts
     {
-        private readonly CompositeStep _step;
-        private Mock<IStep> _mockModule;
-
-        public GivenCompositeStepFacts()
-        {
-            SetupMockModule();
-
-            _step = new CompositeStep(_mockModule.Object);
-        }
-
-        private void SetupMockModule()
-        {
-            _mockModule = new Mock<IStep>();
-            _mockModule.Setup(m => m.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
-                       .ReturnsAsync(StepResult.Success(null));
-        }
-
         /// <summary>
         /// Testing if the transmitter succeeds
         /// </summary>
@@ -40,14 +23,49 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             public async void ThenTransmitMessageSucceeds()
             {
                 // Arrange
-                AS4Message mockMessage = new AS4MessageBuilder().Build();
-                var internalMessage = new InternalMessage(mockMessage);
+                InternalMessage dummyMessage = CreateDummyMessage();
+                StepResult expectedStepResult = StepResult.Success(dummyMessage);
+
+                var compositeStep = new CompositeStep(CreateMockStepWith(expectedStepResult).Object);
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult actualStepResult = await compositeStep.ExecuteAsync(dummyMessage, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result);
+                Assert.Equal(expectedStepResult.InternalMessage, actualStepResult.InternalMessage);
+            }
+
+            [Fact]
+            public async void ThenStepStopExecutionWithMarkedStepResult()
+            {
+                // Arrange
+                InternalMessage expectedMessage = CreateDummyMessage();
+                StepResult stopExecutionResult = StepResult.Success(expectedMessage).AndStopExecution();
+
+                var spyStep = new SpyStep();
+                var compositeStep = new CompositeStep(CreateMockStepWith(stopExecutionResult).Object, spyStep);
+
+                // Act
+                StepResult actualResult = await compositeStep.ExecuteAsync(new InternalMessage(), CancellationToken.None);
+
+                // Assert  
+                Assert.False(spyStep.IsCalled);
+                Assert.Equal(expectedMessage, actualResult.InternalMessage);
+            }
+
+            private static InternalMessage CreateDummyMessage()
+            {
+                return new InternalMessage(new AS4MessageBuilder().WithAttachment(new Attachment()).Build());
+            }
+
+            private static Mock<IStep> CreateMockStepWith(StepResult stepResult)
+            {
+                var mockStep = new Mock<IStep>();
+
+                mockStep.Setup(m => m.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
+                        .ReturnsAsync(stepResult);
+
+                return mockStep;
             }
         }
 
@@ -60,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             public void ThenCreatingTransmitterFails()
             {
                 // Act / Assert
-                Assert.Throws<ArgumentNullException>(() => new CompositeStep(null));
+                Assert.Throws<ArgumentNullException>(() => new CompositeStep(steps: null));
             }
         }
     }

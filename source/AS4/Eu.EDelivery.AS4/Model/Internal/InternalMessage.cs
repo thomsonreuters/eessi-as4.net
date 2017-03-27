@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             }
         }
 
-        private Attachment CreateAttachmentFromPayload(Payload payload)
+        private static Attachment CreateAttachmentFromPayload(Payload payload)
         {
             return new Attachment(id: payload.Id)
             {

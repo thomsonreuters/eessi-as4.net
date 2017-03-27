@@ -231,6 +231,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenAS4MessageBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
@@ -315,6 +316,7 @@
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />
+    <Compile Include="Steps\GivenStepResultFacts.cs" />
     <Compile Include="Steps\Notify\GivenCreateNotifyMessageStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyOutUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyInUpdateDatastoreStepFacts.cs" />
@@ -346,6 +348,7 @@
     <Compile Include="Steps\Receive\GivenReceiveUpdateDatastoreFacts.cs" />
     <Compile Include="Steps\Send\GivenSetReceptionAwarenessStepFacts.cs" />
     <Compile Include="Steps\Services\GivenInExceptionServiceFacts.cs" />
+    <Compile Include="Steps\SpyStep.cs" />
     <Compile Include="Steps\Submit\GivenRetrievepayloadsStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSigningAS4MessageStepFacts.cs" />
