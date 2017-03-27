@@ -35,7 +35,7 @@ output/messages/out/
 output/messages/receipts/
 output/messages/errors/
 output/messages/exceptions/
-!output/config/settings.xml
+
 
 
 
