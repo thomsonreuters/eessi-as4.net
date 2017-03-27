@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Net;
@@ -92,31 +93,31 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 return StepResult.Failed(AS4ExceptionBuilder.WithDescription("Failed to send AS4Message").WithInnerException(exception).Build());
             }
-            else
-            {
-                var as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
-                internalMessage.AS4Message?.SignalMessages?.Clear();
-                return StepResult.Failed(as4Exception, internalMessage);
-            }
+
+            AS4Exception as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
+            internalMessage.AS4Message?.SignalMessages?.Clear();
+            return StepResult.Failed(as4Exception, internalMessage);
         }
 
         private static void UpdateOperation(AS4Message as4Message, Operation operation)
-        {            
-            if (as4Message != null)
+        {
+            if (as4Message == null)
             {
-                using (var context = Registry.Instance.CreateDatastoreContext())
+                return;
+            }
+
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
+            {
+                var repository = new DatastoreRepository(context);
+
+                IEnumerable<OutMessage> outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
+
+                foreach (OutMessage outMessage in outMessages)
                 {
-                    var repository = new DatastoreRepository(context);
-
-                    var outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
-
-                    foreach (var outMessage in outMessages)
-                    {
-                        outMessage.Operation = operation;
-                    }
-
-                    context.SaveChanges();
+                    outMessage.Operation = operation;
                 }
+
+                context.SaveChanges();
             }
         }
 
@@ -226,7 +227,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            var response = await DeserializeHttpResponse(webResponse, cancellationToken);
+            AS4Message response = await DeserializeHttpResponse(webResponse, cancellationToken);
             response.SendingPMode = internalMessage.AS4Message.SendingPMode;
             response.UserMessages.Add(internalMessage.AS4Message.PrimaryUserMessage);
 
