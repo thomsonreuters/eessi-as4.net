@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -6,6 +9,7 @@ using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
@@ -24,13 +28,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         public GivenAS4MessageFacts()
         {
-            this._builder = new AS4MessageBuilder();
+            _builder = new AS4MessageBuilder();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage("message-id") { CollaborationInfo = { AgreementReference = new AgreementReference() } };
+            return new UserMessage("message-id") {CollaborationInfo = {AgreementReference = new AgreementReference()}};
         }
 
         protected XmlDocument SerializeSoapMessage(AS4Message message, MemoryStream soapStream)
@@ -41,6 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             soapStream.Position = 0;
             var document = new XmlDocument();
             document.Load(soapStream);
+
             return document;
         }
 
@@ -57,10 +62,43 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected AS4Message BuildAS4Message(string mpc, UserMessage userMessage)
         {
-            return this._builder
-                .WithUserMessage(userMessage)
-                .WithPullRequest(mpc)
-                .Build();
+            return _builder.WithUserMessage(userMessage).WithPullRequest(mpc).Build();
+        }
+
+        public class GetSendConfiguration : GivenAS4MessageFacts, IEnumerable<object[]>
+        {
+            [Theory]
+            [ClassData(typeof(GetSendConfiguration))]
+            public void IsExpectedWith(Type expectedType, SignalMessage signalMessage)
+            {
+                // Arrange
+                AS4Message message = new AS4MessageBuilder().WithSignalMessage(signalMessage).Build();
+
+                // Act
+                ISendConfiguration sendConfiguration = message.GetSendConfiguration();
+
+                // Assert
+                Assert.IsType(expectedType, sendConfiguration);
+            }
+
+            /// <summary>
+            /// Returns an enumerator that iterates through a collection.
+            /// </summary>
+            /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            /// <summary>
+            /// Returns an enumerator that iterates through the collection.
+            /// </summary>
+            /// <returns>An enumerator that can be used to iterate through the collection.</returns>
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                yield return new object[] {typeof(PullConfiguration), new PullRequest()};
+                yield return new object[] {typeof(PushConfiguration), new Receipt()};
+            }
         }
 
         /// <summary>
@@ -72,12 +110,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenSaveToMessageWithoutAttachmentsReturnsSoapMessage(string mpc)
             {
                 // Act
-                UserMessage userMessage = base.CreateUserMessage();
-                AS4Message message = base.BuildAS4Message(mpc, userMessage);
+                UserMessage userMessage = CreateUserMessage();
+                AS4Message message = BuildAS4Message(mpc, userMessage);
 
                 using (var soapStream = new MemoryStream())
                 {
-                    XmlDocument document = base.SerializeSoapMessage(message, soapStream);
+                    XmlDocument document = SerializeSoapMessage(message, soapStream);
                     XmlNode envelopeElement = document.DocumentElement;
 
                     // Assert
@@ -90,13 +128,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenSaveToPullRequestCorrectlySerialized(string mpc)
             {
                 // Arrange
-                UserMessage userMessage = base.CreateUserMessage();
-                AS4Message message = base.BuildAS4Message(mpc, userMessage);
+                UserMessage userMessage = CreateUserMessage();
+                AS4Message message = BuildAS4Message(mpc, userMessage);
 
                 // Act
                 using (var soapStream = new MemoryStream())
                 {
-                    XmlDocument document = base.SerializeSoapMessage(message, soapStream);
+                    XmlDocument document = SerializeSoapMessage(message, soapStream);
 
                     // Assert
                     XmlAttribute mpcAttribute = GetMpcAttribute(document);
@@ -108,16 +146,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenSaveToMessageWithAttachmentsReturnsMimeMessage(string messageContents)
             {
                 // Arrange
-                var attachmentStream = new MemoryStream(
-                    Encoding.UTF8.GetBytes(messageContents));
+                var attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes(messageContents));
                 var attachment = new Attachment(id: "attachment-id") {Content = attachmentStream};
 
-                UserMessage userMessage = base.CreateUserMessage();
+                UserMessage userMessage = CreateUserMessage();
 
-                AS4Message message = new AS4MessageBuilder()
-                    .WithUserMessage(userMessage)
-                    .WithAttachment(attachment)
-                    .Build();
+                AS4Message message =
+                    new AS4MessageBuilder().WithUserMessage(userMessage).WithAttachment(attachment).Build();
 
                 // Act
                 AssertMimeMessageIsValid(message);
@@ -127,7 +162,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 using (var mimeStream = new MemoryStream())
                 {
-                    MimeMessage mimeMessage = base.SerializeMimeMessage(message, mimeStream);
+                    MimeMessage mimeMessage = SerializeMimeMessage(message, mimeStream);
                     Stream envelopeStream = mimeMessage.BodyParts.OfType<MimePart>().First().ContentObject.Open();
                     string rawXml = new StreamReader(envelopeStream).ReadToEnd();
 
@@ -137,22 +172,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 }
             }
 
-            private XmlAttribute GetMpcAttribute(XmlDocument document)
+            private static XmlAttribute GetMpcAttribute(XmlDocument document)
             {
                 const string node = "/s:Envelope/s:Header/ebms:Messaging/ebms:SignalMessage/ebms:PullRequest";
                 XmlAttributeCollection attributes = document.SelectXmlNode(node).Attributes;
-                XmlAttribute mpcAttribute = attributes.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
-                return mpcAttribute;
+
+                return attributes?.Cast<XmlAttribute>().FirstOrDefault(x => x.Name == "mpc");
             }
 
             [Fact]
             public void ThenSaveToUserMessageCorrectlySerialized()
             {
                 // Arrange
-                UserMessage userMessage = base.CreateUserMessage();
-                AS4Message message = new AS4MessageBuilder()
-                    .WithUserMessage(userMessage)
-                    .Build();
+                UserMessage userMessage = CreateUserMessage();
+                AS4Message message = new AS4MessageBuilder().WithUserMessage(userMessage).Build();
 
                 // Act
                 using (var soapStream = new MemoryStream())
