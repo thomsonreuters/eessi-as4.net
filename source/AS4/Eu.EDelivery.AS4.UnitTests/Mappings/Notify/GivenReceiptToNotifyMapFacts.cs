@@ -1,5 +1,4 @@
 ﻿using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Mappings.Notify;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -10,12 +9,12 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
 {
     /// <summary>
-    /// Testing <see cref="ReceiptToNotifyMap"/>
+    /// Testing <see cref="ReceiptToNotifyMap" />
     /// </summary>
     public class GivenReceiptToNotifyMapFacts
     {
         public GivenReceiptToNotifyMapFacts()
-        {            
+        {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
@@ -26,8 +25,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
             {
                 // Arrange
                 var receipt = new Receipt("message-id") {RefToMessageId = "ref-to-message-id"};
+
                 // Act
                 var notifyMessage = AS4Mapper.Map<NotifyMessage>(receipt);
+
                 // Assert
                 MessageInfo notifyMessageInfo = notifyMessage.MessageInfo;
                 Assert.Equal(receipt.MessageId, notifyMessageInfo.MessageId);
@@ -39,8 +40,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
             {
                 // Arrange
                 var receipt = new Receipt("message-id");
+
                 // Act
                 var notifyMessage = AS4Mapper.Map<NotifyMessage>(receipt);
+
                 // Assert
                 Assert.Equal(Status.Delivered, notifyMessage.StatusInfo.Status);
             }
