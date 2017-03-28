@@ -153,17 +153,6 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         }
 
         /// <summary>
-        /// Break Down the Soap Envelope Builder
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete("should no longer be used or should be renamed to reset.")]
-        public SoapEnvelopeBuilder BreakDown()
-        {
-            InitializeBuilder();
-            return this;
-        }
-
-        /// <summary>
         /// Set the To Node to the Envelope
         /// </summary>
         /// <param name="to"></param>
