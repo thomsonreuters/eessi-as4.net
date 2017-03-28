@@ -15,9 +15,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
     public class StubInvalidPollingTemplate : PollingTemplate<string, string>
     {
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
+
         protected override TimeSpan PollingInterval { get; } = TimeSpan.FromSeconds(0);
 
         public bool IsMessageReceived { get; set; }
+
         public bool IsFailed { get; set; }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         protected override void HandleMessageException(string message, Exception exception)
         {
-            this.IsFailed = true;
+            IsFailed = true;
         }
 
         protected override void MessageReceived(
@@ -45,13 +47,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             Function messageCallback,
             CancellationToken cancellationToken)
         {
-            this.IsMessageReceived = true;
+            IsMessageReceived = true;
 
             messageCallback(entity, cancellationToken);
         }
 
-        protected override void ReleasePendingItems()
-        {            
-        }
+        protected override void ReleasePendingItems() {}
     }
 }
