@@ -28,6 +28,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// <summary>
         /// Initializes a new instance of the <see cref="Agent"/> class. 
         /// </summary>
+        /// <param name="agentConfig"></param>
         /// <param name="receiver"> Receiver used for receiving messages inside the Agent </param>        
         /// <param name="transformerConfig"> Configuration of the Transformer that should be created to transform to a Central Messaging Model</param>
         /// <param name="stepConfiguration">StepConfiguration which describes the steps that will be executed when messages are received </param>        
@@ -163,8 +164,7 @@ namespace Eu.EDelivery.AS4.Agents
                 if (result.Exception.InnerException != null && _logger.IsTraceEnabled)
                 {
                     this._logger.Trace(result.Exception.InnerException.StackTrace);
-                }
-
+                }             
             }
 
             this._logger.Debug($"{this.AgentConfig.Name} finished handling message with id {message.Id}");

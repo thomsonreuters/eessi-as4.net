@@ -1,7 +1,7 @@
 import { RuntimeStore } from './../../settings/runtime.store';
 import { InfoComponent } from './../../common/info/info.component';
 import { TooltipDirective } from './../../common/tooltip.directive';
-import { By } from '@angular/platform-browser/src/dom/debug/by';
+import { By } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormBuilder, FormArray } from '@angular/forms';
 import { Observable } from 'rxjs';
 import {
@@ -19,6 +19,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { PartyComponent } from './party.component';
+import { PartyForm } from './../../api/PartyForm';
 import { Party } from './../../api/Party';
 import { PartyId } from './../../api/PartyId';
 import { ModalService } from './../../common/modal/modal.service';
@@ -57,7 +58,7 @@ describe('party', () => {
 
     describe('add', () => {
         it('should add new item to the form', inject([FormBuilder], (formBuilder: FormBuilder) => {
-            instance.group = Party.getForm(formBuilder, party);
+            instance.group = PartyForm.getForm(formBuilder, party);
             fixture.detectChanges();
             fixture.debugElement.query(By.css('.add-button')).nativeElement.click();
 
@@ -68,7 +69,7 @@ describe('party', () => {
     describe('remove', () => {
         it('should remove the partyId', inject([FormBuilder, DialogService], (formBuilder: FormBuilder, dialogService: DialogService) => {
             let dialogSpy = spyOn(dialogService, 'deleteConfirm').and.returnValue(Observable.of(true));
-            instance.group = Party.getForm(formBuilder, party);
+            instance.group = PartyForm.getForm(formBuilder, party);
             instance.group.markAsPristine();
             expect(instance.group.dirty).toBeFalsy();
             fixture.detectChanges();
@@ -83,7 +84,7 @@ describe('party', () => {
             expect(instance.group.dirty).toBeTruthy();
         }));
         it('should ask the user for confirmation', inject([DialogService, FormBuilder], (dialogService: DialogService, formBuilder: FormBuilder) => {
-            instance.group = Party.getForm(formBuilder, party);
+            instance.group = PartyForm.getForm(formBuilder, party);
             let dialogSpy = spyOn(dialogService, 'deleteConfirm').and.returnValue(Observable.of(false));
 
             instance.removeParty(0);

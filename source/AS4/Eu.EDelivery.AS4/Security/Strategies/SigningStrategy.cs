@@ -11,7 +11,6 @@ using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Repositories;
@@ -43,10 +42,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="securityTokenReference"></param>
         internal SigningStrategy(XmlDocument document, SecurityTokenReference securityTokenReference) : base(document)
         {
-            this._document = document;
+            _document = document;
             SecurityTokenReference = securityTokenReference;
-            this._securityTokenReferenceNamespace = $"{Constants.Namespaces.WssSecuritySecExt} SecurityTokenReference";
-            this.SignedInfo.CanonicalizationMethod = XmlDsigExcC14NTransformUrl;
+            _securityTokenReferenceNamespace = $"{Constants.Namespaces.WssSecuritySecExt} SecurityTokenReference";
+            SignedInfo.CanonicalizationMethod = XmlDsigExcC14NTransformUrl;
         }
 
         /// <summary>
@@ -64,11 +63,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="certificate"></param>
         public void AddCertificate(X509Certificate2 certificate)
         {
-            this.SigningKey = GetSigningKeyFromCertificate(certificate);
-            this.KeyInfo = new KeyInfo();
+            SigningKey = GetSigningKeyFromCertificate(certificate);
+            KeyInfo = new KeyInfo();
 
-            this.SecurityTokenReference.Certificate = certificate;
-            this.KeyInfo.AddClause(this.SecurityTokenReference);
+            SecurityTokenReference.Certificate = certificate;
+            KeyInfo.AddClause(SecurityTokenReference);
         }
 
         private static RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
@@ -140,20 +139,27 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             ArrayList references = GetSignedReferences();
             if (references == null || references.Count == 0)
-                this.LoadXml(GetSignatureElement());
+            {
+                LoadXml(GetSignatureElement());
+            }
         }
 
         private void AppendSignatureElement(XmlElement securityElement)
         {
             XmlElement signatureElement = base.GetXml();
-            XmlNode importedSignatureElement = securityElement.OwnerDocument.ImportNode(signatureElement, deep: true);
-            securityElement.AppendChild(importedSignatureElement);
+            XmlNode importedSignatureElement = securityElement.OwnerDocument?.ImportNode(signatureElement, deep: true);
+            if (importedSignatureElement != null)
+            {
+                securityElement.AppendChild(importedSignatureElement);
+            }
         }
 
         private void AddSecurityTokenReferenceToKeyInfo()
         {
             if (!this.KeyInfo.OfType<SecurityTokenReference>().Any() && this.SecurityTokenReference != null)
+            {
                 this.KeyInfo.AddClause(this.SecurityTokenReference);
+            }
         }
 
         private void AppendSecurityTokenElements(XmlElement securityElement)
@@ -174,11 +180,16 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         protected override AsymmetricAlgorithm GetPublicKey()
         {
             AsymmetricAlgorithm publicKey = base.GetPublicKey();
-            if (publicKey != null) return publicKey;
+            if (publicKey != null)
+            {
+                return publicKey;
+            }
 
-            X509Certificate2 signingCertificate = new KeyInfoRepository(this.KeyInfo).GetCertificate();
+            X509Certificate2 signingCertificate = new KeyInfoRepository(KeyInfo).GetCertificate();
             if (signingCertificate != null)
+            {
                 publicKey = signingCertificate.PublicKey.Key;
+            }
 
             return publicKey;
         }
@@ -189,8 +200,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="algorithm"></param>
         public void AddAlgorithm(SignatureAlgorithm algorithm)
         {
-            this.SignedInfo.SignatureMethod = algorithm.GetIdentifier();
-            this.SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
+            SignedInfo.SignatureMethod = algorithm.GetIdentifier();
+            SafeCanonicalizationMethods.Add(AttachmentSignatureTransform.Url);
 
             CryptoConfig.AddAlgorithm(algorithm.GetType(), algorithm.GetIdentifier());
             CryptoConfig.AddAlgorithm(typeof(AttachmentSignatureTransform), AttachmentSignatureTransform.Url);
@@ -202,7 +213,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         public void SignSignature()
         {
-            base.ComputeSignature();
+            ComputeSignature();
         }
 
         /// <summary>
@@ -216,14 +227,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             if (!VerifyCertificate(this.SecurityTokenReference.Certificate, out status))
             {
-
                 throw ThrowAS4SignException($"The signing certificate is not trusted: {string.Join(" ", status.Select(s => s.StatusInformation))}");
             }
 
-            this.LoadXml(GetSignatureElement());
-            this.AddUnreconizedAttachmentReferences(options.Attachments);
+            LoadXml(GetSignatureElement());
+            AddUnreconizedAttachmentReferences(options.Attachments);
 
-            return this.CheckSignature(this.SecurityTokenReference.Certificate, verifySignatureOnly: true);
+            return CheckSignature(this.SecurityTokenReference.Certificate, verifySignatureOnly: true);
         }
 
         private XmlElement GetSignatureElement()
@@ -300,7 +310,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             if (RefTargetField != null)
             {
                 RefTargetField.SetValue(reference, new NonCloseableStream(attachment.Content));
-            }            
+            }
         }
 
         private static void SetAttachmentTransformContentType(CryptoReference reference, Attachment attachment)
@@ -323,18 +333,18 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 return;
             }
-            
+
             var referenceStream = RefTargetField.GetValue(reference) as Stream;
 
             Stream streamToWorkOn = referenceStream;
             if (streamToWorkOn != null)
             {
                 streamToWorkOn.Position = 0;
-                if (referenceStream is NonCloseableStream)
-                    streamToWorkOn = (referenceStream as NonCloseableStream).InnerStream;
             }
             if (referenceStream is FilteredStream)
+            {
                 (referenceStream as FilteredStream).Source.Position = 0;
+            }
         }
     }
 }

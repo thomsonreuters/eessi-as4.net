@@ -56,16 +56,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task UpdateUserMessagesAsync(InMessageService service, CancellationToken token)
         {
             foreach (UserMessage userMessage in this._as4Message.UserMessages)
+            {
                 await UpdateUserMessageAsync(userMessage, service, token);
+            }
         }
 
         private async Task UpdateUserMessageAsync(UserMessage userMessage, InMessageService service, CancellationToken token)
         {
             if (IsUserMessageTest(userMessage))
+            {
                 userMessage.IsTest = true;
+            }
 
             if (IsUserMessageDuplicate(userMessage, service))
+            {
                 userMessage.IsDuplicate = true;
+            }
 
             await TryUpdateUserMessageAsync(token, userMessage, service);
         }
@@ -109,7 +115,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task UpdateSignalMessagesAsync(InMessageService service, CancellationToken token)
         {
             foreach (SignalMessage signalMessage in this._as4Message.SignalMessages)
+            {
                 await UpdateSignalMessageAsync(signalMessage, service, token);
+            }
         }
 
         private async Task UpdateSignalMessageAsync(SignalMessage signalMessage, InMessageService service, CancellationToken token)
@@ -145,37 +153,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task UpdateSignalMessage(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
             if (signalMessage is Receipt)
+            {
                 await UpdateReceipt(signalMessage, service, token);
+            }
 
             else if (signalMessage is Error)
+            {
                 await UpdateError(signalMessage, service, token);
+            }
         }
 
         private async Task UpdateReceipt(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
         {
-            await service.InsertReceiptAsync(signalMessage, this._as4Message, cancellationToken);
+            await service.InsertReceiptAsync(signalMessage, _as4Message, cancellationToken);
 
-            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
-                ? OutStatus.Ack
-                : OutStatus.NotApplicable;
-
-            await service.UpdateSignalMessage(signalMessage, status, cancellationToken);
+            // Since we've received a Receipt, make sure that the Status of the UserMessage related to this receipt is set to Ack.            
+            await service.UpdateSignalMessage(signalMessage, OutStatus.Ack, cancellationToken);
         }
 
         private async Task UpdateError(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
         {
-            await service.InsertErrorAsync(signalMessage, this._as4Message, cancellationToken);
+            await service.InsertErrorAsync(signalMessage, _as4Message, cancellationToken);
 
-            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
-                ? OutStatus.Nack
-                : OutStatus.NotApplicable;
-
-            await service.UpdateSignalMessage(signalMessage, status, cancellationToken);
-        }
-
-        private bool IsSignalMessageReferenceUserMessage(SignalMessage signalMessage)
-        {
-            return signalMessage.RefToMessageId.Equals(this._as4Message.PrimaryUserMessage?.MessageId);
+            // Make sure the status of the related UserMessage of this Error is set to Nack.            
+            await service.UpdateSignalMessage(signalMessage, OutStatus.Nack, cancellationToken);
         }
 
         private void ThrowAS4Exception(string description, Exception exception)

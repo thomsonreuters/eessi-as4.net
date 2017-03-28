@@ -13,18 +13,10 @@ using NSubstitute;
 using Xunit;
 using System;
 using System.Text;
+using Eu.EDelivery.AS4.Fe.Monitor.Model;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
-    public class BaseTest
-    {
-        public async Task<BaseTest> ExpectExceptionAsync(Func<Task> function, Type exception)
-        {
-            await Assert.ThrowsAsync(exception, function);
-            return this;
-        }
-    }
-
     public class MonitorServiceTests : BaseTest
     {
         private readonly string InEbmsMessageId1 = "ebmsMessageId1";
@@ -66,7 +58,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 cfg.AddProfile(new SettingsAutoMapper());
                 cfg.AddProfile(new MonitorAutoMapper());
             });
-            monitorService = new MonitorService(datastoreContext, SetupPmodeSource(), new Mapper(Mapper.Configuration));
+            monitorService = new MonitorService(datastoreContext, SetupPmodeSource());
 
             return this;
         }

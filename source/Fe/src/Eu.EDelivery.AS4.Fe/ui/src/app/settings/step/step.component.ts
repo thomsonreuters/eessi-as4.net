@@ -1,4 +1,3 @@
-import { Setting } from './../../api/Setting';
 import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/forms';
 import { NgZone, Component, Input, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
@@ -7,7 +6,8 @@ import { DialogService } from './../../common/dialog.service';
 import { RuntimeService } from '../runtime.service';
 import { ItemType } from './../../api/ItemType';
 import { RuntimeStore } from '../runtime.store';
-import { Step } from './../../api/Step';
+import { SettingForm } from './../../api/SettingForm';
+import { StepForm } from './../../api/StepForm';
 
 @Component({
     selector: 'as4-step-settings',
@@ -72,7 +72,7 @@ export class StepSettingsComponent implements OnDestroy {
         this.group.markAsDirty();
     }
     public addStep() {
-        (<FormArray>this.group.controls['step']).push(Step.getForm(this.formBuilder, null));
+        (<FormArray>this.group.controls['step']).push(StepForm.getForm(this.formBuilder, null));
         this.group.markAsDirty();
     }
     public removeStep(index: number) {
@@ -86,12 +86,12 @@ export class StepSettingsComponent implements OnDestroy {
         this._runtimeStoreSubscription.unsubscribe();
     }
     public stepChanged(formGroup: FormGroup, selectedStep: string) {
-        let stepProps = this.steps.find(st => st.technicalName === selectedStep);
+        let stepProps = this.steps.find((st) => st.technicalName === selectedStep);
         formGroup.removeControl('setting');
         formGroup
             .addControl('setting', this.formBuilder.array(stepProps
                 .properties
-                .map((prop) => Setting.getForm(this.formBuilder, {
+                .map((prop) => SettingForm.getForm(this.formBuilder, {
                     key: prop.friendlyName,
                     value: ''
                 }))));

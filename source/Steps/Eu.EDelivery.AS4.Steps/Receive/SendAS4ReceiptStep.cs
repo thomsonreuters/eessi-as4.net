@@ -14,7 +14,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class SendAS4ReceiptStep : IStep
     {
         private readonly ILogger _logger;
-        private InternalMessage _internalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4ReceiptStep"/> class
@@ -22,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public SendAS4ReceiptStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -33,40 +32,39 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._internalMessage = internalMessage;
-            
-            return  IsReplyPatternCallback()
-                ? await CreateEmptySoapResult()
-                : await ReturnSameStepResult();
+
+            if (internalMessage.AS4Message.IsEmpty)
+            {
+                return await ReturnSameStepResult(internalMessage);
+            }
+
+            return  IsReplyPatternCallback(internalMessage.AS4Message)
+                ? await CreateEmptySoapResult(internalMessage)
+                : await ReturnSameStepResult(internalMessage);
         }
 
-        private bool IsReplyPatternCallback()
+        private static bool IsReplyPatternCallback(AS4Message as4Message)
         {
-            return this._internalMessage.AS4Message
-                .ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
+            return as4Message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
-        private async Task<StepResult> CreateEmptySoapResult()
+        private async Task<StepResult> CreateEmptySoapResult(InternalMessage internalMessage)
         {
-            this._logger.Info($"{this._internalMessage.Prefix} Empty SOAP Envelope will be send to requested party");
+            _logger.Info($"{internalMessage.Prefix} Empty SOAP Envelope will be send to requested party");
 
-            AS4Message emptyAS4Message = CreateEmptyAS4Message();
+            AS4Message emptyAS4Message = CreateEmptyAS4Message(internalMessage.AS4Message.ReceivingPMode);
             var emptyInternalMessage = new InternalMessage(emptyAS4Message);
             return await StepResult.SuccessAsync(emptyInternalMessage);
         }
 
-        private AS4Message CreateEmptyAS4Message()
-        {
-            ReceivingProcessingMode pmode = this._internalMessage.AS4Message.ReceivingPMode;
-            return new AS4MessageBuilder().WithReceivingPMode(pmode).Build();
+        private static AS4Message CreateEmptyAS4Message(ReceivingProcessingMode receivingPMode)
+        {            
+            return new AS4MessageBuilder().WithReceivingPMode(receivingPMode).Build();
         }
 
-        private async Task<StepResult> ReturnSameStepResult()
-        {
-            string messageId = this._internalMessage.AS4Message.PrimarySignalMessage.MessageId;
-            this._logger.Info($"{this._internalMessage.Prefix} Receipt {messageId} is prepared to send to requested party");
-
-            return await StepResult.SuccessAsync(this._internalMessage);
+        private static async Task<StepResult> ReturnSameStepResult(InternalMessage internalMessage)
+        {            
+            return await StepResult.SuccessAsync(internalMessage);
         }
     }
 }

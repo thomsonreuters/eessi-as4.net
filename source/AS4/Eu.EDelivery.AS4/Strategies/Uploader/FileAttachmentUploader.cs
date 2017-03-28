@@ -66,8 +66,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             {
                 UploadAttachment(attachment);
             }
-            catch (SystemException)
+            catch (SystemException ex)
             {
+                _logger.Error($"An error occured while uploading the attachment: {ex.Message}");
                 throw ThrowAS4UploadException($"Unable to upload attachment {attachment.Id} to {attachment.Location}");
             }
         }
@@ -80,6 +81,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private void UploadAttachment(Attachment attachment)
         {
+            // Create the directory, if it does not exist.
+            Directory.CreateDirectory(Path.GetDirectoryName(attachment.Location));
+
             using (FileStream fileStream = File.Create(attachment.Location))
             {
                 attachment.Content.CopyTo(fileStream);

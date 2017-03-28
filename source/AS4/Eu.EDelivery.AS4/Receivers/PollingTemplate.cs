@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         protected void StartPolling(Func<TOut, CancellationToken, Task<InternalMessage>> onMessage, CancellationToken cancellationToken)
         {
-            if (this.PollingInterval.Ticks <= 0)
+            if (PollingInterval.Ticks <= 0)
             {
                 throw new ApplicationException("PollingInterval should be greater than zero");
             }
@@ -62,12 +62,14 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     else
                     {
-                        // TODO: modify this to Task.Delay().Wait instead ?
-                        Thread.Sleep(this.PollingInterval);
-
-                        // Task.Delay(this.PollingInterval, cancellationToken).Wait(cancellationToken);
+                       // Task.Delay(PollingInterval, cancellationToken).Wait(cancellationToken);
+                       Thread.Sleep(PollingInterval);
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                Logger.Trace("Cancellation requested; stopped polling.");
             }
             finally
             {

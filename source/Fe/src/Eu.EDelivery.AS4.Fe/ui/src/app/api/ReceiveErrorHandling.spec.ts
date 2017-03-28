@@ -14,7 +14,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { ReceiveErrorHandling } from './ReceiveErrorHandling';
-
+import { ReceiveErrorHandlingForm } from './ReceiveErrorHandlingForm';
 
 describe('Receive error handling', () => {
     beforeEach(() => TestBed.configureTestingModule({
@@ -23,7 +23,7 @@ describe('Receive error handling', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = ReceiveErrorHandling.getForm(formBuilder, null);
+        let form = ReceiveErrorHandlingForm.getForm(formBuilder, null);
 
         expect(form.get(ReceiveErrorHandling.FIELD_useSoapFault).value).toBeFalsy();
         expect(form.get(ReceiveErrorHandling.FIELD_replyPattern).value).toBe(0);
@@ -34,7 +34,7 @@ describe('Receive error handling', () => {
         data.useSoapFault = true;
         data.replyPattern = 1;
         data.responseHttpCode = 500;
-        let form = ReceiveErrorHandling.getForm(formBuilder, data);
+        let form = ReceiveErrorHandlingForm.getForm(formBuilder, data);
 
         expect(form.get(ReceiveErrorHandling.FIELD_useSoapFault).value).toBeTruthy();
         expect(form.get(ReceiveErrorHandling.FIELD_replyPattern).value).toBe(1);

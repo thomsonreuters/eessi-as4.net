@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
             services.Add(new ServiceDescriptor(baseType, implementation, lifetime));
 
             // If the implementation has lifecycle hooks implemented then register these
-            foreach (var hook in implementation.GetInterfaces().Where(iface => typeof(ILifecylceHook).IsAssignableFrom(iface) && iface != typeof(ILifecylceHook) && iface != baseType && iface != typeof(IModular)))
+            foreach (var hook in implementation.GetInterfaces().Where(iface => typeof(ILifeCycleHook).IsAssignableFrom(iface) && iface != typeof(ILifeCycleHook) && iface != baseType && iface != typeof(IModular)))
             {
                 services.Add(new ServiceDescriptor(hook, implementation, ServiceLifetime.Transient));
             }

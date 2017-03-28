@@ -13,12 +13,6 @@
                         </span>
                     </div>
                 </as4-input>
-                <!--<as4-input label="Direction" controlSize="9" labelSize="3">
-                    <select multiselect multiple="multiple" [(ngModel)]="filter.filter.direction">
-                        <option value="0">Inbound</option>
-                        <option value="1">Outbound</option>
-                    </select>
-                </as4-input>-->
                 <as4-input label="Operation" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <select name="operation" [(ngModel)]="filter.filter.operation" multiselect>
@@ -40,7 +34,7 @@
                         </span>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms message id" labelSize="3" controlSize="9">
+                <as4-input label="ebMS message id" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <input type="text" name="ebmsMessageId" [(ngModel)]="filter.filter.ebmsMessageId" />
                         <div class="input-group-btn">
@@ -48,7 +42,7 @@
                         </div>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms ref to message id" labelSize="3" controlSize="9">
+                <as4-input label="ebMS ref to message id" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
                         <div class="input-group-btn">
@@ -56,7 +50,7 @@
                         </div>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms message type" labelSize="3" controlSize="9">
+                <as4-input label="ebMS message type" labelSize="3" controlSize="9">
                     <div class="input-group">
                         <select name="ebmsMessageType" [(ngModel)]="filter.filter.ebmsMessageType" multiselect>
                             <option value="0">User message</option>
@@ -163,9 +157,9 @@
     </div>
 </as4-box>
 <as4-box title="Messages">
-    <div content>
-        <as4-pager [pages]="(messages | async).pages" [pageTotal]="(messages | async).messages.length" [total]="(messages | async).total"
-            [page]="(messages | async).page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
+    <div content *ngIf="messages | async as messageData">
+        <as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -184,7 +178,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <ng-container *ngFor="let message of (messages | async).messages; let i = index">
+                    <ng-container *ngFor="let message of messageData.messages; let i = index">
                         <tr [ngClass]="{ 'danger': message.hasExceptions}">
                             <td (click)="toggle(message)" class="clickable">
                                 <i class="fa" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage"></i>
@@ -209,7 +203,7 @@
                                     <div tabitem title="Info">
                                         <p><b>Content type</b>: {{message.contentType}}</p>
                                         <p><b>Modification time</b>: {{message.modificationTime | todate}}</p>
-                                        <p><b>Ebms ref to message id</b>: {{!!!message.ebmsRefToMessageId ? 'N/A' : message.ebmsRefToMessageId}}</p>
+                                        <p><b>ebMS ref to message id</b>: {{!!!message.ebmsRefToMessageId ? 'N/A' : message.ebmsRefToMessageId}}</p>
                                     </div>
                                     <div tabitem title="Exceptions" class="exceptions">
                                         <as4-error-message [message]="message" [direction]="+filter.outFilter.direction === 0 ? 1 : 0"></as4-error-message>
@@ -224,7 +218,7 @@
                 </tbody>
             </table>
         </div>
-        <as4-pager [pages]="(messages | async).pages" [pageTotal]="(messages | async).messages.length" [total]="(messages | async).total"
-            [page]="(messages | async).page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
+        <as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
     </div>
 </as4-box>

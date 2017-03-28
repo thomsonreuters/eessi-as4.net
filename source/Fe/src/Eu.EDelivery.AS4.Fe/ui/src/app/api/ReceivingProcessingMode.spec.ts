@@ -14,6 +14,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { ReceivingProcessingMode } from './ReceivingProcessingMode';
+import { ReceivingProcessingModeForm } from './ReceivingProcessingModeForm';
 
 describe('Receiving processing mode', () => {
     beforeEach(() => TestBed.configureTestingModule({
@@ -22,7 +23,7 @@ describe('Receiving processing mode', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = ReceivingProcessingMode.getForm(formBuilder, null);
+        let form = ReceivingProcessingModeForm.getForm(formBuilder, null);
 
         expect(form.get(ReceivingProcessingMode.FIELD_mep).value).toBe(0);
         expect(form.get(ReceivingProcessingMode.FIELD_mepBinding).value).toBe(1);
@@ -31,7 +32,7 @@ describe('Receiving processing mode', () => {
         let data = new ReceivingProcessingMode();
         data.mep = 1;
         data.mepBinding = 0;
-        let form = ReceivingProcessingMode.getForm(formBuilder, data);
+        let form = ReceivingProcessingModeForm.getForm(formBuilder, data);
 
         expect(form.get(ReceivingProcessingMode.FIELD_mep).value).toBe(1);
         expect(form.get(ReceivingProcessingMode.FIELD_mepBinding).value).toBe(0);

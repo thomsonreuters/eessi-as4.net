@@ -9,6 +9,7 @@ import { RuntimeStore } from '../runtime.store';
 import { RuntimeService } from '../runtime.service';
 import { ItemType } from './../../api/ItemType';
 import { SettingsStore } from '../settings.store';
+import { SettingsAgentForm } from './../../api/SettingsAgentForm';
 import { SettingsAgent } from './../../api/SettingsAgent';
 import { SettingsService } from '../settings.service';
 
@@ -25,7 +26,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
     private _runtimeStoreSubscr: Subscription;
     constructor(private formBuilder: FormBuilder, private settingStore: SettingsStore, private settingsService: SettingsService,
         private runtimeService: RuntimeService, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
-        this.form = SettingsAgent.getForm(this.formBuilder, null);
+        this.form = SettingsAgentForm.getForm(this.formBuilder, null);
         this._settingsStoreSubscr = this.settingStore
             .changes
             .filter((result) => !!result && !!result.Settings && !!result.Settings.agents)
@@ -33,7 +34,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
             .subscribe((result) => {
                 this.isNew = !!!result;
                 this.currentAgent = !!!result ? new SettingsAgent() : result;
-                this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+                this.form = SettingsAgentForm.getForm(this.formBuilder, this.currentAgent);
             });
         this._runtimeStoreSubscr = this.runtimeStore
             .changes
@@ -62,7 +63,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
         });
     }
     public reset() {
-        this.form = SettingsAgent.getForm(this.formBuilder, this.currentAgent);
+        this.form = SettingsAgentForm.getForm(this.formBuilder, this.currentAgent);
     }
     public delete() {
         if (!this.dialogService.deleteConfirm('agent')) {

@@ -59,8 +59,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class ReceiveReceiptHandling
     {
         public bool UseNNRFormat { get; set; }
-        public ReplyPattern ReplyPattern { get; set; }
-        public string CallbackUrl { get; set; }
+        public ReplyPattern ReplyPattern { get; set; }        
         public string SendingPMode { get; set; }
 
         public ReceiveReceiptHandling()

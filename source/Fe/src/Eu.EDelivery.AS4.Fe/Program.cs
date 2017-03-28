@@ -12,12 +12,8 @@ namespace Eu.EDelivery.AS4.Fe
         {
             var isInProcess = args != null && args.Contains("inprocess");
 
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(isInProcess ? "appsettings.inprocess.json" : "appsettings.json", optional: true)
-                .Build();
-
-            var httpPort = config["Port"] ?? "http://0.0.0.0:5000";
+            var config = LoadSettings(isInProcess);
+            var httpPort = HttpPort(config);
 
             var host = new WebHostBuilder()
                 .UseEnvironment(isInProcess ? "inprocess" : "production")
@@ -29,10 +25,29 @@ namespace Eu.EDelivery.AS4.Fe
                 .UseStartup<Startup>()
                 .Build();
 
-            if (isInProcess && !string.IsNullOrEmpty(config["StartUrl"]))
-                Task.Factory.StartNew(() => System.Diagnostics.Process.Start(config["StartUrl"]));
+            OpenPortal(isInProcess, config);
 
             host.Run();
+        }
+        private static void OpenPortal(bool isInProcess, IConfigurationRoot config)
+        {
+            if (isInProcess && !string.IsNullOrEmpty(config["StartUrl"]))
+                Task.Factory.StartNew(() => System.Diagnostics.Process.Start(config["StartUrl"]));
+        }
+
+        private static string HttpPort(IConfigurationRoot config)
+        {
+            var httpPort = config["Port"] ?? "http://0.0.0.0:5000";
+            return httpPort;
+        }
+
+        private static IConfigurationRoot LoadSettings(bool isInProcess)
+        {
+            var config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile(isInProcess ? "appsettings.inprocess.json" : "appsettings.json", optional: true)
+                    .Build();
+            return config;
         }
     }
 }
