@@ -13,21 +13,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     [Collection("Tests that impact datastore")]  // Tests that belong to the same collection do not run in parallel.
     public class GivenDatastoreFacts
     {
-        protected readonly DbContextOptions<DatastoreContext> Options;
+        private IServiceProvider _serviceProvider;
+
+        protected DbContextOptions<DatastoreContext> Options { get; }
 
         protected Func<DatastoreContext> GetDataStoreContext { get; }
         
         /// <summary>
-        /// Create a Default Datastore Facts
+        /// Initializes a new instance of the <see cref="GivenDatastoreFacts"/> class. 
         /// </summary>
         public GivenDatastoreFacts()
         {
-            this.Options = CreateNewContextOptions();
-            GetDataStoreContext = () => new DatastoreContext(this.Options);
-            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(this.Options);
+            Options = CreateNewContextOptions();
+            GetDataStoreContext = () => new DatastoreContext(Options);
+            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options);
         }
 
-        private IServiceProvider _serviceProvider = null;
+        private DbContextOptions<DatastoreContext> CreateNewContextOptions()
+        {
+            if (_serviceProvider == null)
+            {
+                ResetInMemoryDatabase();
+            }
+
+            // Create a new options instance telling the context to use an
+            // InMemory database and the new service provider.
+            return new DbContextOptionsBuilder<DatastoreContext>()
+                .UseInMemoryDatabase()
+                .UseInternalServiceProvider(_serviceProvider)
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options;
+        }
 
         private void ResetInMemoryDatabase()
         {
@@ -36,23 +52,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             _serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
-        }
-
-        private DbContextOptions<DatastoreContext> CreateNewContextOptions()
-        {
-            if (this._serviceProvider == null)
-            {
-                ResetInMemoryDatabase();
-            }
-
-            // Create a new options instance telling the context to use an
-            // InMemory database and the new service provider.
-            var builder = new DbContextOptionsBuilder<DatastoreContext>();
-            builder.UseInMemoryDatabase()
-                   .UseInternalServiceProvider(_serviceProvider)
-                   .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-
-            return builder.Options;
         }
     }
 }
