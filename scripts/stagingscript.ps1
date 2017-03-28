@@ -28,7 +28,9 @@ MkDir .\Staging\x86
 Remove-Item .\*.pdb
 Remove-Item .\*.xml
 Remove-Item .\xunit*.*
-Remove-Item .\users.sqlite
+If (Test-Path .\users.sqlite ) {
+	Remove-Item .\users.sqlite
+}
 Remove-Item .\Microsoft.VisualStudio.Quality*.*
 Remove-Item .\Moq.*
 Remove-Item .\*UnitTests.*
