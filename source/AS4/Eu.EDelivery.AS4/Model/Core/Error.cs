@@ -7,25 +7,25 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public class Error : SignalMessage
     {
-        [XmlIgnore]
-        public AS4Exception Exception { get; set; }
-
-        [XmlIgnore]
-        public bool IsFormedByException => this.Exception != null;
-
-        public IList<ErrorDetail> Errors { get; set; }
-
         /// <summary>
-        /// Initializes a new instance of the type <see cref="Error"/> class
+        /// Initializes a new instance of the <see cref="Error"/> class.
         /// </summary>
         public Error() {}
 
         /// <summary>
-        /// Initializes a new instance of the type <see cref="Error"/> class
+        /// Initializes a new instance of the <see cref="Error"/> class.
         /// with a given <paramref name="messageId"/>
         /// </summary>
         /// <param name="messageId"></param>
         public Error(string messageId) : base(messageId) {}
+
+        [XmlIgnore]
+        public AS4Exception Exception { get; set; }
+
+        [XmlIgnore]
+        public bool IsFormedByException => Exception != null;
+
+        public IList<ErrorDetail> Errors { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the <see cref="Error"/> is originated from a Pull Request.
@@ -51,13 +51,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
     }
 
-    public class ErrorDescription
-    {
-        public string Language { get; set; }
-
-        public string Value { get; set; }
-    }
-
     public class ErrorDetail
     {
         public string ErrorCode { get; set; }
@@ -75,6 +68,13 @@ namespace Eu.EDelivery.AS4.Model.Core
         public ErrorDescription Description { get; set; }
 
         public string Detail { get; set; }
+    }
+
+    public class ErrorDescription
+    {
+        public string Language { get; set; }
+
+        public string Value { get; set; }
     }
 
     public enum Severity

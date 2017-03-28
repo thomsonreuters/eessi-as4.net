@@ -27,6 +27,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     /// </summary>
     public class GivenSendAS4MessageStepFacts
     {
+        private static readonly string SharedUrl = $"http://localhost:{new Random().Next(0, 9999)}";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenSendAS4MessageStepFacts"/> class.
         /// </summary>
@@ -61,7 +63,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MockedHttpServer CreateMockedHttpServerWithResponse(AS4Message message)
         {
-            const string sharedUrl = "http://localhost:1122";
             MockedHttpServerBuilder builder;
 
             using (var messageStream = new MemoryStream())
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 byte[] messageBytes = messageStream.ToArray();
 
                 builder = new MockedHttpServerBuilder();
-                builder.WhenPost(sharedUrl)
+                builder.WhenPost(SharedUrl)
                        .RespondContent(
                            HttpStatusCode.OK,
                            request =>
@@ -81,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                                    Constants.ContentTypes.Soap));
             }
 
-            return builder.Build(sharedUrl);
+            return builder.Build(SharedUrl);
         }
 
         private static InternalMessage CreateValidAS4Message()
@@ -95,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static SendingProcessingMode CreateValidSendingPMode()
         {
-            return new SendingProcessingMode {PullConfiguration = {Protocol = {Url = "http://localhost:1122/"}}};
+            return new SendingProcessingMode {PullConfiguration = {Protocol = {Url = SharedUrl}}};
         }
     }
 }
