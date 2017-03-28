@@ -7,6 +7,8 @@ MkDir .\Staging\bin
 MkDir .\Staging\config
 MkDir .\Staging\config\send-pmodes
 MkDir .\Staging\config\receive-pmodes
+MkDir .\Staging\documentation
+MkDir .\Staging\documentation\Schemas
 MkDir .\Staging\database
 MkDir .\Staging\logs
 MkDir .\Staging\messages
