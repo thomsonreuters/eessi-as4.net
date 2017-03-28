@@ -10,7 +10,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security;
 using NLog;
-
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
         System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.InternalMessage>>;
@@ -149,7 +148,8 @@ namespace Eu.EDelivery.AS4.Receivers
             extension = extension.TrimStart('.');
 
             Logger.Debug($"Renaming file '{fileInfo.Name}'...");
-            string destFileName = $"{fileInfo.Directory?.FullName}\\{Path.GetFileNameWithoutExtension(fileInfo.FullName)}.{extension}";
+            string destFileName =
+                $"{fileInfo.Directory?.FullName}\\{Path.GetFileNameWithoutExtension(fileInfo.FullName)}.{extension}";
 
             destFileName = EnsureFilenameIsUnique(destFileName);
 
@@ -214,15 +214,15 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override IEnumerable<FileInfo> GetMessagesToPoll(CancellationToken cancellationToken)
         {
             var directoryInfo = new DirectoryInfo(FilePath);
-
-            var result = new List<FileInfo>();
+            var resultedFiles = new List<FileInfo>();
 
             WithImpersonation(
                 delegate
                 {
-                    FileInfo[] files = directoryInfo.GetFiles(FileMask);
+                    FileInfo[] directoryFiles = directoryInfo.GetFiles(FileMask);
 
-                    foreach (FileInfo file in files)
+                    foreach (FileInfo file in directoryFiles)
+                    {
                         try
                         {
                             var pendingFile = new FileInfo(MoveFile(file, "pending"));
@@ -232,16 +232,17 @@ namespace Eu.EDelivery.AS4.Receivers
 
                             _pendingFiles.Add(pendingFile);
 
-                            result.Add(pendingFile);
+                            resultedFiles.Add(pendingFile);
                         }
                         catch (IOException ex)
                         {
                             Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
                             Logger.Trace(ex.Message);
                         }
+                    }
                 });
 
-            return result;
+            return resultedFiles;
         }
 
         protected override void ReleasePendingItems()

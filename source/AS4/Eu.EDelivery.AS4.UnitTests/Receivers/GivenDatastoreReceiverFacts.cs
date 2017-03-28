@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         public GivenDatastoreReceiverFacts()
         {
-            this._receiver = new DatastoreReceiver(
+            _receiver = new DatastoreReceiver(
                 storeExpression: () => new DatastoreContext(base.Options),
                 findExpression: x => x.OutMessages.Where(m => m.Operation == Operation.ToBeSent),
                 updatedOperation: Operation.Sending);
@@ -43,11 +43,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private OutMessage CreateStubOutMessage()
         {
-            this._pmode = new SendingProcessingMode();
+            _pmode = new SendingProcessingMode();
             return new OutMessage
             {
                 Operation = Operation.ToBeSent,
-                PMode = AS4XmlSerializer.Serialize(this._pmode),
+                PMode = AS4XmlSerializer.Serialize(_pmode),
                 MessageBody = new byte[0]
             };
         }
@@ -64,13 +64,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                IEnumerable<Setting> properties = CreateDefaultDatastoreReceiverSettings();
 
                 // Act
-                this._receiver.Configure(properties);
+                _receiver.Configure(properties);
 
                 // Assert
                 Assert.Same(properties, properties);
             }
 
-            private IEnumerable<Setting> CreateDefaultDatastoreReceiverSettings()
+            private static IEnumerable<Setting> CreateDefaultDatastoreReceiverSettings()
             {
                 return new[]
                 {
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     (message, token) => AssertOnReceivedMessage(message, source), source.Token);
             }
 
-            private Task<InternalMessage> AssertOnReceivedMessage(
+            private static Task<InternalMessage> AssertOnReceivedMessage(
                 ReceivedMessage message, CancellationTokenSource source)
             {
                 // Assert

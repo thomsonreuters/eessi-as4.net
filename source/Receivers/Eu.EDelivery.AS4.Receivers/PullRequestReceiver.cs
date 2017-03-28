@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     setting["tmin"].AsTimeSpan(),
                     setting["tmax"].AsTimeSpan());
 
-                this.AddIntervalRequest(pullRequest);
+                base.AddIntervalRequest(pullRequest);
             }
         }
 
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 return messageCallback(receivedMessage, cancellationToken);
             };
 
-            this.StartInterval();
+            base.StartInterval();
         }
 
         /// <summary>
