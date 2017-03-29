@@ -202,7 +202,7 @@
                                         <p><b>Message body</b>: <downloadmessagebody [type]="'message'" [direction]="message.direction" [messageId]="message.ebmsMessageId"></downloadmessagebody></p>
                                     </div>
                                     <div tabitem title="Exceptions" class="exceptions">
-                                        <as4-error-message [message]="message" [direction]="+filter.outFilter.direction === 0 ? 1 : 0"></as4-error-message>
+                                        <as4-error-message [message]="message" [direction]="+filter.outFilter.direction === 0 ? 1 : 0" target="_blank"></as4-error-message>
                                     </div>
                                     <div tabitem title="Related messages" class="related-messages">
                                         <as4-related-messages [messageId]="message.ebmsMessageId" [direction]="filter.outFilter.direction"></as4-related-messages>

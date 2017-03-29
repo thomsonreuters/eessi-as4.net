@@ -127,7 +127,7 @@
                         <td>{{message.direction | todirection}}</td>
                         <td>{{message.insertionTime | todate}}</td>
                         <td>{{message.operation}}</td>
-                        <td><a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}">{{message.ebmsRefToMessageId}}</a></td>
+                        <td><a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}" target="_blank">{{message.ebmsRefToMessageId}}</a></td>
                         <td>{{message.modificationTime | todate}}</td>
                         <td>{{message.exceptionShort}}</td>
                         <td>

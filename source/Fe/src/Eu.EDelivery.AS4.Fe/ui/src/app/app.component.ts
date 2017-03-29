@@ -36,7 +36,7 @@ import '../theme/js/app.js';
             </div>
         </as4-modal>
         <as4-spinner></as4-spinner>
-        <router-outlet></router-outlet>        
+        <router-outlet></router-outlet>      
   `
 })
 export class AppComponent {

@@ -44,9 +44,15 @@ export class ReceivingPmodeService implements ICrudPmodeService {
             .distinctUntilChanged();
     }
     public get(name: string) {
+        if (!!!name) {
+            this.pmodeStore.update('Receiving', null);
+            return;
+        }
         this.http
             .get(`${this.getBaseUrl(name)}`)
-            .subscribe((result) => this.pmodeStore.update('Receiving', result.json()));
+            .subscribe((result) => {
+                this.pmodeStore.update('Receiving', result.json());
+            });
     }
     public delete(name: string) {
         this.http
