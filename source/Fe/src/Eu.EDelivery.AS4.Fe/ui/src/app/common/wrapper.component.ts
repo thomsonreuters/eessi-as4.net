@@ -46,7 +46,8 @@ export class WrapperComponent implements OnDestroy {
         }
     }
     private getPath(activatedRoute: ActivatedRouteSnapshot): string {
-        let path = activatedRoute && activatedRoute.data && activatedRoute.data['title'];
+        alert(activatedRoute.data['header']);
+        let path = activatedRoute && activatedRoute.data && (!!!activatedRoute.data['header'] ? activatedRoute.data['title'] : activatedRoute.data['header']);
         if (!!activatedRoute.firstChild) {
             return this.getPath(activatedRoute.children[0]);
         }

@@ -1,3 +1,4 @@
+@import './variables.scss';
 @import 'grippy.scss';
 @import 'forms.scss';
 @import 'modal.scss';
@@ -5,18 +6,12 @@
 @import 'datepicker.scss';
 @import '../app/common/multiselect/multiselect.directive.scss';
 
-/* Variables */
-
-$color:#3c8dbc;
- 
-/* EOF Variables */
-
 .clickable {
     cursor: pointer;
 }
 
 .as4-tooltip {
-    color: $color;
+    color: $primary;
 }
 
 table {
@@ -26,7 +21,7 @@ table {
 }
 
 i.active {
-    color: $color;
+    color: $primary;
 }
 
 .btn-box-tool {
