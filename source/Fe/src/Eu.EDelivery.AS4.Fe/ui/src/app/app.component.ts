@@ -31,12 +31,12 @@ import '../theme/js/app.js';
                 <p #payload>{{errorDialog.payload}}</p>
             </div>
             <div buttons>
-                <button type="button" class="btn btn-outline" *ngIf="!!errorDialog.payload" (click)="showDetails()">Details</button>
+                <button type="button" class="btn btn-outline"     *ngIf="!!errorDialog.payload" (click)="showDetails()">Details</button>
                 <button type="button" class="btn btn-outline" (click)="errorDialog.ok()">Ok</button>
             </div>
         </as4-modal>
         <as4-spinner></as4-spinner>
-        <router-outlet></router-outlet>        
+        <router-outlet></router-outlet>      
   `
 })
 export class AppComponent {

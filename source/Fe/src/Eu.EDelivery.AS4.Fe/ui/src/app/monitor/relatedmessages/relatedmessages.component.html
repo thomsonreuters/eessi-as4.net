@@ -16,7 +16,7 @@
             <tr *ngFor="let message of messageData.relatedMessages">
                 <td>{{message.direction | todirection}}</td>
                 <td>{{message.insertionTime | todate}}</td>
-                <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: message.direction, ebmsMessageId: message.ebmsMessageId }">{{message.ebmsMessageId}}</a></td>
+                <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: message.direction, ebmsMessageId: message.ebmsMessageId }" target="_blank">{{message.ebmsMessageId}}</a></td>
                 <td>{{message.ebmsMessageType}}</td>
                 <td>{{message.status}}</td>
                 <td>{{message.operation}}</td>

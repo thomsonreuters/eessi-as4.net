@@ -8,7 +8,9 @@ import { Routes } from '@angular/router';
 
 export const ROUTES: Routes = [
     {
-        path: '', component: WrapperComponent, children: [
+        path: '',
+        component: WrapperComponent,
+        children: [
             {
                 path: 'monitor', children: [
                     { path: '', pathMatch: 'full', redirectTo: 'inexception' },
