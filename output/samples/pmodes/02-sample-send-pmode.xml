@@ -15,8 +15,7 @@
     </Protocol>
     <TlsConfiguration>
       <IsEnabled>false</IsEnabled>
-      <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference/>
+      <TlsVersion>Tls12</TlsVersion>      
     </TlsConfiguration>
   </PushConfiguration>
   <PullConfiguration>
@@ -59,10 +58,9 @@
   <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>
-      <IsEnabled>false</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+	  <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>      
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
@@ -71,21 +69,7 @@
     </Encryption>
   </Security>
   <MessagePackaging>
-    <UseAS4Compression>true</UseAS4Compression>
-    <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>false</IncludePModeId>
-    <CollaborationInfo>
-      <AgreementReference>
-        <Value>http://agreements.europa.org/agreement</Value>
-      </AgreementReference>
-      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
-      <Action>eu:sample:02</Action>
-      <Service>
-        <Value>getting:started</Value>
-        <Type>eu:europa:services</Type>
-      </Service>
-    </CollaborationInfo>
-    <PartyInfo>
+	<PartyInfo>
       <FromParty>
         <PartyIds>
           <PartyId>
@@ -103,5 +87,19 @@
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
+	<CollaborationInfo>
+      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+	  <AgreementReference>
+        <Value>http://agreements.europa.org/agreement</Value>
+      </AgreementReference>      
+      <Action>eu:sample:02</Action>
+      <Service>
+        <Value>getting:started</Value>
+        <Type>eu:europa:services</Type>
+      </Service>
+    </CollaborationInfo>
+    <UseAS4Compression>true</UseAS4Compression>
+    <IsMultiHop>false</IsMultiHop>
+    <IncludePModeId>false</IncludePModeId>
   </MessagePackaging>
 </PMode>
