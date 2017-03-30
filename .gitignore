@@ -37,7 +37,7 @@ output/messages/errors/
 output/messages/exceptions/
 **/fe/**/dist
 **/fe/**/compiled
-
+**/fe/**/npm-debug*
 
 # Visual Studio 2015 cache/options directory
 .vs/
