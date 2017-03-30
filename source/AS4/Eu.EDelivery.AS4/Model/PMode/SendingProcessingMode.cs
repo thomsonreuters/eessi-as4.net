@@ -241,6 +241,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class PullConfiguration
     {
         public string SubChannel { get; set; }
+        public Protocol Protocol { get; set; }
+        public TlsConfiguration TlsConfiguration { get; set; }
+
+        public PullConfiguration()
+        {
+            this.Protocol = new Protocol();
+            this.TlsConfiguration = new TlsConfiguration();
+        }
     }
 
     [Serializable]
