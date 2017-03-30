@@ -112,12 +112,12 @@ namespace Eu.EDelivery.AS4.Receivers
             CancellationToken cancellationToken)
         {
             return messagesToPoll.Where(m => m != null).Select(
-                message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))
-                               .ContinueWith(x =>
+                message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))                              
+                               .ContinueWith(task =>
                                {
-                                   if (x.Exception?.InnerExceptions != null)
+                                   if (task.Exception?.InnerExceptions != null)
                                    {
-                                       foreach (var ex in x.Exception?.InnerExceptions)
+                                       foreach (Exception ex in task.Exception?.InnerExceptions)
                                        {
                                            LogManager.GetCurrentClassLogger().Fatal(ex.Message);
                                            LogManager.GetCurrentClassLogger().Fatal(ex.StackTrace);
