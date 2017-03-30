@@ -57,7 +57,7 @@
   <ItemGroup>
     <Reference Include="Eu.EDelivery.AS4.Fe, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Fe\src\Eu.EDelivery.AS4.Fe\bin\Debug\net461\Eu.EDelivery.AS4.Fe.exe</HintPath>
+      <HintPath>..\..\Fe\Eu.EDelivery.AS4.Fe\bin\Debug\net461\Eu.EDelivery.AS4.Fe.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -86,7 +86,7 @@
       <Name>Eu.EDelivery.AS4</Name>
       <Private>True</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\Fe\src\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj">
+    <ProjectReference Include="..\..\Fe\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj">
       <Project>{1beb12cd-af85-48af-bf39-b33b6b1d309e}</Project>
       <Name>Eu.EDelivery.AS4.Fe</Name>
     </ProjectReference>
