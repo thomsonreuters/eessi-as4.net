@@ -3,11 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9B04406C-90B7-47C4-AAA1-2B4ACC714BA7}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Eu.EDelivery.AS4.Fe", "Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.xproj", "{388BAF8B-C40F-409F-8B89-49685F8C0F51}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Eu.EDelivery.AS4.Fe", "src\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.xproj", "{388BAF8B-C40F-409F-8B89-49685F8C0F51}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Eu.EDelivery.AS4.Fe.Tests", "src\Eu.EDelivery.AS4.Fe.Tests\Eu.EDelivery.AS4.Fe.Tests.xproj", "{EE39118D-EC08-4CAE-A06D-D2BE9E916623}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Eu.EDelivery.AS4.Fe.Tests", "Eu.EDelivery.AS4.Fe.Tests\Eu.EDelivery.AS4.Fe.Tests.xproj", "{EE39118D-EC08-4CAE-A06D-D2BE9E916623}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4", "..\AS4\Eu.EDelivery.AS4\Eu.EDelivery.AS4.csproj", "{8B0BA38F-C3F7-46C1-9E68-A7291C7B16B1}"
 EndProject
