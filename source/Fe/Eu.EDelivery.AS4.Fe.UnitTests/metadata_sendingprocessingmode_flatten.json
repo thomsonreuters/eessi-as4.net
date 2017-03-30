@@ -95,6 +95,12 @@
     "description": "",
     "subchannel": {
       "description": ""
+    },
+    "protocol": {
+      "description": ""
+    },
+    "tlsconfiguration": {
+      "description": ""
     }
   },
   "sendreliability": {
@@ -159,13 +165,13 @@
     "isenabled": {
       "description": ""
     },
-    "keyreferencemethod": {
+    "privatekeyfindvalue": {
       "description": ""
     },
     "privatekeyfindtype": {
       "description": ""
     },
-    "privatekeyfindvalue": {
+    "keyreferencemethod": {
       "description": ""
     },
     "algorithm": {
