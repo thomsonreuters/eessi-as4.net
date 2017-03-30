@@ -264,21 +264,24 @@
       <Name>Eu.EDelivery.AS4</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
+      <Project>{b0be265a-8190-415c-8e46-2b85fe6bdbe7}</Project>
+      <Name>Eu.EDelivery.AS4.Receivers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Steps\Eu.EDelivery.AS4.Steps\Eu.EDelivery.AS4.Steps.csproj">
+      <Project>{9208d4fa-018e-4db4-a60d-ee475f5ec421}</Project>
+      <Name>Eu.EDelivery.AS4.Steps</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Transformers\Eu.EDelivery.AS4.Transformers\Eu.EDelivery.AS4.Transformers.csproj">
+      <Project>{51c92c72-60f5-4dce-b129-045640ca6d96}</Project>
+      <Name>Eu.EDelivery.AS4.Transformers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj">
       <Project>{1beb12cd-af85-48af-bf39-b33b6b1d309e}</Project>
       <Name>Eu.EDelivery.AS4.Fe</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Eu.EDelivery.AS4.Receivers.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Eu.EDelivery.AS4.Steps.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Eu.EDelivery.AS4.Transformers.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="receivingpmode.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
