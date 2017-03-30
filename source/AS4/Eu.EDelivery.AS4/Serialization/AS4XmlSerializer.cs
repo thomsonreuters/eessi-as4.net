@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <typeparam name="T">Type of the class to which the data model must be serialized.</typeparam>
         /// <param name="data">Given data instance to serialize.</param>
         /// <returns></returns>
-        public static Stream ToStream<T>(T data)
+        public static Stream ToMemoryStream<T>(T data)
         {
             string xml = Serialize(data);
             return new MemoryStream(Encoding.UTF8.GetBytes(xml));
@@ -99,13 +99,11 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static T Deserialize<T>(Stream stream) where T : class
         {
-            using (var memoryStream = new MemoryStream())
+            using (var streamReader = new StreamReader(stream))
             {
                 stream.Position = 0;
-                stream.CopyTo(memoryStream);
-                memoryStream.Position = 0;
 
-                string xml = Encoding.UTF8.GetString(memoryStream.ToArray());
+                string xml = streamReader.ReadToEnd();
                 return Deserialize<T>(xml);
             }
         }

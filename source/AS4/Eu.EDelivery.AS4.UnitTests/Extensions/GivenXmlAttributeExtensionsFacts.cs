@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
             public void FailsWithNullTimeSpanValue()
             {
                 // Arrange
-                var setting = new Setting();
+                var setting = new Setting("key", "value");
 
                 // Act
                 TimeSpan actualTimeSpan = setting["unknown-attribute"].AsTimeSpan();

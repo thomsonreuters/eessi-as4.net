@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 var expectedPMode = new SendingProcessingMode {Id = "expected-id"};
 
                 // Act
-                Stream actualPModeStream = AS4XmlSerializer.ToStream(expectedPMode);
+                Stream actualPModeStream = AS4XmlSerializer.ToMemoryStream(expectedPMode);
 
                 // Assert
                 SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);

@@ -8,27 +8,29 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers.Pull;
 using Eu.EDelivery.AS4.Serialization;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
     /// <summary>
-    /// <see cref="IReceiver"/> implementation to pull exponentially for Pull Requests.
+    /// <see cref="IReceiver" /> implementation to pull exponentially for Pull Requests.
     /// </summary>
     public class PullRequestReceiver : ExponentialIntervalReceiver<PModePullRequest>
     {
         private readonly IConfig _configuration;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private Func<PModePullRequest, Task<InternalMessage>> _messageCallback;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PullRequestReceiver"/> class.
+        /// Initializes a new instance of the <see cref="PullRequestReceiver" /> class.
         /// </summary>
         public PullRequestReceiver() : this(Config.Instance) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PullRequestReceiver"/> class.
+        /// Initializes a new instance of the <see cref="PullRequestReceiver" /> class.
         /// </summary>
-        /// <param name="configuration"><see cref="IConfig"/> implementation to collection PModes.</param>
+        /// <param name="configuration"><see cref="IConfig" /> implementation to collection PModes.</param>
         public PullRequestReceiver(IConfig configuration)
         {
             _configuration = configuration;
@@ -42,15 +44,23 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             foreach (Setting setting in settings)
             {
-                if (!_configuration.ContainsSendingPMode(setting.Key)) continue;
+                if (!_configuration.ContainsSendingPMode(setting.Key))
+                {
+                    Logger.Warn(
+                        "Sending Processing Mode with Id: {settings.Key} is not correctly retrieved from the Local Configuration");
+
+                    continue;
+                }
 
                 SendingProcessingMode pmode = _configuration.GetSendingPMode(setting.Key);
-                var pullRequest = new PModePullRequest(
-                    pmode,
-                    setting["tmin"].AsTimeSpan(),
-                    setting["tmax"].AsTimeSpan());
+                TimeSpan minTimeSpan = setting["tmin"].AsTimeSpan();
+                TimeSpan maxTimeSpan = setting["tmax"].AsTimeSpan();
 
-                base.AddIntervalRequest(pullRequest);
+                if (minTimeSpan != default(TimeSpan) && maxTimeSpan != default(TimeSpan))
+                {
+                    var pullRequest = new PModePullRequest(pmode, minTimeSpan, maxTimeSpan);
+                    AddIntervalRequest(pullRequest);
+                }
             }
         }
 
@@ -66,15 +76,15 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _messageCallback = message =>
             {
-                var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(message.PMode));
+                var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToMemoryStream(message.PMode));
                 return messageCallback(receivedMessage, cancellationToken);
             };
 
-            base.StartInterval();
+            StartInterval();
         }
 
         /// <summary>
-        /// <paramref name="intervalPullRequest"/> is received.
+        /// <paramref name="intervalPullRequest" /> is received.
         /// </summary>
         /// <param name="intervalPullRequest"></param>
         /// <returns></returns>

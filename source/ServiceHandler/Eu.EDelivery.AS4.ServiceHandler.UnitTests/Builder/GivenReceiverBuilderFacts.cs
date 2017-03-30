@@ -26,12 +26,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                 Assert.IsType<FileReceiver>(receiver);
             }
 
-            private Receiver CreateDefaultReceiverSettings()
+            private static Receiver CreateDefaultReceiverSettings()
             {
                 return new Receiver
                 {
                     Type = typeof(FileReceiver).AssemblyQualifiedName,
-                    Setting = new[] { new Setting { Key = "Test", Value = "Test" } }
+                    Setting = new[] {new Setting(key: "Test", value: "Test")}
                 };
             }
         }

@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             }
 
             [Fact]
-            public void SucceedsWithMissingIntervalAttributes()
+            public void FailsWithMissingIntervalAttributes()
             {
                 // Arrange
                 var receiver = new PullRequestReceiver(StubConfig.Instance);
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
                 // Assert
                 receiver.StartReceiving(OnMessageReceived, CancellationToken.None);
-                Assert.True(_waitHandle.WaitOne(timeout: TimeSpan.FromSeconds(5)));
+                Assert.False(_waitHandle.WaitOne(timeout: TimeSpan.FromSeconds(5)));
             }
 
             [Fact]

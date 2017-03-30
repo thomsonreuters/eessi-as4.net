@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
-            this._properties = settings.ToDictionary(s => s.Key, s => s.Value);
+            this._properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>

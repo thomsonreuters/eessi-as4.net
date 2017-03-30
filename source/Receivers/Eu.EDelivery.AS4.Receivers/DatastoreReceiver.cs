@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Specifications;
+using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
-            Configure(settings.ToDictionary(s => s.Key, s => s.Value));
+            Configure(settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -166,16 +167,22 @@ namespace Eu.EDelivery.AS4.Receivers
         private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
         {
             // Use a TransactionScope to get the highest TransactionIsolation level.
-            IEnumerable<Entity> entities;
-
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew, TimeSpan.FromSeconds(25)))
+            IEnumerable<Entity> entities = Enumerable.Empty<Entity>();
+           
+            using (DatastoreContext context = _storeExpression())
             {
-                using (DatastoreContext context = _storeExpression())
+                IDbContextTransaction transaction = context.Database.BeginTransaction();
+
+                try
                 {
                     entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+                    transaction.Commit();
                 }
-
-                transaction.Complete();
+                catch (Exception exception)
+                {
+                    Logger.Error(exception.Message);
+                    transaction.Rollback();
+                }
             }
 
             return entities;

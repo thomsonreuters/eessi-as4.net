@@ -243,7 +243,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="Setting"/> class.
         /// </summary>
-        public Setting() {}
+        private Setting() {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Setting"/> class.

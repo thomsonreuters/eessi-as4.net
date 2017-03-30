@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
-            _properties = settings.ToDictionary(s => s.Key, s => s.Value);
+            _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -250,7 +250,14 @@ namespace Eu.EDelivery.AS4.Receivers
             // Rename the 'pending' files to their original filename.
             string extension = Path.GetExtension(FileMask);
 
-            foreach (FileInfo pendingFile in _pendingFiles) if (File.Exists(pendingFile.FullName)) MoveFile(pendingFile, extension);
+            foreach (FileInfo pendingFile in _pendingFiles)
+            {
+                if (File.Exists(pendingFile.FullName))
+                {
+                    MoveFile(pendingFile, extension);
+                }
+            }
+
             _pendingFiles.Clear();
         }
 

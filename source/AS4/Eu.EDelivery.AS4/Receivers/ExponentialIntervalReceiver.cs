@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         protected ExponentialIntervalReceiver()
         {
-            _runSchedulePModes = new ConcurrentDictionary<DateTime, List<T>>();
+            _runSchedulePModes = new Dictionary<DateTime, List<T>>();
             _intervalRequests = new List<T>();
             _timer = new Timer {Enabled = false};
             _timer.Elapsed += TimerElapsed;
