@@ -165,13 +165,13 @@
     "isenabled": {
       "description": ""
     },
-    "privatekeyfindvalue": {
+    "keyreferencemethod": {
       "description": ""
     },
     "privatekeyfindtype": {
       "description": ""
     },
-    "keyreferencemethod": {
+    "privatekeyfindvalue": {
       "description": ""
     },
     "algorithm": {

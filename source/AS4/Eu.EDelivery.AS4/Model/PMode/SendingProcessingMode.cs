@@ -152,9 +152,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class Signing
     {
         public bool IsEnabled { get; set; }
-        public string PrivateKeyFindValue { get; set; }
-        public X509FindType PrivateKeyFindType { get; set; }
         public X509ReferenceType KeyReferenceMethod { get; set; }
+        public X509FindType PrivateKeyFindType { get; set; }
+        public string PrivateKeyFindValue { get; set; }
         public string Algorithm { get; set; }
         public string HashFunction { get; set; }
 
@@ -237,14 +237,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
     }
 
-    public interface ISendConfiguration
-    {
-        Protocol Protocol { get; set; }
-        TlsConfiguration TlsConfiguration { get; set; }
-    }
-
     [Serializable]
-    public class PullConfiguration : ISendConfiguration
+    public class PullConfiguration
     {
         public string SubChannel { get; set; }
 
@@ -259,7 +253,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     }
 
     [Serializable]
-    public class PushConfiguration : ISendConfiguration
+    public class PushConfiguration
     {
         public Protocol Protocol { get; set; }
         public TlsConfiguration TlsConfiguration { get; set; }
