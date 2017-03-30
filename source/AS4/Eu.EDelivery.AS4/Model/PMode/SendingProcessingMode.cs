@@ -237,14 +237,20 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
     }
 
+    public interface ISendConfiguration
+    {
+       Protocol Protocol { get; set; }
+       TlsConfiguration TlsConfiguration { get; set; }
+    }
+
     [Serializable]
-    public class PullConfiguration
+    public class PullConfiguration : ISendConfiguration
     {
         public string SubChannel { get; set; }
     }
 
     [Serializable]
-    public class PushConfiguration
+    public class PushConfiguration : ISendConfiguration
     {
         public Protocol Protocol { get; set; }
         public TlsConfiguration TlsConfiguration { get; set; }

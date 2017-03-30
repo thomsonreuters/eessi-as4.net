@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Runtime;
@@ -105,7 +106,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var jsonResult = JsonConvert.SerializeObject(result.First(x => x.Name == "SendingProcessingMode"), Formatting.Indented, new FlattenRuntimeToJsonConverter());
 
                 // Assert
-                Assert.True(jsonResult == expected);
+                Assert.True(expected == jsonResult);
             }
         }
     }
