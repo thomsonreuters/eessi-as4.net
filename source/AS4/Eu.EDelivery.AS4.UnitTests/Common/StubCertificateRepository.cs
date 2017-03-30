@@ -5,28 +5,31 @@ using Eu.EDelivery.AS4.Repositories;
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
     /// <summary>
-    /// Dummy Certificate for the Certificate Related Tests
+    /// Stub Certificate for the Certificate Related Tests
     /// </summary>
     public class StubCertificateRepository : ICertificateRepository, IDisposable
     {
-        private readonly X509Certificate2 _dummyCertificate;
         private readonly X509Store _certificateStore;
+        private readonly X509Certificate2 _dummyCertificate;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubCertificateRepository"/> class. 
+        /// </summary>
         public StubCertificateRepository()
         {
-            this._dummyCertificate = new X509Certificate2(
-                  rawData: Properties.Resources.holodeck_partya_certificate,
-                  password: Properties.Resources.certificate_password,
-                  keyStorageFlags: X509KeyStorageFlags.Exportable);
+            _dummyCertificate = new X509Certificate2(
+                Properties.Resources.holodeck_partya_certificate,
+                Properties.Resources.certificate_password,
+                X509KeyStorageFlags.Exportable);
 
-            this._certificateStore = new X509Store();
-            this._certificateStore.Open(OpenFlags.ReadWrite);
-            this._certificateStore.Add(this._dummyCertificate);
+            _certificateStore = new X509Store();
+            _certificateStore.Open(OpenFlags.ReadWrite);
+            _certificateStore.Add(_dummyCertificate);
         }
 
-        public X509Certificate2 GetDummyCertificate()
+        public X509Certificate2 GetCertificate(X509FindType findType, string privateKeyReference)
         {
-            return this._dummyCertificate;
+            return _certificateStore.Certificates.Find(findType, privateKeyReference, false)[0];
         }
 
         public void Dispose()
@@ -35,16 +38,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        public X509Certificate2 GetDummyCertificate()
         {
-            if (disposing)
-                this._dummyCertificate.Dispose();
+            return _dummyCertificate;
         }
 
-        public X509Certificate2 GetCertificate(X509FindType findType, string privateKeyReference)
+        protected virtual void Dispose(bool disposing)
         {
-            return this._certificateStore.Certificates
-                .Find(findType, privateKeyReference, false)[0];
+            if (disposing) _dummyCertificate.Dispose();
         }
     }
 }

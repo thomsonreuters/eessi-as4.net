@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -12,19 +9,19 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using CommonSchema = Eu.EDelivery.AS4.Model.Common.Schema;
 using Xunit;
+using CommonSchema = Eu.EDelivery.AS4.Model.Common.Schema;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
     /// <summary>
-    /// Testing <see cref="SubmitPayloadInfoResolver"/>
+    /// Testing <see cref="SubmitPayloadInfoResolver" />
     /// </summary>
     public class GivenSubmitPayloadInfoResolverFacts
     {
         public GivenSubmitPayloadInfoResolverFacts()
         {
-            IdentifierFactory.Instance.SetContext(StubConfig.Instance);            
+            IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
         public class GivenValidArguments : GivenSubmitPayloadInfoResolverFacts
@@ -33,10 +30,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenResolvePayloadInfoSucceeds()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
+
                 // Act
                 List<PartInfo> partInfos = new SubmitPayloadInfoResolver().Resolve(submitMessage);
+
                 // Assert
                 Assert.Equal(2, partInfos.Count);
             }
@@ -45,10 +44,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenResolvePayloadInfoSucceedsWithPrefixedId()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
+
                 // Act
                 List<PartInfo> partInfos = new SubmitPayloadInfoResolver().Resolve(submitMessage);
+
                 // Assert
                 partInfos.ForEach(p => Assert.StartsWith("cid:", p.Href));
             }
@@ -57,14 +58,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenResolverPayloadInfoSucceedsWithConfiguredCompressedPayloads()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 submitMessage.PMode.MessagePackaging.UseAS4Compression = true;
+
                 // Act
                 List<PartInfo> partInfos = new SubmitPayloadInfoResolver().Resolve(submitMessage);
+
                 // Assert
-                IEnumerable<PartInfo> compressedPartInfos = partInfos
-                    .Where(i => i.Properties.ContainsKey("CompressionType"));
+                IEnumerable<PartInfo> compressedPartInfos =
+                    partInfos.Where(i => i.Properties.ContainsKey("CompressionType"));
                 Assert.Equal(2, compressedPartInfos.Count());
             }
         }
@@ -72,37 +75,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         public class GivenInvalidArguments : GivenSubmitPayloadInfoResolverFacts
         {
             [Fact]
-            public void ThenResolveFailsWithEmptySchemaLocation()
-            {
-                // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-
-                foreach (var p in submitMessage.Payloads)
-                {
-                    p.Schemas = new[] { new CommonSchema(location: string.Empty) };
-                }
-                
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
-                // Act / Assert
-                Assert.Throws<AS4Exception>(
-                    () => new SubmitPayloadInfoResolver().Resolve(submitMessage));
-            }
-
-            [Fact]
             public void ThenResolveFailsWithEmptyPayloadPropertyName()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
 
-                foreach (var p in submitMessage.Payloads)
-                {
-                    p.PayloadProperties = new[] {new PayloadProperty(name: string.Empty)};
-                }
-                
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                foreach (Payload p in submitMessage.Payloads) p.PayloadProperties = new[] {new PayloadProperty(string.Empty)};
+
+                submitMessage.PMode = CreatePopulatedSendingPMode();
+
                 // Act
-                Assert.Throws<AS4Exception>(
-                    () => new SubmitPayloadInfoResolver().Resolve(submitMessage));
+                Assert.Throws<AS4Exception>(() => new SubmitPayloadInfoResolver().Resolve(submitMessage));
+            }
+
+            [Fact]
+            public void ThenResolveFailsWithEmptySchemaLocation()
+            {
+                // Arrange
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+
+                foreach (Payload p in submitMessage.Payloads) p.Schemas = new[] {new CommonSchema(string.Empty)};
+
+                submitMessage.PMode = CreatePopulatedSendingPMode();
+
+                // Act / Assert
+                Assert.Throws<AS4Exception>(() => new SubmitPayloadInfoResolver().Resolve(submitMessage));
             }
         }
 

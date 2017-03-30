@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 
         public GivenAS4MessageBuilderFacts()
         {
-            this._builder = new AS4MessageBuilder();
+            _builder = new AS4MessageBuilder();
         }
 
         /// <summary>
@@ -29,25 +29,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             {
                 // Arrange
                 var userMessage = new UserMessage("message-id");
-                AS4Message as4MessageWithUserMessage = this._builder
-                    .WithUserMessage(userMessage).Build();
+                AS4Message as4MessageWithUserMessage = _builder.WithUserMessage(userMessage).Build();
+
                 // Act
-                AS4Message as4MessageWithoutUserMessage = this._builder
-                    .BreakDown().Build();
+                AS4Message as4MessageWithoutUserMessage = _builder.BreakDown().Build();
+
                 // Assert
                 Assert.False(
-                    as4MessageWithUserMessage.UserMessages.Count ==
-                    as4MessageWithoutUserMessage.UserMessages.Count);
+                    as4MessageWithUserMessage.UserMessages.Count == as4MessageWithoutUserMessage.UserMessages.Count);
             }
 
             [Fact]
             public void ThenBuildMultipleTimesUniqueMessagesEveryTimeSucceeds()
             {
                 // Arrange 
-                AS4MessageBuilder builder = this._builder.WithUserMessage(new UserMessage("message-id"));
+                AS4MessageBuilder builder = _builder.WithUserMessage(new UserMessage("message-id"));
+
                 // Act
                 AS4Message firstMessage = builder.Build();
                 AS4Message secondMessage = builder.Build();
+
                 // Assert
                 Assert.NotEqual(firstMessage, secondMessage);
             }
@@ -57,8 +58,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             {
                 // Arrange
                 var userMessage = new UserMessage("message-id");
+
                 // Act
-                AS4Message message = this._builder.WithUserMessage(userMessage).Build();
+                AS4Message message = _builder.WithUserMessage(userMessage).Build();
+
                 // Assert
                 Assert.NotNull(message);
                 Assert.Contains(message.UserMessages, m => m == userMessage);
@@ -69,8 +72,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             {
                 // Arrange
                 var pmode = new SendingProcessingMode();
+
                 // Act
-                AS4Message message = this._builder.WithSendingPMode(pmode).Build();
+                AS4Message message = _builder.WithSendingPMode(pmode).Build();
+
                 // Assert
                 Assert.NotNull(message);
                 Assert.Same(pmode, message.SendingPMode);
@@ -86,16 +91,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildSimpleUserMessageFailsWithNull()
             {
                 // Act
-                Assert.Throws<ArgumentNullException>(
-                    () => this._builder.WithUserMessage(null));
+                Assert.Throws<ArgumentNullException>(() => _builder.WithUserMessage(null));
             }
 
             [Fact]
             public void ThenBuildWithNullAsPModeFails()
             {
                 // Act
-                Assert.Throws<ArgumentNullException>(
-                    () => this._builder.WithSendingPMode(null));
+                Assert.Throws<ArgumentNullException>(() => _builder.WithSendingPMode(null));
             }
         }
     }

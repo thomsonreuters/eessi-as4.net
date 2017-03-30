@@ -1,7 +1,5 @@
 ﻿using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
-using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Strategies;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Moq;
 using Xunit;
@@ -17,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies
 
         public GivenPayloadStrategyProviderFacts()
         {
-            this._provider = new PayloadRetrieverProvider();
+            _provider = new PayloadRetrieverProvider();
         }
 
         /// <summary>
@@ -30,9 +28,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies
             {
                 // Arrange
                 var mockedStrategy = new Mock<IPayloadRetriever>();
+
                 // Act
-                base._provider.Accept((Payload payload) => true, mockedStrategy.Object);
-                IPayloadRetriever result = base._provider.Get(new Payload(location: string.Empty));
+                _provider.Accept(payload => true, mockedStrategy.Object);
+                IPayloadRetriever result = _provider.Get(new Payload(string.Empty));
+
                 // Assert
                 Assert.NotNull(result);
                 Assert.Equal(mockedStrategy.Object, result);
@@ -50,9 +50,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies
                 // Arrange
                 const string prefix = "file";
                 var mockedStrategy = new Mock<IPayloadRetriever>();
+
                 // Act / Assert
-                base._provider.Accept((Payload payload) => payload.Location.StartsWith(prefix), retriever: null);
-                Assert.Throws<AS4Exception>(() => base._provider.Get(new Payload(location: prefix)));
+                _provider.Accept(payload => payload.Location.StartsWith(prefix), null);
+                Assert.Throws<AS4Exception>(() => _provider.Get(new Payload(prefix)));
             }
         }
     }

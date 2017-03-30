@@ -13,7 +13,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
     /// <summary>
-    /// Testing <see cref="NotifyUpdateInMessageDatastoreStep"/>
+    /// Testing <see cref="NotifyUpdateInMessageDatastoreStep" />
     /// </summary>
     public class GivenNotifyInUpdateDatastoreStepFacts : GivenDatastoreFacts
     {
@@ -21,26 +21,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         public GivenNotifyInUpdateDatastoreStepFacts()
         {
-            this._step = new NotifyUpdateInMessageDatastoreStep();
+            _step = new NotifyUpdateInMessageDatastoreStep();
+        }
+
+        private static InMessage CreateInMessage(string id)
+        {
+            return new InMessage {EbmsMessageId = id};
         }
 
         public class GivenValidArguments : GivenNotifyInUpdateDatastoreStepFacts
         {
-            [Theory, InlineData("shared-id")]
+            [Theory]
+            [InlineData("shared-id")]
             public async Task ThenExecuteStepSucceedsWithValidNotifyMessageAsync(string sharedId)
             {
                 // Arrange
                 InsertDefaultInMessage(sharedId);
-                var notifyMessage = CreateNotifyMessage(sharedId);
+                NotifyMessageEnvelope notifyMessage = CreateNotifyMessage(sharedId);
                 var internalMessage = new InternalMessage(notifyMessage);
+
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
-                AssertInMessage(notifyMessage.MessageInfo.MessageId, m =>
-                {
-                    Assert.Equal(Operation.Notified, m.Operation);
-                    Assert.Equal(InStatus.Notified, m.Status);
-                });
+                AssertInMessage(
+                    notifyMessage.MessageInfo.MessageId,
+                    m =>
+                    {
+                        Assert.Equal(Operation.Notified, m.Operation);
+                        Assert.Equal(InStatus.Notified, m.Status);
+                    });
             }
 
             private void InsertDefaultInMessage(string sharedId)
@@ -48,22 +58,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 InMessage inMessage = CreateInMessage(sharedId);
                 inMessage.Operation = Operation.Notifying;
                 inMessage.Status = InStatus.Delivered;
-                base.InsertInMessage(inMessage);
+                InsertInMessage(inMessage);
             }
 
             private static NotifyMessageEnvelope CreateNotifyMessage(string id)
             {
-                var msgInfo = new MessageInfo() {MessageId = id};
+                var msgInfo = new MessageInfo {MessageId = id};
 
                 return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
             }
 
             private void AssertInMessage(string messageId, Action<InMessage> assertAction)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = new DatastoreContext(Options))
                 {
-                    InMessage inMessage = context.InMessages
-                        .FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
+                    InMessage inMessage = context.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
                     assertAction(inMessage);
                 }
             }
@@ -71,16 +80,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         protected void InsertInMessage(InMessage inMessage)
         {
-            using (var context = new DatastoreContext(base.Options))
+            using (var context = new DatastoreContext(Options))
             {
                 context.InMessages.Add(inMessage);
                 context.SaveChanges();
             }
-        }
-
-        private static InMessage CreateInMessage(string id)
-        {
-            return new InMessage { EbmsMessageId = id };
         }
     }
 }

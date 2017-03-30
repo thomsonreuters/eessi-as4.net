@@ -12,35 +12,46 @@ using Reference = System.Security.Cryptography.Xml.Reference;
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 {
     /// <summary>
-    /// Testing <see cref="NonRepudiationInformationBuilder"/>
+    /// Testing <see cref="NonRepudiationInformationBuilder" />
     /// </summary>
     public class GivenNonRepudiationInformationBuilderFacts
     {
         public class GivenValidArguments : GivenNonRepudiationInformationBuilderFacts
         {
+            private static void AssertReferenceDigest(Reference reference, NonRepudiationInformation nonRepudiation)
+            {
+                MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
+                Assert.True(reference.DigestValue.SequenceEqual(partNRInformation.Reference.DigestValue));
+                var referenceDigestMethod = new ReferenceDigestMethod(reference.DigestMethod);
+                Assert.Equal(referenceDigestMethod.Algorithm, partNRInformation.Reference.DigestMethod.Algorithm);
+            }
+
             [Fact]
-            public void ThenBuildNonRepudiationInformationSucceedsWithSignedReferencesForUri()
+            public void ThenBuildNonRepudiationInformationSucceedsWithSignedReferencesForDigest()
             {
                 // Arrange
-                Reference reference = base.CreateDefaultSignedReference();
-                var references = new ArrayList { reference };
+                Reference reference = CreateDefaultSignedReference();
+                var references = new ArrayList {reference};
+
                 // Act
-                NonRepudiationInformation nonRepudiation = new NonRepudiationInformationBuilder()
-                    .WithSignedReferences(references).Build();
+                NonRepudiationInformation nonRepudiation =
+                    new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
+
                 // Assert
-                MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
-                Assert.Equal(reference.Uri, partNRInformation.Reference.URI);
+                AssertReferenceDigest(reference, nonRepudiation);
             }
 
             [Fact]
             public void ThenBuildNonRepudiationInformationSucceedsWithSignedReferencesForTransforms()
             {
                 // Arrange
-                Reference reference = base.CreateDefaultSignedReference();
-                var references = new ArrayList { reference };
+                Reference reference = CreateDefaultSignedReference();
+                var references = new ArrayList {reference};
+
                 // Act
-                NonRepudiationInformation nonRepudiation = new NonRepudiationInformationBuilder()
-                    .WithSignedReferences(references).Build();
+                NonRepudiationInformation nonRepudiation =
+                    new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
+
                 // Assert
                 MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
                 ReferenceTransform referenceTransform = partNRInformation.Reference.Transforms.First();
@@ -48,24 +59,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             }
 
             [Fact]
-            public void ThenBuildNonRepudiationInformationSucceedsWithSignedReferencesForDigest()
+            public void ThenBuildNonRepudiationInformationSucceedsWithSignedReferencesForUri()
             {
                 // Arrange
-                Reference reference = base.CreateDefaultSignedReference();
-                var references = new ArrayList { reference };
-                // Act
-                NonRepudiationInformation nonRepudiation = new NonRepudiationInformationBuilder()
-                    .WithSignedReferences(references).Build();
-                // Assert
-                AssertReferenceDigest(reference, nonRepudiation);
-            }
+                Reference reference = CreateDefaultSignedReference();
+                var references = new ArrayList {reference};
 
-            private static void AssertReferenceDigest(Reference reference, NonRepudiationInformation nonRepudiation)
-            {
+                // Act
+                NonRepudiationInformation nonRepudiation =
+                    new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
+
+                // Assert
                 MessagePartNRInformation partNRInformation = nonRepudiation.MessagePartNRInformation.First();
-                Assert.True(Enumerable.SequenceEqual(reference.DigestValue, partNRInformation.Reference.DigestValue));
-                var referenceDigestMethod = new ReferenceDigestMethod(reference.DigestMethod);
-                Assert.Equal(referenceDigestMethod.Algorithm, partNRInformation.Reference.DigestMethod.Algorithm);
+                Assert.Equal(reference.Uri, partNRInformation.Reference.URI);
             }
         }
 
@@ -75,8 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildNonRepudiationInformationFailsWithMissingSignedReferences()
             {
                 // Act / Assert
-                Assert.Throws<AS4Exception>(()
-                    => new NonRepudiationInformationBuilder().Build());
+                Assert.Throws<AS4Exception>(() => new NonRepudiationInformationBuilder().Build());
             }
         }
 
@@ -91,13 +96,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             };
         }
 
-        private TransformChain CreateDefaulTransformChain()
+        private static TransformChain CreateDefaulTransformChain()
         {
             var transformChain = new TransformChain();
-            transformChain.Add(new AttachmentSignatureTransform
-            {
-                Algorithm = Guid.NewGuid().ToString()
-            });
+            transformChain.Add(new AttachmentSignatureTransform { Algorithm = Guid.NewGuid().ToString() });
+
             return transformChain;
         }
     }

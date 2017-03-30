@@ -22,30 +22,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         }
 
         /// <summary>
-        /// Gets a <see cref="IStep"/> implementation to exercise the datastore.
+        /// Gets a <see cref="IStep" /> implementation to exercise the datastore.
         /// </summary>
         protected override IStep Step { get; }
 
-        [Fact]        
+        [Fact]
         public async Task ThenExecuteStepUpdateAsSentAsync()
         {
             // Arrange
-            SignalMessage signalMessage = base.CreateReceipt();
+            SignalMessage signalMessage = CreateReceipt();
             InternalMessage internalMessage = CreateReferencedInternalMessageWith(signalMessage);
 
             // Act
             await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
             // Assert
-            await AssertOutMessages(signalMessage, base.Options, OutStatus.Ack);
+            await AssertOutMessages(signalMessage, Options, OutStatus.Ack);
         }
 
         private InternalMessage CreateReferencedInternalMessageWith(SignalMessage signalMessage)
         {
-            return new InternalMessageBuilder()
-                .WithUserMessage(new UserMessage(base.ReceiptMessageId))
-                .WithSignalMessage(signalMessage)
-                .Build();
+            return
+                new InternalMessageBuilder().WithUserMessage(new UserMessage(ReceiptMessageId))
+                                            .WithSignalMessage(signalMessage)
+                                            .Build();
         }
     }
 }

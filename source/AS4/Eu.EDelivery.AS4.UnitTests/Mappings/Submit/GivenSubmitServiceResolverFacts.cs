@@ -1,5 +1,4 @@
 ﻿using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -11,26 +10,24 @@ using CoreService = Eu.EDelivery.AS4.Model.Core.Service;
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
     /// <summary>
-    /// Testing <see cref="SubmitServiceResolver"/>
+    /// Testing <see cref="SubmitServiceResolver" />
     /// </summary>
     public class GivenSubmitServiceResolverFacts
     {
-        
         public class GivenValidArguments : GivenSubmitServiceResolverFacts
         {
             [Fact]
-            public void ThenResolverGetsServiceFromSubmitMessage()
+            public void ThenResolverGetsDefaultService()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage();
-                submitMessage.Collaboration.Service = base.CreatePopulatedCommonService();
-                submitMessage.PMode = new SendingProcessingMode();
+                var submitMessage = new SubmitMessage {PMode = new SendingProcessingMode()};
                 var resolver = new SubmitServiceResolver();
+
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
+
                 // Assert
-                Assert.Equal(submitMessage.Collaboration.Service.Value, service.Value);
-                Assert.Equal(submitMessage.Collaboration.Service.Type, service.Type);
+                Assert.Equal(Constants.Namespaces.TestService, service.Value);
             }
 
             [Fact]
@@ -38,28 +35,40 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 // Arrange
                 var submitMessage = new SubmitMessage();
-                var pmode = new SendingProcessingMode();
-                pmode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
-                pmode.MessagePackaging.CollaborationInfo.Service = base.CreatePopulatedCoreService();
+                var pmode = new SendingProcessingMode
+                {
+                    MessagePackaging =
+                    {
+                        CollaborationInfo = new CollaborationInfo {Service = CreatePopulatedCoreService()}
+                    }
+                };
                 submitMessage.PMode = pmode;
                 var resolver = new SubmitServiceResolver();
+
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
+
                 // Assert
                 Assert.Equal(submitMessage.PMode.MessagePackaging.CollaborationInfo.Service, service);
             }
 
             [Fact]
-            public void ThenResolverGetsDefaultService()
+            public void ThenResolverGetsServiceFromSubmitMessage()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage();
-                submitMessage.PMode = new SendingProcessingMode();
+                var submitMessage = new SubmitMessage
+                {
+                    Collaboration = {Service = CreatePopulatedCommonService()},
+                    PMode = new SendingProcessingMode()
+                };
                 var resolver = new SubmitServiceResolver();
+
                 // Act
                 CoreService service = resolver.Resolve(submitMessage);
+
                 // Assert
-                Assert.Equal(Constants.Namespaces.TestService, service.Value);
+                Assert.Equal(submitMessage.Collaboration.Service.Value, service.Value);
+                Assert.Equal(submitMessage.Collaboration.Service.Type, service.Type);
             }
         }
 
@@ -69,16 +78,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenResolverFailsWhenOverrideIsNotAllowed()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage();
-                submitMessage.Collaboration.Service = base.CreatePopulatedCommonService();
+                var submitMessage = new SubmitMessage
+                {
+                    Collaboration = {Service = CreatePopulatedCommonService()},
+                    PMode =
+                        new SendingProcessingMode
+                        {
+                            AllowOverride = false,
+                            MessagePackaging =
+                            {
+                                CollaborationInfo = new CollaborationInfo {Service = CreatePopulatedCoreService()}
+                            }
+                        }
+                };
 
-                var pmode = new SendingProcessingMode();
-                pmode.AllowOverride = false;
-                pmode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
-                pmode.MessagePackaging.CollaborationInfo.Service = base.CreatePopulatedCoreService();
-                submitMessage.PMode = pmode;
                 var resolver = new SubmitServiceResolver();
-                
+
                 // Act / Assert
                 Assert.Throws<AS4Exception>(() => resolver.Resolve(submitMessage));
             }
@@ -86,16 +101,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
         protected CommonService CreatePopulatedCommonService()
         {
-            return new CommonService { Type = "submit-type", Value = "submit-value" };
+            return new CommonService {Type = "submit-type", Value = "submit-value"};
         }
 
         protected CoreService CreatePopulatedCoreService()
         {
-            return new CoreService
-            {
-                Value = "pmode-name",
-                Type = "pmode-type"
-            };
+            return new CoreService {Value = "pmode-name", Type = "pmode-type"};
         }
     }
 }

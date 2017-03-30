@@ -10,7 +10,7 @@ using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
     /// <summary>
-    /// Testing <see cref="SubmitMessageAgreementMapper"/>
+    /// Testing <see cref="SubmitMessageAgreementMapper" />
     /// </summary>
     public class GivenSubmitAgreementMapperFacts
     {
@@ -20,10 +20,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenAgreementReferenceMapsCorrectllyByUsingPModeValues()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage {PMode = base.GetPopulatedSendPMode()};
-                var userMessage = new UserMessage(messageId: "message-id");
+                var submitMessage = new SubmitMessage {PMode = GetPopulatedSendPMode()};
+                var userMessage = new UserMessage("message-id");
+
                 // Act
                 new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
+
                 // Assert
                 AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference;
                 AgreementReference pmodeAgreementRef =
@@ -37,11 +39,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenAgreementReferenceMapsCorrectllyWhenPModeAllowsOverride()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.GetPopulatedSubmitMessage();
+                SubmitMessage submitMessage = GetPopulatedSubmitMessage();
                 submitMessage.PMode.AllowOverride = true;
-                var userMessage = new UserMessage(messageId: "message-id");
+                var userMessage = new UserMessage("message-id");
+
                 // Act
                 new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
+
                 // Assert
                 AgreementReference userMessageAgreement = userMessage.CollaborationInfo.AgreementReference;
                 Agreement submitAgreementRef = submitMessage.Collaboration.AgreementRef;
@@ -58,9 +62,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 {
                     PMode = new SendingProcessingMode {MessagePackaging = {CollaborationInfo = new CollaborationInfo()}}
                 };
-                var userMessage = new UserMessage(messageId: "message-id");
+                var userMessage = new UserMessage("message-id");
+
                 // Act
                 new SubmitMessageAgreementMapper().Map(submitMessage, userMessage);
+
                 // Assert
                 AgreementReference userMessageAgreementRef = userMessage.CollaborationInfo.AgreementReference;
                 Assert.Null(userMessageAgreementRef.Value);
@@ -74,40 +80,40 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             public void ThenAgreementReferenceMapsIncorrectllyWhenPModeDoesNotAllowsOverride()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.GetPopulatedSubmitMessage();
+                SubmitMessage submitMessage = GetPopulatedSubmitMessage();
                 submitMessage.PMode.AllowOverride = false;
-                var userMessage = new UserMessage(messageId: "message-id");
-                // Act / Assert
-                Assert.Throws<AS4Exception>(
-                    () => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
-            }
+                var userMessage = new UserMessage("message-id");
 
-            [Fact]
-            public void ThenAgreementReferenceMapsIncorrectllyWhenPModeDoesNotAllowsOverrideType()
-            {
-                // Arrange
-                SubmitMessage submitMessage = base.GetPopulatedSubmitMessage();
-                submitMessage.PMode.AllowOverride = false;
-                submitMessage.Collaboration.AgreementRef.Value = null;
-
-                var userMessage = new UserMessage(messageId: "message-id");
                 // Act / Assert
-                Assert.Throws<AS4Exception>(
-                    () => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.Throws<AS4Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
             }
 
             [Fact]
             public void ThenAgreementReferenceMapsIncorrectllyWhenPModeDoesNotAllowsOverrideName()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.GetPopulatedSubmitMessage();
+                SubmitMessage submitMessage = GetPopulatedSubmitMessage();
                 submitMessage.PMode.AllowOverride = false;
                 submitMessage.Collaboration.AgreementRef.RefType = null;
 
-                var userMessage = new UserMessage(messageId: "message-id");
+                var userMessage = new UserMessage("message-id");
+
                 // Act / Assert
-                Assert.Throws<AS4Exception>(
-                    () => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.Throws<AS4Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+            }
+
+            [Fact]
+            public void ThenAgreementReferenceMapsIncorrectllyWhenPModeDoesNotAllowsOverrideType()
+            {
+                // Arrange
+                SubmitMessage submitMessage = GetPopulatedSubmitMessage();
+                submitMessage.PMode.AllowOverride = false;
+                submitMessage.Collaboration.AgreementRef.Value = null;
+
+                var userMessage = new UserMessage("message-id");
+
+                // Act / Assert
+                Assert.Throws<AS4Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
             }
         }
 
@@ -115,7 +121,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         {
             return new SubmitMessage
             {
-                Collaboration = {AgreementRef = CreateDefaultAgreement()},
+                Collaboration = {
+                                   AgreementRef = CreateDefaultAgreement()
+                                },
                 PMode = GetPopulatedSendPMode()
             };
         }
@@ -131,14 +139,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
             {
                 MessagePackaging =
                 {
-                    CollaborationInfo = new CollaborationInfo {AgreementReference = CreateDefaultAgreementReference()}
+                    CollaborationInfo =
+                        new CollaborationInfo
+                        {
+                            AgreementReference = new AgreementReference {Value = "pmode-name", Type = "pmode-type"}
+                        }
                 }
             };
-        }
-
-        private AgreementReference CreateDefaultAgreementReference()
-        {
-            return new AgreementReference {Value = "pmode-name", Type = "pmode-type"};
         }
     }
 }

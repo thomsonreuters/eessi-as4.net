@@ -12,7 +12,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     /// <summary>
-    /// Testing <see cref="SendAS4ReceiptStep"/>
+    /// Testing <see cref="SendAS4ReceiptStep" />
     /// </summary>
     public class GivenSendAS4ReceiptStepFacts
     {
@@ -21,8 +21,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenSendAS4ReceiptStepFacts()
         {
-            this._sharedId = "shared-id";
-            this._step = new SendAS4ReceiptStep();
+            _sharedId = "shared-id";
+            _step = new SendAS4ReceiptStep();
         }
 
         public class GivenValidArguments : GivenSendAS4ReceiptStepFacts
@@ -32,8 +32,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 InternalMessage internalMessage = CreateDefaultInternalMessage();
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 SignalMessage signalMessage = result.InternalMessage.AS4Message.SignalMessages.FirstOrDefault();
 
@@ -47,21 +49,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 InternalMessage internalMessage = CreateDefaultInternalMessage();
                 internalMessage.AS4Message.ReceivingPMode.ReceiptHandling.ReplyPattern = ReplyPattern.Callback;
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
                 Assert.Empty(result.InternalMessage.AS4Message.UserMessages);
                 Assert.Empty(result.InternalMessage.AS4Message.SignalMessages);
             }
-            
+
             private InternalMessage CreateDefaultInternalMessage()
             {
-                var receipt = new Receipt("message-id") {RefToMessageId = this._sharedId};
+                var receipt = new Receipt("message-id") {RefToMessageId = _sharedId};
                 AS4Message receiptMessage = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+
                 return new InternalMessage(receiptMessage);
             }
         }
-        
     }
 }

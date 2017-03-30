@@ -4,17 +4,18 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
     /// <summary>
-    /// Testing the <see cref="PartyId"/> 
+    /// Testing the <see cref="PartyId" />
     /// </summary>
     public class GivenPartyIdFacts
     {
         public class GivenValidArguments : GivenPartyIdFacts
         {
-            [Theory, InlineData("shared-Id", "shared-Type")]
+            [Theory]
+            [InlineData("shared-Id", "shared-Type")]
             public void ThenTwoPartyIdsAreEqual(string sharedId, string sharedType)
             {
                 // Arrange
-                var partyIdA = new PartyId() { Id = sharedId, Type = sharedType };
+                var partyIdA = new PartyId {Id = sharedId, Type = sharedType};
                 PartyId partyIdB = partyIdA;
 
                 // Act
@@ -24,12 +25,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.True(isEqual);
             }
 
-            [Theory, InlineData("shared-Id", "shared-Type")]
+            [Theory]
+            [InlineData("shared-Id", "shared-Type")]
             public void ThenTwoPartyIdsAreEqualForIdAndType(string sharedId, string sharedType)
             {
                 // Arrange
-                var partyIdA = new PartyId() { Id = sharedId, Type = sharedType };
-                var partyIdB = new PartyId() { Id = sharedId, Type = sharedType };
+                var partyIdA = new PartyId {Id = sharedId, Type = sharedType};
+                var partyIdB = new PartyId {Id = sharedId, Type = sharedType};
 
                 // Act
                 bool isEqual = partyIdA.Equals(partyIdB);
@@ -38,12 +40,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.True(isEqual);
             }
 
-            [Theory, InlineData("shared-Id", "shared-Type")]
+            [Theory]
+            [InlineData("shared-Id", "shared-Type")]
             public void ThenTwoPartyIdsAreEqualForObject(string sharedId, string sharedType)
             {
                 // Arrange
-                var partyIdA = new PartyId() { Id = sharedId, Type = sharedType };
-                var partyIdB = new PartyId() { Id = sharedId, Type = sharedType };
+                var partyIdA = new PartyId {Id = sharedId, Type = sharedType};
+                var partyIdB = new PartyId {Id = sharedId, Type = sharedType};
 
                 // Act
                 bool isEqual = partyIdA.Equals((object)partyIdB);
@@ -52,12 +55,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.True(isEqual);
             }
 
-            [Theory, InlineData("shared-Id", "shared-Type")]
+            [Theory]
+            [InlineData("shared-Id", "shared-Type")]
             public void ThenTwoPartyIdsAreNotEqualForId(string sharedId, string sharedType)
             {
                 // Arrange
-                var partyIdA = new PartyId() { Id = sharedId, Type = sharedType };
-                var partyIdB = new PartyId() { Id = "not-equal", Type = sharedType };
+                var partyIdA = new PartyId {Id = sharedId, Type = sharedType};
+                var partyIdB = new PartyId {Id = "not-equal", Type = sharedType};
 
                 // Act
                 bool isEqual = partyIdA.Equals(partyIdB);
@@ -66,12 +70,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.False(isEqual);
             }
 
-            [Theory, InlineData("shared-Id", "shared-Type")]
+            [Theory]
+            [InlineData("shared-Id", "shared-Type")]
             public void ThenTwoPartyIdsAreNotEqualForType(string sharedId, string sharedType)
             {
                 // Arrange
-                var partyIdA = new PartyId() { Id = sharedId, Type = sharedType };
-                var partyIdB = new PartyId() { Id = sharedId, Type = "not-equal" };
+                var partyIdA = new PartyId {Id = sharedId, Type = sharedType};
+                var partyIdB = new PartyId {Id = sharedId, Type = "not-equal"};
 
                 // Act
                 bool isEqual = partyIdA.Equals(partyIdB);
@@ -83,11 +88,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         public class GivenInvalidArguments : GivenPartyIdFacts
         {
-            [Theory, InlineData("shared-Id", "shared-Type")]
+            [Theory]
+            [InlineData("shared-Id", "shared-Type")]
             public void ThenTwoPartyIdsAreNotEqualForNull(string sharedId, string sharedType)
             {
                 // Arrange
-                var partyIdA = new PartyId() { Id = sharedId, Type = sharedType };
+                var partyIdA = new PartyId {Id = sharedId, Type = sharedType};
                 PartyId partyIdB = null;
 
                 // Act

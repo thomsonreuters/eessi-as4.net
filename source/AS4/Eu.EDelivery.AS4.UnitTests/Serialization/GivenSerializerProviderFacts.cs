@@ -1,36 +1,29 @@
-﻿using Eu.EDelivery.AS4.Serialization;
+﻿using System;
+using Eu.EDelivery.AS4.Serialization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Serialization
 {
     public class GivenSerializerProviderFacts
     {
-        protected ISerializerProvider Provider;
+        private readonly ISerializerProvider _provider;
 
         public GivenSerializerProviderFacts()
         {
-            Provider = new SerializerProvider();
+            _provider = new SerializerProvider();
         }
 
         public class GivenValidArguments : GivenSerializerProviderFacts
         {
             [Theory]
-            [InlineData(Constants.ContentTypes.Mime)]
-            [InlineData(Constants.ContentTypes.Soap)]
-            public void ThenCanProvideSerializer(string contentType)
+            [InlineData(Constants.ContentTypes.Mime, typeof(MimeMessageSerializer))]
+            [InlineData(Constants.ContentTypes.Soap, typeof(SoapEnvelopeSerializer))]
+            public void ThenCanProvideSerializer(string contentType, Type expectedType)
             {
-                var serializer = Provider.Get(contentType);
+                ISerializer serializer = _provider.Get(contentType);
 
                 Assert.NotNull(serializer);
-
-                if (contentType == Constants.ContentTypes.Soap)
-                {
-                    Assert.IsType<SoapEnvelopeSerializer>(serializer);
-                }
-                if (contentType == Constants.ContentTypes.Mime)
-                {
-                    Assert.IsType<MimeMessageSerializer>(serializer);
-                }
+                Assert.IsType(expectedType, serializer);
             }
         }
     }
