@@ -30,13 +30,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             var certificateRepositoryMock = new Mock<ICertificateRepository>();
 
-            certificateRepositoryMock
-                .Setup(x => x.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
-                .Returns(new StubCertificateRepository().GetDummyCertificate());
+            certificateRepositoryMock.Setup(x => x.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
+                                     .Returns(new StubCertificateRepository().GetDummyCertificate());
 
-            this._step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
+            _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
         }
-
 
         public class GivenValidArguments : GivenEncryptAS4MessageStepFacts
         {
@@ -44,10 +42,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenExecuteStepSucceedsAsync()
             {
                 // Arrange
-                AS4Message as4Message = base.CreateEncryptedAS4Message();
+                AS4Message as4Message = CreateEncryptedAS4Message();
                 var internalMessage = new InternalMessage(as4Message);
+
                 // Act
-                StepResult stepResult = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.True(stepResult.InternalMessage.AS4Message.IsEncrypted);
             }
@@ -59,24 +59,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenExecuteStepFailsWithInvalidCertificateAsync()
             {
                 // Arrange
-                AS4Message as4Message = base.CreateEncryptedAS4Message();
+                AS4Message as4Message = CreateEncryptedAS4Message();
                 var internalMessage = new InternalMessage(as4Message);
 
                 Mock<ICertificateRepository> certificateRepositoryMock = CreateFailedMockedCertificateRepository();
-                base._step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
+                _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
 
                 // Act / Assert
                 await Assert.ThrowsAsync<AS4Exception>(
-                    () => base._step.ExecuteAsync(internalMessage, CancellationToken.None));
+                    () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
             }
 
             private Mock<ICertificateRepository> CreateFailedMockedCertificateRepository()
             {
                 var certificateRepositoryMock = new Mock<ICertificateRepository>();
 
-                certificateRepositoryMock
-                    .Setup(x => x.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
-                    .Throws(new Exception("Invalid Certificate"));
+                certificateRepositoryMock.Setup(x => x.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
+                                         .Throws(new Exception("Invalid Certificate"));
 
                 return certificateRepositoryMock;
             }
@@ -87,7 +86,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Stream inputStream = new MemoryStream(Properties.Resources.as4_encrypted_message);
             var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
 
-            return serializer.DeserializeAsync(inputStream,
+            return serializer.DeserializeAsync(
+                inputStream,
                 "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"",
                 CancellationToken.None);
         }
@@ -95,9 +95,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         protected AS4Message CreateEncryptedAS4Message()
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));
-            var attachment = new Attachment(id:  "attachment-id") {Content = attachmentStream};
-            AS4Message as4Message = new AS4MessageBuilder()
-                .WithAttachment(attachment).Build();
+            var attachment = new Attachment("attachment-id") {Content = attachmentStream};
+            AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
             as4Message.SendingPMode = new SendingProcessingMode();
             as4Message.SendingPMode.Security.Encryption.IsEnabled = true;

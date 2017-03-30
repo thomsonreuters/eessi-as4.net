@@ -13,6 +13,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories
         {
             // Act
             string id = IdentifierFactory.Instance.Create("{GUID}@{IPADDRESS}");
+
             // Assert
             string[] splittedId = id.Split('@');
             Assert.Matches(@"\w+-\w+-\w+-\w+-\w+", splittedId[0]);
@@ -24,6 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories
         {
             // Act
             string id = IdentifierFactory.Instance.Create("{MACHINENAME}");
+
             // Assert
             Assert.NotEqual("{MACHINENAME}", id);
             Assert.Matches(@"\w+", id);

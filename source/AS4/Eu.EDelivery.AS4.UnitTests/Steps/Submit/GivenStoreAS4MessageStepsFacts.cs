@@ -20,14 +20,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         public GivenStoreAS4MessageStepsFacts()
         {
-            this._module = new StoreAS4MessageStep();
+            _module = new StoreAS4MessageStep();
         }
 
         /// <summary>
         /// Testing if the module succeeds
         /// </summary>
-        public class GivenStoreAs4MessageStepsSucceeds
-            : GivenStoreAS4MessageStepsFacts
+        public class GivenStoreAs4MessageStepsSucceeds : GivenStoreAS4MessageStepsFacts
         {
             [Fact]
             public async Task ThenTransmitMessageSucceedsAsync()
@@ -35,10 +34,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 // Arrange
                 AS4Message message = new AS4MessageBuilder().Build();
                 var internalMessage = new InternalMessage(message);
+
                 // Act
-                StepResult result = await this._module.ExecuteAsync(
-                    internalMessage,
-                    CancellationToken.None);
+                StepResult result = await _module.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result);
             }
@@ -47,16 +46,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         /// <summary>
         /// Testing if the module fails
         /// </summary>
-        public class GivenStoreAs4MessageStepsFails
-            : GivenStoreAS4MessageStepsFacts
+        public class GivenStoreAs4MessageStepsFails : GivenStoreAS4MessageStepsFacts
         {
             [Fact]
             public async Task ThenTransmitMessageFailsWithNullAS4MessageAsync()
             {
                 // Act / Assert
-                await Assert.ThrowsAsync<NullReferenceException>(() =>
-                      this._module.ExecuteAsync(null, CancellationToken.None));
-
+                await Assert.ThrowsAsync<NullReferenceException>(
+                    () => _module.ExecuteAsync(null, CancellationToken.None));
             }
         }
     }

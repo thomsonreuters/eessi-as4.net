@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
 
         public GivenSoapEnvelopeBuilderFacts()
         {
-            this._builder = new SoapEnvelopeBuilder();
+            _builder = new SoapEnvelopeBuilder();
         }
 
         /// <summary>
@@ -23,34 +23,39 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
         /// </summary>
         public class GivenValidArgumentsBuilder : GivenSoapEnvelopeBuilderFacts
         {
-            [Fact]
-            public void ThenBuilderBreaksDownCorrectly()
+            [Theory]
+            [InlineData("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt")]
+            [InlineData("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.error")]
+            public void ThenResultContainsAction(string action)
             {
                 // Arrange
-                var messagingHeader = new Messaging();
-                XmlNode securityNode = new XmlDocument()
-                    .CreateNode(XmlNodeType.Element, "SecurityHeader", Constants.Namespaces.Soap11);
-
-                base._builder
-                    .SetMessagingHeader(messagingHeader)
-                    .SetSecurityHeader(securityNode).Build();
+                var messaging = new Messaging();
 
                 // Act
-                XmlDocument envelope = this._builder
-                    .BreakDown()
-                    .SetMessagingHeader(messagingHeader)
-                    .Build();
-                
+                XmlDocument envelope = _builder.SetMessagingHeader(messaging).SetActionHeader(action).Build();
+
                 // Assert
-                Assert.NotNull(envelope);
-                Assert.Equal(1, envelope.FirstChild.FirstChild.ChildNodes.Count);
+                XmlNode actionNode = SelectSingleNode(envelope, "Action");
+                Assert.NotNull(actionNode);
+                Assert.Equal(action, actionNode.InnerText);
+            }
+
+            private static RoutingInputUserMessage CreatePopulatedUserMessage()
+            {
+                return new RoutingInputUserMessage
+                {
+                    MessageInfo = new MessageInfo(),
+                    CollaborationInfo = new CollaborationInfo(),
+                    PartyInfo = new PartyInfo()
+                };
             }
 
             [Fact]
             public void ThenBuilderStartsWithEmptyEnvelope()
             {
                 // Act
-                XmlDocument envelope = this._builder.Build();
+                XmlDocument envelope = _builder.Build();
+
                 // Assert
                 Assert.NotNull(envelope);
                 Assert.Equal(0, envelope.FirstChild.ChildNodes.Count);
@@ -62,25 +67,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
                 // Arrange
                 var messagingHeader = new Messaging();
                 string bodySecurityId = $"#body-{Guid.NewGuid()}";
+
                 // Act
-                XmlDocument envelope = base._builder
-                    .SetMessagingHeader(messagingHeader)
-                    .SetMessagingBody(bodySecurityId).Build();
+                XmlDocument envelope =
+                    _builder.SetMessagingHeader(messagingHeader).SetMessagingBody(bodySecurityId).Build();
+
                 // Assert
                 Assert.NotNull(envelope);
                 Assert.Equal("s12:Body", envelope.FirstChild.ChildNodes[1].Name);
-                Assert.Equal("http://www.w3.org/2003/05/soap-envelope", envelope.FirstChild.ChildNodes[1].NamespaceURI);
+                Assert.Equal(Constants.Namespaces.Soap12, envelope.FirstChild.ChildNodes[1].NamespaceURI);
             }
 
             [Fact]
             public void ThenResultContainsEnvelope()
             {
                 // Act
-                XmlDocument envelope = base._builder.Build();
+                XmlDocument envelope = _builder.Build();
+
                 // Assert
                 Assert.NotNull(envelope);
                 Assert.Equal("s12:Envelope", envelope.FirstChild.Name);
-                Assert.Equal("http://www.w3.org/2003/05/soap-envelope", envelope.FirstChild.NamespaceURI);
+                Assert.Equal(Constants.Namespaces.Soap12, envelope.FirstChild.NamespaceURI);
             }
 
             [Fact]
@@ -88,31 +95,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
             {
                 // Arrange
                 var messagingHeader = new Messaging();
+
                 // Act
-                XmlDocument envelope = base._builder
-                    .SetMessagingHeader(messagingHeader)
-                    .Build();
+                XmlDocument envelope = _builder.SetMessagingHeader(messagingHeader).Build();
+
                 // Assert
                 Assert.NotNull(envelope);
                 Assert.Equal("s12:Header", envelope.FirstChild.FirstChild.Name);
-                Assert.Equal("http://www.w3.org/2003/05/soap-envelope", envelope.FirstChild.FirstChild.NamespaceURI);
-            }
-
-            [Fact]
-            public void ThenResultContainsSecurityHeader()
-            {
-                // Arrange
-                var messagingHeader = new Messaging();
-                XmlNode securityNode = new XmlDocument()
-                    .CreateNode(XmlNodeType.Element, "SecurityHeader", Constants.Namespaces.Soap11);
-                // Act
-                XmlDocument envelope = base._builder
-                    .SetMessagingHeader(messagingHeader)
-                    .SetSecurityHeader(securityNode)
-                    .Build();
-                // Assert
-                Assert.NotNull(envelope);
-                Assert.Equal(securityNode, envelope.FirstChild.FirstChild.ChildNodes[1]);
+                Assert.Equal(Constants.Namespaces.Soap12, envelope.FirstChild.FirstChild.NamespaceURI);
             }
 
             [Fact]
@@ -121,33 +111,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
                 // Arrange
                 var messaging = new Messaging();
                 var routingInput = new RoutingInput {UserMessage = CreatePopulatedUserMessage()};
+
                 // Act
-                XmlDocument envelope = base._builder
-                    .SetMessagingHeader(messaging)
-                    .SetRoutingInput(routingInput)
-                    .Build();
+                XmlDocument envelope = _builder.SetMessagingHeader(messaging).SetRoutingInput(routingInput).Build();
+
                 // Assert
                 Assert.NotNull(envelope);
-                XmlNode routingInputNode = envelope.SelectSingleNode("//*[local-name()='RoutingInput']");
-                Assert.NotNull(routingInputNode);
+                Assert.NotNull(SelectSingleNode(envelope, "RoutingInput"));
             }
 
-            [Theory]
-            [InlineData("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt")]
-            [InlineData("http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.error")]
-            public void ThenResultContainsAction(string action)
+            [Fact]
+            public void ThenResultContainsSecurityHeader()
             {
                 // Arrange
-                var messaging = new Messaging();
+                var messagingHeader = new Messaging();
+                XmlNode securityNode = new XmlDocument().CreateNode(
+                    XmlNodeType.Element,
+                    "SecurityHeader",
+                    Constants.Namespaces.Soap11);
+
                 // Act
-                XmlDocument envelope = base._builder
-                    .SetMessagingHeader(messaging)
-                    .SetActionHeader(action)
-                    .Build();
+                XmlDocument envelope =
+                    _builder.SetMessagingHeader(messagingHeader).SetSecurityHeader(securityNode).Build();
+
                 // Assert
-                XmlNode actionNode = envelope.SelectSingleNode("//*[local-name()='Action']");
-                Assert.NotNull(actionNode);
-                Assert.Equal(action, actionNode.InnerText);
+                Assert.NotNull(envelope);
+                Assert.Equal(securityNode, envelope.FirstChild.FirstChild.ChildNodes[1]);
             }
 
             [Fact]
@@ -156,25 +145,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Internal
                 // Arrange
                 var messaging = new Messaging();
                 var to = new To {Role = Constants.Namespaces.ICloud};
+
                 // Act
-                XmlDocument envelope = base._builder
-                    .SetMessagingHeader(messaging)
-                    .SetToHeader(to)
-                    .Build();
+                XmlDocument envelope = _builder.SetMessagingHeader(messaging).SetToHeader(to).Build();
+
                 // Assert
-                XmlNode toNode = envelope.SelectSingleNode("//*[local-name()='To']");
+                XmlNode toNode = SelectSingleNode(envelope, "To");
                 Assert.NotNull(toNode);
                 Assert.Equal(to.Role, toNode.InnerText);
             }
 
-            private RoutingInputUserMessage CreatePopulatedUserMessage()
+            private static XmlNode SelectSingleNode(XmlNode envelope, string localName)
             {
-                return new RoutingInputUserMessage
-                {
-                    MessageInfo = new MessageInfo(),
-                    CollaborationInfo = new CollaborationInfo(),
-                    PartyInfo = new PartyInfo()
-                };
+                return envelope.SelectSingleNode($"//*[local-name()='{localName}']");
             }
         }
     }

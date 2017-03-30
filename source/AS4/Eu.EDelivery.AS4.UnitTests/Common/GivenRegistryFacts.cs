@@ -7,6 +7,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
     /// <summary>
+    /// Testing <see cref="Registry"/>
     /// </summary>
     public class GivenRegistryFacts
     {
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         public GivenRegistryFacts()
         {
-            this._registry = new Registry();
+            _registry = new Registry();
         }
 
         /// <summary>
@@ -26,9 +27,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             public void ThenGetFilePayloadStrategyProvider()
             {
                 // Act
-                IPayloadRetrieverProvider provider = base._registry.PayloadRetrieverProvider;
+                IPayloadRetrieverProvider provider = _registry.PayloadRetrieverProvider;
+
                 // Assert
-                IPayloadRetriever fileRetriever = provider.Get(new Payload(location: "file:///"));
+                IPayloadRetriever fileRetriever = provider.Get(new Payload("file:///"));
                 Assert.NotNull(fileRetriever);
             }
 
@@ -36,9 +38,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             public void ThenGetWebPayloadStrategyProvider()
             {
                 // Act
-                IPayloadRetrieverProvider provider = base._registry.PayloadRetrieverProvider;
+                IPayloadRetrieverProvider provider = _registry.PayloadRetrieverProvider;
+
                 // Assert
-                IPayloadRetriever webRetriever = provider.Get(new Payload(location:"http"));
+                IPayloadRetriever webRetriever = provider.Get(new Payload("http"));
                 Assert.NotNull(webRetriever);
             }
         }
@@ -52,10 +55,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             public void ThenProvidersDoesNotHasPayloadStrategy()
             {
                 // Act
-                IPayloadRetrieverProvider provider = base._registry.PayloadRetrieverProvider;
+                IPayloadRetrieverProvider provider = _registry.PayloadRetrieverProvider;
+
                 // Assert
-                Assert.Throws<AS4Exception>(() 
-                    => provider.Get(new Payload(location:"not-supported-location")));
+                Assert.Throws<AS4Exception>(() => provider.Get(new Payload("not-supported-location")));
             }
         }
     }

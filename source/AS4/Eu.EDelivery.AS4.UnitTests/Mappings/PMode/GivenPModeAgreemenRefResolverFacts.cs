@@ -6,24 +6,27 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
 {
     /// <summary>
-    /// Testing <see cref="PModeAgreementRefResolver"/>
+    /// Testing <see cref="PModeAgreementRefResolver" />
     /// </summary>
     public class GivenPModeAgreemenRefResolverFacts
     {
         public class GivenValidArguments : GivenPModeAgreemenRefResolverFacts
         {
+            private static AgreementReference CreateDefaultAgreementRef()
+            {
+                return new AgreementReference {Value = "name", Type = "type"};
+            }
+
             [Fact]
             public void ThenResolverGetsAgreementRef()
             {
                 // Arrange
-                var pmode = new SendingProcessingMode();
-                pmode.Id = "pmode-id";
-                pmode.MessagePackaging.IncludePModeId = false;
-                pmode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
-                pmode.MessagePackaging.CollaborationInfo.AgreementReference = CreateDefaultAgreementRef();
+                SendingProcessingMode pmode = CreateSendingPMode(includePMode: false);
                 var resolver = new PModeAgreementRefResolver();
+
                 // Act
                 AgreementReference agreementRef = resolver.Resolve(pmode);
+
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;
                 Assert.Equal(pmodeRef.Value, agreementRef.Value);
@@ -35,14 +38,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
             public void ThenResolverGetsAgreementRefWithPModeId()
             {
                 // Arrange
-                var pmode = new SendingProcessingMode();
-                pmode.Id = "pmode-id";
-                pmode.MessagePackaging.IncludePModeId = true;
-                pmode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
-                pmode.MessagePackaging.CollaborationInfo.AgreementReference = CreateDefaultAgreementRef();
+                SendingProcessingMode pmode = CreateSendingPMode(includePMode: true);
                 var resolver = new PModeAgreementRefResolver();
+
                 // Act
                 AgreementReference agreementRef = resolver.Resolve(pmode);
+
                 // Assert
                 AgreementReference pmodeRef = pmode.MessagePackaging.CollaborationInfo.AgreementReference;
                 Assert.Equal(pmodeRef.Value, agreementRef.Value);
@@ -50,9 +51,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.PMode
                 Assert.Equal(pmode.Id, agreementRef.PModeId);
             }
 
-            private AgreementReference CreateDefaultAgreementRef()
+            private static SendingProcessingMode CreateSendingPMode(bool includePMode)
             {
-                return new AgreementReference { Value = "name", Type = "type" };
+                return new SendingProcessingMode
+                {
+                    Id = "pmode-id",
+                    MessagePackaging =
+                    {
+                        IncludePModeId = includePMode,
+                        CollaborationInfo = new CollaborationInfo {AgreementReference = CreateDefaultAgreementRef()}
+                    }
+                };
             }
         }
     }

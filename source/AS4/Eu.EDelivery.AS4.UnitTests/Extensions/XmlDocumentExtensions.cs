@@ -14,7 +14,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
             NamespaceManager.AddNamespace("ebms", "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/");
         }
 
-
         public static XmlNode SelectXmlNode(this XmlDocument xmlDocument, string xpath)
         {
             return xmlDocument.SelectSingleNode(xpath, NamespaceManager);

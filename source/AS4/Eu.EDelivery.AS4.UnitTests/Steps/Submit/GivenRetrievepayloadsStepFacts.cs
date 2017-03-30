@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -28,29 +27,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         public GivenRetrievePayloadsStepFacts()
         {
             SetupProvider();
-            this._step = new RetrievePayloadsStep(this._provider);
+            _step = new RetrievePayloadsStep(_provider);
         }
 
         private void SetupProvider()
         {
-            this._provider = new PayloadRetrieverProvider();
-            this._provider.Accept((Payload p) => true, GetMockedPayloadStrategy().Object);
+            _provider = new PayloadRetrieverProvider();
+            _provider.Accept(p => true, GetMockedPayloadStrategy().Object);
         }
 
         private Mock<IPayloadRetriever> GetMockedPayloadStrategy()
         {
-            this._memoryStream = new MemoryStream();
+            _memoryStream = new MemoryStream();
 
             var mockedPayloadStrategy = new Mock<IPayloadRetriever>();
-            mockedPayloadStrategy
-                .Setup(s => s.RetrievePayload(It.IsAny<string>()))
-                .Returns(this._memoryStream);
+            mockedPayloadStrategy.Setup(s => s.RetrievePayload(It.IsAny<string>())).Returns(_memoryStream);
             return mockedPayloadStrategy;
         }
 
         private SubmitMessage GetStubSubmitMessage()
         {
-            return new SubmitMessage {Payloads = new[] {new Payload(location: "file:")}};
+            return new SubmitMessage {Payloads = new[] {new Payload("file:")}};
         }
 
         /// <summary>
@@ -63,10 +60,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             public async Task ThenExecuteReturnsZeroAttachmentsAsync()
             {
                 // Arrange
-                base._step = new RetrievePayloadsStep(base._provider);
+                _step = new RetrievePayloadsStep(_provider);
                 var message = new InternalMessage(new AS4Message()) {SubmitMessage = new SubmitMessage()};
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(message, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(message, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result);
                 Assert.Equal(0, result.InternalMessage.AS4Message.Attachments.Count);
@@ -76,33 +75,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             public async Task ThenExeucteReturnsAttachmentsFromPayloadsAsync()
             {
                 // Arrange
-                var step = new RetrievePayloadsStep(base._provider);
+                var step = new RetrievePayloadsStep(_provider);
                 InternalMessage message = GetInternalMessage();
+
                 // Act
                 StepResult result = await step.ExecuteAsync(message, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result);
                 Attachment attachment = GetAttachment(result);
-                Assert.Equal(base._memoryStream, attachment.Content);
+                Assert.Equal(_memoryStream, attachment.Content);
             }
 
             private InternalMessage GetInternalMessage()
             {
-                return new InternalMessage
-                {
-                    SubmitMessage = base.GetStubSubmitMessage(),
-                    AS4Message = new AS4Message()
-                };
+                return new InternalMessage {SubmitMessage = GetStubSubmitMessage(), AS4Message = new AS4Message()};
             }
 
             private Attachment GetAttachment(StepResult result)
             {
                 Attachment attachment = null;
-                IEnumerator<Attachment> enumerator = result.InternalMessage
-                    .AS4Message.Attachments.GetEnumerator();
+                IEnumerator<Attachment> enumerator = result.InternalMessage.AS4Message.Attachments.GetEnumerator();
 
-                while (enumerator.MoveNext())
-                    attachment = enumerator.Current;
+                while (enumerator.MoveNext()) attachment = enumerator.Current;
 
                 Assert.NotNull(attachment);
                 return attachment;
@@ -117,8 +112,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         protected virtual void Dispose(bool disposing)
         {
-            if(disposing)
-                this._memoryStream.Dispose();
+            if (disposing) _memoryStream.Dispose();
         }
     }
 }

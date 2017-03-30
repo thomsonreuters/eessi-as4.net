@@ -1,64 +1,48 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 {
     /// <summary>
-    /// Internal Message Builder to create an <see cref="InternalMessage"/>
+    /// Internal Message Builder to create an <see cref="InternalMessage" />
     /// </summary>
     public class InternalMessageBuilder
     {
         private readonly InternalMessage _internalMessage;
 
         /// <summary>
-        /// Create a <see cref="InternalMessage"/> Builder
+        /// Initializes a new instance of the <see cref="InternalMessageBuilder"/> class.
         /// </summary>
+        /// <param name="messageId">The message Id.</param>
         public InternalMessageBuilder(string messageId = null)
         {
-            this._internalMessage = new InternalMessage {AS4Message = new AS4Message()};
+            _internalMessage = new InternalMessage {AS4Message = new AS4Message()};
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
-            this._internalMessage.AS4Message.UserMessages.Add(userMessage);
+            _internalMessage.AS4Message.UserMessages.Add(userMessage);
         }
 
         /// <summary>
-        /// Add a PMode Id to the Builder
+        /// Build to the Builder
         /// </summary>
-        /// <param name="pmodeId"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithPModeId(string pmodeId)
+        public InternalMessage Build()
         {
-            this._internalMessage.AS4Message.UserMessages.First()
-                .CollaborationInfo.AgreementReference.PModeId = pmodeId;
-
-            return this;
+            return _internalMessage;
         }
 
         /// <summary>
-        /// Add a UserMessage to the Builder
+        /// Add Agreement Reference to the Builder
         /// </summary>
-        /// <param name="userMessage"></param>
+        /// <param name="agreementRef"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithUserMessage(UserMessage userMessage)
+        public InternalMessageBuilder WithAgreementRef(AgreementReference agreementRef)
         {
-            this._internalMessage.AS4Message.UserMessages = new List<UserMessage> {userMessage};
-
-            return this;
-        }
-
-        /// <summary>
-        /// Add a SignalMessage to the Builder
-        /// </summary>
-        /// <param name="signalMessage"></param>
-        /// <returns></returns>
-        public InternalMessageBuilder WithSignalMessage(SignalMessage signalMessage)
-        {
-            this._internalMessage.AS4Message.SignalMessages = new List<SignalMessage> {signalMessage};
+            UserMessage userMessage = _internalMessage.AS4Message.PrimaryUserMessage;
+            userMessage.CollaborationInfo.AgreementReference = agreementRef;
 
             return this;
         }
@@ -71,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithPartys(Party fromParty, Party toParty)
         {
-            UserMessage userMessage = this._internalMessage.AS4Message.UserMessages.First();
+            UserMessage userMessage = _internalMessage.AS4Message.UserMessages.First();
             userMessage.Sender = fromParty;
             userMessage.Receiver = toParty;
 
@@ -79,14 +63,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         }
 
         /// <summary>
-        /// Add Agreement Reference to the Builder
+        /// Add a PMode Id to the Builder
         /// </summary>
-        /// <param name="agreementRef"></param>
+        /// <param name="pmodeId"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithAgreementRef(AgreementReference agreementRef)
+        public InternalMessageBuilder WithPModeId(string pmodeId)
         {
-            UserMessage userMessage = this._internalMessage.AS4Message.PrimaryUserMessage;
-            userMessage.CollaborationInfo.AgreementReference = agreementRef;
+            _internalMessage.AS4Message.UserMessages.First().CollaborationInfo.AgreementReference.PModeId = pmodeId;
 
             return this;
         }
@@ -99,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithServiceAction(string service, string action)
         {
-            UserMessage userMessage = this._internalMessage.AS4Message.UserMessages.First();
+            UserMessage userMessage = _internalMessage.AS4Message.UserMessages.First();
             userMessage.CollaborationInfo.Action = action;
             userMessage.CollaborationInfo.Service.Value = service;
 
@@ -107,21 +90,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         }
 
         /// <summary>
-        /// Build to the Builder
+        /// Add a SignalMessage to the Builder
         /// </summary>
+        /// <param name="signalMessage"></param>
         /// <returns></returns>
-        public InternalMessage Build()
+        public InternalMessageBuilder WithSignalMessage(SignalMessage signalMessage)
         {
-            return this._internalMessage;
+            _internalMessage.AS4Message.SignalMessages = new List<SignalMessage> {signalMessage};
+
+            return this;
+        }
+
+        /// <summary>
+        /// Add a UserMessage to the Builder
+        /// </summary>
+        /// <param name="userMessage"></param>
+        /// <returns></returns>
+        public InternalMessageBuilder WithUserMessage(UserMessage userMessage)
+        {
+            _internalMessage.AS4Message.UserMessages = new List<UserMessage> {userMessage};
+
+            return this;
         }
 
         private UserMessage CreateDefaultUserMessage(string messageId = null)
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-            var userMessage = new UserMessage
-            {
-                CollaborationInfo = {AgreementReference = new AgreementReference()}
-            };
+            var userMessage = new UserMessage {CollaborationInfo = {AgreementReference = new AgreementReference()}};
             if (messageId != null) userMessage.MessageId = messageId;
             return userMessage;
         }

@@ -33,7 +33,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\output\</OutputPath>
+    <OutputPath>..\..\..\output\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -214,11 +214,7 @@
       <Project>{8b0ba38f-c3f7-46c1-9e68-a7291c7b16b1}</Project>
       <Name>Eu.EDelivery.AS4</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Fe\src\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj">
-      <Project>{1BEB12CD-AF85-48AF-BF39-B33B6B1D309E}</Project>
-      <Name>Eu.EDelivery.AS4.Fe</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Fe\src\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj">
+    <ProjectReference Include="..\..\Fe\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj">
       <Project>{1beb12cd-af85-48af-bf39-b33b6b1d309e}</Project>
       <Name>Eu.EDelivery.AS4.Fe</Name>
     </ProjectReference>

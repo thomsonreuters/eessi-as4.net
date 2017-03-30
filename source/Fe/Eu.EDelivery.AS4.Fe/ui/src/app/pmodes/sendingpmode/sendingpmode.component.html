@@ -1,0 +1,215 @@
+<form [formGroup]="pmode.form" class="form-horizontal">
+    <div formGroupName="pmode">
+        <as4-box>
+            <div content>
+                <as4-pmode #pmode></as4-pmode>
+            </div>
+        </as4-box>
+        <as4-tab>
+            <div tabitem title="Common" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.id').valid || pmode.form.get('pmode.allowOverride').valid || pmode.form.get('pmode.mep').valid || pmode.form.get('pmode.mepBinding').valid || pmode.form.get('pmode.messagePackaging').valid">
+                <as4-input label="Allow override" tooltip="Test" runtimeTooltip="sendingprocessingmode.allowoverride">
+                    <input type="checkbox" formControlName="allowOverride" />
+                </as4-input>
+                <as4-input label="Message exchange pattern" runtimeTooltip="sendingprocessingmode.mep">
+                    <select formControlName="mep">
+                        <option value="0">One way</option>
+                        <option value="1">Two way</option>
+                    </select>
+                </as4-input>
+                <as4-input label="Message exchange pattern binding" runtimeTooltip="sendingprocessingmode.mepbinding">
+                    <select formControlName="mepBinding">
+                        <option value="0">Pull</option>
+                        <option value="1">Push</option>
+                    </select>
+                </as4-input>
+
+                <div formGroupName="messagePackaging">
+                    <as4-input label="Use AS4 compression" runtimeTooltip="messagepackaging.useas4compression">
+                        <input type="checkbox" formControlName="useAS4Compression" />
+                    </as4-input>
+                    <as4-input label="Multi hop mpc" runtimeTooltip="messagepackaging.ismultihop">
+                        <input type="checkbox" formControlName="isMultiHop" />
+                    </as4-input>
+                    <as4-input label="Include pmode id" runtimeTooltip="messagepackaging.includepmodeid">
+                        <input type="checkbox" formControlName="includePModeId" />
+                    </as4-input>
+                </div>
+            </div>
+            <div tabitem title="Push" formGroupName="pushConfiguration" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.pushConfiguration').valid">
+                <h5>Protocol</h5>
+                <as4-input label="Url" formGroupName="protocol" runtimeTooltip="protocol.url">
+                    <input type="text" formControlName="url" />
+                </as4-input>
+                <as4-input label="Use chunking" formGroupName="protocol" runtimeTooltip="protocol.usechunking">
+                    <input type="checkbox" formControlName="useChunking" />
+                </as4-input>
+                <as4-input label="Use http compression" formGroupName="protocol" runtimeTooltip="protocol.usehttpcompression">
+                    <input type="checkbox" formControlName="useHttpCompression" />
+                </as4-input>
+                <h5>Tls configuration</h5>
+                <as4-input label="Enabled" formGroupName="tlsConfiguration" runtimeTooltip="protocol.tlsconfiguration">
+                    <input type="checkbox" formControlName="isEnabled" />
+                </as4-input>
+                <as4-input label="Tls version" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.tlsversion">
+                    <select formControlName="tlsVersion">
+                        <option value="0">Ssl30</option>
+                        <option value="1">Tls10</option>
+                        <option value="2">Tls11</option>
+                        <option value="3">Tls12</option>
+                    </select>
+                </as4-input>
+                <h5>Tls client certificate</h5>
+                <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindtype">
+                    <div formGroupName="clientCertificateReference">
+                        <select formControlName="clientCertificateFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </div>
+                </as4-input>
+                <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindvalue">
+                    <div formGroupName="clientCertificateReference">
+                        <as4-thumbprint-input formControlName="clientCertificateFindValue"></as4-thumbprint-input>
+                    </div>
+                </as4-input>
+            </div>
+            <div tabitem title="Pull" formGroupName="pullConfiguration" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.pullConfiguration').valid">
+                <as4-input label="Sub channel" runtimeTooltip="pullconfiguration.subchannel">
+                    <input type="text" formControlName="subChannel" />
+                </as4-input>
+            </div>
+            <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid">
+                <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')"></as4-message-packaging>
+            </div>
+            <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security.signing').valid">
+                <div formGroupName="signing">
+                    <h5>Signing</h5>
+                    <as4-input label="Enabled" runtimeTooltip="security.signing.isenabled">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="Private key find type" runtimeTooltip="security.signing.privatekeyfindtype">
+                        <select formControlName="privateKeyFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </as4-input>
+                    <as4-input label="Private key find value" runtimeTooltip="security.signing.privatekeyfindvalue">
+                        <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
+                    </as4-input>
+                    <as4-input label="Key reference method" runtimeTooltip="security.signing.keyreferencemethod">
+                        <select formControlName="keyReferenceMethod">
+                            <option value="0">BSTReference</option>
+                            <option value="1">KeyIdentifier</option>
+                            <option value="2">IssuerSerial</option>
+                        </select>
+                    </as4-input>
+                    <as4-input label="Algorithm" runtimeTooltip="security.signing.alogrithm">
+                        <input type="text" formControlName="algorithm" />
+                    </as4-input>
+                    <as4-input label="HashFunction" runtimeTooltip="security.signing.hashfunction">
+                        <input type="text" formControlName="hashFunction" />
+                    </as4-input>
+                </div>
+                <div formGroupName="encryption">
+                    <h5>Encryption</h5>
+                    <as4-input label="Enabled" runtimeTooltip="security.encryption.isenabled">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="Algorithm">
+                        <input type="text" formControlName="algorithm" />
+                    </as4-input>
+                    <as4-input label="Public key find type" runtimeTooltip="security.encryption.publickeyfindtype">
+                        <select formControlName="publicKeyFindType">
+                            <option value="0">Find by thumbprint</option>
+                            <option value="1">Find by subject name</option>
+                            <option value="2">Find by subject distinguished name</option>
+                            <option value="3">Find by issuer name</option>
+                            <option value="4">Find by issuer distinguished name</option>
+                            <option value="5">Find by serial number</option>
+                            <option value="6">Find by time valid</option>
+                            <option value="7">Find by time not yet valid</option>
+                            <option value="8">Find by time expired</option>
+                            <option value="9">Find by template name</option>
+                            <option value="10">Find by application policy</option>
+                            <option value="11">Find by certificate policy</option>
+                            <option value="12">Find by extension</option>
+                            <option value="13">Find by key usage</option>
+                            <option value="14">Find by subject key identifier</option>
+                        </select>
+                    </as4-input>
+                    <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyfindvalue">
+                        <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
+                    </as4-input>
+                    <div formGroupName="keyTransport">
+                        <as4-input label="Key Transport algorithm" runtimeTooltip="security.encryption.keytransport.transportAlgorithm">
+                            <input type="text" formControlName="transportAlgorithm">
+                        </as4-input>
+                        <as4-input label="Key Digest algorithm" runtimeTooltip="security.encryption.keytransport.digestAlgorithm">
+                            <input type="text" formControlName="digestAlgorithm">
+                        </as4-input>
+                        <as4-input label="Key Mgf algorithm" runtimeTooltip="security.encryption.keytransport.mgfAlgorithm">
+                            <input type="text" formControlName="digestAlgorithm">
+                        </as4-input>
+                    </div>
+                </div>
+            </div>
+            <div tabitem title="Reliability" formGroupName="reliability" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.reliability').valid">
+                <div formGroupName="receptionAwareness">
+                    <as4-input label="Reception awareness" runtimeTooltip="reliability.receptionawareness.isenabled">
+                        <input type="checkbox" formControlName="isEnabled" />
+                    </as4-input>
+                    <as4-input label="Retry count" runtimeTooltip="reliability.receptionawareness.retrycount">
+                        <input type="number" formControlName="retryCount" />
+                    </as4-input>
+                    <as4-input label="Retry interval" runtimeTooltip="reliability.receptionawareness.retryinterval">
+                        <input type="text" [textMask]="{ mask: mask}" formControlName="retryInterval" />
+                    </as4-input>
+                </div>
+            </div>
+            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.receiptHandling').valid">
+                <as4-input label="Notify message producer" runtimeTooltip="receipthandling.notifymessageproducer">
+                    <input type="checkbox" formControlName="notifyMessageProducer" />
+                </as4-input>
+                <as4-method label="Notify method" [group]=" pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
+            </div>
+            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid">
+                <as4-input label="Notify message producer" runtimeTooltip="errorhandling.notifymessageproducer">
+                    <input type="checkbox" formControlName="notifyMessageProducer" />
+                </as4-input>
+                <as4-method label="Notify method" [group]=" pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
+            </div>
+            <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
+                <as4-input label="Notify message producer" runtimeTooltip="exceptionhandling.notifymessageproducer">
+                    <input type="checkbox" formControlName="notifyMessageProducer" />
+                </as4-input>
+                <as4-method label="Notify method" [group]=" pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
+            </div>
+        </as4-tab>
+    </div>
+</form>

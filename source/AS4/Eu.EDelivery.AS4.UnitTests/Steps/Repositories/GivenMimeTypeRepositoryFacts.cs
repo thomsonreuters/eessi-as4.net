@@ -1,11 +1,10 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Repositories;
+﻿using Eu.EDelivery.AS4.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 {
     /// <summary>
-    /// Testing <see cref="MimeTypeRepository"/>
+    /// Testing <see cref="MimeTypeRepository" />
     /// </summary>
     public class GivenMimeTypeRepositoryFacts
     {
@@ -13,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
         public GivenMimeTypeRepositoryFacts()
         {
-            this._repository = new MimeTypeRepository();
+            _repository = new MimeTypeRepository();
         }
 
         public class GivenValidArguments : GivenMimeTypeRepositoryFacts
@@ -23,8 +22,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             {
                 // Arrange
                 const string mimeContentType = "image/jpeg";
+
                 // Act
-                string extenstion = base._repository.GetExtensionFromMimeType(mimeContentType);
+                string extenstion = _repository.GetExtensionFromMimeType(mimeContentType);
+
                 // Assert
                 Assert.Equal(".jpg", extenstion);
             }
@@ -37,8 +38,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             {
                 // Arrange
                 const string mimeContentType = "invalid/type";
+
                 // Act
-                string extension = base._repository.GetExtensionFromMimeType(mimeContentType);
+                string extension = _repository.GetExtensionFromMimeType(mimeContentType);
+
                 // Assert
                 Assert.Empty(extension);
             }

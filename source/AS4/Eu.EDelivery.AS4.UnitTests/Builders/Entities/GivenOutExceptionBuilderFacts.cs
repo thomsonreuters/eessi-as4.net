@@ -8,33 +8,22 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 {
     /// <summary>
-    /// Testing <see cref="OutExceptionBuilder"/>
+    /// Testing <see cref="OutExceptionBuilder" />
     /// </summary>
     public class GivenOutExceptionBuilderFacts
     {
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
             [Fact]
-            public void ThenBuildOutExceptionSucceedsWithoutBuildParts()
-            {
-                // Act
-                OutException outException = new OutExceptionBuilder().Build();
-                // Assert
-                Assert.NotNull(outException.InsertionTime);
-                Assert.NotNull(outException.ModificationTime);
-            }
-
-            [Fact]
             public void ThenBuildOutExceptionSucceedsWithAS4Exeption()
             {
                 // Arrange
-                var as4Exception =
-                    AS4ExceptionBuilder.WithDescription("Test Exception")
-                        .WithPModeString("<PMode></PMode>")
-                        .Build();
+                AS4Exception as4Exception =
+                    AS4ExceptionBuilder.WithDescription("Test Exception").WithPModeString("<PMode></PMode>").Build();
+
                 // Act
-                OutException outException = new OutExceptionBuilder()
-                    .WithAS4Exception(as4Exception).Build();
+                OutException outException = new OutExceptionBuilder().WithAS4Exception(as4Exception).Build();
+
                 // Assert
                 Assert.Equal(as4Exception.PMode, outException.PMode);
                 string exceptionString = as4Exception.ToString();
@@ -46,9 +35,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
+
                 // Act
-                OutException outException = new OutExceptionBuilder()
-                    .WithEbmsMessageId(messageId).Build();
+                OutException outException = new OutExceptionBuilder().WithEbmsMessageId(messageId).Build();
+
                 // Assert
                 Assert.Equal(messageId, outException.EbmsRefToMessageId);
             }
@@ -59,12 +49,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Arrange
                 const Operation operation = Operation.Delivered;
                 const string operationMethod = "FILE";
+
                 // Act
-                OutException outException = new OutExceptionBuilder()
-                    .WithOperation(operation, operationMethod).Build();
+                OutException outException = new OutExceptionBuilder().WithOperation(operation, operationMethod).Build();
+
                 // Assert
                 Assert.Equal(operation, outException.Operation);
                 Assert.Equal(operationMethod, outException.OperationMethod);
+            }
+
+            [Fact]
+            public void ThenBuildOutExceptionSucceedsWithoutBuildParts()
+            {
+                // Act
+                OutException outException = new OutExceptionBuilder().Build();
+
+                // Assert
+                Assert.NotNull(outException.InsertionTime);
+                Assert.NotNull(outException.ModificationTime);
             }
         }
     }

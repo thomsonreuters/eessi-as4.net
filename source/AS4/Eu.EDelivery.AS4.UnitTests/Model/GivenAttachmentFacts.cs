@@ -15,6 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Act
                 var attachment = new Attachment(id: "attachment-id");
+                
                 // Assert
                 Assert.NotNull(attachment);
                 Assert.NotEmpty(attachment.Id);

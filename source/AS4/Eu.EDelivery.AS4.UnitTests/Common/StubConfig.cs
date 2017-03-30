@@ -12,17 +12,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// </summary>
     public class StubConfig : IConfig
     {
-        private IDictionary<string, string> _configuration;
-        private IDictionary<string, SendingProcessingMode> _sendingPModes;
-        private IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
         private static readonly StubConfig Singleton = new StubConfig();
-
-        public static IConfig Instance => Singleton;
-
-        /// <summary>
-        /// Verify if the Configuration is IsInitialized
-        /// </summary>
-        public bool IsInitialized => true;
+        private IDictionary<string, string> _configuration;
+        private IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
+        private IDictionary<string, SendingProcessingMode> _sendingPModes;
 
         private StubConfig()
         {
@@ -58,6 +51,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             };
         }
 
+        public static IConfig Instance => Singleton;
+
+        /// <summary>
+        /// Verify if the Configuration is IsInitialized
+        /// </summary>
+        public bool IsInitialized => true;
+
         /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public string GetSetting(string key)
         {
-            return this._configuration[key];
+            return _configuration[key];
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
-            return this._sendingPModes[id];
+            return _sendingPModes[id];
         }
 
         /// <summary>
@@ -109,9 +109,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
         {
-            return this._receivingPmodes.Values;
+            return _receivingPmodes.Values;
         }
-        
+
         public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
             throw new NotImplementedException();

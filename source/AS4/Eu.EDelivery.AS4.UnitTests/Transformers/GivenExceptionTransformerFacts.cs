@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -18,7 +17,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
     /// <summary>
-    /// Testing <see cref="ExceptionTransformer"/>
+    /// Testing <see cref="ExceptionTransformer" />
     /// </summary>
     public class GivenExceptionTransformerFacts
     {
@@ -27,8 +26,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public GivenExceptionTransformerFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-            this._mockekdProvider = new Mock<ISerializerProvider>();
-            this._mockekdProvider.Setup(p => p.Get(It.IsAny<string>())).Returns(new SoapEnvelopeSerializer());
+            _mockekdProvider = new Mock<ISerializerProvider>();
+            _mockekdProvider.Setup(p => p.Get(It.IsAny<string>())).Returns(new SoapEnvelopeSerializer());
         }
 
         public class GivenValidArguments : GivenExceptionTransformerFacts
@@ -39,10 +38,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 InException inException = CreateDefaultInException();
                 var receivedMessage = new ReceivedEntityMessage(inException);
-                var transformer = new ExceptionTransformer(base._mockekdProvider.Object);
+                var transformer = new ExceptionTransformer(_mockekdProvider.Object);
+
                 // Act
-                InternalMessage internalMessage = await transformer
-                    .TransformAsync(receivedMessage, CancellationToken.None);
+                InternalMessage internalMessage = await transformer.TransformAsync(
+                                                      receivedMessage,
+                                                      CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(internalMessage.AS4Message.PrimarySignalMessage);
                 Assert.NotNull(internalMessage.AS4Message.SendingPMode);
@@ -55,10 +57,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 InException inException = CreateDefaultInException();
                 var receivedMessage = new ReceivedEntityMessage(inException);
-                var transformer = new ExceptionTransformer(base._mockekdProvider.Object);
+                var transformer = new ExceptionTransformer(_mockekdProvider.Object);
+
                 // Act
-                InternalMessage internalMessage = await transformer
-                    .TransformAsync(receivedMessage, CancellationToken.None);
+                InternalMessage internalMessage = await transformer.TransformAsync(
+                                                      receivedMessage,
+                                                      CancellationToken.None);
+
                 // Assert
                 var error = internalMessage.AS4Message.PrimarySignalMessage as Error;
                 Assert.NotNull(error);
@@ -83,8 +88,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenMessageIsNotSupportedWithReceivedMessageAsync()
             {
                 // Arrange
-                var receivedMessage = new ReceivedMessage(Stream.Null, String.Empty);
+                var receivedMessage = new ReceivedMessage(Stream.Null, string.Empty);
                 var transformer = new ExceptionTransformer();
+
                 // Act / Assert
                 await Assert.ThrowsAsync<AS4Exception>(
                     () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
@@ -97,10 +103,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var messageEntity = new InMessage();
                 var receivedMessage = new ReceivedEntityMessage(messageEntity);
                 var transformer = new ExceptionTransformer();
+
                 // Act / Assert
-                await
-                    Assert.ThrowsAsync<AS4Exception>(
-                        () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
+                await Assert.ThrowsAsync<AS4Exception>(
+                    () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
             }
         }
     }

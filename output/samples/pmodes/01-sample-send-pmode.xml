@@ -13,7 +13,6 @@
     <TlsConfiguration>
       <IsEnabled>false</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference/>
     </TlsConfiguration>
   </PushConfiguration>
   <PullConfiguration>
@@ -62,37 +61,37 @@
     </Encryption>
   </Security>
   <MessagePackaging>
+	<PartyInfo>
+		<FromParty>
+			<PartyIds>
+				<PartyId>
+					<Id>org:eu:europa:as4:example:accesspoint:A</Id>
+				</PartyId>
+			</PartyIds>
+			<Role>Sender</Role>
+		</FromParty>
+		<ToParty>
+			<PartyIds>
+				<PartyId>
+					<Id>org:eu:europa:as4:example:accesspoint:B</Id>
+				</PartyId>
+			</PartyIds>
+			<Role>Receiver</Role>
+		</ToParty>
+	</PartyInfo>
+	<CollaborationInfo>
+		<ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+		<AgreementReference>
+			<Value>http://agreements.europa.org/agreement</Value>
+		</AgreementReference>		
+		<Action>eu:sample:01</Action>
+		<Service>
+			<Value>getting:started</Value>
+			<Type>eu:europa:services</Type>
+		</Service>		
+	</CollaborationInfo>	
     <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>false</IncludePModeId>
-    <CollaborationInfo>
-    <AgreementReference>
-        <Value>http://agreements.europa.org/agreement</Value>
-      </AgreementReference>
-    <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
-    <Action>eu:sample:01</Action>
-    <Service>
-      <Value>getting:started</Value>
-      <Type>eu:europa:services</Type>
-    </Service>
-  </CollaborationInfo>
-	<PartyInfo>
-			<FromParty>
-				<PartyIds>
-					<PartyId>
-						<Id>org:eu:europa:as4:example:accesspoint:A</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Sender</Role>
-			</FromParty>
-			<ToParty>
-				<PartyIds>
-					<PartyId>
-						<Id>org:eu:europa:as4:example:accesspoint:B</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Receiver</Role>
-			</ToParty>
-		</PartyInfo>
+    <IncludePModeId>false</IncludePModeId>    
   </MessagePackaging>
 </PMode>
