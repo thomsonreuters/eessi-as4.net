@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
             envelopeStream.Position = 0;
-            var envelopeXmlDocument = new XmlDocument() {PreserveWhitespace = true};
+            var envelopeXmlDocument = new XmlDocument() { PreserveWhitespace = true };
 
             envelopeXmlDocument.Load(envelopeStream);
 
@@ -99,13 +99,11 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static T FromStream<T>(Stream stream) where T : class
         {
-            using (var memoryStream = new MemoryStream())
+            using (var streamReader = new StreamReader(stream))
             {
                 stream.Position = 0;
-                stream.CopyTo(memoryStream);
-                memoryStream.Position = 0;
 
-                string xml = Encoding.UTF8.GetString(memoryStream.ToArray());
+                string xml = streamReader.ReadToEnd();
                 return FromString<T>(xml);
             }
         }
@@ -150,10 +148,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static XmlSerializer GetSerializerForType(Type type)
         {
             if (!Serializers.ContainsKey(type))
-            {
                 Serializers[type] = new XmlSerializer(type);
-            }
-
             return Serializers[type];
         }
     }
