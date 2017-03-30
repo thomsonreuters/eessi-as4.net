@@ -149,7 +149,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlSerializer GetSerializerForType(Type type)
         {
-            if (!Serializers.ContainsKey(type)) Serializers[type] = new XmlSerializer(type);
+            if (!Serializers.ContainsKey(type))
+            {
+                Serializers[type] = new XmlSerializer(type);
+            }
+
             return Serializers[type];
         }
     }
