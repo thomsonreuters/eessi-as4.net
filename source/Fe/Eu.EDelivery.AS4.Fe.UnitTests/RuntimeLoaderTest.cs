@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Runtime;
@@ -7,6 +6,7 @@ using Eu.EDelivery.AS4.Fe.Settings;
 using Microsoft.Extensions.Options;
 using Mono.Cecil;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NSubstitute;
 using Xunit;
 
@@ -102,11 +102,13 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Model.PMode.IPMode");
 
-                var expected = File.ReadAllText(@"metadata_sendingprocessingmode_flatten.json");
                 var jsonResult = JsonConvert.SerializeObject(result.First(x => x.Name == "SendingProcessingMode"), Formatting.Indented, new FlattenRuntimeToJsonConverter());
 
                 // Assert
-                Assert.True(expected == jsonResult);
+                var json = JObject.Parse(jsonResult);
+                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "pullconfiguration"));
+                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "security"));
+                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "signing"));
             }
         }
     }

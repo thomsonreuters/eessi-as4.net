@@ -21,7 +21,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// <returns></returns>
         public ReceiverBuilder SetSettings(Receiver settingReceiver)
         {
-            this._settingReceiver = settingReceiver;
+            _settingReceiver = settingReceiver;
+
             return this;
         }
 
@@ -31,20 +32,18 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Builder
         /// <returns></returns>
         public IReceiver Build()
         {
-            var receiver = GenericTypeBuilder.FromType(this._settingReceiver.Type).Build<IReceiver>();
-            ConfigureReceiverWithSettings(receiver, this._settingReceiver);
+            var receiver = GenericTypeBuilder.FromType(_settingReceiver.Type).Build<IReceiver>();
+            ConfigureReceiverWithSettings(receiver, _settingReceiver);
 
             return receiver;
         }
 
         private static void ConfigureReceiverWithSettings(IReceiver receiver, Receiver settingsReceiver)
         {
-            if (settingsReceiver.Setting == null) return;
-
-            Dictionary<string, string> dictionary = settingsReceiver.Setting
-                .ToDictionary(setting => setting.Key, setting => setting.Value);
-
-            receiver.Configure(dictionary);
+            if (settingsReceiver.Setting != null)
+            {
+                receiver.Configure(settingsReceiver.Setting);
+            }
         }
     }
 }

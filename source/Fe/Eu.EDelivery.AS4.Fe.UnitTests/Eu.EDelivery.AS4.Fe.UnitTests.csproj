@@ -247,9 +247,6 @@
     <None Include="metadata_sendingprocessingmode.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="metadata_sendingprocessingmode_flatten.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="metadata_sendingprocessingmode_noprops.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

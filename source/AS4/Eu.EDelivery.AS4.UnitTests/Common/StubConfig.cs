@@ -69,6 +69,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
 
         /// <summary>
+        /// Verify if the <see cref="IConfig"/> implementation contains a <see cref="SendingProcessingMode"/> for a given <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">The Sending Processing Mode id for which the verification is done.</param>
+        /// <returns></returns>
+        public bool ContainsSendingPMode(string id)
+        {
+            return _sendingPModes.ContainsKey(id);
+        }
+
+        /// <summary>
         /// Retrieve the PMode from the Global Settings
         /// </summary>
         /// <param name="id"></param>
