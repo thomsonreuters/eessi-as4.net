@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 AS4Message message = new AS4MessageBuilder().WithSignalMessage(signalMessage).Build();
 
                 // Act
-                ISendConfiguration sendConfiguration = message.GetSendConfiguration();
+                ISendConfiguration sendConfiguration = message.PrimarySignalMessage is PullRequest ? (ISendConfiguration) message.SendingPMode.PullConfiguration : message.SendingPMode.PushConfiguration;
 
                 // Assert
                 Assert.IsType(expectedType, sendConfiguration);

@@ -70,17 +70,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
 
-        public bool IsPulling => PrimarySignalMessage is PullRequest;
-
-        /// <summary>
-        /// Get the right <see cref="ISendConfiguration" /> for the current <see cref="AS4Message" />.
-        /// </summary>
-        /// <returns></returns>
-        public ISendConfiguration GetSendConfiguration()
-        {
-            return IsPulling ? (ISendConfiguration)SendingPMode.PullConfiguration : SendingPMode.PushConfiguration;
-        }
-
         /// <summary>
         /// Add Attachment to <see cref="AS4Message" />
         /// </summary>
