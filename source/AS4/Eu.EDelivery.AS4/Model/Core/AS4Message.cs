@@ -62,6 +62,8 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsSignalMessage => SignalMessages.Count > 0;
 
+        public bool IsUserMessage => UserMessages.Count > 0;
+
         public bool IsSigned => SecurityHeader.IsSigned;
 
         public bool IsEncrypted => SecurityHeader.IsEncrypted;
