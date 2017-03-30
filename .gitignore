@@ -35,8 +35,8 @@ output/messages/out/
 output/messages/receipts/
 output/messages/errors/
 output/messages/exceptions/
-
-
+**/fe/**/dist
+**/fe/**/compiled
 
 
 # Visual Studio 2015 cache/options directory
