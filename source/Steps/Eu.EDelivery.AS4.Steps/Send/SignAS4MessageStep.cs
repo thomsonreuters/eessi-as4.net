@@ -27,8 +27,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         public SignAS4MessageStep()
         {
-            this._repository = Registry.Instance.CertificateRepository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _repository = Registry.Instance.CertificateRepository;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </param>
         public SignAS4MessageStep(ICertificateRepository repository)
         {
-            this._repository = repository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _repository = repository;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -52,9 +52,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
+            if (internalMessage.AS4Message.IsEmpty)
+            {
+                return await StepResult.SuccessAsync(internalMessage);
+            }
+
             if (internalMessage.AS4Message.SendingPMode?.Security.Signing.IsEnabled != true)
             {
-                return await ReturnSameInternalMessage(internalMessage);
+                _logger.Info($"{internalMessage.Prefix} Sending PMode {internalMessage.AS4Message.SendingPMode?.Id} Signing is disabled");
+                return await StepResult.SuccessAsync(internalMessage);
             }
 
             TrySignAS4Message(internalMessage, cancellationToken);
@@ -63,22 +69,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
-        {
-            this._logger.Info($"{internalMessage.Prefix} Sending PMode {internalMessage.AS4Message.SendingPMode?.Id} Signing is disabled");
-            return StepResult.SuccessAsync(internalMessage);
-        }
-
         private void TrySignAS4Message(InternalMessage message, CancellationToken cancellationToken)
         {
             try
             {
-                this._logger.Info($"{message.Prefix} Sign AS4 Message with given Signing Information");
+                _logger.Info($"{message.Prefix} Sign AS4 Message with given Signing Information");
                 SignAS4Message(message, cancellationToken);
             }
             catch (Exception exception)
             {
-                this._logger.Error(exception.Message);
+                _logger.Error(exception.Message);
                 throw ThrowCommonSigningException(message.AS4Message, exception.Message, exception);
             }
         }
@@ -100,14 +100,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             Model.PMode.Signing signing = as4Message.SendingPMode.Security.Signing;
 
-            X509Certificate2 certificate = this._repository.GetCertificate(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
+            X509Certificate2 certificate = _repository.GetCertificate(signing.PrivateKeyFindType, signing.PrivateKeyFindValue);
 
             return certificate;
         }
-        
+
         private AS4Exception ThrowCommonSigningException(AS4Message as4Message, string description, Exception innerException = null)
         {
-            this._logger.Error(description);
+            _logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)

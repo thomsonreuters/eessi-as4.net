@@ -11,6 +11,7 @@ import { Observable } from 'rxjs/Observable';
 import { PmodeStore } from './pmode.store';
 import { SendingPmode } from './../api/SendingPmode';
 import { ReceivingPmode } from './../api/ReceivingPmode';
+import { ReceivingPmodeForm } from './../api/ReceivingPmodeForm';
 import { IPmode } from './../api/Pmode.interface';
 import { ReceivingProcessingMode } from './../api/ReceivingProcessingMode';
 import { ICrudPmodeService } from './crudpmode.service.interface';
@@ -43,9 +44,15 @@ export class ReceivingPmodeService implements ICrudPmodeService {
             .distinctUntilChanged();
     }
     public get(name: string) {
+        if (!!!name) {
+            this.pmodeStore.update('Receiving', null);
+            return;
+        }
         this.http
             .get(`${this.getBaseUrl(name)}`)
-            .subscribe((result) => this.pmodeStore.update('Receiving', result.json()));
+            .subscribe((result) => {
+                this.pmodeStore.update('Receiving', result.json());
+            });
     }
     public delete(name: string) {
         this.http
@@ -85,10 +92,10 @@ export class ReceivingPmodeService implements ICrudPmodeService {
         return obs.asObservable();
     }
     public patchForm(form: FormGroup, pmode: IPmode) {
-        ReceivingPmode.patchForm(this.formBuilder, form, <ReceivingPmode>pmode);
+        ReceivingPmodeForm.patchForm(this.formBuilder, form, <ReceivingPmode>pmode);
     }
     public getForm(pmode: IPmode): FormGroup {
-        return ReceivingPmode.getForm(this.formBuilder, <ReceivingPmode>pmode);
+        return ReceivingPmodeForm.getForm(this.formBuilder, <ReceivingPmode>pmode);
     }
     public patchName(form: FormGroup, name: string) {
         form.setValue({ [ReceivingPmode.FIELD_name]: name });

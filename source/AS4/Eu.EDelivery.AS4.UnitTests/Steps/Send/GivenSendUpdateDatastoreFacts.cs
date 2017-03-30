@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -17,21 +18,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     {
         public GivenSendUpdateDatastoreFacts()
         {
-            base.Step = new SendUpdateDataStoreStep();
+            Step = new SendUpdateDataStoreStep();
         }
 
-        [Fact(Skip="This test should be reviewed.")]        
+        /// <summary>
+        /// Gets a <see cref="IStep"/> implementation to exercise the datastore.
+        /// </summary>
+        protected override IStep Step { get; }
+
+        [Fact]        
         public async Task ThenExecuteStepUpdateAsSentAsync()
         {
             // Arrange
-            SignalMessage signalMessage = base.GetReceipt();
-            InternalMessage internalMessage = new InternalMessageBuilder()
-                .WithSignalMessage(signalMessage).Build();
+            SignalMessage signalMessage = base.CreateReceipt();
+            InternalMessage internalMessage = CreateReferencedInternalMessageWith(signalMessage);
+
             // Act
-            await base.Step.ExecuteAsync(internalMessage, CancellationToken.None);
+            await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
             // Assert
-            await base.AssertOutMessages(signalMessage, base.Options, OutStatus.Sent);
+            await AssertOutMessages(signalMessage, base.Options, OutStatus.Ack);
+        }
+
+        private InternalMessage CreateReferencedInternalMessageWith(SignalMessage signalMessage)
+        {
+            return new InternalMessageBuilder()
+                .WithUserMessage(new UserMessage(base.ReceiptMessageId))
+                .WithSignalMessage(signalMessage)
+                .Build();
         }
     }
 }

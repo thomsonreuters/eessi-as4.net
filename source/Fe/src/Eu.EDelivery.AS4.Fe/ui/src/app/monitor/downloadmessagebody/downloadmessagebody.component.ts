@@ -7,7 +7,7 @@ import * as fileSaver from 'file-saver';
 @Component({
     selector: 'downloadmessagebody',
     template: `
-        <i class="fa fa-download clickable" (click)="download()"></i>
+        <a (click)="download()" class="clickable">Download&nbsp;<i class="fa fa-download clickable"></i></a>
     `
 })
 export class DownloadMessageBodyComponent {

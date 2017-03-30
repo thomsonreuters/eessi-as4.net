@@ -1,9 +1,30 @@
+@import './variables.scss';
+
+$button-focus-color: white;
+$button-focus-font-weight: bold;
+
 .show-modal {
     display: block;
     padding-right: 17px;
 }
 
-.modal-body {
-    max-height: 200px;
-    overflow-y: auto;
+.modal-dialog {
+    .modal-body {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .modal-footer {
+        .btn{
+            &:focus {
+                background-color: $primary;
+                color: $button-focus-color;
+                font-weight: $button-focus-font-weight;
+            }
+            &:hover {
+                background-color: $primary;
+                color: $button-focus-color;
+                font-weight: $button-focus-font-weight;
+            }
+        }
+    }
 }

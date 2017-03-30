@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Logging
 {
-    public interface IApplicationInsightsSetup : IModular, IRunAtConfiguration, IRunAtServicesStartup, IRunAtAppStartup
+    public interface IApplicationInsightsSetup : IModular, IRunAtConfiguration, IRunAtServicesStartup
     {
 
     }

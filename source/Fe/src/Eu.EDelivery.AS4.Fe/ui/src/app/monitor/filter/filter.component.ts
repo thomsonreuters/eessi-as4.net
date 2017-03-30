@@ -27,12 +27,13 @@ export class FilterComponent implements OnInit, OnDestroy {
     @Output() public onSearch: EventEmitter<BaseFilter> = new EventEmitter();
     private _subscriptions: Subscription[] = new Array<Subscription>();
     constructor( @Inject(MESSAGESERVICETOKEN) private _messageService: MessageService, private _activatedRoute: ActivatedRoute, private _router: Router) {
-        this._subscriptions.push(this._activatedRoute
-            .queryParams
-            .filter(() => !!this.filter)
-            .subscribe((result) => {
-                this.executeServiceCall();
-            }));
+        this._subscriptions
+            .push(this._activatedRoute
+                .queryParams
+                .filter(() => !!this.filter)
+                .subscribe((result) => {
+                    this.executeServiceCall();
+                }));
     }
     public ngOnInit() {
         this.executeServiceCall();
@@ -45,6 +46,10 @@ export class FilterComponent implements OnInit, OnDestroy {
             this.filter.page = 1;
         }
         this._router.navigate(this.getPath(this._activatedRoute), { queryParams: this.filter.sanitize() });
+    }
+    public executeServiceCall() {
+        this.queryParamsToFilter();
+        this._messageService.getMessages(this.filter);
     }
     private getPath(route: ActivatedRoute): string[] {
         let path = new Array<string>();
@@ -59,9 +64,5 @@ export class FilterComponent implements OnInit, OnDestroy {
     private queryParamsToFilter() {
         this.filter.fromUrlParams(this._activatedRoute.snapshot.queryParams);
         this.outFilter = Object.assign({}, this.filter);
-    }
-    private executeServiceCall() {
-        this.queryParamsToFilter();
-        this._messageService.getMessages(this.filter);
     }
 }

@@ -159,19 +159,34 @@
     "isenabled": {
       "description": ""
     },
-    "privatekeyfindvalue": {
+    "keyreferencemethod": {
       "description": ""
     },
     "privatekeyfindtype": {
       "description": ""
     },
-    "keyreferencemethod": {
+    "privatekeyfindvalue": {
       "description": ""
     },
     "algorithm": {
       "description": ""
     },
     "hashfunction": {
+      "description": ""
+    },
+    "privatekeyfindvaluespecified": {
+      "description": ""
+    },
+    "privatekeyfindtypespecified": {
+      "description": ""
+    },
+    "keyreferencemethodspecified": {
+      "description": ""
+    },
+    "algorithmspecified": {
+      "description": ""
+    },
+    "hashfunctionspecified": {
       "description": ""
     }
   },
@@ -191,6 +206,18 @@
     },
     "keytransport": {
       "description": ""
+    },
+    "algorithmspecified": {
+      "description": ""
+    },
+    "publickeyfindtypespecified": {
+      "description": ""
+    },
+    "publickeyfindvaluespecified": {
+      "description": ""
+    },
+    "keytransportspecified": {
+      "description": ""
     }
   },
   "keyencryption": {
@@ -202,6 +229,15 @@
       "description": ""
     },
     "mgfalgorithm": {
+      "description": ""
+    },
+    "transportalgorithmspecified": {
+      "description": ""
+    },
+    "digestalgorithmspecified": {
+      "description": ""
+    },
+    "mgfalgorithmspecified": {
       "description": ""
     }
   },

@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\output\</OutputPath>
+    <OutputPath>..\..\..\output\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\output\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -228,11 +228,13 @@
   <ItemGroup>
     <Compile Include="As4PmodeServiceTests.cs" />
     <Compile Include="As4SettingsServiceTests.cs" />
+    <Compile Include="BaseTest.cs" />
     <Compile Include="ExceptionMessageTests.cs" />
     <Compile Include="MonitorServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeLoaderTest.cs" />
     <Compile Include="ScannerTests.cs" />
+    <Compile Include="SqlConnectionBuilderTests.cs" />
     <Compile Include="TestData\InfoAttribute.cs" />
     <Compile Include="TestData\ITestReceiver.cs" />
     <Compile Include="TestData\TestReceiver.cs" />

@@ -15,6 +15,7 @@ import {
 import { MockBackend } from '@angular/http/testing';
 
 import { Signing } from './Signing';
+import { SigningForm } from './SigningForm';
 
 describe('Tls configuration', () => {
     beforeEach(() => TestBed.configureTestingModule({
@@ -23,7 +24,7 @@ describe('Tls configuration', () => {
         ]
     }));
     it('should set default values when a new one is created', inject([FormBuilder], (formBuilder: FormBuilder) => {
-        let form = Signing.getForm(formBuilder, null);
+        let form = SigningForm.getForm(formBuilder, null);
 
         expect(form.get(Signing.FIELD_algorithm).value).toBe('http://www.w3.org/2001/04/xmldsig-more#rsa-sha256');
         expect(form.get(Signing.FIELD_hashFunction).value).toBe('http://www.w3.org/2001/04/xmlenc#sha256');
@@ -32,7 +33,7 @@ describe('Tls configuration', () => {
         let data = new Signing();
         data.algorithm = 'test';
         data.hashFunction = 'test2';
-        let form = Signing.getForm(formBuilder, data);
+        let form = SigningForm.getForm(formBuilder, data);
 
         expect(form.get(Signing.FIELD_algorithm).value).toBe('test');
         expect(form.get(Signing.FIELD_hashFunction).value).toBe('test2');

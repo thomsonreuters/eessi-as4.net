@@ -33,7 +33,7 @@
                         </span>
                     </div>
                 </as4-input>
-                <as4-input label="Ebms ref to message id" labelSize="3" controlSize="9">
+                <as4-input label="ebMS ref to message id" labelSize="3" controlSize="9">
                     <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
                 </as4-input>
             </div>
@@ -90,7 +90,9 @@
     </div>
 </as4-box>
 <as4-box title="Messages">
-    <div content>
+    <div content *ngIf="messages | async as messageData">
+        <as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page"
+            (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
         <table class="table table-striped">
             <colgroup>
                 <col width="2%">
@@ -109,15 +111,14 @@
                     <th>Direction</th>
                     <th>Insertion time</th>
                     <th>Operation</th>
-                    <th>Ebms ref to message id</th>
+                    <th>ebMS ref to message id</th>
                     <th>Modification time</th>
                     <th>Exception</th>
                     <th>Pmode</th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
-                <ng-container *ngFor="let message of (messages | async).messages; let i = index">
+                <ng-container *ngFor="let message of messageData.messages; let i = index">
                     <tr>
                         <td>
                             <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage"
@@ -126,23 +127,23 @@
                         <td>{{message.direction | todirection}}</td>
                         <td>{{message.insertionTime | todate}}</td>
                         <td>{{message.operation}}</td>
-                        <td><a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}">{{message.ebmsRefToMessageId}}</a></td>
+                        <td><a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}" target="_blank">{{message.ebmsRefToMessageId}}</a></td>
                         <td>{{message.modificationTime | todate}}</td>
                         <td>{{message.exceptionShort}}</td>
                         <td>
                             <a [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
                         </td>
-                        <td>
-                            <downloadmessagebody [type]="'exception'" [direction]="message.direction" [messageId]="message.ebmsRefToMessageId"></downloadmessagebody>
-                        </td>
                     </tr>
                     <tr *ngIf="message === activeMessage">
                         <td colspan="10">
                             <as4-tab>
+                                <div tabitem title="Info">
+                                    <p><b>Message body</b>: <downloadmessagebody [type]="'exception'" [direction]="message.direction" [messageId]="message.ebmsRefToMessageId"></downloadmessagebody></p>
+                                </div>
                                 <div tabitem title="Exception">
-                                    <template #headerExtra>
+                                    <ng-template #headerExtra>
                                         <as4-clipboard [target]="exception"></as4-clipboard>
-                                    </template>
+                                    </ng-template>
                                     <div #exception>{{message.exception}}</div>
                                 </div>
                             </as4-tab>
@@ -151,7 +152,7 @@
                 </ng-container>
             </tbody>
         </table>
-        <as4-pager [pages]="(messages | async).pages" [pageTotal]="(messages | async).messages.length" [total]="(messages | async).total"
-            [page]="(messages | async).page" (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
+        <as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page"
+            (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
     </div>
 </as4-box>

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,7 +13,7 @@ namespace Eu.EDelivery.AS4.Fe.Logging
             this.env = env;
         }
 
-        public void Run(IConfigurationBuilder configBuilder)
+        public void Run(IConfigurationBuilder configBuilder, IServiceCollection services, IConfigurationRoot localConfig)
         {
             if (env.IsEnvironment("Development")) configBuilder.AddApplicationInsightsSettings();
         }
@@ -22,11 +21,6 @@ namespace Eu.EDelivery.AS4.Fe.Logging
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
             services.AddApplicationInsightsTelemetry(configuration);
-        }
-
-        public void Run(IApplicationBuilder app)
-        {
-           
         }
     }
 }

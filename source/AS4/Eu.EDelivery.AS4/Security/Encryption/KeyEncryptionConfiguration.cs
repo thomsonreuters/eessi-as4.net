@@ -12,8 +12,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         public string EncryptionMethod { get; private set; } 
         public string DigestMethod { get; private set; } 
         public string Mgf { get; private set; } 
-
-        // TODO: load/select the right Security Token Reference
+        
         public SecurityTokenReference SecurityTokenReference { get; set; } 
 
         public KeyEncryptionConfiguration(SecurityTokenReference tokenReference, string encryptionMethod, string digestMethod, string mgf)
@@ -22,6 +21,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
             {
                 tokenReference = new BinarySecurityTokenReference();
             }
+
             this.SecurityTokenReference = tokenReference;
             this.EncryptionMethod = encryptionMethod;
             this.DigestMethod = digestMethod;

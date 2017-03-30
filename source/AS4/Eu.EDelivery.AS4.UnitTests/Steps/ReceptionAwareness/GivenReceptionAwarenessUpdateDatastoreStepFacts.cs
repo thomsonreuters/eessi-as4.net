@@ -53,27 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 }
             }
 
-            [Fact(Skip = "DataAwareness Agent is no longer responsible for increasing RetryCount")]
-            public async Task ThenMessageMustResendAsync()
-            {
-                // Arrange
-                Entities.ReceptionAwareness awareness = base.CreateDefaultReceptionAwareness();
-                base.InsertReceptionAwareness(awareness);
-
-                var internalMessage = new InternalMessage() { ReceptionAwareness = awareness };
-                var step = new ReceptionAwarenessUpdateDatastoreStep();
-
-                // Act
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                AssertReceptionAwareness(awareness.InternalMessageId, x =>
-                {
-                    Assert.NotEqual(awareness.LastSendTime, x.LastSendTime);
-                    Assert.Equal(awareness.CurrentRetryCount + 1, x.CurrentRetryCount);
-                });
-            }
-
+            
             [Fact]
             public async Task ThenMessageIsUnawnseredAsync()
             {

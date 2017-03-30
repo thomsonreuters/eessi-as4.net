@@ -1,6 +1,7 @@
 using System;
 using Eu.EDelivery.AS4.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -15,6 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         protected readonly DbContextOptions<DatastoreContext> Options;
 
         protected Func<DatastoreContext> GetDataStoreContext { get; }
+        
         /// <summary>
         /// Create a Default Datastore Facts
         /// </summary>
@@ -47,7 +49,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             // InMemory database and the new service provider.
             var builder = new DbContextOptionsBuilder<DatastoreContext>();
             builder.UseInMemoryDatabase()
-                .UseInternalServiceProvider(_serviceProvider);
+                   .UseInternalServiceProvider(_serviceProvider)
+                   .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
 
             return builder.Options;
         }

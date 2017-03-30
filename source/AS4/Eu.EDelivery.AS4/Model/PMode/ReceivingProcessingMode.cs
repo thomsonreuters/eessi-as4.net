@@ -1,6 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
 {
@@ -59,8 +61,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class ReceiveReceiptHandling
     {
         public bool UseNNRFormat { get; set; }
-        public ReplyPattern ReplyPattern { get; set; }
-        public string CallbackUrl { get; set; }
+        public ReplyPattern ReplyPattern { get; set; }        
         public string SendingPMode { get; set; }
 
         public ReceiveReceiptHandling()
@@ -85,8 +86,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class ReceiveErrorHandling
     {
         public bool UseSoapFault { get; set; }
-        public ReplyPattern ReplyPattern { get; set; }
-        public string CallbackUrl { get; set; }
+        public ReplyPattern ReplyPattern { get; set; }        
         public int ResponseHttpCode { get; set; }
         public string SendingPMode { get; set; }
 
@@ -121,8 +121,20 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class Decryption
     {
         public Limit Encryption { get; set; }
-        public string PrivateKeyFindValue { get; set; }
         public X509FindType PrivateKeyFindType { get; set; }
+        public string PrivateKeyFindValue { get; set; }
+
+        #region Serialization management
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public bool PrivateKeyFindTypeSpecified { get; set; }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        public bool PrivateKeyFindValueSpecified => !String.IsNullOrWhiteSpace(PrivateKeyFindValue);
+
+        #endregion
 
         public Decryption()
         {
