@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public T GetPMode<T>() where T : class
         {
-            return AS4XmlSerializer.FromStream<T>(this.MessageEntity.PMode);
+            return AS4XmlSerializer.FromString<T>(this.MessageEntity.PMode);
         }
     }
 }
