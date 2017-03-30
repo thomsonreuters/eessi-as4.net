@@ -317,7 +317,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             if (!IsReadersNameMessaging(reader)) return;
 
-            var messagingHeader = AS4XmlSerializer.Deserialize<Xml.Messaging>(reader);
+            var messagingHeader = AS4XmlSerializer.FromReader<Xml.Messaging>(reader);
             as4Message.SignalMessages = GetSignalMessagesFromHeader(messagingHeader);
             as4Message.UserMessages = GetUserMessagesFromHeader(messagingHeader);
             as4Message.SigningId.HeaderSecurityId = messagingHeader.SecurityId;
@@ -384,7 +384,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             if (!IsReadersNameBody(reader)) return;
 
-            var body = AS4XmlSerializer.Deserialize<Xml.Body>(reader);
+            var body = AS4XmlSerializer.FromReader<Xml.Body>(reader);
             as4Message.SigningId.BodySecurityId = GetBodySecurityId(body);
         }
 

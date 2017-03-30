@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (Stream pmodeStream = SerializeExpectedPMode(expectedPMode))
                 {
                     // Act
-                    var actualPMode = AS4XmlSerializer.Deserialize<SendingProcessingMode>(pmodeStream);
+                    var actualPMode = AS4XmlSerializer.FromStream<SendingProcessingMode>(pmodeStream);
 
                     // Assert
                     Assert.Equal(expectedPMode.Id, actualPMode.Id);
