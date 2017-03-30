@@ -3,15 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Transformers;
 using Xunit;
-using CollaborationInfo = Eu.EDelivery.AS4.Model.Common.CollaborationInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -25,16 +22,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         public GivenSubmitMessageXmlTransformerFacts()
         {
-            this._transformer = new SubmitMessageXmlTransformer();
-            this._pmodeId = "01-pmode";
+            _transformer = new SubmitMessageXmlTransformer();
+            _pmodeId = "01-pmode";
         }
 
         protected SendingProcessingMode GetStubProcessingMode()
         {
-            return new SendingProcessingMode
-            {
-                Id = this._pmodeId
-            };
+            return new SendingProcessingMode {Id = _pmodeId};
         }
 
         protected MemoryStream WriteSubmitMessageToStream(SubmitMessage submitMessage)
@@ -58,8 +52,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var submitMessage = new SubmitMessage
                 {
-                    Collaboration = { AgreementRef = { PModeId = "pmode-id" } },
-                    PMode = base.GetStubProcessingMode()
+                    Collaboration = {
+                                       AgreementRef = {
+                                                         PModeId = "pmode-id"
+                                                      }
+                                    },
+                    PMode = GetStubProcessingMode()
                 };
 
                 using (MemoryStream memoryStream = WriteSubmitMessageToStream(submitMessage))
@@ -67,8 +65,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                     var receivedmessage = new ReceivedMessage(memoryStream);
 
                     // Act
-                    InternalMessage internalMessage =
-                        await base._transformer.TransformAsync(receivedmessage, CancellationToken.None);
+                    InternalMessage internalMessage = await _transformer.TransformAsync(
+                                                          receivedmessage,
+                                                          CancellationToken.None);
+
                     // Assert
                     Assert.NotNull(internalMessage);
                     Assert.Null(internalMessage.SubmitMessage.PMode);
@@ -81,18 +81,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var submitMessage = new SubmitMessage
                 {
-                    Collaboration = new CollaborationInfo { AgreementRef = new Agreement { PModeId = this._pmodeId } }
+                    Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = _pmodeId}}
                 };
 
                 using (MemoryStream memoryStream = WriteSubmitMessageToStream(submitMessage))
                 {
                     var receivedMessage = new ReceivedMessage(memoryStream);
+
                     // Act
-                    InternalMessage internalMessage =
-                        await base._transformer.TransformAsync(receivedMessage, CancellationToken.None);
+                    InternalMessage internalMessage = await _transformer.TransformAsync(
+                                                          receivedMessage,
+                                                          CancellationToken.None);
+
                     // Assert
                     Assert.NotNull(internalMessage);
-                    Assert.Equal(base._pmodeId, internalMessage.SubmitMessage.Collaboration.AgreementRef.PModeId);
+                    Assert.Equal(_pmodeId, internalMessage.SubmitMessage.Collaboration.AgreementRef.PModeId);
                 }
             }
         }
@@ -104,15 +107,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             {
                 var submitMessage = new SubmitMessage
                 {
-                    Collaboration = new CollaborationInfo { AgreementRef = new Agreement { PModeId = "" } }
+                    Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = string.Empty}}
                 };
 
-                using (var memoryStream = WriteSubmitMessageToStream(submitMessage))
+                using (MemoryStream memoryStream = WriteSubmitMessageToStream(submitMessage))
                 {
                     var receivedMessage = new ReceivedMessage(memoryStream);
+
                     // Act
-                    await Assert.ThrowsAsync<AS4Exception>(() =>
-                       base._transformer.TransformAsync(receivedMessage, CancellationToken.None));                    
+                    await Assert.ThrowsAsync<AS4Exception>(
+                        () => _transformer.TransformAsync(receivedMessage, CancellationToken.None));
                 }
             }
         }

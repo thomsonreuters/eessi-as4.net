@@ -324,6 +324,7 @@
     <Compile Include="Steps\Notify\GivenNotifyUpdateInExceptionDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyUpdateOutExceptionDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenSendNotifyMessageStepFacts.cs" />
+    <Compile Include="Steps\Participant\FakePModeRuleVisotor.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ErrorStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecryptAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenReceiveExceptionDecoratorStepFacts.cs" />
@@ -354,7 +355,6 @@
     <Compile Include="Steps\Send\GivenSendUpdateDatastoreFacts.cs" />
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
     <Compile Include="Builders\Core\InternalMessageBuilder.cs" />
-    <Compile Include="Steps\Participant\StubPModeRuleVisitor.cs" />
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\GivenFilePayloadStrategyFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />

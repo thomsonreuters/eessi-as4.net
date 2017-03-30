@@ -19,8 +19,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         public GivenPollingReceiverFacts()
         {
-            this._validTemplate = new StubValidPollingTemplate();
-            this._invalidTemplate = new StubInvalidPollingTemplate();
+            _validTemplate = new StubValidPollingTemplate();
+            _invalidTemplate = new StubInvalidPollingTemplate();
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 // Assert
                 Assert.NotNull(message);
                 Assert.Equal("Message", message);
-                this._cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Cancel();
 
                 return null;
             }
@@ -42,10 +42,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             public void ThenStartPollingSucceeds()
             {
                 // Arrange
-                base._cancellationTokenSource = new CancellationTokenSource();
+                _cancellationTokenSource = new CancellationTokenSource();
 
                 // Act
-                base._validTemplate.Start(AssertMessageReceived, base._cancellationTokenSource.Token);
+                _validTemplate.Start(AssertMessageReceived, _cancellationTokenSource.Token);
             }
         }
 
@@ -54,20 +54,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         /// </summary>
         public class GivenPollingReceiverFails : GivenPollingReceiverFacts
         {
-            private Task<InternalMessage> AssertMessageReceived(string message, CancellationToken cancellationToken)
-            {
-                return null;
-            }
-
             [Fact]
             public void ThenTemplateFailsWithZeroPollingInterval()
             {
                 // Arrange
-                base._cancellationTokenSource = new CancellationTokenSource();
+                _cancellationTokenSource = new CancellationTokenSource();
 
                 // Act
                 Assert.Throws<ApplicationException>(
-                    () => base._invalidTemplate.Start(AssertMessageReceived, base._cancellationTokenSource.Token));
+                    () => _invalidTemplate.Start((message, token) => null, _cancellationTokenSource.Token));
             }
         }
     }

@@ -6,10 +6,8 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Common;
@@ -29,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         public GivenInExceptionDecoratorStepFacts()
         {
-            this._mockedStep = new Mock<IStep>();        
+            _mockedStep = new Mock<IStep>();        
 
             ResetStep();
         }
@@ -126,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void InsertInMessage(InMessage inMessage)
             {
-                using (var context = GetDataStoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     context.InMessages.Add(inMessage);
                     context.SaveChanges();
@@ -135,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertInMessage(string messageId, Action<InMessage> assertAction)
             {
-                using (var context = GetDataStoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     InMessage inMessage = context.InMessages
                         .FirstOrDefault(e => e.EbmsMessageId.Equals(messageId));
@@ -146,8 +144,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected void SetupMockedStep(AS4Exception as4Exception)
         {
-            this._mockedStep = new Mock<IStep>();
-            this._mockedStep
+            _mockedStep = new Mock<IStep>();
+            _mockedStep
                 .Setup(s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
                 .Throws(as4Exception);
         }
@@ -162,7 +160,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected void ResetStep()
         {
-            this._step = new InExceptionStepDecorator(this._mockedStep.Object);
+            _step = new InExceptionStepDecorator(this._mockedStep.Object);
         }
     }
 }

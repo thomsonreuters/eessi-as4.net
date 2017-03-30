@@ -7,7 +7,6 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         public GivenInternalMessageFacts()
         {
-            this._internalMessage = new InternalMessage();
+            _internalMessage = new InternalMessage();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
@@ -35,13 +34,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var memoryStream = new MemoryStream();
-                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(location: string.Empty)}};
-                base._internalMessage = new InternalMessage(submitMessage);
+                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
+                _internalMessage = new InternalMessage(submitMessage);
+
                 // Act
-                base._internalMessage.AddAttachments((Payload payload) => memoryStream);
+                _internalMessage.AddAttachments(payload => memoryStream);
+
                 // Assert
-                Assert.NotNull(base._internalMessage.AS4Message.Attachments);
-                Assert.Equal(memoryStream, base._internalMessage.AS4Message.Attachments.First().Content);
+                Assert.NotNull(_internalMessage.AS4Message.Attachments);
+                Assert.Equal(memoryStream, _internalMessage.AS4Message.Attachments.First().Content);
             }
 
             [Fact]
@@ -51,25 +52,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 string messageId = Guid.NewGuid().ToString();
                 var as4Message = new AS4Message();
                 as4Message.UserMessages.Add(new UserMessage(messageId));
-                base._internalMessage = new InternalMessage(as4Message);
+                _internalMessage = new InternalMessage(as4Message);
+
                 // Act
-                string[] messageIds = base._internalMessage.AS4Message.MessageIds;
+                string[] messageIds = _internalMessage.AS4Message.MessageIds;
+
                 // Assert
                 Assert.NotNull(messageIds);
                 Assert.Equal(messageId, messageIds.First());
-            }
-
-            [Fact]
-            public void ThenHasAttachmentsIsCorrectTrue()
-            {
-                // Arrange
-                var as4Message = new AS4Message();
-                as4Message.Attachments.Add(new Attachment(id: "attachment-id"));
-                base._internalMessage = new InternalMessage(as4Message);
-                // Act
-                bool hasAttachments = base._internalMessage.AS4Message.HasAttachments;
-                // Assert
-                Assert.True(hasAttachments);
             }
 
             [Fact]
@@ -77,23 +67,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var as4Message = new AS4Message();
-                base._internalMessage = new InternalMessage(as4Message);
+                _internalMessage = new InternalMessage(as4Message);
+
                 // Act
-                bool hasAttachments = base._internalMessage.AS4Message.HasAttachments;
+                bool hasAttachments = _internalMessage.AS4Message.HasAttachments;
+
                 // Assert
                 Assert.False(hasAttachments);
             }
 
             [Fact]
-            public void ThenHasPayloadsIsCorrectTrue()
+            public void ThenHasAttachmentsIsCorrectTrue()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(location: string.Empty)}};
-                base._internalMessage = new InternalMessage(submitMessage);
+                var as4Message = new AS4Message();
+                as4Message.Attachments.Add(new Attachment("attachment-id"));
+                _internalMessage = new InternalMessage(as4Message);
+
                 // Act
-                bool hasPayloads = base._internalMessage.SubmitMessage.HasPayloads;
+                bool hasAttachments = _internalMessage.AS4Message.HasAttachments;
+
                 // Assert
-                Assert.True(hasPayloads);
+                Assert.True(hasAttachments);
             }
 
             [Fact]
@@ -101,37 +96,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var submitMessage = new SubmitMessage();
-                base._internalMessage = new InternalMessage(submitMessage);
+                _internalMessage = new InternalMessage(submitMessage);
+
                 // Act
-                bool hasPayloads = base._internalMessage.SubmitMessage.HasPayloads;
+                bool hasPayloads = _internalMessage.SubmitMessage.HasPayloads;
+
                 // Assert
                 Assert.False(hasPayloads);
             }
 
             [Fact]
-            public void ThenNoAttachmentsAreAddedWithZeroPayloads()
+            public void ThenHasPayloadsIsCorrectTrue()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage();
-                base._internalMessage = new InternalMessage(submitMessage);
-                // Act
-                base._internalMessage.AddAttachments((Payload payload) => new MemoryStream());
-                // Assert
-                Assert.False(base._internalMessage.AS4Message.HasAttachments);
-            }
+                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
+                _internalMessage = new InternalMessage(submitMessage);
 
-            [Fact]
-            public void ThenInternalMessageHasPrefixFromUserMessage()
-            {
-                // Arrange
-                var userMessage = new UserMessage("message-Id");
-                var as4Message = new AS4Message();
-                as4Message.UserMessages.Add(userMessage);
-                var internalMessage = new InternalMessage(as4Message);
                 // Act
-                string prefix = internalMessage.Prefix;
+                bool hasPayloads = _internalMessage.SubmitMessage.HasPayloads;
+
                 // Assert
-                Assert.Equal($"[{userMessage.MessageId}]", prefix);
+                Assert.True(hasPayloads);
             }
 
             [Fact]
@@ -142,10 +127,42 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 var as4Message = new AS4Message();
                 as4Message.SignalMessages.Add(signalMessage);
                 var internalMessage = new InternalMessage(as4Message);
+
                 // Act
                 string prefix = internalMessage.Prefix;
+
                 // Assert
                 Assert.Equal($"[{signalMessage.MessageId}]", prefix);
+            }
+
+            [Fact]
+            public void ThenInternalMessageHasPrefixFromUserMessage()
+            {
+                // Arrange
+                var userMessage = new UserMessage("message-Id");
+                var as4Message = new AS4Message();
+                as4Message.UserMessages.Add(userMessage);
+                var internalMessage = new InternalMessage(as4Message);
+
+                // Act
+                string prefix = internalMessage.Prefix;
+
+                // Assert
+                Assert.Equal($"[{userMessage.MessageId}]", prefix);
+            }
+
+            [Fact]
+            public void ThenNoAttachmentsAreAddedWithZeroPayloads()
+            {
+                // Arrange
+                var submitMessage = new SubmitMessage();
+                _internalMessage = new InternalMessage(submitMessage);
+
+                // Act
+                _internalMessage.AddAttachments(payload => new MemoryStream());
+
+                // Assert
+                Assert.False(_internalMessage.AS4Message.HasAttachments);
             }
         }
 
@@ -158,9 +175,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenGettingMessageIdsFailsWitEmptyAS4Message()
             {
                 // Arrange
-                base._internalMessage = new InternalMessage(new AS4Message());
+                _internalMessage = new InternalMessage(new AS4Message());
+
                 // Act
-                string[] messageIds = base._internalMessage.AS4Message.MessageIds;
+                string[] messageIds = _internalMessage.AS4Message.MessageIds;
+
                 // Assert
                 Assert.NotNull(messageIds);
                 Assert.Empty(messageIds);
@@ -170,18 +189,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenGettingMessageIdsFailsWithNullAS4Message()
             {
                 // Arrange
-                base._internalMessage = new InternalMessage(as4Message: null);
+                _internalMessage = new InternalMessage(as4Message: null);
+
                 // Act / Assert
-                Assert.Throws<NullReferenceException>(() => base._internalMessage.AS4Message.MessageIds);
+                Assert.Throws<NullReferenceException>(() => _internalMessage.AS4Message.MessageIds);
             }
 
             [Fact]
             public void ThenHasAttachmentsFailsWithNullAS4Message()
             {
                 // Arrange
-                base._internalMessage = new InternalMessage(as4Message: null);
+                _internalMessage = new InternalMessage(as4Message: null);
+
                 // Act / Assert
-                Assert.Throws<NullReferenceException>(() => base._internalMessage.AS4Message.HasAttachments);
+                Assert.Throws<NullReferenceException>(() => _internalMessage.AS4Message.HasAttachments);
             }
         }
     }

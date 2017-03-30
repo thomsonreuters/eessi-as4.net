@@ -7,7 +7,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Factories
 {
     /// <summary>
-    /// Testing <see cref="UserMessageFactory"/>
+    /// Testing <see cref="UserMessageFactory" />
     /// </summary>
     public class GivenUserMessageFactoryFacts
     {
@@ -17,9 +17,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories
             public void ThenFactoryCreatesDefaultUserMessage()
             {
                 // Arrange
-                SendingProcessingMode pmode = base.CreatePopulatedSendingPMode();
+                SendingProcessingMode pmode = CreatePopulatedSendingPMode();
+
                 // Act
                 UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
+
                 // Assert
                 Assert.NotNull(userMessage.Sender);
                 Assert.NotNull(userMessage.Receiver);

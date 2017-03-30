@@ -7,7 +7,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Security.Repositories
 {
     /// <summary>
-    /// Testing <see cref="KeyInfoRepository"/>
+    /// Testing <see cref="KeyInfoRepository" />
     /// </summary>
     public class GivenKeyInfoRepositoryFacts
     {
@@ -17,14 +17,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Repositories
             public void ThenRepositoryGetsCertificate()
             {
                 // Arrange
-                var binarySecurityTokenReference = new BinarySecurityTokenReference();
-                binarySecurityTokenReference.Certificate = new X509Certificate2();
+                var binarySecurityTokenReference = new BinarySecurityTokenReference
+                {
+                    Certificate = new X509Certificate2()
+                };
                 var keyInfo = new KeyInfo();
                 keyInfo.AddClause(binarySecurityTokenReference);
 
                 var repository = new KeyInfoRepository(keyInfo);
+
                 // Act
                 X509Certificate2 certificate = repository.GetCertificate();
+
                 // Assert
                 Assert.NotNull(certificate);
                 Assert.Equal(binarySecurityTokenReference.Certificate, certificate);
@@ -40,8 +44,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Repositories
                 var keyInfo = new KeyInfo();
                 keyInfo.AddClause(new BinarySecurityTokenReference());
                 var repository = new KeyInfoRepository(keyInfo);
+
                 // Act
                 X509Certificate2 certificate = repository.GetCertificate();
+
                 // Assert
                 Assert.Null(certificate);
             }

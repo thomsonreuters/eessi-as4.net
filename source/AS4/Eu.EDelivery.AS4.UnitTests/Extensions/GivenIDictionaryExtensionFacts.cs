@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Xunit;
@@ -17,65 +16,69 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
 
         public GivenIDictionaryExtensionFacts()
         {
-            this._dictionary = new Dictionary<string, string> {[this._key] = this._value};
+            _dictionary = new Dictionary<string, string> {[_key] = _value};
         }
 
         /// <summary>
         /// Testing if the IDictionaryExtensions succeeds
         /// </summary>
-        public class GivenIDictionaryExtesionSucceeds
-            : GivenIDictionaryExtensionFacts
+        public class GivenIDictionaryExtesionSucceeds : GivenIDictionaryExtensionFacts
         {
             [Fact]
             public void ThenDemoteSucceeds()
             {
                 // Act
-                this._dictionary.Demote(this._key);
+                _dictionary.Demote(_key);
+
                 // Assert
-                Assert.DoesNotContain(
-                    this._dictionary.Keys,
-                    k => k.Equals(this._key));
+                Assert.DoesNotContain(_dictionary.Keys, k => k.Equals(_key));
             }
 
             [Fact]
             public void ThenFlattenSucceeds()
             {
                 // Act
-                string result = this._dictionary.Flatten();
+                string result = _dictionary.Flatten();
+
                 // Assert
-                Assert.Equal($"{this._key}:{this._value}", result);
+                Assert.Equal($"{_key}:{_value}", result);
             }
 
             [Fact]
             public void ThenMergeSucceeds()
             {
                 // Arrange
-                string extraValue = "$extra-value$";
-                string newKey = "$new-key$";
+                const string extraValue = "$extra-value$";
+                const string newKey = "$new-key$";
+
                 // Act
-                this._dictionary.Merge(this._key, extraValue);
-                this._dictionary.Merge(newKey, extraValue);
+                _dictionary.Merge(_key, extraValue);
+                _dictionary.Merge(newKey, extraValue);
+
                 // Assert
-                Assert.Equal(this._dictionary[this._key], extraValue);
-                Assert.Equal(this._dictionary[newKey], extraValue);
+                Assert.Equal(_dictionary[_key], extraValue);
+                Assert.Equal(_dictionary[newKey], extraValue);
             }
 
             [Fact]
             public void ThenReadMandatoryPropertySucceeds()
             {
                 // Act
-                string value = this._dictionary.ReadMandatoryProperty(this._key);
+                string value = _dictionary.ReadMandatoryProperty(_key);
+
                 // Assert
-                Assert.Same(this._value, value);
+                Assert.Same(_value, value);
             }
 
             [Fact]
             public void ThenReadOptionalPropertySucceeds()
             {
                 // Arrange
-                string defaultValue = "$default$";
+                const string defaultValue = "$default$";
+
                 // Act
-                string value = this._dictionary.ReadOptionalProperty("doesn't exist", defaultValue);
+                string value = _dictionary.ReadOptionalProperty("doesn't exist", defaultValue);
+
                 // Assert
                 Assert.Same(defaultValue, value);
             }
@@ -84,17 +87,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
         /// <summary>
         /// Testing if the IDictionaryExtensions fails
         /// </summary>
-        public class GivenIDictionaryExtensionsFails
-            : GivenIDictionaryExtensionFacts
+        public class GivenIDictionaryExtensionsFails : GivenIDictionaryExtensionFacts
         {
             [Fact]
             public void ThenReadMandatoryPropertyFails()
             {
                 // Arrange
-                string doesntExistedKey = "$doesn't existed key$";
+                const string doesntExistedKey = "$doesn't existed key$";
+
                 // Act / Assert
-                Assert.Throws<AS4Exception>(
-                    () => this._dictionary.ReadMandatoryProperty(doesntExistedKey));
+                Assert.Throws<AS4Exception>(() => _dictionary.ReadMandatoryProperty(doesntExistedKey));
             }
         }
     }

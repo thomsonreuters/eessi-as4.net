@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         public GivenServiceFacts()
         {
-            this._service = new Service();
+            _service = new Service();
         }
 
         /// <summary>
@@ -24,10 +24,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenGetHashCodeSucceeds()
             {
                 // Arrange
-                this._service.Value = "Service Name";
-                this._service.Type = "Service Type";
+                _service.Value = "Service Name";
+                _service.Type = "Service Type";
+
                 // Act
-                int hashCode = this._service.GetHashCode();
+                int hashCode = _service.GetHashCode();
+
                 // Assert
                 Assert.False(hashCode == 0);
             }
@@ -59,11 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenTwoServicesAreEqualFails()
             {
                 // Arrange
-                var serviceA = new Service
-                {
-                    Value = "Service Name",
-                    Type = "Service Type"
-                };
+                var serviceA = new Service {Value = "Service Name", Type = "Service Type"};
 
                 // Act
                 bool isEqual = serviceA.Equals(null);

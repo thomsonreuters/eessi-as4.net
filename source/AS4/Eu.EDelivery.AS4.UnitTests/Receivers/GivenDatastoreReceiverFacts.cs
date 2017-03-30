@@ -24,10 +24,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         public GivenDatastoreReceiverFacts()
         {
-            this._receiver = new DatastoreReceiver(
-                storeExpression: () => new DatastoreContext(base.Options),
-                findExpression: x => x.OutMessages.Where(m => m.Operation == Operation.ToBeSent),
-                updatedOperation: Operation.Sending);
+            _receiver = new DatastoreReceiver(
+                () => new DatastoreContext(Options),
+                x => x.OutMessages.Where(m => m.Operation == Operation.ToBeSent),
+                Operation.Sending);
 
             SeedDataStoreWithOutMessage();
         }
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         private void SeedDataStoreWithOutMessage()
         {
             // Insert the seed data that is expected by all test methods
-            using (var context = new DatastoreContext(base.Options))
+            using (var context = new DatastoreContext(Options))
             {
                 context.OutMessages.Add(CreateStubOutMessage());
                 context.SaveChanges();
@@ -44,11 +44,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private OutMessage CreateStubOutMessage()
         {
-            this._pmode = new SendingProcessingMode();
+            _pmode = new SendingProcessingMode();
             return new OutMessage
             {
                 Operation = Operation.ToBeSent,
-                PMode = AS4XmlSerializer.ToString(this._pmode),
+                PMode = AS4XmlSerializer.Serialize(_pmode),
                 MessageBody = new byte[0]
             };
         }
@@ -63,20 +63,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 // Arrange
                 IDictionary<string, string> properties = CreateDefaultDatastoreReceiverProperties();
+
                 // Act
-                this._receiver.Configure(properties);
+                _receiver.Configure(properties);
+
                 // Assert
                 Assert.Same(properties, properties);
             }
 
-            private IDictionary<string, string> CreateDefaultDatastoreReceiverProperties()
+            private static IDictionary<string, string> CreateDefaultDatastoreReceiverProperties()
             {
-                return new ConcurrentDictionary<string, string>()
+                return new ConcurrentDictionary<string, string>
                 {
                     ["Table"] = "OutMessages",
                     ["Field"] = "Operation",
                     ["Value"] = "ToBeSend",
-                    ["Update"] = "Sending",
+                    ["Update"] = "Sending"
                 };
             }
 
@@ -85,13 +87,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 // Arrange
                 var source = new CancellationTokenSource();
+
                 // Act
-                base._receiver.StartReceiving(
-                    (message, token) => AssertOnReceivedMessage(message, source), source.Token);
+                _receiver.StartReceiving((message, token) => AssertOnReceivedMessage(message, source), source.Token);
             }
 
-            private Task<InternalMessage> AssertOnReceivedMessage(
-                ReceivedMessage message, CancellationTokenSource source)
+            private static Task<InternalMessage> AssertOnReceivedMessage(
+                ReceivedMessage message,
+                CancellationTokenSource source)
             {
                 // Assert
                 Assert.NotNull(message);

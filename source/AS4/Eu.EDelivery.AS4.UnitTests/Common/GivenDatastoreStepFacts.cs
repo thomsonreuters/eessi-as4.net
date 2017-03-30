@@ -119,9 +119,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         [Fact]
         public async Task ThenExecuteStepSucceedsAsync()
         {
-            // Before
-            if (Step == null) return;
-
             // Arrange
             AS4Message message = new AS4MessageBuilder().Build();
             var internalMessage = new InternalMessage(message);
@@ -136,9 +133,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         [Fact]
         public async Task ThenExecuteStepUpdatesAsErrorAsync()
         {
-            // Before
-            if (Step == null) return;
-
             // Arrange
             SignalMessage errorMessage = GetError();
 
@@ -158,9 +152,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         [Fact]
         public async Task ThenExecuteStepUpdatesAsReceiptAsync()
         {
-            // Before
-            if (Step == null) return;
-
             // Arrange
             SignalMessage receiptMessage = CreateReceipt();
             InternalMessage internalMessage = CreateInternalMessageWith(receiptMessage);

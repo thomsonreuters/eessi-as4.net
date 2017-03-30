@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -11,7 +10,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
     /// <summary>
-    /// Testing <see cref="ReceptionAwarenessTransformer"/>
+    /// Testing <see cref="ReceptionAwarenessTransformer" />
     /// </summary>
     public class GivenReceptionAwarenessTransformerFacts
     {
@@ -24,9 +23,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var awareness = new ReceptionAwareness();
                 var receivedMessage = new ReceivedEntityMessage(awareness);
                 var transformer = new ReceptionAwarenessTransformer();
+
                 // Act
-                InternalMessage internalMessage = await transformer.
-                    TransformAsync(receivedMessage, CancellationToken.None);
+                InternalMessage internalMessage = await transformer.TransformAsync(
+                                                      receivedMessage,
+                                                      CancellationToken.None);
+
                 // Assert
                 Assert.Equal(awareness, internalMessage.ReceptionAwareness);
             }
@@ -38,8 +40,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransformFailsWithoutReceivedEntityMessageAsync()
             {
                 // Arrange
-                var receivedMessage = new ReceivedMessage(Stream.Null, String.Empty);
+                var receivedMessage = new ReceivedMessage(Stream.Null, string.Empty);
                 var transformer = new ReceptionAwarenessTransformer();
+
                 // Act / Assert
                 await Assert.ThrowsAsync<AS4Exception>(
                     () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
@@ -52,6 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var entity = new InMessage();
                 var receivedMessage = new ReceivedEntityMessage(entity);
                 var transformer = new ReceptionAwarenessTransformer();
+
                 // Act / Assert
                 await Assert.ThrowsAsync<AS4Exception>(
                     () => transformer.TransformAsync(receivedMessage, CancellationToken.None));

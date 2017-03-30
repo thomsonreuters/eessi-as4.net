@@ -13,7 +13,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
     /// <summary>
-    /// Testing <see cref="NotifyUpdateInMessageDatastoreStep"/>
+    /// Testing <see cref="NotifyUpdateInMessageDatastoreStep" />
     /// </summary>
     public class GivenNotifyOutUpdateDatastoreStepFacts : GivenDatastoreFacts
     {
@@ -21,50 +21,56 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         public GivenNotifyOutUpdateDatastoreStepFacts()
         {
-            this._step = new NotifyUpdateOutMessageDatastoreStep();
+            _step = new NotifyUpdateOutMessageDatastoreStep();
         }
 
         public class GivenValidArguments : GivenNotifyOutUpdateDatastoreStepFacts
         {
-            [Theory, InlineData("shared-id")]
+            [Theory]
+            [InlineData("shared-id")]
             public async Task ThenExecuteStepSucceedsWithValidNotifyMessageAsync(string sharedId)
             {
                 // Arrange
                 InsertDefaultOutMessage(sharedId);
-                var notifyMessage = CreateNotifyMessage(sharedId);
+                NotifyMessageEnvelope notifyMessage = CreateNotifyMessage(sharedId);
                 var internalMessage = new InternalMessage(notifyMessage);
+
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                AssertOutMessage(notifyMessage.MessageInfo.MessageId, m =>
-                {
-                    Assert.Equal(Operation.Notified, m.Operation);
-                    Assert.Equal(OutStatus.Notified, m.Status);
-                });
+                AssertOutMessage(
+                    notifyMessage.MessageInfo.MessageId,
+                    m =>
+                    {
+                        Assert.Equal(Operation.Notified, m.Operation);
+                        Assert.Equal(OutStatus.Notified, m.Status);
+                    });
             }
 
             private void InsertDefaultOutMessage(string sharedId)
             {
-                OutMessage outMessage = CreateOutMessage(sharedId);
-                outMessage.Operation = Operation.Notifying;
-                outMessage.Status = OutStatus.Ack;
-                base.InsertOutMessage(outMessage);
+                var outMessage = new OutMessage
+                {
+                    EbmsMessageId = sharedId,
+                    Operation = Operation.Notifying,
+                    Status = OutStatus.Ack
+                };
+                InsertOutMessage(outMessage);
             }
 
             private static NotifyMessageEnvelope CreateNotifyMessage(string id)
             {
-                var msgInfo = new MessageInfo() { MessageId = id };
+                var msgInfo = new MessageInfo {MessageId = id};
 
                 return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = new DatastoreContext(Options))
                 {
-                    OutMessage outMessage = context.OutMessages
-                        .FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
+                    OutMessage outMessage = context.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
                     assertAction(outMessage);
                 }
             }
@@ -72,16 +78,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         protected void InsertOutMessage(OutMessage outMessage)
         {
-            using (var context = new DatastoreContext(base.Options))
+            using (var context = new DatastoreContext(Options))
             {
                 context.OutMessages.Add(outMessage);
                 context.SaveChanges();
             }
-        }
-
-        private static OutMessage CreateOutMessage(string id)
-        {
-            return new OutMessage { EbmsMessageId = id };
         }
     }
 }
