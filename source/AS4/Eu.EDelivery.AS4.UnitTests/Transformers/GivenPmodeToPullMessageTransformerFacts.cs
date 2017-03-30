@@ -37,11 +37,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             // Arrange
             const string expectedMpc = "expected-mpc";
-            var transformer = new PModeToPullMessageTransformer();
-            SendingProcessingMode expectedSendingPMode = new ValidStubSendingPModeFactory().Create("expected-id");
-            expectedSendingPMode.MessagePackaging.Mpc = expectedMpc;
-
+            SendingProcessingMode expectedSendingPMode = CreateAnonymousSendingPModeWith(expectedMpc);
             var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(expectedSendingPMode));
+
+            var transformer = new PModeToPullMessageTransformer();
 
             // Act
             InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
@@ -50,6 +49,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var actualSignalMessage = message.AS4Message.PrimarySignalMessage as PullRequest;
             Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
             Assert.Equal(expectedSendingPMode.Id, message.AS4Message.SendingPMode.Id);
+        }
+
+        private static SendingProcessingMode CreateAnonymousSendingPModeWith(string expectedMpc)
+        {
+            SendingProcessingMode expectedSendingPMode = new ValidStubSendingPModeFactory().Create("expected-id");
+            expectedSendingPMode.MessagePackaging.Mpc = expectedMpc;
+
+            return expectedSendingPMode;
         }
 
         /// <summary>

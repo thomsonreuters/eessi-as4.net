@@ -230,12 +230,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         protected SubmitMessage CreatePopulatedSubmitMessage()
         {
-            return AS4XmlSerializer.Deserialize<SubmitMessage>(Properties.Resources.submitmessage);
+            return AS4XmlSerializer.FromStream<SubmitMessage>(Properties.Resources.submitmessage);
         }
 
         protected SendingProcessingMode CreatePopulatedSendingPMode()
         {
-            return AS4XmlSerializer.Deserialize<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
+            return AS4XmlSerializer.FromStream<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
         }
     }
 }

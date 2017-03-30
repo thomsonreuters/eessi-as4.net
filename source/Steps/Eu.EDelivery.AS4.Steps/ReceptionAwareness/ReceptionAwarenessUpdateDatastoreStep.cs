@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             string messageId = this._receptionAwareness.InternalMessageId;
             OutMessage outMessage = repository.GetOutMessageById(messageId);
-            var pmode = AS4XmlSerializer.Deserialize<SendingProcessingMode>(outMessage.PMode);
+            var pmode = AS4XmlSerializer.FromStream<SendingProcessingMode>(outMessage.PMode);
 
             var builder = new AS4MessageBuilder()
                 .WithSendingPMode(pmode)
