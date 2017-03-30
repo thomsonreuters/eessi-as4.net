@@ -12,7 +12,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
@@ -28,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         public GivenAS4MessageTransformerFacts()
         {
-            this._transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
+            _transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
 
             CreateAS4Message();
             CreateAttachment();
@@ -37,31 +36,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private void CreateAS4Message()
         {
-            var userMessage = new UserMessage(messageId: "message-id")
+            var userMessage = new UserMessage("message-id")
             {
                 Receiver = new Party("Receiver", new PartyId()),
                 Sender = new Party("Sender", new PartyId())
             };
 
-            this._as4Message = new AS4MessageBuilder()
-                .WithSendingPMode(new SendingProcessingMode())
-                .WithUserMessage(userMessage)
-                .Build();
+            _as4Message =
+                new AS4MessageBuilder().WithSendingPMode(new SendingProcessingMode())
+                                       .WithUserMessage(userMessage)
+                                       .Build();
 
-            this._as4Message.ContentType = Constants.ContentTypes.Soap;
+            _as4Message.ContentType = Constants.ContentTypes.Soap;
         }
 
         private void CreateAttachment()
         {
-            this._attachment = new Attachment(id: "attachment-id")
-            {
-                Content = new MemoryStream(),
-                ContentType = "image/jpeg"
-            };
+            _attachment = new Attachment("attachment-id") {Content = new MemoryStream(), ContentType = "image/jpeg"};
 
             var xmlSerializer = new XmlSerializer(typeof(string));
-            xmlSerializer.Serialize(this._attachment.Content, "<Root></Root>");
-            this._attachment.Content.Position = 0;
+            xmlSerializer.Serialize(_attachment.Content, "<Root></Root>");
+            _attachment.Content.Position = 0;
         }
 
         protected MemoryStream WriteAS4MessageToStream(AS4Message as4Message)
@@ -86,11 +81,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransfromSuceedsWithSoapdAS4StreamAsync()
             {
                 // Arrange
-                MemoryStream memoryStream = base.WriteAS4MessageToStream(base._as4Message);
+                MemoryStream memoryStream = WriteAS4MessageToStream(_as4Message);
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
+
                 // Act
-                InternalMessage internalMessage = await base._transformer
-                    .TransformAsync(receivedMessage, CancellationToken.None);
+                InternalMessage internalMessage = await _transformer.TransformAsync(
+                                                      receivedMessage,
+                                                      CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(internalMessage);
                 Assert.NotNull(internalMessage.AS4Message);
@@ -107,13 +105,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {
                 // Arrange
-                base._as4Message.UserMessages = new[] {new UserMessage("message-id")};
-                MemoryStream memoryStream = base.WriteAS4MessageToStream(base._as4Message);
+                _as4Message.UserMessages = new[] {new UserMessage("message-id")};
+                MemoryStream memoryStream = WriteAS4MessageToStream(_as4Message);
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
+
                 // Act / Assert
                 await Assert.ThrowsAsync<AutoMapperMappingException>(
-                    () => base._transformer
-                        .TransformAsync(receivedMessage, CancellationToken.None));
+                    () => _transformer.TransformAsync(receivedMessage, CancellationToken.None));
             }
         }
     }

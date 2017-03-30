@@ -150,7 +150,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         }
 
         /// <summary>
-        /// Create a <see cref="UserMessage"/> based on the configured Id's.
+        /// Create a <see cref="UserMessage" /> based on the configured Id's.
         /// </summary>
         /// <returns></returns>
         protected UserMessage CreateUserMessage()
