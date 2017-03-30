@@ -1,10 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
@@ -22,35 +19,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         public GivenCompressPayloadsStepFacts()
         {
-            this._step = new CompressAttachmentsStep();
+            _step = new CompressAttachmentsStep();
         }
 
         protected Attachment CreateAttachment()
         {
-            return new Attachment(id: "attachment-id")
-            {
-                Content = new MemoryStream()
-            };
+            return new Attachment("attachment-id") {Content = new MemoryStream()};
         }
 
         /// <summary>
         /// Testing if the Transmitter succeeds
         /// </summary>
-        public class GivenCompressPayloadsStepSucceeds
-            : GivenCompressPayloadsStepFacts
+        public class GivenCompressPayloadsStepSucceeds : GivenCompressPayloadsStepFacts
         {
             [Fact]
             public void ThenTransmitMessageSucceeds()
             {
                 // Arrange
-                AS4Message message = new AS4MessageBuilder()
-                    .WithAttachment(base.CreateAttachment())
-                    .Build();
+                AS4Message message = new AS4MessageBuilder().WithAttachment(CreateAttachment()).Build();
                 var internalMessage = new InternalMessage(message);
+
                 // Act
-                Task<StepResult> result = this._step.ExecuteAsync(
-                    internalMessage,
-                    CancellationToken.None);
+                Task<StepResult> result = _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result);
             }

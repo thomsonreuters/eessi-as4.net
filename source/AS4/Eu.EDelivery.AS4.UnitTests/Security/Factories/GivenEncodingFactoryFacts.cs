@@ -4,17 +4,25 @@ using System.Xml;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Factories;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Encodings;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Factories
 {
     /// <summary>
-    /// Testing <see cref="EncodingFactory"/>
+    /// Testing <see cref="EncodingFactory" />
     /// </summary>
     public class GivenEncodingFactoryFacts
     {
+        private static readonly FieldInfo Mgf1HashProperty;
+
+        static GivenEncodingFactoryFacts()
+        {
+            Mgf1HashProperty = typeof(OaepEncoding).GetField(
+                "mgf1Hash",
+                BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.NonPublic);
+        }
+
         public class GivenValidArguments : GivenEncodingFactoryFacts
         {
             [Fact]
@@ -22,6 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Factories
             {
                 // Act
                 OaepEncoding encoding = EncodingFactory.Instance.Create();
+
                 // Assert
                 Assert.Equal("RSA/OAEPPadding", encoding.AlgorithmName);
                 AssertMgf1Hash(encoding, "SHA-1");
@@ -32,8 +41,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Factories
             {
                 // Arrange
                 const string algorithmName = "http://www.w3.org/2001/04/xmlenc#sha256";
+
                 // Act
                 OaepEncoding encoding = EncodingFactory.Instance.Create(algorithmName);
+
                 // Assert
                 Assert.Equal("RSA/OAEPPadding", encoding.AlgorithmName);
                 AssertMgf1Hash(encoding, "SHA-1");
@@ -44,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Factories
             {
                 const string mgfAlgorithmName = "http://www.w3.org/2009/xmlenc11#mgf1sha256";
 
-                var encoding = EncodingFactory.Instance.Create(digestAlgorithm: null, mgfAlgorithm: mgfAlgorithmName);
+                OaepEncoding encoding = EncodingFactory.Instance.Create(null, mgfAlgorithmName);
 
                 // Assert
                 Assert.Equal("RSA/OAEPPadding", encoding.AlgorithmName);
@@ -61,9 +72,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Factories
                 xmlDocument.LoadXml(Properties.Resources.EncryptedKeyWithMGFSpec);
 
                 // Act
-                var as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(xmlDocument);
+                AS4EncryptedKey as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(xmlDocument);
 
-                var encoding = EncodingFactory.Instance.Create(as4EncryptedKey.GetDigestAlgorithm(),
+                OaepEncoding encoding = EncodingFactory.Instance.Create(
+                    as4EncryptedKey.GetDigestAlgorithm(),
                     as4EncryptedKey.GetMaskGenerationFunction());
 
                 Assert.NotNull(encoding);
@@ -71,23 +83,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Factories
             }
         }
 
-        private static readonly FieldInfo mgf1HashProperty;
-
-        static GivenEncodingFactoryFacts()
-        {
-            mgf1HashProperty = typeof(OaepEncoding).GetField("mgf1Hash",
-                BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.NonPublic);
-        }
-
-
         protected void AssertMgf1Hash(OaepEncoding encoding, string expectedValue)
         {
-            if (mgf1HashProperty == null)
-            {
-                throw new ArgumentException("Field mgf1Hash could not be found in OaepEncoding type.");
-            }
+            if (Mgf1HashProperty == null) throw new ArgumentException("Field mgf1Hash could not be found in OaepEncoding type.");
 
-            var digest = mgf1HashProperty.GetValue(encoding) as IDigest;
+            var digest = Mgf1HashProperty.GetValue(encoding) as IDigest;
             Assert.True(StringComparer.OrdinalIgnoreCase.Equals(expectedValue, digest.AlgorithmName));
         }
     }

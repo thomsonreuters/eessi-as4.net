@@ -14,14 +14,13 @@ using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     /// <summary>
-    /// Testing <see cref="CreateAS4ReceiptStep"/>
+    /// Testing <see cref="CreateAS4ReceiptStep" />
     /// </summary>
     public class GivenCreateAS4ReceiptStepFacts
     {
@@ -31,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public GivenCreateAS4ReceiptStepFacts()
         {
-            this._step = new CreateAS4ReceiptStep();
+            _step = new CreateAS4ReceiptStep();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
@@ -42,8 +41,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 InternalMessage internalMessage = CreateDefaultInternalMessage();
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
                 Assert.NotEqual(result.InternalMessage, internalMessage);
@@ -55,8 +56,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 InternalMessage internalMessage = CreateDefaultInternalMessage();
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
                 var receiptMessage = result.InternalMessage.AS4Message.PrimarySignalMessage as Receipt;
@@ -69,8 +72,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 InternalMessage internalMessage = CreateDefaultInternalMessage();
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
                 Assert.False(result.InternalMessage.AS4Message.IsSigned);
@@ -82,8 +87,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 InternalMessage internalMessage = CreateSignedInternalMessage();
                 internalMessage.AS4Message.ReceivingPMode.ReceiptHandling.UseNNRFormat = true;
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
                 var receiptMessage = result.InternalMessage.AS4Message.PrimarySignalMessage as Receipt;
@@ -98,8 +105,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 InternalMessage internalMessage = CreateSignedInternalMessage();
                 internalMessage.AS4Message.ReceivingPMode.ReceiptHandling.UseNNRFormat = true;
+
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 var receiptMessage = result.InternalMessage.AS4Message.PrimarySignalMessage as Receipt;
                 SecurityHeader securityHeader = internalMessage.AS4Message.SecurityHeader;
@@ -108,16 +117,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AssertSignedReferences(receiptMessage, securityHeader);
             }
 
-            private void AssertSignedReferences(Receipt receiptMessage, SecurityHeader securityHeader)
+            private static void AssertSignedReferences(Receipt receiptMessage, SecurityHeader securityHeader)
             {
                 ArrayList cryptoReferences = securityHeader.GetReferences();
-                IEnumerable<Reference> receiptReferences = receiptMessage.NonRepudiationInformation
-                    .MessagePartNRInformation.Select(i => i.Reference);
+                IEnumerable<Reference> receiptReferences =
+                    receiptMessage.NonRepudiationInformation.MessagePartNRInformation.Select(i => i.Reference);
 
                 foreach (CryptoReference cryptoRef in cryptoReferences)
                 {
-                    Reference reference = receiptReferences
-                        .FirstOrDefault(r => r.URI.Equals(cryptoRef.Uri));
+                    Reference reference = receiptReferences.FirstOrDefault(r => r.URI.Equals(cryptoRef.Uri));
                     Assert.NotNull(reference);
                 }
             }
@@ -125,10 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected ReceivingProcessingMode GetReceivingPMode()
         {
-            return new ReceivingProcessingMode
-            {
-                ReceiptHandling = {UseNNRFormat = false}
-            };
+            return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false}};
         }
 
         protected InternalMessage CreateDefaultInternalMessage()
@@ -152,7 +157,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return internalMessage;
         }
 
-        private ISigningStrategy CreateSignStrategy(AS4Message as4Message)
+        private static ISigningStrategy CreateSignStrategy(AS4Message as4Message)
         {
             X509Certificate2 certificate = new StubCertificateRepository().GetDummyCertificate();
 

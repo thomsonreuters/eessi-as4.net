@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
@@ -19,7 +20,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     /// <summary>
-    /// Testing <see cref="ReceiveExceptionStepDecorator"/>
+    /// Testing <see cref="ReceiveExceptionStepDecorator" />
     /// </summary>
     public class GivenReceiveExceptionDecoratorStepFacts : GivenDatastoreFacts
     {
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var internalMessage = new InternalMessage();
 
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
@@ -65,26 +66,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 SetupCatchedStepWithException();
                 InitializeTestedStep();
-                InternalMessage internalMessage = this.CreateDefaultInternalMessage();
+                InternalMessage internalMessage = CreateDefaultInternalMessage();
 
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
                 Assert.NotNull(result.InternalMessage.AS4Message.ReceivingPMode);
             }
 
-            [Theory, InlineData("shared-message-id")]
+            [Theory]
+            [InlineData("shared-message-id")]
             public async Task ThenExecuteStepSucceedsWithInsertedInExceptionAsync(string messageId)
             {
                 // Arrange
                 SetupCatchedStepWithException(messageId);
                 InitializeTestedStep();
-                InternalMessage internalMessage = this.CreateDefaultInternalMessage();
+                InternalMessage internalMessage = CreateDefaultInternalMessage();
 
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertInException(messageId, Assert.NotNull);
@@ -96,11 +98,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 SetupCatchedStepWithException();
                 InitializeTestedStep();
-                InternalMessage internalMessage = this.CreateDefaultInternalMessage();
+                InternalMessage internalMessage = CreateDefaultInternalMessage();
                 internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
 
                 // Act
-                StepResult result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
@@ -110,7 +112,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private void AssertInException(string messageId, Action<InException> condition)
             {
-                using (var context = GetDataStoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     InException inException =
                         context.InExceptions.FirstOrDefault(e => e.EbmsRefToMessageId.Equals(messageId));
@@ -131,17 +133,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Act / Assert
                 await Assert.ThrowsAsync<AS4Exception>(
-                    () => base._step.ExecuteAsync(internalMessage, CancellationToken.None));
+                    () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
             }
         }
 
         private void SetupMockedCatchedStep()
         {
-            this._mockedCatchedStep = new Mock<IStep>();
+            _mockedCatchedStep = new Mock<IStep>();
 
-            this._mockedCatchedStep.Setup(
-                    s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
-                .Returns((InternalMessage m, CancellationToken c) => StepResult.SuccessAsync(m));
+            _mockedCatchedStep.Setup(s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
+                              .Returns((InternalMessage m, CancellationToken c) => StepResult.SuccessAsync(m));
         }
 
         protected ReceivingProcessingMode GetReceivingPMode()
@@ -166,15 +167,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected void SetupCatchedStepWithException(string messageId = "dummy-message-id")
         {
-            AS4Exception as4Exception =
-                AS4ExceptionBuilder.WithDescription("Testing AS4 Exception")
-                                   .WithPModeString(AS4XmlSerializer.Serialize(GetReceivingPMode()))
-                                   .WithMessageIds(messageId)
-                                   .Build();
+            AS4Exception as4Exception = AS4ExceptionBuilder
+                .WithDescription("Testing AS4 Exception")
+                .WithPModeString(AS4XmlSerializer.Serialize(GetReceivingPMode()))
+                .WithMessageIds(messageId)
+                .Build();
 
-            this._mockedCatchedStep.Setup(
-                    s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
-                .Throws(as4Exception);
+            _mockedCatchedStep.Setup(s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
+                              .Throws(as4Exception);
         }
     }
 }

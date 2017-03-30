@@ -4,7 +4,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
     /// <summary>
-    /// Testing <see cref="CollaborationInfo"/>
+    /// Testing <see cref="CollaborationInfo" />
     /// </summary>
     public class GivenCollaborationInfoFacts
     {
@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Act
                 var collaborationInfo = new CollaborationInfo();
+
                 // Assert
                 Assert.NotNull(collaborationInfo);
                 Assert.Equal(DefaultAction, collaborationInfo.Action);
@@ -28,6 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Act
                 var collaborationInfo = new CollaborationInfo();
+
                 // Assert
                 Assert.NotNull(collaborationInfo);
                 Assert.NotNull(collaborationInfo.Service);

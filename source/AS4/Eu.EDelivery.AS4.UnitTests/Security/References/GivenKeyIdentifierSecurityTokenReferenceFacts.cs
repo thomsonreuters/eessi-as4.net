@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -7,17 +8,20 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Security.References
 {
     /// <summary>
-    /// Testing the <see cref="KeyIdentifierSecurityTokenReference"/>
+    /// Testing the <see cref="KeyIdentifierSecurityTokenReference" />
     /// </summary>
     public class GivenKeyIdentifierSecurityTokenReferenceFacts
     {
-        private readonly KeyIdentifierSecurityTokenReference _reference;        
+        private readonly KeyIdentifierSecurityTokenReference _reference;
 
         public GivenKeyIdentifierSecurityTokenReferenceFacts()
         {
-            var repository = new StubCertificateRepository();            
-            this._reference = new KeyIdentifierSecurityTokenReference(repository);
-            this._reference.Certificate = repository.GetDummyCertificate();
+            var repository = new StubCertificateRepository();
+
+            _reference = new KeyIdentifierSecurityTokenReference(repository)
+            {
+                Certificate = repository.GetDummyCertificate()
+            };
         }
 
         /// <summary>
@@ -26,21 +30,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         public class GivenValidArgumentsForGetXml : GivenKeyIdentifierSecurityTokenReferenceFacts
         {
             [Fact]
-            public void ThenGetXmlContainsSecurityTokenReference()
-            {
-                // Act
-                XmlElement xmlElement = base._reference.GetXml();
-                // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("wsse:SecurityTokenReference", xmlElement.Name);
-                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.NamespaceURI);
-            }
-
-            [Fact]
             public void ThenGetXmlContainsKeyIdentifier()
             {
                 // Act
-                XmlElement xmlElement = base._reference.GetXml();
+                XmlElement xmlElement = _reference.GetXml();
+
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.Equal("wsse:KeyIdentifier", xmlElement.FirstChild.Name);
@@ -51,7 +45,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             public void ThenGetXmlContainsKeyIdentifierEncodingTypeAttribute()
             {
                 // Act
-                XmlElement xmlElement = base._reference.GetXml();
+                XmlElement xmlElement = _reference.GetXml();
+
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.NotNull(xmlElement.FirstChild.Attributes);
@@ -60,10 +55,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             }
 
             [Fact]
+            public void ThenGetXmlContainsKeyIdentifierInnerText()
+            {
+                // Arrange
+                const string subjectKeyIdentifier = "hRmOyHw/oLIBBsGKp/L9qzCUZ1k=";
+
+                // Act
+                XmlElement xmlElement = _reference.GetXml();
+
+                // Assert
+                Assert.NotNull(xmlElement);
+                Assert.Equal(subjectKeyIdentifier, xmlElement.FirstChild.InnerText);
+            }
+
+            [Fact]
             public void ThenGetXmlContainsKeyIdentifierValueTypeAttribute()
             {
                 // Act
-                XmlElement xmlElement = base._reference.GetXml();
+                XmlElement xmlElement = _reference.GetXml();
+
                 // Assert
                 Assert.NotNull(xmlElement);
                 Assert.NotNull(xmlElement.FirstChild.Attributes);
@@ -72,16 +82,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             }
 
             [Fact]
-            public void ThenGetXmlContainsKeyIdentifierInnerText()
+            public void ThenGetXmlContainsSecurityTokenReference()
             {
-                // Arrange
-                const string subjectKeyIdentifier = "hRmOyHw/oLIBBsGKp/L9qzCUZ1k=";
                 // Act
-                XmlElement xmlElement = base._reference.GetXml();
+                XmlElement xmlElement = _reference.GetXml();
+
                 // Assert
                 Assert.NotNull(xmlElement);
-                Assert.Equal(subjectKeyIdentifier, xmlElement.FirstChild.InnerText);
-
+                Assert.Equal("wsse:SecurityTokenReference", xmlElement.Name);
+                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.NamespaceURI);
             }
         }
 
@@ -91,15 +100,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         public class GivenValidArgumentsForLoadXml : GivenKeyIdentifierSecurityTokenReferenceFacts
         {
             [Fact]
+            [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute", Justification = "Test for null")]
             public void ThenLoadXmlGetsCertificateFromXml()
             {
                 // Arrange                
-                XmlElement keyIdentifierXml = base._reference.GetXml();
-                base._reference.Certificate = null;                
+                XmlElement keyIdentifierXml = _reference.GetXml();
+                _reference.Certificate = null;
+
                 // Act
-                base._reference.LoadXml(keyIdentifierXml);
+                _reference.LoadXml(keyIdentifierXml);
+
                 // Assert
-                Assert.Equal(new StubCertificateRepository().GetDummyCertificate(), base._reference.Certificate);
+                Assert.Equal(new StubCertificateRepository().GetDummyCertificate(), _reference.Certificate);
             }
         }
     }

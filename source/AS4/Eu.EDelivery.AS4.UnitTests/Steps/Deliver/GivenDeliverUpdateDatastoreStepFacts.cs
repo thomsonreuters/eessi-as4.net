@@ -6,7 +6,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
@@ -14,24 +13,24 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
     /// <summary>
-    /// Testing <see cref="DeliverUpdateDatastoreStep"/>
+    /// Testing <see cref="DeliverUpdateDatastoreStep" />
     /// </summary>
     public class GivenDeliverUpdateDatastoreStepFacts : GivenDatastoreFacts
     {
-        private readonly DeliverUpdateDatastoreStep _step;
         private readonly string _messageId;
+        private readonly DeliverUpdateDatastoreStep _step;
 
         public GivenDeliverUpdateDatastoreStepFacts()
         {
-            this._messageId = "message-id";
-            this._step = new DeliverUpdateDatastoreStep();
+            _messageId = "message-id";
+            _step = new DeliverUpdateDatastoreStep();
 
             SeedDatastore();
         }
 
         private void SeedDatastore()
         {
-            using (var context = new DatastoreContext(base.Options))
+            using (var context = new DatastoreContext(Options))
             {
                 InMessage inMessage = CreateInMessage();
                 context.InMessages.Add(inMessage);
@@ -43,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             return new InMessage
             {
-                EbmsMessageId = this._messageId,
+                EbmsMessageId = _messageId,
                 Status = InStatus.Received,
                 Operation = Operation.ToBeDelivered
             };
@@ -55,20 +54,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             public async Task ThenExecuteMethodSucceedsWithValidUserMessageAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = base.CreateDefaultInternalMessage();
+                InternalMessage internalMessage = CreateDefaultInternalMessage();
+
                 // Act
-                StepResult result = await base._step
-                    .ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 AssertInMessages();
             }
 
             private void AssertInMessages()
             {
-                using (var context = new DatastoreContext(base.Options))
+                using (var context = new DatastoreContext(Options))
                 {
-                    InMessage inmessage = context.InMessages
-                        .FirstOrDefault(m => m.EbmsMessageId.Equals(this._messageId));
+                    InMessage inmessage = context.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(_messageId));
 
                     Assert.NotNull(inmessage);
                     Assert.Equal(InStatus.Delivered, inmessage.Status);
@@ -79,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         protected DeliverMessageEnvelope CreateDeliverMessage()
         {
-            return new DeliverMessageEnvelope(new MessageInfo() { MessageId = this._messageId }, new byte[] { }, "");
+            return new DeliverMessageEnvelope(new MessageInfo {MessageId = _messageId}, new byte[] {}, string.Empty);
         }
 
         protected InternalMessage CreateDefaultInternalMessage()

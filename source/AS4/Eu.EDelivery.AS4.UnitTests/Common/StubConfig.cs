@@ -12,17 +12,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// </summary>
     public class StubConfig : IConfig
     {
-        private IDictionary<string, string> _configuration;
-        private IDictionary<string, SendingProcessingMode> _sendingPModes;
-        private IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
         private static readonly StubConfig Singleton = new StubConfig();
-
-        public static IConfig Instance => Singleton;
-
-        /// <summary>
-        /// Verify if the Configuration is IsInitialized
-        /// </summary>
-        public bool IsInitialized => true;
+        private IDictionary<string, string> _configuration;
+        private IDictionary<string, ReceivingProcessingMode> _receivingPmodes;
+        private IDictionary<string, SendingProcessingMode> _sendingPModes;
 
         private StubConfig()
         {
@@ -33,37 +26,46 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         private void SetupSendingPModes()
         {
-            this._sendingPModes = new Dictionary<string, SendingProcessingMode>();
-            this._sendingPModes["01-send"] = AS4XmlSerializer
-                .Deserialize<SendingProcessingMode>(Properties.Resources.send_01);
+            _sendingPModes = new Dictionary<string, SendingProcessingMode>
+            {
+                ["01-send"] = AS4XmlSerializer.Deserialize<SendingProcessingMode>(Properties.Resources.send_01)
+            };
         }
 
         private void SetupReceivingPModes()
         {
-            this._receivingPmodes = new Dictionary<string, ReceivingProcessingMode>();
-            this._receivingPmodes["01-receive"] = AS4XmlSerializer
-                .Deserialize<ReceivingProcessingMode>(Properties.Resources.receive_01);
+            _receivingPmodes = new Dictionary<string, ReceivingProcessingMode>
+            {
+                ["01-receive"] = AS4XmlSerializer.Deserialize<ReceivingProcessingMode>(Properties.Resources.receive_01)
+            };
         }
 
         private void SetupConfiguration()
         {
-            this._configuration = new Dictionary<string, string>(
-                StringComparer.CurrentCultureIgnoreCase);
-            this._configuration["IdFormat"] = "{GUID}";
-            this._configuration["Provider"] = "Sqlite";
-            this._configuration["ConnectionString"] = @"Filename=database\messages.db";
-            this._configuration["CertificateStore"] = "My";
+            _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+            {
+                ["IdFormat"] = "{GUID}",
+                ["Provider"] = "Sqlite",
+                ["ConnectionString"] = @"Filename=database\messages.db",
+                ["CertificateStore"] = "My"
+            };
         }
+
+        public static IConfig Instance => Singleton;
+
+        /// <summary>
+        /// Verify if the Configuration is IsInitialized
+        /// </summary>
+        public bool IsInitialized => true;
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registerd Key for the Setting</param>
-        /// <param name="type">Specify the kind of the Setting</param>
         /// <returns></returns>
         public string GetSetting(string key)
         {
-            return this._configuration[key];
+            return _configuration[key];
         }
 
         /// <summary>
@@ -74,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
-            return this._sendingPModes[id];
+            return _sendingPModes[id];
         }
 
         /// <summary>
@@ -97,9 +99,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
         {
-            return this._receivingPmodes.Values;
+            return _receivingPmodes.Values;
         }
-        
+
         public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
             throw new NotImplementedException();

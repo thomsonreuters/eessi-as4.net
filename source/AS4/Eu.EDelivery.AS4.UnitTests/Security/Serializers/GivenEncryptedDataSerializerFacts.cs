@@ -10,7 +10,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Security.Serializers
 {
     /// <summary>
-    /// Testing <see cref="EncryptedDataSerializer"/>
+    /// Testing <see cref="EncryptedDataSerializer" />
     /// </summary>
     public class GivenEncryptedDataSerializerFacts
     {
@@ -28,8 +28,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Serializers
                 var xmlDocument = new XmlDocument();
                 xmlDocument.LoadXml(Properties.Resources.as4_encrypted_envelope);
                 var serializer = new EncryptedDataSerializer(xmlDocument);
+
                 // Act
                 IEnumerable<EncryptedData> encryptedDatas = serializer.SerializeEncryptedDatas();
+
                 // Assert
                 Assert.NotEmpty(encryptedDatas);
                 Assert.Equal(2, encryptedDatas.Count());
