@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="as4Message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static XmlDocument ToString(AS4Message as4Message, CancellationToken cancellationToken)
+        public static XmlDocument ToDocument(AS4Message as4Message, CancellationToken cancellationToken)
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 memoryStream.Position = 0;
 
                 string xml = Encoding.UTF8.GetString(memoryStream.ToArray());
-                return FromStream<T>(xml);
+                return FromString<T>(xml);
             }
         }
 
@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <typeparam name="T"></typeparam>
         /// <param name="xml"></param>
         /// <returns></returns>
-        public static T FromStream<T>(string xml) where T : class
+        public static T FromString<T>(string xml) where T : class
         {
             if (xml == null)
             {

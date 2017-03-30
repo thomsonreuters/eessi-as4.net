@@ -53,12 +53,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
             private static SubmitMessage CreatePopulatedSubmitMessage()
             {
-                return AS4XmlSerializer.Deserialize<SubmitMessage>(Properties.Resources.submitmessage);
+                return AS4XmlSerializer.FromString<SubmitMessage>(Properties.Resources.submitmessage);
             }
 
             private static SendingProcessingMode CreateaPopulatedSendingPMode()
             {
-                return AS4XmlSerializer.Deserialize<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
+                return AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
             }
         }
     }

@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             _sendingPModes = new Dictionary<string, SendingProcessingMode>
             {
-                ["01-send"] = AS4XmlSerializer.Deserialize<SendingProcessingMode>(Properties.Resources.send_01)
+                ["01-send"] = AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.send_01)
             };
         }
 
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             _receivingPmodes = new Dictionary<string, ReceivingProcessingMode>
             {
-                ["01-receive"] = AS4XmlSerializer.Deserialize<ReceivingProcessingMode>(Properties.Resources.receive_01)
+                ["01-receive"] = AS4XmlSerializer.FromString<ReceivingProcessingMode>(Properties.Resources.receive_01)
             };
         }
 

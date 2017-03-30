@@ -38,13 +38,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 InMessage inMessage = new InMessageBuilder(_mockedProvider.Object)
                     .WithAS4Message(as4Message)
                     .WithMessageUnit(messageUnit)
-                    .WithPModeString(AS4XmlSerializer.Serialize(as4Message.ReceivingPMode))
+                    .WithPModeString(AS4XmlSerializer.ToString(as4Message.ReceivingPMode))
                     .Build(CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(inMessage);
                 Assert.Equal(as4Message.ContentType, inMessage.ContentType);
-                Assert.Equal(AS4XmlSerializer.Serialize(as4Message.ReceivingPMode), inMessage.PMode);
+                Assert.Equal(AS4XmlSerializer.ToString(as4Message.ReceivingPMode), inMessage.PMode);
             }
 
             [Fact]
