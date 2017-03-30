@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -11,7 +12,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
     /// <summary>
-    /// Testing <see cref="NotifyUpdateOutExceptionDatastoreStep"/>
+    /// Testing <see cref="NotifyUpdateOutExceptionDatastoreStep" />
     /// </summary>
     public class GivenNotifyUpdateOutExceptionDatastoreStepFacts : GivenDatastoreFacts
     {
@@ -22,10 +23,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             {
                 // Arrange
                 OutException outException = CreateDefaultOutException();
-                base.InsertOutException(outException);
-                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo() { RefToMessageId = outException.EbmsRefToMessageId }, Status.Delivered, null, string.Empty);
-
-                var internalMessage = new InternalMessage(notifyMessage);
+                InsertOutException(outException);
+                InternalMessage internalMessage = CreateNotifyMessage(outException);
                 var step = new NotifyUpdateOutExceptionDatastoreStep();
 
                 // Act
@@ -37,19 +36,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private static OutException CreateDefaultOutException()
             {
-                return new OutException
-                {
-                    EbmsRefToMessageId = "ref-to-message-id",
-                    Operation = Operation.ToBeNotified,
-                };
+                return new OutException { EbmsRefToMessageId = "ref-to-message-id", Operation = Operation.ToBeNotified };
             }
 
-            private void AssertOutException(OutException previousOutException)
+            private static InternalMessage CreateNotifyMessage(OutException outException)
             {
-                using (var context = GetDataStoreContext())
+                var notifyMessage =
+                    new NotifyMessageEnvelope(
+                        new MessageInfo { RefToMessageId = outException.EbmsRefToMessageId },
+                        Status.Delivered,
+                        null,
+                        string.Empty);
+
+                return new InternalMessage(notifyMessage);
+            }
+
+            private void AssertOutException(ExceptionEntity previousOutException)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
                 {
-                    OutException outException = context.OutExceptions
-                        .FirstOrDefault(e => e.EbmsRefToMessageId.Equals(previousOutException.EbmsRefToMessageId));
+                    OutException outException =
+                        context.OutExceptions.FirstOrDefault(
+                            e => e.EbmsRefToMessageId.Equals(previousOutException.EbmsRefToMessageId));
 
                     Assert.NotNull(outException);
                     Assert.Equal(Operation.Notified, outException.Operation);
@@ -59,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         protected void InsertOutException(OutException outException)
         {
-            using (var context = GetDataStoreContext())
+            using (DatastoreContext context = GetDataStoreContext())
             {
                 context.OutExceptions.Add(outException);
                 context.SaveChanges();

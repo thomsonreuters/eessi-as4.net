@@ -7,16 +7,16 @@ using Eu.EDelivery.AS4.Steps.Receive.Rules;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Participant
 {
     /// <summary>
-    /// 
+    /// Stub implementation fo the <see cref="IPModeRuleVisitor"/>.
     /// </summary>
-    internal class StubPModeRuleVisitor : IPModeRuleVisitor
+    internal class Stub : IPModeRuleVisitor
     {
         private readonly ICollection<IPModeRule> _rules;
         private Action<PModeParticipant> _assertion;
 
-        public StubPModeRuleVisitor()
+        public Stub()
         {
-            this._rules = new Collection<IPModeRule>
+            _rules = new Collection<IPModeRule>
             {
                 new PModeIdRule(),
                 new PModePartyInfoRule(),
@@ -28,15 +28,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Participant
 
         public void Visit(PModeParticipant participant)
         {
-            foreach (IPModeRule rule in this._rules)
-                    participant.Points += rule.DeterminePoints(participant.PMode, participant.UserMessage);
+            foreach (IPModeRule rule in _rules) participant.Points += rule.DeterminePoints(participant.PMode, participant.UserMessage);
 
-            this._assertion?.Invoke(participant);
+            _assertion?.Invoke(participant);
         }
 
         public void SetAssert(Action<PModeParticipant> action)
         {
-            this._assertion = action;
+            _assertion = action;
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -26,17 +25,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var mockedContext = new Mock<IConfig>();
             CreateAS4Message();
 
-            this._step = new SignAS4MessageStep(new CertificateRepository(mockedContext.Object));
+            _step = new SignAS4MessageStep(new CertificateRepository(mockedContext.Object));
         }
 
         private void CreateAS4Message()
         {
-            this._message = new AS4Message
+            _message = new AS4Message
             {
-                SendingPMode = new SendingProcessingMode
-                {
-                    Security = new AS4.Model.PMode.Security {Signing = new AS4.Model.PMode.Signing()}
-                }
+                SendingPMode =
+                    new SendingProcessingMode {Security = new AS4.Model.PMode.Security {Signing = new Signing()}}
             };
         }
 
@@ -49,10 +46,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenMessageDontGetSignedWhenItsDisabledAsync()
             {
                 // Arrange
-                base._message.SendingPMode.Security.Signing.IsEnabled = false;
-                var internalMessage = new InternalMessage(base._message);
+                _message.SendingPMode.Security.Signing.IsEnabled = false;
+                var internalMessage = new InternalMessage(_message);
+
                 // Act
-                StepResult stepResult = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 SecurityHeader securityHeader = stepResult.InternalMessage.AS4Message.SecurityHeader;
                 Assert.NotNull(securityHeader);
@@ -64,8 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         /// <summary>
         /// Testing if the SigningTransmitter fails
         /// </summary>
-        public class GivenSigningStepFails
-            : GivenSigningAS4MessageStepFacts
+        public class GivenSigningStepFails : GivenSigningAS4MessageStepFacts
         {
             [Fact]
             public void ThenConfigureTransmitterFails()

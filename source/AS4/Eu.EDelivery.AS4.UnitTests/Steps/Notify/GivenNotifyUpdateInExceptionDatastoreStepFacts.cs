@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -13,27 +12,21 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
     /// <summary>
-    /// Testing <see cref="NotifyUpdateInExceptionDatastoreStep"/> 
+    /// Testing <see cref="NotifyUpdateInExceptionDatastoreStep" />
     /// </summary>
     public class GivenNotifyUpdateInExceptionDatastoreStepFacts : GivenDatastoreFacts
     {
-
         public class GivenValidArguments : GivenNotifyUpdateInExceptionDatastoreStepFacts
         {
+            
+
             [Fact]
             public async Task ThenUpdateDatastoreSucceedsWithValidNotifyMessageAsync()
             {
                 // Arrange
                 InException inException = CreateDefaultInException();
-                base.InsertInException(inException);
-
-
-                var msgInfo = new MessageInfo() { RefToMessageId = inException.EbmsRefToMessageId };
-
-                var notifyMessage = new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, String.Empty);
-
-
-                var internalMessage = new InternalMessage(notifyMessage);
+                InsertInException(inException);
+                InternalMessage internalMessage = CreateNotifyMessage(inException);
                 var step = new NotifyUpdateInExceptionDatastoreStep();
 
                 // Act
@@ -43,31 +36,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 AssertInException(inException);
             }
 
-            private void AssertInException(InException previousInException)
+            private static InException CreateDefaultInException()
             {
-                using (var context = new DatastoreContext(base.Options))
+                return new InException {EbmsRefToMessageId = "ref-to-message-id", Operation = Operation.ToBeNotified};
+            }
+
+            private static InternalMessage CreateNotifyMessage(ExceptionEntity inException)
+            {
+                var msgInfo = new MessageInfo {RefToMessageId = inException.EbmsRefToMessageId};
+
+                var notifyMessage = new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
+
+                return new InternalMessage(notifyMessage);
+            }
+
+            private void AssertInException(ExceptionEntity previousInException)
+            {
+                using (var context = new DatastoreContext(Options))
                 {
-                    InException inException = context.InExceptions
-                        .FirstOrDefault(e => e.EbmsRefToMessageId.Equals(previousInException.EbmsRefToMessageId));
+                    InException inException =
+                        context.InExceptions.FirstOrDefault(
+                            e => e.EbmsRefToMessageId.Equals(previousInException.EbmsRefToMessageId));
 
                     Assert.NotNull(inException);
                     Assert.Equal(Operation.Notified, inException.Operation);
                 }
             }
-
-            private static InException CreateDefaultInException()
-            {
-                return new InException
-                {
-                    EbmsRefToMessageId = "ref-to-message-id",
-                    Operation = Operation.ToBeNotified,
-                };
-            }
         }
 
         protected void InsertInException(InException inException)
         {
-            using (var context = new DatastoreContext(base.Options))
+            using (var context = new DatastoreContext(Options))
             {
                 context.InExceptions.Add(inException);
                 context.SaveChanges();

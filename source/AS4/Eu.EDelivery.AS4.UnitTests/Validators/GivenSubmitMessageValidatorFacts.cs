@@ -8,7 +8,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Validators
 {
     /// <summary>
-    /// Testing <see cref="SubmitMessageValidator"/>
+    /// Testing <see cref="SubmitMessageValidator" />
     /// </summary>
     public class GivenSubmitMessageValidatorFacts
     {
@@ -18,10 +18,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             public void ThenSubmitMessageIsValid()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreateValidSubmitMessage();
+                SubmitMessage submitMessage = CreateValidSubmitMessage();
                 IValidator<SubmitMessage> validator = new SubmitMessageValidator();
+
                 // Act
                 bool isValid = validator.Validate(submitMessage);
+
                 // Assert
                 Assert.True(isValid);
             }
@@ -34,9 +36,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             public void ThenSubmitMessageIsInvalidWithMissingPModeId(string pmodeId)
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreateValidSubmitMessage();
+                SubmitMessage submitMessage = CreateValidSubmitMessage();
                 submitMessage.Collaboration.AgreementRef.PModeId = pmodeId;
                 IValidator<SubmitMessage> validator = new SubmitMessageValidator();
+
                 // Act
                 Assert.Throws<AS4Exception>(() => validator.Validate(submitMessage));
             }
@@ -46,9 +49,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             public void ThenSubmitMessageIsInvalidWithMissingPayloadLocation(string location)
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreateValidSubmitMessage();
+                SubmitMessage submitMessage = CreateValidSubmitMessage();
                 submitMessage.Payloads.First().Location = location;
                 IValidator<SubmitMessage> validator = new SubmitMessageValidator();
+
                 // Act / Assert
                 Assert.Throws<AS4Exception>(() => validator.Validate(submitMessage));
             }
@@ -58,8 +62,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         {
             return new SubmitMessage
             {
-                Collaboration = {AgreementRef = {PModeId = "pmode-id"}},
-                Payloads = new[] {new Payload(location: "file:///"),}
+                Collaboration = {
+                                   AgreementRef = {
+                                                     PModeId = "pmode-id"
+                                                  }
+                                },
+                Payloads = new[] {new Payload("file:///")}
             };
         }
     }

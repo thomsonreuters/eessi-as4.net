@@ -12,15 +12,16 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
+using Service = Eu.EDelivery.AS4.Model.Core.Service;
 using SubmitMessageProperty = Eu.EDelivery.AS4.Model.Common.MessageProperty;
 using UserMessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
-using Party = Eu.EDelivery.AS4.Model.Core.Party;
-using Service = Eu.EDelivery.AS4.Model.Core.Service;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
     /// <summary>
-    /// Testing <see cref="CreateAS4MessageStep"/>
+    /// Testing <see cref="CreateAS4MessageStep" />
     /// </summary>
     public class GivenCreateAS4MessageStepFacts
     {
@@ -35,11 +36,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4Message()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
                 Assert.NotNull(userMessage);
@@ -49,11 +52,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithMessageInfo()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 MessageInfo submitMessageInfo = submitMessage.MessageInfo;
                 UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
@@ -66,12 +71,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithGeneratedMessageId()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.MessageInfo.MessageId = null;
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Assert.NotEmpty(internalMessage.AS4Message.PrimaryUserMessage.MessageId);
             }
@@ -80,11 +87,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithAgreement()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 AssertAgreementReference(submitMessage, internalMessage);
             }
@@ -104,11 +113,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithService()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Service pmodService = submitMessage.PMode.MessagePackaging.CollaborationInfo.Service;
                 Service userMessageService = internalMessage.AS4Message.PrimaryUserMessage.CollaborationInfo.Service;
@@ -119,11 +130,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithAction()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 string pmodeAction = submitMessage.PMode.MessagePackaging.CollaborationInfo.Action;
                 string userMessageAction = internalMessage.AS4Message.PrimaryUserMessage.CollaborationInfo.Action;
@@ -134,11 +147,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithSenderParty()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
                 Party userMessageParty = internalMessage.AS4Message.PrimaryUserMessage.Sender;
@@ -149,11 +164,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithReceiverParty()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.ToParty;
                 Party userMessageParty = internalMessage.AS4Message.PrimaryUserMessage.Receiver;
@@ -164,11 +181,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenStepCreatesAS4MessageWithSubmitMessageProperties()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
+
                 // Act
                 new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+
                 // Assert
                 AssertMessageProperty(submitMessage, internalMessage);
             }
@@ -191,24 +210,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepFailsToCreateAS4MessageWhenSubmitMessageTriesToOVerrideSenderPartyAsync()
             {
                 // Arrange
-                SubmitMessage submitMessage = base.CreatePopulatedSubmitMessage();
+                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PartyInfo = CreatePopulatedSubmitPartyInfo();
-                submitMessage.PMode = base.CreatePopulatedSendingPMode();
+                submitMessage.PMode = CreatePopulatedSendingPMode();
                 var internalMessage = new InternalMessage(submitMessage);
-                
+
                 // Act / Assert
-                AS4Exception as4Exception = await Assert.ThrowsAsync<AS4Exception>(
-                    () => new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None));
+                AS4Exception as4Exception =
+                    await Assert.ThrowsAsync<AS4Exception>(
+                        () => new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None));
                 Assert.NotEmpty(as4Exception.MessageIds);
             }
 
-            private AS4.Model.Common.PartyInfo CreatePopulatedSubmitPartyInfo()
+            private PartyInfo CreatePopulatedSubmitPartyInfo()
             {
-                return new AS4.Model.Common.PartyInfo
-                {
-                    ToParty = new AS4.Model.Common.Party(),
-                    FromParty = new AS4.Model.Common.Party()
-                };
+                return new PartyInfo {ToParty = new AS4.Model.Common.Party(), FromParty = new AS4.Model.Common.Party()};
             }
         }
 
