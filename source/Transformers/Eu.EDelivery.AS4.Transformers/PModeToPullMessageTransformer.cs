@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static SendingProcessingMode DeserializeValidPMode(ReceivedMessage receivedMessage)
         {
-            var pmode = AS4XmlSerializer.Deserialize<SendingProcessingMode>(receivedMessage.RequestStream);
+            var pmode = AS4XmlSerializer.FromStream<SendingProcessingMode>(receivedMessage.RequestStream);
             IValidator<SendingProcessingMode> validator = new SendingProcessingModeValidator();
             validator.Validate(pmode);
 
