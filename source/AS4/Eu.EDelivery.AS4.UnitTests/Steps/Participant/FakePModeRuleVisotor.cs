@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using Eu.EDelivery.AS4.Steps.Receive.Rules;
@@ -7,14 +6,12 @@ using Eu.EDelivery.AS4.Steps.Receive.Rules;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Participant
 {
     /// <summary>
-    /// Stub implementation fo the <see cref="IPModeRuleVisitor"/>.
+    /// Fake implementation fo the <see cref="IPModeRuleVisitor"/>.
     /// </summary>
-    internal class Stub : IPModeRuleVisitor
+    internal class FakePModeRuleVisotor : IPModeRuleVisitor
     {
         private readonly ICollection<IPModeRule> _rules;
-        private Action<PModeParticipant> _assertion;
-
-        public Stub()
+        public FakePModeRuleVisotor()
         {
             _rules = new Collection<IPModeRule>
             {
@@ -28,14 +25,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Participant
 
         public void Visit(PModeParticipant participant)
         {
-            foreach (IPModeRule rule in _rules) participant.Points += rule.DeterminePoints(participant.PMode, participant.UserMessage);
-
-            _assertion?.Invoke(participant);
-        }
-
-        public void SetAssert(Action<PModeParticipant> action)
-        {
-            _assertion = action;
+            foreach (IPModeRule rule in _rules)
+            {
+                participant.Points += rule.DeterminePoints(participant.PMode, participant.UserMessage);
+            }
         }
     }
 }

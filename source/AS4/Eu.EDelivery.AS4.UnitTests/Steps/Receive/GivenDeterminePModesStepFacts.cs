@@ -12,7 +12,6 @@ using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Steps.Participant;
-using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 using PMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
@@ -30,12 +29,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public GivenDeterminePModesStepFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-            var stubVisitor = new Stub();
-            this._mockedConfig = new Mock<IConfig>();            
-
-            this._step = new DeterminePModesStep(
-                this._mockedConfig.Object,
-                stubVisitor);
+            _mockedConfig = new Mock<IConfig>();
+            _step = new DeterminePModesStep(_mockedConfig.Object, new FakePModeRuleVisotor());
         }
 
         /// <summary>
@@ -43,75 +38,74 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         public class GivenValidArguments : GivenDeterminePModesStepFacts
         {
-            [Theory, InlineData("01-receive")]
+            [Theory]
+            [InlineData("01-receive")]
             public async Task ThenPModeIsFoundWithIdAsync(string sharedId)
             {
                 // Arrange
-                var pmode = new PMode { Id = sharedId };
-                SetupPModes(pmode, base.CreateDefaultPMode());
+                var pmode = new PMode {Id = sharedId};
+                SetupPModes(pmode, CreateDefaultPMode());
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithPModeId(sharedId).Build();
+                InternalMessage internalMessage = new InternalMessageBuilder().WithPModeId(sharedId).Build();
 
                 // Act
-                StepResult result = await this._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmode, result);
             }
 
-            [Theory, InlineData("From-Id", "To-Id")]
+            [Theory]
+            [InlineData("From-Id", "To-Id")]
             public async Task ThenPartyInfoMatchesAsync(string fromId, string toId)
             {
                 // Arrange
                 var fromParty = new Party(fromId, new PartyId(fromId));
                 var toParty = new Party(toId, new PartyId(toId));
 
-                PMode pmode = CreatePModeWithParties(fromParty, toParty);
+                ReceivingProcessingMode pmode = CreatePModeWithParties(fromParty, toParty);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new PMode());
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithPartys(fromParty, toParty).Build();
+                InternalMessage internalMessage = new InternalMessageBuilder().WithPartys(fromParty, toParty).Build();
 
                 // Act               
-                StepResult result = await this._step.ExecuteAsync(
-                    internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmode, result);
-
             }
 
-            [Theory, InlineData("service", "action")]
+            [Theory]
+            [InlineData("service", "action")]
             public async Task ThenPartyInfoNotDefindedAsync(string service, string action)
             {
                 // Arrange
                 PMode pmode = ArrangePModeThenPartyInfoNotDefined(service, action);
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithUserMessage(new UserMessage("message-id"))
-                    .WithServiceAction(service, action)
-                    .Build();
+                InternalMessage internalMessage =
+                    new InternalMessageBuilder().WithUserMessage(new UserMessage("message-id"))
+                                                .WithServiceAction(service, action)
+                                                .Build();
 
                 // Act
-                StepResult result = await this._step
-                    .ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmode, result);
-
             }
 
             private PMode ArrangePModeThenPartyInfoNotDefined(string service, string action)
             {
-                PMode pmode = base.CreatePModeWithActionService(service, action);
+                PMode pmode = CreatePModeWithActionService(service, action);
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new PMode());
+
                 return pmode;
             }
 
-            [Theory, InlineData("From-Id", "To-Id", "01-receive")]
+            [Theory]
+            [InlineData("From-Id", "To-Id", "01-receive")]
             public async Task ThenPModeIdWinsOverPartyInfoAsync(string fromId, string toId, string sharedId)
             {
                 // Arrange 
@@ -119,13 +113,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var toParty = new Party(toId, new PartyId(toId));
                 PMode idPMode = ArrangePModeThenPModeWinsOverPartyInfo(sharedId, fromParty, toParty);
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithPModeId(sharedId)
-                    .WithPartys(fromParty, toParty)
-                    .Build();
+                InternalMessage internalMessage =
+                    new InternalMessageBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
 
                 // Act
-                var result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertPMode(idPMode, result);
@@ -135,14 +127,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 PMode partyInfoPMode = CreatePModeWithParties(fromParty, toParty);
                 partyInfoPMode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                var idPMode = new PMode { Id = sharedId };
+                var idPMode = new PMode {Id = sharedId};
                 SetupPModes(partyInfoPMode, idPMode);
                 return idPMode;
             }
 
-            [Theory, InlineData("service", "action", "from-Id", "to-Id")]
+            [Theory]
+            [InlineData("service", "action", "from-Id", "to-Id")]
             public async Task ThenPartyWinsOverServiceActionAsync(
-                string service, string action, string fromId, string toId)
+                string service,
+                string action,
+                string fromId,
+                string toId)
             {
                 // Arrange
                 var fromParty = new Party(fromId, new PartyId(fromId));
@@ -152,21 +148,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 PMode pmodeServiceAction = CreatePModeWithActionService(service, action);
                 SetupPModes(pmodeParties, pmodeServiceAction);
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithPartys(fromParty, toParty)
-                    .WithServiceAction(service, action)
-                    .Build();
+                InternalMessage internalMessage =
+                    new InternalMessageBuilder().WithPartys(fromParty, toParty)
+                                                .WithServiceAction(service, action)
+                                                .Build();
 
                 // Act
-                var result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
             }
 
-            [Theory, InlineData("service", "action", "from-Id", "to-Id")]
+            [Theory]
+            [InlineData("service", "action", "from-Id", "to-Id")]
             public async Task ThenPartiesWinsOverServiceActionAsync(
-                string service, string action, string fromId, string toId)
+                string service,
+                string action,
+                string fromId,
+                string toId)
             {
                 // Arrange
                 var fromParty = new Party(fromId, new PartyId(fromId));
@@ -177,15 +177,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 SetupPModes(pmodeServiceAction, pmodeParties);
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithServiceAction(service, action)
-                    .WithPartys(fromParty, toParty)
-                    .Build();
+                InternalMessage internalMessage =
+                    new InternalMessageBuilder().WithServiceAction(service, action)
+                                                .WithPartys(fromParty, toParty)
+                                                .Build();
 
                 // Act
-
-                var result = await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
-
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
@@ -193,9 +191,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private PMode CreatePModeWithParties(Party fromParty, Party toParty)
             {
-                PMode pmode = base.CreateDefaultPMode();
+                PMode pmode = CreateDefaultPMode();
                 pmode.MessagePackaging.PartyInfo.FromParty = fromParty;
                 pmode.MessagePackaging.PartyInfo.ToParty = toParty;
+
                 return pmode;
             }
         }
@@ -205,18 +204,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         public class GivenInvalidArguments : GivenDeterminePModesStepFacts
         {
-            [Theory, InlineData("action", "service")]
+            [Theory]
+            [InlineData("action", "service")]
             public async Task ThenServiceAndActionIsNotEnoughAsync(string action, string service)
             {
                 // Arrange
                 ArrangePModeThenServiceAndActionIsNotEnough(action, service);
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithServiceAction(service, action).Build();
+                InternalMessage internalMessage =
+                    new InternalMessageBuilder().WithServiceAction(service, action).Build();
 
                 // Act / Assert
-                var exception = await Assert.ThrowsAsync<AS4Exception>(() =>
-                    this._step.ExecuteAsync(internalMessage, CancellationToken.None));
+                AS4Exception exception =
+                    await Assert.ThrowsAsync<AS4Exception>(
+                        () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
 
                 Assert.Equal(ErrorCode.Ebms0001, exception.ErrorCode);
             }
@@ -229,29 +230,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SetupPModes(pmode, new PMode());
             }
 
-            [Theory, InlineData("name", "type")]
+            [Theory]
+            [InlineData("name", "type")]
             public async Task ThenAgreementRefIsNotEnoughAsync(string name, string type)
             {
                 // Arrange
-                var agreementRef = new AgreementReference { Value = name, Type = type };
+                var agreementRef = new AgreementReference {Value = name, Type = type};
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
-                InternalMessage internalMessage = new InternalMessageBuilder()
-                    .WithAgreementRef(agreementRef)
-                    .WithServiceAction("service", "action")
-                    .Build();
+                InternalMessage internalMessage =
+                    new InternalMessageBuilder().WithAgreementRef(agreementRef)
+                                                .WithServiceAction("service", "action")
+                                                .Build();
 
                 // Act / Assert
-                var exception = await Assert.ThrowsAsync<AS4Exception>(()
-                    => this._step.ExecuteAsync(internalMessage, CancellationToken.None));
-
+                AS4Exception exception =
+                    await Assert.ThrowsAsync<AS4Exception>(
+                        () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
 
                 Assert.Equal(ErrorCode.Ebms0001, exception.ErrorCode);
             }
 
             private void ArrangePModeThenAgreementRefIsNotEnough(AgreementReference agreementRef)
             {
-                PMode pmode = base.CreatePModeWithAgreementRef(agreementRef);
+                PMode pmode = CreatePModeWithAgreementRef(agreementRef);
                 DifferntiatePartyInfo(pmode);
                 SetupPModes(pmode, new PMode());
             }
@@ -261,40 +263,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             return new PMode
             {
-                MessagePackaging = new MessagePackaging
-                {
-                    CollaborationInfo = new CollaborationInfo(),
-                    PartyInfo = new PartyInfo()
-                }
+                MessagePackaging =
+                    new MessagePackaging {CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo()}
             };
         }
 
         protected void SetupPModes(params PMode[] pmodes)
         {
-            this._mockedConfig
-                .Setup(c => c.GetReceivingPModes())
-                .Returns(pmodes);
+            _mockedConfig.Setup(c => c.GetReceivingPModes()).Returns(pmodes);
         }
 
         internal void AssertServiceAction(string action, PModeParticipant participant, int point = 3)
         {
             CollaborationInfo collaborationInfo = participant.PMode.MessagePackaging.CollaborationInfo;
-            if (collaborationInfo != null && collaborationInfo.Action.Equals(action))
-                Assert.Equal(point, participant.Points);
+            if (collaborationInfo != null && collaborationInfo.Action.Equals(action)) Assert.Equal(point, participant.Points);
         }
 
         internal void AssertAgreementRef(AgreementReference agreementRef, PModeParticipant participant)
         {
             AgreementReference pmodeAgreementRef =
                 participant.PMode.MessagePackaging.CollaborationInfo?.AgreementReference;
-            if (pmodeAgreementRef != null && pmodeAgreementRef.Equals(agreementRef))
-                Assert.Equal(4, participant.Points);
+            if (pmodeAgreementRef != null && pmodeAgreementRef.Equals(agreementRef)) Assert.Equal(4, participant.Points);
         }
 
         protected PMode CreatePModeWithAgreementRef(AgreementReference agreementRef)
         {
             PMode pmode = CreateDefaultPMode();
             pmode.MessagePackaging.CollaborationInfo.AgreementReference = agreementRef;
+
             return pmode;
         }
 
@@ -303,6 +299,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             PMode pmode = CreateDefaultPMode();
             pmode.MessagePackaging.CollaborationInfo.Action = action;
             pmode.MessagePackaging.CollaborationInfo.Service.Value = service;
+
             return pmode;
         }
 
@@ -315,12 +312,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static void DifferntiatePartyInfo(PMode pmode)
         {
-            const string fromId = "from-Id", toId = "to-Id";
+            const string fromId = "from-Id";
+            const string toId = "to-Id";
 
             var fromParty = new Party(fromId, new PartyId(fromId));
             var toParty = new Party(toId, new PartyId(toId));
 
-            pmode.MessagePackaging.PartyInfo = new PartyInfo { FromParty = fromParty, ToParty = toParty };
+            pmode.MessagePackaging.PartyInfo = new PartyInfo {FromParty = fromParty, ToParty = toParty};
         }
     }
 }
