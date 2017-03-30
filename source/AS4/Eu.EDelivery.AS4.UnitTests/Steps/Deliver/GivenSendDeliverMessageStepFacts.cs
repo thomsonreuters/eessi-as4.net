@@ -1,14 +1,12 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Sender;
-using Eu.EDelivery.AS4.Xml;
 using Moq;
 using Xunit;
 
@@ -19,15 +17,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// </summary>
     public class GivenSendDeliverMessageStepFacts
     {
-        private SendDeliverMessageStep _step;
         private readonly Mock<IDeliverSender> _mockedSender;
+
         private Mock<IDeliverSenderProvider> _mockedProvider;
+        private SendDeliverMessageStep _step;
 
         public GivenSendDeliverMessageStepFacts()
         {
-            this._mockedSender = new Mock<IDeliverSender>();
+            _mockedSender = new Mock<IDeliverSender>();
             SetupMockedProvider();
-            this._step = new SendDeliverMessageStep(this._mockedProvider.Object);
+            _step = new SendDeliverMessageStep(_mockedProvider.Object);
         }
 
         private void SetupMockedProvider()
@@ -44,9 +43,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             public async Task ThenExecuteStepSucceedsWithValidSenderAsync()
             {
                 // Arrange
-                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, "");
-                var internalMessage = new InternalMessage(deliverMessage);
-                internalMessage.AS4Message.ReceivingPMode = CreateDefaultReceivingPMode();
+                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, string.Empty);
+                var internalMessage = new InternalMessage(deliverMessage)
+                {
+                    AS4Message = {ReceivingPMode = CreateDefaultReceivingPMode()}
+                };
 
                 // Act
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -72,8 +73,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 // Arrange
                 SetupFailedDeliverSender();
-                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, "");
+                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, string.Empty);
                 var internalMessage = new InternalMessage(deliverMessage);
+                
                 // Act
                 AS4Exception exception = await Assert.ThrowsAsync<AS4Exception>(()
                     => base._step.ExecuteAsync(internalMessage, CancellationToken.None));
