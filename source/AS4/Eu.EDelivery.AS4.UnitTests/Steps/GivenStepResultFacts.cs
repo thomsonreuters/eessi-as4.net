@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
     /// </summary>
     public class GivenStepResultFacts
     {
-        public class CanContinue
+        public class CanProceed
         {
             [Fact]
             public void IsFalseIfStopExecutionIsCalled()
@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 StepResult actualStepResult = StepResult.Failed(exception).AndStopExecution();
 
                 // Assert
-                Assert.False(actualStepResult.CanExecute);
+                Assert.False(actualStepResult.CanProceed);
             }
 
             [Fact]
@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 StepResult actualStepResult = StepResult.Success(new InternalMessage(as4Message));
 
                 // Assert
-                Assert.True(actualStepResult.CanExecute);
+                Assert.True(actualStepResult.CanProceed);
             }
         }
     }

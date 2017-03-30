@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Steps
     {
         private StepResult()
         {
-            CanExecute = true;
+            CanProceed = true;
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <summary>
         /// Gets a value indicating whether the next steps must be executed.
         /// </summary>
-        public bool CanExecute { get; private set; }
+        public bool CanProceed { get; private set; }
 
         /// <summary>
         /// Promote the <see cref="StepResult"/> to stop the execution.
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public StepResult AndStopExecution()
         {
-            CanExecute = false;
+            CanProceed = false;
             return this;
         }
 

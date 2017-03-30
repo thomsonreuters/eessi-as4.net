@@ -260,7 +260,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             StepResult stepResult = await StepResult.SuccessAsync(internalMessage);
 
-            bool isOriginatedFromPullRequest = (response.PrimarySignalMessage as Error)?.FromPullRequest == true;
+            bool isOriginatedFromPullRequest = (response.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
             bool isRequestBeingSendAPullRequest = _originalAS4Message.PrimarySignalMessage is PullRequest;
 
             if (isOriginatedFromPullRequest && isRequestBeingSendAPullRequest)
@@ -282,7 +282,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             ISerializer serializer = _provider.Get(contentType);
             AS4Message response = await serializer.DeserializeAsync(responseStream, contentType, cancellationToken);
             response.SendingPMode = internalMessage.AS4Message.SendingPMode;
-            response.UserMessages.Add(internalMessage.AS4Message.PrimaryUserMessage);
 
             return response;
         }

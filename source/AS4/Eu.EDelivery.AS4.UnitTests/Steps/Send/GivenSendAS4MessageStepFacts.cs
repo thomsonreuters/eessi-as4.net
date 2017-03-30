@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StepResult actualResult = await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.False(actualResult.CanExecute);
+                Assert.False(actualResult.CanProceed);
             }
         }
 

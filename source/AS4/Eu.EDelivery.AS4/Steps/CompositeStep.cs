@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps
                     messageToSend = result.InternalMessage;
                 }
 
-                if (!result.CanExecute)
+                if (!result.CanProceed)
                 {
                     break;
                 }

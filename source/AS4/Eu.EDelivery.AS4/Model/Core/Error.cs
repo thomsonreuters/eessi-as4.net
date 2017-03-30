@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Gets a value indicating whether the <see cref="Error"/> is originated from a Pull Request.
         /// </summary>
         [XmlIgnore]
-        public bool FromPullRequest
+        public bool IsWarningForEmptyPullRequest
         {
             get
             {
