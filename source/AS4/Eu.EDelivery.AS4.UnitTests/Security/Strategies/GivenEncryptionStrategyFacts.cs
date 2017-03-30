@@ -20,11 +20,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         public class GivenValidArgumentsForDecryptMessage : GivenEncryptionStrategyFacts
         {
             [Fact]
+            public async Task ThenDecryptDecryptsTheAttachmentsCorrectly()
+            {
+                // Arrange
+                AS4Message as4Message = await GetEncryptedMessageAsync();
+                X509Certificate2 decryptCertificate = CreateDecryptCertificate();
+
+                EncryptionStrategy encryptionStrategy =
+                    EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
+                                             .WithCertificate(decryptCertificate)
+                                             .WithAttachments(as4Message.Attachments)
+                                             .Build();
+
+                // Act
+                encryptionStrategy.DecryptMessage();
+
+                // Assert
+                Assert.Equal(Properties.Resources.flower1, GetAttachmentContents(as4Message.Attachments.ElementAt(0)));
+                Assert.Equal(Properties.Resources.flower2, GetAttachmentContents(as4Message.Attachments.ElementAt(1)));
+            }
+
+            [Fact]
             public void ThenEncryptEncryptsTheAttachmentsCorrectly()
             {
                 // Arrange
                 byte[] attachmentContents = Encoding.UTF8.GetBytes("hi!");
-                var attachment = new Attachment("attachment-id") { Content = new MemoryStream(attachmentContents) };
+                var attachment = new Attachment("attachment-id") {Content = new MemoryStream(attachmentContents)};
 
                 AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
@@ -49,35 +70,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                     .WithAttachments(message.Attachments)
                     .Build();
             }
+        }
 
-            [Fact]
-            public async Task ThenDecryptDecryptsTheAttachmentsCorrectly()
-            {
-                // Arrange
-                AS4Message as4Message = await GetEncryptedMessageAsync();
-                X509Certificate2 decryptCertificate = CreateDecryptCertificate();
-
-                EncryptionStrategy encryptionStrategy = EncryptionStrategyBuilder
-                    .Create(as4Message.EnvelopeDocument)
-                    .WithCertificate(decryptCertificate)
-                    .WithAttachments(as4Message.Attachments)
-                    .Build();
-
-                // Act
-                encryptionStrategy.DecryptMessage();
-
-                // Assert
-                Assert.Equal(Properties.Resources.flower1, GetAttachmentContents(as4Message.Attachments.ElementAt(0)));
-                Assert.Equal(Properties.Resources.flower2, GetAttachmentContents(as4Message.Attachments.ElementAt(1)));
-            }
-
-            private static X509Certificate2 CreateDecryptCertificate()
-            {
-                return new X509Certificate2(
-                    Properties.Resources.holodeck_partyc_certificate,
-                    "ExampleC",
-                    X509KeyStorageFlags.Exportable);
-            }
+        private static X509Certificate2 CreateDecryptCertificate()
+        {
+            return new X509Certificate2(
+                Properties.Resources.holodeck_partyc_certificate,
+                "ExampleC",
+                X509KeyStorageFlags.Exportable);
         }
 
         public class GivenInvalidArgumentsForDecryptMessage : GivenEncryptionStrategyFacts
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         {
             envelopeStream.Position = 0;
             var envelopeXmlDocument = new XmlDocument();
-            var readerSettings = new XmlReaderSettings { CloseInput = false };
+            var readerSettings = new XmlReaderSettings {CloseInput = false};
 
             using (XmlReader reader = XmlReader.Create(envelopeStream, readerSettings))
             {

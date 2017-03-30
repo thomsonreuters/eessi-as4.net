@@ -29,7 +29,8 @@ export class SendingPmodeService implements ICrudPmodeService {
             });
     }
     public obsGet(): Observable<IPmode> {
-        return this.pmodeStore
+        return this
+            .pmodeStore
             .changes
             .filter((result) => !!result)
             .map((result) => result.Sending)
@@ -43,6 +44,11 @@ export class SendingPmodeService implements ICrudPmodeService {
             .distinctUntilChanged();
     }
     public get(name: string) {
+        if (!!!name) {
+            this.pmodeStore.update('Sending', null);
+            return;
+        }
+
         this.http
             .get(`${this.getBaseUrl()}/${name}`)
             .subscribe((result) => this.pmodeStore.update('Sending', result.json()));

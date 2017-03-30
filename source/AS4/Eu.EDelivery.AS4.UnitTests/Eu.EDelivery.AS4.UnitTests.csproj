@@ -33,11 +33,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\output\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunXunitTests>true</RunXunitTests>
+    <RunXunitTests>false</RunXunitTests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=5.0.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
@@ -351,7 +351,7 @@
     <Compile Include="Steps\Send\GivenSendUpdateDatastoreFacts.cs" />
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
     <Compile Include="Builders\Core\InternalMessageBuilder.cs" />
-    <Compile Include="Steps\Participant\Stub.cs" />
+    <Compile Include="Steps\Participant\StubPModeRuleVisitor.cs" />
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\GivenFilePayloadStrategyFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />

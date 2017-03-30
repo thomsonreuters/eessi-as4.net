@@ -2,12 +2,11 @@
 {
     public class CollaborationInfo
     {
-        public AgreementReference AgreementReference { get; set; }
-        public Service Service { get; set; }
-
-        public string Action { get; set; }
         public string ConversationId { get; set; }
-
+        public AgreementReference AgreementReference { get; set; }
+        public string Action { get; set; }
+        public Service Service { get; set; }
+                
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class. 
         /// Create a basic <see cref="CollaborationInfo"/> Model

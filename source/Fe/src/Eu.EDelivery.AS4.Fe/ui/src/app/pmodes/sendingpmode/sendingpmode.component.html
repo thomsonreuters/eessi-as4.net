@@ -168,25 +168,13 @@
                     </as4-input>
                     <div formGroupName="keyTransport">
                         <as4-input label="Key Transport algorithm" runtimeTooltip="security.encryption.keytransport.transportAlgorithm">
-                            <select formControlName="transportAlgorithm">
-                                <option value="http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p">http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p</option>
-                                <option value="http://www.w3.org/2009/xmlenc11#rsa-oaep">http://www.w3.org/2009/xmlenc11#rsa-oaep</option>
-                            </select>
+                            <input type="text" formControlName="transportAlgorithm">
                         </as4-input>
                         <as4-input label="Key Digest algorithm" runtimeTooltip="security.encryption.keytransport.digestAlgorithm">
-                            <select formControlName="digestAlgorithm">
-                                <option value="http://www.w3.org/2001/04/xmlenc#sha256">http://www.w3.org/2001/04/xmlenc#sha256</option>
-                                <option value="http://www.w3.org/2000/09/xmldsig#sha1">http://www.w3.org/2000/09/xmldsig#sha1</option>
-                            </select>
+                            <input type="text" formControlName="digestAlgorithm">
                         </as4-input>
                         <as4-input label="Key Mgf algorithm" runtimeTooltip="security.encryption.keytransport.mgfAlgorithm">
-                            <select formControlName="mgfAlgorithm">
-                                <option value="http://www.w3.org/2009/xmlenc11#mgf1sha1">http://www.w3.org/2009/xmlenc11#mgf1sha1</option>
-                                <option value="http://www.w3.org/2009/xmlenc11#mgf1sha224">http://www.w3.org/2009/xmlenc11#mgf1sha224</option>
-                                <option value="http://www.w3.org/2009/xmlenc11#mgf1sha256">http://www.w3.org/2009/xmlenc11#mgf1sha256</option>
-                                <option value="http://www.w3.org/2009/xmlenc11#mgf1sha384">http://www.w3.org/2009/xmlenc11#mgf1sha384</option>
-                                <option value="http://www.w3.org/2009/xmlenc11#mgf1sha512">http://www.w3.org/2009/xmlenc11#mgf1sha512</option>
-                            </select>
+                            <input type="text" formControlName="digestAlgorithm">
                         </as4-input>
                     </div>
                 </div>

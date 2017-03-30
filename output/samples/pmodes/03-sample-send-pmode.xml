@@ -16,7 +16,6 @@
     <TlsConfiguration>
       <IsEnabled>false</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference/>
     </TlsConfiguration>
   </PushConfiguration>
   <PullConfiguration>
@@ -60,34 +59,20 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+	  <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>      
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>AccessPointA</PublicKeyFindValue>
-      <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+	  <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+      <PublicKeyFindValue>AccessPointA</PublicKeyFindValue>      
     </Encryption>
   </Security>
   <MessagePackaging>
-    <UseAS4Compression>true</UseAS4Compression>
-    <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>true</IncludePModeId>
-    <CollaborationInfo>
-    <AgreementReference>
-        <Value>http://agreements.europa.org/agreement</Value>
-      </AgreementReference>
-      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
-      <Action>eu:sample:03</Action>
-      <Service>
-        <Value>getting:started</Value>
-        <Type>org:europa:services</Type>
-      </Service>
-    </CollaborationInfo>
-    <PartyInfo>
+	<PartyInfo>
       <FromParty>
         <PartyIds>
           <PartyId>
@@ -105,5 +90,20 @@
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
+	<CollaborationInfo>
+		<ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+		<AgreementReference>
+			<Value>http://agreements.europa.org/agreement</Value>
+		</AgreementReference>		
+		<Action>eu:sample:03</Action>
+		<Service>
+			<Value>getting:started</Value>
+			<Type>org:europa:services</Type>
+		</Service>
+    </CollaborationInfo>
+    
+    <UseAS4Compression>true</UseAS4Compression>
+    <IsMultiHop>false</IsMultiHop>
+    <IncludePModeId>true</IncludePModeId>
   </MessagePackaging>
 </PMode>

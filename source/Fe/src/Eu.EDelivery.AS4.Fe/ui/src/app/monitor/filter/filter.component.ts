@@ -27,12 +27,13 @@ export class FilterComponent implements OnInit, OnDestroy {
     @Output() public onSearch: EventEmitter<BaseFilter> = new EventEmitter();
     private _subscriptions: Subscription[] = new Array<Subscription>();
     constructor( @Inject(MESSAGESERVICETOKEN) private _messageService: MessageService, private _activatedRoute: ActivatedRoute, private _router: Router) {
-        this._subscriptions.push(this._activatedRoute
-            .queryParams
-            .filter(() => !!this.filter)
-            .subscribe((result) => {
-                this.executeServiceCall();
-            }));
+        this._subscriptions
+            .push(this._activatedRoute
+                .queryParams
+                .filter(() => !!this.filter)
+                .subscribe((result) => {
+                    this.executeServiceCall();
+                }));
     }
     public ngOnInit() {
         this.executeServiceCall();

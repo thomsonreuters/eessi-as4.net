@@ -21,7 +21,7 @@
             <tr *ngFor="let message of exceptionData.messages">
                 <td>{{message.direction | todirection}}</td>
                 <td>{{message.insertionTime | todate}}</td>
-                <td><a [routerLink]="['/monitor/exceptions']" [queryParams]="{ direction: message.direction, ebmsRefToMessageId: message.ebmsRefToMessageId }">{{message.ebmsRefToMessageId}}</a></td>
+                <td><a [routerLink]="['/monitor/exceptions']" [queryParams]="{ direction: message.direction, ebmsRefToMessageId: message.ebmsRefToMessageId }" target="_blank">{{message.ebmsRefToMessageId}}</a></td>
                 <td>{{message.operation}}</td>
                 <td><a [routerLink]="['/pmodes', direction === '0' ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a></td>
             </tr>

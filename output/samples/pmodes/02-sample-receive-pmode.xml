@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<PMode 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+<PMode
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns="eu:edelivery:as4:pmode">
   <Id>02-sample-pmode</Id>
   <Mep>OneWay</Mep>
@@ -17,17 +17,10 @@
     <SendingPMode>signed-response-pmode</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
-    <SendingPMode>signed-response-pmode</SendingPMode>
-    <NotifyMessageConsumer>true</NotifyMessageConsumer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\errors\" />
-      </Parameters>
-    </NotifyMethod>
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>
+    <SendingPMode>signed-response-pmode</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>true</NotifyMessageConsumer>
@@ -42,9 +35,6 @@
     <SigningVerification>
       <Signature>Allowed</Signature>
     </SigningVerification>
-    <Signing>
-      <IsEnabled>false</IsEnabled>
-    </Signing>
     <Decryption>
       <Encryption>Ignored</Encryption>
     </Decryption>

@@ -3,6 +3,7 @@
 cd ..\output
 
 MkDir .\Staging
+MkDir .\Staging\Assets
 MkDir .\Staging\bin
 MkDir .\Staging\config
 MkDir .\Staging\config\send-pmodes
@@ -35,16 +36,20 @@ Remove-Item .\Microsoft.VisualStudio.Quality*.*
 Remove-Item .\Moq.*
 Remove-Item .\*UnitTests.*
 
+Move-Item -Path .\Assets\*.* .\Staging\Assets\
 Move-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
 Move-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe.config .\Staging\
 Move-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
+
+If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
+	Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\
+}
 
 Move-Item -Path .\*.dll -Destination .\Staging\bin
 Move-Item -Path .\x86\*.* -Destination .\Staging\x86\
 Move-Item -Path .\x64\*.* -Destination .\Staging\x64\
 Move-Item -Path .\appsettings.inprocess.json .\Staging\bin\
 Move-Item -Path .\appsettings.json .\Staging\bin\
-Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\
 Move-Item -Path .\config\settings.xml .\Staging\config\
 Move-Item -Path .\messages\attachments\*.* .\Staging\messages\attachments\
 Move-Item -Path .\samples\certificates\*.* .\Staging\samples\certificates\
