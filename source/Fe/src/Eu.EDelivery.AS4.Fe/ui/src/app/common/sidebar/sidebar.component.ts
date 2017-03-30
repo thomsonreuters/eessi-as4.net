@@ -5,6 +5,7 @@ import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/
   selector: 'as4-sidebar',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './sidebar.component.html',
+  styleUrls: [ './sidebar.component.scss' ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent {

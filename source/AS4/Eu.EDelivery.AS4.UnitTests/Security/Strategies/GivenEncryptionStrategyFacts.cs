@@ -35,12 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
                 X509Certificate2 decryptCertificate = CreateDecryptCertificate();
-
-                ////IEncryptionStrategy encryptionStrategy = new EncryptionStrategyBuilder(as4Message.EnvelopeDocument)
-                ////    .WithCertificate(decryptCertificate)
-                ////    .WithAttachments(as4Message.Attachments)
-                ////    .Build();
-
+                
                 var encryptionStrategy = EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
                     .WithCertificate(decryptCertificate)
                     .WithAttachments(as4Message.Attachments)

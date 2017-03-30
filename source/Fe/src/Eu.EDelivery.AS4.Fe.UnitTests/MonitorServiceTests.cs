@@ -508,13 +508,13 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 }
 
                 [Theory]
-                [InlineData(Direction.Inbound, "ebmsMessageId1")]
-                [InlineData(Direction.Outbound, "OutEbmsMessageId1")]
+                [InlineData(Direction.Inbound, "ebmsRefToMessageId1")]
+                [InlineData(Direction.Outbound, "OutEbmsRefToMessageId1")]
                 public async Task Gets_The_MesageBody(Direction direction, string ebmsMessageId)
                 {
-                    var testBody = Encoding.ASCII.GetBytes(MessageBody1);
+                    var testBody = MessageBody1;
                     var result = await Setup().monitorService.DownloadExceptionBody(direction, ebmsMessageId);
-                    Assert.True(testBody == result);
+                    Assert.True(testBody == Encoding.ASCII.GetString(result));
                 }
             }
         }

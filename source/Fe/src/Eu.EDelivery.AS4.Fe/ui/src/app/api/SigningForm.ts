@@ -16,7 +16,7 @@ export class SigningForm {
             [Signing.FIELD_algorithm]: [(current == null || current.algorithm == null) ? 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256' : current.algorithm, Validators.required],
             [Signing.FIELD_hashFunction]: [(current == null || current.hashFunction == null) ? 'http://www.w3.org/2001/04/xmlenc#sha256' : current.hashFunction, Validators.required],
         });
-        SigningForm.setupForm(form);
+        SigningForm.setupForm(form, current);
         return form;
     }
     /// Patch up all the formArray controls
@@ -29,14 +29,15 @@ export class SigningForm {
         form.get(Signing.FIELD_hashFunction).reset({ value: (current && current.hashFunction) || this.defaultHashFunction, disabled: !!!current || !current.isEnabled });
     }
 
-    private static setupForm(form: FormGroup) {
-        let fields = Object.keys(this).filter(key => key.startsWith('FIELD_') && !key.endsWith('isEnabled')).map(field => form.get(this[field]));
+    private static setupForm(form: FormGroup, current: Signing) {
+        // let fields = Object.keys(current).filter((key) => key.startsWith('FIELD_') && !key.endsWith('isEnabled')).map(field => form.get(this[field]));
+        let fields = Object.keys(form.controls).filter((key) => !key.endsWith('isEnabled')).map((field) => form.controls[field]);
         let isEnabled = form.get(Signing.FIELD_isEnabled);
         let toggle = (value: boolean) => {
             if (value) {
-                fields.forEach(field => field.enable());
+                fields.forEach((field) => field.enable());
             } else {
-                fields.forEach(field => field.disable());
+                fields.forEach((field) => field.disable());
             }
         }
         toggle(isEnabled.value);

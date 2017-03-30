@@ -28,6 +28,8 @@ export class BaseFilter {
         return params;
     }
     public fromUrlParams(params: Params): BaseFilter {
+        Object.keys(this).forEach((param) => this[param] = null);
+
         Object.keys(params).forEach((param) => {
             let isDate = !!getIsDate(this, param);
             if (isDate) {

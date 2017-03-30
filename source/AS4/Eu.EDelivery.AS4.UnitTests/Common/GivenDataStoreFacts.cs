@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         protected readonly DbContextOptions<DatastoreContext> Options;
 
         protected Func<DatastoreContext> GetDataStoreContext { get; }
+        
         /// <summary>
         /// Create a Default Datastore Facts
         /// </summary>

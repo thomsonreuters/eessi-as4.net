@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Net;
-using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
+using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
 {
@@ -46,7 +45,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
             this.Security = new Security();
             this.MessagePackaging = new SendMessagePackaging();
         }
-
     }
 
     public class PModeParty
@@ -76,6 +74,30 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public KeyEncryption KeyTransport { get; set; }
 
+        #region Properties that control serialization
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool AlgorithmSpecified => !String.IsNullOrWhiteSpace(Algorithm);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool PublicKeyFindTypeSpecified { get; set; }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool PublicKeyFindValueSpecified => !String.IsNullOrWhiteSpace(PublicKeyFindValue);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool KeyTransportSpecified => KeyTransport != null;
+
+        #endregion
+
         public Encryption()
         {
             this.IsEnabled = false;
@@ -94,6 +116,25 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public string TransportAlgorithm { get; set; }
         public string DigestAlgorithm { get; set; }
         public string MgfAlgorithm { get; set; }
+
+        #region Properties that control serialization
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool TransportAlgorithmSpecified => !String.IsNullOrWhiteSpace(TransportAlgorithm);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool DigestAlgorithmSpecified => !String.IsNullOrWhiteSpace(DigestAlgorithm);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool MgfAlgorithmSpecified => !String.IsNullOrWhiteSpace(MgfAlgorithm);
+
+        #endregion
 
         public KeyEncryption()
         {
@@ -116,6 +157,35 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public X509ReferenceType KeyReferenceMethod { get; set; }
         public string Algorithm { get; set; }
         public string HashFunction { get; set; }
+
+        #region Properties that control serialization
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool PrivateKeyFindValueSpecified => !String.IsNullOrWhiteSpace(PrivateKeyFindValue);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool PrivateKeyFindTypeSpecified { get; set; }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool KeyReferenceMethodSpecified { get; set; }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool AlgorithmSpecified => !String.IsNullOrWhiteSpace(Algorithm);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool HashFunctionSpecified => !String.IsNullOrWhiteSpace(HashFunction);
+
+        #endregion
 
         public Signing()
         {

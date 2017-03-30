@@ -60,6 +60,10 @@ export class CrudComponent implements OnInit, OnDestroy {
         this.form = this._crudService.getForm(null);
     }
     public ngOnInit() {
+        if (!!!this._activatedRoute.snapshot.params['pmode']) {
+            this._crudService.get(null);
+        }
+
         this.subscriptions
             .push(this._crudService
                 .obsGetAll()
