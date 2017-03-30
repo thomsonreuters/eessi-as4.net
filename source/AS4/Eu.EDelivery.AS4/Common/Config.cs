@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,26 +19,28 @@ namespace Eu.EDelivery.AS4.Common
     public sealed class Config : IConfig, IDisposable
     {
         private static readonly IConfig Singleton = new Config();
-        private readonly ILogger _logger;
-
         private readonly IDictionary<string, string> _configuration;
-
-        private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
-        private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
+        private readonly ILogger _logger;
 
         private Settings _settings;
         private List<SettingsAgent> _agents;
-
-        public static Config Instance => (Config)Singleton;
-        public bool IsInitialized { get; private set; }
+        private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
+        private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
 
         internal Config()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-
-            this._configuration = new Dictionary
-                <string, string>(StringComparer.CurrentCultureIgnoreCase);
+            _logger = LogManager.GetCurrentClassLogger();
+            _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
+
+        public static Config Instance => (Config) Singleton;
+
+        /// <summary>
+        /// Gets a value indicating whether the FE needs to be started in process.
+        /// </summary>
+        public bool FeInProcess { get; private set; }
+
+        public bool IsInitialized { get; private set; }
 
         /// <summary>
         /// Initialize Configuration
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             try
             {
-                this.IsInitialized = true;
+                IsInitialized = true;
                 RetrieveLocalConfiguration();
 
                 _sendingPModeWatcher = new PModeWatcher<SendingProcessingMode>(GetSendPModeFolder());
@@ -62,24 +63,88 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception exception)
             {
-                this.IsInitialized = false;
-                this._logger.Error(exception.Message);
+                IsInitialized = false;
+                _logger.Error(exception.Message);
             }
+        }
+
+        /// <summary>
+        /// Verify if the <see cref="IConfig"/> implementation contains a <see cref="SendingProcessingMode"/> for a given <paramref name="id"/>
+        /// </summary>
+        /// <param name="id">The Sending Processing Mode id for which the verification is done.</param>
+        /// <returns></returns>
+        public bool ContainsSendingPMode(string id)
+        {
+            return _sendingPModeWatcher.ContainsPMode(id);
+        }
+
+        /// <summary>
+        /// Retrieve the PMode from the Global Settings
+        /// </summary>
+        /// <param name="id"></param>
+        /// <exception cref="AS4Exception"></exception>
+        /// <returns></returns>
+        public SendingProcessingMode GetSendingPMode(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                throw new AS4Exception("Given Sending PMode key is null");
+
+            IPMode pmode = _sendingPModeWatcher.GetPMode(id);
+
+            if (pmode == null)
+                throw new AS4Exception($"No Sending Processing Mode found for {id}");
+
+            return pmode as SendingProcessingMode;
+        }
+
+        /// <summary>
+        /// Retrieve Setting from the Global Configurations
+        /// </summary>
+        /// <param name="key"> Registered Key for the Setting </param>
+        /// <returns>
+        /// </returns>
+        public string GetSetting(string key) => _configuration.ReadOptionalProperty(key);
+
+        /// <summary>
+        /// Get the configured settings agents
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<SettingsAgent> GetSettingsAgents() => _agents;
+
+        /// <summary>
+        /// Return all the configured <see cref="ReceivingProcessingMode" />
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes() => _receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
+
+        /// <summary>
+        /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
+        {
+            if (_settings.Agents.MinderTestAgents == null) return new SettingsMinderAgent[] {};
+
+            return _settings.Agents.MinderTestAgents.Where(a => a.Enabled);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
         }
 
         private static void LoadExternalAssemblies()
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
-            if (externalDictionary == null)
-            {
-                return;
-            }
+            if (externalDictionary == null) return;
+
             LoadExternalAssemblies(externalDictionary);
         }
 
         private static DirectoryInfo GetExternalDirectory()
         {
             DirectoryInfo directory = null;
+
             if (Directory.Exists(Properties.Resources.externalfolder))
             {
                 directory = new DirectoryInfo(Properties.Resources.externalfolder);
@@ -99,34 +164,28 @@ namespace Eu.EDelivery.AS4.Common
 
         private static string GetSendPModeFolder()
         {
-            return Path.Combine(
-                Properties.Resources.configurationfolder,
-                Properties.Resources.sendpmodefolder);
+            return Path.Combine(Properties.Resources.configurationfolder, Properties.Resources.sendpmodefolder);
         }
 
         private static string GetReceivePModeFolder()
         {
-            return Path.Combine(
-                Properties.Resources.configurationfolder,
-                Properties.Resources.receivepmodefolder);
+            return Path.Combine(Properties.Resources.configurationfolder, Properties.Resources.receivepmodefolder);
         }
 
         private void RetrieveLocalConfiguration()
         {
-            string path = Path.Combine(
-                Properties.Resources.configurationfolder,
-                Properties.Resources.settingsfilename);
+            string path = Path.Combine(Properties.Resources.configurationfolder, Properties.Resources.settingsfilename);
 
-            var fullPath = Path.GetFullPath(path);
+            string fullPath = Path.GetFullPath(path);
 
-            if (Path.IsPathRooted(path) == false ||
-                File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false)
+            if (Path.IsPathRooted(path) == false
+                || (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
             {
                 path = Path.Combine(".", path);
             }
 
-            this._settings = TryDeserialize<Settings>(path);
-            if (this._settings == null) throw new AS4Exception("Invalid Settings file");
+            _settings = TryDeserialize<Settings>(path);
+            if (_settings == null) throw new AS4Exception("Invalid Settings file");
             AssignSettingsToGlobalConfiguration();
         }
 
@@ -138,11 +197,12 @@ namespace Eu.EDelivery.AS4.Common
             }
             catch (Exception ex)
             {
-                this._logger.Error($"Cannot Deserialize file on location {path}: {ex.Message}");
+                _logger.Error($"Cannot Deserialize file on location {path}: {ex.Message}");
                 if (ex.InnerException != null)
                 {
-                    this._logger.Error(ex.InnerException.Message);
+                    _logger.Error(ex.InnerException.Message);
                 }
+
                 return null;
             }
         }
@@ -165,119 +225,47 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddFixedSettings()
         {
-            this._configuration["IdFormat"] = this._settings.IdFormat;
-            this._configuration["Provider"] = this._settings.Database.Provider;
-            this._configuration["ConnectionString"] = this._settings.Database.ConnectionString;
-            this._configuration["CertificateStore"] = this._settings.CertificateStore.StoreName;
-            this._configuration["CertificateRepository"] = this._settings.CertificateStore?.Repository?.Type;
-            this.FeInProcess = this._settings.FeInProcess;
+            _configuration["IdFormat"] = _settings.IdFormat;
+            _configuration["Provider"] = _settings.Database.Provider;
+            _configuration["ConnectionString"] = _settings.Database.ConnectionString;
+            _configuration["CertificateStore"] = _settings.CertificateStore.StoreName;
+            _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
+            FeInProcess = _settings.FeInProcess;
         }
 
         private void AddCustomSettings()
         {
-            if (this._settings.CustomSettings?.Setting == null)
+            if (_settings.CustomSettings?.Setting == null) return;
+
+            foreach (Setting setting in _settings.CustomSettings.Setting)
             {
-                return;
-            }
-            foreach (Setting setting in this._settings.CustomSettings.Setting)
-            {
-                this._configuration[setting.Key] = setting.Value;
+                _configuration[setting.Key] = setting.Value;
             }
         }
 
         private void AddCustomAgents()
         {
-            this._agents = new List<SettingsAgent>();
+            _agents = new List<SettingsAgent>();
 
-            if (this._settings.Agents.ReceiveAgents != null)
+            if (_settings.Agents.ReceiveAgents != null)
             {
-                this._agents.AddRange(this._settings.Agents.ReceiveAgents);
-            }
-            if (this._settings.Agents.SubmitAgents != null)
-            {
-                this._agents.AddRange(this._settings.Agents.SubmitAgents);
+                _agents.AddRange(_settings.Agents.ReceiveAgents);
             }
 
-            this._agents.AddRange(this._settings.Agents.SendAgents);
-            this._agents.AddRange(this._settings.Agents.DeliverAgents);
-            this._agents.AddRange(this._settings.Agents.NotifyAgents);
-            this._agents.Add(this._settings.Agents.ReceptionAwarenessAgent);
-        }
-
-        /// <summary>
-        /// Retrieve the PMode from the Global Settings
-        /// </summary>
-        /// <param name="id"></param>
-        /// <exception cref="AS4Exception"></exception>
-        /// <returns></returns>
-        public SendingProcessingMode GetSendingPMode(string id)
-        {
-            if (String.IsNullOrEmpty(id))
+            if (_settings.Agents.SubmitAgents != null)
             {
-                throw new AS4Exception("Given Sending PMode key is null");
+                _agents.AddRange(_settings.Agents.SubmitAgents);
             }
 
-            var pmode = _sendingPModeWatcher.GetPMode(id);
-
-            if (pmode == null)
-            {
-                throw new AS4Exception($"No Sending Processing Mode found for {id}");
-            }
-
-            return pmode as SendingProcessingMode;
-        }
-
-        /// <summary>
-        /// Retrieve Setting from the Global Configurations
-        /// </summary>
-        /// <param name="key"> Registered Key for the Setting </param>
-        /// <returns>
-        /// </returns>
-        public string GetSetting(string key) => this._configuration.ReadOptionalProperty(key);
-
-        /// <summary>
-        /// Get the configured settings agents
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<SettingsAgent> GetSettingsAgents() => this._agents;
-
-        /// <summary>
-        /// Return all the configured <see cref="ReceivingProcessingMode"/>
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
-            => this._receivingPModeWatcher.GetPModes().OfType<ReceivingProcessingMode>();
-
-        /// <summary>
-        /// Indicates if the FE needs to be started in process
-        /// </summary>
-        public bool FeInProcess { get; private set; }
-
-        /// <summary>
-        /// Retrieve the URL's on which specific MinderSubmitReceiveAgents should listen.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
-        {
-            if (this._settings.Agents.MinderTestAgents == null)
-            {
-                return new SettingsMinderAgent[] { };
-            }
-
-            return this._settings.Agents.MinderTestAgents.Where(a => a.Enabled);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
+            _agents.AddRange(_settings.Agents.SendAgents);
+            _agents.AddRange(_settings.Agents.DeliverAgents);
+            _agents.AddRange(_settings.Agents.NotifyAgents);
+            _agents.Add(_settings.Agents.ReceptionAwarenessAgent);
         }
 
         private void Dispose(bool disposing)
         {
-            if (!disposing)
-            {
-                return;
-            }
+            if (!disposing) return;
 
             if (_sendingPModeWatcher != null)
             {

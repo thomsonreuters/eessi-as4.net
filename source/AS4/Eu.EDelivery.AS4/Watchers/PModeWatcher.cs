@@ -13,6 +13,7 @@ namespace Eu.EDelivery.AS4.Watchers
     /// <summary>
     /// Watcher to check if there's a new Sending PMode available
     /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class PModeWatcher<T> : IDisposable where T : class, IPMode
     {
         private readonly ConcurrentDictionary<string, ConfiguredPMode> _pmodes = new ConcurrentDictionary<string, ConfiguredPMode>(StringComparer.OrdinalIgnoreCase);
@@ -25,8 +26,7 @@ namespace Eu.EDelivery.AS4.Watchers
         /// <param name="path"></param>        
         public PModeWatcher(string path)
         {
-            _watcher = new FileSystemWatcher(path, "*.xml");
-            _watcher.IncludeSubdirectories = true;
+            _watcher = new FileSystemWatcher(path, "*.xml") {IncludeSubdirectories = true};
             _watcher.Changed += OnChanged;
             _watcher.Created += OnCreated;
             _watcher.Deleted += OnDeleted;
@@ -43,6 +43,16 @@ namespace Eu.EDelivery.AS4.Watchers
         public void Stop()
         {
             _watcher.EnableRaisingEvents = false;
+        }
+
+        /// <summary>
+        /// Verify if the Watcher contains a <see cref="IPMode"/> for a given <paramref name="id"/>.
+        /// </summary>
+        /// <param name="id">Id for which the verification is done.</param>
+        /// <returns></returns>
+        public bool ContainsPMode(string id)
+        {
+            return _pmodes.ContainsKey(id);
         }
 
         public IPMode GetPMode(string key)
