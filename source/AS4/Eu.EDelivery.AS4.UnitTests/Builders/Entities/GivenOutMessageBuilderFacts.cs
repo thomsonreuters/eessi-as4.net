@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Assert
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
-                string xmlPMode = AS4XmlSerializer.Serialize(as4Message.SendingPMode);
+                string xmlPMode = AS4XmlSerializer.ToString(as4Message.SendingPMode);
                 Assert.Equal(xmlPMode, outMessage.PMode);
             }
 

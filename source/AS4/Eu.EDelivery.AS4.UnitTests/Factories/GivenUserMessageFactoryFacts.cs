@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Factories
 
         protected SendingProcessingMode CreatePopulatedSendingPMode()
         {
-            return AS4XmlSerializer.Deserialize<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
+            return AS4XmlSerializer.FromStream<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
         }
     }
 }

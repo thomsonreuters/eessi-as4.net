@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 var notifyMessageEnv = result.InternalMessage.NotifyMessage;
                 Assert.NotNull(notifyMessageEnv);
 
-                var notifyMessage = AS4XmlSerializer.Deserialize<NotifyMessage>(System.Text.Encoding.UTF8.GetString(notifyMessageEnv.NotifyMessage));
+                var notifyMessage = AS4XmlSerializer.FromStream<NotifyMessage>(System.Text.Encoding.UTF8.GetString(notifyMessageEnv.NotifyMessage));
                 Assert.NotNull(notifyMessage);
 
                 XmlElement signalMessage = GetSignalMessageFromDocument(internalMessage.AS4Message.EnvelopeDocument);

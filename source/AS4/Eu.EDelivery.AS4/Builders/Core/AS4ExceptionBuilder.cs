@@ -129,14 +129,14 @@ namespace Eu.EDelivery.AS4.Builders.Core
 
         public AS4ExceptionBuilder WithReceivingPMode(ReceivingProcessingMode pmode)
         {
-            this._pmodeString = AS4XmlSerializer.Serialize(pmode);
+            this._pmodeString = AS4XmlSerializer.ToString(pmode);
 
             return this;
         }
 
         public AS4ExceptionBuilder WithSendingPMode(SendingProcessingMode pmode)
         {
-            this._pmodeString = AS4XmlSerializer.Serialize(pmode);
+            this._pmodeString = AS4XmlSerializer.ToString(pmode);
 
             return this;
         }

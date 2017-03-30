@@ -35,14 +35,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             this._sendingPModes = new Dictionary<string, SendingProcessingMode>();
             this._sendingPModes["01-send"] = AS4XmlSerializer
-                .Deserialize<SendingProcessingMode>(Properties.Resources.send_01);
+                .FromStream<SendingProcessingMode>(Properties.Resources.send_01);
         }
 
         private void SetupReceivingPModes()
         {
             this._receivingPmodes = new Dictionary<string, ReceivingProcessingMode>();
             this._receivingPmodes["01-receive"] = AS4XmlSerializer
-                .Deserialize<ReceivingProcessingMode>(Properties.Resources.receive_01);
+                .FromStream<ReceivingProcessingMode>(Properties.Resources.receive_01);
         }
 
         private void SetupConfiguration()

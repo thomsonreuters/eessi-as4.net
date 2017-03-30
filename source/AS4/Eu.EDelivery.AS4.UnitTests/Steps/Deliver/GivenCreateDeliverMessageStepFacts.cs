@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                    AS4XmlSerializer.FromStream<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 Agreement agreement = deliverMessage.CollaborationInfo.AgreementRef;
                 Assert.NotNull(agreement);
                 Assert.NotEmpty(agreement.Value);
@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                    AS4XmlSerializer.FromStream<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 Service service = deliverMessage.CollaborationInfo.Service;
                 Assert.NotNull(service);
                 Assert.NotEmpty(service.Type);
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                    AS4XmlSerializer.FromStream<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 AS4.Model.Common.Party deliverParty = deliverMessage.PartyInfo.FromParty;
                 Assert.NotNull(deliverParty);
                 Assert.NotEmpty(deliverParty.Role);
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                    AS4XmlSerializer.FromStream<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
 
                 AS4.Model.Common.Party deliverParty = deliverMessage.PartyInfo.ToParty;
                 Assert.NotNull(deliverParty);
@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 StepResult result = await ExecuteStepWithDefaultInternalMessage();
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
+                    AS4XmlSerializer.FromStream<DeliverMessage>(Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 MessageProperty[] props = deliverMessage.MessageProperties;
                 Assert.NotNull(props);
                 Assert.NotEmpty(props);

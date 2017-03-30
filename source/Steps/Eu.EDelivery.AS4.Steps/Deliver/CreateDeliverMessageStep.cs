@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             var deliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
 
 
-            var serialized = AS4XmlSerializer.Serialize(deliverMessage);
+            var serialized = AS4XmlSerializer.ToString(deliverMessage);
 
             ValidateDeliverMessage(deliverMessage, internalMessage);
 

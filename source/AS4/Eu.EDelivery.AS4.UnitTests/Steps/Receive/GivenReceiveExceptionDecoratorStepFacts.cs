@@ -168,7 +168,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             AS4Exception as4Exception =
                 AS4ExceptionBuilder.WithDescription("Testing AS4 Exception")
-                                   .WithPModeString(AS4XmlSerializer.Serialize(GetReceivingPMode()))
+                                   .WithPModeString(AS4XmlSerializer.ToString(GetReceivingPMode()))
                                    .WithMessageIds(messageId)
                                    .Build();
 
