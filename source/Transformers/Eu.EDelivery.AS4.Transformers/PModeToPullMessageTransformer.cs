@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             try
             {
-                receivedMessage.AssignProperties(transformedMessage.AS4Message);
+                receivedMessage.AssignPropertiesTo(transformedMessage.AS4Message);
 
                 SendingProcessingMode pmode = DeserializeValidPMode(receivedMessage);
                 transformedMessage.AS4Message.SendingPMode = pmode;

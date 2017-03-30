@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Transformers
             AS4Message as4Message = await serializer
                 .DeserializeAsync(receivedMessage.RequestStream, receivedMessage.ContentType, cancellationToken);
 
-            receivedMessage.AssignProperties(as4Message);
+            receivedMessage.AssignPropertiesTo(as4Message);
 
             return as4Message;
         }
