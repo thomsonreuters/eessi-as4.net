@@ -91,24 +91,5 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 Assert.True(onlywithDescription.Properties.First().Description == "Name");
             }
         }
-
-        public class FlattenRuntimeToJson : RuntimeLoaderTest
-        {
-            public void Object_Properties_Should_Be_Flattened_In_Json()
-            {
-                // Setup
-                Setup();
-
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Model.PMode.IPMode");
-
-                var jsonResult = JsonConvert.SerializeObject(result.First(x => x.Name == "SendingProcessingMode"), Formatting.Indented, new FlattenRuntimeToJsonConverter());
-
-                // Assert
-                var json = JObject.Parse(jsonResult);
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "pullconfiguration"));
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "security"));
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "signing"));
-            }
-        }
     }
 }
