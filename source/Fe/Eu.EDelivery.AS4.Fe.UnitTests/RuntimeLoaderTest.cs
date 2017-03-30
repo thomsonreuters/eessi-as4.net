@@ -94,7 +94,6 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
         public class FlattenRuntimeToJson : RuntimeLoaderTest
         {
-            [Fact]
             public void Object_Properties_Should_Be_Flattened_In_Json()
             {
                 // Setup
