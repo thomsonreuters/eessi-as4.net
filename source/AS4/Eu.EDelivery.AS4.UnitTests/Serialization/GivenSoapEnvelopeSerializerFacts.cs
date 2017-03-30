@@ -184,7 +184,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 AS4Message as4Message = CreateAs4Message(CreateMultihopPMode());
 
                 // Act
-                XmlDocument doc = AS4XmlSerializer.Serialize(as4Message, CancellationToken.None);
+                XmlDocument doc = AS4XmlSerializer.ToDocument(as4Message, CancellationToken.None);
 
                 // Assert
                 var messagingNode = doc.SelectSingleNode($"//*[local-name()='Messaging']") as XmlElement;
@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // The result should contain a signalmessage, which is a receipt.
                 Assert.True(result.InternalMessage.AS4Message.IsSignalMessage);
 
-                XmlDocument doc = AS4XmlSerializer.Serialize(result.InternalMessage.AS4Message, CancellationToken.None);
+                XmlDocument doc = AS4XmlSerializer.ToDocument(result.InternalMessage.AS4Message, CancellationToken.None);
 
                 // Following elements should be present:
                 // - To element in the wsa namespace
@@ -251,7 +251,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     .Build();
 
                 // Act
-                XmlDocument document = AS4XmlSerializer.Serialize(errorMessage, CancellationToken.None);
+                XmlDocument document = AS4XmlSerializer.ToDocument(errorMessage, CancellationToken.None);
 
                 // Following elements should be present:
                 // - To element in the wsa namespace
@@ -295,14 +295,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 XmlNode messagingNode = doc.SelectSingleNode(@"//*[local-name()='Messaging']");
                 Assert.NotNull(messagingNode);
 
-                return AS4XmlSerializer.Deserialize<Xml.Messaging>(messagingNode.OuterXml);
+                return AS4XmlSerializer.FromString<Xml.Messaging>(messagingNode.OuterXml);
             }
 
             private static void AssertIfSenderAndReceiverAreReversed(AS4Message expectedAS4Message, XmlNode doc)
             {
                 XmlNode routingInputNode = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
                 Assert.NotNull(routingInputNode);
-                var routingInput = AS4XmlSerializer.Deserialize<Xml.RoutingInput>(routingInputNode.OuterXml);
+                var routingInput = AS4XmlSerializer.FromString<Xml.RoutingInput>(routingInputNode.OuterXml);
 
                 Assert.Equal(expectedAS4Message.PrimaryUserMessage.Sender.Role, routingInput.UserMessage.PartyInfo.To.Role);
                 Assert.Equal(expectedAS4Message.PrimaryUserMessage.Sender.PartyIds.First().Id, routingInput.UserMessage.PartyInfo.To.PartyId.First().Value);

@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     throw ThrowAS4Exception(
                         $"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
 
-                var pmode = AS4XmlSerializer.FromStream<SendPMode>(outMessage.PMode);
+                var pmode = AS4XmlSerializer.FromString<SendPMode>(outMessage.PMode);
                 this._logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
 
                 return pmode;

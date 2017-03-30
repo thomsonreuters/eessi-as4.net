@@ -105,12 +105,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
         protected SubmitMessage CreatePopulatedSubmitMessage()
         {
-            return AS4XmlSerializer.FromStream<SubmitMessage>(Properties.Resources.submitmessage);
+            return AS4XmlSerializer.FromString<SubmitMessage>(Properties.Resources.submitmessage);
         }
 
         protected SendingProcessingMode CreatePopulatedSendingPMode()
         {
-            return AS4XmlSerializer.FromStream<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
+            return AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
         }
     }
 }
