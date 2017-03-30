@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private AS4Message _originalAS4Message;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendAS4MessageStep"/> class
+        /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
         public SendAS4MessageStep()
         {
@@ -41,8 +41,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendAS4MessageStep"/> class. 
-        /// Create a Send AS4Message Step 
+        /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
+        /// Create a Send AS4Message Step
         /// with a given Serializer Provider
         /// </summary>
         /// <param name="provider">
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Send the <see cref="AS4Message" />
         /// </summary>
-        /// <param name="internalMessage"></param>        
+        /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
@@ -91,24 +91,23 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
                 UpdateOperation(_originalAS4Message, Operation.Undetermined);
 
-                return
-                    StepResult.Failed(
-                        AS4ExceptionBuilder.WithDescription("Failed to send AS4Message")
-                                           .WithInnerException(exception)
-                                           .Build());
+                AS4Exception resultedException =
+                    AS4ExceptionBuilder.WithDescription("Failed to send AS4Message")
+                                       .WithInnerException(exception)
+                                       .Build();
+
+                return StepResult.Failed(resultedException);
             }
 
             AS4Exception as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
             internalMessage.AS4Message?.SignalMessages?.Clear();
+
             return StepResult.Failed(as4Exception, internalMessage);
         }
 
         private static void UpdateOperation(AS4Message as4Message, Operation operation)
         {
-            if (as4Message == null)
-            {
-                return;
-            }
+            if (as4Message == null) return;
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
@@ -116,10 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 IEnumerable<OutMessage> outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
 
-                foreach (OutMessage outMessage in outMessages)
-                {
-                    outMessage.Operation = operation;
-                }
+                foreach (OutMessage outMessage in outMessages) outMessage.Operation = operation;
 
                 context.SaveChanges();
             }
@@ -127,9 +123,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private HttpWebRequest CreateWebRequest(AS4Message as4Message)
         {
-            ISendConfiguration sendConfiguration = as4Message.GetSendConfiguration();
+            ISendConfiguration sendConfiguration = as4Message.PrimarySignalMessage is PullRequest 
+                ? (ISendConfiguration) as4Message.SendingPMode.PullConfiguration 
+                : as4Message.SendingPMode.PushConfiguration;
 
-            var request = (HttpWebRequest)WebRequest.Create(sendConfiguration.Protocol.Url);
+            var request = (HttpWebRequest) WebRequest.Create(sendConfiguration.Protocol.Url);
             request.Method = "POST";
             request.ContentType = as4Message.ContentType;
             request.KeepAlive = false;
@@ -144,10 +142,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private void AssignClientCertificate(TlsConfiguration configuration, HttpWebRequest request)
         {
-            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null)
-            {
-                return;
-            }
+            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null) return;
 
             Logger.Info("Adding Client TLS Certificate to Http Request.");
 
@@ -159,7 +154,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (certificate == null)
             {
                 throw new ConfigurationErrorsException(
-                    $"The Client TLS Certificate could not be found (FindType:{certReference.ClientCertificateFindType}/FindValue:{certReference.ClientCertificateFindValue})");
+                    "The Client TLS Certificate could not be found "
+                    + $"(FindType:{certReference.ClientCertificateFindType}/FindValue:{certReference.ClientCertificateFindValue})");
             }
 
             request.ClientCertificates.Add(certificate);
@@ -172,7 +168,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                Logger.Info($"Send AS4 Message to: {internalMessage.AS4Message.GetSendConfiguration().Protocol.Url}");
+                AS4Message tempQualifier = internalMessage.AS4Message;
+                Logger.Info($"Send AS4 Message to: {(tempQualifier.PrimarySignalMessage is PullRequest ? (ISendConfiguration) tempQualifier.SendingPMode.PullConfiguration : tempQualifier.SendingPMode.PushConfiguration).Protocol.Url}");
                 await HandleHttpRequestAsync(request, internalMessage.AS4Message, cancellationToken);
             }
             catch (WebException exception)
@@ -201,14 +198,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                Logger.Debug($"AS4 Message received from: {internalMessage.AS4Message.GetSendConfiguration().Protocol.Url}");
+                AS4Message tempQualifier = internalMessage.AS4Message;
+                Logger.Debug($"AS4 Message received from: {(tempQualifier.PrimarySignalMessage is PullRequest ? (ISendConfiguration) tempQualifier.SendingPMode.PullConfiguration : tempQualifier.SendingPMode.PushConfiguration).Protocol.Url}");
                 return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }
             catch (WebException exception)
             {
-                if (exception.Response != null && ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
+                if (exception.Response != null
+                    && ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
                 {
-                    return await ReturnStepResult(exception.Response as HttpWebResponse, internalMessage, cancellationToken);
+                    return await ReturnStepResult(
+                               webResponse: exception.Response as HttpWebResponse,
+                               resultedMessage: internalMessage,
+                               cancellationToken: cancellationToken);
                 }
 
                 throw CreateFailedSendAS4Exception(internalMessage, exception);
@@ -226,29 +228,32 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             using (WebResponse responseStream = await request.GetResponseAsync().ConfigureAwait(false))
             {
-                return await ReturnStepResult(responseStream as HttpWebResponse, internalMessage, cancellationToken);
+                return await ReturnStepResult(
+                    webResponse: responseStream as HttpWebResponse, 
+                    resultedMessage: internalMessage, 
+                    cancellationToken: cancellationToken);
             }
         }
 
         private async Task<StepResult> ReturnStepResult(
             HttpWebResponse webResponse,
-            InternalMessage internalMessage,
+            InternalMessage resultedMessage,
             CancellationToken cancellationToken)
         {
-            internalMessage.AS4Message = _originalAS4Message;
+            resultedMessage.AS4Message = _originalAS4Message;
 
             if (webResponse == null || webResponse.StatusCode == HttpStatusCode.Accepted)
             {
-                internalMessage.AS4Message.SignalMessages.Clear();
+                resultedMessage.AS4Message.SignalMessages.Clear();
 
                 Logger.Info("Empty Soap Body is returned, no further action is needed");
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(resultedMessage);
             }
 
-            AS4Message response = await DeserializeHttpResponse(webResponse, internalMessage, cancellationToken);
-            internalMessage.AS4Message = response;
-            
-            return await CreateStepResult(response, internalMessage);
+            AS4Message response = await DeserializeHttpResponse(webResponse, resultedMessage, cancellationToken);
+            resultedMessage.AS4Message = response;
+
+            return await CreateStepResult(response, resultedMessage);
         }
 
         private async Task<StepResult> CreateStepResult(AS4Message response, InternalMessage internalMessage)
@@ -256,7 +261,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             StepResult stepResult = await StepResult.SuccessAsync(internalMessage);
 
             bool isOriginatedFromPullRequest = (response.PrimarySignalMessage as Error)?.FromPullRequest == true;
-            bool isRequestBeingSendAPullRequest = _originalAS4Message.IsPulling;
+            bool isRequestBeingSendAPullRequest = _originalAS4Message.PrimarySignalMessage is PullRequest;
 
             if (isOriginatedFromPullRequest && isRequestBeingSendAPullRequest)
             {
@@ -267,14 +272,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
 
         private async Task<AS4Message> DeserializeHttpResponse(
-            WebResponse webResponse, 
-            InternalMessage internalMessage, 
+            WebResponse webResponse,
+            InternalMessage internalMessage,
             CancellationToken cancellationToken)
         {
             string contentType = webResponse.ContentType;
             Stream responseStream = webResponse.GetResponseStream();
 
-            ISerializer serializer = _provider.Get(contentType: contentType);
+            ISerializer serializer = _provider.Get(contentType);
             AS4Message response = await serializer.DeserializeAsync(responseStream, contentType, cancellationToken);
             response.SendingPMode = internalMessage.AS4Message.SendingPMode;
             response.UserMessages.Add(internalMessage.AS4Message.PrimaryUserMessage);
@@ -284,7 +289,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         protected AS4Exception CreateFailedSendAS4Exception(InternalMessage internalMessage, Exception exception)
         {
-            string protocolUrl = internalMessage.AS4Message.GetSendConfiguration().Protocol.Url;
+            AS4Message tempQualifier = internalMessage.AS4Message;
+            string protocolUrl = (tempQualifier.PrimarySignalMessage is PullRequest ? (ISendConfiguration) tempQualifier.SendingPMode.PullConfiguration : tempQualifier.SendingPMode.PushConfiguration).Protocol.Url;
             string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
             Logger.Error(description);
 

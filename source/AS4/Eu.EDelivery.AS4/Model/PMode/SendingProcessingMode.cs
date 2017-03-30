@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool IsEnabled { get; set; }
         public X509ReferenceType KeyReferenceMethod { get; set; }
         public X509FindType PrivateKeyFindType { get; set; }
-        public string PrivateKeyFindValue { get; set; }        
+        public string PrivateKeyFindValue { get; set; }
         public string Algorithm { get; set; }
         public string HashFunction { get; set; }
 
@@ -247,6 +247,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class PullConfiguration : ISendConfiguration
     {
         public string SubChannel { get; set; }
+
+        public Protocol Protocol { get; set; }
+        public TlsConfiguration TlsConfiguration { get; set; }
+
+        public PullConfiguration()
+        {
+            this.Protocol = new Protocol();
+            this.TlsConfiguration = new TlsConfiguration();
+        }
     }
 
     [Serializable]
