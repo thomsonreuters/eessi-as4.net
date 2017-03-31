@@ -261,7 +261,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             StepResult stepResult = await StepResult.SuccessAsync(internalMessage);
 
             bool isOriginatedFromPullRequest = (response.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
-            bool isRequestBeingSendAPullRequest = _originalAS4Message.PrimarySignalMessage is PullRequest;
+            bool isRequestBeingSendAPullRequest = _originalAS4Message.IsPulling;
 
             if (isOriginatedFromPullRequest && isRequestBeingSendAPullRequest)
             {
