@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _messageCallback = message =>
             {
-                var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToMemoryStream(message.PMode));
+                var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(message.PMode));
                 return messageCallback(receivedMessage, cancellationToken);
             };
 

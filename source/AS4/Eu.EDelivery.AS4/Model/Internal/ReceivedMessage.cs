@@ -10,25 +10,21 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class ReceivedMessage
     {
-        public string Id { get; private set; }
-        public string ContentType { get;  set; }
-        public Stream RequestStream { get; set; }
-
-        protected ReceivedMessage() { }
+        protected ReceivedMessage() {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceivedMessage"/> class. 
+        /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
         /// Create a new Received Message with a given RequestStream
         /// </summary>
         /// <param name="requestStream">
         /// </param>
         public ReceivedMessage(Stream requestStream)
         {
-            this.RequestStream = requestStream;
+            RequestStream = requestStream;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceivedMessage"/> class. 
+        /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
         /// Create a new Received Message with a given RequestStream
         /// and Processing Mode
         /// </summary>
@@ -38,12 +34,12 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </param>
         public ReceivedMessage(Stream requestStream, string contentType)
         {
-            this.RequestStream = requestStream;
-            this.ContentType = contentType;
+            RequestStream = requestStream;
+            ContentType = contentType;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceivedMessage"/> class. 
+        /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
         /// Create a new Received Message with a given RequestStream
         /// and Processing Mode
         /// </summary>
@@ -54,18 +50,24 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </param>
         public ReceivedMessage(string id, Stream requestStream, string contentType)
         {
-            this.RequestStream = requestStream;
-            this.ContentType = contentType;
-            this.Id = id;
+            RequestStream = requestStream;
+            ContentType = contentType;
+            Id = id;
         }
 
+        public string Id { get; private set; }
+
+        public string ContentType { get; set; }
+
+        public Stream RequestStream { get; set; }
+
         /// <summary>
-        /// Assign custom properties to the <see cref="ReceivedMessage"/>
+        /// Assign custom properties to the <see cref="ReceivedMessage" />
         /// </summary>
         /// <param name="message"></param>
-        public virtual void AssignProperties(AS4Message message)
+        public virtual void AssignPropertiesTo(AS4Message message)
         {
-            message.ContentType = this.ContentType;
+            message.ContentType = ContentType;
         }
     }
 }

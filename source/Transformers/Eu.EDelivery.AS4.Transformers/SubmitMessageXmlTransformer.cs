@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Transformers
         private AS4Exception ThrowDeserializeAS4Exception(Exception exception)
         {
             const string description = "Deserialize Submit Message Fails";
-            this._logger.Error(description);
+            _logger.Error(description);
 
             var builder = AS4ExceptionBuilder
                 .WithDescription(description, exception)
@@ -82,8 +82,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void ValidateSubmitMessage(SubmitMessage submitMessage)
         {
-            if (this._validator.Validate(submitMessage))
-                this._logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid");
+            _validator.Validate(submitMessage);
+            _logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid");
         }
 
         private void LogTransformedInformation()

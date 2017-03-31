@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             var deliverMessage = CreateDeliverMessage(internalMessage.AS4Message);
 
 
-            var serialized = AS4XmlSerializer.Serialize(deliverMessage);
+            var serialized = AS4XmlSerializer.ToString(deliverMessage);
 
             ValidateDeliverMessage(deliverMessage, internalMessage);
 
@@ -84,15 +84,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage, InternalMessage internalMessage)
         {
-            if (!this._validator.Validate(deliverMessage))
-            {
-                _logger.Error($"{internalMessage.Prefix} DeliverMessage is not valid.");
-                return;
-            }
-
+            _validator.Validate(deliverMessage);
+            
             string messageId = deliverMessage.MessageInfo.MessageId;
             string message = $"{internalMessage.Prefix} Deliver Message {messageId} was valid";
-            this._logger.Debug(message);
+            _logger.Debug(message);
         }
     }
 }

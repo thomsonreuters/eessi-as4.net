@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithAS4Message(as4Message)
                 .WithEbmsMessageType(MessageType.UserMessage)
                 .WithMessageUnit(userMessage)
-                .WithPModeString(AS4XmlSerializer.Serialize(as4Message.ReceivingPMode))
+                .WithPModeString(AS4XmlSerializer.ToString(as4Message.ReceivingPMode))
                 .Build(cancellationToken);
 
             if (NeedUserMessageBeDelivered(as4Message.ReceivingPMode, userMessage))
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithAS4Message(as4Message)
                 .WithEbmsMessageType(MessageType.Receipt)
                 .WithMessageUnit(signalMessage)
-                .WithPModeString(AS4XmlSerializer.Serialize(as4Message.SendingPMode))
+                .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
                 .Build(cancellationToken);
 
             if (ReceiptDoesNotNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .WithAS4Message(as4Message)
                 .WithEbmsMessageType(MessageType.Error)
                 .WithMessageUnit(signalMessage)
-                .WithPModeString(AS4XmlSerializer.Serialize(as4Message.SendingPMode))
+                .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
                 .Build(cancellationToken);
 
             if (ErrorDontNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)

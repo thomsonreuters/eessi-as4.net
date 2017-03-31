@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Moq;
 using Xunit;
 
@@ -39,26 +40,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             return new SendingProcessingMode {Id = _pmodeId};
         }
 
-        private SendingProcessingMode GetStubRightProcessingMode()
+        private static SendingProcessingMode GetStubRightProcessingMode()
         {
             Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
-            return new SendingProcessingMode
-            {
-                Id = _pmodeId,
-                PushConfiguration = new PushConfiguration {Protocol = new Protocol {Url = "http://127.0.0.1/msh"}},
-                Security =
-                    new AS4.Model.PMode.Security
-                    {
-                        Signing =
-                            new Signing
-                            {
-                                PrivateKeyFindValue = "My",
-                                PrivateKeyFindType = X509FindType.FindBySubjectName,
-                                Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
-                                HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256"
-                            }
-                    }
-            };
+            return new ValidStubSendingPModeFactory().Create();
         }
 
         private SubmitMessage GetStubSubmitMessage()

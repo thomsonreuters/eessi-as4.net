@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             using (DatastoreContext context = GetDataStoreContext())
             {
                 var pmode = new SendingProcessingMode();
-                string pmodeString = AS4XmlSerializer.Serialize(pmode);
+                string pmodeString = AS4XmlSerializer.ToString(pmode);
                 var outMessage = new OutMessage {EbmsMessageId = messageId, PMode = pmodeString};
 
                 context.OutMessages.Add(outMessage);

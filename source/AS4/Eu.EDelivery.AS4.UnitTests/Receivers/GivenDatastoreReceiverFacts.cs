@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             return new OutMessage
             {
                 Operation = Operation.ToBeSent,
-                PMode = AS4XmlSerializer.Serialize(_pmode),
+                PMode = AS4XmlSerializer.ToString(_pmode),
                 MessageBody = new byte[0]
             };
         }

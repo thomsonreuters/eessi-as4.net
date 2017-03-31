@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             var notifyMessage = CreateNotifyMessage(internalMessage.AS4Message);
             notifyMessage.StatusInfo.Any = GetOriginalSignalMessage(internalMessage.AS4Message);
 
-            var serialized = AS4XmlSerializer.Serialize(notifyMessage);
+            var serialized = AS4XmlSerializer.ToString(notifyMessage);
 
             _internalMessage.NotifyMessage = new NotifyMessageEnvelope(notifyMessage.MessageInfo,
                                                                        notifyMessage.StatusInfo.Status,

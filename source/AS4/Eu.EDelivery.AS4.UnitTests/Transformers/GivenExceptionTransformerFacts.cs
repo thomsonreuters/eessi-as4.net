@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 {
                     EbmsRefToMessageId = "ref-to-message-id",
                     Exception = "Test Exception description",
-                    PMode = AS4XmlSerializer.Serialize(new ReceivingProcessingMode())
+                    PMode = AS4XmlSerializer.ToString(new ReceivingProcessingMode())
                 };
             }
         }

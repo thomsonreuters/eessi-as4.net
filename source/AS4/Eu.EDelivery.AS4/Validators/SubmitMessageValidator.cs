@@ -31,13 +31,12 @@ namespace Eu.EDelivery.AS4.Validators
         /// Validate the given <paramref name="model"/>
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
-        bool IValidator<SubmitMessage>.Validate(SubmitMessage model)
+        void IValidator<SubmitMessage>.Validate(SubmitMessage model)
         {
             ValidationResult validationResult = base.Validate(model);
 
-            if (validationResult.IsValid) return true;
-            throw ThrowInvalidSubmitMessageException(model, validationResult);
+            if (!validationResult.IsValid)
+                throw ThrowInvalidSubmitMessageException(model, validationResult);
         }
 
         private AS4Exception ThrowInvalidSubmitMessageException(SubmitMessage submitMessage, ValidationResult result)

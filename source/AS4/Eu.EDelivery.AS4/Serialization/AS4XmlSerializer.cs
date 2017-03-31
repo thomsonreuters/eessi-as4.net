@@ -24,9 +24,9 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <typeparam name="T">Type of the class to which the data model must be serialized.</typeparam>
         /// <param name="data">Given data instance to serialize.</param>
         /// <returns></returns>
-        public static Stream ToMemoryStream<T>(T data)
+        public static Stream ToStream<T>(T data)
         {
-            string xml = Serialize(data);
+            string xml = ToString(data);
             return new MemoryStream(Encoding.UTF8.GetBytes(xml));
         }
 
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <typeparam name="T"></typeparam>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static string Serialize<T>(T data)
+        public static string ToString<T>(T data)
         {
             using (var stringWriter = new StringWriter())
             {
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="as4Message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static XmlDocument Serialize(AS4Message as4Message, CancellationToken cancellationToken)
+        public static XmlDocument ToDocument(AS4Message as4Message, CancellationToken cancellationToken)
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -97,14 +97,14 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <typeparam name="T">Type to which the given stream must be deserialized.</typeparam>
         /// <param name="stream">Stream containing the Xml.</param>
         /// <returns></returns>
-        public static T Deserialize<T>(Stream stream) where T : class
+        public static T FromStream<T>(Stream stream) where T : class
         {
             using (var streamReader = new StreamReader(stream))
             {
                 stream.Position = 0;
 
                 string xml = streamReader.ReadToEnd();
-                return Deserialize<T>(xml);
+                return FromString<T>(xml);
             }
         }
 
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <typeparam name="T"></typeparam>
         /// <param name="xml"></param>
         /// <returns></returns>
-        public static T Deserialize<T>(string xml) where T : class
+        public static T FromString<T>(string xml) where T : class
         {
             if (xml == null)
             {
@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <typeparam name="T"></typeparam>
         /// <param name="reader"></param>
         /// <returns></returns>
-        public static T Deserialize<T>(XmlReader reader) where T : class
+        public static T FromReader<T>(XmlReader reader) where T : class
         {
             XmlSerializer serializer = GetSerializerForType(typeof(T));
             return serializer.Deserialize(reader) as T;
@@ -147,7 +147,8 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlSerializer GetSerializerForType(Type type)
         {
-            if (!Serializers.ContainsKey(type)) Serializers[type] = new XmlSerializer(type);
+            if (!Serializers.ContainsKey(type))
+                Serializers[type] = new XmlSerializer(type);
             return Serializers[type];
         }
     }
