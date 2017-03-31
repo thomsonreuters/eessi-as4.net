@@ -28,12 +28,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     public class GivenSendAS4MessageStepFacts
     {
         private static readonly string SharedUrl = $"http://localhost:{new Random().Next(0, 9999)}";
+        private readonly IStep _step;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenSendAS4MessageStepFacts"/> class.
         /// </summary>
         public GivenSendAS4MessageStepFacts()
         {
+            _step = new SendAS4MessageStep();
+
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
 
             DbContextOptions<DatastoreContext> options =
@@ -48,44 +51,70 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             // Arrange
             AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequestError()).Build();
 
-            using (CreateMockedHttpServerWithResponse(as4Message))
+            using (CreateMockedHttpServerThatReturns(as4Message))
             {
-                InternalMessage internalMessage = CreateValidAS4Message();
-                var step = new SendAS4MessageStep();
+                InternalMessage dummyMessage = CreateAnonymousMessage();
 
                 // Act
-                StepResult actualResult = await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult actualResult = await _step.ExecuteAsync(dummyMessage, CancellationToken.None);
 
                 // Assert
                 Assert.False(actualResult.CanProceed);
             }
         }
 
-        private static MockedHttpServer CreateMockedHttpServerWithResponse(AS4Message message)
+        private static MockedHttpServer CreateMockedHttpServerThatReturns(AS4Message as4Message)
         {
-            MockedHttpServerBuilder builder;
+            var builder = new MockedHttpServerBuilder();
 
+            builder.WhenPost(SharedUrl)
+                   .RespondContent(HttpStatusCode.OK, request => HttpContentFor(as4Message));
+
+            return builder.Build(SharedUrl);
+        }
+
+        private static HttpContent HttpContentFor(AS4Message message)
+        {
             using (var messageStream = new MemoryStream())
             {
                 new SoapEnvelopeSerializer().Serialize(message, messageStream, CancellationToken.None);
                 messageStream.Position = 0;
                 byte[] messageBytes = messageStream.ToArray();
 
-                builder = new MockedHttpServerBuilder();
-                builder.WhenPost(SharedUrl)
-                       .RespondContent(
-                           HttpStatusCode.OK,
-                           request =>
-                               new StringContent(
-                                   Encoding.UTF8.GetString(messageBytes),
-                                   Encoding.UTF8,
-                                   Constants.ContentTypes.Soap));
+                return new StringContent(
+                    Encoding.UTF8.GetString(messageBytes),
+                    Encoding.UTF8,
+                    Constants.ContentTypes.Soap);
             }
+        }
+
+        [Fact]
+        public async Task SendReturnsEmptyResponseForEmptyRequest()
+        {
+            // Arrange
+            using (CreateMockedHttpServerThatReturnsStatusCode(HttpStatusCode.Accepted))
+            {
+                InternalMessage dummyMessage = CreateAnonymousMessage();
+
+                // Act
+                StepResult actualResult = await _step.ExecuteAsync(dummyMessage, CancellationToken.None);
+
+                // Assert
+                Assert.True(actualResult.InternalMessage.AS4Message.IsEmpty);
+            }
+        }
+
+        private static MockedHttpServer CreateMockedHttpServerThatReturnsStatusCode(HttpStatusCode statusCode)
+        {
+            var builder = new MockedHttpServerBuilder();
+
+            builder.WhenPost(SharedUrl)
+                .Respond(statusCode);
 
             return builder.Build(SharedUrl);
         }
 
-        private static InternalMessage CreateValidAS4Message()
+        private static InternalMessage CreateAnonymousMessage()
         {
             var builder = new AS4MessageBuilder();
 

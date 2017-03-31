@@ -107,7 +107,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static void UpdateOperation(AS4Message as4Message, Operation operation)
         {
-            if (as4Message == null) return;
+            if (as4Message == null)
+            {
+                return;
+            }
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
@@ -115,7 +118,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 IEnumerable<OutMessage> outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
 
-                foreach (OutMessage outMessage in outMessages) outMessage.Operation = operation;
+                foreach (OutMessage outMessage in outMessages)
+                {
+                    outMessage.Operation = operation;
+                }
 
                 context.SaveChanges();
             }
@@ -123,9 +129,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private HttpWebRequest CreateWebRequest(AS4Message as4Message)
         {
-            ISendConfiguration sendConfiguration = as4Message.PrimarySignalMessage is PullRequest 
-                ? (ISendConfiguration) as4Message.SendingPMode.PullConfiguration 
-                : as4Message.SendingPMode.PushConfiguration;
+            ISendConfiguration sendConfiguration = GetSendConfigurationFrom(as4Message);
 
             var request = (HttpWebRequest) WebRequest.Create(sendConfiguration.Protocol.Url);
             request.Method = "POST";
@@ -168,8 +172,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                AS4Message tempQualifier = internalMessage.AS4Message;
-                Logger.Info($"Send AS4 Message to: {(tempQualifier.PrimarySignalMessage is PullRequest ? (ISendConfiguration) tempQualifier.SendingPMode.PullConfiguration : tempQualifier.SendingPMode.PushConfiguration).Protocol.Url}");
+                Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
                 await HandleHttpRequestAsync(request, internalMessage.AS4Message, cancellationToken);
             }
             catch (WebException exception)
@@ -198,8 +201,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                AS4Message tempQualifier = internalMessage.AS4Message;
-                Logger.Debug($"AS4 Message received from: {(tempQualifier.PrimarySignalMessage is PullRequest ? (ISendConfiguration) tempQualifier.SendingPMode.PullConfiguration : tempQualifier.SendingPMode.PushConfiguration).Protocol.Url}");
+                Logger.Debug($"AS4 Message received from: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
                 return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }
             catch (WebException exception)
@@ -283,8 +285,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         protected AS4Exception CreateFailedSendAS4Exception(InternalMessage internalMessage, Exception exception)
         {
-            AS4Message tempQualifier = internalMessage.AS4Message;
-            string protocolUrl = (tempQualifier.PrimarySignalMessage is PullRequest ? (ISendConfiguration) tempQualifier.SendingPMode.PullConfiguration : tempQualifier.SendingPMode.PushConfiguration).Protocol.Url;
+            string protocolUrl = GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url;
             string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
             Logger.Error(description);
 
@@ -296,6 +297,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
                 .WithInnerException(exception)
                 .Build();
+        }
+
+        private static ISendConfiguration GetSendConfigurationFrom(AS4Message as4Message)
+        {
+            return as4Message.IsPulling
+                       ? (ISendConfiguration) as4Message.SendingPMode.PullConfiguration
+                       : as4Message.SendingPMode.PushConfiguration;
         }
     }
 }
