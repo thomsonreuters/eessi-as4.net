@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(
+                    AS4XmlSerializer.FromString<DeliverMessage>(
                         Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 Agreement agreement = deliverMessage.CollaborationInfo.AgreementRef;
                 Assert.NotNull(agreement);
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(
+                    AS4XmlSerializer.FromString<DeliverMessage>(
                         Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 AS4.Model.Common.Party deliverParty = deliverMessage.PartyInfo.FromParty;
                 Assert.NotNull(deliverParty);
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(
+                    AS4XmlSerializer.FromString<DeliverMessage>(
                         Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 AS4.Model.Common.MessageProperty[] props = deliverMessage.MessageProperties;
                 Assert.NotNull(props);
@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(
+                    AS4XmlSerializer.FromString<DeliverMessage>(
                         Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
                 Service service = deliverMessage.CollaborationInfo.Service;
                 Assert.NotNull(service);
@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
                 // Assert
                 var deliverMessage =
-                    AS4XmlSerializer.Deserialize<DeliverMessage>(
+                    AS4XmlSerializer.FromString<DeliverMessage>(
                         Encoding.UTF8.GetString(result.InternalMessage.DeliverMessage.DeliverMessage));
 
                 AS4.Model.Common.Party deliverParty = deliverMessage.PartyInfo.ToParty;

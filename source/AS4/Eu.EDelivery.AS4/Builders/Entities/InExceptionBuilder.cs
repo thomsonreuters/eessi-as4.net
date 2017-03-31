@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             if (string.IsNullOrEmpty(this._as4Exception.PMode))
                 return Operation.NotApplicable;
 
-            var pmode = AS4XmlSerializer.Deserialize<ReceivePMode>(this._as4Exception.PMode);
+            var pmode = AS4XmlSerializer.FromString<ReceivePMode>(this._as4Exception.PMode);
             if (pmode == null) return Operation.NotApplicable;
 
             return pmode.ExceptionHandling.NotifyMessageConsumer
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
         public T GetPMode<T>(string pmodeString) where T : class
         {
-            return AS4XmlSerializer.Deserialize<T>(pmodeString);
+            return AS4XmlSerializer.FromString<T>(pmodeString);
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// </param>
         public SigningStrategyBuilder(AS4Message as4Message, CancellationToken cancellationToken)
         {
-            _envelopeDocument = AS4XmlSerializer.Serialize(as4Message, cancellationToken);
+            _envelopeDocument = AS4XmlSerializer.ToDocument(as4Message, cancellationToken);
         }
 
         /// <summary>

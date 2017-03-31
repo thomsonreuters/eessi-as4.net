@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             OutMessage outMessage = CreateDefaultOutMessage();
 
             AddMessageBodyToMessage(outMessage, cancellationToken);
-            outMessage.PMode = AS4XmlSerializer.Serialize(GetSendingPMode());
+            outMessage.PMode = AS4XmlSerializer.ToString(GetSendingPMode());
 
             return outMessage;
         }

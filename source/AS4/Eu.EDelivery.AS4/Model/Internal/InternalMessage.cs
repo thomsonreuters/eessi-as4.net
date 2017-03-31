@@ -25,8 +25,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         // Exposed Info
         public AS4Exception Exception { get; set; }
-        public string SendingPModeString => AS4XmlSerializer.Serialize(this.AS4Message.SendingPMode);
-        public string ReceivingPModeString => AS4XmlSerializer.Serialize(this.AS4Message.ReceivingPMode);
+        public string SendingPModeString => AS4XmlSerializer.ToString(this.AS4Message.SendingPMode);
+        public string ReceivingPModeString => AS4XmlSerializer.ToString(this.AS4Message.ReceivingPMode);
         public string Prefix => GetPrefix();
 
         private string GetPrefix()

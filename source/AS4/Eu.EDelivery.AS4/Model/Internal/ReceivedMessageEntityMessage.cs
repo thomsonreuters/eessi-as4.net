@@ -21,9 +21,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Assign custom properties to the <see cref="ReceivedMessage"/>
         /// </summary>
         /// <param name="message"></param>
-        public override void AssignProperties(AS4Message message)
+        public override void AssignPropertiesTo(AS4Message message)
         {
-            base.AssignProperties(message);
+            base.AssignPropertiesTo(message);
 
             message.SendingPMode = GetPMode<SendingProcessingMode>();
             message.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public T GetPMode<T>() where T : class
         {
-            return AS4XmlSerializer.Deserialize<T>(this.MessageEntity.PMode);
+            return AS4XmlSerializer.FromString<T>(this.MessageEntity.PMode);
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         public T GetPMode<T>(string pmode) where T : class
         {
-            return AS4XmlSerializer.Deserialize<T>(pmode);
+            return AS4XmlSerializer.FromString<T>(pmode);
         }
 
         private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
