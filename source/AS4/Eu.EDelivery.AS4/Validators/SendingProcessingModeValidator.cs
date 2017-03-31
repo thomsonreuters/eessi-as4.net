@@ -92,13 +92,12 @@ namespace Eu.EDelivery.AS4.Validators
         /// Validate the given <paramref name="model"/>
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
-        bool IValidator<SendingProcessingMode>.Validate(SendingProcessingMode model)
+        void IValidator<SendingProcessingMode>.Validate(SendingProcessingMode model)
         {
             ValidationResult validationResult = base.Validate(model);
 
-            if (validationResult.IsValid) return true;
-            throw ThrowHandleInvalidPModeException(model, validationResult);
+            if (!validationResult.IsValid)
+                throw ThrowHandleInvalidPModeException(model, validationResult);
         }
 
         private AS4Exception ThrowHandleInvalidPModeException(SendingProcessingMode pmode, ValidationResult result)

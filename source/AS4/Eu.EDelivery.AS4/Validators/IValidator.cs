@@ -12,7 +12,6 @@
         /// Validate the given <paramref name="model"/>
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
-        bool Validate(T model);
+        void Validate(T model);
     }
 }

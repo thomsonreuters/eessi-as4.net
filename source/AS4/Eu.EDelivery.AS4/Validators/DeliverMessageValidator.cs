@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
@@ -16,12 +15,10 @@ namespace Eu.EDelivery.AS4.Validators
     /// </summary>
     public class DeliverMessageValidator : AbstractValidator<DeliverMessage>, IValidator<DeliverMessage>
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         public DeliverMessageValidator()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-
             RulesForMessageInfo();
             RulesForPartyInfo();
             RulesForCollaborationInfo();
@@ -32,13 +29,11 @@ namespace Eu.EDelivery.AS4.Validators
         /// Validate the given <paramref name="model"/>
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
-        bool IValidator<DeliverMessage>.Validate(DeliverMessage model)
+        void IValidator<DeliverMessage>.Validate(DeliverMessage model)
         {
             ValidationResult validationResult = TryValidateDeliverMessage(model);
-            if (validationResult == null) return false;
 
-            if (validationResult.IsValid) return true;
+            if (validationResult?.IsValid == false)
                 throw ThrowInvalidDeliverMessage(model, validationResult);
         }
 
@@ -48,21 +43,21 @@ namespace Eu.EDelivery.AS4.Validators
             {
                 return base.Validate(model);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 return null;
             }
         }
 
-        private AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage, ValidationResult result)
+        private static AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage, ValidationResult result)
         {
             foreach (var e in result.Errors)
             {
-                _logger.Error($"Deliver Message Validation Error: {e.PropertyName} = {e.ErrorMessage}");
+                Logger.Error($"Deliver Message Validation Error: {e.PropertyName} = {e.ErrorMessage}");
             }
             
             string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
-            this._logger.Error(description);
+            Logger.Error(description);
             
             return AS4ExceptionBuilder.WithDescription(description).Build();
         }

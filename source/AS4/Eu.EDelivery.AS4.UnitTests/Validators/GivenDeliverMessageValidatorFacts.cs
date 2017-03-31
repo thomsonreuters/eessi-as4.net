@@ -23,10 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 IValidator<DeliverMessage> validator = new DeliverMessageValidator();
 
                 // Act
-                bool isValid = validator.Validate(deliverMessage);
-
-                // Assert
-                Assert.True(isValid);
+                validator.Validate(deliverMessage);
             }
         }
 

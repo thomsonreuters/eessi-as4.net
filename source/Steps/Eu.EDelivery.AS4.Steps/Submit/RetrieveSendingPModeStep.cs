@@ -98,14 +98,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private void ValidatePMode(SendingProcessingMode pmode)
         {
-            if (this._validator.Validate(pmode))
-            {
-                this._logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message");
-            }
-            else
-            {
-                this._logger.Error($"Sending PMode {pmode.Id} is not valid for Submit Message");
-            }
+            _validator.Validate(pmode);
+            _logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message");
         }
 
         private static AS4Exception ThrowAS4CannotRetrieveSendPModeException(InternalMessage internalMessage, Exception exception)

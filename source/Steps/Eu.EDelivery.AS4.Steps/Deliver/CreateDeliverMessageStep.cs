@@ -84,15 +84,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage, InternalMessage internalMessage)
         {
-            if (!this._validator.Validate(deliverMessage))
-            {
-                _logger.Error($"{internalMessage.Prefix} DeliverMessage is not valid.");
-                return;
-            }
-
+            _validator.Validate(deliverMessage);
+            
             string messageId = deliverMessage.MessageInfo.MessageId;
             string message = $"{internalMessage.Prefix} Deliver Message {messageId} was valid";
-            this._logger.Debug(message);
+            _logger.Debug(message);
         }
     }
 }
