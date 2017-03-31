@@ -14,7 +14,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         protected static readonly string OutputPrefix = @"..\..\..\..\..\output";
         protected static readonly string AS4MessagesPath = $@".\{Properties.Resources.submit_messages_path}";
         protected static readonly string AS4FullOutputPath = Path.GetFullPath($@".\{Properties.Resources.submit_output_path}");
-        protected static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
         protected static readonly string AS4ReceiptsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
         protected static readonly string AS4ErrorsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_errors_path}");
         protected static readonly string AS4ExceptionsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_exceptions_path}");
@@ -27,6 +26,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             Console.WriteLine(Environment.NewLine);
         }
+
+        public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
 
         /// <summary>
         /// Start AS4 Component Application

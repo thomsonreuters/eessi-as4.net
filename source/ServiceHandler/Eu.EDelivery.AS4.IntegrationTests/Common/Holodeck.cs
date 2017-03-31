@@ -20,6 +20,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
+        /// Assert the image payload on Holodeck
+        /// </summary>
+        public void AssertImagePayload()
+        {
+            FileInfo receivedPayload = new DirectoryInfo(IntegrationTestTemplate.AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
+            var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
+
+            if (receivedPayload != null) Assert.Equal(sendPayload.Length, receivedPayload.Length);
+        }
+
+        /// <summary>
         /// Assert the received <Receipt/> with Holodeck
         /// </summary>
         public void AssertReceiptOnHolodeckA()
