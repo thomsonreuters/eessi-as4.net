@@ -253,12 +253,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             AS4Message response = await DeserializeHttpResponse(webResponse, resultedMessage, cancellationToken);
             resultedMessage.AS4Message = response;
 
-            return await CreateStepResult(response, resultedMessage);
-        }
-
-        private async Task<StepResult> CreateStepResult(AS4Message response, InternalMessage internalMessage)
-        {
-            StepResult stepResult = await StepResult.SuccessAsync(internalMessage);
+            StepResult stepResult = await StepResult.SuccessAsync(resultedMessage);
 
             bool isOriginatedFromPullRequest = (response.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
             bool isRequestBeingSendAPullRequest = _originalAS4Message.IsPulling;
