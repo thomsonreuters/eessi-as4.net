@@ -262,7 +262,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (isOriginatedFromPullRequest && isRequestBeingSendAPullRequest)
             {
-                stepResult.AndStopExecution();
+                return stepResult.AndStopExecution();
             }
 
             return stepResult;

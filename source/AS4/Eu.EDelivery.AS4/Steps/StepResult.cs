@@ -35,8 +35,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public StepResult AndStopExecution()
         {
-            CanProceed = false;
-            return this;
+            return new StepResult {InternalMessage = InternalMessage, Exception = Exception, CanProceed = false};
         }
 
         /// <summary>
