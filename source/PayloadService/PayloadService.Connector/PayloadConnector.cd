@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PayloadService.Connector.PayloadConnector">
+    <Position X="1.5" Y="1" Width="2.5" />
+    <Members>
+      <Field Name="_client" Hidden="true" />
+      <Field Name="_url" Hidden="true" />
+      <Method Name="PayloadConnector" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="PayloadService.Connector.PayloadConnector.PayloadServiceResult" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>PayloadConnector.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAAAAAEAAACAAAIAAAAQAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>PayloadConnector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PayloadService.Connector.DownloadResult" Collapsed="true">
+    <Position X="7.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAIAAAggAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DownloadResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PayloadService.Connector.UploadResult" Collapsed="true">
+    <Position X="4.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAIAAAAAAgAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>UploadResult.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
