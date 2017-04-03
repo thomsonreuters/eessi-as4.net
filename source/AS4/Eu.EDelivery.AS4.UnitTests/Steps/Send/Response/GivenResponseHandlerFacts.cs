@@ -48,11 +48,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 // Assert
                 Assert.Equal(expectedResponse.ResultedMessage, actualResult.InternalMessage);
             }
-
-            private static StepResult CreateDummyStepResult()
-            {
-                return StepResult.Success(new InternalMessage());
-            }
         }
 
         public class GivenEmptyResponseHandlerFacts : IAS4ResponseHandler
