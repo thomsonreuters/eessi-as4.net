@@ -37,30 +37,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 // Arrange
                 AS4Response expectedResponse = CreateAnonymousAS4Response();
-
                 var handler = new TailResponseHandler();
 
                 // Act
-                StepResult actualResult = await handler.HandleResponse(
-                    expectedResponse,
-                    CreateAnonymousNextHandler());
+                StepResult actualResult = await handler.HandleResponse(expectedResponse);
 
                 // Assert
                 Assert.Equal(expectedResponse.ResultedMessage, actualResult.InternalMessage);
             }
         }
 
-        public class GivenEmptyResponseHandlerFacts : IAS4ResponseHandler
+        public class GivenEmptyResponseHandlerFacts
         {
             [Fact]
             public async Task ThenHandlerReturnsSameResultedMessage_IfStatusIsAccepted()
             {
                 // Arrange
                 IAS4Response as4Response = CreateAS4ResponseWithStatus(HttpStatusCode.Accepted);
-                var handler = new EmptyBodyResponseHandler();
+                var handler = new EmptyBodyResponseHandler(CreateAnonymousNextHandler());
 
                 // Act
-                StepResult actualResult = await handler.HandleResponse(as4Response, CreateAnonymousNextHandler());
+                StepResult actualResult = await handler.HandleResponse(as4Response);
 
                 // Assert
                 InternalMessage expectedMessage = as4Response.ResultedMessage;
@@ -84,27 +81,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 // Arrange
                 IAS4Response as4Response = CreateAnonymousAS4Response();
-                var handler = new EmptyBodyResponseHandler();
+                var spyHandler = new SpyAS4ResponseHandler();
+                var handler = new EmptyBodyResponseHandler(spyHandler);
 
                 // Act
-                await handler.HandleResponse(as4Response, this);
-            }
+                await handler.HandleResponse(as4Response);
 
-            /// <summary>
-            /// Handle the given <paramref name="response"/>, but delegate to the <paramref name="nextHandler"/> if you can't.
-            /// </summary>
-            /// <param name="response"></param>
-            /// <param name="nextHandler"></param>
-            /// <returns></returns>
-            public Task<StepResult> HandleResponse(IAS4Response response, IAS4ResponseHandler nextHandler)
-            {
-                Assert.IsType<TailResponseHandler>(nextHandler);
-
-                return StepResult.SuccessAsync(response.ResultedMessage);
+                // Assert
+                Assert.True(spyHandler.IsCalled);
             }
         }
 
-        public class GivenPullRequestResponseHandlerFacts : IAS4ResponseHandler
+        public class GivenPullRequestResponseHandlerFacts
         {
             [Fact]
             public async Task ThenNextHandlerGetsResponse_IfNotOriginatedFromPullRequest()
@@ -112,18 +100,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 // Arrange
                 IAS4Response as4Response = CreateAnonymousAS4Response();
                 ISerializer stubSerializer = CreateStubSerializerThatReturns(new Receipt());
-                var handler = new PullRequestResponseHandler(CreatedStubProviderFor(stubSerializer));
+
+                var spyHandler = new SpyAS4ResponseHandler();
+                var handler = new PullRequestResponseHandler(CreatedStubProviderFor(stubSerializer), spyHandler);
                
-
                 // Act
-                await handler.HandleResponse(as4Response, this);
-            }
+                await handler.HandleResponse(as4Response);
 
-            public Task<StepResult> HandleResponse(IAS4Response response, IAS4ResponseHandler nextHandler)
-            {
-                Assert.Null(nextHandler);
-
-                return StepResult.SuccessAsync(response.ResultedMessage);
+                // Assert
+                Assert.True(spyHandler.IsCalled);
             }
 
             [Fact]
@@ -132,10 +117,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 // Arrange
                 IAS4Response stubAS4Response = CreateResponseWith(new PullRequest());
                 ISerializer stubSerializer = CreateStubSerializerThatReturns(new PullRequestError());
-                var handler = new PullRequestResponseHandler(CreatedStubProviderFor(stubSerializer));
+                var handler = new PullRequestResponseHandler(CreatedStubProviderFor(stubSerializer), CreateAnonymousNextHandler());
 
                 // Act
-                StepResult actualResult = await handler.HandleResponse(stubAS4Response, CreateAnonymousNextHandler());
+                StepResult actualResult = await handler.HandleResponse(stubAS4Response);
 
                 // Assert
                 Assert.False(actualResult.CanProceed);

@@ -14,12 +14,11 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     public interface IAS4ResponseHandler
     {
         /// <summary>
-        /// Handle the given <paramref name="response" />, but delegate to the <paramref name="nextHandler" /> if you can't.
+        /// Handle the given <paramref name="response" />, but delegate to the next handler if you can't.
         /// </summary>
         /// <param name="response"></param>
-        /// <param name="nextHandler"></param>
         /// <returns></returns>
-        Task<StepResult> HandleResponse(IAS4Response response, IAS4ResponseHandler nextHandler);
+        Task<StepResult> HandleResponse(IAS4Response response);
     }
 
     /// <summary>
@@ -27,13 +26,23 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     /// </summary>
     public class EmptyBodyResponseHandler : IAS4ResponseHandler
     {
+        private readonly IAS4ResponseHandler _nextHandler;
+
         /// <summary>
-        /// Handle the given <paramref name="response" />, but delegate to the <paramref name="nextHandler" /> if you can't.
+        /// Initializes a new instance of the <see cref="EmptyBodyResponseHandler"/> class.
+        /// </summary>
+        /// <param name="nextHandler">The next Handler.</param>
+        public EmptyBodyResponseHandler(IAS4ResponseHandler nextHandler)
+        {
+            _nextHandler = nextHandler;
+        }
+
+        /// <summary>
+        /// Handle the given <paramref name="response" />, but delegate to the next handler if you can't.
         /// </summary>
         /// <param name="response"></param>
-        /// <param name="nextHandler"></param>
         /// <returns></returns>
-        public async Task<StepResult> HandleResponse(IAS4Response response, IAS4ResponseHandler nextHandler)
+        public async Task<StepResult> HandleResponse(IAS4Response response)
         {
             InternalMessage resultedMessage = response.ResultedMessage;
 
@@ -44,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 return await StepResult.SuccessAsync(resultedMessage);
             }
 
-            return await nextHandler.HandleResponse(response, new TailResponseHandler());
+            return await _nextHandler.HandleResponse(response);
         }
     }
 
@@ -54,23 +63,25 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     public class PullRequestResponseHandler : IAS4ResponseHandler
     {
         private readonly ISerializerProvider _serializerProvider;
+        private readonly IAS4ResponseHandler _nextHandler;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PullRequestResponseHandler" /> class.
+        /// Initializes a new instance of the <see cref="PullRequestResponseHandler"/> class.
         /// </summary>
         /// <param name="serializerProvider">The serializer Provider.</param>
-        public PullRequestResponseHandler(ISerializerProvider serializerProvider)
+        /// <param name="nextHandler">The next Handler.</param>
+        public PullRequestResponseHandler(ISerializerProvider serializerProvider, IAS4ResponseHandler nextHandler)
         {
             _serializerProvider = serializerProvider;
+            _nextHandler = nextHandler;
         }
 
         /// <summary>
-        /// Handle the given <paramref name="response" />, but delegate to the <paramref name="nextHandler" /> if you can't.
+        /// Handle the given <paramref name="response" />, but delegate to the next handler if you can't.
         /// </summary>
         /// <param name="response"></param>
-        /// <param name="nextHandler"></param>
         /// <returns></returns>
-        public async Task<StepResult> HandleResponse(IAS4Response response, IAS4ResponseHandler nextHandler)
+        public async Task<StepResult> HandleResponse(IAS4Response response)
         {
             bool isPulling = response.ResultedMessage.AS4Message.IsPulling;
             AS4Message messageResponse = await DeserializeHttpResponse(response);
@@ -84,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 return StepResult.Success(response.ResultedMessage).AndStopExecution();
             }
 
-            return await nextHandler.HandleResponse(response, nextHandler: null);
+            return await _nextHandler.HandleResponse(response);
         }
 
         private async Task<AS4Message> DeserializeHttpResponse(IAS4Response messageResponse)
@@ -109,12 +120,11 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     public class TailResponseHandler : IAS4ResponseHandler
     {
         /// <summary>
-        /// Handle the given <paramref name="response" />, but delegate to the <paramref name="nextHandler" /> if you can't.
+        /// Handle the given <paramref name="response" />, but delegate to the next handler if you can't.
         /// </summary>
         /// <param name="response"></param>
-        /// <param name="nextHandler"></param>
         /// <returns></returns>
-        public Task<StepResult> HandleResponse(IAS4Response response, IAS4ResponseHandler nextHandler)
+        public Task<StepResult> HandleResponse(IAS4Response response)
         {
             return StepResult.SuccessAsync(response.ResultedMessage);
         }
