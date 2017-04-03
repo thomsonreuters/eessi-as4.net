@@ -1,9 +1,8 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Builders;
-using Eu.EDelivery.AS4.Exceptions;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
+namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
 {
     /// <summary>
     /// Testing <see cref="GenericTypeBuilder"/>

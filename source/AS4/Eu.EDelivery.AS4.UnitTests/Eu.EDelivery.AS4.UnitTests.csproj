@@ -354,6 +354,9 @@
     <Compile Include="Security\References\GivenBinarySecurityTokenReferenceFacts.cs" />
     <Compile Include="Security\Transforms\GivenAttachmentSignatureTransformFacts.cs" />
     <Compile Include="Security\References\GivenIssuerSecurityTokenReferenceFacts.cs" />
+    <Compile Include="Servicehandler\Builder\GivenGenericTypeBuilderFacts.cs" />
+    <Compile Include="Servicehandler\Builder\GivenReceiverBuilderFacts.cs" />
+    <Compile Include="Servicehandler\Builder\GivenStepBuilderFacts.cs" />
     <Compile Include="Steps\Common\GivenInExceptionDecoratorStep.cs" />
     <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
@@ -427,6 +430,10 @@
     <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
       <Project>{B0BE265A-8190-415C-8E46-2B85FE6BDBE7}</Project>
       <Name>Eu.EDelivery.AS4.Receivers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ServiceHandler\Eu.EDelivery.AS4.ServiceHandler\Eu.EDelivery.AS4.ServiceHandler.csproj">
+      <Project>{83d47064-14b4-4e42-8e10-abe1eda41920}</Project>
+      <Name>Eu.EDelivery.AS4.ServiceHandler</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Steps\Eu.EDelivery.AS4.Steps\Eu.EDelivery.AS4.Steps.csproj">
       <Project>{9208D4FA-018E-4DB4-A60D-EE475F5EC421}</Project>

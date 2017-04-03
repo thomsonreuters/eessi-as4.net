@@ -7,7 +7,7 @@ using Eu.EDelivery.AS4.Steps.Send;
 using Xunit;
 using StepBuilder = Eu.EDelivery.AS4.Steps.StepBuilder;
 
-namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
+namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
 {
     /// <summary>
     /// Testing <see cref="AS4.Steps.StepBuilder"/>
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
 
             private static AS4.Model.Internal.Steps CreateComplexStepSettings()
             {
-                return new Model.Internal.Steps()
+                return new AS4.Model.Internal.Steps()
                 {
                     Decorator = typeof(ReceiveExceptionStepDecorator).AssemblyQualifiedName,
                     Step = new Step[]
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
 
             private static ConditionalStepConfig CreateSimpleConditationStepConfig()
             {
-                var thenStep = new Model.Internal.Steps()
+                var thenStep = new AS4.Model.Internal.Steps()
                 {
                     Step = new Step[]
                     {
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
                     }
                 };
 
-                var elseStep = new Model.Internal.Steps()
+                var elseStep = new AS4.Model.Internal.Steps()
                 {
                     Step = new Step[]
                     {

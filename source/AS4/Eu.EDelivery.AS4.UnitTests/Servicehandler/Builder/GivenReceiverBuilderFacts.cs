@@ -3,7 +3,7 @@ using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.ServiceHandler.UnitTests.Builder
+namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
 {
     /// <summary>
     /// Testing <see cref="ReceiverBuilder"/>
