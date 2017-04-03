@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Management;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -23,6 +24,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         protected static readonly string HolodeckMessagesPath = AS4MessagesPath + "\\holodeck-messages";
         private Process _process;
 
+        private readonly Process _holodeckA, _holodeckB;
+
         public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
 
         /// <summary>
@@ -32,12 +35,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             Console.WriteLine(Environment.NewLine);
 
+            CopyDirectory(@".\config\integrationtest-settings", @".\config\");
             CopyDirectory(@".\config\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
             CopyDirectory(@".\config\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
             ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__" , GetLocalIpAddress());
+
+            _holodeckA = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
+            _holodeckB = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
         }
         
         #region Fixture Setup
@@ -200,7 +207,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             while (i < retryCount)
             {
                 areFilesFound = IsMessageFound(directoryPath, extension);
-                if (areFilesFound) break;
+                if (areFilesFound)
+                {
+                    break;
+                }
+
                 Thread.Sleep(2000);
                 i += 10;
             }
@@ -276,10 +287,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            if (!_process.HasExited)
+            if (!_process.HasExited) _process.Kill();
+            if (!_holodeckA.HasExited) KillProcessAndChildren(_holodeckA.Id);
+            if (!_holodeckB.HasExited) KillProcessAndChildren(_holodeckB.Id);
+        }
+
+        private void KillProcessAndChildren(int pid)
+        {
+            var processSearcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
+            ManagementObjectCollection processCollection = processSearcher.Get();
+
+            foreach (ManagementBaseObject childProcess in processCollection)
             {
-                _process.Kill();
+                var childObject = (ManagementObject) childProcess;
+                KillProcessAndChildren(Convert.ToInt32(childObject["ProcessID"]));
             }
+
+            try
+            {
+                Process process = Process.GetProcessById(pid);
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
+            }
+            catch (ArgumentException) {}
         }
     }
 }
