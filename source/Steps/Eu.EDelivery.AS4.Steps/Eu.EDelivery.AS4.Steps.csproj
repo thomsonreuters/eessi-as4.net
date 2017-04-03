@@ -211,7 +211,11 @@
     <Compile Include="Receive\SendAS4ReceiptStep.cs" />
     <Compile Include="Receive\StoreAS4ReceiptStep.cs" />
     <Compile Include="ReceptionAwareness\ReceptionAwarenessUpdateDatastoreStep.cs" />
+    <Compile Include="Send\Response\AS4Response.cs" />
+    <Compile Include="Send\Response\EmptyBodyResponseHandler.cs" />
     <Compile Include="Send\Response\IAS4ResponseHandler.cs" />
+    <Compile Include="Send\Response\PullRequestResponseHandler.cs" />
+    <Compile Include="Send\Response\TailResponseHandler.cs" />
     <Compile Include="Send\SetReceptionAwarenessStep.cs" />
     <Compile Include="Services\InExceptionService.cs" />
     <Compile Include="Services\OutMessageService.cs" />
