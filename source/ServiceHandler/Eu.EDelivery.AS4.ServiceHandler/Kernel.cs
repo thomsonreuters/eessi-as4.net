@@ -5,8 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Fe;
-using Eu.EDelivery.AS4.Mappings.Common;
 using NLog;
 
 namespace Eu.EDelivery.AS4.ServiceHandler
@@ -18,7 +16,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
     public sealed class Kernel : IDisposable
     {
         private readonly IEnumerable<IAgent> _agents;
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Create Startup Kernel
@@ -28,11 +26,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         {
             if (agents == null)
             {
-                this._logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
+                Logger.Error("Kernel hasn't got IAgent implementations, so cannot be started");
             }
 
-            this._agents = agents;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _agents = agents;
         }
 
         /// <summary>
@@ -42,49 +39,48 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// <returns></returns>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-
-            if (this._agents == null)
+            if (_agents == null)
             {
                 return;
             }
 
-            using (var c = new DatastoreContext(Config.Instance))
+            using (var context = new DatastoreContext(Config.Instance))
             {
                 try
                 {
-                    if (c.Database.EnsureCreated())
+                    if (context.Database.EnsureCreated())
                     {
-                        _logger.Info("Datastore did not exist and has been created.");
+                        Logger.Info("Datastore did not exist and has been created.");
                     }
                 }
                 catch (Exception exception)
                 {
-                    this._logger.Fatal($"Datastore failed to create or already created: {exception.Message}");
+                    Logger.Fatal($"Datastore failed to create or already created: {exception.Message}");
                     return;
                 }
             }
 
-            this._logger.Debug("Starting...");
-            Task task = Task.WhenAll(this._agents.Select(c => c.Start(cancellationToken)).ToArray());
-            this._logger?.Debug("Started!");
+            Logger.Debug("Starting...");
+            Task task = Task.WhenAll(_agents.Select(c => c.Start(cancellationToken)).ToArray());
+            Logger?.Debug("Started!");
 
             await task;
 
             CloseAgents();
         }
 
-        private void CloseAgents()
-        {
-            foreach (var agent in this._agents)
-            {
-                var disposableAgent = agent as IDisposable;                
-                disposableAgent?.Dispose();
-            }
-        }
-
         public void Dispose()
         {
            CloseAgents();
+        }
+
+        private void CloseAgents()
+        {
+            foreach (IAgent agent in _agents)
+            {
+                var disposableAgent = agent as IDisposable;
+                disposableAgent?.Dispose();
+            }
         }
     }
 }
