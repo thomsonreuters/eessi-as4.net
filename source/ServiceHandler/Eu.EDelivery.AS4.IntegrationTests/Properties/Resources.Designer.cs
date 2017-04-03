@@ -247,7 +247,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to \config\holodeck-pmodes.
+        ///   Looks up a localized string similar to \config\integrationtest-pmodes\holodeck-pmodes.
         /// </summary>
         internal static string holodeck_test_pmodes {
             get {

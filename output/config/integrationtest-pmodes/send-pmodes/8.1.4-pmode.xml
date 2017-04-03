@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>8.1.4-pmode</Id>
   <AllowOverride>false</AllowOverride>
@@ -6,18 +6,21 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://10.124.29.197:9090/msh</Url>
+      <Url>http://__IPADDRESS__:9090/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
     <TlsConfiguration>
       <IsEnabled>false</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference/>
+      <ClientCertificateReference />
     </TlsConfiguration>
   </PushConfiguration>
   <PullConfiguration>
     <SubChannel />
+    <Protocol>
+      <Url>http://localhost:9090/msh</Url>
+    </Protocol>
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
@@ -63,23 +66,23 @@
     <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
-	<PartyInfo>
-			<FromParty>
-				<PartyIds>
-					<PartyId>
-						<Id>org:eu:europa:as4:example</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Sender</Role>
-			</FromParty>
-			<ToParty>
-				<PartyIds>
-					<PartyId>
-						<Id>org:holodeckb2b:example:company:B</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Receiver</Role>
-			</ToParty>
-		</PartyInfo>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:holodeckb2b:example:company:B</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
   </MessagePackaging>
 </PMode>

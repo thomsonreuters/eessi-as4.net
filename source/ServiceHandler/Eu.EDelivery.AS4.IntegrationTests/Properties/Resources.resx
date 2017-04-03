@@ -304,7 +304,7 @@
     <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\conf\pmodes</value>
   </data>
   <data name="holodeck_test_pmodes" xml:space="preserve">
-    <value>\config\holodeck-pmodes</value>
+    <value>\config\integrationtest-pmodes\holodeck-pmodes</value>
   </data>
   <data name="submitmessage_single_payload_path" xml:space="preserve">
     <value>\messages\attachments\earth.jpg</value>
