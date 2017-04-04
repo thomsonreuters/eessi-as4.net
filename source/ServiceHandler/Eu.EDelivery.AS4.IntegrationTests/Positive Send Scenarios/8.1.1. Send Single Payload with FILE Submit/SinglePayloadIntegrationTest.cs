@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._1._Se
         private void AssertPayload()
         {
             FileInfo receivedPayload = new DirectoryInfo(HolodeckBInputPath).GetFiles("*.jpg").FirstOrDefault();
-            var sendPayload = new FileInfo(Path.GetFullPath(@".\" + Properties.Resources.submitmessage_single_payload_path));
+            FileInfo sendPayload = AS4Component.SubmitSinglePayloadImage;
 
             Assert.NotNull(receivedPayload);
             Assert.Equal(sendPayload.Length, receivedPayload.Length);

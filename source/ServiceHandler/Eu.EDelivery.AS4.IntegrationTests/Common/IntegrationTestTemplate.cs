@@ -5,6 +5,8 @@ using System.IO;
 using System.Management;
 using System.Net;
 using System.Net.Sockets;
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
@@ -100,7 +102,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
-        public static string GetLocalIpAddress()
+        private static string GetLocalIpAddress()
         {
             IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (IPAddress ip in host.AddressList)

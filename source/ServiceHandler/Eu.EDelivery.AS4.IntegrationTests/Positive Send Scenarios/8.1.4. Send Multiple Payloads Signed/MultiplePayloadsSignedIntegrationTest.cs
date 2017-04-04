@@ -20,20 +20,20 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
         public void ThenSendingMultiplePayloadSignedSucceeds()
         {
             // Before
-            base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartApplication();
-            base.CleanUpFiles(AS4FullOutputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            base.CleanUpFiles(AS4ReceiptsPath);
+            CleanUpFiles(HolodeckBInputPath);
+            StartApplication();
+            CleanUpFiles(AS4FullOutputPath);
+            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
+            CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            base.CopyPModeToHolodeckB("8.1.4-pmode.xml");
+            CopyPModeToHolodeckB("8.1.4-pmode.xml");
 
             // Act
-            File.Copy(this._as4MessagesPath, this._as4OutputPath);
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = base.PollTo(AS4ReceiptsPath);
+            bool areFilesFound = PollTo(AS4ReceiptsPath);
             if (areFilesFound) Console.WriteLine(@"Multiple Payloads Signed Integration Test succeeded!");
         }
 
@@ -48,8 +48,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
         {
             FileInfo[] receivedPayloads = new DirectoryInfo(HolodeckBInputPath).GetFiles();
 
-            var sentEarth = new FileInfo($".{Properties.Resources.submitmessage_single_payload_path}");
-            var sentXml = new FileInfo($".{Properties.Resources.submitmessage_second_payload_path}");
+            FileInfo sentEarth = AS4Component.SubmitSinglePayloadImage;
+            FileInfo sentXml = AS4Component.SubmitSecondPayloadXml;
 
             // Earth attachment
             FileInfo receivedEarth = receivedPayloads.SingleOrDefault(x => x.Extension == ".jpg");
