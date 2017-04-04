@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            if (response.StatusCode == HttpStatusCode.Accepted && response.ResultedMessage.AS4Message.IsEmpty)
+            if (response.StatusCode == HttpStatusCode.Accepted && response.ResultedMessage?.AS4Message.IsEmpty == true)
             {
                 InternalMessage resultedMessage = response.OriginalRequest;
                 resultedMessage.AS4Message.SignalMessages.Clear();
