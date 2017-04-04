@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -59,16 +58,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._1_
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             // Assert
-            AssertPayload();
-            this._holodeck.AssertReceiptOnHolodeckA();
-        }
-
-        private void AssertPayload()
-        {
-            FileInfo receivedPayload = new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
-            var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
-
-            if (receivedPayload != null) Assert.Equal(sendPayload.Length, receivedPayload.Length);
+            _holodeck.AssertImagePayload();
+            _holodeck.AssertReceiptOnHolodeckA();
         }
     }
 }

@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Management;
+using System.Net;
+using System.Net.Sockets;
+using System.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
@@ -11,10 +16,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// </summary>
     public class IntegrationTestTemplate : IDisposable
     {
-        protected static readonly string OutputPrefix = @"..\..\..\..\..\output";
         protected static readonly string AS4MessagesPath = $@".\{Properties.Resources.submit_messages_path}";
         protected static readonly string AS4FullOutputPath = Path.GetFullPath($@".\{Properties.Resources.submit_output_path}");
-        protected static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
         protected static readonly string AS4ReceiptsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
         protected static readonly string AS4ErrorsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_errors_path}");
         protected static readonly string AS4ExceptionsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_exceptions_path}");
@@ -23,21 +26,107 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         protected static readonly string HolodeckMessagesPath = AS4MessagesPath + "\\holodeck-messages";
         private Process _process;
 
+        private readonly Process _holodeckA, _holodeckB;
+
+        public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.
+        /// </summary>
         public IntegrationTestTemplate()
         {
             Console.WriteLine(Environment.NewLine);
+
+            CopyDirectory(@".\config\integrationtest-settings", @".\config\");
+            CopyDirectory(@".\config\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
+            CopyDirectory(@".\config\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
+            CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
+
+            ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
+            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__" , GetLocalIpAddress());
+
+            _holodeckA = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
+            _holodeckB = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
         }
+        
+        #region Fixture Setup
+        private static void CopyDirectory(string sourceDirName, string destDirName)
+        {
+            DirectoryInfo sourceDirectory = GetSourceDirectory(sourceDirName);
+
+            EnsureDestinationDirectory(destDirName);
+
+            CopyFilesFromDestinationToSource(sourceDirectory, destDirName);
+        }
+
+        private static DirectoryInfo GetSourceDirectory(string sourceDirName)
+        {
+            var sourceDirectory = new DirectoryInfo(sourceDirName);
+
+            if (!sourceDirectory.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            return sourceDirectory;
+        }
+
+        private static void EnsureDestinationDirectory(string destDirName)
+        {
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+        }
+
+        private static void CopyFilesFromDestinationToSource(DirectoryInfo sourceDirectory, string destDirName)
+        {
+            FileInfo[] files = sourceDirectory.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, overwrite: true);
+            }
+        }
+
+        private void ReplaceTokensInDirectoryFiles(string directory, string token, string value)
+        {
+            foreach (string filePath in Directory.EnumerateFiles(Path.GetFullPath(directory)))
+            {
+                string oldContents = File.ReadAllText(filePath);
+                string newContents = oldContents.Replace(token, value);
+
+                File.WriteAllText(filePath, newContents);
+            }
+        }
+
+        private static string GetLocalIpAddress()
+        {
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
+        #endregion
 
         /// <summary>
         /// Start AS4 Component Application
         /// </summary>
         protected void StartApplication()
         {
-            string applicationExePath = OutputPrefix + @"\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe";
+            _process = Process.Start("Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe");
 
-            this._process = Process.Start(applicationExePath);
-            Console.WriteLine($"Application Started with Process Id: {this._process.Id}");
-
+            if (_process != null)
+            {
+                Console.WriteLine($@"Application Started with Process Id: {_process.Id}");
+            }
         }
 
         /// <summary>
@@ -46,10 +135,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="directory"></param>
         protected void CleanUpFiles(string directory)
         {
+            EnsureDirectory(directory);
+
             Console.WriteLine($@"Deleting files at location: {directory}");
 
             foreach (string file in Directory.EnumerateFiles(directory))
+            {
                 TryDeleteFile(file);
+            }
         }
 
         private void TryDeleteFile(string file)
@@ -116,7 +209,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             while (i < retryCount)
             {
                 areFilesFound = IsMessageFound(directoryPath, extension);
-                if (areFilesFound) break;
+                if (areFilesFound)
+                {
+                    break;
+                }
+
                 Thread.Sleep(2000);
                 i += 10;
             }
@@ -138,7 +235,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             var startDir = new DirectoryInfo(directoryPath);
             FileInfo[] files = startDir.GetFiles(extension, SearchOption.AllDirectories);
             bool areFilesPresent = files.Length > 0;
-            if (!areFilesPresent) return false;
+
+            if (!areFilesPresent)
+            {
+                return false;
+            }
 
             StopApplication();
             WriteFilesToConsole(files);
@@ -150,7 +251,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         private void WriteFilesToConsole(IEnumerable<FileInfo> files)
         {
             foreach (FileInfo file in files)
+            {
                 Console.WriteLine($@"File found at {file.DirectoryName}: {file.Name}");
+            }
+        }
+
+        private void EnsureDirectory(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
         }
 
         /// <summary>
@@ -160,8 +271,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         protected void StopApplication()
         {
-            if (!this._process.HasExited)
-                this._process.Kill();
+            Dispose(disposing: true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Dispose();
+            }
         }
 
         /// <summary>
@@ -171,13 +289,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            if (!this._process.HasExited)
-                this._process.Kill();
+            if (!_process.HasExited) _process.Kill();
+            if (!_holodeckA.HasExited) KillProcessAndChildren(_holodeckA.Id);
+            if (!_holodeckB.HasExited) KillProcessAndChildren(_holodeckB.Id);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void KillProcessAndChildren(int pid)
         {
-            if (disposing) Dispose();
+            var processSearcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
+            ManagementObjectCollection processCollection = processSearcher.Get();
+
+            foreach (ManagementBaseObject childProcess in processCollection)
+            {
+                var childObject = (ManagementObject) childProcess;
+                KillProcessAndChildren(Convert.ToInt32(childObject["ProcessID"]));
+            }
+
+            try
+            {
+                Process process = Process.GetProcessById(pid);
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
+            }
+            catch (ArgumentException) {}
         }
     }
 }

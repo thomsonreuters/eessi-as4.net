@@ -6,7 +6,7 @@
       <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
     </AgreementRef>
     <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
-    <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
+  <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
     <Service>
       <Value>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Value>
       <Type>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Type>
@@ -30,7 +30,7 @@
     <Payload>
       <Id>earth</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg</Location>
+      <Location>file:///C:\Dev\codit.visualstudio.com\AS4.NET\output\messages\attachments\earth.jpg</Location>
       <PayloadProperties>
         <PayloadProperty>
            <Name>Test</Name>
@@ -39,10 +39,10 @@
       </PayloadProperties>
     </Payload>
 
-   <Payload>
+    <Payload>
       <Id>xml-sample</Id>
       <MimeType>application/xml</MimeType>
-      <Location>file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\sample.xml</Location>
+      <Location>file:///C:\Dev\codit.visualstudio.com\AS4.NET\output\messages\attachments\sample.xml</Location>
       <PayloadProperties>
         <PayloadProperty>
           <Name>Important</Name>

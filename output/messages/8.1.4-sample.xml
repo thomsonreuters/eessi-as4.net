@@ -30,7 +30,7 @@
     <Payload>
       <Id>earth</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth.jpg</Location>
+      <Location>file:///C:\Dev\codit.visualstudio.com\AS4.NET\output\messages\attachments\earth.jpg</Location>
       <PayloadProperties>
         <PayloadProperty>
            <Name>Test</Name>
@@ -40,15 +40,16 @@
     </Payload>
 
     <Payload>
-      <Id>earth2</Id>
-      <MimeType>image/jpeg</MimeType>
-      <Location>file:///C:\Dev\codit.visualstudio.com\AS4\Runtime\Main\output\messages\attachments\earth(2).jpg</Location>
+      <Id>xml-sample</Id>
+      <MimeType>application/xml</MimeType>
+      <Location>file:///C:\Dev\codit.visualstudio.com\AS4.NET\output\messages\attachments\sample.xml</Location>
       <PayloadProperties>
         <PayloadProperty>
-           <Name>Test</Name>
-          <Value>Test</Value>
+          <Name>Important</Name>
+          <Value>Yes</Value>
         </PayloadProperty>
       </PayloadProperties>
     </Payload>
+
   </Payloads>
 </SubmitMessage>

@@ -30,7 +30,7 @@
     <Payload>
       <Id>earth</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///C:\agent\_work\1\s\ServiceHandler\Eu.EDelivery.AS4.IntegrationTests\bin\Release\messages\attachments\earth.jpg</Location>
+      <Location>file://C:\Dev\codit.visualstudio.com\AS4.NET\output\messages\attachments\earth.jpg</Location>
       <PayloadProperties>
         <PayloadProperty>
            <Name>Test</Name>
@@ -42,7 +42,7 @@
     <Payload>
       <Id>earth2</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///C:\agent\_work\1\s\ServiceHandler\Eu.EDelivery.AS4.IntegrationTests\bin\Release\messages\attachments\earth(2).jpg</Location>
+      <Location>file:///C:\Dev\codit.visualstudio.com\AS4.NET\output\messages\attachments\earth(2).jpg</Location>
       <PayloadProperties>
         <PayloadProperty>
            <Name>Test</Name>

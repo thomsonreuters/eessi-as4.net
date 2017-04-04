@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
             IEnumerable<FileInfo> files = new DirectoryInfo(base.HolodeckBInputPath).GetFiles();
 
             FileInfo receivedPayload = files.FirstOrDefault(f => f.Extension.Equals(".jpg"));
-            var sendPayload = new FileInfo($"{OutputPrefix}{Properties.Resources.submitmessage_single_payload_path}");
+            var sendPayload = new FileInfo(Properties.Resources.submitmessage_single_payload_path);
 
             Assert.NotNull(receivedPayload);
             Assert.Equal(sendPayload.Length, receivedPayload.Length);
