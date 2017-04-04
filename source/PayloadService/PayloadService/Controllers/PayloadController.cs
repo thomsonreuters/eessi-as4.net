@@ -86,7 +86,7 @@ namespace PayloadService.Controllers
         }
 
         [HttpGet]
-        [Route("Download/{id}")]
+        [Route("{id}")]
         [ProducesResponseType(typeof(StreamedFileResult), (int)HttpStatusCode.OK)]
         public IActionResult Download([FromRoute]string id)
         {
@@ -118,6 +118,8 @@ namespace PayloadService.Controllers
 
             // The solution below uses a custom made FileResult implementation which does not buffer the contents 
             // in memory, allowing larger payloads to be transmitted via streaming.
+            // The implementation of the StreamedFileResult class is almost identical to the FileStreamResult class,
+            // except that the StreamedFileResult flushes each time bytes are written to the target-stream.
 
             var filePath = Path.Combine(_persistenceLocation, $"{id}");
             var metaFilePath = Path.Combine(_persistenceLocation, $"{id}.meta");

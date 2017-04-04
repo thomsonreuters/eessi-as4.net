@@ -5,49 +5,56 @@ using Microsoft.Net.Http.Headers;
 
 namespace PayloadService.Infrastructure
 {
+    /// <summary>
+    /// Represents an ActionResult that when executed will write a stream to the response.
+    /// </summary>
+    /// <remarks>This class is almost identical to the FileStreamResult class, except that this implementation
+    /// flushes the output-stream each time bytes are written to it.  This prevents possible OutOfMemoryException when
+    /// larger files are being sent.</remarks>
     public class StreamedFileResult : FileResult
     {
-        private const int BufferSize = 10000;
+        private const int BufferSize = 4096;
+        // Should the buffersize be made configurable (via ctor argument?) or should this class determine the
+        // ideal buffersize itself (taking the length of the source-stream into consideration) and a certain max size ?
 
         /// <summary>
         /// Creates a new <see cref="T:Microsoft.AspNetCore.Mvc.FileResult" /> instance with
         /// the provided <paramref name="contentType" />.
         /// </summary>
+        /// <param name="stream">The source stream which must be written to the Response body.</param>        
+        /// <param name="downloadFilename">The filename that must be used when the consumer downloads the file.</param>
         /// <param name="contentType">The Content-Type header of the response.</param>
-        public StreamedFileResult(Stream fileStream, string fileName, string contentType) : base(contentType)
+        public StreamedFileResult(Stream stream, string downloadFilename, string contentType) : base(contentType)
         {
-            if (fileStream == null)
-            {
-                throw new ArgumentNullException(nameof(fileStream));
-            }
-
-            FileStream = fileStream;
-            _fileName = fileName;
+            _stream = stream;
+            _downloadFilename = downloadFilename;
         }
 
-        public Stream FileStream { get; }
+        private readonly Stream _stream;
+        private readonly string _downloadFilename;
 
-        private readonly string _fileName;
-
-        // TODO: override the ExecuteResult async method to allow async execution as well.            
+        // TODO: override the ExecuteResult async method to allow async execution as well ?           
 
         public override void ExecuteResult(ActionContext context)
-        {            
-            ContentDispositionHeaderValue contentDisposition = new ContentDispositionHeaderValue("attachment");
-            contentDisposition.FileName = _fileName;
+        {
+            ContentDispositionHeaderValue contentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = _downloadFilename
+            };
 
-            context.HttpContext.Response.Headers.Add("Content-Length", FileStream.Length.ToString());
+            context.HttpContext.Response.Headers.Add("Content-Length", _stream.Length.ToString());
             context.HttpContext.Response.Headers.Add("Content-Disposition", contentDisposition.ToString());
 
             // get chunks of data and write to the output stream
             Stream outputStream = context.HttpContext.Response.Body;
-            using (FileStream)
-            {
-                byte[] buffer = new byte[BufferSize];
 
+            byte[] buffer = new byte[BufferSize];
+
+            try
+            {
                 while (true)
                 {
-                    int bytesRead = FileStream.Read(buffer, 0, BufferSize);
+                    int bytesRead = _stream.Read(buffer, 0, BufferSize);
 
                     if (bytesRead == 0)
                     {
@@ -58,6 +65,10 @@ namespace PayloadService.Infrastructure
                     outputStream.Write(buffer, 0, bytesRead);
                     outputStream.Flush();
                 }
+            }
+            finally
+            {
+                _stream.Dispose();
             }
         }
     }

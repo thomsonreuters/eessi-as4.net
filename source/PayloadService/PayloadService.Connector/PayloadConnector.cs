@@ -65,7 +65,7 @@ namespace PayloadService.Connector
             var message = new HttpRequestMessage();
 
             message.Method = HttpMethod.Get;
-            message.RequestUri = new Uri(_url + $"/api/Payload/Download/{payloadId}");
+            message.RequestUri = new Uri(_url + $"/api/Payload/{payloadId}");
 
             var result = await _client.SendAsync(message);
 
