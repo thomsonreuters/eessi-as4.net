@@ -397,6 +397,7 @@
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />
     <Compile Include="Steps\Send\Response\GivenAS4ResponseFacts.cs" />
     <Compile Include="Steps\Send\Response\GivenResponseHandlerFacts.cs" />
+    <Compile Include="Steps\Send\Response\StubAS4ResponseHandler.cs" />
     <Compile Include="Steps\Services\GivenInExceptionServiceFacts.cs" />
     <Compile Include="Steps\SpyStep.cs" />
     <Compile Include="Steps\Submit\GivenRetrievepayloadsStepFacts.cs" />

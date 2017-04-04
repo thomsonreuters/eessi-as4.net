@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
@@ -27,6 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     {
         private readonly ISerializerProvider _provider;
         private readonly ICertificateRepository _repository;
+        private readonly IAS4ResponseHandler _responseHandler;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private AS4Message _originalAS4Message;
@@ -34,11 +36,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
-        public SendAS4MessageStep()
-        {
-            _provider = Registry.Instance.SerializerProvider;
-            _repository = Registry.Instance.CertificateRepository;
-        }
+        public SendAS4MessageStep() : this(Registry.Instance.SerializerProvider) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -50,6 +48,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         public SendAS4MessageStep(ISerializerProvider provider)
         {
             _provider = provider;
+            _responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
+            _repository = Registry.Instance.CertificateRepository;
         }
 
         /// <summary>
@@ -105,28 +105,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.Failed(as4Exception, internalMessage);
         }
 
-        private static void UpdateOperation(AS4Message as4Message, Operation operation)
-        {
-            if (as4Message == null)
-            {
-                return;
-            }
-
-            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
-            {
-                var repository = new DatastoreRepository(context);
-
-                IEnumerable<OutMessage> outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
-
-                foreach (OutMessage outMessage in outMessages)
-                {
-                    outMessage.Operation = operation;
-                }
-
-                context.SaveChanges();
-            }
-        }
-
         private HttpWebRequest CreateWebRequest(AS4Message as4Message)
         {
             ISendConfiguration sendConfiguration = GetSendConfigurationFrom(as4Message);
@@ -173,24 +151,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
-                await HandleHttpRequestAsync(request, internalMessage.AS4Message, cancellationToken);
+                ISerializer serializer = _provider.Get(internalMessage.AS4Message.ContentType);
+
+                using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
+                {
+                    serializer.Serialize(internalMessage.AS4Message, requestStream, cancellationToken);
+                }
             }
             catch (WebException exception)
             {
                 throw CreateFailedSendAS4Exception(internalMessage, exception);
-            }
-        }
-
-        private async Task HandleHttpRequestAsync(
-            WebRequest request,
-            AS4Message as4Message,
-            CancellationToken cancellationToken)
-        {
-            ISerializer serializer = _provider.Get(as4Message.ContentType);
-
-            using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
-            {
-                serializer.Serialize(as4Message, requestStream, cancellationToken);
             }
         }
 
@@ -202,85 +172,53 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Debug($"AS4 Message received from: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
-                return await HandleHttpResponseAsync(request, internalMessage, cancellationToken);
+                
+                // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
+                // we've sent the message, so update the status to sent.
+                UpdateOperation(_originalAS4Message, Operation.Sent);
+
+                using (WebResponse webResponse = await request.GetResponseAsync().ConfigureAwait(false))
+                {
+                    return await HandleAS4Response(internalMessage, webResponse, cancellationToken);
+                }
             }
             catch (WebException exception)
             {
-                if (exception.Response != null
-                    && ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
+                if (exception.Response != null && ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
                 {
-                    return await ReturnStepResult(
-                               webResponse: exception.Response as HttpWebResponse,
-                               resultedMessage: internalMessage,
-                               cancellationToken: cancellationToken);
+                    return await HandleAS4Response(internalMessage, exception.Response, cancellationToken);
                 }
 
                 throw CreateFailedSendAS4Exception(internalMessage, exception);
             }
         }
 
-        private async Task<StepResult> HandleHttpResponseAsync(
-            WebRequest request,
-            InternalMessage internalMessage,
-            CancellationToken cancellationToken)
+        private static void UpdateOperation(AS4Message as4Message, Operation operation)
         {
-            // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
-            // we've sent the message, so update the status to sent.
-            UpdateOperation(_originalAS4Message, Operation.Sent);
-
-            using (WebResponse responseStream = await request.GetResponseAsync().ConfigureAwait(false))
+            if (as4Message == null)
             {
-                return await ReturnStepResult(
-                    webResponse: responseStream as HttpWebResponse, 
-                    resultedMessage: internalMessage, 
-                    cancellationToken: cancellationToken);
+                return;
+            }
+
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
+            {
+                var repository = new DatastoreRepository(context);
+
+                IEnumerable<OutMessage> outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
+
+                foreach (OutMessage outMessage in outMessages)
+                {
+                    outMessage.Operation = operation;
+                }
+
+                context.SaveChanges();
             }
         }
 
-        private async Task<StepResult> ReturnStepResult(
-            HttpWebResponse webResponse,
-            InternalMessage resultedMessage,
-            CancellationToken cancellationToken)
+        private async Task<StepResult> HandleAS4Response(InternalMessage originalMessage, WebResponse webResponse, CancellationToken cancellation)
         {
-            resultedMessage.AS4Message = _originalAS4Message;
-
-            if (webResponse == null || webResponse.StatusCode == HttpStatusCode.Accepted)
-            {
-                resultedMessage.AS4Message.SignalMessages.Clear();
-
-                Logger.Info("Empty Soap Body is returned, no further action is needed");
-                return await StepResult.SuccessAsync(resultedMessage);
-            }
-
-            AS4Message response = await DeserializeHttpResponse(webResponse, resultedMessage, cancellationToken);
-            resultedMessage.AS4Message = response;
-
-            StepResult stepResult = await StepResult.SuccessAsync(resultedMessage);
-
-            bool isOriginatedFromPullRequest = (response.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
-            bool isRequestBeingSendAPullRequest = _originalAS4Message.IsPulling;
-
-            if (isOriginatedFromPullRequest && isRequestBeingSendAPullRequest)
-            {
-                return stepResult.AndStopExecution();
-            }
-
-            return stepResult;
-        }
-
-        private async Task<AS4Message> DeserializeHttpResponse(
-            WebResponse webResponse,
-            InternalMessage internalMessage,
-            CancellationToken cancellationToken)
-        {
-            string contentType = webResponse.ContentType;
-            Stream responseStream = webResponse.GetResponseStream();
-
-            ISerializer serializer = _provider.Get(contentType);
-            AS4Message response = await serializer.DeserializeAsync(responseStream, contentType, cancellationToken);
-            response.SendingPMode = internalMessage.AS4Message.SendingPMode;
-
-            return response;
+            AS4Response as4Response = await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation);
+            return await _responseHandler.HandleResponse(as4Response);
         }
 
         protected AS4Exception CreateFailedSendAS4Exception(InternalMessage internalMessage, Exception exception)

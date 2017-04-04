@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Threading;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Send.Response;
-using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
@@ -12,17 +12,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
     public class GivenAS4ResponseFacts
     {
         [Fact]
+        public void GetsRequestMessageFromAS4Response()
+        {
+            // Arranage
+            var expectedRequest = new InternalMessage();
+
+            // Act
+            InternalMessage actualRequest = CreateAS4ResponseWith(messageRequest: expectedRequest).OriginalRequest;
+
+            // Assert
+            Assert.Equal(expectedRequest, actualRequest);
+        }
+
+        [Fact]
         public void GetsInternalErrorStatus_IfInvalidHttpResponse()
         {
             Assert.Equal(HttpStatusCode.InternalServerError, CreateAS4ResponseWith(webResponse: null).StatusCode);
         }
 
-        private static AS4Response CreateAS4ResponseWith(HttpWebResponse webResponse)
+        private static AS4Response CreateAS4ResponseWith(HttpWebResponse webResponse = null, InternalMessage messageRequest = null)
         {
-            return new AS4Response(
+            return AS4Response.Create(
+                requestMessage: messageRequest, 
                 webResponse: webResponse, 
-                resultedMessage: new NullInternalMessage(), 
-                cancellation: CancellationToken.None);
+                cancellation: CancellationToken.None).Result;
         }
     }
 }

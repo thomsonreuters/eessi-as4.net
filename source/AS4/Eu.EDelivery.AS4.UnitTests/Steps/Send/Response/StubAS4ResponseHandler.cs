@@ -1,12 +1,13 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.Steps.Send.Response;
 
-namespace Eu.EDelivery.AS4.Steps.Send.Response
+namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 {
     /// <summary>
-    /// <see cref="IAS4ResponseHandler" /> implementation that can be used as the 'Tail' of the chain of
-    /// <see cref="IAS4ResponseHandler" />.
+    /// <see cref="IAS4ResponseHandler"/> implementation to sink all the incomining responses.
     /// </summary>
-    internal sealed class TailResponseHandler : IAS4ResponseHandler
+    public class StubAS4ResponseHandler : IAS4ResponseHandler
     {
         /// <summary>
         /// Handle the given <paramref name="response" />, but delegate to the next handler if you can't.

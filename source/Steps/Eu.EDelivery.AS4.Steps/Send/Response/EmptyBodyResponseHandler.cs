@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
     /// <summary>
     /// <see cref="IAS4ResponseHandler"/> implementation to handle the response for a empty body.
     /// </summary>
-    public class EmptyBodyResponseHandler : IAS4ResponseHandler
+    internal sealed class EmptyBodyResponseHandler : IAS4ResponseHandler
     {
         private readonly IAS4ResponseHandler _nextHandler;
 
@@ -27,10 +27,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            InternalMessage resultedMessage = response.ResultedMessage;
-
             if (response.StatusCode == HttpStatusCode.Accepted)
             {
+                InternalMessage resultedMessage = response.OriginalRequest;
                 resultedMessage.AS4Message.SignalMessages.Clear();
 
                 return await StepResult.SuccessAsync(resultedMessage);
