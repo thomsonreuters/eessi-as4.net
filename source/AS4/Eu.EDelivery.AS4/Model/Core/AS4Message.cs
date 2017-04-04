@@ -14,47 +14,73 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public class AS4Message : IMessage
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AS4Message"/> class.
+        /// </summary>
+        internal AS4Message()
+        {
+            ContentType = "application/soap+xml";
+            SigningId = new SigningId();
+            SecurityHeader = new SecurityHeader();
+            Attachments = new List<Attachment>();
+            SignalMessages = new List<SignalMessage>();
+            UserMessages = new List<UserMessage>();
+
+            SendingPMode = new SendingProcessingMode();
+            ReceivingPMode = new ReceivingProcessingMode();
+        }
+
         // Standard Properties
         public string ContentType { get; set; }
+
         public XmlDocument EnvelopeDocument { get; set; }
 
         // PModes
         public SendingProcessingMode SendingPMode { get; set; }
+
         public ReceivingProcessingMode ReceivingPMode { get; set; }
 
         // AS4 Message
         public ICollection<UserMessage> UserMessages { get; internal set; }
+
         public ICollection<SignalMessage> SignalMessages { get; internal set; }
+
         public ICollection<Attachment> Attachments { get; internal set; }
 
         // Security Properties
         public SigningId SigningId { get; set; }
+
         public SecurityHeader SecurityHeader { get; set; }
 
         // Exposed extra info
-        public string[] MessageIds => this.UserMessages.Select(m => m.MessageId).Concat(this.SignalMessages.Select(m => m.MessageId)).ToArray();
-        public UserMessage PrimaryUserMessage => this.UserMessages.FirstOrDefault();
-        public SignalMessage PrimarySignalMessage => this.SignalMessages.FirstOrDefault();
+        public string[] MessageIds
+            => UserMessages.Select(m => m.MessageId).Concat(SignalMessages.Select(m => m.MessageId)).ToArray();
 
-        public bool IsSignalMessage => this.SignalMessages.Count > 0;
+        public UserMessage PrimaryUserMessage => UserMessages.FirstOrDefault();
 
-        public bool IsUserMessage => this.UserMessages.Count > 0;
-        public bool IsSigned => this.SecurityHeader.IsSigned;
-        public bool IsEncrypted => this.SecurityHeader.IsEncrypted;
-        public bool HasAttachments => this.Attachments?.Count != 0;
-        public bool IsEmpty => this.PrimarySignalMessage == null && this.PrimaryUserMessage == null;
+        public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
 
-        internal AS4Message()
+        public bool IsSignalMessage => SignalMessages.Count > 0;
+
+        public bool IsUserMessage => UserMessages.Count > 0;
+
+        public bool IsSigned => SecurityHeader.IsSigned;
+
+        public bool IsEncrypted => SecurityHeader.IsEncrypted;
+
+        public bool HasAttachments => Attachments?.Count != 0;
+
+        public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
+
+        public bool IsPulling => PrimarySignalMessage is PullRequest;
+
+        /// <summary>
+        /// Get the right <see cref="ISendConfiguration" /> for the current <see cref="AS4Message" />.
+        /// </summary>
+        /// <returns></returns>
+        public ISendConfiguration GetSendConfiguration()
         {
-            this.ContentType = "application/soap+xml";
-            this.SigningId = new SigningId();
-            this.SecurityHeader = new SecurityHeader();
-            this.Attachments = new List<Attachment>();
-            this.SignalMessages = new List<SignalMessage>();
-            this.UserMessages = new List<UserMessage>();
-
-            this.SendingPMode = new SendingProcessingMode();
-            this.ReceivingPMode = new ReceivingProcessingMode();
+            return IsPulling ? (ISendConfiguration)SendingPMode.PullConfiguration : SendingPMode.PushConfiguration;
         }
 
         /// <summary>
@@ -63,21 +89,22 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="attachment"></param>
         public void AddAttachment(Attachment attachment)
         {
-            this.Attachments.Add(attachment);
+            Attachments.Add(attachment);
             UpdateContentTypeHeader();
         }
 
         private void UpdateContentTypeHeader()
         {
-            var contentTypeString = "application/soap+xml";
-            if (this.Attachments.Count > 0)
+            string contentTypeString = Constants.ContentTypes.Soap;
+            if (Attachments.Count > 0)
             {
                 ContentType contentType = new Multipart("related").ContentType;
                 contentType.Parameters["type"] = contentTypeString;
                 contentType.Charset = Encoding.UTF8.HeaderName.ToLowerInvariant();
                 contentTypeString = contentType.ToString();
             }
-            this.ContentType = contentTypeString.Replace("Content-Type: ", string.Empty);
+
+            ContentType = contentTypeString.Replace("Content-Type: ", string.Empty);
         }
     }
 }

@@ -23,7 +23,8 @@ namespace Eu.EDelivery.AS4.Steps
         public CompositeStep(params IStep[] steps)
         {
             if (steps == null) throw new ArgumentNullException(nameof(steps));
-            this._steps = steps;
+
+            _steps = steps;
         }
 
         /// <summary>
@@ -34,15 +35,20 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {            
-            var messageToSend = internalMessage;
+            InternalMessage messageToSend = internalMessage;
 
-            foreach (IStep step in this._steps)
+            foreach (IStep step in _steps)
             {
-                var result = await step.ExecuteAsync(messageToSend, cancellationToken);
+                StepResult result = await step.ExecuteAsync(messageToSend, cancellationToken);
 
                 if (result.InternalMessage != null)
                 {
                     messageToSend = result.InternalMessage;
+                }
+
+                if (!result.CanProceed)
+                {
+                    break;
                 }
             }
 

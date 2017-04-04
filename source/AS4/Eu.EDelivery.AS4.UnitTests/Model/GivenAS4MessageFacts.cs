@@ -27,6 +27,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
+        public class IsPulling
+        {
+            [Fact]
+            public void IsTrueWhenSignalMessageIsPullRequest()
+            {
+                // Arrange
+                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequest()).Build();
+
+                // Act
+                bool isPulling = as4Message.IsPulling;
+
+                // Assert
+                Assert.True(isPulling);
+            }
+        }
+
         /// <summary>
         /// Testing if the AS4Message Succeeds
         /// </summary>
