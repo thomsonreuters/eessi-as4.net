@@ -33,23 +33,18 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPullConfiguration()
         {
-            RuleFor(p => p.MepBinding).Equal(MessageExchangePatternBinding.Pull)
-                                      .DependentRules(delegate
-                                          {
-                                              RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull();
-                                              RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty();
-                                          }
-                                      );
+            Func<SendingProcessingMode, bool> isPulling = pmode => pmode.MepBinding == MessageExchangePatternBinding.Pull;
+
+            RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull().When(isPulling);
+            RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty().When(isPulling);
         }
 
         private void RulesForPushConfiguration()
         {
-            RuleFor(p => p.MepBinding).Equal(MessageExchangePatternBinding.Push)
-                                      .DependentRules(delegate
-                                        {
-                                            RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull();
-                                            RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty();
-                                        });
+            Func<SendingProcessingMode, bool> isPushing = pmode => pmode.MepBinding == MessageExchangePatternBinding.Push;
+
+            RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull().When(isPushing);
+            RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty().When(isPushing);
         }
 
         private void RulesForReceiptHandling()
