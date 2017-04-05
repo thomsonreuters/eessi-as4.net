@@ -59,6 +59,11 @@
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <PublicKeyFindValue>as4-net-c2</PublicKeyFindValue>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+	  <KeyTransport>
+        <TransportAlgorithm>http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p</TransportAlgorithm>
+        <DigestAlgorithm></DigestAlgorithm>
+        <MgfAlgorithm></MgfAlgorithm>
+      </KeyTransport>
     </Encryption>
   </Security>
   <MessagePackaging>
