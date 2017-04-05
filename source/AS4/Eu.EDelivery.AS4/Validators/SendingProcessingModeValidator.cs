@@ -33,14 +33,20 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPullConfiguration()
         {
-            RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull();
-            RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty();
+            if (RuleFor(p => p.MepBinding).Equals(MessageExchangePatternBinding.Pull))
+            {
+                RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull();
+                RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty();
+            }
         }
 
         private void RulesForPushConfiguration()
         {
-            RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull();
-            RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty();
+            if (RuleFor(p => p.MepBinding).Equals(MessageExchangePatternBinding.Push))
+            {
+                RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull();
+                RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty();
+            }
         }
 
         private void RulesForReceiptHandling()
