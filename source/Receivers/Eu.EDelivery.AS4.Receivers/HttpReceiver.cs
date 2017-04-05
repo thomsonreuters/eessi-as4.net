@@ -23,17 +23,14 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class HttpReceiver : IReceiver
     {
-
-        private static class SettingKeys
-        {
-            public static string Url = "Url";
-        }
-
+       
         private readonly ILogger _logger;
         private HttpListener _listener;
         private IDictionary<string, string> _properties;
 
         private string Prefix => _properties.ReadMandatoryProperty(SettingKeys.Url);
+
+        private int _maxConcurrentConnections;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpReceiver"/> class. 
@@ -43,6 +40,11 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _logger = LogManager.GetCurrentClassLogger();
         }
+        private static class SettingKeys
+        {
+            public const string Url = "Url";
+            public const string ConcurrentRequests = "ConcurrentRequests";
+        }
 
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
@@ -51,6 +53,8 @@ namespace Eu.EDelivery.AS4.Receivers
         public void Configure(IEnumerable<Setting> settings)
         {
             _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
+
+            _maxConcurrentConnections = Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, "500"));
         }
 
         /// <summary>
@@ -59,7 +63,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
-        public async void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
+        public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
             _listener = new HttpListener();
 
@@ -68,33 +72,52 @@ namespace Eu.EDelivery.AS4.Receivers
                 _listener.Prefixes.Add(Prefix);
                 StartListener(_listener);
 
-                while (_listener.IsListening && !cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        HttpListenerContext context = await _listener.GetContextAsync();
-
-                        await ProcessRequestAsync(context, messageCallback);
-                    }
-                    catch (HttpListenerException)
-                    {
-                        _logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
-                    }
-                    catch (ObjectDisposedException)
-                    {
-                        // Not doing anything on purpose.
-                        // When a HttpListener is stopped, the context where being listened on is called one more time, 
-                        // but the context is disposed.  Therefore an exception is thrown.  Catch the exception to prevent
-                        // the process to end, but do nothing with the exception since this is by design.
-                    }
-                }
+                AcceptConnections(_listener, messageCallback, cancellationToken);
             }
             finally
             {
                 _listener.Close();
             }
         }
-       
+
+        private void AcceptConnections(HttpListener listener, Function messageCallback, CancellationToken cancellationToken)
+        {
+            // The Semaphore makes sure the the maximum amount of concurrent connections is respected.
+            var semaphore = new Semaphore(_maxConcurrentConnections, _maxConcurrentConnections);
+
+            while (listener.IsListening && !cancellationToken.IsCancellationRequested)
+            {
+                semaphore.WaitOne();
+
+                try
+                {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    listener.GetContextAsync().ContinueWith(async (c) =>
+                    {
+                        // A request is being handled, so decrease the semaphore which will allow 
+                        // that we're listening on another context.
+                        semaphore.Release();
+
+                        HttpListenerContext context = await c;
+
+                        await ProcessRequestAsync(context, messageCallback);
+                    });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed                 
+                }
+                catch (HttpListenerException)
+                {
+                    _logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Not doing anything on purpose.
+                    // When a HttpListener is stopped, the context where being listened on is called one more time, 
+                    // but the context is disposed.  Therefore an exception is thrown.  Catch the exception to prevent
+                    // the process to end, but do nothing with the exception since this is by design.
+                }
+            }
+        }
+
         public void StopReceiving()
         {
             _logger.Debug($"Stop listening on {Prefix}");
@@ -117,7 +140,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private async Task ProcessRequestAsync(
             HttpListenerContext context,
-            Function messageCallback)            
+            Function messageCallback)
         {
             _logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
 
@@ -129,7 +152,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             context.Response.Close();
         }
-       
+
         #region Inner RequestHandler classes
 
         private abstract class RequestHandler
@@ -264,7 +287,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                     // Ugly hack until the Transformer is refactored.
                     // When the InternalMessage contains a non-empty SubmitMessage, we assume that a message has been submitted and we should respond accordingly.
-                    if (processorResult.SubmitMessage?.IsEmpty == false )
+                    if (processorResult.SubmitMessage?.IsEmpty == false)
                     {
                         if (processorResult.AS4Message?.IsEmpty == false)
                         {
