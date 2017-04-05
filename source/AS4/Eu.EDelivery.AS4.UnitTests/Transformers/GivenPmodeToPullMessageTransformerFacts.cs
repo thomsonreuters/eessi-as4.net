@@ -82,7 +82,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 yield return new object[] {new ReceivedMessage(requestStream: null)};
 
                 SendingProcessingMode invalidSendingPMode = new ValidStubSendingPModeFactory().Create("my id");
-                invalidSendingPMode.PullConfiguration = new PullConfiguration();
+                invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;                
+                invalidSendingPMode.PushConfiguration = new PushConfiguration();
+                
                 yield return new object[] {new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
             }
         }

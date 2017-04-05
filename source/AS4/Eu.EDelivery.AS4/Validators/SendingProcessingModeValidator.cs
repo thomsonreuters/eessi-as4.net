@@ -33,20 +33,23 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPullConfiguration()
         {
-            if (RuleFor(p => p.MepBinding).Equals(MessageExchangePatternBinding.Pull))
-            {
-                RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull();
-                RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty();
-            }
+            RuleFor(p => p.MepBinding).Equal(MessageExchangePatternBinding.Pull)
+                                      .DependentRules(delegate
+                                          {
+                                              RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull();
+                                              RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty();
+                                          }
+                                      );
         }
 
         private void RulesForPushConfiguration()
         {
-            if (RuleFor(p => p.MepBinding).Equals(MessageExchangePatternBinding.Push))
-            {
-                RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull();
-                RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty();
-            }
+            RuleFor(p => p.MepBinding).Equal(MessageExchangePatternBinding.Push)
+                                      .DependentRules(delegate
+                                        {
+                                            RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull();
+                                            RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty();
+                                        });
         }
 
         private void RulesForReceiptHandling()
@@ -115,7 +118,7 @@ namespace Eu.EDelivery.AS4.Validators
 
             string description = $"Sending PMode {pmode.Id} was invalid, see logging";
             this._logger.Error(description);
-            
+
             return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(Guid.NewGuid().ToString())
