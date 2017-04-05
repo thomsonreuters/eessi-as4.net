@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,12 +71,18 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
             try
             {
+                if (String.IsNullOrWhiteSpace(webResponse.ContentType))
+                {
+                    Logger.Info("No ContentType set - returning an empty AS4 response.");
+                    return new InternalMessage(new AS4MessageBuilder().Build());
+                }
+
                 ISerializer serializer = Registry.Instance.SerializerProvider.Get(webResponse.ContentType);
 
                 deserializedResponse = await serializer
                     .DeserializeAsync(webResponse.GetResponseStream(), webResponse.ContentType, cancellation);
             }
-            catch (System.Exception exception)
+            catch (Exception exception)
             {
                 Logger.Error(exception.Message);
                 deserializedResponse = new AS4MessageBuilder().Build();

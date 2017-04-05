@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Linq;
+using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -18,7 +20,13 @@ namespace Eu.EDelivery.AS4.Model.Submit
         [XmlIgnore]
         public SendingProcessingMode PMode { get; set; }
 
-        public bool HasPayloads => this.Payloads?.Length != 0;
+        [XmlIgnore]
+        public bool IsEmpty => String.IsNullOrWhiteSpace(MessageInfo.MessageId) &&
+                               (PartyInfo.FromParty?.PartyIds?.Any() ?? false) == false &&
+                               (PartyInfo.ToParty?.PartyIds?.Any() ?? false) == false;
+                               
+
+        public bool HasPayloads => Payloads?.Length != 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubmitMessage"/> class. 
@@ -26,10 +34,10 @@ namespace Eu.EDelivery.AS4.Model.Submit
         /// </summary>
         public SubmitMessage()
         {
-            this.MessageInfo = new MessageInfo();
-            this.Collaboration = new CollaborationInfo();
-            this.Payloads = new Payload[] {};
-            this.PartyInfo = new PartyInfo();
+            MessageInfo = new MessageInfo();
+            Collaboration = new CollaborationInfo();
+            Payloads = new Payload[] { };
+            PartyInfo = new PartyInfo();
         }
     }
 }
