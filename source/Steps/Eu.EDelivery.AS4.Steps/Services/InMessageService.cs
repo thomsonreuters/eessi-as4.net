@@ -95,8 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
         private static void AddOperationDelivered(MessageEntity inMessage)
         {
-            inMessage.Operation = Operation.ToBeDelivered;
-            inMessage.OperationMethod = "to be determined";
+            inMessage.Operation = Operation.ToBeDelivered;            
         }
 
         /// <summary>
@@ -197,8 +196,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
         private static void AddOperationNotified(MessageEntity inMessage)
         {
-            inMessage.Operation = Operation.ToBeNotified;
-            inMessage.OperationMethod = "To be determined";
+            inMessage.Operation = Operation.ToBeNotified;            
         }
 
         /// <summary>
