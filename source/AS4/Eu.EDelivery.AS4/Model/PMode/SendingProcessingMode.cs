@@ -19,8 +19,19 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [DebuggerDisplay("{" + nameof(Id) + "}")]
     public class SendingProcessingMode : IPMode
     {
-        [Info("The id of the sending pmode")]
-        public string Id { get; set; }
+        public SendingProcessingMode()
+        {
+            AllowOverride = false;
+            PushConfiguration = new PushConfiguration();
+            PullConfiguration = new PullConfiguration();
+            Reliability = new SendReliability();
+            ReceiptHandling = new SendHandling();
+            ErrorHandling = new SendHandling();
+            ExceptionHandling = new SendHandling();
+            Security = new Security();
+            MessagePackaging = new SendMessagePackaging();
+        }
+
         public bool AllowOverride { get; set; }
         public MessageExchangePattern Mep { get; set; }
         public MessageExchangePatternBinding MepBinding { get; set; }
@@ -33,17 +44,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Security Security { get; set; }
         public SendMessagePackaging MessagePackaging { get; set; }
 
-        public SendingProcessingMode()
-        {
-            this.AllowOverride = false;
-            
-            this.Reliability = new SendReliability();
-            this.ReceiptHandling = new SendHandling();
-            this.ErrorHandling = new SendHandling();
-            this.ExceptionHandling = new SendHandling();
-            this.Security = new Security();
-            this.MessagePackaging = new SendMessagePackaging();
-        }
+        [Info("The id of the sending pmode")]
+        public string Id { get; set; }
     }
 
     public class PModeParty
@@ -54,18 +56,30 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class Security
     {
-        public Signing Signing { get; set; }
-        public Encryption Encryption { get; set; }
-
         public Security()
         {
             this.Signing = new Signing();
             this.Encryption = new Encryption();
         }
+
+        public Signing Signing { get; set; }
+        public Encryption Encryption { get; set; }
     }
 
     public class Encryption
     {
+        /// <summary>
+        /// An Encryption instance which contains the default settings.
+        /// </summary>
+        public static readonly Encryption Default = new Encryption();
+
+        public Encryption()
+        {
+            this.IsEnabled = false;
+            this.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+            this.KeyTransport = new KeyEncryption();
+        }
+
         public bool IsEnabled { get; set; }
         public string Algorithm { get; set; }
         public X509FindType PublicKeyFindType { get; set; }
@@ -96,22 +110,22 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool KeyTransportSpecified => KeyTransport != null;
 
         #endregion
-
-        public Encryption()
-        {
-            this.IsEnabled = false;
-            this.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
-            this.KeyTransport = new KeyEncryption();
-        }
-
-        /// <summary>
-        /// An Encryption instance which contains the default settings.
-        /// </summary>
-        public static readonly Encryption Default = new Encryption();
     }
 
     public class KeyEncryption
     {
+        /// <summary>
+        /// A KeyEncryption instance which contains the default settings.
+        /// </summary>
+        public static readonly KeyEncryption Default = new KeyEncryption();
+
+        public KeyEncryption()
+        {
+            TransportAlgorithm = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
+            DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
+            MgfAlgorithm = null;
+        }
+
         public string TransportAlgorithm { get; set; }
         public string DigestAlgorithm { get; set; }
         public string MgfAlgorithm { get; set; }
@@ -134,22 +148,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool MgfAlgorithmSpecified => !String.IsNullOrWhiteSpace(MgfAlgorithm);
 
         #endregion
-
-        public KeyEncryption()
-        {
-            TransportAlgorithm = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
-            DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
-            MgfAlgorithm = null;
-        }
-
-        /// <summary>
-        /// A KeyEncryption instance which contains the default settings.
-        /// </summary>
-        public static readonly KeyEncryption Default = new KeyEncryption();
     }
 
     public class Signing
     {
+        public Signing()
+        {
+            this.IsEnabled = false;
+        }
+
         public bool IsEnabled { get; set; }
         public X509ReferenceType KeyReferenceMethod { get; set; }
         public X509FindType PrivateKeyFindType { get; set; }
@@ -185,39 +192,41 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public bool HashFunctionSpecified => !String.IsNullOrWhiteSpace(HashFunction);
 
         #endregion
-
-        public Signing()
-        {
-            this.IsEnabled = false;
-        }
     }
 
     public class SendHandling
     {
-        public bool NotifyMessageProducer { get; set; }
-        public Method NotifyMethod { get; set; }
-
         public SendHandling()
         {
             this.NotifyMessageProducer = false;
             this.NotifyMethod = new Method();
         }
+
+        public bool NotifyMessageProducer { get; set; }
+        public Method NotifyMethod { get; set; }
     }
 
     [Serializable]
     public class SendReliability
     {
-        public ReceptionAwareness ReceptionAwareness { get; set; }
-
         public SendReliability()
         {
             this.ReceptionAwareness = new ReceptionAwareness();
         }
+
+        public ReceptionAwareness ReceptionAwareness { get; set; }
     }
 
     public class ReceptionAwareness
     {
         private TimeSpan _retryInterval;
+
+        public ReceptionAwareness()
+        {
+            this.IsEnabled = false;
+            this.RetryCount = 5;
+            this._retryInterval = TimeSpan.FromMinutes(1);
+        }
 
         public bool IsEnabled { get; set; }
         public int RetryCount { get; set; }
@@ -227,73 +236,66 @@ namespace Eu.EDelivery.AS4.Model.PMode
             get { return this._retryInterval.ToString(@"hh\:mm\:ss"); }
             set { TimeSpan.TryParse(value, out this._retryInterval); }
         }
-
-        public ReceptionAwareness()
-        {
-            this.IsEnabled = false;
-            this.RetryCount = 5;
-            this._retryInterval = TimeSpan.FromMinutes(1);
-        }
     }
 
     public interface ISendConfiguration
     {
-       Protocol Protocol { get; set; }
-       TlsConfiguration TlsConfiguration { get; set; }
+        Protocol Protocol { get; set; }
+        TlsConfiguration TlsConfiguration { get; set; }
     }
 
     [Serializable]
     public class PullConfiguration : ISendConfiguration
     {
-        public string SubChannel { get; set; }
-
-        public Protocol Protocol { get; set; }
-        public TlsConfiguration TlsConfiguration { get; set; }
-
         public PullConfiguration()
         {
             this.Protocol = new Protocol();
             this.TlsConfiguration = new TlsConfiguration();
         }
+
+        public string SubChannel { get; set; }
+
+        public Protocol Protocol { get; set; }
+        public TlsConfiguration TlsConfiguration { get; set; }
     }
 
     [Serializable]
     public class PushConfiguration : ISendConfiguration
     {
-        public Protocol Protocol { get; set; }
-        public TlsConfiguration TlsConfiguration { get; set; }
-
         public PushConfiguration()
         {
             this.Protocol = new Protocol();
             this.TlsConfiguration = new TlsConfiguration();
         }
+
+        public Protocol Protocol { get; set; }
+        public TlsConfiguration TlsConfiguration { get; set; }
     }
 
     public class Protocol
     {
-        public string Url { get; set; }
-        public bool UseChunking { get; set; }
-        public bool UseHttpCompression { get; set; }
-
         public Protocol()
         {
             this.UseChunking = false;
             this.UseHttpCompression = false;
         }
+
+        public string Url { get; set; }
+        public bool UseChunking { get; set; }
+        public bool UseHttpCompression { get; set; }
     }
 
     public class TlsConfiguration
     {
-        public bool IsEnabled { get; set; }
-        public TlsVersion TlsVersion { get; set; }
-        public ClientCertificateReference ClientCertificateReference { get; set; }
-
         public TlsConfiguration()
         {
             this.IsEnabled = false;
             this.TlsVersion = TlsVersion.Tls12;
         }
+
+        public bool IsEnabled { get; set; }
+        public TlsVersion TlsVersion { get; set; }
+        public ClientCertificateReference ClientCertificateReference { get; set; }
     }
 
     public class ClientCertificateReference
@@ -304,17 +306,17 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class SendMessagePackaging : MessagePackaging
     {
-        public string Mpc { get; set; }
-        public bool UseAS4Compression { get; set; }
-        public bool IsMultiHop { get; set; }
-        public bool IncludePModeId { get; set; }
-
         public SendMessagePackaging()
         {
             this.UseAS4Compression = true;
             this.IsMultiHop = false;
             this.IncludePModeId = false;
         }
+
+        public string Mpc { get; set; }
+        public bool UseAS4Compression { get; set; }
+        public bool IsMultiHop { get; set; }
+        public bool IncludePModeId { get; set; }
     }
 
     public enum TlsVersion

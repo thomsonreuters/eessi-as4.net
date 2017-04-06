@@ -5,7 +5,10 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore": "1.1.1"
+    "Microsoft.AspNetCore.Http.Extensions": "1.1.1",
+    "Microsoft.AspNetCore.StaticFiles": "1.1.1",
+    "Microsoft.EntityFrameworkCore": "1.1.1",
+    "NLog": "4.3.5"
   },
   "frameworks": {
     ".NETFramework, Version=v4.6.1": {

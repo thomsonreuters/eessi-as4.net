@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _pmode = new SendingProcessingMode();
 
                 // Assert
-                Assert.Null(_pmode.PushConfiguration);
+                Assert.NotNull(_pmode.PushConfiguration);
             }
 
             [Fact]
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _pmode = new SendingProcessingMode();
 
                 // Assert
-                Assert.Null(_pmode.PullConfiguration);
+                Assert.NotNull(_pmode.PullConfiguration);
             }
 
             [Fact]
@@ -174,13 +174,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             }
 
             [Fact]
-            public void ThenTlsConfigurationIsNull()
+            public void ThenTlsConfigurationIsNotNull()
             {
                 // Act
                 _pmode = new SendingProcessingMode();
 
                 // Assert
-                Assert.Null(_pmode.PushConfiguration?.TlsConfiguration);
+                Assert.NotNull(_pmode.PushConfiguration.TlsConfiguration);
             }
         }
     }
