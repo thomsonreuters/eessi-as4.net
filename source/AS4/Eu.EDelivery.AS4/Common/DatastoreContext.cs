@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,13 +48,13 @@ namespace Eu.EDelivery.AS4.Common
         /// </param>
         public DatastoreContext(IConfig config)
         {
-            this._config = config;
+            _config = config;
             InitializeFields();
         }
 
         private void InitializeFields()
         {
-            this._policy = Policy
+            _policy = Policy
                 .Handle<DbUpdateException>()
                 .RetryAsync();
         }
@@ -78,14 +77,22 @@ namespace Eu.EDelivery.AS4.Common
         /// </param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (optionsBuilder.IsConfigured) return;
+            if (optionsBuilder.IsConfigured)
+            {
+                return;
+            }
 
-            string connectionString = this._config.GetSetting("connectionstring");
+            string connectionString = _config.GetSetting("connectionstring");
             ConfigureProviders(optionsBuilder);
 
-            string providerKey = this._config.GetSetting("Provider");
-            if (!this._providers.ContainsKey(providerKey)) throw new AS4Exception($"No Database provider found for key: {providerKey}");
-            this._providers[providerKey](connectionString);
+            string providerKey = _config.GetSetting("Provider");
+
+            if (!_providers.ContainsKey(providerKey))
+            {
+                throw new AS4Exception($"No Database provider found for key: {providerKey}");
+            }
+
+            _providers[providerKey](connectionString);
 
             // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
@@ -93,11 +100,42 @@ namespace Eu.EDelivery.AS4.Common
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
         {
-            this._providers["Sqlite"] = c => optionsBuilder.UseSqlite(c);
-            this._providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
-            this._providers["InMemory"] = c => optionsBuilder.UseInMemoryDatabase(c);
+            _providers["Sqlite"] = c => optionsBuilder.UseSqlite(c);
+            _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
+            _providers["InMemory"] = c => optionsBuilder.UseInMemoryDatabase(c);
 
             // TODO: add other providers
+        }
+
+        /// <summary>
+        ///     Override this method to further configure the model that was discovered by convention from the entity types
+        ///     exposed in <see cref="T:Microsoft.EntityFrameworkCore.DbSet`1" /> properties on your derived context. The resulting model may be cached
+        ///     and re-used for subsequent instances of your derived context.
+        /// </summary>
+        /// <remarks>
+        ///     If a model is explicitly set on the options for this context (via <see cref="M:Microsoft.EntityFrameworkCore.DbContextOptionsBuilder.UseModel(Microsoft.EntityFrameworkCore.Metadata.IModel)" />)
+        ///     then this method will not be run.
+        /// </remarks>
+        /// <param name="modelBuilder">
+        ///     The builder being used to construct the model for this context. Databases (and other extensions) typically
+        ///     define extension methods on this object that allow you to configure aspects of the model that are specific
+        ///     to a given database.
+        /// </param>
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<InMessage>().HasKey(im => im.Id);
+            modelBuilder.Entity<InMessage>().HasAlternateKey(im => im.EbmsMessageId);
+            modelBuilder.Entity<InMessage>().HasIndex(im => im.OperationString);
+
+            modelBuilder.Entity<OutMessage>().HasKey(im => im.Id);
+            modelBuilder.Entity<OutMessage>().HasAlternateKey(im => im.EbmsMessageId);
+            modelBuilder.Entity<OutMessage>().HasIndex(im => im.OperationString);
+
+            modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id);
+            modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.InternalMessageId);
+            modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new {r.IsCompleted, r.CurrentRetryCount});
         }
 
         /// <summary>
@@ -117,9 +155,9 @@ namespace Eu.EDelivery.AS4.Common
             {
                 return base.SaveChanges();
             }
-            catch (DataException)
+            catch (DataException exception)
             {
-                throw ThrowDatastoreUnavailableException();
+                throw ThrowDatastoreUnavailableException(exception);
             }
         }
 
@@ -144,9 +182,9 @@ namespace Eu.EDelivery.AS4.Common
             {
                 return base.SaveChanges(acceptAllChangesOnSuccess);
             }
-            catch (DataException)
+            catch (DataException exception)
             {
-                throw ThrowDatastoreUnavailableException();
+                throw ThrowDatastoreUnavailableException(exception);
             }
         }
 
@@ -181,9 +219,9 @@ namespace Eu.EDelivery.AS4.Common
             {
                 return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             }
-            catch (DataException)
+            catch (DataException exception)
             {
-                throw ThrowDatastoreUnavailableException();
+                throw ThrowDatastoreUnavailableException(exception);
             }
         }
 
@@ -209,16 +247,18 @@ namespace Eu.EDelivery.AS4.Common
         public override async Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            PolicyResult<int> policyResult = await this._policy.ExecuteAndCaptureAsync(()
+            PolicyResult<int> policyResult = await _policy.ExecuteAndCaptureAsync(()
                 => base.SaveChangesAsync(cancellationToken), cancellationToken);
 
             if (policyResult.FinalException != null)
+            {
                 throw ThrowDatastoreUnavailableException(policyResult.FinalException);
+            }
 
             return policyResult.Result;
         }
 
-        private AS4Exception ThrowDatastoreUnavailableException(Exception innerException = null)
+        private static AS4Exception ThrowDatastoreUnavailableException(Exception innerException = null)
         {
             return AS4ExceptionBuilder
                 .WithDescription("Datastore unavailable")
