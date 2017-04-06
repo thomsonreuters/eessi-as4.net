@@ -1,5 +1,5 @@
-using System;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -13,9 +13,12 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
     /// larger files are being sent.</remarks>
     public class StreamedFileResult : FileResult
     {
-        private const int BufferSize = 4096;
         // Should the buffersize be made configurable (via ctor argument?) or should this class determine the
         // ideal buffersize itself (taking the length of the source-stream into consideration) and a certain max size ?
+        private const int BufferSize = 4096;
+
+        private readonly string _downloadFilename;
+        private readonly Stream _stream;
 
         /// <summary>
         /// Creates a new <see cref="T:Microsoft.AspNetCore.Mvc.FileResult" /> instance with
@@ -30,25 +33,30 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
             _downloadFilename = downloadFilename;
         }
 
-        private readonly Stream _stream;
-        private readonly string _downloadFilename;
-
         // TODO: override the ExecuteResult async method to allow async execution as well ?           
 
         public override void ExecuteResult(ActionContext context)
         {
-            ContentDispositionHeaderValue contentDisposition = new ContentDispositionHeaderValue("attachment")
+            AssignHeadersTo(context.HttpContext.Response.Headers);
+
+            // get chunks of data and write to the output stream
+            WriteInChunksTo(context.HttpContext.Response.Body);
+        }
+
+        private void AssignHeadersTo(IHeaderDictionary headers)
+        {
+            var contentDisposition = new ContentDispositionHeaderValue("attachment")
             {
                 FileName = _downloadFilename
             };
 
-            context.HttpContext.Response.Headers.Add("Content-Length", _stream.Length.ToString());
-            context.HttpContext.Response.Headers.Add("Content-Disposition", contentDisposition.ToString());
+            headers.Add("Content-Length", _stream.Length.ToString());
+            headers.Add("Content-Disposition", contentDisposition.ToString());
+        }
 
-            // get chunks of data and write to the output stream
-            Stream outputStream = context.HttpContext.Response.Body;
-
-            byte[] buffer = new byte[BufferSize];
+        private void WriteInChunksTo(Stream outputStream)
+        {
+            var buffer = new byte[BufferSize];
 
             try
             {

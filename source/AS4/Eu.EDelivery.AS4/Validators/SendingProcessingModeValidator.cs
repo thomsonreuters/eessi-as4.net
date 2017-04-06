@@ -33,14 +33,18 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPullConfiguration()
         {
-            RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull();
-            RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty();
+            Func<SendingProcessingMode, bool> isPullConfigurationConfigured = pmode => pmode.PullConfiguration != null;
+
+            RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull().When(isPullConfigurationConfigured);
+            RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty().When(isPullConfigurationConfigured);
         }
 
         private void RulesForPushConfiguration()
         {
-            RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull();
-            RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty();
+            Func<SendingProcessingMode, bool> isPushConfigurationConfigured = pmode => pmode.PushConfiguration != null;
+
+            RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull().When(isPushConfigurationConfigured);
+            RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty().When(isPushConfigurationConfigured);
         }
 
         private void RulesForReceiptHandling()

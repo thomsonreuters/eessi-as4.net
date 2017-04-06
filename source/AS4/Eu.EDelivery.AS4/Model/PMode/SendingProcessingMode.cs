@@ -36,8 +36,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public SendingProcessingMode()
         {
             this.AllowOverride = false;
-            this.PushConfiguration = new PushConfiguration();
-            this.PullConfiguration = new PullConfiguration();
+            
             this.Reliability = new SendReliability();
             this.ReceiptHandling = new SendHandling();
             this.ErrorHandling = new SendHandling();

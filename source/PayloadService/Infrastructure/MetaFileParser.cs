@@ -9,15 +9,15 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
 
         internal static PayloadMeta Parse(string metafile)
         {
-            var lines = File.ReadAllLines(metafile);
+            string[] lines = File.ReadAllLines(metafile);
 
             string originalFilename = string.Empty; 
 
-            foreach (var l in lines)
+            foreach (string line in lines)
             {
-                if (l.IndexOf(OriginalFileNameKey, StringComparison.CurrentCultureIgnoreCase) > -1)
+                if (line.IndexOf(OriginalFileNameKey, StringComparison.CurrentCultureIgnoreCase) > -1)
                 {
-                    originalFilename = l.Substring(OriginalFileNameKey.Length);
+                    originalFilename = line.Substring(OriginalFileNameKey.Length);
                 }
             }
 

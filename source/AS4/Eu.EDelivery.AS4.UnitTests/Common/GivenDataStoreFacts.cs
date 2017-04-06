@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             // Create a new options instance telling the context to use an
             // InMemory database and the new service provider.
             return new DbContextOptionsBuilder<DatastoreContext>()
-                .UseInMemoryDatabase()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(_serviceProvider)
                 .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;

@@ -240,8 +240,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static ISendConfiguration GetSendConfigurationFrom(AS4Message as4Message)
         {
             return as4Message.IsPulling
-                       ? (ISendConfiguration) as4Message.SendingPMode.PullConfiguration
-                       : as4Message.SendingPMode.PushConfiguration;
+                       ? (ISendConfiguration) as4Message.SendingPMode?.PullConfiguration
+                       : as4Message.SendingPMode?.PushConfiguration;
         }
     }
 }

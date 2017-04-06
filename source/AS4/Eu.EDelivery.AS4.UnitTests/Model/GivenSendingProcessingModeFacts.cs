@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenProtocolIsDefault()
             {
                 // Act
-                _pmode = new SendingProcessingMode();
+                _pmode = new SendingProcessingMode {PushConfiguration = new PushConfiguration()};
 
                 // Assert
                 Assert.False(_pmode.PushConfiguration.Protocol.UseChunking);
@@ -91,8 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _pmode = new SendingProcessingMode();
 
                 // Assert
-                Assert.NotNull(_pmode.PushConfiguration);
-                Assert.NotNull(_pmode.PushConfiguration.Protocol);
+                Assert.Null(_pmode.PushConfiguration);
             }
 
             [Fact]
@@ -102,14 +101,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _pmode = new SendingProcessingMode();
 
                 // Assert
-                Assert.NotNull(_pmode.PullConfiguration);
+                Assert.Null(_pmode.PullConfiguration);
             }
 
             [Fact]
             public void ThenPushConfigurationIsDefault()
             {
                 // Act
-                _pmode = new SendingProcessingMode();
+                _pmode = new SendingProcessingMode {PushConfiguration = new PushConfiguration()};
 
                 // Assert
                 Assert.False(_pmode.PushConfiguration.TlsConfiguration.IsEnabled);
@@ -175,13 +174,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             }
 
             [Fact]
-            public void ThenTlsConfigurationIsNotNull()
+            public void ThenTlsConfigurationIsNull()
             {
                 // Act
                 _pmode = new SendingProcessingMode();
 
                 // Assert
-                Assert.NotNull(_pmode.PushConfiguration.TlsConfiguration);
+                Assert.Null(_pmode.PushConfiguration?.TlsConfiguration);
             }
         }
     }

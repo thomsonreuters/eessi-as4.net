@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         private SendingProcessingMode GetStubWrongProcessingMode()
         {
             Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
-            return new SendingProcessingMode {Id = _pmodeId};
+            return new SendingProcessingMode {Id = _pmodeId, PushConfiguration = new PushConfiguration()};
         }
 
         private static SendingProcessingMode GetStubRightProcessingMode()
