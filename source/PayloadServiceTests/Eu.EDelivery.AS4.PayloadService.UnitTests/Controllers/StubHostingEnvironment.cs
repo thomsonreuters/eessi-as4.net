@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 
-namespace Eu.EDelivery.AS4.PayloadService.IntegrationTests.Controllers
+namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Controllers
 {
     /// <summary>
     /// <see cref="IHostingEnvironment"/> implementation to 'Stub' the Hosting Environment.

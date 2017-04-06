@@ -1,9 +1,10 @@
+using System;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
-namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
+namespace Eu.EDelivery.AS4.PayloadService.Models
 {
     /// <summary>
     /// Represents an ActionResult that when executed will write a stream to the response.
@@ -11,7 +12,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
     /// <remarks>This class is almost identical to the FileStreamResult class, except that this implementation
     /// flushes the output-stream each time bytes are written to it.  This prevents possible OutOfMemoryException when
     /// larger files are being sent.</remarks>
-    public class StreamedFileResult : FileResult
+    public class StreamedFileResult : FileResult, IDisposable
     {
         // Should the buffersize be made configurable (via ctor argument?) or should this class determine the
         // ideal buffersize itself (taking the length of the source-stream into consideration) and a certain max size ?
@@ -34,7 +35,12 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
         }
 
         // TODO: override the ExecuteResult async method to allow async execution as well ?           
-
+        /// <summary>
+        /// Executes the result operation of the action method synchronously. This method is called by MVC to process
+        /// the result of an action method.
+        /// </summary>
+        /// <param name="context">The context in which the result is executed. The context information includes
+        /// information about the action that was executed and request information.</param>
         public override void ExecuteResult(ActionContext context)
         {
             AssignHeadersTo(context.HttpContext.Response.Headers);
@@ -76,8 +82,16 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
             }
             finally
             {
-                _stream.Dispose();
+                Dispose();
             }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            _stream?.Dispose();
         }
     }
 }
