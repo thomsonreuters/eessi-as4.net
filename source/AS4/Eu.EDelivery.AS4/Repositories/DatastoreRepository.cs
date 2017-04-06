@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </param>     
         public DatastoreRepository(DatastoreContext datastore)
         {
-            this._dbContext = datastore;
+            _dbContext = datastore;
         }
 
         /// <summary>
@@ -34,12 +34,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public InMessage GetInMessageById(string messageId)
         {
-            return this._dbContext.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
+            return _dbContext.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
         }
 
         public InMessage GetInMessage(Func<InMessage, bool> predicate)
         {
-            return this._dbContext.InMessages.FirstOrDefault(predicate);
+            return _dbContext.InMessages.FirstOrDefault(predicate);
         }
 
         /// <summary>
@@ -49,12 +49,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public OutMessage GetOutMessageById(string messageId)
         {
-            return this._dbContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
+            return _dbContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
         }
 
         public IEnumerable<OutMessage> GetOutMessagesById(IEnumerable<string> messageIds)
         {
-            return this._dbContext.OutMessages.Where(m => messageIds.Contains(m.EbmsMessageId)).ToArray();
+            return _dbContext.OutMessages.Where(m => messageIds.Contains(m.EbmsMessageId)).ToArray();
         }
 
         /// <summary>
@@ -65,12 +65,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public ReceptionAwareness GetReceptionAwareness(string messageId)
         {
-            return this._dbContext.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
+            return _dbContext.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
         }
 
         public IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds)
         {
-            return this._dbContext.ReceptionAwareness.Where(r => messageIds.Contains(r.InternalMessageId)).ToArray();
+            return _dbContext.ReceptionAwareness.Where(r => messageIds.Contains(r.InternalMessageId)).ToArray();
         }
 
         /// <summary>
@@ -80,8 +80,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outMessage"></param>
         public async Task InsertOutMessageAsync(OutMessage outMessage)
         {
-            this._dbContext.OutMessages.Add(outMessage);
-            await this._dbContext.SaveChangesAsync();
+            _dbContext.OutMessages.Add(outMessage);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -92,8 +92,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task InsertOutExceptionAsync(OutException outException)
         {
-            this._dbContext.OutExceptions.Add(outException);
-            await this._dbContext.SaveChangesAsync();
+            _dbContext.OutExceptions.Add(outException);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -104,8 +104,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task InsertInMessageAsync(InMessage inMessage)
         {
-            this._dbContext.InMessages.Add(inMessage);
-            await this._dbContext.SaveChangesAsync();
+            _dbContext.InMessages.Add(inMessage);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -116,8 +116,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task InsertInExceptionAsync(InException inException)
         {
-            this._dbContext.InExceptions.Add(inException);
-            await this._dbContext.SaveChangesAsync();
+            _dbContext.InExceptions.Add(inException);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -128,8 +128,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task InsertReceptionAwarenessAsync(ReceptionAwareness receptionAwareness)
         {
-            this._dbContext.ReceptionAwareness.Add(receptionAwareness);
-            await this._dbContext.SaveChangesAsync();
+            _dbContext.ReceptionAwareness.Add(receptionAwareness);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task UpdateOutMessageAsync(string messageId, Action<OutMessage> updateAction)
         {
-            OutMessage outMessage = this._dbContext.OutMessages
+            OutMessage outMessage = _dbContext.OutMessages
                 .FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
 
             if (outMessage == null)
@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.Repositories
             updateAction(outMessage);
             outMessage.ModificationTime = DateTimeOffset.UtcNow;
 
-            await this._dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
             // FRGH: code below replaces code above, perf opt.
 
@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.Repositories
         {
             // TODO: this can be optimized
 
-            InMessage inMessage = this._dbContext.InMessages
+            InMessage inMessage = _dbContext.InMessages
                 .FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
 
             if (inMessage == null)
@@ -191,7 +191,7 @@ namespace Eu.EDelivery.AS4.Repositories
             updateAction(inMessage);
             inMessage.ModificationTime = DateTimeOffset.UtcNow;
 
-            await this._dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -203,16 +203,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task UpdateInExceptionAsync(string refToMessageId, Action<InException> updateAction)
         {
-            IEnumerable<InException> inExceptions = this._dbContext.InExceptions
+            IEnumerable<InException> inExceptions = _dbContext.InExceptions
                 .Where(m => m.EbmsRefToMessageId.Equals(refToMessageId));
 
             foreach (InException inException in inExceptions)
             {
                 updateAction(inException);
-                inException.ModificationTime = DateTimeOffset.UtcNow;
-
-                await this._dbContext.SaveChangesAsync();
+                inException.ModificationTime = DateTimeOffset.UtcNow;                
             }
+
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace Eu.EDelivery.AS4.Repositories
         public async Task UpdateOutExceptionAsync(string refToMessageId, Action<OutException> updateAction)
         {
 
-            IEnumerable<OutException> outExceptions = this._dbContext.OutExceptions
+            IEnumerable<OutException> outExceptions = _dbContext.OutExceptions
                 .Where(m => m.EbmsRefToMessageId.Equals(refToMessageId));
 
             foreach (OutException outException in outExceptions)
@@ -234,7 +234,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 outException.ModificationTime = DateTimeOffset.UtcNow;
             }
 
-            await this._dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public async Task UpdateReceptionAwarenessAsync(string refToMessageId, Action<ReceptionAwareness> updateAction)
         {
-            ReceptionAwareness receptionAwareness = this._dbContext.ReceptionAwareness
+            ReceptionAwareness receptionAwareness = _dbContext.ReceptionAwareness
                 .FirstOrDefault(a => a.InternalMessageId.Equals(refToMessageId));
 
             if (receptionAwareness == null)
@@ -256,7 +256,7 @@ namespace Eu.EDelivery.AS4.Repositories
             }
             updateAction(receptionAwareness);
 
-            await this._dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
     }
 
