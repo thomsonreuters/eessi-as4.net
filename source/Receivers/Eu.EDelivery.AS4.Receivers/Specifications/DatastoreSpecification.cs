@@ -13,17 +13,17 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
     /// <summary>
     /// Specification to define <see cref="Expression"/> Models
     /// </summary>
-    public class DatastoreSpecification
+    internal class DatastoreSpecification
     {
-        private IDictionary<string, string> _properties;
+        private DatastoreSpecificationArgs _arguments;
 
         /// <summary>
         /// Configure the given <see cref="DatastoreSpecification"/>
         /// </summary>
-        /// <param name="properties"></param>
-        public void Configure(IDictionary<string, string> properties)
+        /// <param name="args"></param>
+        public void Configure(DatastoreSpecificationArgs args)
         {
-            this._properties = properties;
+            _arguments = args;
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
         {
             object tableProperty = datastoreContext
                 .GetType()
-                .GetProperty(this._properties["Table"])
+                .GetProperty(_arguments.TableName)
                 .GetValue(datastoreContext);
 
             return GetEntities(tableProperty as IQueryable<Entity>);
@@ -47,13 +47,19 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
 
         private IEnumerable<T> GetEntities<T>(IQueryable<T> queryable)
         {
-            // TODO FRGH: enable throthling.
-            return queryable.Where(dbSet => Where(dbSet)).ToList();
+            IQueryable<T> query = queryable.Where(dbSet => Where(dbSet));
+
+            if (_arguments.TakeRecords > 0)
+            {
+                query = query.Take(_arguments.TakeRecords);
+            }
+
+            return query.ToList();
         }
 
         private bool Where<T>(T dbSet)
         {
-            string name = this._properties["Field"];
+            string name = _arguments.FilterColumnName;
             
             object propertyValue = dbSet.GetType().GetProperty(name).GetValue(dbSet);
             object configuredValue = ParseConfiguredValue(propertyValue);
@@ -63,15 +69,54 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
 
         private object ParseConfiguredValue(object propertyValue)
         {
-            string value = this._properties["Value"];
+            string value = _arguments.FilterValue;
 
             if (propertyValue.GetType().IsEnum)
+            {
                 return Enum.Parse(propertyValue.GetType(), value);
+            }
 
             if (propertyValue is bool)
+            {
                 return Convert.ToBoolean(value);
+            }
 
             return default(object);
+        }
+    }
+
+    internal class DatastoreSpecificationArgs
+    {
+        public string TableName { get; }
+        public string FilterColumnName { get; }
+        public string FilterValue { get; }
+
+        public int TakeRecords { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreSpecificationArgs"/> class.
+        /// </summary>
+        public DatastoreSpecificationArgs(string tableName, string filterColumn, string filterValue, int take)
+        {
+            if (String.IsNullOrWhiteSpace(tableName))
+            {
+                throw new ArgumentException("A tablename should be specified.", nameof(tableName));
+            }
+
+            if (String.IsNullOrWhiteSpace(filterColumn))
+            {
+                throw new ArgumentException("A column where to filter on should be specified.", nameof(filterColumn));
+            }
+
+            if (String.IsNullOrWhiteSpace(filterValue))
+            {
+                throw new ArgumentException("A filtervalue should be specified.", nameof(filterValue));
+            }
+
+            TableName = tableName;
+            FilterColumnName = filterColumn;
+            FilterValue = filterValue;
+            TakeRecords = take;
         }
     }
 }

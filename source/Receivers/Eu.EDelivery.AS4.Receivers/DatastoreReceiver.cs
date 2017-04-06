@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Transactions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
@@ -29,29 +28,6 @@ namespace Eu.EDelivery.AS4.Receivers
         private Operation _operation;
         private IDictionary<string, string> _properties;
 
-        protected override TimeSpan PollingInterval
-        {
-            get
-            {
-                TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
-
-                if (_properties == null)
-                {
-                    return defaultInterval;
-                }
-
-                return _properties.ContainsKey("PollingInterval") ? GetPollingIntervalFromProperties() : defaultInterval;
-            }
-        }
-
-        private TimeSpan GetPollingIntervalFromProperties()
-        {
-            string pollingInterval = _properties.ReadMandatoryProperty("PollingInterval");
-            double miliseconds = Convert.ToDouble(pollingInterval);
-
-            return TimeSpan.FromMilliseconds(miliseconds);
-        }
-
         protected override ILogger Logger { get; }
 
         /// <summary>
@@ -62,7 +38,7 @@ namespace Eu.EDelivery.AS4.Receivers
             _specification = new DatastoreSpecification();
             Logger = LogManager.GetCurrentClassLogger();
         }
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
         /// Create a Data Store Out Message Receiver with a given Data Store Context Delegate
@@ -86,6 +62,41 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger = LogManager.GetCurrentClassLogger();
         }
 
+        #region Configuration
+
+        private static class SettingKeys
+        {
+            public const string PollingInterval = "PollingInterval";
+            public const string Table = "Table";
+            public const string Field = "Field";
+            public const string FilterValue = "Value";
+            public const string TakeRows = "Take";
+            public const string UpdateValue = "Update";
+        }
+
+        protected override TimeSpan PollingInterval
+        {
+            get
+            {
+                TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
+
+                if (_properties == null)
+                {
+                    return defaultInterval;
+                }
+
+                return _properties.ContainsKey(SettingKeys.PollingInterval) ? GetPollingIntervalFromProperties() : defaultInterval;
+            }
+        }
+
+        private TimeSpan GetPollingIntervalFromProperties()
+        {
+            string pollingInterval = _properties.ReadMandatoryProperty(SettingKeys.PollingInterval);
+            double miliseconds = Convert.ToDouble(pollingInterval);
+
+            return TimeSpan.FromMilliseconds(miliseconds);
+        }
+                
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
         /// </summary>
@@ -99,17 +110,26 @@ namespace Eu.EDelivery.AS4.Receivers
         /// Configure the receiver with a given Property Dictionary
         /// </summary>
         /// <param name="properties"></param>
-        public void Configure(IDictionary<string, string> properties)
+        private void Configure(IDictionary<string, string> properties)
         {
             _properties = properties;
-            _specification.Configure(properties);
+
+            var args = new DatastoreSpecificationArgs(_properties.ReadMandatoryProperty(SettingKeys.Table),
+                                                      _properties.ReadMandatoryProperty(SettingKeys.Field),
+                                                      _properties.ReadMandatoryProperty(SettingKeys.FilterValue),
+                                                      Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.TakeRows, "20")));
+
+            _specification.Configure(args);
             _findExpression = _specification.GetExpression().Compile();
+
             _storeExpression = () => new DatastoreContext(Config.Instance);
 
-            _operation = properties.ContainsKey("Update")
-                             ? (Operation)Enum.Parse(typeof(Operation), properties["Update"])
+            _operation = properties.ContainsKey(SettingKeys.UpdateValue)
+                             ? (Operation)Enum.Parse(typeof(Operation), properties[SettingKeys.UpdateValue])
                              : Operation.NotApplicable;
         }
+
+        #endregion
 
         /// <summary>
         /// Start Receiving on the Data Store
@@ -129,11 +149,14 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void LogReceiverSpecs()
         {
-            if (_properties == null) return;
+            if (_properties == null)
+            {
+                return;
+            }
 
-            string table = _properties["Table"];
-            string field = _properties["Field"];
-            string value = _properties["Value"];
+            string table = _properties[SettingKeys.Table];
+            string field = _properties[SettingKeys.Field];
+            string value = _properties[SettingKeys.FilterValue];
 
             Logger.Debug($"Start Receiving on Datastore FROM {table} WHERE {field} == {value}");
         }
@@ -145,7 +168,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
-            LogManager.GetCurrentClassLogger().Trace($"Executing GetMessagesToPoll on {_properties?["Table"]}");
+            LogManager.GetCurrentClassLogger().Trace($"Executing GetMessagesToPoll on {_properties?[SettingKeys.Table]}");
 
             try
             {
@@ -157,10 +180,10 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 logger.Error($"An error occured while polling the datastore: {exception.Message}");
                 logger.Error(
-                    $"Polling on table {_properties.ReadMandatoryProperty("Table")} with interval {PollingInterval.TotalSeconds} seconds.");
+                    $"Polling on table {_properties.ReadMandatoryProperty(SettingKeys.Table)} with interval {PollingInterval.TotalSeconds} seconds.");
                 logger.Error(exception.StackTrace);
 
-                return new Entity[] {};
+                return new Entity[] { };
             }
         }
 
@@ -168,7 +191,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             // Use a TransactionScope to get the highest TransactionIsolation level.
             IEnumerable<Entity> entities = Enumerable.Empty<Entity>();
-           
+
             using (DatastoreContext context = _storeExpression())
             {
                 IDbContextTransaction transaction = context.Database.BeginTransaction();
@@ -191,7 +214,10 @@ namespace Eu.EDelivery.AS4.Receivers
         private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
         {
             IEnumerable<Entity> entities = _findExpression(context).ToList();
-            if (!entities.Any()) return entities;
+            if (!entities.Any())
+            {
+                return entities;
+            }
 
             // Make sure that all message-entities are locked before continue to process them.
             if (_operation != Operation.NotApplicable)
