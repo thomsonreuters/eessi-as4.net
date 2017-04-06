@@ -34,6 +34,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
             try
             {
+                
                 SendDeliverMessage(deliverMessage, location);
             }
             catch (Exception ex)
@@ -47,7 +48,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                     Log.Error(ex.InnerException.Message);
                 }
 
-                throw AS4ExceptionBuilder.WithDescription(description).WithInnerException(ex).Build();
+                throw AS4ExceptionBuilder.WithDescription(description)
+                    .WithInnerException(ex)
+                    .WithMessageIds(deliverMessage.MessageInfo.MessageId)
+                    .Build();
+
             }
         }
 
