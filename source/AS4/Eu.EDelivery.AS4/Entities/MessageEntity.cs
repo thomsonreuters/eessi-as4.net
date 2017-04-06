@@ -16,8 +16,7 @@ namespace Eu.EDelivery.AS4.Entities
 
         public byte[] MessageBody { get; set; }
 
-        [NotMapped] public Operation Operation { get; set; }
-        public string OperationMethod { get; set; }
+        [NotMapped] public Operation Operation { get; set; }       
 
         [Column("Operation")]
         public string OperationString
