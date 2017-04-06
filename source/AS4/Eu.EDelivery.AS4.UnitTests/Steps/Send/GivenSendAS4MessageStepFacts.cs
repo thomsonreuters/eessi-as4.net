@@ -125,7 +125,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static SendingProcessingMode CreateValidSendingPMode()
         {
-            return new SendingProcessingMode {PullConfiguration = {Protocol = {Url = SharedUrl}}};
+            return new SendingProcessingMode {PullConfiguration = new PullConfiguration {Protocol = {Url = SharedUrl}}};
         }
     }
 }

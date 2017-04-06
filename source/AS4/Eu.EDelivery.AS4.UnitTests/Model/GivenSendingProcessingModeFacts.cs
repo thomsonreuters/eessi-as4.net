@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenProtocolIsDefault()
             {
                 // Act
-                _pmode = new SendingProcessingMode();
+                _pmode = new SendingProcessingMode {PushConfiguration = new PushConfiguration()};
 
                 // Assert
                 Assert.False(_pmode.PushConfiguration.Protocol.UseChunking);
@@ -92,7 +92,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 // Assert
                 Assert.NotNull(_pmode.PushConfiguration);
-                Assert.NotNull(_pmode.PushConfiguration.Protocol);
             }
 
             [Fact]
@@ -109,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenPushConfigurationIsDefault()
             {
                 // Act
-                _pmode = new SendingProcessingMode();
+                _pmode = new SendingProcessingMode {PushConfiguration = new PushConfiguration()};
 
                 // Assert
                 Assert.False(_pmode.PushConfiguration.TlsConfiguration.IsEnabled);
