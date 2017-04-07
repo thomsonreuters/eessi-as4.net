@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep" /> class
         /// </summary>
-        public ReceiveUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext) {}
+        public ReceiveUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep"/> class.
@@ -45,7 +45,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="AS4Exception">Throws exception if the data store cannot be updated</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
         {
+
             Logger.Info($"{internalMessage.Prefix} Update Datastore with AS4 received message");
+
             _as4Message = internalMessage.AS4Message;
 
             using (DatastoreContext context = _createDatastoreContext())
@@ -54,22 +56,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 var service = new InMessageService(repository);
 
-                await UpdateUserMessagesAsync(service, token);
-                await UpdateSignalMessagesAsync(service, token);
+                UpdateUserMessages(service, token);
+                UpdateSignalMessages(service, token);
+
+                await context.SaveChangesAsync(token);
             }
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private async Task UpdateUserMessagesAsync(InMessageService service, CancellationToken token)
+        private void UpdateUserMessages(InMessageService service, CancellationToken token)
         {
             foreach (UserMessage userMessage in _as4Message.UserMessages)
             {
-                await UpdateUserMessageAsync(userMessage, service, token);
+                UpdateUserMessage(userMessage, service, token);
             }
         }
 
-        private async Task UpdateUserMessageAsync(UserMessage userMessage, InMessageService service, CancellationToken token)
+        private void UpdateUserMessage(UserMessage userMessage, InMessageService service, CancellationToken token)
         {
             if (IsUserMessageTest(userMessage))
             {
@@ -81,10 +85,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 userMessage.IsDuplicate = true;
             }
 
-            await TryUpdateUserMessageAsync(token, userMessage, service);
+            TryUpdateUserMessage(token, userMessage, service);
         }
 
-        private bool IsUserMessageTest(UserMessage userMessage)
+        private static bool IsUserMessageTest(UserMessage userMessage)
         {
             CollaborationInfo collaborationInfo = userMessage.CollaborationInfo;
 
@@ -99,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isTestMessage;
         }
 
-        private bool IsUserMessageDuplicate(MessageUnit userMessage, InMessageService service)
+        private static bool IsUserMessageDuplicate(MessageUnit userMessage, InMessageService service)
         {
             bool isDuplicate = service.ContainsUserMessageWithId(userMessage.MessageId);
 
@@ -111,11 +115,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isDuplicate;
         }
 
-        private async Task TryUpdateUserMessageAsync(CancellationToken token, UserMessage userMessage, InMessageService service)
+        private void TryUpdateUserMessage(CancellationToken token, UserMessage userMessage, InMessageService service)
         {
             try
             {
-                await service.InsertUserMessageAsync(userMessage, _as4Message, token);
+                service.InsertUserMessage(userMessage, _as4Message, token);
             }
             catch (Exception exception)
             {
@@ -123,22 +127,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private async Task UpdateSignalMessagesAsync(InMessageService service, CancellationToken token)
+        private void UpdateSignalMessages(InMessageService service, CancellationToken token)
         {
             foreach (SignalMessage signalMessage in _as4Message.SignalMessages)
             {
-                await UpdateSignalMessageAsync(signalMessage, service, token);
+                UpdateSignalMessageAsync(signalMessage, service, token);
             }
         }
 
-        private async Task UpdateSignalMessageAsync(SignalMessage signalMessage, InMessageService service, CancellationToken token)
+        private void UpdateSignalMessageAsync(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
             if (IsSignalMessageDuplicate(signalMessage, service))
             {
                 signalMessage.IsDuplicated = true;
             }
 
-            await TryUpdateSignalMessageAsync(signalMessage, service, token);
+            TryUpdateSignalMessage(signalMessage, service, token);
         }
 
         private bool IsSignalMessageDuplicate(SignalMessage signalMessage, InMessageService service)
@@ -153,44 +157,40 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isDuplicate;
         }
 
-        private async Task TryUpdateSignalMessageAsync(SignalMessage signalMessage, InMessageService service, CancellationToken token)
+        private void TryUpdateSignalMessage(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
             try
             {
-                await UpdateSignalMessage(signalMessage, service, token);
+                if (signalMessage is Receipt)
+                {
+                    UpdateReceipt(signalMessage, service, token);
+                }
+
+                else if (signalMessage is Error)
+                {
+                    UpdateError(signalMessage, service, token);
+                }
             }
             catch (Exception exception)
             {
                 ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", exception);
             }
         }
+        private void UpdateReceipt(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
 
-        private async Task UpdateSignalMessage(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
-            if (signalMessage is Receipt)
-            {
-                await UpdateReceipt(signalMessage, service, token);
-            }
-            else if (signalMessage is Error)
-            {
-                await UpdateError(signalMessage, service, token);
-            }
-        }
-
-        private async Task UpdateReceipt(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
-        {
-            await service.InsertReceiptAsync(signalMessage, _as4Message, cancellationToken);
+            service.InsertReceipt(signalMessage, _as4Message, cancellationToken);
 
             // Since we've received a Receipt, make sure that the Status of the UserMessage related to this receipt is set to Ack.            
-            await service.UpdateSignalMessage(signalMessage, OutStatus.Ack, cancellationToken);
+            service.UpdateSignalMessage(signalMessage, OutStatus.Ack, cancellationToken);
         }
 
-        private async Task UpdateError(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
+        private void UpdateError(SignalMessage signalMessage, InMessageService service, CancellationToken cancellationToken)
         {
-            await service.InsertErrorAsync(signalMessage, _as4Message, cancellationToken);
+            service.InsertError(signalMessage, _as4Message, cancellationToken);
 
             // Make sure the status of the related UserMessage of this Error is set to Nack.            
-            await service.UpdateSignalMessage(signalMessage, OutStatus.Nack, cancellationToken);
+            service.UpdateSignalMessage(signalMessage, OutStatus.Nack, cancellationToken);
         }
 
         private void ThrowAS4Exception(string description, Exception exception)

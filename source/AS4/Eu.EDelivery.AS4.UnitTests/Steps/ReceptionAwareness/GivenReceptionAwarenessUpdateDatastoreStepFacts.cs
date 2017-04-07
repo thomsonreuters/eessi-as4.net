@@ -29,10 +29,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             [Fact]
             public async Task ThenMessageIsAlreadyAwnseredAsync()
             {
+                Entities.ReceptionAwareness awareness;
+
                 // Arrange
-                Entities.ReceptionAwareness awareness = CreateDefaultReceptionAwareness();
-                ArrangeMessageIsAlreadyAwnsered(awareness.InternalMessageId);
-                InsertReceptionAwareness(awareness);
+                using (var context = new DatastoreContext(Options))
+                {
+                    awareness = CreateDefaultReceptionAwareness();
+                    context.ReceptionAwareness.Add(awareness);
+
+                    await context.SaveChangesAsync();
+
+                    ArrangeMessageIsAlreadyAnswered(awareness.InternalMessageId);                                       
+                }
 
                 var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
                 var step = new ReceptionAwarenessUpdateDatastoreStep();
@@ -44,18 +52,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.True(x.IsCompleted));
             }
 
-            private void ArrangeMessageIsAlreadyAwnsered(string messageId)
+            private void ArrangeMessageIsAlreadyAnswered(string messageId)
             {
                 using (var context = new DatastoreContext(Options))
                 {
-                    var inMessage = new InMessage {EbmsRefToMessageId = messageId};
+                    var inMessage = new InMessage {EbmsMessageId = "message-id", EbmsRefToMessageId = messageId};
                     context.InMessages.Add(inMessage);
                     context.SaveChanges();
                 }
             }
 
             [Fact]
-            public async Task ThenMessageIsUnawnseredAsync()
+            public async Task ThenMessageIsUnansweredAsync()
             {
                 // Arrange
                 Entities.ReceptionAwareness awareness = CreateDefaultReceptionAwareness();

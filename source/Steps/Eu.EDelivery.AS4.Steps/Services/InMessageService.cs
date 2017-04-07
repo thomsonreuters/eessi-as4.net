@@ -60,13 +60,13 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <param name="as4Message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task InsertUserMessageAsync(
+        public void InsertUserMessage(
             UserMessage usermessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             _logger.Info($"Update Message: {usermessage.MessageId} as User Message");
             InMessage inMessage = CreateUserInMessage(usermessage, as4Message, cancellationToken);
 
-            await _repository.InsertInMessageAsync(inMessage);
+            _repository.InsertInMessage(inMessage);
         }
 
         private static InMessage CreateUserInMessage(
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
         private static void AddOperationDelivered(MessageEntity inMessage)
         {
-            inMessage.Operation = Operation.ToBeDelivered;            
+            inMessage.Operation = Operation.ToBeDelivered;
         }
 
         /// <summary>
@@ -105,13 +105,12 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <param name="as4Message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task InsertReceiptAsync(
-            SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
+        public void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             _logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
             InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, cancellationToken);
 
-            await _repository.InsertInMessageAsync(inMessage);
+            _repository.InsertInMessage(inMessage);
         }
 
         private static InMessage CreateReceiptInMessage(
@@ -146,8 +145,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <param name="as4Message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task InsertErrorAsync(
-            SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
+        public void InsertError(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
             _logger.Info($"Update Message: {signalMessage.MessageId} as Error");
 
@@ -166,7 +164,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, cancellationToken);
 
-            await _repository.InsertInMessageAsync(inMessage);
+            _repository.InsertInMessage(inMessage);
         }
 
         private static InMessage CreateErrorInMessage(
@@ -196,7 +194,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
         private static void AddOperationNotified(MessageEntity inMessage)
         {
-            inMessage.Operation = Operation.ToBeNotified;            
+            inMessage.Operation = Operation.ToBeNotified;
         }
 
         /// <summary>
@@ -206,10 +204,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <param name="status"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task UpdateSignalMessage(
-            SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken)
+        public void UpdateSignalMessage(SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken)
         {
-            await _repository.UpdateOutMessageAsync(signalMessage.RefToMessageId,
+            _repository.UpdateOutMessage(signalMessage.RefToMessageId,
                 outMessage =>
                 {
                     if (status != OutStatus.NotApplicable)
@@ -225,10 +222,10 @@ namespace Eu.EDelivery.AS4.Steps.Services
         bool ContainsUserMessageWithId(string messageId);
         bool ContainsSignalMessageWithReferenceToMessageId(string refToMessageId);
 
-        Task InsertUserMessageAsync(UserMessage usermessage, AS4Message as4Message, CancellationToken cancellationToken);
-        Task InsertReceiptAsync(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
-        Task InsertErrorAsync(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
+        void InsertUserMessage(UserMessage usermessage, AS4Message as4Message, CancellationToken cancellationToken);
+        void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
+        void InsertError(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
 
-        Task UpdateSignalMessage(SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken);
+        void UpdateSignalMessage(SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken);
     }
 }

@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// <summary>
     /// Testing <see cref="SendAS4ReceiptStep" />
     /// </summary>
-    public class GivenSendAS4ReceiptStepFacts
+    public class GivenSendAS4ReceiptStepFacts : GivenDatastoreFacts
     {
         private readonly SendAS4ReceiptStep _step;
         private readonly string _sharedId;

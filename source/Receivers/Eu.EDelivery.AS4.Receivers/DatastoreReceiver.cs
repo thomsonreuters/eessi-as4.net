@@ -282,7 +282,10 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             Logger.Error(exception.Message);
             var aggregate = exception as AggregateException;
-            if (aggregate == null) return;
+            if (aggregate == null)
+            {
+                return;
+            }
 
             foreach (Exception ex in aggregate.InnerExceptions)
             {

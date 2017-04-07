@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// which is responsible for the retry mechanism of the reception awareness</summary>        
         public SetReceptionAwarenessStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -37,12 +37,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._internalMessage = internalMessage;
+            _internalMessage = internalMessage;
 
-            string pmodeId = this._internalMessage.AS4Message.SendingPMode.Id;
+            string pmodeId = _internalMessage.AS4Message.SendingPMode.Id;
 
             if (!IsReceptionAwarenessEnabled())
+            {
                 return await ReturnSameResult(internalMessage, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
+            }
 
             await InsertReceptionAwarenessAsync();
 
@@ -51,19 +53,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task<StepResult> ReturnSameResult(InternalMessage internalMessage, string description)
         {
-            this._logger.Info($"{internalMessage.Prefix} {description}");
+            _logger.Info($"{internalMessage.Prefix} {description}");
             return await StepResult.SuccessAsync(internalMessage);
         }
 
         private bool IsReceptionAwarenessEnabled()
         {
-            return this._internalMessage.AS4Message.SendingPMode
-                .Reliability.ReceptionAwareness.IsEnabled;
+            return _internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled;
         }
 
         private async Task InsertReceptionAwarenessAsync()
         {
-            this._logger.Info($"{this._internalMessage.Prefix} Set Reception Awareness");
+            _logger.Info($"{_internalMessage.Prefix} Set Reception Awareness");
 
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
@@ -78,12 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     e.CurrentRetryCount += 1;
                     e.LastSendTime = DateTimeOffset.UtcNow;
                 }
-
-                // TODO: optimize; SaveChanges should be called at the end of the transaction.
-                //       Now, the repository calls SaveChanges as well, which should not be 
-                //       done imho.
-                context.SaveChanges();
-
+                
                 // For every MessageId for which no ReceptionAwareness entity exists, create one.
                 var existingIds = existingReceptionAwarenessEntities.Select(r => r.InternalMessageId);
                 var missing = _internalMessage.AS4Message.MessageIds.Where(id => existingIds.Contains(id) == false);
@@ -91,14 +87,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 foreach (var messageId in missing)
                 {
                     var receptionAwareness = CreateReceptionAwareness(messageId);
-                    await repository.InsertReceptionAwarenessAsync(receptionAwareness);
+                    repository.InsertReceptionAwareness(receptionAwareness);
                 }
+
+                await context.SaveChangesAsync();
             }
         }
 
         private Entities.ReceptionAwareness CreateReceptionAwareness(string messageId)
         {
-            SendingProcessingMode pmode = this._internalMessage.AS4Message.SendingPMode;
+            SendingProcessingMode pmode = _internalMessage.AS4Message.SendingPMode;
 
             return new Entities.ReceptionAwareness
             {

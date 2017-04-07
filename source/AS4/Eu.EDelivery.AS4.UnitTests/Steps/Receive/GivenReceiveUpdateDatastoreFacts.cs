@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    var inMessage = new InMessage {EbmsMessageId = userMessage.MessageId};
+                    var inMessage = new InMessage { EbmsMessageId = userMessage.MessageId };
                     context.InMessages.Add(inMessage);
                     await context.SaveChangesAsync();
                 }
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepUpdatesDuplicateReceiptMessageAsync()
             {
                 // Arrange
-                SignalMessage signalMessage = new Receipt("message-id") {RefToMessageId = "ref-to-message-id"};
+                SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
                 signalMessage.IsDuplicated = false;
 
                 InternalMessage internalMessage = new InternalMessageBuilder().WithSignalMessage(signalMessage).Build();
@@ -217,7 +217,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// <returns></returns>
         protected UserMessage CreateUserMessage()
         {
-            return new UserMessage(_userMessageId) {RefToMessageId = _userMessageId};
+            return new UserMessage(_userMessageId) { RefToMessageId = _userMessageId };
         }
     }
 }

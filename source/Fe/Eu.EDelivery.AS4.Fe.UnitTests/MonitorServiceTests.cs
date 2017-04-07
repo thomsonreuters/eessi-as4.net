@@ -115,29 +115,25 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
-                    PMode = pmodeString,
-                    Id = 12,
+                    PMode = pmodeString,                
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 13,
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 14,
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 15,
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.SaveChanges();

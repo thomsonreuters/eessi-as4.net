@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 builder.WithMessageIds(_internalMessage.DeliverMessage.MessageInfo.MessageId);
             }
-            else if (_internalMessage.AS4Message != null)
+            else if (_internalMessage.AS4Message != null && _internalMessage.AS4Message.PrimaryUserMessage != null)
             {
                 builder.WithMessageIds(_internalMessage.AS4Message.PrimaryUserMessage.MessageId);
             }

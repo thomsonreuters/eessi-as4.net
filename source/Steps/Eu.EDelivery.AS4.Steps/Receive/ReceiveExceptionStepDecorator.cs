@@ -30,8 +30,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="step"></param>
         public ReceiveExceptionStepDecorator(IStep step)
         {
-            this._step = step;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _step = step;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
                 var inExceptionService = new InExceptionService(new DatastoreRepository(context));
-                
+
                 try
                 {
                     AS4Exception exception = GetPossibleThrownAS4Exception(internalMessage);
@@ -57,7 +57,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                     _originalAS4Message = internalMessage.AS4Message;
 
-                    return await HandleImplicitError(internalMessage.AS4Message, inExceptionService);
+                    var result = await HandleImplicitError(internalMessage.AS4Message, inExceptionService);
+
+                    await context.SaveChangesAsync(cancellationToken);
+
+                    return result;
                 }
                 catch (AS4Exception exception)
                 {
@@ -74,7 +78,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     }
 
                     InitializeFields(internalMessage);
-                    return await HandleInException(exception, internalMessage.AS4Message, inExceptionService);
+
+                    var result = await HandleInException(exception, internalMessage.AS4Message, inExceptionService);
+                    await context.SaveChangesAsync(cancellationToken);
+
+                    return result;
                 }
                 catch (Exception exception)
                 {
@@ -97,7 +105,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var errorMessage = as4Message.PrimarySignalMessage as Error;
             if (errorMessage?.Exception != null)
             {
-                await inExceptionService.InsertAS4ExceptionAsync(errorMessage.Exception, as4Message);
+                inExceptionService.InsertAS4Exception(errorMessage.Exception, as4Message);
             }
 
             return await ReturnStepResult(as4Message);
@@ -116,7 +124,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task<StepResult> HandleInException(AS4Exception exception, AS4Message as4Message, InExceptionService inExceptionService)
         {
-            await inExceptionService.InsertAS4ExceptionAsync(exception, as4Message);
+            inExceptionService.InsertAS4Exception(exception, as4Message);
 
             StepResult stepResult = await ReturnStepResult(_originalAS4Message);
             stepResult.InternalMessage.Exception = exception;
@@ -126,12 +134,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task<StepResult> ReturnStepResult(AS4Message as4Message)
         {
-            this._logger.Info("Handled AS4 Exception");
+            _logger.Info("Handled AS4 Exception");
 
             var internalMessage = new InternalMessage(as4Message);
             return await StepResult.SuccessAsync(internalMessage);
         }
-       
+
 
         private static void AssignResponseHttpCode(InternalMessage internalMessage)
         {

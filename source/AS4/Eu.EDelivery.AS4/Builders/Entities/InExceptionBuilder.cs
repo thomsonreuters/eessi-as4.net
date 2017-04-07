@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InExceptionBuilder WithAS4Exception(AS4Exception as4Exception)
         {
-            this._as4Exception = as4Exception;
+            _as4Exception = as4Exception;
             return this;
         }
 
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InExceptionBuilder WithEbmsMessageId(string messageId)
         {
-            this._messageId = messageId;
+            _messageId = messageId;
             return this;
         }
 
@@ -42,16 +42,18 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InException Build()
         {
-            if (this._as4Exception == null)
+            if (_as4Exception == null)
+            {
                 throw new AS4Exception("Builder needs an AS4Exception for building a InException");
+            }
 
             return new InException
             {
-                EbmsRefToMessageId = this._messageId,
-                Exception = this._as4Exception.ToString(),
+                EbmsRefToMessageId = _messageId,
+                Exception = _as4Exception.ToString(),
                 Operation = GetOperation(),
-                ExceptionType = this._as4Exception.ExceptionType,
-                PMode = this._as4Exception.PMode,
+                ExceptionType = _as4Exception.ExceptionType,
+                PMode = _as4Exception.PMode,
 
                 // TODO: define Operation Method
                 OperationMethod = "To be determined",
@@ -62,11 +64,16 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
         private Operation GetOperation()
         {
-            if (string.IsNullOrEmpty(this._as4Exception.PMode))
+            if (string.IsNullOrEmpty(_as4Exception.PMode))
+            {
                 return Operation.NotApplicable;
+            }
 
-            var pmode = AS4XmlSerializer.FromString<ReceivePMode>(this._as4Exception.PMode);
-            if (pmode == null) return Operation.NotApplicable;
+            var pmode = AS4XmlSerializer.FromString<ReceivePMode>(_as4Exception.PMode);
+            if (pmode == null)
+            {
+                return Operation.NotApplicable;
+            }
 
             return pmode.ExceptionHandling.NotifyMessageConsumer
                 ? Operation.ToBeNotified

@@ -30,11 +30,11 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// with a a decorated <paramref name="step"/>
         /// </summary>
         /// <param name="step"></param>
-        public InExceptionStepDecorator(IStep step)             
+        public InExceptionStepDecorator(IStep step)
         {
             this._step = step;
         }
-        
+
         /// <summary>
         /// Start executing Step
         /// so it can be catched
@@ -46,14 +46,16 @@ namespace Eu.EDelivery.AS4.Steps.Common
         {
             try
             {
-                return await this._step.ExecuteAsync(internalMessage, cancellationToken);
+                return await _step.ExecuteAsync(internalMessage, cancellationToken);
             }
             catch (AS4Exception exception)
             {
                 using (var context = Registry.Instance.CreateDatastoreContext())
                 {
                     var repository = new DatastoreRepository(context);
-                    await HandleInExceptionAsync(exception, internalMessage, repository);
+                    HandleInException(exception, internalMessage, repository);
+
+                    await context.SaveChangesAsync(cancellationToken);
                 }
 
                 return StepResult.Failed(exception);
@@ -65,16 +67,16 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
         }
 
-        private async Task HandleInExceptionAsync(AS4Exception exception, InternalMessage internalMessage, IDatastoreRepository repository)
+        private void HandleInException(AS4Exception exception, InternalMessage internalMessage, IDatastoreRepository repository)
         {
             _logger.Info($"{internalMessage.Prefix} Handling AS4 Exception...");
             foreach (string messageId in exception.MessageIds)
             {
-                await TryHandleInExceptionAsync(exception, messageId, internalMessage, repository);
+                TryHandleInException(exception, messageId, internalMessage, repository);
             }
         }
 
-        private async Task TryHandleInExceptionAsync(AS4Exception exception, string messageId, InternalMessage message, IDatastoreRepository repository)
+        private void TryHandleInException(AS4Exception exception, string messageId, InternalMessage message, IDatastoreRepository repository)
         {
             try
             {
@@ -82,16 +84,16 @@ namespace Eu.EDelivery.AS4.Steps.Common
 
                 inException.MessageBody = GetAS4MessageByteRepresentation(message.AS4Message);
 
-                await repository.InsertInExceptionAsync(inException);
-                await UpdateInMessageAsync(messageId, exception.ExceptionType, repository);
+                repository.InsertInException(inException);
+                UpdateInMessage(messageId, exception.ExceptionType, repository);
             }
             catch (Exception ex)
             {
-                this._logger.Error($"{message.Prefix} Cannot Update Datastore with InException: {ex.Message}");
+                _logger.Error($"{message.Prefix} Cannot Update Datastore with InException: {ex.Message}");
 
                 if (ex.InnerException != null)
                 {
-                    this._logger.Error(ex.InnerException.Message);
+                    _logger.Error(ex.InnerException.Message);
                 }
             }
         }
@@ -115,9 +117,9 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
         }
 
-        private static async Task UpdateInMessageAsync(string messageId, ExceptionType exceptionType, IDatastoreRepository repository)
+        private static void UpdateInMessage(string messageId, ExceptionType exceptionType, IDatastoreRepository repository)
         {
-            await repository.UpdateInMessageAsync(messageId,
+            repository.UpdateInMessage(messageId,
                 message =>
                 {
                     message.Status = InStatus.Exception;

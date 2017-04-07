@@ -1,5 +1,6 @@
 using System;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,14 +12,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// Data Store Connection Test Setup
     /// </summary>
     [Collection("Tests that impact datastore")]  // Tests that belong to the same collection do not run in parallel.
-    public class GivenDatastoreFacts
+    public class GivenDatastoreFacts : IDisposable
     {
-        private IServiceProvider _serviceProvider;
-
+        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .BuildServiceProvider();
+    
         protected DbContextOptions<DatastoreContext> Options { get; }
 
-        protected Func<DatastoreContext> GetDataStoreContext { get; }
-        
+        protected Func<DatastoreContext> GetDataStoreContext { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenDatastoreFacts"/> class. 
         /// </summary>
@@ -27,15 +30,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             Options = CreateNewContextOptions();
             GetDataStoreContext = () => new DatastoreContext(Options);
             Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options);
+
+            DatastoreRepository.ResetCaches();
         }
 
         private DbContextOptions<DatastoreContext> CreateNewContextOptions()
         {
-            if (_serviceProvider == null)
-            {
-                ResetInMemoryDatabase();
-            }
-
             // Create a new options instance telling the context to use an
             // InMemory database and the new service provider.
             return new DbContextOptionsBuilder<DatastoreContext>()
@@ -45,13 +45,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 .Options;
         }
 
-        private void ResetInMemoryDatabase()
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
         {
-            // Create a fresh service provider, and therefore a fresh 
-            // InMemory database instance.
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+            DatastoreRepository.DisposeCaches();
+            GetDataStoreContext = null;
+            Registry.Instance.CreateDatastoreContext = null;
         }
     }
 }

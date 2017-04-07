@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         public GivenInExceptionDecoratorStepFacts()
         {
-            _mockedStep = new Mock<IStep>();        
+            _mockedStep = new Mock<IStep>();
 
             ResetStep();
         }
@@ -45,8 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 var internalMessage = new InternalMessage();
 
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
-
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertInException(sharedId, exception =>
@@ -58,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertInException(string messageId, Action<InException> assertAction)
             {
-                using (var context = this.GetDataStoreContext())
+                using (var context = GetDataStoreContext())
                 {
                     InException inException = context.InExceptions
                         .FirstOrDefault(e => e.EbmsRefToMessageId.Equals(messageId));
@@ -79,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 var internalMessage = new InternalMessage();
 
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
 
                 // Assert
@@ -98,12 +97,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                InMessage inMessage = CreateDefaultInMessage(sharedId);
-                InsertInMessage(inMessage);
+                using (var context = GetDataStoreContext())
+                {
+                    InMessage inMessage = CreateDefaultInMessage(sharedId);
+                    context.InMessages.Add(inMessage);
+
+                    await context.SaveChangesAsync();
+                }
                 var internalMessage = new InternalMessage();
 
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 AssertInMessage(sharedId, message =>
@@ -160,7 +164,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected void ResetStep()
         {
-            _step = new InExceptionStepDecorator(this._mockedStep.Object);
+            _step = new InExceptionStepDecorator(_mockedStep.Object);
         }
     }
 }

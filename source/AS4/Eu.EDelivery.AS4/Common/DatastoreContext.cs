@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -8,6 +9,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using NLog;
 using Polly;
 using Polly.Retry;
 
@@ -96,6 +98,11 @@ namespace Eu.EDelivery.AS4.Common
 
             // Make sure no InvalidOperation is thrown when an ambient transaction is detected.
             optionsBuilder.ConfigureWarnings(x => x.Ignore(RelationalEventId.AmbientTransactionWarning));
+
+            ////var logger = new LoggerFactory();
+            ////logger.AddProvider(new ConsoleLoggerProvider((t, l) => l >= LogLevel.Trace, true));
+
+            ////optionsBuilder.UseLoggerFactory(logger);
         }
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
@@ -126,16 +133,39 @@ namespace Eu.EDelivery.AS4.Common
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<InMessage>().HasKey(im => im.Id);
-            modelBuilder.Entity<InMessage>().HasAlternateKey(im => im.EbmsMessageId);
+            modelBuilder.Entity<InMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<InMessage>().HasIndex(im => im.OperationString);
+            modelBuilder.Entity<InMessage>().HasIndex(im => im.EbmsRefToMessageId);
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id);
+            modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<OutMessage>().HasAlternateKey(im => im.EbmsMessageId);
             modelBuilder.Entity<OutMessage>().HasIndex(im => im.OperationString);
+            modelBuilder.Entity<OutMessage>().HasIndex(im => im.EbmsRefToMessageId);
+
+            modelBuilder.Entity<InException>().HasKey(ie => ie.Id);
+            modelBuilder.Entity<InException>().Property(ie => ie.Id).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<InException>().HasIndex(ie => ie.EbmsRefToMessageId);
+
+            modelBuilder.Entity<OutException>().HasKey(oe => oe.Id);
+            modelBuilder.Entity<OutException>().Property(oe => oe.Id).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<OutException>().HasIndex(oe => oe.EbmsRefToMessageId);
 
             modelBuilder.Entity<ReceptionAwareness>().HasKey(r => r.Id);
+            modelBuilder.Entity<ReceptionAwareness>().Property(r => r.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<ReceptionAwareness>().HasAlternateKey(r => r.InternalMessageId);
-            modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new {r.IsCompleted, r.CurrentRetryCount});
+            modelBuilder.Entity<ReceptionAwareness>().HasIndex(r => new { r.IsCompleted, r.CurrentRetryCount });
+        }
+
+        /// <summary>
+        /// Determines whether the DatastoreContext is already tracking the specified entity.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns>True if the specified entity is already being tracked by the DatastoreContext.</returns>
+        public bool IsEntityAttached<T>(T entity) where T : Entity
+        {
+            return ChangeTracker.Entries<T>().Any(e => e.Entity.Id == entity.Id);
         }
 
         /// <summary>
@@ -260,6 +290,15 @@ namespace Eu.EDelivery.AS4.Common
 
         private static AS4Exception ThrowDatastoreUnavailableException(Exception innerException = null)
         {
+            if (innerException != null)
+            {
+                LogManager.GetCurrentClassLogger().Error(innerException.Message);
+                if (innerException.InnerException != null)
+                {
+                    LogManager.GetCurrentClassLogger().Error(innerException.InnerException.Message);
+                }
+            }
+
             return AS4ExceptionBuilder
                 .WithDescription("Datastore unavailable")
                 .WithInnerException(innerException)
