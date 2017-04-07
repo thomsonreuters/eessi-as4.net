@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         public SendUpdateDataStoreStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._as4Message = internalMessage.AS4Message;
+            _as4Message = internalMessage.AS4Message;
 
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 foreach (SignalMessage signalMessage in internalMessage.AS4Message.SignalMessages)
                 {
-                    this._logger.Info($"{internalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
+                    _logger.Info($"{internalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
                     await TryUpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
                 }
             }
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private bool IsSignalMessageReferenceUserMessage(SignalMessage signalMessage)
         {
-            return signalMessage.RefToMessageId?.Equals(this._as4Message.PrimaryUserMessage?.MessageId) ?? false;
+            return signalMessage.RefToMessageId?.Equals(_as4Message.PrimaryUserMessage?.MessageId) ?? false;
         }
 
         private static async Task UpdateOther(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
