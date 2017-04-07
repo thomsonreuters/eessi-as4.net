@@ -288,6 +288,7 @@
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
+    <Compile Include="Http\SpyHttpServer.cs" />
     <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenXmlSignalMessageMapFacts.cs" />
@@ -409,6 +410,7 @@
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\GivenFilePayloadStrategyFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />
+    <Compile Include="Strategies\Retriever\GivenWebPayloadRetrieverFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
