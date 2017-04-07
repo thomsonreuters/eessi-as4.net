@@ -1,10 +1,11 @@
 ﻿using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.PayloadService.Controllers;
 using Eu.EDelivery.AS4.PayloadService.Models;
 using Eu.EDelivery.AS4.PayloadService.UnitTests.Models;
+using Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance;
+using Eu.EDelivery.AS4.PayloadService.UnitTests.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Controllers
         private const string ExpectedContent = "message data!";
 
         private PayloadController AnonymousPayloadController
-            => new PayloadController(new StubHostingEnvironment()) {ControllerContext = {HttpContext = new DefaultHttpContext()}};
+            => new PayloadController(new CurrentDirectoryHostingEnvironment()) {ControllerContext = {HttpContext = new DefaultHttpContext()}};
 
         [Fact]
         public async Task DowmloadPayloadResultInNotFound_IfPayloadDoesntExists()
@@ -61,7 +62,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Controllers
         {
             var content = new MultipartFormDataContent
             {
-                {new StreamContent(new MemoryStream(Encoding.UTF8.GetBytes(ExpectedContent))), "filename", "filename"}
+                {new StreamContent(ExpectedContent.AsStream()), "filename", "filename"}
             };
             controller.ControllerContext.HttpContext.Request.ContentType = content.Headers.ContentType.ToString();
 

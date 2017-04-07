@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.PayloadService.Models;
 using Eu.EDelivery.AS4.PayloadService.Persistance;
+using Eu.EDelivery.AS4.PayloadService.UnitTests.Models;
+using Eu.EDelivery.AS4.PayloadService.UnitTests.Serialization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
@@ -18,7 +19,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
         {
             // Arrange
             const string expectedContent = "message data!";
-            using (MemoryStream serializeContent = SerializeContent(expectedContent))
+            using (Stream serializeContent = expectedContent.AsStream())
             {
                 var persister = new FilePayloadPersister(new CurrentDirectoryHostingEnvironment());
 
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
                 string newPayloadId = await persister.SavePayload(payload);
 
                 // Assert
-                Assert.Equal(expectedContent, DeserializeContent(newPayloadId.ToString()));
+                Assert.Equal(expectedContent, DeserializeContent(newPayloadId));
                 Assert.Contains("originalfilename:", DeserializeContent(newPayloadId + ".meta"));
             }
         }
@@ -37,7 +38,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
         {
             // Arrange
             const string expectedContent = "message data!";
-            using (MemoryStream serializeContent = SerializeContent(expectedContent))
+            using (Stream serializeContent = expectedContent.AsStream())
             {
                 var persister = new FilePayloadPersister(new CurrentDirectoryHostingEnvironment());
                 var payload = new Payload(serializeContent, CreateUniquePayloadMeta());
@@ -46,7 +47,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
                 // Act
                 using (Payload actualPayload = await persister.LoadPayload(savedPayloadId))
                 {
-                    Assert.Equal(expectedContent, DeserializeContent(actualPayload.Content));
+                    Assert.Equal(expectedContent, actualPayload.DeserializeContent());
                 }
             }
         }
@@ -56,22 +57,9 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
             return new PayloadMeta(Guid.NewGuid() + ".txt");
         }
 
-        private static MemoryStream SerializeContent(string expectedContent)
-        {
-            return new MemoryStream(Encoding.UTF8.GetBytes(expectedContent));
-        }
-
         private static string DeserializeContent(string id)
         {
             return File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Payloads", id));
-        }
-
-        private static string DeserializeContent(Stream stream)
-        {
-            using (var streamReader = new StreamReader(stream))
-            {
-                return streamReader.ReadToEnd();
-            }
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.PayloadService.Infrastructure;
-using Eu.EDelivery.AS4.PayloadService.Models;
+using Eu.EDelivery.AS4.PayloadService.UnitTests.Models;
+using Eu.EDelivery.AS4.PayloadService.UnitTests.Serialization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Infrastructure
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Infrastructure
                 await reader.StartReading(payload =>
                 {
                     // Assert
-                    Assert.Equal(expectedContent, ActualContentOf(payload));
+                    Assert.Equal(expectedContent, payload.DeserializeContent());
 
                     waitHandle.Set();
                     return Task.CompletedTask;
@@ -45,17 +45,9 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Infrastructure
             }
         }
 
-        private static string ActualContentOf(Payload payload)
-        {
-            using (var streamReader = new StreamReader(payload.Content))
-            {
-                return streamReader.ReadToEnd();
-            }
-        }
-
         private static async Task<MultipartPayloadReader> CreateStubReaderThatReturns(string expectedContent, Stream actualStream)
         {
-            using (var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(expectedContent)))
+            using (Stream contentStream = expectedContent.AsStream())
             {
                 var multipartContent = new MultipartFormDataContent {{new StreamContent(contentStream), "name", "filename"}};
                 await multipartContent.CopyToAsync(actualStream);

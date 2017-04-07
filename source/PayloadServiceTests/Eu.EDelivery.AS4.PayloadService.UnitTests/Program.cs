@@ -43,6 +43,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests
             RunTest(new GivenMultipartPayloadReaderFacts().CannotCreateReader_IfContentTypeIsntMultiPart);
             await RunTestAsync(new GivenMultipartPayloadReaderFacts().ReadsExpectedContent);
             RunTest(new GivenStreamedFileResultFacts().ReturnsExpectedResult);
+            RunTest(new GivenPayloadFacts().ThenPayloadNullObjectIsEqualToSelfCreatedObject);
         }
 
         private static async Task RunTestAsync(Func<Task> testRun)

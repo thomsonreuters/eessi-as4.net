@@ -4,6 +4,9 @@ using Microsoft.Extensions.FileProviders;
 
 namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
 {
+    /// <summary>
+    /// <see cref="IHostingEnvironment"/> implementation to 'Stub' the environment as 'Responder' of the current directory.
+    /// </summary>
     public class CurrentDirectoryHostingEnvironment : IHostingEnvironment
     {
         /// <summary>
