@@ -33,14 +33,14 @@ namespace Eu.EDelivery.AS4.PayloadService.Controllers
         [Produces("application/xml", "application/json")]
         public async Task<IActionResult> Upload()
         {
-            (bool, MultipartPayloadReader) reader = MultipartPayloadReader.TryCreate(Request.Body, Request.ContentType);
+            (bool success, MultipartPayloadReader reader) result = MultipartPayloadReader.TryCreate(Request.Body, Request.ContentType);
 
-            if (!reader.Item1)
+            if (!result.success)
             {
                 return BadRequest($"Expected a multipart request, but got {Request.ContentType}");
             }
 
-            string payloadId = await UploadPayloadsWith(reader.Item2);
+            string payloadId = await UploadPayloadsWith(result.reader);
             return new OkObjectResult(new UploadResult(payloadId));
         }
 

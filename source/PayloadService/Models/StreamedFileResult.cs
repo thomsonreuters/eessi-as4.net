@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
     /// <remarks>This class is almost identical to the FileStreamResult class, except that this implementation
     /// flushes the output-stream each time bytes are written to it.  This prevents possible OutOfMemoryException when
     /// larger files are being sent.</remarks>
-    public class StreamedFileResult : FileResult, IDisposable
+    public class StreamedFileResult : FileResult
     {
         // Should the buffersize be made configurable (via ctor argument?) or should this class determine the
         // ideal buffersize itself (taking the length of the source-stream into consideration) and a certain max size ?
@@ -35,6 +35,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
         }
 
         // TODO: override the ExecuteResult async method to allow async execution as well ?           
+        
         /// <summary>
         /// Executes the result operation of the action method synchronously. This method is called by MVC to process
         /// the result of an action method.
@@ -82,16 +83,8 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
             }
             finally
             {
-                Dispose();
+                _stream?.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            _stream?.Dispose();
         }
     }
 }

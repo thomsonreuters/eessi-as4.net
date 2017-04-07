@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
         /// <param name="contentStream"></param>
         /// <param name="contentType"></param>
         /// <returns></returns>
-        public static (bool, MultipartPayloadReader) TryCreate(Stream contentStream, string contentType)
+        public static (bool success, MultipartPayloadReader reader) TryCreate(Stream contentStream, string contentType)
         {
             if (!IsMultipartContentType(contentType))
             {
