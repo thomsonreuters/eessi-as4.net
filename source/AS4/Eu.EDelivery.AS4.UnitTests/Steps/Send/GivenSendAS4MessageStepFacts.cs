@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(options);
         }
 
-        [Fact]
+        [Fact(Skip = "Test needs to run in elevated mode")]
         public async Task SendReturnsStopExecutionResult()
         {
             // Arrange
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Test needs to run in elevated mode")]
         public async Task SendReturnsEmptyResponseForEmptyRequest()
         {
             // Arrange

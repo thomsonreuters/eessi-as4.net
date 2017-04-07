@@ -167,7 +167,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepUpdatesAsErrorAsync()
             {
                 // Arrange
-                SignalMessage errorMessage = GetError();
+                SignalMessage errorMessage = CreateError();
 
                 InternalMessage internalMessage =
                     new InternalMessageBuilder(errorMessage.RefToMessageId).WithSignalMessage(errorMessage).Build();

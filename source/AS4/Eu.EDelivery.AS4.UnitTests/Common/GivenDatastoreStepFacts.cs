@@ -27,10 +27,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         private void SeedDataStore(DbContextOptions<DatastoreContext> options)
         {
-            using (var context = new DatastoreContext(options))
+            using (var context = GetDataStoreContext())
             {
                 var receipt = new OutMessage { EbmsMessageId = CreateReceipt().MessageId };
-                var error = new OutMessage { EbmsMessageId = GetError().MessageId };
+                var error = new OutMessage { EbmsMessageId = CreateError().MessageId };
 
                 context.OutMessages.Add(receipt);
                 context.OutMessages.Add(error);
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Create a <see cref="Error" /> instance with the specified common id's.
         /// </summary>
         /// <returns></returns>
-        protected Error GetError()
+        protected Error CreateError()
         {
             return new Error(ErrorMessageId) {RefToMessageId = ErrorMessageId};
         }
@@ -81,10 +81,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             MessageUnit signalMessage,
             OutStatus status)
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 OutMessage outMessage = await context.OutMessages
-                    .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(signalMessage.MessageId));
+                    .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(signalMessage.RefToMessageId));
 
                 Assert.NotNull(outMessage);
                 Assert.Equal(status, outMessage.Status);
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         protected async Task AssertInMessage(MessageUnit signalMessage)
         {
-            using (var context = new DatastoreContext(Options))
+            using (var context = GetDataStoreContext())
             {
                 InMessage inMessage = await context.InMessages
                     .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(signalMessage.MessageId));

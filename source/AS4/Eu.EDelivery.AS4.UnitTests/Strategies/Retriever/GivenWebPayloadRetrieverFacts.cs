@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.UnitTests.Http;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 using SimpleHttpMock;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
     {
         private static readonly string SharedUrl = UniqueHost.Create().Url;
 
-        [Fact]
+        [Fact(Skip = "Test needs to run in elevated mode")]
         public async Task ThenDownloadPayloadSucceeds()
         {
             const string expectedPayload = "message data!";
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Test needs to run in elevated mode")]
         public async Task ThenDownloadFailed_IfReturnCodeIsntSuccessful()
         {
             var retriever = new HttpPayloadRetriever();

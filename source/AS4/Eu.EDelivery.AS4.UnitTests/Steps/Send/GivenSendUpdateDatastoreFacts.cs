@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -68,12 +69,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task ThenExecuteStepUpdatesAsErrorAsync()
         {
             // Arrange
-            SignalMessage errorMessage = GetError();
-
-            InternalMessage internalMessage =
-                new InternalMessageBuilder(errorMessage.RefToMessageId).WithSignalMessage(errorMessage).Build();
-            internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
-            internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
+            SignalMessage errorMessage = CreateError();
+            InternalMessage internalMessage = CreateInternalMessageWith(errorMessage);
 
             // Act
             await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -100,15 +97,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             await AssertInMessage(receiptMessage);
         }
 
-        private static InternalMessage CreateInternalMessageWith(SignalMessage receiptMessage)
+        private InternalMessage CreateInternalMessageWith(SignalMessage signalMessage)
         {
-            InternalMessage internalMessage = new InternalMessageBuilder(receiptMessage.RefToMessageId)
-                            .WithSignalMessage(receiptMessage).Build();
+
+            InternalMessage internalMessage = new InternalMessageBuilder(signalMessage.RefToMessageId)
+                           .WithSignalMessage(signalMessage).Build();
 
             internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
             internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
 
             return internalMessage;
+
+
         }
     }
 }

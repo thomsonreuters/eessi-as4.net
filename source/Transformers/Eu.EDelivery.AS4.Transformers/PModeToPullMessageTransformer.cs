@@ -45,8 +45,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
                 SendingProcessingMode pmode = DeserializeValidPMode(receivedMessage);
                 transformedMessage.AS4Message.SendingPMode = pmode;
-                transformedMessage.AS4Message.SignalMessages.Add(new PullRequest(pmode.MessagePackaging.Mpc));
-
+                transformedMessage.AS4Message.SignalMessages.Add(new PullRequest(pmode.PullConfiguration.Mpc));
             }
             catch (AS4Exception exception)
             {

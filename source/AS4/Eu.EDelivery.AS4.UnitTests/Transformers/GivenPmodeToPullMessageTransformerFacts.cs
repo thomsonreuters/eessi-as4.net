@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         private static SendingProcessingMode CreateAnonymousSendingPModeWith(string expectedMpc)
         {
             SendingProcessingMode expectedSendingPMode = new ValidStubSendingPModeFactory().Create("expected-id");
-            expectedSendingPMode.MessagePackaging.Mpc = expectedMpc;
+            expectedSendingPMode.PullConfiguration.Mpc = expectedMpc;
 
             return expectedSendingPMode;
         }
