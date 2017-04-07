@@ -15,25 +15,24 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     public class FtpPayloadRetriever : IPayloadRetriever
     {
         private readonly IConfig _config;
-        private readonly ILogger _logger;
-        
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="FtpPayloadRetriever"/> class
+        /// Initializes a new instance of the <see cref="FtpPayloadRetriever" /> class
         /// </summary>
         public FtpPayloadRetriever()
         {
-            this._config = Config.Instance;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _config = Config.Instance;
         }
 
         /// <summary>
-        /// Retriee 
+        /// Retrieve <see cref="Stream" /> contents from a given <paramref name="location" />.
         /// </summary>
-        /// <param name="location"></param>
+        /// <param name="location">The location.</param>
         /// <returns></returns>
-        public Stream RetrievePayload(string location)
+        public Task<Stream> RetrievePayloadAsync(string location)
         {
-            return TryGetFtpFile(location);
+            return Task.FromResult(TryGetFtpFile(location));
         }
 
         private Stream TryGetFtpFile(string location)
@@ -51,12 +50,10 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
         private FtpWebRequest CreateFtpRequest(string location)
         {
-            var ftpRequest = (FtpWebRequest)WebRequest.Create(new Uri(location));
+            var ftpRequest = (FtpWebRequest) WebRequest.Create(new Uri(location));
             ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 
-            ftpRequest.Credentials = new NetworkCredential(
-                this._config.GetSetting("ftpusername"),
-                this._config.GetSetting("ftppassword"));
+            ftpRequest.Credentials = new NetworkCredential(_config.GetSetting("ftpusername"), _config.GetSetting("ftppassword"));
 
             return ftpRequest;
         }
@@ -64,19 +61,22 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         private async Task<Stream> GetFtpFile(FtpWebRequest ftpRequest)
         {
             using (WebResponse ftpResponse = await ftpRequest.GetResponseAsync())
+            {
                 return ftpResponse.GetResponseStream();
+            }
         }
 
         private AS4Exception ThrowAS4PayloadException(string location, Exception exception)
         {
             string description = $"Unable to retrieve Payload at location: {location}";
-            this._logger.Error(description);
+            Logger.Error(description);
 
-            return AS4ExceptionBuilder.WithDescription(description)
-                                      .WithInnerException(exception)                
-                                      .WithErrorCode(ErrorCode.Ebms0011)
-                                      .WithExceptionType(ExceptionType.ExternalPayloadError)
-                                      .Build();
+            return AS4ExceptionBuilder
+                .WithDescription(description)
+                .WithInnerException(exception)
+                .WithErrorCode(ErrorCode.Ebms0011)
+                .WithExceptionType(ExceptionType.ExternalPayloadError)
+                .Build();
         }
     }
 }

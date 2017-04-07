@@ -1,0 +1,50 @@
+﻿using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Strategies.Retriever;
+using Eu.EDelivery.AS4.UnitTests.Http;
+using SimpleHttpMock;
+using Xunit;
+
+namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
+{
+    public class GivenWebPayloadRetrieverFacts
+    {
+        private static readonly string SharedUrl = UniqueHost.Create().Url;
+
+        [Fact]
+        public async Task ThenDownloadPayloadSucceeds()
+        {
+            const string expectedPayload = "message data!";
+            var retriever = new HttpPayloadRetriever();
+
+            using (CreateStubServerThatReturns(expectedPayload))
+            using (var streamReader = new StreamReader(await retriever.RetrievePayloadAsync(SharedUrl)))
+            {
+                string actualPayload = streamReader.ReadToEnd();
+                Assert.Equal(expectedPayload, actualPayload);
+            }
+        }
+
+        [Fact]
+        public async Task ThenDownloadFailed_IfReturnCodeIsntSuccessful()
+        {
+            var retriever = new HttpPayloadRetriever();
+
+            using (CreateStubServerThatReturns(content: null, statusCode: HttpStatusCode.BadGateway))
+            {
+                Assert.Equal(Stream.Null, await retriever.RetrievePayloadAsync(SharedUrl));
+            }
+        }
+
+        private static MockedHttpServer CreateStubServerThatReturns(string content, HttpStatusCode statusCode = HttpStatusCode.OK)
+        {
+            var builder = new MockedHttpServerBuilder();
+
+            builder.WhenGet(SharedUrl).RespondContent(statusCode, request => new StringContent(content));
+
+            return builder.Build(SharedUrl);
+        }
+    }
+}

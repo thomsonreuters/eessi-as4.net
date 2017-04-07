@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public class GivenValidArgumentsInternalMessage : GivenInternalMessageFacts
         {
             [Fact]
-            public void ThenAddAttachmentSucceeds()
+            public async Task ThenAddAttachmentSucceeds()
             {
                 // Arrange
                 var memoryStream = new MemoryStream();
@@ -38,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _internalMessage = new InternalMessage(submitMessage);
 
                 // Act
-                _internalMessage.AddAttachments(payload => memoryStream);
+                await _internalMessage.AddAttachments(async payload => await Task.FromResult(memoryStream));
 
                 // Assert
                 Assert.NotNull(_internalMessage.AS4Message.Attachments);
@@ -152,14 +153,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             }
 
             [Fact]
-            public void ThenNoAttachmentsAreAddedWithZeroPayloads()
+            public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
             {
                 // Arrange
                 var submitMessage = new SubmitMessage();
                 _internalMessage = new InternalMessage(submitMessage);
 
                 // Act
-                _internalMessage.AddAttachments(payload => new MemoryStream());
+                await _internalMessage.AddAttachments(async payload => await Task.FromResult(new MemoryStream()));
 
                 // Assert
                 Assert.False(_internalMessage.AS4Message.HasAttachments);

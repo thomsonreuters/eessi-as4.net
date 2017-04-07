@@ -12,16 +12,25 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         protected Method Method { get; private set; }
 
+        /// <summary>
+        /// Configure the <see cref="IDeliverSender"/>
+        /// with a given <paramref name="method"/>
+        /// </summary>
+        /// <param name="method"></param>
         public void Configure(Method method)
         {
-            this.Method = method;
+            Method = method;
         }
 
+        /// <summary>
+        /// Start sending the <see cref="DeliverMessage"/>
+        /// </summary>
+        /// <param name="deliverMessage"></param>
         public void Send(DeliverMessageEnvelope deliverMessage)
         {
-            Parameter locationParameter = this.Method["location"];
+            Parameter locationParameter = Method["location"];
 
-            var location = locationParameter?.Value;
+            string location = locationParameter?.Value;
 
             try
             {
@@ -29,21 +38,24 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             }
             catch (Exception ex)
             {
-                var description = $"Unable to send NotifyMessage to {location}: {ex.Message}";
+                string description = $"Unable to send NotifyMessage to {location}: {ex.Message}";
 
-                this.Log.Error(description);
+                Log.Error(description);
 
                 if (ex.InnerException != null)
                 {
-                    this.Log.Error(ex.InnerException.Message);
+                    Log.Error(ex.InnerException.Message);
                 }
 
-                throw AS4ExceptionBuilder.WithDescription(description)
-                    .WithInnerException(ex).Build();
+                throw AS4ExceptionBuilder.WithDescription(description).WithInnerException(ex).Build();
             }
         }
 
+        /// <summary>
+        /// Send a given <paramref name="deliverMessage"/> to a specified <paramref name="destinationUri"/>.
+        /// </summary>
+        /// <param name="deliverMessage">The message.</param>
+        /// <param name="destinationUri">The uri.</param>
         protected abstract void SendDeliverMessage(DeliverMessageEnvelope deliverMessage, string destinationUri);
-
     }
 }

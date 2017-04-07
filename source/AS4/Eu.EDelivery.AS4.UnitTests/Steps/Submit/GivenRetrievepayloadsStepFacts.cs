@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             _memoryStream = new MemoryStream();
 
             var mockedPayloadStrategy = new Mock<IPayloadRetriever>();
-            mockedPayloadStrategy.Setup(s => s.RetrievePayload(It.IsAny<string>())).Returns(_memoryStream);
+            mockedPayloadStrategy.Setup(s => s.RetrievePayloadAsync(It.IsAny<string>())).ReturnsAsync(_memoryStream);
             return mockedPayloadStrategy;
         }
 
