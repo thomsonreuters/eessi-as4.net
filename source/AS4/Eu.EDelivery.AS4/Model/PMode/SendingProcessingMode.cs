@@ -58,8 +58,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public Security()
         {
-            this.Signing = new Signing();
-            this.Encryption = new Encryption();
+            Signing = new Signing();
+            Encryption = new Encryption();
         }
 
         public Signing Signing { get; set; }
@@ -75,9 +75,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public Encryption()
         {
-            this.IsEnabled = false;
-            this.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
-            this.KeyTransport = new KeyEncryption();
+            IsEnabled = false;
+            Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+            KeyTransport = new KeyEncryption();
         }
 
         public bool IsEnabled { get; set; }
@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public Signing()
         {
-            this.IsEnabled = false;
+            IsEnabled = false;
         }
 
         public bool IsEnabled { get; set; }
@@ -198,8 +198,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public SendHandling()
         {
-            this.NotifyMessageProducer = false;
-            this.NotifyMethod = new Method();
+            NotifyMessageProducer = false;
+            NotifyMethod = new Method();
         }
 
         public bool NotifyMessageProducer { get; set; }
@@ -211,7 +211,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public SendReliability()
         {
-            this.ReceptionAwareness = new ReceptionAwareness();
+            ReceptionAwareness = new ReceptionAwareness();
         }
 
         public ReceptionAwareness ReceptionAwareness { get; set; }
@@ -223,9 +223,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public ReceptionAwareness()
         {
-            this.IsEnabled = false;
-            this.RetryCount = 5;
-            this._retryInterval = TimeSpan.FromMinutes(1);
+            IsEnabled = false;
+            RetryCount = 5;
+            _retryInterval = TimeSpan.FromMinutes(1);
         }
 
         public bool IsEnabled { get; set; }
@@ -233,8 +233,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public string RetryInterval
         {
-            get { return this._retryInterval.ToString(@"hh\:mm\:ss"); }
-            set { TimeSpan.TryParse(value, out this._retryInterval); }
+            get { return _retryInterval.ToString(@"hh\:mm\:ss"); }
+            set { TimeSpan.TryParse(value, out _retryInterval); }
         }
     }
 
@@ -249,13 +249,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public PullConfiguration()
         {
-            this.Protocol = new Protocol();
-            this.TlsConfiguration = new TlsConfiguration();
+            Protocol = new Protocol();
+            TlsConfiguration = new TlsConfiguration();
+            Mpc = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
         }
 
-        public string SubChannel { get; set; }
-
         public Protocol Protocol { get; set; }
+        public string Mpc { get; set; }
         public TlsConfiguration TlsConfiguration { get; set; }
     }
 
@@ -264,8 +264,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public PushConfiguration()
         {
-            this.Protocol = new Protocol();
-            this.TlsConfiguration = new TlsConfiguration();
+            Protocol = new Protocol();
+            TlsConfiguration = new TlsConfiguration();
         }
 
         public Protocol Protocol { get; set; }
@@ -276,8 +276,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public Protocol()
         {
-            this.UseChunking = false;
-            this.UseHttpCompression = false;
+            UseChunking = false;
+            UseHttpCompression = false;
         }
 
         public string Url { get; set; }
@@ -289,8 +289,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public TlsConfiguration()
         {
-            this.IsEnabled = false;
-            this.TlsVersion = TlsVersion.Tls12;
+            IsEnabled = false;
+            TlsVersion = TlsVersion.Tls12;
         }
 
         public bool IsEnabled { get; set; }
@@ -308,9 +308,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public SendMessagePackaging()
         {
-            this.UseAS4Compression = true;
-            this.IsMultiHop = false;
-            this.IncludePModeId = false;
+            UseAS4Compression = true;
+            IsMultiHop = false;
+            IncludePModeId = false;
         }
 
         public string Mpc { get; set; }
