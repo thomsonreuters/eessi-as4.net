@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using NLog;
@@ -11,28 +12,23 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     public class FilePayloadRetriever : IPayloadRetriever
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FilePayloadRetriever"/> class
-        /// Create a new <see cref="IPayloadRetriever"/> implementation
-        /// to retrieve payloads from the file system
+        /// Retrieve <see cref="Stream"/> contents from a given <paramref name="location"/>.
         /// </summary>
-        public FilePayloadRetriever()
+        /// <param name="location">The location.</param>
+        /// <returns></returns>
+        public Task<Stream> RetrievePayloadAsync(string location)
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            return Task.FromResult(RetrievePayload(location));
         }
 
-        /// <summary>
-        /// Retrieve the payload from the given location
-        /// </summary>
-        /// <param name="location"> The location</param>
-        /// <exception cref="Exception"> </exception>
-        /// <returns> </returns>
-        public Stream RetrievePayload(string location)
+        private Stream RetrievePayload(string location)
         {
             Stream payloadStream = TryRetrievePayload(location);
-            this._logger.Info($"Payload is successfully retrieved at location: {location}");
+            Logger.Info($"Payload is successfully retrieved at location: {location}");
+
             return payloadStream;
         }
 
@@ -55,7 +51,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         private AS4Exception ThrowAS4PayloadException(string location, Exception exception)
         {
             string description = $"Unable to retrieve Payload at location: {location}";
-            this._logger.Error(description);
+            Logger.Error(description);
             
             return AS4ExceptionBuilder
                 .WithDescription(description)

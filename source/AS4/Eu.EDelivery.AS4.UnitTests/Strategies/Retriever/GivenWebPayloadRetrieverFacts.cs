@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.UnitTests.Http;
 using SimpleHttpMock;
@@ -13,13 +14,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
         private static readonly string SharedUrl = UniqueHost.Create().Url;
 
         [Fact]
-        public void ThenDownloadPayloadSucceeds()
+        public async Task ThenDownloadPayloadSucceeds()
         {
             const string expectedPayload = "message data!";
             var retriever = new HttpPayloadRetriever();
 
             using (CreateStubServerThatReturns(expectedPayload))
-            using (var streamReader = new StreamReader(retriever.RetrievePayload(SharedUrl)))
+            using (var streamReader = new StreamReader(await retriever.RetrievePayloadAsync(SharedUrl)))
             {
                 string actualPayload = streamReader.ReadToEnd();
                 Assert.Equal(expectedPayload, actualPayload);
@@ -27,13 +28,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
         }
 
         [Fact]
-        public void ThenDownloadFailed_IfReturnCodeIsntSuccessful()
+        public async Task ThenDownloadFailed_IfReturnCodeIsntSuccessful()
         {
             var retriever = new HttpPayloadRetriever();
 
             using (CreateStubServerThatReturns(content: null, statusCode: HttpStatusCode.BadGateway))
             {
-                Assert.Equal(Stream.Null, retriever.RetrievePayload(SharedUrl));
+                Assert.Equal(Stream.Null, await retriever.RetrievePayloadAsync(SharedUrl));
             }
         }
 

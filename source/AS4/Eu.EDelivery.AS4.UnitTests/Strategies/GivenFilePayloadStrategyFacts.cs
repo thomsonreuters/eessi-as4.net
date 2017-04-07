@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
+﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Xunit;
 
@@ -22,13 +23,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies
         public class GivenFilePayloadStrategyFails : GivenFilePayloadStrategyFacts
         {
             [Fact]
-            public void ThenRetrievePayloadFails()
+            public async Task ThenRetrievePayloadFails()
             {
                 // Arrange
                 const string location = "invalid-location";
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => _retriever.RetrievePayload(location));
+                await Assert.ThrowsAsync<AS4Exception>(() => _retriever.RetrievePayloadAsync(location));
             }
         }
     }

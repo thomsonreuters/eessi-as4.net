@@ -18,28 +18,26 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// </summary>
     public class RetrievePayloadsStep : IStep
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IPayloadRetrieverProvider _provider;
-        private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RetrievePayloadsStep"/> class
+        /// Initializes a new instance of the <see cref="RetrievePayloadsStep" /> class
         /// </summary>
         public RetrievePayloadsStep()
         {
-            this._provider = Registry.Instance.PayloadRetrieverProvider;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _provider = Registry.Instance.PayloadRetrieverProvider;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RetrievePayloadsStep"/> class
+        /// Initializes a new instance of the <see cref="RetrievePayloadsStep" /> class
         /// Create Retrieve Payloads Step with a given Payload Strategy Provider
         /// </summary>
         /// <param name="provider">
         /// </param>
         public RetrievePayloadsStep(IPayloadRetrieverProvider provider)
         {
-            this._provider = provider;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _provider = provider;
         }
 
         /// <summary>
@@ -50,28 +48,30 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            _logger.Info($"{internalMessage.Prefix} Executing RetrievePayloadsStep");
+            Logger.Info($"{internalMessage.Prefix} Executing RetrievePayloadsStep");
 
-            if (!internalMessage.SubmitMessage.HasPayloads)
-                return await ReturnSameInternalMessage(internalMessage);
+            if (!internalMessage.SubmitMessage.HasPayloads) return await ReturnSameInternalMessage(internalMessage);
 
-            TryRetrievePayloads(internalMessage);
+            await TryRetrievePayloads(internalMessage);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
         private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
-            this._logger.Info($"{internalMessage.Prefix} Submit Message has no Payloads to retrieve");
+            Logger.Info($"{internalMessage.Prefix} Submit Message has no Payloads to retrieve");
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TryRetrievePayloads(InternalMessage internalMessage)
+        private async Task TryRetrievePayloads(InternalMessage internalMessage)
         {
             try
             {
-                this._logger.Info($"{internalMessage.Prefix} Retrieve Submit Message Payloads");
-                internalMessage.AddAttachments(payload => this._provider.Get(payload).RetrievePayload(payload.Location));
-                this._logger.Info($"{internalMessage.Prefix} Number of Payloads retrieved: {internalMessage.AS4Message.Attachments.Count}");
+                Logger.Info($"{internalMessage.Prefix} Retrieve Submit Message Payloads");
+
+                await internalMessage.AddAttachments(
+                    async payload => await _provider.Get(payload).RetrievePayloadAsync(payload.Location));
+
+                Logger.Info($"{internalMessage.Prefix} Number of Payloads retrieved: {internalMessage.AS4Message.Attachments.Count}");
             }
             catch (Exception exception)
             {
@@ -82,8 +82,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private AS4Exception ThrowAS4FailedRetrievePayloadsException(InternalMessage internalMessage, Exception exception)
         {
             string description = $"{internalMessage.Prefix} Failed to retrieve Submit Message Payloads";
-            this._logger.Error(description);
-            this._logger.Error($"{internalMessage.Prefix} {exception.Message}");
+            Logger.Error(description);
+            Logger.Error($"{internalMessage.Prefix} {exception.Message}");
 
             return AS4ExceptionBuilder
                 .WithDescription(description)

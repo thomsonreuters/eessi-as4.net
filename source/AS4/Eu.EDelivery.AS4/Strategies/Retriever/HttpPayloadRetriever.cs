@@ -18,18 +18,18 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// </summary>
         /// <param name="location"> The location. </param>
         /// <returns> </returns>
-        public Stream RetrievePayload(string location)
+        public async Task<Stream> RetrievePayloadAsync(string location)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(location));
-           
-            HttpResponseMessage response = Task.Run(() => HttpClient.SendAsync(request)).GetAwaiter().GetResult();
+
+            HttpResponseMessage response = await HttpClient.SendAsync(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 return Stream.Null;
             }
 
-            return Task.Run(() => response.Content.ReadAsStreamAsync()).GetAwaiter().GetResult();
+            return await response.Content.ReadAsStreamAsync();
         }
     }
 }
