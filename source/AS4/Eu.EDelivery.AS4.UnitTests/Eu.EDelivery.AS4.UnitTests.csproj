@@ -289,6 +289,7 @@
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
     <Compile Include="Http\SpyHttpServer.cs" />
+    <Compile Include="Http\UniqueUrl.cs" />
     <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenXmlSignalMessageMapFacts.cs" />
@@ -411,6 +412,7 @@
     <Compile Include="Strategies\GivenFilePayloadStrategyFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenWebPayloadRetrieverFacts.cs" />
+    <Compile Include="Strategies\Sender\GivenHttpDeliverSenderFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
