@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.Fe.UnitTes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.Fe", "Fe\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj", "{1BEB12CD-AF85-48AF-BF39-B33B6B1D309E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eu.EDelivery.AS4.PayloadService.IntegrationTests", "IntegrationTests\Eu.EDelivery.AS4.PayloadService.IntegrationTests\Eu.EDelivery.AS4.PayloadService.IntegrationTests.csproj", "{8C351496-27E4-4B8E-A60E-6278C2922AE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eu.EDelivery.AS4.PayloadService.UnitTests", "PayloadServiceTests\Eu.EDelivery.AS4.PayloadService.UnitTests\Eu.EDelivery.AS4.PayloadService.UnitTests.csproj", "{8C351496-27E4-4B8E-A60E-6278C2922AE8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PayloadService", "PayloadService", "{FC5D1DED-F05B-4A55-BF68-28B6CF02F7CB}"
 EndProject

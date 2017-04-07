@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.FileProviders;
 
-namespace Eu.EDelivery.AS4.PayloadService.IntegrationTests.Controllers
+namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance
 {
     /// <summary>
-    /// <see cref="IHostingEnvironment"/> implementation to 'Stub' the Hosting Environment.
+    /// <see cref="IHostingEnvironment"/> implementation to 'Stub' the environment as 'Responder' of the current directory.
     /// </summary>
-    public class StubHostingEnvironment : IHostingEnvironment
+    public class CurrentDirectoryHostingEnvironment : IHostingEnvironment
     {
         /// <summary>
         /// Gets or sets the name of the environment. This property is automatically set by the host to the value
@@ -34,7 +34,11 @@ namespace Eu.EDelivery.AS4.PayloadService.IntegrationTests.Controllers
         /// <summary>
         /// Gets or sets the absolute path to the directory that contains the application content files.
         /// </summary>
-        public string ContentRootPath { get; set; } = Directory.GetCurrentDirectory();
+        public string ContentRootPath
+        {
+            get { return Directory.GetCurrentDirectory(); }
+            set { }
+        }
 
         /// <summary>
         /// Gets or sets an <see cref="T:Microsoft.Extensions.FileProviders.IFileProvider" /> pointing at <see cref="P:Microsoft.AspNetCore.Hosting.IHostingEnvironment.ContentRootPath" />.

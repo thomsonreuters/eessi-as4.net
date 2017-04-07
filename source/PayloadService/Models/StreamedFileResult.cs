@@ -1,9 +1,10 @@
+using System;
 using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
-namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
+namespace Eu.EDelivery.AS4.PayloadService.Models
 {
     /// <summary>
     /// Represents an ActionResult that when executed will write a stream to the response.
@@ -34,7 +35,13 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
         }
 
         // TODO: override the ExecuteResult async method to allow async execution as well ?           
-
+        
+        /// <summary>
+        /// Executes the result operation of the action method synchronously. This method is called by MVC to process
+        /// the result of an action method.
+        /// </summary>
+        /// <param name="context">The context in which the result is executed. The context information includes
+        /// information about the action that was executed and request information.</param>
         public override void ExecuteResult(ActionContext context)
         {
             AssignHeadersTo(context.HttpContext.Response.Headers);
@@ -76,7 +83,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure
             }
             finally
             {
-                _stream.Dispose();
+                _stream?.Dispose();
             }
         }
     }
