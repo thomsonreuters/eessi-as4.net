@@ -11,6 +11,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     /// </summary>
     public class HttpPayloadRetriever : IPayloadRetriever
     {
+        private static readonly HttpClient HttpClient = new HttpClient();
+
         /// <summary>
         /// Retrieve the payload from the given location
         /// </summary>
@@ -19,9 +21,8 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         public Stream RetrievePayload(string location)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(location));
-            var client = new HttpClient();
-
-            HttpResponseMessage response = Task.Run(() => client.SendAsync(request)).GetAwaiter().GetResult();
+           
+            HttpResponseMessage response = Task.Run(() => HttpClient.SendAsync(request)).GetAwaiter().GetResult();
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
