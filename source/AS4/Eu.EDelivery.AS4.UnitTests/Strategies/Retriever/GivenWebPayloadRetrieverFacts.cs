@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
 {
     public class GivenWebPayloadRetrieverFacts
     {
-        private static readonly string SharedUrl = UniqueHost.Create().Url;
+        private static readonly string SharedUrl = UniqueHost.Create();
 
         [Fact(Skip = "Test needs to run in elevated mode")]
         public async Task ThenDownloadPayloadSucceeds()

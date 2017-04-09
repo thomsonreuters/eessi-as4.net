@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 {
     public class GivenHttpDeliverSenderFacts
     {
-        private readonly string _sharedUrl = UniqueHost.Create().Url;
+        private readonly string _sharedUrl = UniqueHost.Create();
 
         [Fact]
         public void ThenUplaodPayloadSucceeds()
