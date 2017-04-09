@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Http;
 using Eu.EDelivery.AS4.UnitTests.Model.Core;
 using Microsoft.EntityFrameworkCore;
 using SimpleHttpMock;
@@ -27,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     /// </summary>
     public class GivenSendAS4MessageStepFacts
     {
-        private static readonly string SharedUrl = $"http://localhost:{new Random().Next(0, 9999)}";
+        private static readonly string SharedUrl = UniqueHost.Create();
         private readonly IStep _step;
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(options);
         }
 
-        [Fact(Skip = "Test needs to run in elevated mode")]
+        [Fact]
         public async Task SendReturnsStopExecutionResult()
         {
             // Arrange

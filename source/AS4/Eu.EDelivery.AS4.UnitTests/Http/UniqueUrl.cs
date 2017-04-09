@@ -2,26 +2,22 @@
 
 namespace Eu.EDelivery.AS4.UnitTests.Http
 {
-    public struct UniqueHost
+    public static class UniqueHost
     {
-        public string Url { get; }
+        private static readonly Random Random;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UniqueHost"/> struct. 
-        /// </summary>
-        /// <param name="url"></param>
-        private UniqueHost(string url)
+        static UniqueHost()
         {
-            Url = url;
+            Random = new Random();
         }
 
         /// <summary>
-        /// Create a new instance of the <see cref="UniqueHost"/> class.
+        /// Create a new instance of the <see cref="UniqueHost" /> class.
         /// </summary>
         /// <returns></returns>
-        public static UniqueHost Create()
+        public static string Create()
         {
-            return new UniqueHost($"http://localhost:{new Random().Next(0, 9999)}");
+            return $"http://localhost:{Random.Next(0, 9999)}";
         }
     }
 }
