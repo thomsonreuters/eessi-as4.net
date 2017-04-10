@@ -19,15 +19,22 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     public class SendUpdateDataStoreStep : IStep
     {
-        private readonly ILogger _logger;
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly Func<DatastoreContext> _createDatastoreContext;
         private AS4Message _as4Message;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class
+        /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep" /> class
         /// </summary>
-        public SendUpdateDataStoreStep()
+        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class.
+        /// </summary>
+        /// <param name="createDatastoreContext">The create Datastore Context.</param>
+        public SendUpdateDataStoreStep(Func<DatastoreContext> createDatastoreContext)
         {
-            _logger = LogManager.GetCurrentClassLogger();
+            _createDatastoreContext = createDatastoreContext;
         }
 
         /// <summary>
@@ -40,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             _as4Message = internalMessage.AS4Message;
 
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = _createDatastoreContext())
             {
                 var inMessageService = new InMessageService(new DatastoreRepository(context));
 
@@ -51,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 }
             }
 
-            return  await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
         private async Task TryUpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
@@ -78,33 +85,27 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             var receipt = signalMessage as Receipt;
 
-            if (receipt != null && receipt.NonRepudiationInformation == null)
-                receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
+            if (receipt != null && receipt.NonRepudiationInformation == null) receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
 
-            await inMessageService.InsertReceiptAsync(signalMessage, this._as4Message, cancellationToken);
+            await inMessageService.InsertReceiptAsync(signalMessage, _as4Message, cancellationToken);
 
-            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
-                ? OutStatus.Ack
-                : OutStatus.NotApplicable;
+            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage) ? OutStatus.Ack : OutStatus.NotApplicable;
 
             await inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
 
         private NonRepudiationInformation CreateNonRepudiationInformation()
         {
-            ArrayList references = this._as4Message.SecurityHeader.GetReferences();
+            ArrayList references = _as4Message.SecurityHeader.GetReferences();
 
-            return new NonRepudiationInformationBuilder()
-                .WithSignedReferences(references).Build();
+            return new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
         }
 
         private async Task UpdateError(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
-            await inMessageService.InsertErrorAsync(signalMessage, this._as4Message, cancellationToken);
+            await inMessageService.InsertErrorAsync(signalMessage, _as4Message, cancellationToken);
 
-            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage)
-                ? OutStatus.Nack
-                : OutStatus.NotApplicable;
+            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage) ? OutStatus.Nack : OutStatus.NotApplicable;
 
             await inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
@@ -121,14 +122,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private AS4Exception ThrowAS4UpdateDatastoreException(string description, Exception innerException)
         {
-            this._logger.Error(description);
+            _logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .WithMessageIds(this._as4Message.MessageIds)
-                .WithSendingPMode(this._as4Message.SendingPMode)
-                .Build();
+            return
+                AS4ExceptionBuilder.WithDescription(description)
+                                   .WithInnerException(innerException)
+                                   .WithMessageIds(_as4Message.MessageIds)
+                                   .WithSendingPMode(_as4Message.SendingPMode)
+                                   .Build();
         }
     }
 }
