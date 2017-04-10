@@ -44,9 +44,9 @@ namespace Eu.EDelivery.AS4.PayloadService.Controllers
             }
 
             string payloadId = await UploadPayloadsWith(result.reader);
-            string payloadReference = FormatWithDownloadUri(payloadId);
+            string downloadUrl = FormatWithDownloadUrl(payloadId);
 
-            return new OkObjectResult(new UploadResult(payloadReference));
+            return new OkObjectResult(new UploadResult(payloadId, downloadUrl));
         }
 
         private async Task<string> UploadPayloadsWith(MultipartPayloadReader reader)
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Controllers
             return payloadId;
         }
 
-        private string FormatWithDownloadUri(string payloadId)
+        private string FormatWithDownloadUrl(string payloadId)
         {
             var location = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path.Value.Replace("Upload", payloadId)}");
 

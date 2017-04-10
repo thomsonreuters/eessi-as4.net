@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.PayloadService.UnitTests.Models;
 using Eu.EDelivery.AS4.PayloadService.UnitTests.Persistance;
 using Eu.EDelivery.AS4.PayloadService.UnitTests.Serialization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
@@ -22,7 +21,7 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Controllers
         private const string ExpectedPath = "/api/Payload/";
         private const string ExpectedScheme = "http";
 
-        private string ExpectedRequestUri => $"{ExpectedScheme}://{ExpectedHost}{ExpectedPath}.*";
+        private string ExpectedRequestUri => $"{ExpectedScheme}://{ExpectedHost}{ExpectedPath}";
 
         private PayloadController AnonymousPayloadController
             => new PayloadController(new CurrentDirectoryHostingEnvironment()) {ControllerContext = {HttpContext = new DefaultHttpContext()}};
@@ -62,19 +61,12 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Controllers
 
                 // Assert
                 var actualUploadResult = actualResult?.Value as UploadResult;
-                Assert.True(Regex.IsMatch(actualUploadResult?.PayloadId, ExpectedRequestUri), $"Actual Request Uri doesn't match the expected Uri '{ExpectedRequestUri}'");
+                Assert.True(IsDownloadUrlAMatch(actualUploadResult), $"Actual Request Uri doesn't match the expected Uri '{ExpectedRequestUri}'");
 
                 StreamedFileResult downloadResult = await DownloadPayload(controller, actualUploadResult);
                 StreamedFileResultAssert.OnContent(
                     downloadResult, actualContent => Assert.Equal(ExpectedContent, actualContent));
             }
-        }
-
-        private static void AssignRequestUri(HttpRequest request)
-        {
-            request.Host = new HostString(ExpectedHost);
-            request.Path = $"{ExpectedPath}Upload";
-            request.Scheme = ExpectedScheme;
         }
 
         private static async Task SerializeExpectedContentStream(Stream contentStream, ControllerBase controller)
@@ -88,6 +80,18 @@ namespace Eu.EDelivery.AS4.PayloadService.UnitTests.Controllers
             await content.CopyToAsync(contentStream);
             contentStream.Position = 0;
             controller.ControllerContext.HttpContext.Request.Body = contentStream;
+        }
+
+        private static void AssignRequestUri(HttpRequest request)
+        {
+            request.Host = new HostString(ExpectedHost);
+            request.Path = $"{ExpectedPath}Upload";
+            request.Scheme = ExpectedScheme;
+        }
+
+        private bool IsDownloadUrlAMatch(UploadResult actualResult)
+        {
+            return Regex.IsMatch(actualResult.DownloadUrl, ExpectedRequestUri + actualResult.PayloadId);
         }
 
         private static async Task<StreamedFileResult> DownloadPayload(PayloadController controller, UploadResult actualResult)
