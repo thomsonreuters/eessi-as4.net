@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
     {
         private static readonly string SharedUrl = UniqueHost.Create();
 
-        [Fact(Skip = "Test needs to run in elevated mode")]
+        [Fact]
         public async Task ThenDownloadPayloadSucceeds()
         {
             const string expectedPayload = "message data!";
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
             }
         }
 
-        [Fact(Skip = "Test needs to run in elevated mode")]
+        [Fact]
         public async Task ThenDownloadFailed_IfReturnCodeIsntSuccessful()
         {
             var retriever = new HttpPayloadRetriever();
