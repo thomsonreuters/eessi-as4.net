@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     {
         public GivenSendUpdateDatastoreFacts()
         {
-            Step = new SendUpdateDataStoreStep(() => new DatastoreContext(Options));
+            Step = new SendUpdateDataStoreStep(GetDataStoreContext);
         }
 
         /// <summary>

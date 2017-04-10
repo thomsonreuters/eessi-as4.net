@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new ReceiveUpdateDatastoreStep(() => new DatastoreContext(Options));
+            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext);
         }
 
         /// <summary>
