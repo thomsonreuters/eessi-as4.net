@@ -13,6 +13,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [XmlRoot(Namespace = "eu:edelivery:as4", IsNullable = false)]
     public class Settings
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Settings"/> class.
+        /// </summary>
+        public Settings()
+        {
+            PayloadServiceInProcess = true;
+        }
+
         public string IdFormat { get; set; }
 
         public SettingsDatabase Database { get; set; }
@@ -24,6 +32,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public SettingsAgents Agents { get; set; }
 
         public bool FeInProcess { get; set; }
+
+        public bool PayloadServiceInProcess { get; set; }
     }
 
     [Serializable]

@@ -319,6 +319,7 @@
     <Compile Include="Model\GivenSendingProcessingModeFacts.cs" />
     <Compile Include="Model\GivenServiceFacts.cs" />
     <Compile Include="Model\GivenUserMessageFacts.cs" />
+    <Compile Include="Model\Internal\GivenSettingsFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenCollaborationInfoFacts.cs" />
     <Compile Include="Model\PMode\ValidStubSendingPModeFactory.cs" />
@@ -497,7 +498,6 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Model\Internal\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

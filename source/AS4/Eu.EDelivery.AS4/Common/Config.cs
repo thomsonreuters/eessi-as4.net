@@ -40,6 +40,11 @@ namespace Eu.EDelivery.AS4.Common
         /// </summary>
         public bool FeInProcess { get; private set; }
 
+        /// <summary>
+        /// Gets a value indicating whether the Payload Service needs to be started in process.
+        /// </summary>
+        public bool PayloadServiceInProcess { get; private set; }
+
         public bool IsInitialized { get; private set; }
 
         /// <summary>
@@ -230,7 +235,9 @@ namespace Eu.EDelivery.AS4.Common
             _configuration["ConnectionString"] = _settings.Database.ConnectionString;
             _configuration["CertificateStore"] = _settings.CertificateStore.StoreName;
             _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
+
             FeInProcess = _settings.FeInProcess;
+            PayloadServiceInProcess = _settings.PayloadServiceInProcess;
         }
 
         private void AddCustomSettings()

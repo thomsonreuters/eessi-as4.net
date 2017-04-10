@@ -78,6 +78,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             config.Initialize();
 
             StartFeInProcess();
+            StartPayloadServiceInProcess();
 
             if (!config.IsInitialized) return null;
 
@@ -92,10 +93,22 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         private static void StartFeInProcess()
         {
             if (!Config.Instance.FeInProcess) return;
+
             Task.Factory.StartNew(() =>
             {
                 Fe.Program.Main(new[] { "inprocess" });
             });
+        }
+
+        private static void StartPayloadServiceInProcess()
+        {
+            if (!Config.Instance.PayloadServiceInProcess) return;
+
+            Task.Factory.StartNew(
+                () =>
+                {
+                    PayloadService.Program.Main(new string[0]);
+                });
         }
     }
 }

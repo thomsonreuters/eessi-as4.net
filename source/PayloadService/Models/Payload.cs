@@ -9,8 +9,10 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
     internal class Payload : IEquatable<Payload>, IDisposable
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Content"/> class.
+        /// Initializes a new instance of the <see cref="Payload"/> class.
         /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="payloadMeta">The payload Meta.</param>
         public Payload(Stream content, PayloadMeta payloadMeta)
         {
             Content = content;
@@ -47,7 +49,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(Payload other)
         {
-            return Meta.OriginalFileName.Equals(other.Meta.OriginalFileName);
+            return Meta.OriginalFileName.Equals(other?.Meta.OriginalFileName);
         }
     }
 }

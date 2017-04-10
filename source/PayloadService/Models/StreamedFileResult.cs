@@ -22,10 +22,9 @@ namespace Eu.EDelivery.AS4.PayloadService.Models
         private readonly Stream _stream;
 
         /// <summary>
-        /// Creates a new <see cref="T:Microsoft.AspNetCore.Mvc.FileResult" /> instance with
-        /// the provided <paramref name="contentType" />.
+        /// Initializes a new instance of the <see cref="StreamedFileResult"/> class with the provided <paramref name="contentType"/>.
         /// </summary>
-        /// <param name="stream">The source stream which must be written to the Response body.</param>        
+        /// <param name="stream">The source stream which must be written to the Response body.</param>
         /// <param name="downloadFilename">The filename that must be used when the consumer downloads the file.</param>
         /// <param name="contentType">The Content-Type header of the response.</param>
         public StreamedFileResult(Stream stream, string downloadFilename, string contentType) : base(contentType)

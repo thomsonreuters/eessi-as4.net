@@ -90,6 +90,10 @@
       <Project>{1beb12cd-af85-48af-bf39-b33b6b1d309e}</Project>
       <Name>Eu.EDelivery.AS4.Fe</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\PayloadService\Eu.EDelivery.AS4.PayloadService.csproj">
+      <Project>{48ae5642-3a7b-4677-9df4-cd9a08b97ef0}</Project>
+      <Name>Eu.EDelivery.AS4.PayloadService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Receivers\Eu.EDelivery.AS4.Receivers\Eu.EDelivery.AS4.Receivers.csproj">
       <Project>{b0be265a-8190-415c-8e46-2b85fe6bdbe7}</Project>
       <Name>Eu.EDelivery.AS4.Receivers</Name>
