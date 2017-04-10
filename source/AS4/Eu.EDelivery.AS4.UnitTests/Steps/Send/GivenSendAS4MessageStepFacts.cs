@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        [Fact(Skip = "Test needs to run in elevated mode")]
+        [Fact]
         public async Task SendReturnsEmptyResponseForEmptyRequest()
         {
             // Arrange
