@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -17,15 +18,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class ReceiveUpdateDatastoreStep : IStep
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly Func<DatastoreContext> _createDatastoreContext;
         private AS4Message _as4Message;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep"/> class
+        /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep" /> class
         /// </summary>
-        public ReceiveUpdateDatastoreStep()
+        public ReceiveUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep"/> class.
+        /// </summary>
+        /// <param name="createDatastoreContext">The create Datastore Context.</param>
+        public ReceiveUpdateDatastoreStep(Func<DatastoreContext> createDatastoreContext)
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _createDatastoreContext = createDatastoreContext;
         }
 
         /// <summary>
@@ -37,10 +45,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="AS4Exception">Throws exception if the data store cannot be updated</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
         {
-            this._logger.Info($"{internalMessage.Prefix} Update Datastore with AS4 received message");
-            this._as4Message = internalMessage.AS4Message;
+            Logger.Info($"{internalMessage.Prefix} Update Datastore with AS4 received message");
+            _as4Message = internalMessage.AS4Message;
 
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
@@ -55,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task UpdateUserMessagesAsync(InMessageService service, CancellationToken token)
         {
-            foreach (UserMessage userMessage in this._as4Message.UserMessages)
+            foreach (UserMessage userMessage in _as4Message.UserMessages)
             {
                 await UpdateUserMessageAsync(userMessage, service, token);
             }
@@ -80,12 +88,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             CollaborationInfo collaborationInfo = userMessage.CollaborationInfo;
 
-            bool isTestMessage =
-                collaborationInfo.Service.Value.Equals(Constants.Namespaces.TestService) &&
-                collaborationInfo.Action.Equals(Constants.Namespaces.TestAction);
+            bool isTestMessage = collaborationInfo.Service.Value.Equals(Constants.Namespaces.TestService)
+                                 && collaborationInfo.Action.Equals(Constants.Namespaces.TestAction);
 
             if (isTestMessage)
-                this._logger.Info($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
+            {
+                Logger.Info($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
+            }
 
             return isTestMessage;
         }
@@ -95,7 +104,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             bool isDuplicate = service.ContainsUserMessageWithId(userMessage.MessageId);
 
             if (isDuplicate)
-                this._logger.Info($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
+            {
+                Logger.Info($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
+            }
 
             return isDuplicate;
         }
@@ -104,7 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                await service.InsertUserMessageAsync(userMessage, this._as4Message, token);
+                await service.InsertUserMessageAsync(userMessage, _as4Message, token);
             }
             catch (Exception exception)
             {
@@ -114,7 +125,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task UpdateSignalMessagesAsync(InMessageService service, CancellationToken token)
         {
-            foreach (SignalMessage signalMessage in this._as4Message.SignalMessages)
+            foreach (SignalMessage signalMessage in _as4Message.SignalMessages)
             {
                 await UpdateSignalMessageAsync(signalMessage, service, token);
             }
@@ -123,7 +134,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private async Task UpdateSignalMessageAsync(SignalMessage signalMessage, InMessageService service, CancellationToken token)
         {
             if (IsSignalMessageDuplicate(signalMessage, service))
+            {
                 signalMessage.IsDuplicated = true;
+            }
 
             await TryUpdateSignalMessageAsync(signalMessage, service, token);
         }
@@ -133,7 +146,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             bool isDuplicate = service.ContainsSignalMessageWithReferenceToMessageId(signalMessage.RefToMessageId);
 
             if (isDuplicate)
-                this._logger.Info($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
+            {
+                Logger.Info($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
+            }
 
             return isDuplicate;
         }
@@ -156,7 +171,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 await UpdateReceipt(signalMessage, service, token);
             }
-
             else if (signalMessage is Error)
             {
                 await UpdateError(signalMessage, service, token);
@@ -181,14 +195,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private void ThrowAS4Exception(string description, Exception exception)
         {
-            this._logger.Error(description);
+            Logger.Error(description);
 
-            throw AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(this._as4Message.MessageIds)
-                .WithInnerException(exception)
-                .WithReceivingPMode(this._as4Message.ReceivingPMode)
-                .Build();
+            throw AS4ExceptionBuilder.WithDescription(description)
+                                     .WithMessageIds(_as4Message.MessageIds)
+                                     .WithInnerException(exception)
+                                     .WithReceivingPMode(_as4Message.ReceivingPMode)
+                                     .Build();
         }
     }
 }
