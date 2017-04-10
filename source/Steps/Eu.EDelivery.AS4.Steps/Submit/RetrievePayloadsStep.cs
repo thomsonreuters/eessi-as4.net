@@ -52,20 +52,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             if (!internalMessage.SubmitMessage.HasPayloads)
             {
-                return await ReturnSameInternalMessage(internalMessage);
+                Logger.Info($"{internalMessage.Prefix} Submit Message has no Payloads to retrieve");
+                return await StepResult.SuccessAsync(internalMessage);
             }
 
-            TryRetrievePayloads(internalMessage);
+            await TryRetrievePayloads(internalMessage);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
-
-        private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
-        {
-            Logger.Info($"{internalMessage.Prefix} Submit Message has no Payloads to retrieve");
-            return StepResult.SuccessAsync(internalMessage);
-        }
-
+        
         private async Task TryRetrievePayloads(InternalMessage internalMessage)
         {
             try
