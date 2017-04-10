@@ -90,6 +90,7 @@ namespace Eu.EDelivery.AS4.PayloadService
 
                     options.OperationFilter<FileUploadOperation>();
                     options.IncludeXmlComments(GetXmlCommentsPath());
+                    
                 });
         }
 
