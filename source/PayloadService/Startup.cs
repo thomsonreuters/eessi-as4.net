@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using Eu.EDelivery.AS4.PayloadService.Infrastructure.SwaggerUtils;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.PayloadService
     public class Startup
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Startup"/> class. 
+        /// Initializes a new instance of the <see cref="Startup" /> class.
         /// </summary>
         /// <param name="env">The hosting environment.</param>
         public Startup(IHostingEnvironment env)
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.PayloadService
         private string AssemblyVersion => GetType().GetTypeInfo().Assembly.GetName().Version.ToString();
 
         /// <summary>
-        /// Gets the <see cref="IConfigurationRoot"/> implementation for the Payload Service Web API.
+        /// Gets the <see cref="IConfigurationRoot" /> implementation for the Payload Service Web API.
         /// </summary>
         public IConfigurationRoot Configuration { get; }
 
@@ -75,11 +76,7 @@ namespace Eu.EDelivery.AS4.PayloadService
                             Version = $"v{AssemblyVersion}",
                             Description = "A Web API to upload and download payloads in a persistent manner.",
                             TermsOfService = "None",
-                            Contact = new Contact
-                            {
-                                Name = "Codit",
-                                Url = "www.codit.eu"
-                            },
+                            Contact = new Contact {Name = "Codit"},
                             License =
                                 new License
                                 {
@@ -90,14 +87,13 @@ namespace Eu.EDelivery.AS4.PayloadService
 
                     options.OperationFilter<FileUploadOperation>();
                     options.IncludeXmlComments(GetXmlCommentsPath());
-                    
                 });
         }
 
         private string GetXmlCommentsPath()
         {
             ApplicationEnvironment app = PlatformServices.Default.Application;
-            return System.IO.Path.Combine(app.ApplicationBasePath, "payload-service-docs.xml");
+            return Path.Combine(app.ApplicationBasePath, "payload-service-docs.xml");
         }
     }
 }
