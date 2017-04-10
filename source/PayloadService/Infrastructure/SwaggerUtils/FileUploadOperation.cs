@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.PayloadService.Infrastructure.SwaggerUtils
                 {
                     Name = "File",
                     In = "formData",
-                    Description = "Upload Image",
+                    Description = "Upload Payload content",
                     Required = true,
                     Type = "file"
                 });
