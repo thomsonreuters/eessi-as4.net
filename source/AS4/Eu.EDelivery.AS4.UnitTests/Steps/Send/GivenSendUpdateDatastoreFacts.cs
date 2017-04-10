@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             await AssertInMessage(receiptMessage);
         }
 
-        private InternalMessage CreateInternalMessageWith(SignalMessage signalMessage)
+        private static InternalMessage CreateInternalMessageWith(SignalMessage signalMessage)
         {
 
             InternalMessage internalMessage = new InternalMessageBuilder(signalMessage.RefToMessageId)
