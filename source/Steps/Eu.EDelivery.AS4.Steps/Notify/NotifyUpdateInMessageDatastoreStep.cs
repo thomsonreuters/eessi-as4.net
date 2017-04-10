@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// </summary>
         public NotifyUpdateInMessageDatastoreStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             var notifyMessage = internalMessage.NotifyMessage;
-            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            _logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
             await UpdateDatastoreAync(notifyMessage);
             return await StepResult.SuccessAsync(internalMessage);
@@ -45,8 +45,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             {
                 var repository = new DatastoreRepository(context);
 
-                await repository.UpdateInMessageAsync(
-                    notifyMessage.MessageInfo.MessageId, UpdateNotifiedInMessage);
+                repository.UpdateInMessage(notifyMessage.MessageInfo.MessageId, UpdateNotifiedInMessage);
+
+                await context.SaveChangesAsync();
             }
         }
 

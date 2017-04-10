@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(context);
 
-                string refToMessageId = this._as4Message.PrimarySignalMessage.RefToMessageId;
+                string refToMessageId = _as4Message.PrimarySignalMessage.RefToMessageId;
                 OutMessage outMessage = repository.GetOutMessageById(refToMessageId);
 
                 if (outMessage == null)
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         $"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
 
                 var pmode = AS4XmlSerializer.FromString<SendPMode>(outMessage.PMode);
-                this._logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
+                _logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
 
                 return pmode;
             }

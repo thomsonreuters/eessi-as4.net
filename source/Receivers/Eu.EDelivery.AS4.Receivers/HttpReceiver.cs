@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class HttpReceiver : IReceiver
     {
-       
+
         private readonly ILogger _logger;
         private HttpListener _listener;
         private IDictionary<string, string> _properties;
@@ -83,37 +83,43 @@ namespace Eu.EDelivery.AS4.Receivers
         private void AcceptConnections(HttpListener listener, Function messageCallback, CancellationToken cancellationToken)
         {
             // The Semaphore makes sure the the maximum amount of concurrent connections is respected.
-            var semaphore = new Semaphore(_maxConcurrentConnections, _maxConcurrentConnections);
-
-            while (listener.IsListening && !cancellationToken.IsCancellationRequested)
+            using (var semaphore = new Semaphore(_maxConcurrentConnections, _maxConcurrentConnections))
             {
-                semaphore.WaitOne();
-
-                try
+                while (listener.IsListening && !cancellationToken.IsCancellationRequested)
                 {
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    listener.GetContextAsync().ContinueWith(async (c) =>
+                    semaphore.WaitOne();
+
+                    try
                     {
-                        // A request is being handled, so decrease the semaphore which will allow 
-                        // that we're listening on another context.
-                        semaphore.Release();
+                        if (listener.IsListening == false)
+                        {
+                            return;
+                        }
 
-                        HttpListenerContext context = await c;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                        listener.GetContextAsync().ContinueWith(async (c) =>
+                        {
+                            // A request is being handled, so decrease the semaphore which will allow 
+                            // that we're listening on another context.
+                            semaphore.Release();
 
-                        await ProcessRequestAsync(context, messageCallback);
-                    });
+                            HttpListenerContext context = await c;
+
+                            await ProcessRequestAsync(context, messageCallback);
+                        });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed                 
-                }
-                catch (HttpListenerException)
-                {
-                    _logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
-                }
-                catch (ObjectDisposedException)
-                {
-                    // Not doing anything on purpose.
-                    // When a HttpListener is stopped, the context where being listened on is called one more time, 
-                    // but the context is disposed.  Therefore an exception is thrown.  Catch the exception to prevent
-                    // the process to end, but do nothing with the exception since this is by design.
+                    }
+                    catch (HttpListenerException)
+                    {
+                        _logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        // Not doing anything on purpose.
+                        // When a HttpListener is stopped, the context where being listened on is called one more time, 
+                        // but the context is disposed.  Therefore an exception is thrown.  Catch the exception to prevent
+                        // the process to end, but do nothing with the exception since this is by design.
+                    }
                 }
             }
         }

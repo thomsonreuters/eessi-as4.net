@@ -23,9 +23,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Initializes a new instance of the <see cref="DeliverUpdateDatastoreStep"/> class
         /// </summary>
         public DeliverUpdateDatastoreStep()
-        {
-     
-            this._logger = LogManager.GetCurrentClassLogger();
+        {     
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -36,8 +35,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._internalMessage = internalMessage;
-            this._logger.Info($"{this._internalMessage.Prefix} Update AS4 UserMessages in Datastore");
+            _internalMessage = internalMessage;
+            _logger.Info($"{this._internalMessage.Prefix} Update AS4 UserMessages in Datastore");
 
             await UpdateUserMessageAsync(internalMessage.DeliverMessage);
             return await StepResult.SuccessAsync(internalMessage);
@@ -50,9 +49,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 var repository = new DatastoreRepository(context);
 
                 string messageId = deliverMessage.MessageInfo.MessageId;
-                this._logger.Info($"{this._internalMessage.Prefix} Update InMessage with Delivered Status and Operation");
+                _logger.Info($"{this._internalMessage.Prefix} Update InMessage with Delivered Status and Operation");
 
-                await repository.UpdateInMessageAsync(messageId, UpdateNotifiedInMessage);
+                repository.UpdateInMessage(messageId, UpdateNotifiedInMessage);
+
+                await context.SaveChangesAsync();
             }
         }
 

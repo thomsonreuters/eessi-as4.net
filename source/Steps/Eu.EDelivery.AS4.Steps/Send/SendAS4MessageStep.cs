@@ -204,12 +204,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 var repository = new DatastoreRepository(context);
 
-                IEnumerable<OutMessage> outMessages = repository.GetOutMessagesById(as4Message.MessageIds);
-
-                foreach (OutMessage outMessage in outMessages)
-                {
-                    outMessage.Operation = operation;
-                }
+                repository.UpdateOutMessages(as4Message.MessageIds, outMessage => outMessage.Operation = operation );
+                
 
                 context.SaveChanges();
             }

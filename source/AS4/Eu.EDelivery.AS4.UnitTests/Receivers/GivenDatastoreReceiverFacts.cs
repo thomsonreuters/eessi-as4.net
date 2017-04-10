@@ -46,6 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             _pmode = new SendingProcessingMode();
             return new OutMessage
             {
+                EbmsMessageId = "message-id",
                 Operation = Operation.ToBeSent,
                 PMode = AS4XmlSerializer.ToString(_pmode),
                 MessageBody = new byte[0]

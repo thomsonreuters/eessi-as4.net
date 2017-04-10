@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 InternalMessage internalMessage = base.CreateDefaultInternalMessage();
                 
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
                 
                 // Assert
                 AssertOutException(sharedId, e =>
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 internalMessage.AS4Message.SendingPMode.ExceptionHandling.NotifyMessageProducer = false;
                 
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
                 
                 // Assert
                 AssertOutException(sharedId, e =>
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 var internalMessage = new InternalMessage();
                 
                 // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
                 
                 // Assert
                 AssertOutMessage(sharedId, m =>

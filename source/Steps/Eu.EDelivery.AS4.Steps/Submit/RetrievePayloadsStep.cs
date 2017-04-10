@@ -50,9 +50,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             Logger.Info($"{internalMessage.Prefix} Executing RetrievePayloadsStep");
 
-            if (!internalMessage.SubmitMessage.HasPayloads) return await ReturnSameInternalMessage(internalMessage);
+            if (!internalMessage.SubmitMessage.HasPayloads)
+            {
+                return await ReturnSameInternalMessage(internalMessage);
+            }
 
-            await TryRetrievePayloads(internalMessage);
+            TryRetrievePayloads(internalMessage);
+
             return await StepResult.SuccessAsync(internalMessage);
         }
 

@@ -115,29 +115,25 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
-                    PMode = pmodeString,
-                    Id = 12,
+                    PMode = pmodeString,                
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 13,
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 14,
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Id = 15,
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
                 datastoreContext.SaveChanges();
@@ -362,7 +358,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
             public class GetRelatedMessages : MonitorServiceTests
             {
-                private string OutEbmsMessage3 = Guid.NewGuid().ToString();
+                private readonly string _outEbmsMessage3 = Guid.NewGuid().ToString();
 
                 protected override void SetupDataStore()
                 {
@@ -380,7 +376,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                             PMode = pmodeString
                         });
                         datastoreContext.OutMessages.Add(new OutMessage
-                        {
+                        {                            
                             EbmsMessageId = InEbmsRefToMessageId1,
                             PMode = pmodeString
                         });
@@ -419,26 +415,26 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                         datastoreContext.OutMessages.Add(new OutMessage
                         {
-                            EbmsMessageId = OutEbmsMessage3
+                            EbmsMessageId = _outEbmsMessage3
                         });
                         datastoreContext.OutMessages.Add(new OutMessage
                         {
                             EbmsMessageId = Guid.NewGuid().ToString(),
-                            EbmsRefToMessageId = OutEbmsMessage3
+                            EbmsRefToMessageId = _outEbmsMessage3
                         });
                         datastoreContext.InMessages.Add(new InMessage
                         {
                             EbmsMessageId = Guid.NewGuid().ToString(),
-                            EbmsRefToMessageId = OutEbmsMessage3
+                            EbmsRefToMessageId = _outEbmsMessage3
                         });
 
                         datastoreContext.InMessages.Add(new InMessage
                         {
-
+                            EbmsMessageId = Guid.NewGuid().ToString()
                         });
                         datastoreContext.OutMessages.Add(new OutMessage
                         {
-
+                            EbmsMessageId = Guid.NewGuid().ToString()
                         });
 
                         datastoreContext.SaveChanges();
@@ -466,7 +462,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 [Fact]
                 public async Task OutMessages_Without_RefTo_Message_Returns_Related_Messages()
                 {
-                    var result = await Setup().monitorService.GetRelatedMessages(Direction.Outbound, OutEbmsMessage3);
+                    var result = await Setup().monitorService.GetRelatedMessages(Direction.Outbound, _outEbmsMessage3);
                     Assert.True(result.Messages.Count() == 2);
                 }
 

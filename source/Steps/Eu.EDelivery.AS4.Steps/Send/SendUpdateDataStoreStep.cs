@@ -54,18 +54,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 foreach (SignalMessage signalMessage in internalMessage.AS4Message.SignalMessages)
                 {
                     _logger.Info($"{internalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
-                    await TryUpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
+
+                    TryUpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
                 }
+
+                await context.SaveChangesAsync(cancellationToken);
             }
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private async Task TryUpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
+        private void TryUpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
             try
             {
-                await UpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
+                UpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -74,24 +77,36 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private async Task UpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
+        private void UpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
-            if (signalMessage is Receipt) await UpdateReceipt(signalMessage, inMessageService, cancellationToken);
-            else if (signalMessage is Error) await UpdateError(signalMessage, inMessageService, cancellationToken);
-            else await UpdateOther(signalMessage, inMessageService, cancellationToken);
+            if (signalMessage is Receipt)
+            {
+                UpdateReceipt(signalMessage, inMessageService, cancellationToken);
+            }
+            else if (signalMessage is Error)
+            {
+                UpdateError(signalMessage, inMessageService, cancellationToken);
+            }
+            else
+            {
+                UpdateOther(signalMessage, inMessageService, cancellationToken);
+            }
         }
 
-        private async Task UpdateReceipt(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
+        private void UpdateReceipt(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
             var receipt = signalMessage as Receipt;
 
-            if (receipt != null && receipt.NonRepudiationInformation == null) receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
+            if (receipt != null && receipt.NonRepudiationInformation == null)
+            {
+                receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
+            }
 
-            await inMessageService.InsertReceiptAsync(signalMessage, _as4Message, cancellationToken);
+            inMessageService.InsertReceipt(signalMessage, _as4Message, cancellationToken);
 
             OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage) ? OutStatus.Ack : OutStatus.NotApplicable;
 
-            await inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
+            inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
 
         private NonRepudiationInformation CreateNonRepudiationInformation()
@@ -101,13 +116,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
         }
 
-        private async Task UpdateError(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
+        private void UpdateError(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
-            await inMessageService.InsertErrorAsync(signalMessage, _as4Message, cancellationToken);
+            inMessageService.InsertError(signalMessage, _as4Message, cancellationToken);
 
             OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage) ? OutStatus.Nack : OutStatus.NotApplicable;
 
-            await inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
+            inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
         }
 
         private bool IsSignalMessageReferenceUserMessage(SignalMessage signalMessage)
@@ -115,21 +130,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return signalMessage.RefToMessageId?.Equals(_as4Message.PrimaryUserMessage?.MessageId) ?? false;
         }
 
-        private static async Task UpdateOther(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
+        private static void UpdateOther(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
         {
-            await inMessageService.UpdateSignalMessage(signalMessage, OutStatus.Sent, cancellationToken);
+            inMessageService.UpdateSignalMessage(signalMessage, OutStatus.Sent, cancellationToken);
         }
 
         private AS4Exception ThrowAS4UpdateDatastoreException(string description, Exception innerException)
         {
             _logger.Error(description);
 
-            return
-                AS4ExceptionBuilder.WithDescription(description)
-                                   .WithInnerException(innerException)
-                                   .WithMessageIds(_as4Message.MessageIds)
-                                   .WithSendingPMode(_as4Message.SendingPMode)
-                                   .Build();
+            return AS4ExceptionBuilder
+                .WithDescription(description)
+                .WithInnerException(innerException)
+                .WithMessageIds(_as4Message.MessageIds)
+                .WithSendingPMode(_as4Message.SendingPMode)
+                .Build();
         }
     }
 }

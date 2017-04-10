@@ -86,10 +86,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
                 foreach (MessageUnit messageUnit in messageUnits)
                 {
-                    this._logger.Info($"[{messageUnit.MessageId}] Store AS4 Message");
+                    _logger.Info($"[{messageUnit.MessageId}] Store AS4 Message");
                     OutMessage outMessage = CreateOutMessage(messageUnit, token);
-                    await repository.InsertOutMessageAsync(outMessage);
+                    repository.InsertOutMessage(outMessage);
                 }
+
+                await context.SaveChangesAsync(token);
             }
         }
 

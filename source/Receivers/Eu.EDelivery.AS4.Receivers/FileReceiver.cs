@@ -38,21 +38,34 @@ namespace Eu.EDelivery.AS4.Receivers
 
         [Info("File path")]
         [Description("Path to the folder to poll for new files")]
-        private string FilePath => _properties.ReadMandatoryProperty("FilePath");
+        private string FilePath => _properties.ReadMandatoryProperty(SettingKeys.FilePath);
 
         [Info("File mask")]
-        private string FileMask => _properties.ReadOptionalProperty("FileMask", "*.*");
+        private string FileMask => _properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*");
 
         [Info("Username")]
-        private string Username => _properties.ReadOptionalProperty("Username");
+        private string Username => _properties.ReadOptionalProperty(SettingKeys.UserName);
 
         [Info("Password")]
-        private string Password => _properties.ReadOptionalProperty("Password");
+        private string Password => _properties.ReadOptionalProperty(SettingKeys.Password);
 
+        private int _batchSize;
+       
         protected override ILogger Logger { get; }
 
         [Info("Polling interval", "", "int")]
         protected override TimeSpan PollingInterval => FromProperties();
+
+        #region Configuration
+
+        private static class SettingKeys
+        {
+            public const string FilePath = "FilePath";
+            public const string FileMask = "FileMask";
+            public const string UserName = "Username";
+            public const string Password = "Password";
+            public const string BatchSize = "BatchSize";
+        }
 
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
@@ -61,7 +74,16 @@ namespace Eu.EDelivery.AS4.Receivers
         public void Configure(IEnumerable<Setting> settings)
         {
             _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
+            
+            var configuredBatchSize = _properties.ReadOptionalProperty(SettingKeys.BatchSize, "50");
+
+            if (Int32.TryParse(configuredBatchSize, out _batchSize) == false)
+            {
+                _batchSize = 50;
+            }
         }
+
+        #endregion
 
         /// <summary>
         /// Start Receiving on the given File LocationParameter
@@ -81,7 +103,10 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
-            if (!fileInfo.Exists) return;
+            if (!fileInfo.Exists)
+            {
+                return;
+            }
 
             Logger.Info($"Getting Message from file '{fileInfo.Name}'");
 
@@ -117,8 +142,14 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void NotifyReceivedFile(FileInfo fileInfo, InternalMessage internalMessage)
         {
-            if (internalMessage.Exception != null) HandleException(fileInfo, internalMessage.Exception);
-            else MoveFile(fileInfo, "accepted");
+            if (internalMessage.Exception != null)
+            {
+                HandleException(fileInfo, internalMessage.Exception);
+            }
+            else
+            {
+                MoveFile(fileInfo, "accepted");
+            }
         }
 
         private void HandleException(FileInfo fileInfo, AS4Exception as4Exception)
@@ -219,7 +250,7 @@ namespace Eu.EDelivery.AS4.Receivers
             WithImpersonation(
                 delegate
                 {
-                    FileInfo[] directoryFiles = directoryInfo.GetFiles(FileMask);
+                    FileInfo[] directoryFiles = directoryInfo.GetFiles(FileMask).Take(_batchSize).ToArray();
 
                     foreach (FileInfo file in directoryFiles)
                     {

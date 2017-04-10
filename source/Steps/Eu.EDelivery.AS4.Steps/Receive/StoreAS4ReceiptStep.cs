@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Services;
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public StoreAS4ReceiptStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -40,17 +39,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
-                await StoreReceiptInDatastore(internalMessage.AS4Message, new OutMessageService(repository));
+
+                new OutMessageService(repository).InsertReceipt(internalMessage.AS4Message);
+                
+                await context.SaveChangesAsync(cancellationToken);
+
                 _logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
             }
 
             return await StepResult.SuccessAsync(internalMessage);
-        }
-
-        private static async Task StoreReceiptInDatastore(AS4Message as4Message, OutMessageService service)
-        {
-            // TODO: what if there are multiple Receipts in our message ? (Bundling)            
-            await service.InsertReceiptAsync(as4Message);
-        }
+        }        
     }
 }

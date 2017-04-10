@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Mappings.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
@@ -28,8 +26,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// </summary>
         public CreateAS4MessageStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-            this._builder = new AS4MessageBuilder();
+            _logger = LogManager.GetCurrentClassLogger();
+            _builder = new AS4MessageBuilder();
         }
 
         /// <summary>
@@ -44,8 +42,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             try
             {
-                this._internalMessage = internalMessage;
-                this._internalMessage.AS4Message = CreateAS4Message();
+                _internalMessage = internalMessage;
+                _internalMessage.AS4Message = CreateAS4Message();
+
                 return await StepResult.SuccessAsync(internalMessage);
             }
             catch (Exception exception)
@@ -58,11 +57,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             string generatedMessageId = IdentifierFactory.Instance.Create();
             string description = $"[generated: {generatedMessageId}] Unable to Create AS4 Message from Submit Message";
-            this._logger.Error(description);
+            _logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
+                .WithSendingPMode(_internalMessage.AS4Message.SendingPMode)
                 .WithMessageIds(generatedMessageId)
                 .WithInnerException(innerException)
                 .Build();
@@ -71,20 +70,20 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private AS4Message CreateAS4Message()
         {
             UserMessage userMessage = CreateUserMessage();
-            this._logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
+            _logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
 
-            return this._builder
+            return _builder
                 .BreakDown()
-                .WithSendingPMode(this._internalMessage.SubmitMessage.PMode)
+                .WithSendingPMode(_internalMessage.SubmitMessage.PMode)
                 .WithUserMessage(userMessage)
                 .Build();
         }
 
         private UserMessage CreateUserMessage()
         {
-            this._logger.Debug("Map Submit Message to UserMessage");
+            _logger.Debug("Map Submit Message to UserMessage");
             
-            return AS4Mapper.Map<UserMessage>(this._internalMessage.SubmitMessage);
+            return AS4Mapper.Map<UserMessage>(_internalMessage.SubmitMessage);
         }
     }
 }

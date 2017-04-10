@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
@@ -34,9 +33,9 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// <param name="step"></param>
         public OutExceptionStepDecorator(IStep step)
         {
-            this._step = step;
+            _step = step;
 
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
 
@@ -50,31 +49,33 @@ namespace Eu.EDelivery.AS4.Steps.Common
         {
             try
             {
-                return await this._step.ExecuteAsync(internalMessage, cancellationToken);
+                return await _step.ExecuteAsync(internalMessage, cancellationToken);
             }
             catch (AS4Exception exception)
             {
-                this._logger.Error(exception.Message);
+                _logger.Error(exception.Message);
 
                 internalMessage.Exception = exception;
 
                 using (var context = Registry.Instance.CreateDatastoreContext())
                 {
-                    await HandleOutException(exception, internalMessage, new DatastoreRepository(context));
+                    HandleOutException(exception, internalMessage, new DatastoreRepository(context));
+
+                    await context.SaveChangesAsync(cancellationToken);
                 }
                 return StepResult.Failed(exception, internalMessage);
             }
         }
 
-        private async Task HandleOutException(AS4Exception exception, InternalMessage internalMessage, IDatastoreRepository repository)
+        private void HandleOutException(AS4Exception exception, InternalMessage internalMessage, IDatastoreRepository repository)
         {
             foreach (string messageId in exception.MessageIds)
             {
-                await TryHandleOutExceptionAsync(exception, messageId, internalMessage, repository);
+                TryHandleOutException(exception, messageId, internalMessage, repository);
             }
         }
 
-        private async Task TryHandleOutExceptionAsync(AS4Exception exception, string messageId, InternalMessage internalMessage, IDatastoreRepository repository)
+        private void TryHandleOutException(AS4Exception exception, string messageId, InternalMessage internalMessage, IDatastoreRepository repository)
         {
             try
             {
@@ -82,17 +83,16 @@ namespace Eu.EDelivery.AS4.Steps.Common
 
                 outException.MessageBody = GetAS4MessageByteRepresentationSetMessageBody(internalMessage.AS4Message);
 
-                await repository.InsertOutExceptionAsync(outException);
-                await repository.UpdateOutMessageAsync(messageId, UpdateOutMessageType);
+                repository.InsertOutException(outException);
+                repository.UpdateOutMessage(messageId, UpdateOutMessageType);
             }
             catch (Exception ex)
             {
-                this._logger.Error($"{internalMessage.Prefix} Cannot Update Datastore with OutException: {ex.Message}");
+                _logger.Error($"{internalMessage.Prefix} Cannot Update Datastore with OutException: {ex.Message}");
                 if (ex.InnerException != null)
                 {
-                    this._logger.Error(ex.InnerException.Message);
+                    _logger.Error(ex.InnerException.Message);
                 }
-
             }
         }
 

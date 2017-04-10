@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -29,8 +28,8 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </param>
         public OutMessageService(IDatastoreRepository repository)
         {
-            this._repository = repository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _repository = repository;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>        
         /// <param name="as4Message"></param>
         /// <returns></returns>
-        public async Task InsertReceiptAsync(AS4Message as4Message)
+        public void InsertReceipt(AS4Message as4Message)
         {
             // The Primary SignalMessage of the given AS4Message should be a Receipt
             if (!(as4Message.IsSignalMessage && as4Message.PrimarySignalMessage is Receipt))
@@ -47,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 throw new ArgumentException(@"The AS4Message should represent a Receipt", nameof(AS4Message));
             }
 
-            await TryInsertOutcomingOutMessageAsync(as4Message, MessageType.Receipt);
+            TryInsertOutcomingOutMessage(as4Message, MessageType.Receipt);
         }
 
         /// <summary>
@@ -56,23 +55,22 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>        
         /// <param name="as4Message"></param>
         /// <returns></returns>
-        public async Task InsertErrorAsync(AS4Message as4Message)
+        public void InsertError(AS4Message as4Message)
         {
             if (!(as4Message.IsSignalMessage && as4Message.PrimarySignalMessage is Error))
             {
                 throw new ArgumentException(@"The AS4Message should represent an Error", nameof(AS4Message));
             }
 
-            await TryInsertOutcomingOutMessageAsync(as4Message, MessageType.Error);
+            TryInsertOutcomingOutMessage(as4Message, MessageType.Error);
         }
 
-        private async Task TryInsertOutcomingOutMessageAsync(AS4Message as4Message, MessageType messageType)
+        private void TryInsertOutcomingOutMessage(AS4Message as4Message, MessageType messageType)
         {
             try
-            {
-                //this._logger.Debug($"Store OutMessage: {messageId}");
+            {                
                 OutMessage outMessage = CreateOutMessageForSignal(as4Message, messageType);
-                await this._repository.InsertOutMessageAsync(outMessage);
+                _repository.InsertOutMessage(outMessage);
             }
             catch (Exception ex)
             {
@@ -87,7 +85,6 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
         private static OutMessage CreateOutMessageForSignal(AS4Message message, MessageType messageType)
         {
-
             var primarySignalMessage = message.PrimarySignalMessage;
             
             OutMessage outMessage = new OutMessageBuilder()
@@ -132,7 +129,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
     public interface IOutMessageService
     {
-        Task InsertErrorAsync(AS4Message as4Message);
-        Task InsertReceiptAsync(AS4Message as4Message);
+        void InsertError(AS4Message as4Message);
+        void InsertReceipt(AS4Message as4Message);
     }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define METRICS
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
@@ -39,7 +41,10 @@ namespace Eu.EDelivery.AS4.Agents
             Transformer transformerConfig,
             Model.Internal.Steps stepConfiguration) : this(agentConfig, receiver, transformerConfig)
         {
-            if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
+            if (stepConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(stepConfiguration));
+            }
 
             _stepConfiguration = stepConfiguration;
         }
@@ -57,16 +62,28 @@ namespace Eu.EDelivery.AS4.Agents
             Transformer transformerConfig,
             ConditionalStepConfig stepConfiguration) : this(agentConfig, receiver, transformerConfig)
         {
-            if (stepConfiguration == null) throw new ArgumentNullException(nameof(stepConfiguration));
+            if (stepConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(stepConfiguration));
+            }
 
             _conditionalStepConfig = stepConfiguration;
         }
 
         private Agent(AgentConfig agentConfig, IReceiver receiver, Transformer transformerConfig)
         {
-            if (agentConfig == null) throw new ArgumentNullException(nameof(agentConfig));
-            if (receiver == null) throw new ArgumentNullException(nameof(receiver));
-            if (transformerConfig == null) throw new ArgumentNullException(nameof(transformerConfig));
+            if (agentConfig == null)
+            {
+                throw new ArgumentNullException(nameof(agentConfig));
+            }
+            if (receiver == null)
+            {
+                throw new ArgumentNullException(nameof(receiver));
+            }
+            if (transformerConfig == null)
+            {
+                throw new ArgumentNullException(nameof(transformerConfig));
+            }
 
             AgentConfig = agentConfig;
 
@@ -123,7 +140,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 Logger.Error($"An AS4 Exception occured: {exception.Message}");
 
-                var internalMessage = new InternalMessage {Exception = exception};
+                var internalMessage = new InternalMessage { Exception = exception };
 
                 IStep step = CreateSteps();
 
@@ -150,7 +167,13 @@ namespace Eu.EDelivery.AS4.Agents
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
-            Logger.Debug($"{this.AgentConfig.Name} received and starts handling message with id {message.Id}");
+            Logger.Debug($"{AgentConfig.Name} received and starts handling message with id {message.Id}");
+
+
+#if METRICS
+            var sw = new Stopwatch();
+            sw.Start();
+#endif
 
             InternalMessage internalMessage = await TryTransform(message, cancellationToken);
 
@@ -165,6 +188,10 @@ namespace Eu.EDelivery.AS4.Agents
 
             LogIfStepResultFailed(result, message);
 
+#if METRICS
+            sw.Stop();
+            Trace.WriteLine($"{AgentConfig.Name}: processing message took {sw.ElapsedMilliseconds} msecs");
+#endif
             return result.InternalMessage;
         }
 
@@ -203,9 +230,13 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 Logger.Warn($"Executing {AgentConfig.Name} Step failed: {result.Exception.Message}");
 
-                if (result.Exception.InnerException != null && Logger.IsTraceEnabled)
+                if (result.Exception.InnerException != null)
                 {
-                    Logger.Trace(result.Exception.InnerException.StackTrace);
+                    Logger.Warn(result.Exception.InnerException.Message);
+                    if (Logger.IsTraceEnabled)
+                    {
+                        Logger.Trace(result.Exception.InnerException.StackTrace);
+                    }
                 }
             }
 

@@ -123,7 +123,9 @@ namespace Eu.EDelivery.AS4.Serialization
         private static void AddHeaderParametersToBodyMultiPart(MimeEntity bodyMultipart, ContentType contentType)
         {
             foreach (Parameter item in contentType.Parameters)
+            {
                 bodyMultipart.ContentType.Parameters.Add(item);
+            }
         }
 
         private static void AddAttachmentToMultipart(Multipart bodyMultipart, Attachment attachment)

@@ -120,8 +120,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 EbmsMessageId = this._messageId,
                 ContentType = this._as4Message.ContentType,
                 EbmsMessageType = this._messageType,
-                Operation = Operation.NotApplicable,
-                OperationMethod = "To be determined",
+                Operation = Operation.NotApplicable,                
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now
             };

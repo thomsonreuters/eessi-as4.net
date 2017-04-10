@@ -151,6 +151,10 @@
     <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Extensions.Logging.Abstractions.1.1.1\lib\netstandard1.1\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Console, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\output\Microsoft.Extensions.Logging.Console.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Extensions.ObjectPool, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Extensions.ObjectPool.1.1.0\lib\net451\Microsoft.Extensions.ObjectPool.dll</HintPath>
     </Reference>

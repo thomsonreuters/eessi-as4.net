@@ -24,15 +24,16 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             return Task.FromResult(RetrievePayload(location));
         }
 
-        private Stream RetrievePayload(string location)
+        private static Stream RetrievePayload(string location)
         {
             Stream payloadStream = TryRetrievePayload(location);
+
             Logger.Info($"Payload is successfully retrieved at location: {location}");
 
             return payloadStream;
         }
 
-        private Stream TryRetrievePayload(string location)
+        private static Stream TryRetrievePayload(string location)
         {
             try
             {
@@ -48,9 +49,10 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             }
         }
 
-        private AS4Exception ThrowAS4PayloadException(string location, Exception exception)
+        private static AS4Exception ThrowAS4PayloadException(string location, Exception exception)
         {
             string description = $"Unable to retrieve Payload at location: {location}";
+
             Logger.Error(description);
             
             return AS4ExceptionBuilder
@@ -61,13 +63,13 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
                 .Build();
         }
 
-        private Stream RetrievePayloadAtlocation(string location)
+        private static Stream RetrievePayloadAtlocation(string location)
         {
             string relativePath = location.Replace("file:///", string.Empty);
             string absolutePath = Path.GetFullPath(relativePath);
-            var uri = new Uri(absolutePath);
-
-            return new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read);
+            var uri = new Uri(absolutePath);            
+            
+            return new FileStream(uri.LocalPath, FileMode.Open, FileAccess.Read, FileShare.Read);
         }
     }
 }

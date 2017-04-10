@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public CreateAS4ErrorStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -48,7 +48,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(db);
                 var service = new OutMessageService(repository);
-                await service.InsertErrorAsync(errorMessage);
+
+                service.InsertError(errorMessage);
+
+                await db.SaveChangesAsync(cancellationToken);
             }
 
             return await StepResult.SuccessAsync(new InternalMessage(errorMessage));

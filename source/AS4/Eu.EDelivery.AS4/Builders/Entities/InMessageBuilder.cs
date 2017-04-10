@@ -104,8 +104,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 PMode = this._pmodeString,
                 MEP = MessageExchangePattern.Push,
                 Status = InStatus.Received,
-                Operation = Operation.NotApplicable,
-                OperationMethod = "To be determinded",
+                Operation = Operation.NotApplicable,                
                 InsertionTime = DateTimeOffset.UtcNow,
                 ModificationTime = DateTimeOffset.UtcNow
             };

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Runtime.Serialization;
 using System.Threading;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Send.Response;
@@ -44,7 +43,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
             Assert.True(result.AS4Message.IsEmpty);
         }
-
 
         private static HttpWebResponse CreateWebResponse(string contentType)
         {

@@ -70,6 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             SignalMessage errorMessage = CreateError();
+
             InternalMessage internalMessage = CreateInternalMessageWith(errorMessage);
 
             // Act
@@ -99,7 +100,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static InternalMessage CreateInternalMessageWith(SignalMessage signalMessage)
         {
-
             InternalMessage internalMessage = new InternalMessageBuilder(signalMessage.RefToMessageId)
                            .WithSignalMessage(signalMessage).Build();
 
@@ -107,8 +107,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
 
             return internalMessage;
-
-
         }
     }
 }

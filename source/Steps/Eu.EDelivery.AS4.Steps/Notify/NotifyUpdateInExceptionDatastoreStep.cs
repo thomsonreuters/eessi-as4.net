@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// </summary>
         public NotifyUpdateInExceptionDatastoreStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -33,20 +33,21 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             var notifyMessageEnv = internalMessage.NotifyMessage;
-            this._logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
+            _logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
 
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
-                await UpdateDatastoreAsync(notifyMessageEnv, new DatastoreRepository(context));
+                UpdateDatastore(notifyMessageEnv, new DatastoreRepository(context));
+
+                await context.SaveChangesAsync(cancellationToken);
             }
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private static async Task UpdateDatastoreAsync(NotifyMessageEnvelope notifyMessage, DatastoreRepository repository)
+        private static void UpdateDatastore(NotifyMessageEnvelope notifyMessage, DatastoreRepository repository)
         {
-            await repository.UpdateInExceptionAsync(
-                notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedInException);
+            repository.UpdateInException(notifyMessage.MessageInfo.RefToMessageId, UpdateNotifiedInException);
         }
 
         private static void UpdateNotifiedInException(InException inException)

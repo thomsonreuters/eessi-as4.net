@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
@@ -29,8 +28,8 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </param>
         public InExceptionService(IDatastoreRepository repository)
         {
-            this._repository = repository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _repository = repository;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -39,28 +38,28 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>
         /// <param name="exception"></param>
         /// <param name="as4Message"></param>
-        public async Task InsertAS4ExceptionAsync(AS4Exception exception, AS4Message as4Message)
+        public void InsertAS4Exception(AS4Exception exception, AS4Message as4Message)
         {
             foreach (string messageId in exception.MessageIds)
             {
-                await TryStoreIncomingAS4ExceptionAsync(exception, messageId, as4Message);
+                TryStoreIncomingAS4Exception(exception, messageId, as4Message);
             }
         }
 
-        private async Task TryStoreIncomingAS4ExceptionAsync(AS4Exception as4Exception, string messageId, AS4Message as4Message)
+        private void TryStoreIncomingAS4Exception(AS4Exception as4Exception, string messageId, AS4Message as4Message)
         {
             try
             {
-                this._logger.Info($"Store InException: {as4Exception.Message}");
+                _logger.Info($"Store InException: {as4Exception.Message}");
 
                 InException inException = CreateInException(as4Exception, messageId);
                 SetMessageBody(inException, as4Message);
-                await InsertInException(inException);
+                InsertInException(inException);
             }
             catch (Exception exception)
             {
-                this._logger.Error("Cannot Update Datastore with InException");
-                this._logger.Debug($"Cannot update Datastore: {exception.Message}");
+                _logger.Error("Cannot Update Datastore with InException");
+                _logger.Debug($"Cannot update Datastore: {exception.Message}");
             }
         }
 
@@ -82,9 +81,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 .Build();
         }
 
-        private async Task InsertInException(InException inException)
+        private void InsertInException(InException inException)
         {
-            await this._repository.InsertInExceptionAsync(inException);
+            _repository.InsertInException(inException);
         }
     }
 
@@ -96,6 +95,6 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>
         /// <param name="exception"></param>
         /// <param name="as4Message"></param>
-        Task InsertAS4ExceptionAsync(AS4Exception exception, AS4Message as4Message);
+        void InsertAS4Exception(AS4Exception exception, AS4Message as4Message);
     }
 }

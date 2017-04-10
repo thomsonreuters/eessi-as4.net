@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps.Services;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Moq;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
     /// <summary>
     /// Testing <see cref="InExceptionService" />
     /// </summary>
-    public class GivenInExceptionServiceFacts
+    public class GivenInExceptionServiceFacts : GivenDatastoreFacts
     {
         private InExceptionService _service;
         private Mock<IDatastoreRepository> _mockedRepository;
@@ -33,10 +34,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         {
             [Theory]
             [InlineData("shared-id")]
-            public async Task ThenInsertAS4ExceptionSucceedsAsync(string sharedId)
+            public void ThenInsertAS4ExceptionSucceedsAsync(string sharedId)
             {
                 // Arrange
-                _mockedRepository.Setup(r => r.InsertInExceptionAsync(It.IsAny<InException>()))
+                _mockedRepository.Setup(r => r.InsertInException(It.IsAny<InException>()))
                                  .Callback(
                                      (InException intException) =>
                                      {
@@ -49,10 +50,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                     AS4ExceptionBuilder.WithDescription("Test Exception").WithMessageIds(sharedId).Build();
 
                 // Act
-                await _service.InsertAS4ExceptionAsync(as4Exception, new AS4Message());
+                _service.InsertAS4Exception(as4Exception, new AS4Message());
 
                 // Assert
-                _mockedRepository.Verify(r => r.InsertInExceptionAsync(It.IsAny<InException>()), Times.Once);
+                _mockedRepository.Verify(r => r.InsertInException(It.IsAny<InException>()), Times.Once);
             }
         }
     }

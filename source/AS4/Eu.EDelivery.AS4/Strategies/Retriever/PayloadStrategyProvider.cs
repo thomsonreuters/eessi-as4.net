@@ -29,10 +29,12 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <returns></returns>
         public IPayloadRetriever Get(Model.Common.Payload payload)
         {
-            PayloadStrategyEntry entry = this._entries.FirstOrDefault(e => e.Condition(payload));
+            PayloadStrategyEntry entry = _entries.FirstOrDefault(e => e.Condition(payload));
 
-            if (entry?.Retriever ==  null)
+            if (entry?.Retriever == null)
+            {
                 throw new AS4Exception($"No Payload Retriever found for Payload {payload.Id}");
+            }
 
             return entry.Retriever;
         }
