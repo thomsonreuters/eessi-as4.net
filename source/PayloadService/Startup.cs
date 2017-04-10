@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.PayloadService
 
             app.UseSwagger();
 
-            app.UseSwaggerUi(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", $"My API V{AssemblyVersion}"); });
+            app.UseSwaggerUi(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", $"AS4.NET Payload Service Web API V{AssemblyVersion}"); });
 
             app.UseMvc();
         }
