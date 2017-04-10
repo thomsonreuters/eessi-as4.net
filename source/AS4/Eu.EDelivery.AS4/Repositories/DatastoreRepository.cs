@@ -56,6 +56,17 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Verifies whether there exists an InMessage with the specified ebms-MessageId
+        /// </summary>
+        /// <param name="ebmsMessageId"></param>
+        /// <returns></returns>
+        public bool InMessageWithIdExists(string ebmsMessageId)
+        {
+            return _dbContext.InMessages.Any(m => m.EbmsMessageId.Equals(ebmsMessageId));
+        }
+
+
+        /// <summary>
         /// Insert a given <see cref="InMessage"/>
         /// into the Data store
         /// </summary>
@@ -133,6 +144,18 @@ namespace Eu.EDelivery.AS4.Repositories
             }
 
             return message;
+        }
+
+        /// <summary>
+        /// Retrieves the <see cref="Operation"/> for a specified OutMessage.
+        /// </summary>
+        /// <param name="messageId"></param>
+        /// <returns></returns>
+        public Operation GetOutMessageOperation(string messageId)
+        {
+            return _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(messageId))
+                                         .Select(m => m.Operation)
+                                         .FirstOrDefault();
         }
 
         /// <summary>
@@ -444,10 +467,12 @@ namespace Eu.EDelivery.AS4.Repositories
         void UpdateInMessage(string messageId, Action<InMessage> updateAction);
         InMessage GetInMessage(Func<InMessage, bool> predicate);
         InMessage GetInMessageById(string messageId);
+        bool InMessageWithIdExists(string ebmsMessageId);
 
         void InsertOutMessage(OutMessage outMessage);
         void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
         OutMessage GetOutMessageById(string messageId);
+        Operation GetOutMessageOperation(string messageId);
 
         SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId);
 

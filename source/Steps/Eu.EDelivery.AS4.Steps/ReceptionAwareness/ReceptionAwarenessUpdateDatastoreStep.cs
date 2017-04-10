@@ -39,14 +39,15 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-
             using (var context = Registry.Instance.CreateDatastoreContext())
-            {
+            {                
                 _logger.Debug("Executing ReceptionAwarenessDataStoreStep");
 
                 var repository = new DatastoreRepository(context);
 
                 _receptionAwareness = internalMessage.ReceptionAwareness;
+
+                context.Attach(_receptionAwareness);
 
                 if (IsMessageAlreadyAnswered(context))
                 {
@@ -96,14 +97,12 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private bool MessageNeedsToBeResend(IDatastoreRepository repository)
         {
             TimeSpan retryInterval = TimeSpan.Parse(_receptionAwareness.RetryInterval);
-
-            TimeSpan gracePeriod = TimeSpan.FromTicks(retryInterval.Ticks);
-
-            DateTimeOffset deadlineForResend = _receptionAwareness.LastSendTime.Add(gracePeriod);
+            
+            DateTimeOffset deadlineForResend = _receptionAwareness.LastSendTime.Add(retryInterval);
 
             return
                 _receptionAwareness.CurrentRetryCount < _receptionAwareness.TotalRetryCount &&
-                repository.GetOutMessageById(_receptionAwareness.InternalMessageId)?.Operation != Operation.Sending &&
+                repository.GetOutMessageOperation(_receptionAwareness.InternalMessageId) == Operation.Sent &&
                 DateTimeOffset.UtcNow.CompareTo(deadlineForResend) > 0 &&
                 _receptionAwareness.IsCompleted == false;
         }

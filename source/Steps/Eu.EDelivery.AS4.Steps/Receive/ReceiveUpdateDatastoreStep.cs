@@ -165,7 +165,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     UpdateReceipt(signalMessage, service, token);
                 }
-
                 else if (signalMessage is Error)
                 {
                     UpdateError(signalMessage, service, token);
