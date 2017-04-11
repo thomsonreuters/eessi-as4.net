@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -65,10 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private async Task UploadAttachments(IEnumerable<Attachment> attachments)
         {
-            foreach (Attachment attachment in attachments)
-            {
-                await TryUploadAttachment(attachment);
-            }
+            await Task.WhenAll(attachments.Select(TryUploadAttachment));
         }
 
         private async Task TryUploadAttachment(Attachment attachment)
@@ -106,21 +105,20 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private void PreConditionsPayloadReferenceMethod(ReceivingProcessingMode pmode, Method payloadReferenceMethod)
         {
-            if (payloadReferenceMethod.Type != null)
+            if (payloadReferenceMethod.Type == null)
             {
-                return;
-            }
+                string description = $"Invalid configured Payload Reference Method in receive PMode {pmode.Id}";
+                _logger.Error(description);
 
-            string description = $"Invalid configured Payload Reference Method in receive PMode {pmode.Id}";
-            _logger.Error(description);
-            throw AS4ExceptionBuilder.WithDescription(description).Build();
+                throw AS4ExceptionBuilder.WithDescription(description).Build();
+            }
         }
 
         private AS4Exception ThrowUploadAS4Exception(string description, Exception exception = null)
         {
             _logger.Error(description);
 
-            var builder = AS4ExceptionBuilder
+            AS4ExceptionBuilder builder = AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(exception)
                 .WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode);
@@ -129,7 +127,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 builder.WithMessageIds(_internalMessage.DeliverMessage.MessageInfo.MessageId);
             }
-            else if (_internalMessage.AS4Message != null && _internalMessage.AS4Message.PrimaryUserMessage != null)
+            else if (_internalMessage.AS4Message?.PrimaryUserMessage != null)
             {
                 builder.WithMessageIds(_internalMessage.AS4Message.PrimaryUserMessage.MessageId);
             }
