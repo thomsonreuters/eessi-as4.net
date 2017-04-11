@@ -24,11 +24,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         protected readonly string HolodeckBInputPath = Properties.Resources.holodeck_B_input_path;
         protected static readonly string HolodeckMessagesPath = AS4MessagesPath + "\\holodeck-messages";
-        private Process _process;
-
         private readonly Process _holodeckA, _holodeckB;
-
         public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
+
+        private Process _process;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.
