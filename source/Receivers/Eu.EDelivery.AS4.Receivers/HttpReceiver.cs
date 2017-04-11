@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
-            _maxConcurrentConnections = Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, "500"));
+            _maxConcurrentConnections = Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, "10"));
         }
 
         /// <summary>
@@ -195,11 +195,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)
             {
-                var requestStream = new MemoryStream();
-                request.InputStream.CopyTo(requestStream);
-                requestStream.Position = 0;
-
-                return new ReceivedMessage(request.RawUrl, requestStream, request.ContentType);
+                return new ReceivedMessage(request.RawUrl, request.InputStream, request.ContentType);                
             }
 
             #region Concrete RequestHandler implementations
