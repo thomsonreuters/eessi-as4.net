@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                     AS4ExceptionBuilder.WithDescription("Test Exception").WithPModeString("<PMode></PMode>").Build();
 
                 // Act
-                OutException outException = new OutExceptionBuilder().WithAS4Exception(as4Exception).Build();
+                OutException outException = OutExceptionBuilder.ForAS4Exception(as4Exception).Build();
 
                 // Assert
                 Assert.Equal(as4Exception.PMode, outException.PMode);
@@ -37,7 +37,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 string messageId = Guid.NewGuid().ToString();
 
                 // Act
-                OutException outException = new OutExceptionBuilder().WithEbmsMessageId(messageId).Build();
+                OutException outException = OutExceptionBuilder.ForAS4Exception(new AS4Exception(""))
+                                                               .WithEbmsMessageId(messageId).Build();
 
                 // Assert
                 Assert.Equal(messageId, outException.EbmsRefToMessageId);
@@ -51,23 +52,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 const string operationMethod = "FILE";
 
                 // Act
-                OutException outException = new OutExceptionBuilder().WithOperation(operation, operationMethod).Build();
+                OutException outException = OutExceptionBuilder.ForAS4Exception(new AS4Exception("Test exception"))
+                                                               .WithOperation(operation, operationMethod).Build();
 
                 // Assert
                 Assert.Equal(operation, outException.Operation);
                 Assert.Equal(operationMethod, outException.OperationMethod);
             }
-
-            [Fact]
-            public void ThenBuildOutExceptionSucceedsWithoutBuildParts()
-            {
-                // Act
-                OutException outException = new OutExceptionBuilder().Build();
-
-                // Assert
-                Assert.NotNull(outException.InsertionTime);
-                Assert.NotNull(outException.ModificationTime);
-            }
+            
         }
     }
 }
