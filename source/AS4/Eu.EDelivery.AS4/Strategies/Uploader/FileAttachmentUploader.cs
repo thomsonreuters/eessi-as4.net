@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -44,13 +45,28 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// Start uploading Attachment
         /// </summary>
         /// <param name="attachment"></param>
-        public void Upload(Attachment attachment)
+        /// <returns></returns>
+        public Task<UploadResult> Upload(Attachment attachment)
+        {
+            string downloadUrl = AssignAttachmentLocation(attachment);
+            TryUploadAttachment(attachment);
+
+            return Task.FromResult(new UploadResult { DownloadUrl = downloadUrl, PayloadId = attachment.Id});
+        }
+
+        /// <summary>
+        /// Start uploading Attachment
+        /// </summary>
+        /// <param name="attachment"></param>
+        public Task UploadAsync(Attachment attachment)
         {
             AssignAttachmentLocation(attachment);
             TryUploadAttachment(attachment);
+
+            return Task.CompletedTask;
         }
 
-        private void AssignAttachmentLocation(Attachment attachment)
+        private string AssignAttachmentLocation(Attachment attachment)
         {
             Parameter locationParameter = this._method["location"];
 
@@ -58,6 +74,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string fileName = FilenameSanitizer.EnsureValidFilename(attachment.Id);
 
             attachment.Location = $"{locationParameter.Value}{fileName}{extension}";
+            return attachment.Location;
         }
 
         private void TryUploadAttachment(Attachment attachment)

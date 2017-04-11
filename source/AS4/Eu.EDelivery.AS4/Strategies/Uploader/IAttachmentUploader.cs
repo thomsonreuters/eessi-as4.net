@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Core;
+﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
@@ -19,6 +20,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// Start uploading <see cref="Attachment"/>
         /// </summary>
         /// <param name="attachment"></param>
-        void Upload(Attachment attachment);
+        /// <returns></returns>
+        Task<UploadResult> Upload(Attachment attachment);
     }
 }

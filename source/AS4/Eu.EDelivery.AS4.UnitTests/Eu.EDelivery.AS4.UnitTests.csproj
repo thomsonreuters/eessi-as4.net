@@ -411,8 +411,11 @@
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\GivenFilePayloadStrategyFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />
+    <Compile Include="Strategies\Method\LocationMethod.cs" />
     <Compile Include="Strategies\Retriever\GivenWebPayloadRetrieverFacts.cs" />
     <Compile Include="Strategies\Sender\GivenHttpDeliverSenderFacts.cs" />
+    <Compile Include="Strategies\Uploader\GivenAttachmentUploaderProvider.cs" />
+    <Compile Include="Strategies\Uploader\GivenPayloadServiceAttachmentUploaderFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
