@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             foreach (Attachment attachment in as4Message.Attachments)
             {
                 Payload partInfo = deliverMessage.Payloads.FirstOrDefault(p => p.Id.Contains(attachment.Id));
-                if (partInfo != null) partInfo.Location = Path.GetFullPath(attachment.Location);
+                if (partInfo != null) partInfo.Location = attachment.Location;
             }
         }
 
