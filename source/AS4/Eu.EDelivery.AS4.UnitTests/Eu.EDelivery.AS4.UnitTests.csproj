@@ -416,6 +416,8 @@
     <Compile Include="Strategies\Sender\GivenHttpDeliverSenderFacts.cs" />
     <Compile Include="Strategies\Uploader\GivenAttachmentUploaderProvider.cs" />
     <Compile Include="Strategies\Uploader\GivenPayloadServiceAttachmentUploaderFacts.cs" />
+    <Compile Include="Strategies\Uploader\StubAttachmentUploader.cs" />
+    <Compile Include="Strategies\Uploader\StubAttachmentUploaderProvider.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
