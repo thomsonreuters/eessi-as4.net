@@ -102,7 +102,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             return
                 _receptionAwareness.CurrentRetryCount < _receptionAwareness.TotalRetryCount &&
-                repository.GetOutMessageOperation(_receptionAwareness.InternalMessageId) == Operation.Sent &&
+                // Is it necessary that this is a repository method ?
+                repository.GetOutMessageOperation(_receptionAwareness.InternalMessageId) != Operation.Sending &&
                 DateTimeOffset.UtcNow.CompareTo(deadlineForResend) > 0 &&
                 _receptionAwareness.IsCompleted == false;
         }
