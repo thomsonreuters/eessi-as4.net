@@ -3,24 +3,24 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.UnitTests.Strategies
+namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
 {
     /// <summary>
     /// Testing <see cref="FilePayloadRetriever" />
     /// </summary>
-    public class GivenFilePayloadStrategyFacts
+    public class GivenFilePayloadRetrieverFacts
     {
         private readonly FilePayloadRetriever _retriever;
 
-        public GivenFilePayloadStrategyFacts()
+        public GivenFilePayloadRetrieverFacts()
         {
             _retriever = new FilePayloadRetriever();
         }
-
+        
         /// <summary>
         /// Testing if the retriever fails
         /// </summary>
-        public class GivenFilePayloadStrategyFails : GivenFilePayloadStrategyFacts
+        public class GivenFilePayloadRetrieverFails : GivenFilePayloadRetrieverFacts
         {
             [Fact]
             public async Task ThenRetrievePayloadFails()
