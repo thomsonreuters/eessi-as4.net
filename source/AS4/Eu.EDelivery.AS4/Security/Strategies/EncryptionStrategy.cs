@@ -421,6 +421,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 encryptionAlgorithm.IV = origIV;
             }
 
+            decryptedStream.Position = 0;
+
             return decryptedStream;
         }
 
@@ -510,7 +512,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public override void Transform(Attachment attachment, Stream decryptedData)
                 {
-                    attachment.Content.Dispose();
+                    attachment.Content.Dispose();                    
                     attachment.Content = decryptedData;
                 }
             }
