@@ -18,6 +18,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </summary>
         public Settings()
         {
+            FeInProcess = true;
             PayloadServiceInProcess = true;
         }
 

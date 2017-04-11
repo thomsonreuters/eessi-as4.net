@@ -20,7 +20,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
                 var settings = new Settings();
 
                 // Assert
-                Assert.True(settings.PayloadServiceInProcess);
+                Assert.True(settings.FeInProcess, "settings.FeInProcess");
+                Assert.True(settings.PayloadServiceInProcess, "settings.PayloadServiceInProcess");
             }
         }
 
