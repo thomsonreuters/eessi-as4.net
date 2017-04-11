@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Eu.EDelivery.AS4.PayloadService.Controllers
 {
+    /// <summary>
+    /// Controller to handle calls to persistence payload services.
+    /// </summary>
     [Route("api/[controller]")]
     public class PayloadController : Controller
     {
