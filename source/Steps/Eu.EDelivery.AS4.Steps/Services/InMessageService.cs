@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -39,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public bool ContainsUserMessageWithId(string messageId)
         {
             _logger.Debug($"Find UserMessage for EbmsMessageId: {messageId}");
-            return _repository.InMessageWithIdExists(messageId);
+            return _repository.InMessageExists(m => m.EbmsMessageId.Equals(messageId));
         }
 
         /// <summary>
@@ -50,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public bool ContainsSignalMessageWithReferenceToMessageId(string refToMessageId)
         {
             _logger.Debug($"Find SignalMessage for RefToEbmsMessageId: {refToMessageId}");
-            return _repository.GetInMessage(inMessage => inMessage.EbmsRefToMessageId?.Equals(refToMessageId) == true) != null;
+            return _repository.InMessageExists(m => m.EbmsRefToMessageId == refToMessageId);
         }
 
         /// <summary>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -40,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             using (var context = Registry.Instance.CreateDatastoreContext())
-            {                
+            {
                 _logger.Debug("Executing ReceptionAwarenessDataStoreStep");
 
                 var repository = new DatastoreRepository(context);
@@ -49,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
                 context.Attach(_receptionAwareness);
 
-                if (IsMessageAlreadyAnswered(context))
+                if (IsMessageAlreadyAnswered(repository))
                 {
                     _logger.Debug("Message has been answered, marking as complete");
                     UpdateForAnsweredMessage(repository);
@@ -81,10 +80,10 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private bool IsMessageAlreadyAnswered(DatastoreContext context)
+        private bool IsMessageAlreadyAnswered(IDatastoreRepository repository)
         {
-            // TODO: only check for InMessages that are signalmessages (error / receipt) ?
-            return context.InMessages.Any(m => m.EbmsRefToMessageId != null && m.EbmsRefToMessageId.Equals(_receptionAwareness.InternalMessageId));
+            return repository.InMessageExists(m => m.EbmsRefToMessageId != null &&
+                                                   m.EbmsRefToMessageId.Equals(_receptionAwareness.InternalMessageId));
         }
 
         private void UpdateForAnsweredMessage(IDatastoreRepository repository)
@@ -97,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private bool MessageNeedsToBeResend(IDatastoreRepository repository)
         {
             TimeSpan retryInterval = TimeSpan.Parse(_receptionAwareness.RetryInterval);
-            
+
             DateTimeOffset deadlineForResend = _receptionAwareness.LastSendTime.Add(retryInterval);
 
             return

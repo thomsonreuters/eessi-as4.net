@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
         {
             [Theory]
             [InlineData("shared-id")]
-            public void ThenGetInMessageSucceeded(string sharedId)
+            public void ThenInMessageExistsSucceeded(string sharedId)
             {
                 // Arrange
                 InsertInMessage(sharedId, Operation.NotApplicable);
@@ -28,10 +28,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                     var repository = new DatastoreRepository(context);
 
                     // Act
-                    InMessage resultMessage = repository.GetInMessageById(sharedId);
+                    bool result = repository.InMessageExists(m => m.EbmsMessageId == sharedId);
 
                     // Assert
-                    Assert.NotNull(resultMessage);
+                    Assert.True(result);
                 }
             }
 
