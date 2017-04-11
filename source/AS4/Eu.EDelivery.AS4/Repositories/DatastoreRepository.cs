@@ -31,40 +31,16 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         #region InMessage related functionality
-
+                     
         /// <summary>
-        /// Get a <see cref="InMessage"/>
-        /// for a given AS4 Message Id
+        /// Verifies whether there exists an InMessage entity that conforms to the specified predicate.
         /// </summary>
-        /// <param name="messageId"></param>
+        /// <param name="predicate"></param>
         /// <returns></returns>
-        public InMessage GetInMessageById(string messageId)
+        public bool InMessageExists(Func<InMessage, bool> predicate)
         {
-            var entity = _dbContext.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
-
-            if (entity != null && entity.Id != default(long))
-            {
-                _inMessageIdMap.Set(messageId, entity.Id, CacheLifeTime);
-            }
-
-            return entity;
+            return _dbContext.InMessages.Any(predicate);            
         }
-
-        public InMessage GetInMessage(Func<InMessage, bool> predicate)
-        {
-            return _dbContext.InMessages.FirstOrDefault(predicate);
-        }
-
-        /// <summary>
-        /// Verifies whether there exists an InMessage with the specified ebms-MessageId
-        /// </summary>
-        /// <param name="ebmsMessageId"></param>
-        /// <returns></returns>
-        public bool InMessageWithIdExists(string ebmsMessageId)
-        {
-            return _dbContext.InMessages.Any(m => m.EbmsMessageId.Equals(ebmsMessageId));
-        }
-
 
         /// <summary>
         /// Insert a given <see cref="InMessage"/>
@@ -86,11 +62,13 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public void UpdateInMessage(string messageId, Action<InMessage> updateAction)
         {
-            var keyMap = GetMessageIdsForEbmsMessageIds(_dbContext.InMessages, _inMessageIdMap, messageId);
+            // There might exist multiple InMessage records for the given messageId, therefore we cannot use
+            // caching here.            
+            var inMessageIds = _dbContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(m => m.Id).ToArray();
 
-            if (keyMap.ContainsKey(messageId))
+            foreach (long id in inMessageIds)
             {
-                var msg = GetInMessageEntityFor(messageId, keyMap[messageId]);
+                var msg = GetInMessageEntityFor(messageId, id);
                 if (msg == null)
                 {
                     LogManager.GetCurrentClassLogger().Warn($"Unable to update InMessage {messageId}.  There exists no such InMessage.");
@@ -114,7 +92,7 @@ namespace Eu.EDelivery.AS4.Repositories
             }
             else
             {
-                msg = _dbContext.InMessages.FirstOrDefault(m => m.EbmsMessageId == ebmsMessageId);
+                msg = _dbContext.InMessages.FirstOrDefault(m => m.Id == id);
                 if (msg == null)
                 {
                     LogManager.GetCurrentClassLogger().Error($"No InMessage found for MessageId {ebmsMessageId}");
@@ -380,8 +358,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         // TODO: encapsulate in an inner class which implements IDisposable.
 
-        private static MemoryCache _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
-        private static MemoryCache _inMessageIdMap = new MemoryCache(new MemoryCacheOptions());
+        private static MemoryCache _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());        
         private static MemoryCache _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
 
         private static readonly TimeSpan CacheLifeTime = TimeSpan.FromSeconds(30);
@@ -389,15 +366,13 @@ namespace Eu.EDelivery.AS4.Repositories
 
         internal static void ResetCaches()
         {
-            _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
-            _inMessageIdMap = new MemoryCache(new MemoryCacheOptions());
+            _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());            
             _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
         }
 
         public static void DisposeCaches()
         {
-            _outMessageIdMap.Dispose();
-            _inMessageIdMap.Dispose();
+            _outMessageIdMap.Dispose();            
             _receptionAwarenessIdMap.Dispose();
         }
 
@@ -456,7 +431,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             return id;
         }
-
+        
         #endregion
 
     }
@@ -464,10 +439,8 @@ namespace Eu.EDelivery.AS4.Repositories
     public interface IDatastoreRepository
     {
         void InsertInMessage(InMessage inMessage);
-        void UpdateInMessage(string messageId, Action<InMessage> updateAction);
-        InMessage GetInMessage(Func<InMessage, bool> predicate);
-        InMessage GetInMessageById(string messageId);
-        bool InMessageWithIdExists(string ebmsMessageId);
+        void UpdateInMessage(string messageId, Action<InMessage> updateAction);        
+        bool InMessageExists(Func<InMessage, bool> predicate);
 
         void InsertOutMessage(OutMessage outMessage);
         void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
