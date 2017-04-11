@@ -286,6 +286,10 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, InternalMessage processorResult)
                 {
+                    if (processorResult.Exception != null)
+                    {
+                        return new ByteContentResult(HttpStatusCode.InternalServerError, "text/plain", Encoding.UTF8.GetBytes(processorResult.Exception.Message));
+                    }
 
                     // Ugly hack until the Transformer is refactored.
                     // When the InternalMessage contains a non-empty SubmitMessage, we assume that a message has been submitted and we should respond accordingly.
@@ -297,16 +301,13 @@ namespace Eu.EDelivery.AS4.Receivers
                         }
                     }
 
+                    // This statement will evaluate to true when we're sending receipts or errors in callback (async) mode.
                     if ((processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty) && processorResult.Exception == null)
                     {
                         return new ByteContentResult(HttpStatusCode.Accepted, string.Empty, new byte[] { });
                     }
-
-                    if (processorResult.Exception != null)
-                    {
-                        return new ByteContentResult(HttpStatusCode.InternalServerError, "text/plain", Encoding.UTF8.GetBytes(processorResult.Exception.Message));
-                    }
-
+                    
+                    // This statement will evaluate to true when receipts or errors are sent in respond mode.
                     if (processorResult.AS4Message != null && processorResult.AS4Message.IsEmpty == false)
                     {
                         HttpStatusCode statusCode = HttpStatusCode.OK;
