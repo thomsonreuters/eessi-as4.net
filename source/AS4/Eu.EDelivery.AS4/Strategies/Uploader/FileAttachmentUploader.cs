@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string downloadUrl = AssembleFileDownloadUrlFor(attachment);
             TryUploadAttachment(attachment);
 
-            return Task.FromResult(new UploadResult {DownloadUrl = downloadUrl});
+            return Task.FromResult(new UploadResult {DownloadUrl = Path.GetFullPath(downloadUrl)});
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment)

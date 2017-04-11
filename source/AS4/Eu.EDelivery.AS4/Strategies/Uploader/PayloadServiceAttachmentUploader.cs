@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private async Task<HttpResponseMessage> PostAttachmentAsMultipart(Attachment attachment)
         {
-            var form = new MultipartFormDataContent {new StreamContent(attachment.Content)};
+            var form = new MultipartFormDataContent {{new StreamContent(attachment.Content), attachment.Id, attachment.Id}};
 
             HttpResponseMessage response = await HttpClient.PostAsync(_location, form);
             Logger.Info($"Upload Attachment returns HTTP Status Code: {response.StatusCode}");
