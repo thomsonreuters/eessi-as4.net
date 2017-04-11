@@ -2,10 +2,19 @@
 
 namespace Eu.EDelivery.AS4.Strategies.Uploader
 {
+    /// <summary>
+    /// Model to encapsulate the result after the <see cref="IAttachmentUploader"/> implementation has done the uploading.
+    /// </summary>
     public class UploadResult : IEquatable<UploadResult>
     {
+        /// <summary>
+        /// Gets or sets the Payload Id for which the attachment is uploaded.
+        /// </summary>
         public string PayloadId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Download Url from which the attachment content can be downloaded.
+        /// </summary>
         public string DownloadUrl { get; set; }
 
         /// <summary>
