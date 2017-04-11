@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.PayloadService
                             Version = $"v{AssemblyVersion}",
                             Description = "A Web API to upload and download payloads in a persistent manner.",
                             TermsOfService = "None",
-                            Contact = new Contact {Name = "Codit"},
+                            Contact = new Contact {Name = "DG EMPL" },
                             License =
                                 new License
                                 {
