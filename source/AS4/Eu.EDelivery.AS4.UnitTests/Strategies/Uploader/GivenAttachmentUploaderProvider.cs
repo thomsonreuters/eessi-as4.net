@@ -44,6 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             {
                 yield return new object[] {"FILE", new FileAttachmentUploader(null)};
                 yield return new object[] {"EMAIL", new EmailAttachmentUploader(null)};
+                yield return new object[] {"PAYLOAD-SERVICE", new PayloadServiceAttachmentUploader()};
             }
         }
     }
