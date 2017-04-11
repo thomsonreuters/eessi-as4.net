@@ -459,8 +459,10 @@
     <Compile Include="Strategies\Uploader\AttachmentUploaderProvider.cs" />
     <Compile Include="Strategies\Uploader\EmailAttachmentUploader.cs" />
     <Compile Include="Strategies\Uploader\FileAttachmentUploader.cs" />
+    <Compile Include="Strategies\Uploader\PayloadServiceAttachmentUploader.cs" />
     <Compile Include="Strategies\Uploader\IAttachmentUploader.cs" />
     <Compile Include="Strategies\Retriever\PayloadStrategyProvider.cs" />
+    <Compile Include="Strategies\Uploader\UploadResult.cs" />
     <Compile Include="Transformers\ITransformer.cs" />
     <Compile Include="Common\Config.cs" />
     <Compile Include="Agents\IAgent.cs" />

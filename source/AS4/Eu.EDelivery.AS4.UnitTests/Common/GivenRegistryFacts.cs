@@ -1,7 +1,9 @@
-﻿using Eu.EDelivery.AS4.Common;
+﻿using System;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Strategies.Retriever;
+using Eu.EDelivery.AS4.Strategies.Uploader;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
@@ -43,6 +45,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 // Assert
                 IPayloadRetriever webRetriever = provider.Get(new Payload("http"));
                 Assert.NotNull(webRetriever);
+            }
+
+            [Theory]
+            [InlineData("PAYLOAD-SERVICE", typeof(PayloadServiceAttachmentUploader))]
+            [InlineData("FILE", typeof(FileAttachmentUploader))]
+            [InlineData("EMAIL", typeof(EmailAttachmentUploader))]
+            public void ReturnKnwonAttachmentUploader(string key, Type expectedType)
+            {
+                Assert.IsType(expectedType, _registry.AttachmentUploader.Get(key));
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Mail;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -16,10 +17,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     /// </summary>
     public class EmailAttachmentUploader : IAttachmentUploader
     {
-        private Method _method;
         private readonly IMimeTypeRepository _repository;
         private readonly IConfig _config;
         private readonly ILogger _logger;
+        private Method _method;
 
         /// <summary>
         /// Initialize a new instance of the <see cref="EmailAttachmentUploader"/> class
@@ -46,7 +47,29 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// Start uploading <see cref="Attachment"/>
         /// </summary>
         /// <param name="attachment"></param>
-        public void Upload(Attachment attachment)
+        /// <returns></returns>
+        public Task<UploadResult> Upload(Attachment attachment)
+        {
+            SendAttachmentAsMail(attachment);
+
+            return Task.FromResult(new UploadResult {PayloadId = attachment.Id});
+        }
+
+        /// <summary>
+        /// Start uploading <see cref="Attachment"/>
+        /// </summary>
+        /// <param name="attachment"></param>
+        public Task UploadAsync(Attachment attachment)
+        {
+            SendAttachmentAsMail(attachment);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Start uploading <see cref="Attachment"/>
+        /// </summary>
+        /// <param name="attachment"></param>
+        public void SendAttachmentAsMail(Attachment attachment)
         {
             var mail = new MailMessage();
             var smtpServer = new SmtpClient(this._config.GetSetting("smtpserver"));
