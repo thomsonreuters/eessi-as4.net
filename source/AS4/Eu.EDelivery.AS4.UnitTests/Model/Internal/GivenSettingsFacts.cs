@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -13,6 +11,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
     /// </summary>
     public class GivenSettingsFacts
     {
+        public class Defaults
+        {
+            [Fact]
+            public void SettingsAreRunningPayloadInProcessByDefault()
+            {
+                // Act
+                var settings = new Settings();
+
+                // Assert
+                Assert.True(settings.FeInProcess, "settings.FeInProcess");
+                Assert.True(settings.PayloadServiceInProcess, "settings.PayloadServiceInProcess");
+            }
+        }
+
         public class PullReceiveAgent
         {
             [Fact]

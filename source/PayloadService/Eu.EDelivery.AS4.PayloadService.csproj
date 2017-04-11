@@ -1,15 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>bin\Debug\netcoreapp1.1\payload-service-docs.xml</DocumentationFile>
+    <DocumentationFile>..\..\output\payload-service-docs.xml</DocumentationFile>
+    <OutputPath>..\..\output\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET461</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup> 
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>

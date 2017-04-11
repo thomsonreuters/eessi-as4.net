@@ -23,11 +23,11 @@ namespace Eu.EDelivery.AS4.PayloadService.Controllers
         }
 
         /// <summary>
-        /// Upload a given Multipart payload to the configured persistance serivce.
+        /// Upload a given Multipart payload to the configured persistence serivce.
         /// </summary>
         /// <remarks>In this concept, only one file-content in the Request content is supported.</remarks>
         /// <returns>Web API payload id reference.</returns>
-        /// <response code="200">Returns 'Success' if the payload was uploaded correctly in the configured persistance service..</response>
+        /// <response code="200">Returns 'Success' if the payload was uploaded correctly in the configured persistence service..</response>
         /// <response code="400">Returns 'Bad Request' if the request Content Type isn't of the type 'Multi Part'.</response>
         [HttpPost]
         [Route("Upload")]
@@ -67,12 +67,12 @@ namespace Eu.EDelivery.AS4.PayloadService.Controllers
         }
 
         /// <summary>
-        /// Download a Multipart payload from the configured persistance service.
+        /// Download a Multipart payload from the configured persistence service.
         /// </summary>
-        /// <param name="id">Id that references a multipart payload in the persistance service.</param>
+        /// <param name="id">Id that references a multipart payload in the persistence service.</param>
         /// <returns>Multipart payload.</returns>
-        /// <response code="200">Returns 'Success' if the payload was downloaded correctly in the configured persistance service..</response>
-        /// <response code="404">Returns 'Not Found' if the given Payload Id is not found in the configured persistance service.</response>
+        /// <response code="200">Returns 'Success' if the payload was downloaded correctly in the configured persistence service..</response>
+        /// <response code="404">Returns 'Not Found' if the given Payload Id is not found in the configured persistence service.</response>
         [HttpGet]
         [Route("{id}")]
         [ProducesResponseType(typeof(StreamedFileResult), (int) HttpStatusCode.OK)]

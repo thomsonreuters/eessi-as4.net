@@ -13,6 +13,9 @@ namespace Eu.EDelivery.AS4.PayloadService
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
+                
+                // TODO: Hosting URL must be made configurable...
+                .UseUrls("http://localhost:3000/")
                 .Build();
 
             host.Run();
