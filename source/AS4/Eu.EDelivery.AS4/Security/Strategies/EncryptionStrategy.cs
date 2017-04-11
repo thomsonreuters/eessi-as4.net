@@ -16,11 +16,13 @@ using Eu.EDelivery.AS4.Security.Factories;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Security.Transforms;
+using Eu.EDelivery.AS4.Streaming;
+using Eu.EDelivery.AS4.Utilities;
 using MimeKit;
+using MimeKit.IO;
 using NLog;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Encodings;
-using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
@@ -85,7 +87,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             if (encryptedKeyElement != null)
             {
-                this._as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(document);
+                _as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(document);
 
                 var provider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
 
@@ -111,14 +113,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             XmlDocument securityDocument = securityElement.OwnerDocument;
 
             // Add additional elements such as certificate references
-            this._keyEncryptionConfig.SecurityTokenReference.AppendSecurityTokenTo(securityElement, securityDocument);
+            _keyEncryptionConfig.SecurityTokenReference.AppendSecurityTokenTo(securityElement, securityDocument);
             if (_as4EncryptedKey != null)
             {
-                this._as4EncryptedKey.AppendEncryptedKey(securityElement);
+                _as4EncryptedKey.AppendEncryptedKey(securityElement);
             }
             else
             {
-                NLog.LogManager.GetCurrentClassLogger().Warn("Appending Encryption Elements but there is no AS4 Encrypted Key set.");
+                LogManager.GetCurrentClassLogger().Warn("Appending Encryption Elements but there is no AS4 Encrypted Key set.");
             }
 
             AppendEncryptedDataElements(securityElement, securityDocument);
@@ -126,7 +128,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void AppendEncryptedDataElements(XmlElement securityElement, XmlDocument securityDocument)
         {
-            foreach (EncryptedData encryptedData in this._encryptedDatas)
+            foreach (EncryptedData encryptedData in _encryptedDatas)
             {
                 XmlElement encryptedDataElement = encryptedData.GetXml();
                 XmlNode importedEncryptedDataNode = securityDocument.ImportNode(encryptedDataElement, deep: true);
@@ -140,7 +142,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         public void EncryptMessage()
         {
-            this._encryptedDatas.Clear();
+            _encryptedDatas.Clear();
 
             var encryptionKey = GenerateSymmetricKey(256);
 
@@ -177,36 +179,62 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void EncryptAttachmentsWithAlgorithm(AS4EncryptedKey encryptedKey, SymmetricAlgorithm encryptionAlgorithm)
         {
-            foreach (Attachment attachment in this._attachments)
+            foreach (Attachment attachment in _attachments)
             {
-                EncryptedData encryptedData = CreateEncryptedData(attachment, encryptedKey);
-                EncryptAttachmentContents(attachment, encryptionAlgorithm);
+                EncryptedData encryptedData = EncryptAttachmentContents(attachment, encryptedKey, encryptionAlgorithm);
 
-                this._encryptedDatas.Add(encryptedData);
+                _encryptedDatas.Add(encryptedData);
                 encryptedKey.AddDataReference(encryptedData.Id);
             }
         }
 
-        private EncryptedData CreateEncryptedData(Attachment attachment, AS4EncryptedKey encryptedKey)
+        private EncryptedData EncryptAttachmentContents(Attachment attachment, AS4EncryptedKey encryptedKey, SymmetricAlgorithm algorithm)
         {
+            Stream encryptedStream = EncryptData(attachment.Content, algorithm);
+
+            attachment.Content = encryptedStream;
+            attachment.Content = encryptedStream;
+            attachment.ContentType = "application/octet-stream";
+
             return new EncryptedDataBuilder()
-                .WithDataEncryptionConfiguration(this._dataEncryptionConfig)
+                .WithDataEncryptionConfiguration(_dataEncryptionConfig)
                 .WithMimeType(attachment.ContentType)
                 .WithReferenceId(encryptedKey.GetReferenceId())
                 .WithUri(attachment.Id)
                 .Build();
         }
 
-        private void EncryptAttachmentContents(Attachment attachment, SymmetricAlgorithm algorithm)
+        private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)
         {
-            using (var attachmentContents = new MemoryStream())
-            {
-                attachment.Content.CopyTo(attachmentContents);
-                byte[] encryptedBytes = base.EncryptData(attachmentContents.ToArray(), algorithm);
+            Stream encryptedStream = new VirtualStream();
+            var cryptoStream = new CryptoStream(encryptedStream, algorithm.CreateEncryptor(), CryptoStreamMode.Write);
+            CipherMode origMode = algorithm.Mode;
+            PaddingMode origPadding = algorithm.Padding;
 
-                attachment.Content = new MemoryStream(encryptedBytes);
-                attachment.ContentType = "application/octet-stream";
+            try
+            {
+                algorithm.Mode = Mode;
+                algorithm.Padding = Padding;
+                secretStream.CopyTo(cryptoStream);
             }
+            finally
+            {
+                cryptoStream.FlushFinalBlock();
+                algorithm.Mode = origMode;
+                algorithm.Padding = origPadding;
+            }
+            encryptedStream.Position = 0;
+
+            if (Mode != CipherMode.ECB)
+            {
+                byte[] IV = algorithm.IV;
+                ChainedStream chainedStream = new ChainedStream();
+                chainedStream.Add(new MemoryStream(IV));
+                chainedStream.Add(encryptedStream);
+                encryptedStream = chainedStream;
+            }
+
+            return encryptedStream;
         }
 
         /// <summary>
@@ -214,8 +242,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         /// <returns>A byte array that contains the decryption initialization vector (IV).</returns>
         /// <param name="encryptedData"></param>
-        /// <param name="symmetricAlgorithmUri"></param>
-        /// TODO: refactor this method!
+        /// <param name="symmetricAlgorithmUri"></param>        
         public override byte[] GetDecryptionIV(EncryptedData encryptedData, string symmetricAlgorithmUri)
         {
             if (encryptedData == null)
@@ -226,11 +253,49 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             if (symmetricAlgorithmUri == null)
             {
                 if (encryptedData.EncryptionMethod == null)
+                {
                     throw new CryptographicException("Missing encryption algorithm");
+                }
+
                 symmetricAlgorithmUri = encryptedData.EncryptionMethod.KeyAlgorithm;
             }
-            int ivLength;
 
+            int ivLength = GetIVLength(symmetricAlgorithmUri);
+
+            var iv = new byte[ivLength];
+
+            Buffer.BlockCopy(encryptedData.CipherData.CipherValue, srcOffset: 0, dst: iv, dstOffset: 0, count: iv.Length);
+
+            return iv;
+        }
+
+        private byte[] GetDecryptionIV(EncryptedData encryptedData, Stream encryptedTextStream, string symmetricAlgorithmUri)
+        {
+            if (encryptedData == null)
+            {
+                throw new ArgumentNullException(nameof(encryptedData));
+            }
+
+            if (symmetricAlgorithmUri == null)
+            {
+                if (encryptedData.EncryptionMethod == null)
+                {
+                    throw new CryptographicException("Missing encryption algorithm");
+                }
+                symmetricAlgorithmUri = encryptedData.EncryptionMethod.KeyAlgorithm;
+            }
+
+            int ivLength = GetIVLength(symmetricAlgorithmUri);
+            var iv = new byte[ivLength];
+
+            encryptedTextStream.Read(iv, 0, iv.Length);
+
+            return iv;
+        }
+
+        private static int GetIVLength(string symmetricAlgorithmUri)
+        {
+            int ivLength;
             if (symmetricAlgorithmUri == "http://www.w3.org/2009/xmlenc11#aes128-gcm")
             {
                 ivLength = 12;
@@ -254,10 +319,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     ivLength = 8;
                 }
             }
-            var iv = new byte[ivLength];
-            Buffer.BlockCopy(encryptedData.CipherData.CipherValue, srcOffset: 0, dst: iv, dstOffset: 0, count: iv.Length);
-
-            return iv;
+            return ivLength;
         }
 
         /// <summary>
@@ -266,9 +328,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public void DecryptMessage()
         {
             IEnumerable<EncryptedData> encryptedDatas =
-                new EncryptedDataSerializer(this._document).SerializeEncryptedDatas();
+                new EncryptedDataSerializer(_document).SerializeEncryptedDatas();
 
-            var as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(this._document);
+            var as4EncryptedKey = AS4EncryptedKey.LoadFromXmlDocument(_document);
 
             byte[] key = DecryptEncryptedKey(as4EncryptedKey);
 
@@ -298,28 +360,68 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 {
                     logger.Error(ex.InnerException.Message);
                 }
-                throw new AS4Exception($"Failed to decrypt data element");
+                throw new AS4Exception("Failed to decrypt data element");
             }
         }
 
         private void DecryptAttachment(EncryptedData encryptedData, SymmetricAlgorithm decryptAlgorithm)
         {
             string uri = encryptedData.CipherData.CipherReference.Uri;
-            Attachment attachment = this._attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
+            Attachment attachment = _attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
 
-            using (var attachmentInMemoryStream = new MemoryStream())
-            {
-                attachment.Content.CopyTo(attachmentInMemoryStream);
-                encryptedData.CipherData = new CipherData(attachmentInMemoryStream.ToArray());
-            }
-
-            byte[] decryptedData = base.DecryptData(encryptedData, decryptAlgorithm);
-
+            Stream decryptedStream = DecryptData(encryptedData, attachment.Content, decryptAlgorithm);
+           
             var transformer = AttachmentTransformer.Create(encryptedData.Type);
 
-            transformer.Transform(attachment, decryptedData);
+            transformer.Transform(attachment, decryptedStream);
 
             attachment.ContentType = encryptedData.MimeType;
+        }
+
+        private Stream DecryptData(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)
+        {
+            Stream decryptedStream = new VirtualStream();
+
+            // save the original symmetric algorithm
+            CipherMode origMode = encryptionAlgorithm.Mode;
+            PaddingMode origPadding = encryptionAlgorithm.Padding;
+            byte[] origIV = encryptionAlgorithm.IV;
+
+            // read the IV from cipherValue
+            byte[] decryptionIV = null;
+            if (Mode != CipherMode.ECB)
+            {
+                decryptionIV = GetDecryptionIV(encryptedData, encryptedTextStream, null);
+            }
+
+            //int lengthIV = 0;
+            if (decryptionIV != null)
+            {
+                encryptionAlgorithm.IV = decryptionIV;
+                //lengthIV = decryptionIV.Length;
+            }
+
+            var cryptoStream = new CryptoStream(encryptedTextStream, encryptionAlgorithm.CreateDecryptor(), CryptoStreamMode.Read);
+            try
+            {
+                encryptionAlgorithm.Mode = this.Mode;
+                encryptionAlgorithm.Padding = this.Padding;
+                cryptoStream.CopyTo(decryptedStream);
+            }
+            finally
+            {
+                if (!cryptoStream.HasFlushedFinalBlock)
+                {
+                    cryptoStream.FlushFinalBlock();
+                }
+
+                // now restore the original symmetric algorithm
+                encryptionAlgorithm.Mode = origMode;
+                encryptionAlgorithm.Padding = origPadding;
+                encryptionAlgorithm.IV = origIV;
+            }
+
+            return decryptedStream;
         }
 
         private byte[] DecryptEncryptedKey(AS4EncryptedKey encryptedKey)
@@ -365,7 +467,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 }
             }
 
-            public abstract void Transform(Attachment attachment, byte[] decryptedData);
+            public abstract void Transform(Attachment attachment, Stream decryptedData);
 
             #region Implementations
 
@@ -375,19 +477,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public static readonly AttachmentCompleteTransformer Default = new AttachmentCompleteTransformer();
 
-                public override void Transform(Attachment attachment, byte[] decryptedData)
+                public override void Transform(Attachment attachment, Stream decryptedData)
                 {
                     // The decrypted data can contain MIME headers, therefore we'll need to parse
                     // the decrypted data as a MimePart, and make sure that the content is set correctly
                     // in the attachment.
                     //var part = MimeEntity.Load(MimeKit.ContentType.Parse(decryptedData), new MemoryStream(decryptedData)) as MimePart;
 
-                    MimePart part;
-
-                    using (var stream = new MemoryStream(decryptedData))
-                    {
-                        part = MimeEntity.Load(stream) as MimePart;
-                    }
+                    var part = MimeEntity.Load(decryptedData) as MimePart;
 
                     if (part == null)
                     {
@@ -411,10 +508,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public static readonly AttachmentContentOnlyTransformer Default = new AttachmentContentOnlyTransformer();
 
-                public override void Transform(Attachment attachment, byte[] decryptedData)
+                public override void Transform(Attachment attachment, Stream decryptedData)
                 {
                     attachment.Content.Dispose();
-                    attachment.Content = new MemoryStream(decryptedData);
+                    attachment.Content = decryptedData;
                 }
             }
             #endregion

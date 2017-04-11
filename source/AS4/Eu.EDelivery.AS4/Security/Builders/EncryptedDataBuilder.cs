@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Security.Builders
         /// <returns></returns>
         public EncryptedDataBuilder WithReferenceId(string referenceId)
         {
-            this._referenceId = referenceId;
+            _referenceId = referenceId;
             return this;
         }
 

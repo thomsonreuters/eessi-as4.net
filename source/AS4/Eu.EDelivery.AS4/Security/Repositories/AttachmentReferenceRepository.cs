@@ -4,6 +4,7 @@ using System.Reflection;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Transforms;
+using Eu.EDelivery.AS4.Streaming;
 using MimeKit.IO;
 using Reference = System.Security.Cryptography.Xml.Reference;
 

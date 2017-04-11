@@ -167,7 +167,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// <returns></returns>
         public string GetReferenceId()
         {
-            return this._encryptedKey.Id;
+            return _encryptedKey.Id;
         }
 
         /// <summary>
