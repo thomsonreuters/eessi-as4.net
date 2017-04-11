@@ -134,6 +134,7 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<InMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<InMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
+            modelBuilder.Entity<InMessage>().HasIndex(im => im.EbmsMessageId);
             modelBuilder.Entity<InMessage>().HasIndex(im => im.OperationString);
             modelBuilder.Entity<InMessage>().HasIndex(im => im.EbmsRefToMessageId);
 

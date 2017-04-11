@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
         public bool ContainsUserMessageWithId(string messageId)
         {
             _logger.Debug($"Find UserMessage for EbmsMessageId: {messageId}");
-            return _repository.GetInMessageById(messageId) != null;
+            return _repository.InMessageWithIdExists(messageId);
         }
 
         /// <summary>

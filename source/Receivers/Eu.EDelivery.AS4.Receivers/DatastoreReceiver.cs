@@ -297,6 +297,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             // TODO: we should release the records that have been held locked by this
             // DataStoreReceiver so that they won't be locked forever.
+            // -> Reset the records that have been locked by this process and who'sestatus is still the same.
         }
     }
 }
