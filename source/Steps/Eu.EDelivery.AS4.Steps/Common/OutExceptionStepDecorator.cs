@@ -81,6 +81,8 @@ namespace Eu.EDelivery.AS4.Steps.Common
             {
                 OutException outException = CreateOutException(exception, internalMessage, messageId);
 
+                // We only need this in some cases ...
+                // TODO: only set this if we have no EbmsMessageId ?
                 outException.MessageBody = GetAS4MessageByteRepresentationSetMessageBody(internalMessage.AS4Message);
 
                 repository.InsertOutException(outException);
@@ -98,9 +100,8 @@ namespace Eu.EDelivery.AS4.Steps.Common
 
         private static OutException CreateOutException(AS4Exception exception, InternalMessage internalMessage, string messageId)
         {
-            OutExceptionBuilder builder = new OutExceptionBuilder()
-                .WithAS4Exception(exception)
-                .WithEbmsMessageId(messageId);
+            OutExceptionBuilder builder = OutExceptionBuilder.ForAS4Exception(exception);
+            builder.WithEbmsMessageId(messageId);
 
             if (NeedsOutExceptionBeNotified(internalMessage.AS4Message?.SendingPMode))
             {

@@ -291,18 +291,21 @@ namespace Eu.EDelivery.AS4.Common
 
         private static AS4Exception ThrowDatastoreUnavailableException(Exception innerException = null)
         {
-            if (innerException != null)
+            Exception mostInnerException = null;
+
+            var logger = LogManager.GetCurrentClassLogger();
+
+            while (innerException != null)
             {
-                LogManager.GetCurrentClassLogger().Error(innerException.Message);
-                if (innerException.InnerException != null)
-                {
-                    LogManager.GetCurrentClassLogger().Error(innerException.InnerException.Message);
-                }
+                logger.Error(innerException.Message);
+
+                mostInnerException = innerException;
+                innerException = innerException.InnerException;
             }
 
             return AS4ExceptionBuilder
                 .WithDescription("Datastore unavailable")
-                .WithInnerException(innerException)
+                .WithInnerException(mostInnerException)
                 .WithErrorCode(ErrorCode.Ebms0004)
                 .Build();
         }

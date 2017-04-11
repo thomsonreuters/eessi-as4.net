@@ -15,9 +15,15 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// Initializes a new instance of the <see cref="OutExceptionBuilder"/> class. 
         /// Start Builder with default settings
         /// </summary>
-        public OutExceptionBuilder()
+        private OutExceptionBuilder()
         {
-            this._outException = new OutException {OperationMethod = "to be determined"};
+            _outException = new OutException { OperationMethod = "to be determined" };
+        }
+
+        public static OutExceptionBuilder ForAS4Exception(AS4Exception as4Exception)
+        {
+            var builder = new OutExceptionBuilder();
+            return builder.WithAS4Exception(as4Exception);
         }
 
         /// <summary>
@@ -26,23 +32,25 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </summary>
         /// <param name="as4Exception"></param>
         /// <returns></returns>
-        public OutExceptionBuilder WithAS4Exception(AS4Exception as4Exception)
+        private OutExceptionBuilder WithAS4Exception(AS4Exception as4Exception)
         {
-            this._outException.Exception = as4Exception.ToString();
-            this._outException.PMode = as4Exception.PMode;
+            // Make sure that the Message of the most inner exception is available in the datastore.
+
+            _outException.Exception = as4Exception.ToString();
+            _outException.PMode = as4Exception.PMode;
             return this;
         }
 
         public OutExceptionBuilder WithEbmsMessageId(string messageId)
         {
-            this._outException.EbmsRefToMessageId = messageId;
+            _outException.EbmsRefToMessageId = messageId;
             return this;
         }
 
         public OutExceptionBuilder WithOperation(Operation operation, string operationMethod = "To be determined")
         {
-            this._outException.Operation = operation;
-            this._outException.OperationMethod = operationMethod;
+            _outException.Operation = operation;
+            _outException.OperationMethod = operationMethod;
             return this;
         }
 
@@ -52,9 +60,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public OutException Build()
         {
-            this._outException.InsertionTime = DateTimeOffset.UtcNow;
-            this._outException.ModificationTime = DateTimeOffset.UtcNow;
-            return this._outException;
+            _outException.InsertionTime = DateTimeOffset.UtcNow;
+            _outException.ModificationTime = DateTimeOffset.UtcNow;
+            return _outException;
         }
     }
 }

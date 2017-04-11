@@ -12,7 +12,8 @@ namespace Eu.EDelivery.AS4.Exceptions
         public ErrorCode ErrorCode { get; internal set; }
         public ExceptionType ExceptionType { get; internal set; }
         public string PMode { get; internal set; }
-        public string[] MessageIds {
+        public string[] MessageIds
+        {
             get { return _messageIds.ToArray(); }
         }
 
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// </summary>
         /// <param name="description">
         /// </param>
-        internal AS4Exception(string description) : base(description) {}
+        internal AS4Exception(string description) : base(description) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4Exception"/> class. 
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// </param>
         /// <param name="innerException">
         /// </param>
-        internal AS4Exception(string message, Exception innerException) : base(message, innerException) {}
+        internal AS4Exception(string message, Exception innerException) : base(message, innerException) { }
 
         /// <summary>
         /// Add a Message Id to the <see cref="AS4Exception"/> Message Ids
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <param name="messageId"></param>
         public void AddMessageId(string messageId)
         {
-            _messageIds.Add(messageId);            
+            _messageIds.Add(messageId);
         }
 
         /// <summary>Creates and returns a string representation of the current exception.</summary>
@@ -63,7 +64,23 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// </PermissionSet>
         public override string ToString()
         {
-            return $"{this.Message}{Environment.NewLine}{this.StackTrace}{Environment.NewLine}{this.InnerException}";
+            string innerExceptionMessage = string.Empty;
+
+            Exception inner = InnerException;
+
+            while (inner != null)
+            {
+                innerExceptionMessage = inner.Message;
+                inner = inner.InnerException;
+            }
+
+            string descriptionPart = $"{Message}";
+            if (!String.IsNullOrWhiteSpace(innerExceptionMessage))
+            {
+                descriptionPart += $": {innerExceptionMessage}";
+            }
+
+            return $"{descriptionPart}{Environment.NewLine}{this.StackTrace}{Environment.NewLine}{this.InnerException}";
         }
     }
 }
