@@ -1,11 +1,11 @@
 ﻿using System.IO;
 
-namespace Eu.EDelivery.AS4.Security.Signing
+namespace Eu.EDelivery.AS4.Streaming
 {
     /// <summary>
     /// None Closeable RequestStream for the Security Header
     /// </summary>
-    public class NonCloseableStream : Stream
+    public sealed class NonCloseableStream : Stream
     {
         public Stream InnerStream { get; }
 

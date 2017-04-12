@@ -435,7 +435,7 @@
     <Compile Include="Security\Transforms\AttachmentSignatureTransform.cs" />
     <Compile Include="Security\References\IssuerSecurityTokenReference.cs" />
     <Compile Include="Security\References\KeyIdentifierSecurityTokenReference.cs" />
-    <Compile Include="Security\Signing\NonCloseableStream.cs" />
+    <Compile Include="Streaming\NonCloseableStream.cs" />
     <Compile Include="Security\References\SecurityTokenReferenceProvider.cs" />
     <Compile Include="Security\References\X509ReferenceType.cs" />
     <Compile Include="Security\Algorithms\RsaPkCs1Sha256SignatureAlgorithm.cs" />
@@ -525,6 +525,7 @@
     <Compile Include="Utilities\ContentTypeSupporter.cs" />
     <Compile Include="Factories\IdentifierFactory.cs" />
     <Compile Include="Utilities\FilenameSanitizer.cs" />
+    <Compile Include="Streaming\VirtualStream.cs" />
     <Compile Include="Validators\DeliverMessageValidator.cs" />
     <Compile Include="Validators\IValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
