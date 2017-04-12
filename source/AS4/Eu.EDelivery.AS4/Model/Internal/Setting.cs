@@ -88,8 +88,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("ReceptionAwarenessAgent", IsNullable = false)]
         public SettingsAgent ReceptionAwarenessAgent { get; set; }
 
-        [XmlElement("PullReceiveAgent", IsNullable = false)]
-        public SettingsAgent[] PullReceiveAgents { get; set; }
+        [XmlElement("PullRequestAgent", IsNullable = false)]
+        public SettingsAgent[] PullRequestAgents { get; set; }
 
         [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)]
         public SettingsMinderAgent[] MinderTestAgents { get; set; }

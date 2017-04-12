@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
 
         private static SettingsAgent[] GetPullReceiveAgents(Settings settings)
         {
-            return settings?.Agents.PullReceiveAgents;
+            return settings?.Agents.PullRequestAgents;
         }
 
         private static Settings GetDeserializedSettings()
@@ -89,10 +89,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
                 Encoding.UTF8.GetBytes(
                     "<?xml version=\"1.0\" encoding=\"utf-16\"?>"
                     + "<Settings xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns=\"eu:edelivery:as4\">"
-                    + "<Agents><PullReceiveAgent><Receiver Type=\"ExponentialConfiguredPModeReceiver\">"
+                    + "<Agents><PullRequestAgent><Receiver Type=\"ExponentialConfiguredPModeReceiver\">"
                     + "<Setting key=\"pmode1\" tmin=\"0:00:01\" tmax=\"0:00:25\"/>"
                     + "<Setting key=\"pmode2\" tmin=\"0:00:05\" tmax=\"0:00:50\"/>"
-                    + "</Receiver><Transformer Type=\"PModeToPullMessageTransformer\"/><Steps></Steps></PullReceiveAgent></Agents></Settings>");
+                    + "</Receiver><Transformer Type=\"PModeToPullMessageTransformer\"/><Steps></Steps></PullRequestAgent></Agents></Settings>");
         }
     }
 }

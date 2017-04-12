@@ -37,6 +37,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
         private void MapXmlToUserMessage()
         {
             CreateMap<Xml.UserMessage, Model.Core.UserMessage>()
+                .ForMember(dest => dest.Mpc, src => src.MapFrom(t => t.mpc))
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(t => t.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))

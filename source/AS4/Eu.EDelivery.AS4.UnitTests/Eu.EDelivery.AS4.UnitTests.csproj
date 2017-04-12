@@ -290,8 +290,11 @@
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
     <Compile Include="Http\SpyHttpServer.cs" />
     <Compile Include="Http\UniqueUrl.cs" />
+    <Compile Include="Mappings\Core\GivenAgreementRefMapFacts.cs" />
+    <Compile Include="Mappings\Core\GivenCollaborationInfoMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenReceiptMapFacts.cs" />
+    <Compile Include="Mappings\Core\GivenUserMessageMap.cs" />
     <Compile Include="Mappings\Core\GivenXmlSignalMessageMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenErrorToNotifyMapFacts.cs" />
     <Compile Include="Mappings\Notify\GivenReceiptToNotifyMapFacts.cs" />
@@ -423,7 +426,7 @@
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
-    <Compile Include="Transformers\GivenPmodeToPullMessageTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenPModeToPullRequestTransformerFacts.cs" />
     <Compile Include="Transformers\GivenReceptionAwarenessTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />

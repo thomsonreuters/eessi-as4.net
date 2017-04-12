@@ -1,8 +1,9 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
-    internal class AgreementRefMap : Profile
+    public class AgreementRefMap : Profile
     {
         public AgreementRefMap()
         {
