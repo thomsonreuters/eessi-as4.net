@@ -76,44 +76,6 @@ namespace Eu.EDelivery.AS4.Serialization
             WriteSoapEnvelopeTo(builder.Build(), stream);
         }
 
-        /// <summary>
-        /// Parser the SOAP message to a <see cref="AS4Message" />
-        /// </summary>
-        /// <param name="envelopeStream">RequestStream that contains the SOAP Messaging Header</param>
-        /// <param name="contentType"></param>
-        /// <param name="token"></param>
-        /// <returns><see cref="AS4Message" /> that wraps the User and Signal Messages</returns>
-        public async Task<AS4Message> DeserializeAsync(Stream envelopeStream, string contentType, CancellationToken token)
-        {
-            if (envelopeStream == null)
-            {
-                throw new ArgumentNullException(nameof(envelopeStream));
-            }
-
-            using (Stream stream = CopyEnvelopeStream(envelopeStream))
-            {
-                XmlDocument envelopeDocument = LoadXmlDocument(stream);
-
-                // FRGH
-                // [Conformance Testing]
-                // Temporarely disabled.
-                // ValidateEnvelopeDocument(envelopeDocument);
-                stream.Position = 0;
-
-                var as4Message = new AS4Message {ContentType = contentType, EnvelopeDocument = envelopeDocument};
-
-                using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
-                {
-                    while (await reader.ReadAsync().ConfigureAwait(false))
-                    {
-                        DeserializeEnvelope(envelopeDocument, as4Message, reader);
-                    }
-                }
-
-                return as4Message;
-            }
-        }
-
         private static Messaging CreateMessagingHeader(AS4Message message)
         {
             var messagingHeader = new Messaging {SecurityId = message.SigningId.HeaderSecurityId};
@@ -184,6 +146,44 @@ namespace Eu.EDelivery.AS4.Serialization
             using (XmlWriter writer = XmlWriter.Create(stream, DefaultXmlWriterSettings))
             {
                 soapEnvelopeDocument.WriteTo(writer);
+            }
+        }
+
+        /// <summary>
+        /// Parser the SOAP message to a <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="envelopeStream">RequestStream that contains the SOAP Messaging Header</param>
+        /// <param name="contentType"></param>
+        /// <param name="token"></param>
+        /// <returns><see cref="AS4Message" /> that wraps the User and Signal Messages</returns>
+        public async Task<AS4Message> DeserializeAsync(Stream envelopeStream, string contentType, CancellationToken token)
+        {
+            if (envelopeStream == null)
+            {
+                throw new ArgumentNullException(nameof(envelopeStream));
+            }
+
+            using (Stream stream = CopyEnvelopeStream(envelopeStream))
+            {
+                XmlDocument envelopeDocument = LoadXmlDocument(stream);
+
+                // FRGH
+                // [Conformance Testing]
+                // Temporarely disabled.
+                // ValidateEnvelopeDocument(envelopeDocument);
+                stream.Position = 0;
+
+                var as4Message = new AS4Message {ContentType = contentType, EnvelopeDocument = envelopeDocument};
+
+                using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
+                {
+                    while (await reader.ReadAsync().ConfigureAwait(false))
+                    {
+                        DeserializeEnvelope(envelopeDocument, as4Message, reader);
+                    }
+                }
+
+                return as4Message;
             }
         }
 
