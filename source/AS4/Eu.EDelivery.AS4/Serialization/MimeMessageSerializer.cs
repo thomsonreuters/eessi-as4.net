@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 using MimeKit.IO;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -21,8 +21,6 @@ namespace Eu.EDelivery.AS4.Serialization
     {
         private readonly ISerializer _soapSerializer;
 
-        private readonly ILogger _logger = NLog.LogManager.GetCurrentClassLogger();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MimeMessageSerializer"/> class. 
         /// Create a MIME Serializer of the <see cref="AS4Message"/>
@@ -31,7 +29,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// </param>
         public MimeMessageSerializer(ISerializer serializer)
         {
-            this._soapSerializer = serializer;
+            _soapSerializer = serializer;
         }
 
         /// <summary>
@@ -57,11 +55,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private void SerializeToMimeStream(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
-            using (var memoryStream = new MemoryStream())
+            using (var tempStream = new VirtualStream())
             {
-                this._soapSerializer.Serialize(message, memoryStream, cancellationToken);
+                _soapSerializer.Serialize(message, tempStream, cancellationToken);
 
-                MimeMessage mimeMessage = CreateMimeMessage(message, memoryStream);
+                MimeMessage mimeMessage = CreateMimeMessage(message, tempStream);
                 FormatOptions formatOptions = GetFormatOptions();
 
                 mimeMessage.WriteTo(formatOptions, stream, cancellationToken);
@@ -88,11 +86,11 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static MimePart GetBodyPartFromStream(Stream memoryStream)
+        private static MimePart GetBodyPartFromStream(Stream stream)
         {
             var bodyPart = new MimePart("application", "soap+xml");
             bodyPart.ContentType.Parameters["charset"] = Encoding.UTF8.HeaderName.ToLowerInvariant();
-            bodyPart.ContentObject = new ContentObject(memoryStream);
+            bodyPart.ContentObject = new ContentObject(stream);
 
             return bodyPart;
         }
@@ -143,6 +141,7 @@ namespace Eu.EDelivery.AS4.Serialization
             bodyMultipart.Add(attachmentMimePart);
         }
 
+        // ReSharper disable once InconsistentNaming : double underscore to indicate that this field should not be used directly.
         private static FormatOptions __formatOptions;
 
         private static FormatOptions GetFormatOptions()
@@ -204,7 +203,7 @@ namespace Eu.EDelivery.AS4.Serialization
             List<MimePart> bodyParts = TryParseBodyParts(inputStream, cancellationToken);
             Stream envelopeStream = bodyParts.First().ContentObject.Open();
 
-            AS4Message message = await this._soapSerializer
+            AS4Message message = await _soapSerializer
                 .DeserializeAsync(envelopeStream, contentType, cancellationToken);
 
             AddBodyPartsAsAttachmentsToMessage(bodyParts, message);
