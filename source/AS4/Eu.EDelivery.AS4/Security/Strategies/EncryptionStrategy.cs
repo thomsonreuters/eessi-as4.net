@@ -192,7 +192,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             Stream encryptedStream = EncryptData(attachment.Content, algorithm);
 
             attachment.Content = encryptedStream;
-            attachment.Content = encryptedStream;
             attachment.ContentType = "application/octet-stream";
 
             return new EncryptedDataBuilder()

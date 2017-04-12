@@ -22,7 +22,10 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
             set
             {
-                _content?.Dispose();
+                if (ReferenceEquals(_content, value) == false)
+                {
+                    _content?.Dispose();
+                }
                 _content = value;
             }
         }
