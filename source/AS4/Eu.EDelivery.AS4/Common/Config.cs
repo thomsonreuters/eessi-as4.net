@@ -270,15 +270,14 @@ namespace Eu.EDelivery.AS4.Common
         private void AddCustomAgents()
         {
             _agents = new List<SettingsAgent>();
-
-            _agents.AddRange(_settings.Agents.SendAgents);
-            _agents.AddRange(_settings.Agents.DeliverAgents);
-            _agents.AddRange(_settings.Agents.NotifyAgents);
-            _agents.Add(_settings.Agents.ReceptionAwarenessAgent);
-
+            
+            AddCustomAgentsIfNotNull(_settings.Agents.ReceptionAwarenessAgent);
+            AddCustomAgentsIfNotNull(_settings.Agents.NotifyAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.DeliverAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.SendAgents);
             AddCustomAgentsIfNotNull(_settings.Agents.SubmitAgents);
             AddCustomAgentsIfNotNull(_settings.Agents.ReceiveAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.PullRequestAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.PullReceiveAgents);
         }
 
         private void AddCustomAgentsIfNotNull(params SettingsAgent[] agents)
