@@ -17,7 +17,6 @@ using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Serializers;
 using Eu.EDelivery.AS4.Security.Transforms;
 using Eu.EDelivery.AS4.Streaming;
-using Eu.EDelivery.AS4.Utilities;
 using MimeKit;
 using MimeKit.IO;
 using NLog;
@@ -393,19 +392,17 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 decryptionIV = GetDecryptionIV(encryptedData, encryptedTextStream, null);
             }
-
-            //int lengthIV = 0;
+            
             if (decryptionIV != null)
             {
                 encryptionAlgorithm.IV = decryptionIV;
-                //lengthIV = decryptionIV.Length;
             }
 
             var cryptoStream = new CryptoStream(encryptedTextStream, encryptionAlgorithm.CreateDecryptor(), CryptoStreamMode.Read);
             try
             {
-                encryptionAlgorithm.Mode = this.Mode;
-                encryptionAlgorithm.Padding = this.Padding;
+                encryptionAlgorithm.Mode = Mode;
+                encryptionAlgorithm.Padding = Padding;
                 cryptoStream.CopyTo(decryptedStream);
             }
             finally
@@ -521,8 +518,5 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         #endregion
 
-
     }
-
-
 }
