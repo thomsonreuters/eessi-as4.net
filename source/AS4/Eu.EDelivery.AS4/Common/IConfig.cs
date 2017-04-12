@@ -8,6 +8,8 @@ namespace Eu.EDelivery.AS4.Common
 
     public interface IConfig
     {
+        // TODO: add typed properties for mandatory configuration items ? (IdFormat, Database connectionstring, etc...) ?
+
         /// <summary>
         /// Initialize Configuration
         /// </summary>

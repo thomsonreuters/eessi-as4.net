@@ -5,7 +5,6 @@ using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
-using Eu.EDelivery.AS4.ServiceHandler.Builder;
 
 namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 {
@@ -45,7 +44,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     {
                         case ConsoleKey.C:
                             Console.Clear();
-                            break;                        
+                            break;
                     }
 
 
@@ -80,10 +79,21 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
             StartFeInProcess();
             StartPayloadServiceInProcess();
 
-            if (!config.IsInitialized) return null;
+            if (!config.IsInitialized)
+            {
+                return null;
+            }
 
             string certificateTypeRepository = config.GetSetting("CertificateRepository");
-            registry.CertificateRepository = GenericTypeBuilder.FromType(certificateTypeRepository).Build<ICertificateRepository>();
+            if (!String.IsNullOrWhiteSpace(certificateTypeRepository))
+            {
+                registry.CertificateRepository = GenericTypeBuilder.FromType(certificateTypeRepository).Build<ICertificateRepository>();
+            }
+            else
+            {
+                registry.CertificateRepository = new CertificateRepository();   
+            }
+
             registry.CreateDatastoreContext = () => new DatastoreContext(config);
 
             var agentProvider = new AgentProvider(config);
