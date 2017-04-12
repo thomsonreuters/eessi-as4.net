@@ -360,4 +360,7 @@
   <data name="as4_soap_wrong_signed_callback_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4-soap-wrong-signed-callback-message.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="holodeck_B_output_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_out</value>
+  </data>
 </root>

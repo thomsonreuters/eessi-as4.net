@@ -49,9 +49,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         public Task<UploadResult> Upload(Attachment attachment)
         {
             string downloadUrl = AssembleFileDownloadUrlFor(attachment);
-            TryUploadAttachment(attachment);
+            string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
-            return Task.FromResult(new UploadResult {DownloadUrl = Path.GetFullPath(downloadUrl)});
+            TryUploadAttachment(attachment, attachmentFilePath);
+            return Task.FromResult(new UploadResult {DownloadUrl = attachmentFilePath});
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment)
@@ -64,11 +65,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return $"{locationParameter.Value}{fileName}{extension}";
         }
 
-        private void TryUploadAttachment(Attachment attachment)
+        private void TryUploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             try
             {
-                UploadAttachment(attachment);
+                UploadAttachment(attachment, attachmentFilePath);
             }
             catch (SystemException ex)
             {
@@ -83,12 +84,12 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new AS4Exception(description);
         }
 
-        private void UploadAttachment(Attachment attachment)
+        private void UploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             // Create the directory, if it does not exist.
-            Directory.CreateDirectory(Path.GetDirectoryName(attachment.Location));
+            Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
 
-            using (FileStream fileStream = File.Create(attachment.Location))
+            using (FileStream fileStream = File.Create(attachmentFilePath))
             {
                 attachment.Content.CopyTo(fileStream);
             }

@@ -229,6 +229,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_out.
+        /// </summary>
+        internal static string holodeck_B_output_path {
+            get {
+                return ResourceManager.GetString("holodeck_B_output_path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-B\conf\pmodes.
         /// </summary>
         internal static string holodeck_B_pmodes {

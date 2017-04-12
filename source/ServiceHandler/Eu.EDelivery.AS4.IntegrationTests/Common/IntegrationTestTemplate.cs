@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
-            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__" , GetLocalIpAddress());
+            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", GetLocalIpAddress());
 
             _holodeckA = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
             _holodeckB = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
@@ -132,7 +132,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// Cleanup files in a given Directory
         /// </summary>
         /// <param name="directory"></param>
-        protected void CleanUpFiles(string directory)
+        /// <param name="predicateFile">The predicate File.</param>
+        protected void CleanUpFiles(string directory, Func<string, bool> predicateFile = null)
         {
             EnsureDirectory(directory);
 
@@ -140,7 +141,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             foreach (string file in Directory.EnumerateFiles(directory))
             {
-                TryDeleteFile(file);
+                if (predicateFile == null || predicateFile(file))
+                {
+                    TryDeleteFile(file);
+                }
             }
         }
 
@@ -183,6 +187,21 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             File.Copy(
                 sourceFileName: $".{Properties.Resources.holodeck_test_pmodes}\\{fileName}",
                 destFileName: $"{directory}\\{fileName}");
+        }
+
+        /// <summary>
+        /// Copy the right message to Holodeck B
+        /// </summary>
+        /// <param name="messageFileName"></param>
+        public void CopyMessageToHolodeckB(string messageFileName)
+        {
+            Console.WriteLine($@"Copy Message {messageFileName} to Holodeck B");
+
+            File.Copy(
+                sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"), 
+                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_B_output_path}\{messageFileName}"));
+
+            WaitForHolodeckToPickUp();
         }
 
         private void WaitForHolodeckToPickUp()
@@ -288,9 +307,20 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            if (!_process.HasExited) _process.Kill();
-            if (!_holodeckA.HasExited) KillProcessAndChildren(_holodeckA.Id);
-            if (!_holodeckB.HasExited) KillProcessAndChildren(_holodeckB.Id);
+            if (!_process.HasExited)
+            {
+                _process.Kill();
+            }
+            if (!_holodeckA.HasExited)
+            {
+                KillProcessAndChildren(_holodeckA.Id);
+            }
+            if (!_holodeckB.HasExited)
+            {
+                KillProcessAndChildren(_holodeckB.Id);
+            }
+
+            DisposeChild();
         }
 
         private void KillProcessAndChildren(int pid)
@@ -312,7 +342,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                     process.Kill();
                 }
             }
-            catch (ArgumentException) {}
+            catch (ArgumentException)
+            {
+                // ignored
+            }
         }
+
+        /// <summary>
+        /// Dispose custom resources in subclass implementation.
+        /// </summary>
+        protected virtual void DisposeChild() {}
     }
 }
