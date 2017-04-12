@@ -210,11 +210,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
                 return;
             }
 
-            _repository.UpdateOutMessage(signalMessage.RefToMessageId,
-                outMessage =>
-                {
-                    outMessage.Status = status;
-                });
+            _repository.UpdateOutMessage(signalMessage.RefToMessageId, outMessage => outMessage.Status = status);
         }
     }
 
