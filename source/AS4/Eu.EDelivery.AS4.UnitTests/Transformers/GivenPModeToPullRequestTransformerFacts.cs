@@ -13,16 +13,16 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
     /// <summary>
-    /// Testing <see cref="PModeToPullMessageTransformer" />
+    /// Testing <see cref="PModeToPullRequestTransformer" />
     /// </summary>
-    public class GivenPModeToPullMessageTransformerFacts
+    public class GivenPModeToPullRequestTransformerFacts
     {
         [Theory]
         [ClassData(typeof(ReceivedPullMessageSource))]
         public async Task FailsWithNoPullConfigurationSection(ReceivedMessage receivedMessage)
         {
             // Arrange
-            var transformer = new PModeToPullMessageTransformer();
+            var transformer = new PModeToPullRequestTransformer();
 
             // Act
             InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             SendingProcessingMode expectedSendingPMode = CreateAnonymousSendingPModeWith(expectedMpc);
             var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(expectedSendingPMode));
 
-            var transformer = new PModeToPullMessageTransformer();
+            var transformer = new PModeToPullRequestTransformer();
 
             // Act
             InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);

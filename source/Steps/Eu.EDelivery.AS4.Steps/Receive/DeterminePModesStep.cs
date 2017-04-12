@@ -23,32 +23,32 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class DeterminePModesStep : IStep
     {
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IConfig _config;
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly IPModeRuleVisitor _visitor;
 
         private AS4Message _as4Message;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeterminePModesStep"/> class
+        /// Initializes a new instance of the <see cref="DeterminePModesStep" /> class
         /// </summary>
         public DeterminePModesStep()
         {
-            this._config = Config.Instance;
-            this._visitor = new PModeRuleVisitor();
+            _config = Config.Instance;
+            _visitor = new PModeRuleVisitor();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeterminePModesStep"/> class
+        /// Initializes a new instance of the <see cref="DeterminePModesStep" /> class
         /// Create a Determine Receiving PMode Step
         /// with a given Data store
-        /// </summary>        
+        /// </summary>
         /// <param name="config"> </param>
         /// <param name="visitor"> </param>
         internal DeterminePModesStep(IConfig config, IPModeRuleVisitor visitor)
         {
-            this._config = config;
-            this._visitor = visitor;
+            _config = config;
+            _visitor = visitor;
         }
 
         /// <summary>
@@ -60,23 +60,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._as4Message = internalMessage.AS4Message;
+            _as4Message = internalMessage.AS4Message;
 
-            if (this._as4Message.IsSignalMessage)
-                this._as4Message.SendingPMode = GetPModeFromDatastore();
+            if (_as4Message.IsSignalMessage)
+            {
+                _as4Message.SendingPMode = GetPModeFromDatastore();
+            }
             else
-                this._as4Message.ReceivingPMode = GetPModeFromSettings();
+            {
+                _as4Message.ReceivingPMode = GetPModeFromSettings();
+            }
 
-            if (this._as4Message.SendingPMode?.Id == null)
-                this._as4Message.SendingPMode = GetReferencedSendingPMode();
+            if (_as4Message.SendingPMode?.Id == null)
+            {
+                _as4Message.SendingPMode = GetReferencedSendingPMode();
+            }
 
-            internalMessage.AS4Message = this._as4Message;
+            internalMessage.AS4Message = _as4Message;
             return await StepResult.SuccessAsync(internalMessage);
         }
 
         private SendPMode GetPModeFromDatastore()
         {
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
@@ -84,8 +90,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 OutMessage outMessage = repository.GetOutMessageById(refToMessageId);
 
                 if (outMessage == null)
-                    throw ThrowAS4Exception(
-                        $"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
+                {
+                    throw ThrowAS4Exception($"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
+                }
 
                 var pmode = AS4XmlSerializer.FromString<SendPMode>(outMessage.PMode);
                 _logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
@@ -102,42 +109,41 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             PModeParticipant winningParticipant = participants.Where(p => p.Points >= 10).Max();
             PostConditionsWiningParticipant(participants, winningParticipant);
 
-            this._logger.Info(
-                $"Using Receiving PMode {winningParticipant.PMode.Id} with {winningParticipant.Points} Points");
+            _logger.Info($"Using Receiving PMode {winningParticipant.PMode.Id} with {winningParticipant.Points} Points");
             return winningParticipant.PMode;
         }
 
         private PModeParticipant[] GetPModeParticipants()
         {
-            return this._config
-                .GetReceivingPModes()
-                .Select(CreateParticipant)
-                .ToArray();
+            return _config.GetReceivingPModes().Select(CreateParticipant).ToArray();
         }
 
         private PModeParticipant CreateParticipant(ReceivePMode pmode)
         {
-            return new PModeParticipant(pmode, this._as4Message.PrimaryUserMessage);
+            return new PModeParticipant(pmode, _as4Message.PrimaryUserMessage);
         }
 
         private void LetParticipantsAcceptVisitor(IEnumerable<PModeParticipant> participants)
         {
             foreach (PModeParticipant participant in participants)
+            {
                 LetParticipantAcceptVisitor(participant);
+            }
         }
 
         private void LetParticipantAcceptVisitor(PModeParticipant participant)
         {
-            participant.Accept(this._visitor);
-            this._logger.Debug($"Receiving PMode: {participant.PMode.Id} has {participant.Points} Points");
+            participant.Accept(_visitor);
+            _logger.Debug($"Receiving PMode: {participant.PMode.Id} has {participant.Points} Points");
         }
 
-        private void PostConditionsWiningParticipant(
-            IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
+        private void PostConditionsWiningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             if (winningParticipant == null)
+            {
                 throw ThrowAS4Exception(
-                    $"No Receiving PMode was found with for UserMessage with Message Id: {this._as4Message.PrimaryUserMessage.MessageId}");
+                    $"No Receiving PMode was found with for UserMessage with Message Id: {_as4Message.PrimaryUserMessage.MessageId}");
+            }
 
             if (TheresMoreThanOneWinningParticipant(participants, winningParticipant))
             {
@@ -145,8 +151,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static bool TheresMoreThanOneWinningParticipant(
-            IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
+        private static bool TheresMoreThanOneWinningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             return participants.Count(p => p.Points == winningParticipant.Points) > 1;
         }
@@ -154,17 +159,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private AS4Exception ThrowToManyPModeFoundException()
         {
             const string description = "More than one matching PMode was found";
-            this._logger.Error(description);
+            _logger.Error(description);
 
-            return AS4ExceptionBuilder.WithDescription(description)
-                                      .WithMessageIds(this._as4Message.MessageIds)
-                                      .Build();
+            return AS4ExceptionBuilder.WithDescription(description).WithMessageIds(_as4Message.MessageIds).Build();
         }
 
         private SendPMode GetReferencedSendingPMode()
         {
-            string pmodeId = this._as4Message.ReceivingPMode.ReceiptHandling.SendingPMode;
-            this._logger.Info("Receipt Sending PMode Id: " + pmodeId);
+            string pmodeId = _as4Message.ReceivingPMode.ReceiptHandling.SendingPMode;
+            _logger.Info("Receipt Sending PMode Id: " + pmodeId);
             return TryGetSendingPMode(pmodeId);
         }
 
@@ -172,7 +175,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                return this._config.GetSendingPMode(pmodeId);
+                return _config.GetSendingPMode(pmodeId);
             }
             catch (Exception)
             {
@@ -182,12 +185,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Exception ThrowAS4Exception(string description)
         {
-            this._logger.Error(description);
+            _logger.Error(description);
 
-            return AS4ExceptionBuilder.WithDescription(description)
-                                      .WithErrorCode(ErrorCode.Ebms0001)
-                                      .WithMessageIds(this._as4Message.MessageIds)
-                                      .Build();
+            return AS4ExceptionBuilder.WithDescription(description).WithErrorCode(ErrorCode.Ebms0001).WithMessageIds(_as4Message.MessageIds).Build();
         }
     }
 }

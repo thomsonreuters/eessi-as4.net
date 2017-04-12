@@ -21,11 +21,11 @@ namespace Eu.EDelivery.AS4.Common
         private static readonly IConfig Singleton = new Config();
         private readonly IDictionary<string, string> _configuration;
         private readonly ILogger _logger;
-
-        private Settings _settings;
         private List<SettingsAgent> _agents;
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
+
+        private Settings _settings;
 
         internal Config()
         {
@@ -74,7 +74,8 @@ namespace Eu.EDelivery.AS4.Common
         }
 
         /// <summary>
-        /// Verify if the <see cref="IConfig"/> implementation contains a <see cref="SendingProcessingMode"/> for a given <paramref name="id"/>
+        /// Verify if the <see cref="IConfig" /> implementation contains a <see cref="SendingProcessingMode" /> for a given
+        /// <paramref name="id" />
         /// </summary>
         /// <param name="id">The Sending Processing Mode id for which the verification is done.</param>
         /// <returns></returns>
@@ -92,12 +93,16 @@ namespace Eu.EDelivery.AS4.Common
         public SendingProcessingMode GetSendingPMode(string id)
         {
             if (string.IsNullOrEmpty(id))
+            {
                 throw new AS4Exception("Given Sending PMode key is null");
+            }
 
             IPMode pmode = _sendingPModeWatcher.GetPMode(id);
 
             if (pmode == null)
+            {
                 throw new AS4Exception($"No Sending Processing Mode found for {id}");
+            }
 
             return pmode as SendingProcessingMode;
         }
@@ -128,20 +133,26 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
-            if (_settings.Agents.MinderTestAgents == null) return new SettingsMinderAgent[] {};
+            if (_settings.Agents.MinderTestAgents == null)
+            {
+                return new SettingsMinderAgent[] {};
+            }
 
             return _settings.Agents.MinderTestAgents.Where(a => a.Enabled);
         }
 
         public void Dispose()
         {
-            Dispose(disposing: true);
+            Dispose(true);
         }
 
         private static void LoadExternalAssemblies()
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
-            if (externalDictionary == null) return;
+            if (externalDictionary == null)
+            {
+                return;
+            }
 
             LoadExternalAssemblies(externalDictionary);
         }
@@ -183,14 +194,17 @@ namespace Eu.EDelivery.AS4.Common
 
             string fullPath = Path.GetFullPath(path);
 
-            if (Path.IsPathRooted(path) == false
-                || (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
+            if (Path.IsPathRooted(path) == false || File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false)
             {
                 path = Path.Combine(".", path);
             }
 
             _settings = TryDeserialize<Settings>(path);
-            if (_settings == null) throw new AS4Exception("Invalid Settings file");
+            if (_settings == null)
+            {
+                throw new AS4Exception("Invalid Settings file");
+            }
+
             AssignSettingsToGlobalConfiguration();
         }
 
@@ -242,7 +256,10 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomSettings()
         {
-            if (_settings.CustomSettings?.Setting == null) return;
+            if (_settings.CustomSettings?.Setting == null)
+            {
+                return;
+            }
 
             foreach (Setting setting in _settings.CustomSettings.Setting)
             {
@@ -253,26 +270,30 @@ namespace Eu.EDelivery.AS4.Common
         private void AddCustomAgents()
         {
             _agents = new List<SettingsAgent>();
+            
+            AddCustomAgentsIfNotNull(_settings.Agents.ReceptionAwarenessAgent);
+            AddCustomAgentsIfNotNull(_settings.Agents.NotifyAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.DeliverAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.SendAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.SubmitAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.ReceiveAgents);
+            AddCustomAgentsIfNotNull(_settings.Agents.PullReceiveAgents);
+        }
 
-            if (_settings.Agents.ReceiveAgents != null)
+        private void AddCustomAgentsIfNotNull(params SettingsAgent[] agents)
+        {
+            if (agents != null)
             {
-                _agents.AddRange(_settings.Agents.ReceiveAgents);
+                _agents.AddRange(agents);
             }
-
-            if (_settings.Agents.SubmitAgents != null)
-            {
-                _agents.AddRange(_settings.Agents.SubmitAgents);
-            }
-
-            _agents.AddRange(_settings.Agents.SendAgents);
-            _agents.AddRange(_settings.Agents.DeliverAgents);
-            _agents.AddRange(_settings.Agents.NotifyAgents);
-            _agents.Add(_settings.Agents.ReceptionAwarenessAgent);
         }
 
         private void Dispose(bool disposing)
         {
-            if (!disposing) return;
+            if (!disposing)
+            {
+                return;
+            }
 
             if (_sendingPModeWatcher != null)
             {

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Eu.EDelivery.AS4.Model.Internal;
+using NLog;
 using Timer = System.Timers.Timer;
 
 namespace Eu.EDelivery.AS4.Receivers
@@ -16,7 +17,8 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <typeparam name="T"></typeparam>
     public abstract class ExponentialIntervalReceiver<T> : IReceiver where T : IntervalRequest
     {
-        private readonly IDictionary<DateTime, List<T>> _runSchedulePModes;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly IDictionary<DateTime, List<T>> _runSchedule;
         private readonly List<T> _intervalRequests;
         private readonly Timer _timer;
 
@@ -31,7 +33,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         protected ExponentialIntervalReceiver()
         {
-            _runSchedulePModes = new Dictionary<DateTime, List<T>>();
+            _runSchedule = new Dictionary<DateTime, List<T>>();
             _intervalRequests = new List<T>();
             _timer = new Timer {Enabled = false};
             _timer.Elapsed += TimerElapsed;
@@ -42,6 +44,7 @@ namespace Eu.EDelivery.AS4.Receivers
             _timer.Stop();
 
             List<T> intervalRequests = SelectAllRequestsForThisEvent(eventArgs);
+            Logger.Debug($"{intervalRequests.Count} request(s) will send on '{eventArgs.SignalTime}'");
             RemoveAllSelectedRequestsForThisEvent(eventArgs);
 
             WaitForAllRequests(intervalRequests);
@@ -50,13 +53,13 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private List<T> SelectAllRequestsForThisEvent(ElapsedEventArgs eventArgs)
         {
-            return _runSchedulePModes.Where(s => s.Key <= eventArgs.SignalTime).SelectMany(p => p.Value).ToList();
+            return _runSchedule.Where(s => s.Key <= eventArgs.SignalTime).SelectMany(p => p.Value).ToList();
         }
 
         private void RemoveAllSelectedRequestsForThisEvent(ElapsedEventArgs eventArgs)
         {
-            List<DateTime> keys = _runSchedulePModes.Keys.Where(k => k <= eventArgs.SignalTime).ToList();
-            keys.ForEach(k => _runSchedulePModes.Remove(k));
+            List<DateTime> keys = _runSchedule.Keys.Where(k => k <= eventArgs.SignalTime).ToList();
+            keys.ForEach(k => _runSchedule.Remove(k));
         }
 
         private void WaitForAllRequests(IEnumerable<T> intervalRequests)
@@ -69,8 +72,20 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 tasks.Add(Task.Run(() => OnIntervalRequestReceived(intervalRequest)));
             }
-            
-            Task.WaitAll(tasks.ToArray());
+
+            TryWaitAll(tasks);
+        }
+
+        private static void TryWaitAll(List<Task> tasks)
+        {
+            try
+            {
+                Task.WaitAll(tasks.ToArray());
+            }
+            catch (AggregateException exception)
+            {
+                exception.Handle(e => e is TaskCanceledException);
+            }
         }
 
         private async Task OnIntervalRequestReceived(T intervalRequest)
@@ -90,7 +105,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 AddIntervalRequest(currentTime + intervalRequest.CurrentInterval, intervalRequest);
             }
 
-            if (_runSchedulePModes.Any())
+            if (_runSchedule.Any())
             {
                 _timer.Interval = CalculateNextTriggerInterval(currentTime);
                 _timer.Start();
@@ -101,12 +116,12 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             DateTime timeTrimmedOnSeconds = TrimOnSeconds(dateTime);
 
-            if (_runSchedulePModes.ContainsKey(timeTrimmedOnSeconds) == false)
+            if (_runSchedule.ContainsKey(timeTrimmedOnSeconds) == false)
             {
-                _runSchedulePModes.Add(timeTrimmedOnSeconds, new List<T>());
+                _runSchedule.Add(timeTrimmedOnSeconds, new List<T>());
             }
 
-            _runSchedulePModes[timeTrimmedOnSeconds].Add(intervalRequest);
+            _runSchedule[timeTrimmedOnSeconds].Add(intervalRequest);
         }
 
         private static DateTime TrimOnSeconds(DateTime dateTime)
@@ -122,7 +137,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private double CalculateNextTriggerInterval(DateTime now)
         {
-            DateTime firstRunDate = _runSchedulePModes.Min(t => t.Key);
+            DateTime firstRunDate = _runSchedule.Min(t => t.Key);
             TimeSpan triggerTime = firstRunDate - now;
 
             return triggerTime.TotalMilliseconds <= 0 ? 1 : triggerTime.TotalMilliseconds;

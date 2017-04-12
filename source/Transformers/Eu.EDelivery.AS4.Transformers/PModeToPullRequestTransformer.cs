@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// <summary>
     /// <see cref="ITransformer"/> implementation that's responsible for transformation PMode models to Pull Messages instances.
     /// </summary>
-    public class PModeToPullMessageTransformer : ITransformer
+    public class PModeToPullRequestTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
