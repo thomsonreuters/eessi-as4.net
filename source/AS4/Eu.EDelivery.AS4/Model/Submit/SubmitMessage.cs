@@ -21,10 +21,8 @@ namespace Eu.EDelivery.AS4.Model.Submit
         public SendingProcessingMode PMode { get; set; }
 
         [XmlIgnore]
-        public bool IsEmpty => String.IsNullOrWhiteSpace(MessageInfo.MessageId) &&
-                               (PartyInfo.FromParty?.PartyIds?.Any() ?? false) == false &&
-                               (PartyInfo.ToParty?.PartyIds?.Any() ?? false) == false;
-                               
+        public bool IsEmpty => String.IsNullOrWhiteSpace(Collaboration?.AgreementRef.PModeId);
+
 
         public bool HasPayloads => Payloads?.Length != 0;
 
