@@ -46,12 +46,13 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public Task<UploadResult> Upload(Attachment attachment)
+        public async Task<UploadResult> Upload(Attachment attachment)
         {
             string downloadUrl = AssembleFileDownloadUrlFor(attachment);
-            TryUploadAttachment(attachment);
+            string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
-            return Task.FromResult(new UploadResult {DownloadUrl = Path.GetFullPath(downloadUrl)});
+            await TryUploadAttachment(attachment, attachmentFilePath);
+            return new UploadResult {DownloadUrl = attachmentFilePath};
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment)
@@ -64,11 +65,11 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return $"{locationParameter.Value}{fileName}{extension}";
         }
 
-        private void TryUploadAttachment(Attachment attachment)
+        private async Task TryUploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             try
             {
-                UploadAttachment(attachment);
+                await UploadAttachment(attachment, attachmentFilePath);
             }
             catch (SystemException ex)
             {
@@ -83,14 +84,14 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return new AS4Exception(description);
         }
 
-        private void UploadAttachment(Attachment attachment)
+        private async Task UploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             // Create the directory, if it does not exist.
-            Directory.CreateDirectory(Path.GetDirectoryName(attachment.Location));
+            Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));
 
-            using (FileStream fileStream = File.Create(attachment.Location))
+            using (FileStream fileStream = File.Create(attachmentFilePath))
             {
-                attachment.Content.CopyTo(fileStream);
+                await attachment.Content.CopyToAsync(fileStream);
             }
 
             Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachment.Location}");
