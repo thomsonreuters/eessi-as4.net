@@ -65,17 +65,17 @@ namespace Eu.EDelivery.AS4.Streaming
         public Stream UnderlyingStream { get; private set; }
 
         public VirtualStream()
-          : this(DefaultSize, MemoryFlag.AutoOverFlowToDisk, (Stream)new MemoryStream())
+          : this(DefaultSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream())
         {
         }
 
         public VirtualStream(int bufferSize)
-          : this(bufferSize, MemoryFlag.AutoOverFlowToDisk, (Stream)new MemoryStream(bufferSize))
+          : this(bufferSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(bufferSize))
         {
         }
 
         public VirtualStream(int bufferSize, int thresholdSize)
-          : this(bufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, (Stream)new MemoryStream(bufferSize))
+          : this(bufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(bufferSize))
         {
         }
 

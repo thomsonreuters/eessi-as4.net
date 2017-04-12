@@ -28,8 +28,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// </summary>
         public ExceptionTransformer()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-            this._provider = Registry.Instance.SerializerProvider;
+            _logger = LogManager.GetCurrentClassLogger();
+            _provider = Registry.Instance.SerializerProvider;
         }
 
         /// <summary>
@@ -39,8 +39,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="provider"></param>
         public ExceptionTransformer(ISerializerProvider provider)
         {
-            this._provider = provider;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _provider = provider;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Transformers
             AS4Message as4Message = CreateErrorAS4Message(exceptionEntity, cancellationToken);
             var internalMessage = new InternalMessage(as4Message);
 
-            this._logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
+            _logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
             return await Task.FromResult(internalMessage);
         }
 
@@ -78,15 +78,17 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private XmlDocument GetEnvelopeDocument(AS4Message as4Message, CancellationToken cancellationToken)
         {
-            var memoryStream = new MemoryStream();
-            ISerializer serializer = this._provider.Get(Constants.ContentTypes.Soap);
-            serializer.Serialize(as4Message, memoryStream, cancellationToken);
+            using (var memoryStream = new MemoryStream())
+            {
+                ISerializer serializer = _provider.Get(Constants.ContentTypes.Soap);
+                serializer.Serialize(as4Message, memoryStream, cancellationToken);
 
-            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
-            memoryStream.Position = 0;
-            xmlDocument.Load(memoryStream);
+                var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
+                memoryStream.Position = 0;
+                xmlDocument.Load(memoryStream);
 
-            return xmlDocument;
+                return xmlDocument;
+            }
         }
 
         public T GetPMode<T>(string pmode) where T : class
@@ -133,7 +135,7 @@ namespace Eu.EDelivery.AS4.Transformers
         private AS4Exception ThrowNotSupportedTypeException()
         {
             const string description = "Exception Transformer only supports Exception Entities";
-            this._logger.Error(description);
+            _logger.Error(description);
 
             return AS4ExceptionBuilder.WithDescription(description).Build();
         }
