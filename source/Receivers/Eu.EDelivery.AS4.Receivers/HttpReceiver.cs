@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private static class SettingKeys
         {
             public const string Url = "Url";
-            public const string ConcurrentRequests = "ConcurrentRequests";
+            public const string ConcurrentRequests = "MaxConcurrentRequests";
         }
 
         /// <summary>

@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Receivers
             public const string Table = "Table";
             public const string Field = "Field";
             public const string FilterValue = "Value";
-            public const string TakeRows = "Take";
+            public const string TakeRows = "BatchSize";
             public const string UpdateValue = "Update";
         }
 

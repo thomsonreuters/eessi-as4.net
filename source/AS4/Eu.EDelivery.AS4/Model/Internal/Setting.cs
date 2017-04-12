@@ -24,6 +24,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public string IdFormat { get; set; }
 
+        public bool FeInProcess { get; set; }
+
+        public bool PayloadServiceInProcess { get; set; }
+
         public SettingsDatabase Database { get; set; }
 
         public CertificateStore CertificateStore { get; set; }
@@ -31,10 +35,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public CustomSettings CustomSettings { get; set; }
 
         public SettingsAgents Agents { get; set; }
-
-        public bool FeInProcess { get; set; }
-
-        public bool PayloadServiceInProcess { get; set; }
+        
     }
 
     [Serializable]

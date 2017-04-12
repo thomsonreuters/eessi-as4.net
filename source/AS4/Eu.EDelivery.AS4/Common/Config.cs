@@ -242,7 +242,10 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomSettings()
         {
-            if (_settings.CustomSettings?.Setting == null) return;
+            if (_settings.CustomSettings?.Setting == null)
+            {
+                return;
+            }
 
             foreach (Setting setting in _settings.CustomSettings.Setting)
             {
@@ -272,7 +275,10 @@ namespace Eu.EDelivery.AS4.Common
 
         private void Dispose(bool disposing)
         {
-            if (!disposing) return;
+            if (!disposing)
+            {
+                return;
+            }
 
             if (_sendingPModeWatcher != null)
             {
