@@ -21,8 +21,6 @@ Target "Compile" (fun _ ->
           |> DoNothing
 )
 
-
-
 Target "Unit Tests" (fun _ ->
     ["./output/Eu.EDelivery.AS4.UnitTests.dll"; "./output/Eu.EDelivery.AS4.Fe.UnitTests.dll"]
         |> xUnit2 (fun p ->
@@ -35,14 +33,15 @@ Target "Unit Tests" (fun _ ->
 
 Target "Coverage" (fun _ ->
     OpenCover (fun p -> 
-        {p with 
+        {p with     
             TestRunnerExePath = "./source/packages/xunit.runner.console.2.2.0/tools/xunit-console.exe";
-            ExePath = "./tools/OpenCover/OpenCover.Console.exe";
-            Register = RegisterType.RegisterUser;
-            Filter = "+[*]*" }) "./output/Eu.EDelivery.AS4.UnitTests.dll"
+            ExePath = "./tools/OpenCover/tools/OpenCover.Console.exe";
+            Register = RegisterUser;
+            Output = "coverage.xml";
+            Filter = "+[*]* -[Test*]*"}) "./output/Eu.EDelivery.AS4.UnitTests.dll"
 )
 
 "Compile" 
     ==> "Unit Tests"
 
-RunTargetOrDefault "Coverage"
+RunTargetOrDefault "Unit Tests"
