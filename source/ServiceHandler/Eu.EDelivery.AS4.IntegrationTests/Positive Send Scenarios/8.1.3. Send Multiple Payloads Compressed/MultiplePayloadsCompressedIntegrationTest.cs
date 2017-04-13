@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._3._Se
         {
             // Before
             CleanUpFiles(HolodeckBInputPath);
-            StartApplication();
+            StartAS4Component();
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4ReceiptsPath);
@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._3._Se
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = PollTo(AS4ReceiptsPath);
+            bool areFilesFound = PollingAt(AS4ReceiptsPath);
             if (areFilesFound) Console.WriteLine(@"Multiple Payloads Compressed Integration Test succeeded!");
             Assert.True(areFilesFound);
         }

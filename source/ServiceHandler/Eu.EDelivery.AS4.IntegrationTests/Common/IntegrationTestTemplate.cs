@@ -43,7 +43,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
             ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", GetLocalIpAddress());
 
+            LeaveAS4ComponentRunningDuringValidation = false;
+
         }
+
+        public bool LeaveAS4ComponentRunningDuringValidation { get; set; }
         
         #region Fixture Setup
         private static void CopyDirectory(string sourceDirName, string destDirName)
@@ -115,7 +119,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <summary>
         /// Start AS4 Component Application
         /// </summary>
-        protected void StartApplication()
+        protected void StartAS4Component()
         {
             _as4ComponentProcess = Process.Start("Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe");
 
@@ -201,6 +205,21 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             WaitForHolodeckToPickUp();
         }
 
+        /// <summary>
+        /// Copy the right message to Holodeck A
+        /// </summary>
+        /// <param name="messageFileName"></param>
+        public void CopyMessageToHolodeckA(string messageFileName)
+        {
+            Console.WriteLine($@"Copy Message {messageFileName} to Holodeck A");
+
+            File.Copy(
+                sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"),
+                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_A_output_path}\{messageFileName}"));
+
+            WaitForHolodeckToPickUp();
+        }
+
         private void WaitForHolodeckToPickUp()
         {
             Console.WriteLine(@"Wait for Holodeck to pick-up the new PMode");
@@ -213,7 +232,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="directoryPath">Directory Path to poll</param>
         /// <param name="extension"></param>
         /// <param name="retryCount">Retry Count in miliseconds</param>
-        protected bool PollTo(string directoryPath, string extension = "*", int retryCount = 1000)
+        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 1000)
         {
             string location = FindAliasLocation(directoryPath);
             Console.WriteLine($@"Start polling to {location}");
@@ -263,7 +282,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 return false;
             }
 
-            StopApplication();
+            if (!LeaveAS4ComponentRunningDuringValidation)
+            {
+                StopApplication();
+            }
+
             WriteFilesToConsole(files);
             ValidatePolledFiles(files);
 

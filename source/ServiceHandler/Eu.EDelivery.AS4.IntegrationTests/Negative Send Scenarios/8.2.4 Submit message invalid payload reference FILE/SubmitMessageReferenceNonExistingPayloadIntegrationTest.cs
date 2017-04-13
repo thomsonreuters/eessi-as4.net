@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._4_Sub
         {
             // Before
             base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullOutputPath);
             base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
 
@@ -43,8 +43,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._4_Sub
         private bool AreExceptionFilesFound()
         {
             return 
-                base.PollTo(AS4FullOutputPath, "*.exception") && 
-                base.PollTo(AS4FullOutputPath, "*.exception.details");
+                base.PollingAt(AS4FullOutputPath, "*.exception") && 
+                base.PollingAt(AS4FullOutputPath, "*.exception.details");
         }
     }
 }

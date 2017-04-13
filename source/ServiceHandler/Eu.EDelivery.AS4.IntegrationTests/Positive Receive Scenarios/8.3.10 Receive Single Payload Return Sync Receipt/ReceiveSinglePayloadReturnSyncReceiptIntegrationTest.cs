@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._10
         {
             // Before
             base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullInputPath);
             base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
             base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._10
             File.Copy(this._holodeckMessagesPath, this._destFileName);
 
             // Assert
-            bool areFilesFound = base.PollTo(Properties.Resources.holodeck_A_input_path);
+            bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path);
             if (areFilesFound) Console.WriteLine(@"Receive Single Payload Return Sync Integration Test succeeded!");
             else Retry();
 

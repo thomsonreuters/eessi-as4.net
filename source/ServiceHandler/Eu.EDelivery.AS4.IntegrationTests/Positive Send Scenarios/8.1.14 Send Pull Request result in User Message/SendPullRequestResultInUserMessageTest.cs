@@ -32,10 +32,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             CopyMessageToHolodeckB("8.1.14-sample.mmd");
 
             // Act
-            StartApplication();
+            StartAS4Component();
 
             //// Assert
-            bool areFilesFound = PollTo(AS4FullInputPath);
+            bool areFilesFound = PollingAt(AS4FullInputPath);
             Assert.True(areFilesFound);
         }
 

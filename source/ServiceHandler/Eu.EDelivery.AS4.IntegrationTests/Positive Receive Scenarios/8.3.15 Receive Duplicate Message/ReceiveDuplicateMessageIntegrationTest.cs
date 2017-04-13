@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._15
         public void ThenSendingSinglePayloadSucceeds()
         {
             // Before
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullInputPath);
 
             // Act
