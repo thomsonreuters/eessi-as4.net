@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
         {
             // Before
             base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullInputPath);
             base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
             base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
 
         private bool AreFilesFound()
         {
-            return base.PollTo(Properties.Resources.holodeck_A_input_path, "*.xml");
+            return base.PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

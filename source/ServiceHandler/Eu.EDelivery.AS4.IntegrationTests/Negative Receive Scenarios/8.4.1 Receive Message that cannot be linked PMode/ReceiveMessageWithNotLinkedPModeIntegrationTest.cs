@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._1_
         {
             // Before
             base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullInputPath);
             base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
             base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._1_
             File.Copy(this._holodeckMessagesPath, this._destFileName);
 
             // Assert
-            bool areFilesFound = base.PollTo(Properties.Resources.holodeck_A_input_path, "*.xml");
+            bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml");
             if (areFilesFound) Console.WriteLine(@"Receive Message with not linked PMode Integration Test succeeded!");
         }
 

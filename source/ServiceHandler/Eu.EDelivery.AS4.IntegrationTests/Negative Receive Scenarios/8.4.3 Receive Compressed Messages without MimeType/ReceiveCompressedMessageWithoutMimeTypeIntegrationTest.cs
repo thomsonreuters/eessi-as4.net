@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._3_
         public async void ThenSendingSinglePayloadSucceedsAsync()
         {
             // Before
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullInputPath);
 
             // Act

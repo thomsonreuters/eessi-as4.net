@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._6_
         public async void ReceivingIncorrectlyEncryptedMessageFails()
         {
             // Before
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullInputPath);
 
             // Act

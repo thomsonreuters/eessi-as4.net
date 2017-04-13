@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
         {
             // Before
             base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullOutputPath);
             base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             base.CleanUpFiles(AS4ReceiptsPath);
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
         private bool AreFilesFound()
         {
             const int retryCount = 2000;
-            return base.PollTo(AS4ReceiptsPath, "*.xml", retryCount);
+            return base.PollingAt(AS4ReceiptsPath, "*.xml", retryCount);
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

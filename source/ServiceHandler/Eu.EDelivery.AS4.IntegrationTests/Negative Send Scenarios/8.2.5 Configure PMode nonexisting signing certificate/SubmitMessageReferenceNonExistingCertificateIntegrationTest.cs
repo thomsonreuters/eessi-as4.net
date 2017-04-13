@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._5_Con
         {
             // Before
             base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartApplication();
+            base.StartAS4Component();
             base.CleanUpFiles(AS4FullOutputPath);
             base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             base.CleanUpFiles(AS4ExceptionsPath);
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._5_Con
 
         private bool AreExceptionFilesFound()
         {
-            return base.PollTo(AS4ExceptionsPath);
+            return base.PollingAt(AS4ExceptionsPath);
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
