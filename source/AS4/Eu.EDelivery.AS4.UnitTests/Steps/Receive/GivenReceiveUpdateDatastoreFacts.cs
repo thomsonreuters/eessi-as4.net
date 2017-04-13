@@ -63,12 +63,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    InMessage inMessage =
-                        await context.InMessages.FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));
+                    InMessage inMessage = await context.InMessages
+                        .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));
 
                     Assert.NotNull(inMessage);
                     Assert.Equal(MessageType.UserMessage, inMessage.EbmsMessageType);
-                    if (condition != null) Assert.True(condition(inMessage));
+
+                    if (condition != null)
+                    {
+                        Assert.True(condition(inMessage));
+                    }
                 }
             }
 
