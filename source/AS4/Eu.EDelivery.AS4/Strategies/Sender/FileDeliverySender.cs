@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Eu.EDelivery.AS4.Model.Deliver;
-using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
@@ -11,49 +11,54 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     /// Deliver the message to the file system
     /// </summary>
     [Info("FILE")]
-    public class FileDeliverySender : DeliverySender
+    public class FileDeliverySender : IDeliverSender
     {
-        private readonly ILogger _logger;
-       
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private Method _method;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="FileDeliverySender"/> class. 
-        /// Create a <see cref="IDeliverSender"/> implementation
-        /// to send a <see cref="DeliverMessage"/>
+        /// Configure the <see cref="IDeliverSender"/>
+        /// with a given <paramref name="method"/>
         /// </summary>
-        public FileDeliverySender()
+        /// <param name="method"></param>
+        public void Configure(Method method)
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _method = method;
         }
 
-        protected override void SendDeliverMessage(DeliverMessageEnvelope deliverMessage, string destinationUri)
+        /// <summary>
+        /// Start sending the <see cref="DeliverMessage"/>
+        /// </summary>
+        /// <param name="deliverMessage"></param>
+        public void Send(DeliverMessageEnvelope deliverMessage)
         {
+            string destinationUri = _method["location"].Value;
             TryCreateMissingDirectoriesIfNotExists(destinationUri);
 
             string filename = FilenameSanitizer.EnsureValidFilename(deliverMessage.MessageInfo.MessageId) + ".xml";
-            string location = Path.Combine(destinationUri ?? "", filename);
+            string location = Path.Combine(destinationUri ?? string.Empty, filename);
 
             using (FileStream fileStream = File.Create(location))
             {
                 fileStream.Write(deliverMessage.DeliverMessage, 0, deliverMessage.DeliverMessage.Length);
 
-                this._logger.Info($"DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully Send to: {location}");
+                Logger.Info($"DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully Send to: {location}");
             }
         }
 
-        private void TryCreateMissingDirectoriesIfNotExists(string locationFolder)
+        private static void TryCreateMissingDirectoriesIfNotExists(string locationFolder)
         {
             try
             {
-                if (!String.IsNullOrWhiteSpace(locationFolder) && !Directory.Exists(locationFolder))
+                if (!string.IsNullOrWhiteSpace(locationFolder) && !Directory.Exists(locationFolder))
                 {
                     Directory.CreateDirectory(locationFolder);
                 }
             }
             catch (Exception exception)
             {
-                this.Log.Error(exception.Message);
+                Logger.Error(exception.Message);
             }
         }
-
     }
 }

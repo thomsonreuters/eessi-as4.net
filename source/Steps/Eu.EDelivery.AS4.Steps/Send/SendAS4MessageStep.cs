@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -108,23 +109,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private HttpWebRequest CreateWebRequest(AS4Message as4Message)
         {
             ISendConfiguration sendConfiguration = GetSendConfigurationFrom(as4Message);
-
-            var request = (HttpWebRequest) WebRequest.Create(sendConfiguration.Protocol.Url);
-            request.Method = "POST";
-            request.ContentType = as4Message.ContentType;
-            request.KeepAlive = false;
-            request.Connection = "Open";
-            request.ProtocolVersion = HttpVersion.Version11;
+            
+            HttpWebRequest request = HttpPostRequest.Create(sendConfiguration.Protocol.Url, as4Message.ContentType);
 
             AssignClientCertificate(sendConfiguration.TlsConfiguration, request);
-            ServicePointManager.Expect100Continue = false;
 
             return request;
         }
 
         private void AssignClientCertificate(TlsConfiguration configuration, HttpWebRequest request)
         {
-            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null) return;
+            if (!configuration.IsEnabled || configuration.ClientCertificateReference == null)
+            {
+                return;
+            }
 
             Logger.Info("Adding Client TLS Certificate to Http Request.");
 

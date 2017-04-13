@@ -1,80 +1,104 @@
 ﻿using System.IO;
 using System.Net;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Notify;
+using Eu.EDelivery.AS4.Model.PMode;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
-    internal class HttpNotifySender : NotifySender
+    internal class HttpNotifySender : INotifySender
     {
-        protected override void SendNotifyMessage(NotifyMessageEnvelope notifyMessage, string destinationUri)
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private Method _method;
+
+        /// <summary>
+        /// Configure the <see cref="INotifySender"/>
+        /// with a given <paramref name="method"/>
+        /// </summary>
+        /// <param name="method"></param>
+        public void Configure(Method method)
         {
-            // TODO: verify if destinationUri is a valid http endpoint.                        
-            var request = CreateWebRequest(destinationUri, notifyMessage.ContentType);
-            
-            Log.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {destinationUri}");
+            _method = method;
+        }
+
+        /// <summary>
+        /// Send a given <paramref name="message"/> to a given endpoint
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public async void Send(NotifyMessageEnvelope message)
+        {
+            string destinationUri = _method["location"].Value;
+            HttpWebRequest request = CreateNotifyRequest(message, destinationUri);
+            HttpWebResponse response = await SendNotifyRequest(request);
+
+            response?.Close();
+        }
+
+        private static HttpWebRequest CreateNotifyRequest(NotifyMessageEnvelope notifyMessage, string destinationUri)
+        {
+            // TODO: verify if destinationUri is a valid http endpoint.
+            HttpWebRequest request = HttpPostRequest.Create(destinationUri, notifyMessage.ContentType);
+
+            Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {destinationUri}");
 
             using (Stream requestStream = request.GetRequestStream())
             {
                 requestStream.Write(notifyMessage.NotifyMessage, 0, notifyMessage.NotifyMessage.Length);
             }
 
-            // Get the response and log what we have received.
-            HandleNotifyResponse(request);
+            return request;
         }
 
-        private async void HandleNotifyResponse(HttpWebRequest request)
+        private static async Task<HttpWebResponse> SendNotifyRequest(WebRequest request)
         {
-            HttpWebResponse response = null;
+            HttpWebResponse response;
 
             try
             {
-                try
-                {
-                    response = await request.GetResponseAsync() as HttpWebResponse;
+                response = await request.GetResponseAsync() as HttpWebResponse;
 
-                    if (response == null)
-                    {
-                        Log.Error("No WebResponse received for http notification.");
-                        return;
-                    }
-                }
-                catch (WebException exception)
+                if (response == null)
                 {
-                    response = exception.Response as HttpWebResponse;
-                }
-
-                if ( response != null && response.StatusCode != HttpStatusCode.Accepted && response.StatusCode != HttpStatusCode.OK)
-                {
-                    Log.Error($"Unexpected response received for http notification: {response.StatusCode}");
-
-                    if (Log.IsErrorEnabled)
-                    {
-                        using (var streamReader = new StreamReader(response.GetResponseStream(), true))
-                        {
-                            Log.Error(streamReader.ReadToEnd());
-                        }
-                    }
+                    Logger.Error("No WebResponse received for http notification.");
                 }
             }
-            finally
+            catch (WebException exception)
             {
-                response?.Close();
+                response = exception.Response as HttpWebResponse;
+            }
+
+            bool isInvalidResponse = response != null && !IsResponseValid(response);
+            if (isInvalidResponse)
+            {
+                LogErrorResponse(response);
+            }
+
+            return response;
+        }
+
+        private static void LogErrorResponse(HttpWebResponse response)
+        {
+            Logger.Error($"Unexpected response received for http notification: {response.StatusCode}");
+            Stream responseStream = response.GetResponseStream();
+
+            if (!Logger.IsErrorEnabled || responseStream == null)
+            {
+                return;
+            }
+            
+            using (var streamReader = new StreamReader(responseStream, detectEncodingFromByteOrderMarks: true))
+            {
+                Logger.Error(streamReader.ReadToEnd());
             }
         }
 
-
-        private static HttpWebRequest CreateWebRequest(string targetUrl, string contentType)
+        private static bool IsResponseValid(HttpWebResponse response)
         {
-            var request = (HttpWebRequest)WebRequest.Create(targetUrl);
-            request.Method = "POST";
-            request.ContentType = contentType;
-            request.KeepAlive = false;
-            request.Connection = "Open";
-            request.ProtocolVersion = HttpVersion.Version11;
-
-            ServicePointManager.Expect100Continue = false;
-
-            return request;
+            return 
+                response.StatusCode == HttpStatusCode.Accepted || 
+                response.StatusCode == HttpStatusCode.OK;
         }
     }
 }

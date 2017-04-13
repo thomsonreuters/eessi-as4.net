@@ -49,16 +49,16 @@ namespace Eu.EDelivery.AS4.Common
         private void RegisterDeliverSenderProvider()
         {
             DeliverSenderProvider = new DeliverSenderProvider();
-            DeliverSenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new FileDeliverySender());
-            DeliverSenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), new HttpDeliverySender());
+            DeliverSenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new ReliableSender(new FileDeliverySender()));
+            DeliverSenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), new ReliableSender(new HttpDeliverySender()));
         }
 
         private void RegisterNotifySenderProvider()
         {
             NotifySenderProvider = new NotifySenderProvider();
 
-            NotifySenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), () => new FileNotifySender());
-            NotifySenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), () => new HttpNotifySender());
+            NotifySenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(new FileNotifySender()));
+            NotifySenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(new HttpNotifySender()));
         }
 
         private void RegisterAttachmentUploaderProvider()
