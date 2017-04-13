@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>8.1.4-pmode</Id>
+  <Id>8.1.14-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
-  <MepBinding>Push</MepBinding>
+  <MepBinding>Pull</MepBinding>
   <PushConfiguration>
     <Protocol>
       <Url>http://__IPADDRESS__:9090/msh</Url>
@@ -18,8 +18,9 @@
   </PushConfiguration>
   <PullConfiguration>
     <SubChannel />
+    <Mpc>http://example.holodeckb2b.org/mpc/2</Mpc>
     <Protocol>
-      <Url>http://localhost:9090/msh</Url>
+      <Url>http://__IPADDRESS__:9090/msh</Url>
     </Protocol>
   </PullConfiguration>
   <Reliability>
@@ -39,8 +40,13 @@
     </NotifyMethod>
   </ReceiptHandling>
   <ErrorHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod />
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\errors\" />
+      </Parameters>
+    </NotifyMethod>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageProducer>false</NotifyMessageProducer>
@@ -57,9 +63,6 @@
     </Signing>
     <Encryption>
       <IsEnabled>false</IsEnabled>
-      <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>PartyA</PublicKeyFindValue>
-      <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
   <MessagePackaging>

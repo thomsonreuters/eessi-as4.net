@@ -28,6 +28,11 @@ environment based on the "Getting Started" page from the web site you should ins
     <Leg>
         <PullRequestFlow>
             <Mpc>http://example.holodeckb2b.org/mpc/2</Mpc>
+            <SecurityConfiguration>
+            <Signing>
+                <KeystoreAlias>partya</KeystoreAlias>
+            </Signing>
+        </SecurityConfiguration>
         </PullRequestFlow>
         <PullRequestFlow>
             <Mpc>http://example.holodeckb2b.org/mpc/1</Mpc>
