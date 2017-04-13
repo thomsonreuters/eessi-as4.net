@@ -54,6 +54,8 @@ output/messages/exceptions/
 coverage/
 coverage.xml
 results.xml
+tests.xml
+tests.html
 
 # NUNIT
 *.VisualState.xml
@@ -298,3 +300,5 @@ __pycache__/
 
 # FE
 *.ts.html
+/tests.html
+/tests.html
