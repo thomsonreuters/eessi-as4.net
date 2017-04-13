@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._5._Se
             // Assert
             bool areFilesFound = base.PollTo(HolodeckBInputPath);
             if (areFilesFound) Console.WriteLine(@"Multiple Payloads Encrypted Integration Test succeeded!");
-            Assert.True(areFilesFound);
+            Assert.True(areFilesFound, "Multiple Payloads Encryption Failed: no files are found during polling.");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

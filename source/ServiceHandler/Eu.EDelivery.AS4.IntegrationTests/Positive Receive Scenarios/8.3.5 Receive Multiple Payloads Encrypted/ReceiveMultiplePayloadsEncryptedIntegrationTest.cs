@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._5_
         }
 
         [Fact]
-        public void ThenReceiveMultiplePayloadsSignedSucceeds()
+        public void ThenReceiveMultiplePayloadsEncryptedSucceeds()
         {
             // Before
             base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
