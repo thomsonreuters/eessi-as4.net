@@ -18,39 +18,47 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._12
 
         public ReceiveSinglePayloadReturnAsyncReceiptIntegrationTest()
         {
-            this._holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            this._destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
-            this._holodeck = new Holodeck();
+            _holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
+            _destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
+            _holodeck = new Holodeck();
         }
 
         [Fact]
         public void ThenReceiveSinglePayloadReturnAsyncReceiptSucceeds()
         {
             // Before
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.StartAS4Component();
-            base.CleanUpFiles(AS4FullInputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            StartAS4Component();
+            CleanUpFiles(AS4FullInputPath);
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             // Arrange
-            base.CopyPModeToHolodeckA("8.3.12-pmode.xml");
+            CopyPModeToHolodeckA("8.3.12-pmode.xml");
 
             // Act
-            File.Copy(this._holodeckMessagesPath, this._destFileName);
+            File.Copy(_holodeckMessagesPath, _destFileName);
 
             // Assert
             bool areFilesFound = AreFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Receive Single Payload Return Sync Signed NRR Integration Test succeeded!");
-            else Retry();
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Receive Single Payload Return Sync Signed NRR Integration Test succeeded!");
+            }
+            else
+            {
+                Retry();
+            }
+
+            Assert.True(areFilesFound, "Receive Single Payload returns Async Receipt failed");
         }
 
         private void Retry()
         {
             var startDir = new DirectoryInfo(AS4FullInputPath);
             FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
+            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} files are found");
 
             ValidatePolledFiles(files);
         }
@@ -58,12 +66,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._12
         private bool AreFilesFound()
         {
             const int retryCount = 2000;
-            return base.PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml", retryCount);
+            return PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml", retryCount);
         }
 
+        /// <summary>
+        /// Perform extra validation for the output files of Holodeck
+        /// </summary>
+        /// <param name="files">The files.</param>
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
-            this._holodeck.AssertReceiptOnHolodeckA();
+            _holodeck.AssertReceiptOnHolodeckA();
         }
     }
 }

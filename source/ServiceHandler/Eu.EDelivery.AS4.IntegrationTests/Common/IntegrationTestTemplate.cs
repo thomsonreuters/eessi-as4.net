@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
 using Xunit;
@@ -41,7 +39,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
-            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", GetLocalIpAddress());
+            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", AS4Component.HostAddress);
 
             LeaveAS4ComponentRunningDuringValidation = false;
 
@@ -102,18 +100,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
-        private static string GetLocalIpAddress()
-        {
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("Local IP Address Not Found!");
-        }
         #endregion
 
         /// <summary>
@@ -220,10 +206,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             WaitForHolodeckToPickUp();
         }
 
-        private void WaitForHolodeckToPickUp()
+        private static void WaitForHolodeckToPickUp()
         {
             Console.WriteLine(@"Wait for Holodeck to pick-up the new PMode");
-            Thread.Sleep(6000);
+            Thread.Sleep(1000);
         }
 
         /// <summary>

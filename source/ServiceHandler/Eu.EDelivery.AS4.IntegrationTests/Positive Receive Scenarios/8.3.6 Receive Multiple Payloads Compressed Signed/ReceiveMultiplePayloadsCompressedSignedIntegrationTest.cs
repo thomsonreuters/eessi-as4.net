@@ -19,33 +19,33 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
         
         public ReceiveMultiplePayloadsCompressedSignedIntegrationTest()
         {
-            this._holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            this._destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
-            this._holodeck = new Holodeck();
+            _holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
+            _destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
+            _holodeck = new Holodeck();
         }
 
         [Fact]
         public void ThenReceiveMultiplePayloadsCompressedSignedSucceeds()
         {
             // Before
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.StartAS4Component();
-            base.CleanUpFiles(AS4FullInputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(AS4FullInputPath);
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+
+            StartAS4Component();
 
             // Arrange
-            base.CopyPModeToHolodeckA("8.3.6-pmode.xml");
+            CopyPModeToHolodeckA("8.3.6-pmode.xml");
 
             // Act
-            File.Copy(this._holodeckMessagesPath, this._destFileName);
+            File.Copy(_holodeckMessagesPath, _destFileName);
 
             // Assert
-            bool areFilesFound = AreFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Receive Multiple Payloads Signed Integration Test succeeded!");
+            bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path);
+            if (areFilesFound) Console.WriteLine(@"Receive Multiple Payloads Compressed and Signed Integration Test succeeded!");
             else Retry();
-
         }
 
         private void Retry()
@@ -57,18 +57,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
             ValidatePolledFiles(files);
         }
 
-        private bool AreFilesFound()
-        {
-            return base.PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml");
-        }
-
+        /// <summary>
+        /// Perform extra validation for the output files of Holodeck
+        /// </summary>
+        /// <param name="files">The files.</param>
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             // Assert
             AssertPayloads(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
             AssertXmlFiles(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
 
-            this._holodeck.AssertReceiptOnHolodeckA();
+            _holodeck.AssertReceiptOnHolodeckA();
         }
 
         private void AssertPayloads(IEnumerable<FileInfo> files)
@@ -76,14 +75,21 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
             var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
 
             foreach (FileInfo receivedPayload in files)
+            {
                 if (receivedPayload != null)
+                {
                     Assert.Equal(sendPayload.Length, receivedPayload.Length);
+                }
+            }
         }
 
         private void AssertXmlFiles(IEnumerable<FileInfo> files)
         {
             int count = files.Count();
-            if (count == 0) return;
+            if (count == 0)
+            {
+                return;
+            }
 
             Assert.Equal(2, count);
             Console.WriteLine($@"There're {count} incoming Xml Documents found");
