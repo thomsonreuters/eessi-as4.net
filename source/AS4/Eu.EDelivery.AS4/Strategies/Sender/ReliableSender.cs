@@ -40,14 +40,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// with a given <paramref name="method"/>
         /// </summary>
         /// <param name="method"></param>
-        void INotifySender.Configure(Method method) => _notifySender.Configure(method);
-
-        /// <summary>
-        /// Configure the <see cref="IDeliverSender"/>
-        /// with a given <paramref name="method"/>
-        /// </summary>
-        /// <param name="method"></param>
-        void IDeliverSender.Configure(Method method) => _deliverSender.Configure(method);
+        public void Configure(Method method)
+        {
+            _deliverSender?.Configure(method);
+            _notifySender?.Configure(method);
+        }
 
         /// <summary>
         /// Start sending the <see cref="DeliverMessage"/>

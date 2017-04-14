@@ -29,15 +29,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     public class GivenSendAS4MessageStepFacts
     {
         private static readonly string SharedUrl = UniqueHost.Create();
-        private readonly IStep _step;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenSendAS4MessageStepFacts"/> class.
         /// </summary>
         public GivenSendAS4MessageStepFacts()
         {
-            _step = new SendAS4MessageStep();
-
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
 
             DbContextOptions<DatastoreContext> options =
@@ -55,9 +52,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             using (CreateMockedHttpServerThatReturns(as4Message))
             {
                 InternalMessage dummyMessage = CreateAnonymousMessage();
+                var sut = new SendAS4MessageStep();
 
                 // Act
-                StepResult actualResult = await _step.ExecuteAsync(dummyMessage, CancellationToken.None);
+                StepResult actualResult = await sut.ExecuteAsync(dummyMessage, CancellationToken.None);
 
                 // Assert
                 Assert.False(actualResult.CanProceed);
@@ -96,9 +94,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             using (CreateMockedHttpServerThatReturnsStatusCode(HttpStatusCode.Accepted))
             {
                 InternalMessage dummyMessage = CreateAnonymousMessage();
+                var sut = new SendAS4MessageStep();
 
                 // Act
-                StepResult actualResult = await _step.ExecuteAsync(dummyMessage, CancellationToken.None);
+                StepResult actualResult = await sut.ExecuteAsync(dummyMessage, CancellationToken.None);
 
                 // Assert
                 Assert.True(actualResult.InternalMessage.AS4Message.IsEmpty);

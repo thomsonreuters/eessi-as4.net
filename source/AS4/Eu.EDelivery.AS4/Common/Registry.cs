@@ -49,16 +49,16 @@ namespace Eu.EDelivery.AS4.Common
         private void RegisterDeliverSenderProvider()
         {
             DeliverSenderProvider = new DeliverSenderProvider();
-            DeliverSenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new ReliableSender(new FileDeliverySender()));
-            DeliverSenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), new ReliableSender(new HttpDeliverySender()));
+            DeliverSenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new ReliableSender(deliverSender: new FileSender()));
+            DeliverSenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), new ReliableSender(deliverSender: new HttpSender()));
         }
 
         private void RegisterNotifySenderProvider()
         {
             NotifySenderProvider = new NotifySenderProvider();
 
-            NotifySenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(new FileNotifySender()));
-            NotifySenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(new HttpNotifySender()));
+            NotifySenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(notifySender: new FileSender()));
+            NotifySenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(notifySender: new HttpSender()));
         }
 
         private void RegisterAttachmentUploaderProvider()

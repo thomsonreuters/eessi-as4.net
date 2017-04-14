@@ -436,6 +436,8 @@
     <Compile Include="Security\Transforms\AttachmentSignatureTransform.cs" />
     <Compile Include="Security\References\IssuerSecurityTokenReference.cs" />
     <Compile Include="Security\References\KeyIdentifierSecurityTokenReference.cs" />
+    <Compile Include="Strategies\Sender\FileSender.cs" />
+    <Compile Include="Strategies\Sender\HttpSender.cs" />
     <Compile Include="Strategies\Sender\ReliableSender.cs" />
     <Compile Include="Streaming\NonCloseableStream.cs" />
     <Compile Include="Security\References\SecurityTokenReferenceProvider.cs" />
@@ -448,10 +450,6 @@
     <Compile Include="Security\Strategies\SigningStrategy.cs" />
     <Compile Include="Steps\StepBuilder.cs" />
     <Compile Include="Strategies\Retriever\FtpPayloadRetriever.cs" />
-    <Compile Include="Strategies\Sender\FileNotifySender.cs" />
-    <Compile Include="Strategies\Sender\FileDeliverySender.cs" />
-    <Compile Include="Strategies\Sender\HttpDeliverySender.cs" />
-    <Compile Include="Strategies\Sender\HttpNotifySender.cs" />
     <Compile Include="Strategies\Sender\IDeliverSender.cs" />
     <Compile Include="Strategies\Sender\INotifySender.cs" />
     <Compile Include="Strategies\Sender\DeliverSenderProvider.cs" />

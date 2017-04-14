@@ -14,7 +14,6 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -24,24 +23,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenReceiveExceptionDecoratorStepFacts : GivenDatastoreFacts
     {
-        private Mock<IStep> _mockedCatchedStep;
-        private CompositeStep _step;
-
         public GivenReceiveExceptionDecoratorStepFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-
-            SetupMockedCatchedStep();
-
-            InitializeTestedStep();
-        }
-
-        protected void InitializeTestedStep()
-        {
-            _step = new CompositeStep(
-                new ReceiveExceptionStepDecorator(_mockedCatchedStep.Object),
-                new CreateAS4ErrorStep(),
-                new SendAS4ErrorStep());
         }
 
         public class GivenValidArguments : GivenReceiveExceptionDecoratorStepFacts
@@ -50,10 +34,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithoutThrowedExceptionAsync()
             {
                 // Arrange
+                IStep sut = GetCatchedCompositeSteps();
                 var internalMessage = new InternalMessage();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
@@ -64,12 +49,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithAS4ExceptionThrowedAsync()
             {
                 // Arrange
-                SetupCatchedStepWithException();
-                InitializeTestedStep();
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                var stubStep = new SaboteurStep(CreateAS4Exception());
+                IStep sut = GetCatchedCompositeSteps(stubStep);
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await sut.ExecuteAsync(DummyMessage(), CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
@@ -81,12 +65,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithInsertedInExceptionAsync(string messageId)
             {
                 // Arrange
-                SetupCatchedStepWithException(messageId);
-                InitializeTestedStep();
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                var stubStep = new SaboteurStep(CreateAS4Exception(messageId));
+                IStep sut = GetCatchedCompositeSteps(stubStep);
 
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await sut.ExecuteAsync(DummyMessage(), CancellationToken.None);
 
                 // Assert
                 AssertInException(messageId, Assert.NotNull);
@@ -96,13 +79,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithCallbackReplyPatternAsync()
             {
                 // Arrange
-                SetupCatchedStepWithException();
-                InitializeTestedStep();
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                InternalMessage internalMessage = DummyMessage();
                 internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
 
+                var stubStep = new SaboteurStep(CreateAS4Exception());
+                IStep sut = GetCatchedCompositeSteps(stubStep);
+
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
@@ -121,60 +105,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
         }
 
-        public class GivenInvalidArguments : GivenReceiveExceptionDecoratorStepFacts
+        private static IStep GetCatchedCompositeSteps(IStep catchedStep = null)
         {
-            [Fact(Skip = "Wait till the Step Decorator is refactored towards a better design")]
-            public async Task ThenCertificateCannotBeRetrievedFromStoreAsync()
-            {
-                // Arrange
-                SetupCatchedStepWithException();
-                InitializeTestedStep();
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
-
-                // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(
-                    () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
-            }
+            return new CompositeStep(
+                new ReceiveExceptionStepDecorator(catchedStep ?? new SinkStep()),
+                new CreateAS4ErrorStep(),
+                new SendAS4ErrorStep());
         }
 
-        private void SetupMockedCatchedStep()
-        {
-            _mockedCatchedStep = new Mock<IStep>();
-
-            _mockedCatchedStep.Setup(s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
-                              .Returns((InternalMessage m, CancellationToken c) => StepResult.SuccessAsync(m));
-        }
-
-        protected ReceivingProcessingMode GetReceivingPMode()
+        protected ReceivingProcessingMode GetStubReceivingPMode()
         {
             return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false, SendingPMode = "pmode"}};
         }
 
-        protected InternalMessage CreateDefaultInternalMessage()
+        protected InternalMessage DummyMessage()
         {
             var as4Message = new AS4Message
             {
-                ReceivingPMode = GetReceivingPMode(),
-                UserMessages = new[] {GetUserMessage()}
+                ReceivingPMode = GetStubReceivingPMode(),
+                UserMessages = new[] {new UserMessage("message-id")}
             };
             return new InternalMessage(as4Message);
         }
 
-        protected UserMessage GetUserMessage()
+        private AS4Exception CreateAS4Exception(string messageId = "ignored-string")
         {
-            return new UserMessage("message-id");
-        }
-
-        protected void SetupCatchedStepWithException(string messageId = "dummy-message-id")
-        {
-            AS4Exception as4Exception = AS4ExceptionBuilder
+            return AS4ExceptionBuilder
                 .WithDescription("Testing AS4 Exception")
-                .WithPModeString(AS4XmlSerializer.ToString(GetReceivingPMode()))
+                .WithPModeString(AS4XmlSerializer.ToString(GetStubReceivingPMode()))
                 .WithMessageIds(messageId)
                 .Build();
-
-            _mockedCatchedStep.Setup(s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
-                              .Throws(as4Exception);
         }
     }
 }

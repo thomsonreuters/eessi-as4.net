@@ -2,56 +2,74 @@
 using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Http;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
 {
-    internal class HttpNotifySender : INotifySender
+    /// <summary>
+    /// <see cref="IDeliverSender"/>, <see cref="INotifySender"/> implemetation to HTTP POST on a configured endpoint.
+    /// </summary>
+    [Info("HTTP")]
+    public class HttpSender : IDeliverSender, INotifySender
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private Method _method;
+        private string _destinationUri;
 
         /// <summary>
-        /// Configure the <see cref="INotifySender"/>
-        /// with a given <paramref name="method"/>
+        /// Configure the <see cref="IDeliverSender" />
+        /// with a given <paramref name="method" />
         /// </summary>
         /// <param name="method"></param>
         public void Configure(Method method)
         {
-            _method = method;
+            _destinationUri = method["location"].Value;
         }
 
         /// <summary>
-        /// Send a given <paramref name="message"/> to a given endpoint
+        /// Start sending the <see cref="DeliverMessage" />
         /// </summary>
-        /// <param name="message">The message.</param>
-        public async void Send(NotifyMessageEnvelope message)
+        /// <param name="deliverMessage"></param>
+        public async void Send(DeliverMessageEnvelope deliverMessage)
         {
-            string destinationUri = _method["location"].Value;
-            HttpWebRequest request = CreateNotifyRequest(message, destinationUri);
-            HttpWebResponse response = await SendNotifyRequest(request);
+            Logger.Info($"Send Deliver {deliverMessage.MessageInfo.MessageId} to {_destinationUri}");
+
+            HttpWebRequest request = CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage);
+            HttpWebResponse response = await SendHttpPostRequest(request);
 
             response?.Close();
         }
 
-        private static HttpWebRequest CreateNotifyRequest(NotifyMessageEnvelope notifyMessage, string destinationUri)
+        /// <summary>
+        /// Start sending the <see cref="NotifyMessage" />
+        /// </summary>
+        /// <param name="notifyMessage"></param>
+        public async void Send(NotifyMessageEnvelope notifyMessage)
+        {
+            Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {_destinationUri}");
+
+            HttpWebRequest request = CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
+            HttpWebResponse httpPostResponse = await SendHttpPostRequest(request);
+
+            httpPostResponse?.Close();
+        }
+
+        private HttpWebRequest CreateHttpPostRequest(string contentType, byte[] contents)
         {
             // TODO: verify if destinationUri is a valid http endpoint.
-            HttpWebRequest request = HttpPostRequest.Create(destinationUri, notifyMessage.ContentType);
-
-            Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {destinationUri}");
+            HttpWebRequest request = HttpPostRequest.Create(_destinationUri, contentType);
 
             using (Stream requestStream = request.GetRequestStream())
             {
-                requestStream.Write(notifyMessage.NotifyMessage, 0, notifyMessage.NotifyMessage.Length);
+                requestStream.Write(contents, 0, contents.Length);
             }
 
             return request;
         }
 
-        private static async Task<HttpWebResponse> SendNotifyRequest(WebRequest request)
+        private static async Task<HttpWebResponse> SendHttpPostRequest(WebRequest request)
         {
             HttpWebResponse response;
 
@@ -87,7 +105,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             {
                 return;
             }
-            
+
             using (var streamReader = new StreamReader(responseStream, detectEncodingFromByteOrderMarks: true))
             {
                 Logger.Error(streamReader.ReadToEnd());
@@ -96,8 +114,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
 
         private static bool IsResponseValid(HttpWebResponse response)
         {
-            return 
-                response.StatusCode == HttpStatusCode.Accepted || 
+            return
+                response.StatusCode == HttpStatusCode.Accepted ||
                 response.StatusCode == HttpStatusCode.OK;
         }
     }
