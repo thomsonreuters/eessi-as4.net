@@ -12,55 +12,84 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// </summary>
     public class Holodeck
     {
-        private readonly DirectoryInfo _holodeckDirectory;
+        private readonly DirectoryInfo _holodeckAInputDirectory;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Holodeck"/> class.
+        /// </summary>
         public Holodeck()
         {
-            this._holodeckDirectory = new DirectoryInfo(Properties.Resources.holodeck_A_input_path);
+            _holodeckAInputDirectory = new DirectoryInfo(Properties.Resources.holodeck_A_input_path);
         }
 
         /// <summary>
         /// Assert the image payload on Holodeck
         /// </summary>
-        public void AssertImagePayload()
+        public void AssertDandelionPayload()
         {
             FileInfo receivedPayload = new DirectoryInfo(IntegrationTestTemplate.AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
             var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
 
-            if (receivedPayload != null) Assert.Equal(sendPayload.Length, receivedPayload.Length);
+            if (receivedPayload != null)
+            {
+                Assert.Equal(sendPayload.Length, receivedPayload.Length);
+            }
         }
 
         /// <summary>
-        /// Assert the received <Receipt/> with Holodeck
+        /// Assert if the given <paramref name="receivedPayload" /> matches the 'Earth' payload.
         /// </summary>
-        public void AssertReceiptOnHolodeckA()
+        /// <param name="receivedPayload"></param>
+        public void AssertEarthPayload(FileInfo receivedPayload)
         {
-            FileInfo receipt = this._holodeckDirectory.GetFiles("*.xml").FirstOrDefault();
+            var sendPayload = new FileInfo($".\\{Properties.Resources.submitmessage_single_payload_path}");
 
-            if (receipt != null) Console.WriteLine(@"Receipt found at Holodeck A");
-            Assert.NotNull(receipt);
+            Assert.NotNull(receivedPayload);
+            Assert.Equal(sendPayload.Length, receivedPayload.Length);
         }
 
         public void AssertErrorOnHolodeckA(ErrorCode errorCode = ErrorCode.NotApplicable)
         {
-            FileInfo error = this._holodeckDirectory.GetFiles("*.xml").FirstOrDefault();
+            FileInfo error = _holodeckAInputDirectory.GetFiles("*.xml").FirstOrDefault();
             Assert.NotNull(error);
-            //AssertError(errorCode, error);
+        }
+
+        /// <summary>
+        /// Assert the received <Receipt /> with Holodeck
+        /// </summary>
+        public void AssertReceiptOnHolodeckA()
+        {
+            FileInfo receipt = _holodeckAInputDirectory.GetFiles("*.xml").FirstOrDefault();
+
+            if (receipt != null)
+            {
+                Console.WriteLine(@"Receipt found at Holodeck A");
+            }
+
+            Assert.NotNull(receipt);
         }
 
         private void AssertError(ErrorCode errorCode, FileInfo error)
         {
             XmlNode errorTag = SelectErrorTag(error);
-            if (errorTag != null) Console.WriteLine(@"Error found at Holodeck A");
+            if (errorTag != null)
+            {
+                Console.WriteLine(@"Error found at Holodeck A");
+            }
+
             Assert.NotNull(errorTag?.Attributes);
 
-            if (errorCode == ErrorCode.NotApplicable) return;
+            if (errorCode == ErrorCode.NotApplicable)
+            {
+                return;
+            }
+
             AssertErrorCode(errorCode, errorTag);
         }
 
         private void AssertErrorCode(ErrorCode errorCode, XmlNode errorTag)
         {
-            string errorCodeString = $"Ebms:{(int)errorCode:0000}";
+            string errorCodeString = $"Ebms:{(int) errorCode:0000}";
             XmlAttribute errorCodeAttribute = errorTag.Attributes["errorCode"];
 
             Assert.Equal(errorCodeString, errorCodeAttribute.InnerText);

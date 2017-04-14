@@ -38,7 +38,7 @@ you should install this P-Mode on instance B.
     <Leg>
         <Receipt>
             <ReplyPattern>CALLBACK</ReplyPattern>
-            <To>http://localhost:8080/msh</To>
+            <To>http://localhost:8081/msh</To>
         </Receipt>
         <DefaultDelivery>
             <DeliveryMethod>org.holodeckb2b.deliverymethod.file.FileDeliveryFactory</DeliveryMethod>
@@ -61,7 +61,7 @@ you should install this P-Mode on instance B.
             </BusinessInfo>
             <ErrorHandling>
                 <ReplyPattern>CALLBACK</ReplyPattern>
-                <ReceiverErrorsTo>http://localhost:8080/msh</ReceiverErrorsTo>
+                <ReceiverErrorsTo>http://localhost:8081/msh</ReceiverErrorsTo>
             </ErrorHandling>       
         </UserMessageFlow>
     </Leg>

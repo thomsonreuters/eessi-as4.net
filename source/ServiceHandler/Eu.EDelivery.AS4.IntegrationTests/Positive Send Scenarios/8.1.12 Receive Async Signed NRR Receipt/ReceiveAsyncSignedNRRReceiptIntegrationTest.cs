@@ -19,30 +19,36 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
 
         public ReceiveAsyncSignedNRRReceiptIntegrationTest()
         {
-            this._as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
-            this._as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
+            _as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+            _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 
         [Fact]
         public void ThenSendAsyncSignedNRRReceiptSucceeds()
         {
             // Before
-            base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartAS4Component();
-            base.CleanUpFiles(AS4FullOutputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            base.CleanUpFiles(AS4ReceiptsPath);
+            CleanUpFiles(HolodeckBInputPath);
+            StartAS4Component();
+            CleanUpFiles(AS4FullOutputPath);
+            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
+            CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            base.CopyPModeToHolodeckB("8.1.12-pmode.xml");
+            CopyPModeToHolodeckB("8.1.12-pmode.xml");
 
             // Act
-            File.Copy(this._as4MessagesPath, this._as4OutputPath);
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
             bool areFilesFound = AreFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Receive Async Signed NRR Receipt Integration Test succeeded!");
-            else Retry();
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Receive Async Signed NRR Receipt Integration Test succeeded!");
+            }
+            else
+            {
+                Retry();
+            }
 
             Assert.True(areFilesFound, "Send Async Signed NRR Receipt failed");
         }
@@ -59,20 +65,24 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
         private bool AreFilesFound()
         {
             const int retryCount = 2000;
-            return base.PollingAt(AS4ReceiptsPath, "*.xml", retryCount);
+            return PollingAt(AS4ReceiptsPath, "*.xml", retryCount);
         }
 
+        /// <summary>
+        /// Perform extra validation for the output files of Holodeck
+        /// </summary>
+        /// <param name="files">The files.</param>
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             Assert.NotEmpty(files);
             FileInfo receipt = files.FirstOrDefault();
 
             Assert.NotNull(receipt);
-            var xmlDocument = new XmlDocument();
-            xmlDocument.Load(receipt.FullName);
 
-            XmlNode nonRepudiationInformation = xmlDocument
-                .SelectSingleNode("//*[local-name()='NonRepudiationInformation']");
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(File.ReadAllText(receipt.FullName));
+
+            XmlNode nonRepudiationInformation = xmlDocument.SelectSingleNode("//*[local-name()='NonRepudiationInformation']");
             Assert.NotNull(nonRepudiationInformation);
         }
     }

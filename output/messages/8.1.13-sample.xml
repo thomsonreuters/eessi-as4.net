@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <MessageInfo>
+    <MessageId></MessageId>
+  </MessageInfo>
   <Collaboration>
     <AgreementRef>
       <PModeId>8.1.13-pmode</PModeId>
