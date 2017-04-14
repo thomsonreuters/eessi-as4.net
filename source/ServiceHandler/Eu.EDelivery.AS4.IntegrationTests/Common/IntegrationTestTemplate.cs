@@ -249,7 +249,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 }
 
                 Thread.Sleep(2000);
-                i += 10;
+                i += 100;
             }
 
             StopApplication();

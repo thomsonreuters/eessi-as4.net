@@ -64,7 +64,7 @@
   </Security>
   <MessagePackaging>
     <UseAS4Compression>false</UseAS4Compression>
-    <IsMultiHop>true</IsMultiHop>
+    <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <PartyInfo>
       <FromParty>

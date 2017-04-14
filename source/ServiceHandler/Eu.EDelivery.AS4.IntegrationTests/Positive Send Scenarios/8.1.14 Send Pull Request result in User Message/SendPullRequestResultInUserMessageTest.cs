@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
 
             //// Assert
             bool areFilesFound = PollingAt(AS4FullInputPath);
-            Assert.True(areFilesFound);
+            Assert.True(areFilesFound, "Pull Request > User Message failed");
         }
 
         /// <summary>
