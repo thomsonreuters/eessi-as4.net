@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
             // Assert
             bool areFilesFound = base.PollingAt(AS4ReceiptsPath);
             if (areFilesFound) Console.WriteLine(@"Single Payload with Message Properties Integration Test succeeded!");
-            Assert.True(areFilesFound);
+            Assert.True(areFilesFound, "Send Single Payload with Message Id failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

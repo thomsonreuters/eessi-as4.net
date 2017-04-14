@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._3._Se
             // Assert
             bool areFilesFound = PollingAt(AS4ReceiptsPath);
             if (areFilesFound) Console.WriteLine(@"Multiple Payloads Compressed Integration Test succeeded!");
-            Assert.True(areFilesFound);
+            Assert.True(areFilesFound, "Multiple Payloads Compressed failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

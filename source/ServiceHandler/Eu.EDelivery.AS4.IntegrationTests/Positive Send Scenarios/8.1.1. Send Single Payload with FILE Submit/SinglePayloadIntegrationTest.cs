@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._1._Se
                 Console.WriteLine(@"Single Payload Integration Test succeeded!");
             }
 
-            Assert.True(areFilesFound);
+            Assert.True(areFilesFound, "Send Single Payload failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

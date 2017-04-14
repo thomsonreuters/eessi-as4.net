@@ -68,7 +68,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
 
             // Assert
             bool areFilesFound = AreFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Receive Async Error Integration Test succeeded!");  
+            if (areFilesFound) Console.WriteLine(@"Receive Async Error Integration Test succeeded!");
+            Assert.True(areFilesFound, "Send Async Error failed");
         }
 
         private bool AreFilesFound()
