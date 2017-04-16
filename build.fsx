@@ -41,7 +41,7 @@ Target "Coverage" (fun _ ->
 /// <summary>
 /// Inspect the Solution with FxCop.
 /// </summary>
-Target "Inspect" (fun _ -> !! ("./output/Eu.EDelivery.AS4**.dll") |> FxCop (fun p -> {p with ReportFileName = "./output/FxCopResult.xml"; ToolPath = "./tools/FxCop/FxCopCmd.exe";}))
+Target "Inspect" (fun _ -> !! ("./output/Eu.EDelivery.AS4**.dll") |> FxCop (fun p -> {p with ReportFileName = "./output/FxCopResult.xml"; ToolPath = "./tools/FxCop/FxCopCmd.exe"; }))
 
 "Compile" ==> "Coverage"
 "Compile" ==> "UnitTests"
