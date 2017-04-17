@@ -3,11 +3,12 @@
 open Fake
 open Fake.Testing
 open Fake.DotCover
+open Fake.DotNetCli
 
 /// <summary>
 /// Compile the Solution with a 'Release' configuraiton.
 /// </summary>
-Target "Compile" (fun _ -> 
+Target "Compile" (fun _ ->
     let buildMode = getBuildParamOrDefault "buildMode" "Release"
     let setParams defaults =
         { defaults with
