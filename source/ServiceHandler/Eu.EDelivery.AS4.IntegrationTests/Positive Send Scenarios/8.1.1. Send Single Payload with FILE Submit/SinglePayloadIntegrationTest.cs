@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._1._Se
 
         public SinglePayloadIntegrationTest()
         {
-            _as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+            _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
             _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 

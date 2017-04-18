@@ -5,15 +5,15 @@ using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._7
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._8._Send_Multiple_Payloads_Compressed_Signed_Encrypted
 {
     /// <summary>
-    /// Testing the Application with multiple payloads compressed and encrypted
+    /// Testing the Application with multiple Payloads compressed, signed and encrypted
     /// </summary>
-    public class MultiplePayloadsCompressedEncryptedIntegrationTest : IntegrationTestTemplate
+    public class MultiplePayloadsCompressedSignedEncryptedIntegrationTest : IntegrationTestTemplate
     {
-        private const string SubmitMessageFilename = "\\8.1.7-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+        private const string SubmitMessageFilename = "\\8.1.8-sample.xml";
+        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
         private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
 
         [Fact]
@@ -27,15 +27,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._7
             base.CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            base.CopyPModeToHolodeckB("8.1.7-pmode.xml");
+            base.CopyPModeToHolodeckB("8.1.8-pmode.xml");
 
             // Act
             File.Copy(this._as4MessagesPath, this._as4OutputPath);
 
             // Assert
             bool areFilesFound = base.PollingAt(AS4ReceiptsPath);
-            if (areFilesFound) Console.WriteLine(@"Multiple Payloads Compressed Encrypted Integration Test succeeded!");
-            Assert.True(areFilesFound, "Multiple Payloads Compressed and Encrypted failed");
+            if (areFilesFound) Console.WriteLine(@"Multiple Payloads Compressed, Signed and Encrypted Integration Test succeeded!");
+            Assert.True(areFilesFound, "Multiple Payloads Compressed, Signed and Encrypted failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

@@ -1,11 +1,8 @@
 <?xml version="1.0"?>
 <SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
-  <MessageInfo>
-    <MessageId>614eeb4c-9f35-4c05-af2e-94fdc9958bb6</MessageId>
-  </MessageInfo>
   <Collaboration>
     <AgreementRef>
-      <PModeId>8.1.13-pmode</PModeId>
+      <PModeId>8.1.8-pmode</PModeId>
       <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
     </AgreementRef>
     <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
@@ -15,6 +12,7 @@
       <Type>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Type>
     </Service>
   </Collaboration>
+
   <MessageProperties>
     <MessageProperty>
       <Name>Test</Name>
@@ -27,17 +25,31 @@
       <Value>Test</Value>
     </MessageProperty>
   </MessageProperties>
+
   <Payloads>
     <Payload>
-      <Id>earth2</Id>
+      <Id>earth</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///__OUTPUTPATH__\messages\attachments\earth(2).jpg</Location>
+      <Location>file:///__OUTPUTPATH__\messages\attachments\earth.jpg</Location>
       <PayloadProperties>
         <PayloadProperty>
-          <Name>Test</Name>
+           <Name>Test</Name>
           <Value>Test</Value>
         </PayloadProperty>
       </PayloadProperties>
     </Payload>
+
+    <Payload>
+      <Id>xml-sample</Id>
+      <MimeType>application/xml</MimeType>
+      <Location>file:///__OUTPUTPATH__\messages\attachments\sample.xml</Location>
+      <PayloadProperties>
+        <PayloadProperty>
+          <Name>Important</Name>
+          <Value>Yes</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+
   </Payloads>
 </SubmitMessage>

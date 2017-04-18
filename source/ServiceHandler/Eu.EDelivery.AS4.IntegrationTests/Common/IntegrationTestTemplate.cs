@@ -14,14 +14,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     [Collection(HolodeckCollection.CollectionId)]
     public class IntegrationTestTemplate : IDisposable
     {
-        protected static readonly string AS4MessagesPath = $@".\{Properties.Resources.submit_messages_path}";
+        protected static readonly string AS4IntegrationMessagesPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}\integrationtest-messages");
+        protected static readonly string AS4MessagesRootPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}");
         protected static readonly string AS4FullOutputPath = Path.GetFullPath($@".\{Properties.Resources.submit_output_path}");
         protected static readonly string AS4ReceiptsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
         protected static readonly string AS4ErrorsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_errors_path}");
         protected static readonly string AS4ExceptionsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_exceptions_path}");
 
         protected readonly string HolodeckBInputPath = Properties.Resources.holodeck_B_input_path;
-        protected static readonly string HolodeckMessagesPath = AS4MessagesPath + "\\holodeck-messages";
+        protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
         public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
 
         private Process _as4ComponentProcess;
@@ -218,7 +219,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="directoryPath">Directory Path to poll</param>
         /// <param name="extension"></param>
         /// <param name="retryCount">Retry Count in miliseconds</param>
-        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 1000)
+        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 2500)
         {
             string location = FindAliasLocation(directoryPath);
             Console.WriteLine($@"Start polling to {location}");

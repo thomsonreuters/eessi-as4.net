@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             AssertReceipt(files.FirstOrDefault(f => f.Extension.Equals(".xml")));
         }
 
-        private void AssertPayload(FileInfo receivedPayload)
+        private static void AssertPayload(FileInfo receivedPayload)
         {
             FileInfo sendPayload = AS4Component.SubmitSinglePayloadImage;
 
@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             Assert.Equal(sendPayload.Length, receivedPayload.Length);
         }
 
-        private void AssertReceipt(FileInfo receipt)
+        private static void AssertReceipt(FileInfo receipt)
         {
             Assert.NotNull(receipt);
         }
@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             TryCopyFile(@"integrationtest-settings\settings.xml", @"settings.xml");
         }
 
-        private void TryCopyFile(string sourceFile, string destFile)
+        private static void TryCopyFile(string sourceFile, string destFile)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             }
         }
 
-        private void TryMoveFile(string sourceFile, string destFile)
+        private static void TryMoveFile(string sourceFile, string destFile)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             }
         }
 
-        private void TryDeleteFile(string fileName)
+        private static void TryDeleteFile(string fileName)
         {
             try
             {

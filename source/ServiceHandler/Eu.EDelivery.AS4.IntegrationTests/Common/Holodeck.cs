@@ -30,10 +30,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             FileInfo receivedPayload = new DirectoryInfo(IntegrationTestTemplate.AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
             var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
 
-            if (receivedPayload != null)
-            {
-                Assert.Equal(sendPayload.Length, receivedPayload.Length);
-            }
+            Assert.Equal(sendPayload.Length, receivedPayload?.Length);
         }
 
         /// <summary>
@@ -42,7 +39,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="receivedPayload"></param>
         public void AssertEarthPayload(FileInfo receivedPayload)
         {
-            var sendPayload = new FileInfo($".\\{Properties.Resources.submitmessage_single_payload_path}");
+            var sendPayload = new FileInfo(Path.GetFullPath($".\\{Properties.Resources.submitmessage_single_payload_path}"));
 
             Assert.NotNull(receivedPayload);
             Assert.Equal(sendPayload.Length, receivedPayload.Length);

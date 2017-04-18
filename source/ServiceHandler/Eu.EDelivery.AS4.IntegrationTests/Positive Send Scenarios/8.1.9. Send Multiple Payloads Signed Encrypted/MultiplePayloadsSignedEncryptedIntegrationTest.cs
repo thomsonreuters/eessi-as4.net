@@ -5,15 +5,15 @@ using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._8
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._9._Send_Multiple_Payloads_Signed_Encrypted
 {
     /// <summary>
-    /// Testing the Application with multiple Payloads compressed, signed and encrypted
+    /// Testing the Application with multiple payloads signed and encrypted
     /// </summary>
-    public class MultiplePayloadsCompressedSignedEncryptedIntegrationTest : IntegrationTestTemplate
+    public class MultiplePayloadsSignedEncryptedIntegrationTest : IntegrationTestTemplate
     {
-        private const string SubmitMessageFilename = "\\8.1.8-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+        private const string SubmitMessageFilename = "\\8.1.9-sample.xml";
+        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
         private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
 
         [Fact]
@@ -27,15 +27,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._8
             base.CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            base.CopyPModeToHolodeckB("8.1.8-pmode.xml");
+            base.CopyPModeToHolodeckB("8.1.9-pmode.xml");
 
             // Act
             File.Copy(this._as4MessagesPath, this._as4OutputPath);
 
             // Assert
             bool areFilesFound = base.PollingAt(AS4ReceiptsPath);
-            if (areFilesFound) Console.WriteLine(@"Multiple Payloads Compressed, Signed and Encrypted Integration Test succeeded!");
-            Assert.True(areFilesFound, "Multiple Payloads Compressed, Signed and Encrypted failed");
+            if (areFilesFound) Console.WriteLine(@"Multiple Payloads Signed and Encrypted Integration Test succeeded!");
+            Assert.True(areFilesFound, "Multiple Payloads Signed and Encrypted failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
@@ -53,8 +53,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._8
             var sentXml = new FileInfo($".{Properties.Resources.submitmessage_second_payload_path}");
 
             // Earth attachment
-            FileInfo receivedEarth = receivedPayloads.SingleOrDefault(x => x.Extension == ".jpg");
-            FileInfo receivedXml = receivedPayloads.SingleOrDefault(x => x.Name.Contains("sample"));
+            FileInfo receivedEarth = receivedPayloads.FirstOrDefault(x => x.Extension == ".jpg");
+            FileInfo receivedXml = receivedPayloads.FirstOrDefault(x => x.Name.Contains("sample"));
 
             Assert.NotNull(receivedEarth);
             Assert.NotNull(receivedXml);
