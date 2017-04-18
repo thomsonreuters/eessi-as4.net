@@ -38,9 +38,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>
         /// <param name="searchedMessageIds">'EbmsMessageIds' to search for duplicates.</param>
         /// <returns></returns>
-        public IDictionary<string, bool> FindDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds)
+        public IDictionary<string, bool> DetermineDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds)
         {
-            IEnumerable<string> duplicateMessageIds = _repository.SelectInMessageIdsIn(searchedMessageIds);
+            IEnumerable<string> duplicateMessageIds = _repository.SelectExistingInMessageIds(searchedMessageIds);
 
             return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
         }
@@ -50,9 +50,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>
         /// <param name="searchedMessageIds">'RefToEbmsMessageIds' to search for duplicates.</param>
         /// <returns></returns>
-        public IDictionary<string, bool> FindDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds)
+        public IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds)
         {
-            IEnumerable<string> duplicateMessageIds = _repository.SelectRefInMessageIdsIn(searchedMessageIds);
+            IEnumerable<string> duplicateMessageIds = _repository.SelectExistingRefInMessageIds(searchedMessageIds);
 
             return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
         }
@@ -261,13 +261,13 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>
         /// <param name="searchedMessageIds">'EbmsMessageIds' to search for duplicates.</param>
         /// <returns></returns>
-        IDictionary<string, bool> FindDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds);
+        IDictionary<string, bool> DetermineDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds);
 
         /// <summary>
         /// Search for duplicate <see cref="SignalMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
         /// </summary>
         /// <param name="searchedMessageIds">'RefToEbmsMessageIds' to search for duplicates.</param>
         /// <returns></returns>
-        IDictionary<string, bool> FindDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds);
+        IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds);
     }
 }

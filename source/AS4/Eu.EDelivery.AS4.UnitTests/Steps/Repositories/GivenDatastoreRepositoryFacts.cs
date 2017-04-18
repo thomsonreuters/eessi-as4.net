@@ -164,13 +164,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             [Fact]
             public void GetsMessageIdsForFoundUserMessages()
             {
-                TestFoundInMessagesFor(id => InsertInMessage(id), repository => repository.SelectInMessageIdsIn);
+                TestFoundInMessagesFor(id => InsertInMessage(id), repository => repository.SelectExistingInMessageIds);
             }
 
             [Fact]
             public void GetsMmessagesIdsForFoundSignalMessages()
             {
-                TestFoundInMessagesFor(InsertRefInMessage, repository => repository.SelectRefInMessageIdsIn);
+                TestFoundInMessagesFor(InsertRefInMessage, repository => repository.SelectExistingRefInMessageIds);
             }
 
             private void TestFoundInMessagesFor(Action<string> insertion, Func<DatastoreRepository, Func<IEnumerable<string>, IEnumerable<string>>> sutAction)

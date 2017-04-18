@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             public void InsertUserMessages()
             {
                 IDictionary<string, bool> duplicateUserMessages = _messageService
-                    .FindDuplicateUserMessageIds(_originalMessage.AS4Message.UserMessages.Select(m => m.MessageId));
+                    .DetermineDuplicateUserMessageIds(_originalMessage.AS4Message.UserMessages.Select(m => m.MessageId));
 
                 foreach (UserMessage userMessage in _originalMessage.AS4Message.UserMessages)
                 {
@@ -150,7 +150,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             public void InsertSignalMessages()
             {
                 IDictionary<string, bool> duplicateSignalMessages = _messageService
-                    .FindDuplicateSignalMessageIds(_originalMessage.AS4Message.SignalMessages.Select(m => m.RefToMessageId));
+                    .DetermineDuplicateSignalMessageIds(_originalMessage.AS4Message.SignalMessages.Select(m => m.RefToMessageId));
 
                 foreach (SignalMessage signalMessage in _originalMessage.AS4Message.SignalMessages)
                 {

@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="searchedMessageIds">Collection of 'EbmsMessageIds' to be search for.</param>
         /// <returns></returns>
-        public IEnumerable<string> SelectInMessageIdsIn(IEnumerable<string> searchedMessageIds)
+        public IEnumerable<string> SelectExistingInMessageIds(IEnumerable<string> searchedMessageIds)
         {
             return _dbContext.InMessages
                 .Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="searchedMessageIds"></param>
         /// <returns></returns>
-        public IEnumerable<string> SelectRefInMessageIdsIn(IEnumerable<string> searchedMessageIds)
+        public IEnumerable<string> SelectExistingRefInMessageIds(IEnumerable<string> searchedMessageIds)
         {
             return _dbContext.InMessages
                 .Where(m => searchedMessageIds.Contains(m.EbmsRefToMessageId))
@@ -488,13 +488,13 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="searchedMessageIds">Collection of 'EbmsMessageIds' to be search for.</param>
         /// <returns></returns>
-        IEnumerable<string> SelectInMessageIdsIn(IEnumerable<string> searchedMessageIds);
+        IEnumerable<string> SelectExistingInMessageIds(IEnumerable<string> searchedMessageIds);
 
         /// <summary>
         /// Search all the found 'RefToMessageIds' in the given datastore.
         /// </summary>
         /// <param name="searchedMessageIds"></param>
         /// <returns></returns>
-        IEnumerable<string> SelectRefInMessageIdsIn(IEnumerable<string> searchedMessageIds);
+        IEnumerable<string> SelectExistingRefInMessageIds(IEnumerable<string> searchedMessageIds);
     }
 }
