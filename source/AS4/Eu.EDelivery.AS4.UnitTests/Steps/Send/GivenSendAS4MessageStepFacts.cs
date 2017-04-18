@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -26,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     /// <summary>
     /// Testing <see cref="SendAS4MessageStep"/>
     /// </summary>
-    public class GivenSendAS4MessageStepFacts
+    public class GivenSendAS4MessageStepFacts : GivenDatastoreFacts
     {
         private static readonly string SharedUrl = UniqueHost.Create();
         private readonly IStep _step;
@@ -36,25 +38,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         /// </summary>
         public GivenSendAS4MessageStepFacts()
         {
-            _step = new SendAS4MessageStep();
+            _step = new SendAS4MessageStep(() => new DatastoreContext(Options));
 
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-
-            DbContextOptions<DatastoreContext> options =
-                new DbContextOptionsBuilder<DatastoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
-
-            Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(options);
         }
 
         [Fact]
-        public async Task SendReturnsStopExecutionResult()
+        public async Task StepReturnsStopExecutionResult_IfResponseIsPullRequestError()
         {
             // Arrange
             AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequestError()).Build();
 
             using (CreateMockedHttpServerThatReturns(as4Message))
             {
-                InternalMessage dummyMessage = CreateAnonymousMessage();
+                InternalMessage dummyMessage = CreateAnonymousPullRequest();
 
                 // Act
                 StepResult actualResult = await _step.ExecuteAsync(dummyMessage, CancellationToken.None);
@@ -62,6 +59,46 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Assert
                 Assert.False(actualResult.CanProceed);
             }
+        }
+
+        [Theory]
+        [InlineData(Constants.ContentTypes.Soap, Operation.Sent, OutStatus.Sent)]
+        [InlineData(null, Operation.Undetermined, OutStatus.Exception)]
+        public async Task StepUpdatesRequestOperationAndStatus_IfResponseIs(
+            string contentType, Operation expectedOperation, OutStatus expectedStatus)
+        {
+            // Arrange
+            InternalMessage stubMessage = CreateAnonymousMessage();
+            stubMessage.AS4Message.ContentType = contentType;
+            InsertToBeSentUserMessage(stubMessage);
+
+            using (CreateMockedHttpServerThatReturns(CreateAnonymousReceipt()))
+            {
+                // Act
+                await _step.ExecuteAsync(stubMessage, CancellationToken.None);
+            }
+
+            // Assert
+            AssertSentUserMessage(stubMessage,
+                message =>
+                {
+                    Assert.Equal(expectedOperation, message.Operation);
+                    Assert.Equal(expectedStatus, message.Status);
+                });
+        }
+
+        private void InsertToBeSentUserMessage(InternalMessage requestMessage)
+        {
+            using (var context = new DatastoreContext(Options))
+            {
+                context.OutMessages.Add(new OutMessage {EbmsMessageId = requestMessage.AS4Message.PrimaryUserMessage.MessageId});
+                context.SaveChanges();
+            }
+        }
+
+        private static AS4Message CreateAnonymousReceipt()
+        {
+            return new AS4MessageBuilder().WithSignalMessage(new Receipt()).Build();
         }
 
         private static MockedHttpServer CreateMockedHttpServerThatReturns(AS4Message as4Message)
@@ -89,13 +126,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
+        private void AssertSentUserMessage(InternalMessage requestMessage, Action<OutMessage> assertion)
+        {
+            using (var context = new DatastoreContext(Options))
+            {
+                OutMessage outMessage = context.OutMessages.FirstOrDefault(
+                    m => m.EbmsMessageId.Equals(requestMessage.AS4Message.PrimaryUserMessage.MessageId));
+
+                assertion(outMessage);
+            }
+        }
+
         [Fact]
         public async Task SendReturnsEmptyResponseForEmptyRequest()
         {
             // Arrange
             using (CreateMockedHttpServerThatReturnsStatusCode(HttpStatusCode.Accepted))
             {
-                InternalMessage dummyMessage = CreateAnonymousMessage();
+                InternalMessage dummyMessage = CreateAnonymousPullRequest();
 
                 // Act
                 StepResult actualResult = await _step.ExecuteAsync(dummyMessage, CancellationToken.None);
@@ -115,18 +163,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             return builder.Build(SharedUrl);
         }
 
-        private static InternalMessage CreateAnonymousMessage()
+        private static InternalMessage CreateAnonymousPullRequest()
         {
             var builder = new AS4MessageBuilder();
 
-            builder.WithSendingPMode(CreateValidSendingPMode()).WithSignalMessage(new PullRequest());
+            builder.WithSendingPMode(CreateValidSendingPMode()).WithSignalMessage(new PullRequest(mpc: null, messageId: "message-id"));
 
             return new InternalMessage(builder.Build());
         }
 
+        private static InternalMessage CreateAnonymousMessage()
+        {
+            var builder = new AS4MessageBuilder();
+
+            builder.WithSendingPMode(CreateValidSendingPMode()).WithUserMessage(new UserMessage(messageId: "message-id")).Build();
+            AS4Message as4Message = builder.Build();
+            as4Message.ContentType = Constants.ContentTypes.Soap;
+
+            return new InternalMessage(as4Message);
+        }
+
         private static SendingProcessingMode CreateValidSendingPMode()
         {
-            return new SendingProcessingMode {PullConfiguration = new PullConfiguration {Protocol = {Url = SharedUrl}}};
+            return new SendingProcessingMode
+            {
+                PullConfiguration = new PullConfiguration {Protocol = {Url = SharedUrl}},
+                PushConfiguration = new PushConfiguration { Protocol = {Url = SharedUrl}},
+                Reliability = {ReceptionAwareness = {IsEnabled = true}}
+            };
         }
     }
 }

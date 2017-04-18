@@ -1,4 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -28,6 +31,38 @@ namespace Eu.EDelivery.AS4.Steps.Services
         {
             _repository = respository;
             _logger = LogManager.GetCurrentClassLogger();
+        }
+
+        /// <summary>
+        /// Search for duplicate <see cref="UserMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
+        /// </summary>
+        /// <param name="searchedMessageIds">'EbmsMessageIds' to search for duplicates.</param>
+        /// <returns></returns>
+        public IDictionary<string, bool> FindDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds)
+        {
+            IEnumerable<string> duplicateMessageIds = _repository.SelectInMessageIdsIn(searchedMessageIds);
+
+            return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
+        }
+
+        /// <summary>
+        /// Search for duplicate <see cref="SignalMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
+        /// </summary>
+        /// <param name="searchedMessageIds">'RefToEbmsMessageIds' to search for duplicates.</param>
+        /// <returns></returns>
+        public IDictionary<string, bool> FindDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds)
+        {
+            IEnumerable<string> duplicateMessageIds = _repository.SelectRefInMessageIdsIn(searchedMessageIds);
+
+            return MergeTwoListsIntoADuplicateMessageMapping(searchedMessageIds, duplicateMessageIds);
+        }
+
+        private static IDictionary<string, bool> MergeTwoListsIntoADuplicateMessageMapping(
+            IEnumerable<string> searchedMessageIds, IEnumerable<string> duplicateMessageIds)
+        {
+            return searchedMessageIds
+                .Select(i => new KeyValuePair<string, bool>(i, duplicateMessageIds.Contains(i)))
+                .ToDictionary(k => k.Key, v => v.Value);
         }
 
         /// <summary>
@@ -110,6 +145,8 @@ namespace Eu.EDelivery.AS4.Steps.Services
             InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, cancellationToken);
 
             _repository.InsertInMessage(inMessage);
+
+            UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
         }
 
         private static InMessage CreateReceiptInMessage(
@@ -164,6 +201,8 @@ namespace Eu.EDelivery.AS4.Steps.Services
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, cancellationToken);
 
             _repository.InsertInMessage(inMessage);
+
+            UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
         }
 
         private static InMessage CreateErrorInMessage(
@@ -196,23 +235,15 @@ namespace Eu.EDelivery.AS4.Steps.Services
             inMessage.Operation = Operation.ToBeNotified;
         }
 
-        /// <summary>
-        /// Explicit Update a Signal Message
-        /// </summary>
-        /// <param name="signalMessage"></param>
-        /// <param name="status"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public void UpdateSignalMessage(SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken)
+        private void UpdateRefUserMessageStatus(MessageUnit signalMessage, OutStatus status)
         {
+            if (status == OutStatus.NotApplicable)
+            {
+                return;
+            }
+
             _repository.UpdateOutMessage(signalMessage.RefToMessageId,
-                outMessage =>
-                {
-                    if (status != OutStatus.NotApplicable)
-                    {
-                        outMessage.Status = status;
-                    }
-                });
+                outMessage => outMessage.Status = status);
         }
     }
 
@@ -225,6 +256,18 @@ namespace Eu.EDelivery.AS4.Steps.Services
         void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
         void InsertError(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
 
-        void UpdateSignalMessage(SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken);
+        /// <summary>
+        /// Search for duplicate <see cref="UserMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
+        /// </summary>
+        /// <param name="searchedMessageIds">'EbmsMessageIds' to search for duplicates.</param>
+        /// <returns></returns>
+        IDictionary<string, bool> FindDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds);
+
+        /// <summary>
+        /// Search for duplicate <see cref="SignalMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
+        /// </summary>
+        /// <param name="searchedMessageIds">'RefToEbmsMessageIds' to search for duplicates.</param>
+        /// <returns></returns>
+        IDictionary<string, bool> FindDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds);
     }
 }

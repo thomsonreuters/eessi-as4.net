@@ -43,6 +43,30 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Select all the found 'EbmsMessageIds' in the given datastore.
+        /// </summary>
+        /// <param name="searchedMessageIds">Collection of 'EbmsMessageIds' to be search for.</param>
+        /// <returns></returns>
+        public IEnumerable<string> SelectInMessageIdsIn(IEnumerable<string> searchedMessageIds)
+        {
+            return _dbContext.InMessages
+                .Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
+                .Select(m => m.EbmsMessageId);
+        }
+
+        /// <summary>
+        /// Search all the found 'RefToMessageIds' in the given datastore.
+        /// </summary>
+        /// <param name="searchedMessageIds"></param>
+        /// <returns></returns>
+        public IEnumerable<string> SelectRefInMessageIdsIn(IEnumerable<string> searchedMessageIds)
+        {
+            return _dbContext.InMessages
+                .Where(m => searchedMessageIds.Contains(m.EbmsRefToMessageId))
+                .Select(m => m.EbmsRefToMessageId);
+        }
+
+        /// <summary>
         /// Insert a given <see cref="InMessage"/>
         /// into the Data store
         /// </summary>
@@ -458,5 +482,19 @@ namespace Eu.EDelivery.AS4.Repositories
 
         void InsertOutException(OutException outException);
         void UpdateOutException(string refToMessageId, Action<OutException> updateAction);
+
+        /// <summary>
+        /// Select all the found 'EbmsMessageIds' in the given datastore.
+        /// </summary>
+        /// <param name="searchedMessageIds">Collection of 'EbmsMessageIds' to be search for.</param>
+        /// <returns></returns>
+        IEnumerable<string> SelectInMessageIdsIn(IEnumerable<string> searchedMessageIds);
+
+        /// <summary>
+        /// Search all the found 'RefToMessageIds' in the given datastore.
+        /// </summary>
+        /// <param name="searchedMessageIds"></param>
+        /// <returns></returns>
+        IEnumerable<string> SelectRefInMessageIdsIn(IEnumerable<string> searchedMessageIds);
     }
 }

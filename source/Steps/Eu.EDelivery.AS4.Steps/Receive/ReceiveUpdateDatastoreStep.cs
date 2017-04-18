@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -50,10 +52,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(context);
                 var service = new InMessageService(repository);
-                var messageUpdate = new ReceiveMessageUpdate(internalMessage, service, token);
+                var messageUpdate = new EbmsMessageStatement(internalMessage, service, token);
 
-                messageUpdate.UpdateUserMessages();
-                messageUpdate.UpdateSignalMessages();
+                messageUpdate.InsertUserMessages();
+                messageUpdate.InsertSignalMessages();
 
                 await context.SaveChangesAsync(token);
             }
@@ -64,19 +66,19 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Method Object to update the ebMS message instances in the 'Receive' operation.
         /// </summary>
-        private class ReceiveMessageUpdate
+        private class EbmsMessageStatement
         {
             private readonly InternalMessage _originalMessage;
             private readonly IInMessageService _messageService;
             private readonly CancellationToken _cancellation;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="ReceiveMessageUpdate"/> class.
+            /// Initializes a new instance of the <see cref="EbmsMessageStatement"/> class.
             /// </summary>
             /// <param name="originalMessage">The original Message.</param>
             /// <param name="messageService">The message Service.</param>
             /// <param name="cancellation">The cancellation.</param>
-            public ReceiveMessageUpdate(
+            public EbmsMessageStatement(
                 InternalMessage originalMessage,
                 IInMessageService messageService,
                 CancellationToken cancellation)
@@ -89,14 +91,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             /// <summary>
             /// Update the <see cref="UserMessage"/> instances.
             /// </summary>
-            public void UpdateUserMessages()
+            public void InsertUserMessages()
             {
+                IDictionary<string, bool> duplicateUserMessages = _messageService
+                    .FindDuplicateUserMessageIds(_originalMessage.AS4Message.UserMessages.Select(m => m.MessageId));
+
                 foreach (UserMessage userMessage in _originalMessage.AS4Message.UserMessages)
                 {
                     userMessage.IsTest = IsUserMessageTest(userMessage);
-                    userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage);
+                    userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
 
-                    TryUpdateUserMessage(userMessage);
+                    AttemptToInsertUserMessage(userMessage);
                 }
             }
 
@@ -115,9 +120,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return isTestMessage;
             }
 
-            private bool IsUserMessageDuplicate(MessageUnit userMessage)
+            private static bool IsUserMessageDuplicate(MessageUnit userMessage, IDictionary<string, bool> duplicateUserMessages)
             {
-                bool isDuplicate = _messageService.ContainsUserMessageWithId(userMessage.MessageId);
+                duplicateUserMessages.TryGetValue(userMessage.MessageId, out var isDuplicate);
 
                 if (isDuplicate)
                 {
@@ -127,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return isDuplicate;
             }
 
-            private void TryUpdateUserMessage(UserMessage userMessage)
+            private void AttemptToInsertUserMessage(UserMessage userMessage)
             {
                 try
                 {
@@ -142,18 +147,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             /// <summary>
             /// Update the <see cref="SignalMessage"/> instances.
             /// </summary>
-            public void UpdateSignalMessages()
+            public void InsertSignalMessages()
             {
+                IDictionary<string, bool> duplicateSignalMessages = _messageService
+                    .FindDuplicateSignalMessageIds(_originalMessage.AS4Message.SignalMessages.Select(m => m.RefToMessageId));
+
                 foreach (SignalMessage signalMessage in _originalMessage.AS4Message.SignalMessages)
                 {
-                    signalMessage.IsDuplicated = IsSignalMessageDuplicate(signalMessage);
-                    TryUpdateSignalMessage(signalMessage);
+                    signalMessage.IsDuplicated = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
+                    AttemptToInsertSignalMessage(signalMessage);
                 }
             }
 
-            private bool IsSignalMessageDuplicate(SignalMessage signalMessage)
+            private static bool IsSignalMessageDuplicate(MessageUnit signalMessage, IDictionary<string, bool> duplicateSignalMessages)
             {
-                bool isDuplicate = _messageService.ContainsSignalMessageWithReferenceToMessageId(signalMessage.RefToMessageId);
+                duplicateSignalMessages.TryGetValue(signalMessage.RefToMessageId, out var isDuplicate);
 
                 if (isDuplicate)
                 {
@@ -163,39 +171,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return isDuplicate;
             }
 
-            private void TryUpdateSignalMessage(SignalMessage signalMessage)
+            private void AttemptToInsertSignalMessage(SignalMessage signalMessage)
             {
                 try
                 {
                     if (signalMessage is Receipt)
                     {
-                        UpdateReceipt(signalMessage);
+                        _messageService.InsertReceipt(signalMessage, _originalMessage.AS4Message, _cancellation);
                     }
                     else if (signalMessage is Error)
                     {
-                        UpdateError(signalMessage);
+                        _messageService.InsertError(signalMessage, _originalMessage.AS4Message, _cancellation);
                     }
                 }
                 catch (Exception exception)
                 {
                     ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", exception);
                 }
-            }
-            private void UpdateReceipt(SignalMessage signalMessage)
-
-            {
-                _messageService.InsertReceipt(signalMessage, _originalMessage.AS4Message, _cancellation);
-
-                // Since we've received a Receipt, make sure that the Status of the UserMessage related to this receipt is set to Ack.            
-                _messageService.UpdateSignalMessage(signalMessage, OutStatus.Ack, _cancellation);
-            }
-
-            private void UpdateError(SignalMessage signalMessage)
-            {
-                _messageService.InsertError(signalMessage, _originalMessage.AS4Message, _cancellation);
-
-                // Make sure the status of the related UserMessage of this Error is set to Nack.            
-                _messageService.UpdateSignalMessage(signalMessage, OutStatus.Nack, _cancellation);
             }
 
             private void ThrowAS4Exception(string description, Exception exception)

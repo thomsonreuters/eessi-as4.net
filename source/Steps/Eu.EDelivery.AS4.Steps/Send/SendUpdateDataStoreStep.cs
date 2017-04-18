@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -46,9 +45,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             using (DatastoreContext context = _createDatastoreContext())
             {
                 var inMessageService = new InMessageService(new DatastoreRepository(context));
-                var signalMessageUpdate = new SendSignalMessageUpdate(internalMessage, inMessageService, cancellationToken);
+                var signalMessageUpdate = new SignalMessageStatement(internalMessage, inMessageService, cancellationToken);
 
-                signalMessageUpdate.StartUpdatingSignalMessages();
+                signalMessageUpdate.InsertSignalMessages();
                 await context.SaveChangesAsync(cancellationToken);
             }
 
@@ -58,17 +57,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Method Object for the <see cref="SignalMessage"/> instances.
         /// </summary>
-        private class SendSignalMessageUpdate
+        private class SignalMessageStatement
         {
             private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
             private readonly InternalMessage _originalMessage;
             private readonly IInMessageService _messageService;
             private readonly CancellationToken _cancellation;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="SendSignalMessageUpdate"/> class.
+            /// Initializes a new instance of the <see cref="SignalMessageStatement"/> class.
             /// </summary>
-            public SendSignalMessageUpdate(
+            public SignalMessageStatement(
                 InternalMessage originalMessage,
                 IInMessageService messageService,
                 CancellationToken cancellation)
@@ -81,21 +81,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
             /// <summary>
             /// Start updating the <see cref="SignalMessage"/> instances for the 'Send' operation.
             /// </summary>
-            public void StartUpdatingSignalMessages()
+            public void InsertSignalMessages()
             {
                 foreach (SignalMessage signalMessage in _originalMessage.AS4Message.SignalMessages)
                 {
                     Logger.Info($"{_originalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
 
-                    TryUpdateSignalMessage(signalMessage);
+                    AttemptToInsertSignalMessage(signalMessage);
                 }
             }
 
-            private void TryUpdateSignalMessage(SignalMessage signalMessage)
+            private void AttemptToInsertSignalMessage(SignalMessage signalMessage)
             {
                 try
                 {
-                    UpdateSignalMessage(signalMessage);
+                    InsertSignalMessage(signalMessage);
                 }
                 catch (Exception exception)
                 {
@@ -104,23 +104,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 }
             }
 
-            private void UpdateSignalMessage(SignalMessage signalMessage)
+            private void InsertSignalMessage(SignalMessage signalMessage)
             {
                 if (signalMessage is Receipt)
                 {
-                    UpdateReceipt(signalMessage);
+                    InsertReceipt(signalMessage);
                 }
                 else if (signalMessage is Error)
                 {
-                    UpdateError(signalMessage);
-                }
-                else
-                {
-                    UpdateOther(signalMessage);
+                    InsertError(signalMessage);
                 }
             }
 
-            private void UpdateReceipt(SignalMessage signalMessage)
+            private void InsertReceipt(SignalMessage signalMessage)
             {
                 if (signalMessage is Receipt receipt && receipt.NonRepudiationInformation == null)
                 {
@@ -128,8 +124,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 }
 
                 _messageService.InsertReceipt(signalMessage, _originalMessage.AS4Message, _cancellation);
-
-                _messageService.UpdateSignalMessage(signalMessage, OutStatus.Ack, _cancellation);
             }
 
             private NonRepudiationInformation CreateNonRepudiationInformation()
@@ -139,16 +133,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
             }
 
-            private void UpdateError(SignalMessage signalMessage)
+            private void InsertError(SignalMessage signalMessage)
             {
                 _messageService.InsertError(signalMessage, _originalMessage.AS4Message, _cancellation);
-
-                _messageService.UpdateSignalMessage(signalMessage, OutStatus.Nack, _cancellation);
-            }
-
-            private void UpdateOther(SignalMessage signalMessage)
-            {
-                _messageService.UpdateSignalMessage(signalMessage, OutStatus.Sent, _cancellation);
             }
 
             private AS4Exception ThrowAS4UpdateDatastoreException(string description, Exception innerException)
