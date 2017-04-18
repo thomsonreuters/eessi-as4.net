@@ -23,23 +23,17 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class HttpReceiver : IReceiver
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ILogger _logger;
         private HttpListener _listener;
+        private int _maxConcurrentConnections;
         private IDictionary<string, string> _properties;
 
         private string Prefix => _properties.ReadMandatoryProperty(SettingKeys.Url);
 
-        private int _maxConcurrentConnections;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpReceiver"/> class. 
-        /// to receive HTTP requests
+        /// Data Class that contains the required keys to correctly configure the <see cref="HttpReceiver"/>.
         /// </summary>
-        public HttpReceiver()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
         private static class SettingKeys
         {
             public const string Url = "Url";
@@ -80,6 +74,19 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
+        private void StartListener(HttpListener listener)
+        {
+            try
+            {
+                Logger.Debug($"Start receiving on '{Prefix}'...");
+                listener.Start();
+            }
+            catch (HttpListenerException exception)
+            {
+                Logger.Error($"Http Listener Exception: {exception.Message}");
+            }
+        }
+
         private void AcceptConnections(HttpListener listener, Function messageCallback, CancellationToken cancellationToken)
         {
             // The Semaphore makes sure the the maximum amount of concurrent connections is respected.
@@ -97,21 +104,22 @@ namespace Eu.EDelivery.AS4.Receivers
                         }
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        listener.GetContextAsync().ContinueWith(async (c) =>
-                        {
-                            // A request is being handled, so decrease the semaphore which will allow 
-                            // that we're listening on another context.
-                            semaphore.Release();
+                        listener.GetContextAsync().ContinueWith(
+                            async httpContextTask =>
+                            {
+                                // A request is being handled, so decrease the semaphore which will allow 
+                                // that we're listening on another context.
+                                semaphore.Release();
 
-                            HttpListenerContext context = await c;
+                                HttpListenerContext context = await httpContextTask;
 
-                            await ProcessRequestAsync(context, messageCallback);
-                        });
+                                await ProcessRequestAsync(context, messageCallback);
+                            });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed                 
                     }
                     catch (HttpListenerException)
                     {
-                        _logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
+                        Logger.Trace($"Http Listener on {Prefix} stopped receiving requests.");
                     }
                     catch (ObjectDisposedException)
                     {
@@ -124,35 +132,12 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        public void StopReceiving()
+        private static async Task ProcessRequestAsync(HttpListenerContext context, Function messageCallback)
         {
-            _logger.Debug($"Stop listening on {Prefix}");
+            Logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
 
-            _listener?.Close();
-        }
-
-        private void StartListener(HttpListener listener)
-        {
-            try
-            {
-                _logger.Debug($"Start receiving on '{Prefix}'...");
-                listener.Start();
-            }
-            catch (HttpListenerException exception)
-            {
-                _logger.Error($"Http Listener Exception: {exception.Message}");
-            }
-        }
-
-        private async Task ProcessRequestAsync(
-            HttpListenerContext context,
-            Function messageCallback)
-        {
-            _logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
-
-            var handler = RequestHandler.GetHandler(context.Request);
-
-            var handleResult = await handler.ExecuteAsync(context.Request, messageCallback);
+            RequestHandler handler = RequestHandler.GetHandler(context.Request);
+            HttpListenerContentResult handleResult = await handler.ExecuteAsync(context.Request, messageCallback);
 
             handleResult.ExecuteResult(context.Response);
 
@@ -161,8 +146,16 @@ namespace Eu.EDelivery.AS4.Receivers
 
         #region Inner RequestHandler classes
 
+        /// <summary>
+        /// Abstraction for handling HTTP requests.
+        /// </summary>
         private abstract class RequestHandler
         {
+            /// <summary>
+            /// Factory Method to get the right <see cref="RequestHandler"/> based on the given <paramref name="request"/>.
+            /// </summary>
+            /// <param name="request"></param>
+            /// <returns></returns>
             public static RequestHandler GetHandler(HttpListenerRequest request)
             {
                 if (request.HttpMethod == "GET")
@@ -175,36 +168,53 @@ namespace Eu.EDelivery.AS4.Receivers
                     return PostRequestHandler.Default;
                 }
 
-                return new ErrorRequestHandler(HttpStatusCode.MethodNotAllowed, "");
+                return new ErrorRequestHandler(HttpStatusCode.MethodNotAllowed, string.Empty);
             }
 
+            /// <summary>
+            /// Handle the <see cref="HttpListenerRequest"/>.
+            /// </summary>
+            /// <param name="request"></param>
+            /// <param name="processor"></param>
+            /// <returns></returns>
             public async Task<HttpListenerContentResult> ExecuteAsync(HttpListenerRequest request, Function processor)
             {
                 InternalMessage processorResult = null;
 
                 if (processor != null && request.HttpMethod == "POST")
                 {
-                    var receivedMessage = CreateReceivedMessage(request);
+                    ReceivedMessage receivedMessage = CreateReceivedMessage(request);
                     processorResult = await processor(receivedMessage, CancellationToken.None);
                 }
 
                 return ExecuteCore(request, processorResult);
             }
 
-            protected abstract HttpListenerContentResult ExecuteCore(HttpListenerRequest request, InternalMessage processorResult);
-
             private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)
             {
-                return new ReceivedMessage(request.RawUrl, request.InputStream, request.ContentType);                
+                return new ReceivedMessage(request.RawUrl, request.InputStream, request.ContentType);
             }
+
+            /// <summary>
+            /// Specific <see cref="HttpListenerRequest"/> handling.
+            /// </summary>
+            /// <param name="request"></param>
+            /// <param name="processorResult"></param>
+            /// <returns></returns>
+            protected abstract HttpListenerContentResult ExecuteCore(HttpListenerRequest request, InternalMessage processorResult);
 
             #region Concrete RequestHandler implementations
 
             private abstract class GetRequestHandler : RequestHandler
             {
+                /// <summary>
+                /// Create a <see cref="RequestHandler"/> implementation for the HTTP GET.
+                /// </summary>
+                /// <param name="request"></param>
+                /// <returns></returns>
                 public static RequestHandler Create(HttpListenerRequest request)
                 {
-                    var acceptHeaders = request.AcceptTypes;
+                    string[] acceptHeaders = request.AcceptTypes;
 
                     if (acceptHeaders == null || acceptHeaders.Contains("text/html", StringComparer.OrdinalIgnoreCase))
                     {
@@ -223,6 +233,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     public static readonly HttpHtmlGetHandler Default = new HttpHtmlGetHandler();
 
+                    /// <summary>
+                    /// Specific <see cref="HttpListenerRequest"/> handling.
+                    /// </summary>
+                    /// <param name="request"></param>
+                    /// <param name="processorResult"></param>
+                    /// <returns></returns>
                     protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, InternalMessage processorResult)
                     {
                         string logoLocation = request.RawUrl.TrimEnd('/') + "/assets/as4logo.png";
@@ -245,13 +261,19 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     public static readonly HttpImageGetHandler Default = new HttpImageGetHandler();
 
+                    /// <summary>
+                    /// Specific <see cref="HttpListenerRequest"/> handling.
+                    /// </summary>
+                    /// <param name="request"></param>
+                    /// <param name="processorResult"></param>
+                    /// <returns></returns>
                     protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, InternalMessage processorResult)
                     {
                         string file = request.Url.ToString().Replace(request.UrlReferrer.ToString(), "./");
 
                         if (File.Exists(file) == false)
                         {
-                            return new ByteContentResult(HttpStatusCode.NotFound, string.Empty, new byte[] { });
+                            return ByteContentResult.Empty(HttpStatusCode.NotFound);
                         }
 
                         return new ByteContentResult(HttpStatusCode.OK, "image/jpeg", File.ReadAllBytes(file));
@@ -261,11 +283,11 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private class ErrorRequestHandler : RequestHandler
             {
-                private readonly HttpStatusCode _status;
                 private readonly string _message;
+                private readonly HttpStatusCode _status;
 
                 /// <summary>
-                /// Initializes a new instance of the <see cref="ErrorRequestHandler"/> class.
+                /// Initializes a new instance of the <see cref="ErrorRequestHandler" /> class.
                 /// </summary>
                 public ErrorRequestHandler(HttpStatusCode statusCode, string message)
                 {
@@ -273,6 +295,12 @@ namespace Eu.EDelivery.AS4.Receivers
                     _message = message;
                 }
 
+                /// <summary>
+                /// Specific <see cref="HttpListenerRequest"/> handling.
+                /// </summary>
+                /// <param name="request"></param>
+                /// <param name="processorResult"></param>
+                /// <returns></returns>
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, InternalMessage processorResult)
                 {
                     return new ByteContentResult(_status, "text/plain", Encoding.UTF8.GetBytes(_message));
@@ -281,60 +309,71 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private class PostRequestHandler : RequestHandler
             {
-
                 public static readonly PostRequestHandler Default = new PostRequestHandler();
+
+                private static bool IsAS4MessageAnError(InternalMessage internalMessage)
+                {
+                    return internalMessage.AS4Message.PrimarySignalMessage is Error;
+                }
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, InternalMessage processorResult)
                 {
                     if (processorResult.Exception != null)
                     {
-                        return new ByteContentResult(HttpStatusCode.InternalServerError, "text/plain", Encoding.UTF8.GetBytes(processorResult.Exception.Message));
+                        return new ByteContentResult(
+                            HttpStatusCode.InternalServerError,
+                            "text/plain",
+                            Encoding.UTF8.GetBytes(processorResult.Exception.Message));
                     }
 
                     // Ugly hack until the Transformer is refactored.
                     // When the InternalMessage contains a non-empty SubmitMessage, we assume that a message has been submitted and we should respond accordingly.
-                    if (processorResult.SubmitMessage?.IsEmpty == false)
+                    if (processorResult.SubmitMessage?.IsEmpty == false && processorResult.AS4Message?.IsEmpty == false)
                     {
-                        if (processorResult.AS4Message?.IsEmpty == false)
-                        {
-                            return new ByteContentResult(HttpStatusCode.Accepted, string.Empty, new byte[] { });
-                        }
+                        return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }
 
-                    // This statement will evaluate to true when we're sending receipts or errors in callback (async) mode.
-                    if ((processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty) && processorResult.Exception == null)
+                    if (AreReceiptsOrErrorsSendInCallbackMode(processorResult))
                     {
-                        return new ByteContentResult(HttpStatusCode.Accepted, string.Empty, new byte[] { });
+                        return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }
-                    
-                    // This statement will evaluate to true when receipts or errors are sent in respond mode.
-                    if (processorResult.AS4Message != null && processorResult.AS4Message.IsEmpty == false)
+
+                    if (AreReceiptsOrErrorsSendInResponseMode(processorResult))
                     {
-                        HttpStatusCode statusCode = HttpStatusCode.OK;
-
-                        if (processorResult.AS4Message?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
-                        {
-                            if (Enum.IsDefined(typeof(HttpStatusCode), processorResult.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode))
-                            {
-                                statusCode = (HttpStatusCode)processorResult.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
-                            }
-                            else
-                            {
-                                statusCode = HttpStatusCode.InternalServerError;
-                            }
-                        }
-
-                        return new AS4MessageContentResult(statusCode, processorResult.AS4Message.ContentType, processorResult);
+                        return new AS4MessageContentResult(
+                            statusCode: DetermineHttpCodeFrom(processorResult), 
+                            contentType: processorResult.AS4Message.ContentType, internalMessage: processorResult);
                     }
 
                     // In any other case, return a bad request ?
-                    return new ByteContentResult(HttpStatusCode.BadRequest, "", new byte[] { });
-
+                    return ByteContentResult.Empty(HttpStatusCode.BadRequest);
                 }
 
-                private static bool IsAS4MessageAnError(InternalMessage internalMessage)
+                private static bool AreReceiptsOrErrorsSendInCallbackMode(InternalMessage processorResult)
                 {
-                    return internalMessage.AS4Message.PrimarySignalMessage is Error;
+                    return (processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty) && processorResult.Exception == null;
+                }
+
+                private static bool AreReceiptsOrErrorsSendInResponseMode(InternalMessage processorResult)
+                {
+                    return processorResult.AS4Message != null && processorResult.AS4Message.IsEmpty == false;
+                }
+
+                private static HttpStatusCode DetermineHttpCodeFrom(InternalMessage processorResult)
+                {
+                    if (processorResult.AS4Message?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
+                    {
+                        int errorHttpCode = processorResult.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
+
+                        if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
+                        {
+                            return (HttpStatusCode) errorHttpCode;
+                        }
+
+                        return HttpStatusCode.InternalServerError;
+                    }
+
+                    return HttpStatusCode.OK;
                 }
             }
 
@@ -347,11 +386,11 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private abstract class HttpListenerContentResult
         {
-            private readonly HttpStatusCode _statusCode;
             private readonly string _contentType;
+            private readonly HttpStatusCode _statusCode;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="HttpListenerContentResult"/> class.
+            /// Initializes a new instance of the <see cref="HttpListenerContentResult" /> class.
             /// </summary>
             protected HttpListenerContentResult(HttpStatusCode statusCode, string contentType)
             {
@@ -359,14 +398,23 @@ namespace Eu.EDelivery.AS4.Receivers
                 _contentType = contentType;
             }
 
+            /// <summary>
+            /// Handeling the <see cref="HttpListenerResponse"/>.
+            /// </summary>
+            /// <param name="response"></param>
             public void ExecuteResult(HttpListenerResponse response)
             {
-                response.StatusCode = (int)_statusCode;
+                response.StatusCode = (int) _statusCode;
                 response.ContentType = _contentType;
                 response.KeepAlive = false;
+
                 ExecuteResultCore(response);
             }
 
+            /// <summary>
+            /// Specific <see cref="HttpListenerResponse"/> handling.
+            /// </summary>
+            /// <param name="response"></param>
             protected abstract void ExecuteResultCore(HttpListenerResponse response);
         }
 
@@ -375,13 +423,24 @@ namespace Eu.EDelivery.AS4.Receivers
             private readonly byte[] _content;
 
             /// <summary>
-            /// Initializes a new instance of the <see cref="ByteContentResult"/> class.
+            /// Initializes a new instance of the <see cref="ByteContentResult" /> class.
             /// </summary>
             public ByteContentResult(HttpStatusCode statusCode, string contentType, byte[] content) : base(statusCode, contentType)
             {
                 _content = content;
             }
 
+            /// <summary>
+            /// Creates an empty <see cref="ByteContentResult"/> result.
+            /// </summary>
+            /// <param name="statusCode">Embedded <see cref="HttpStatusCode"/> in the empty result.</param>
+            /// <returns></returns>
+            public static ByteContentResult Empty(HttpStatusCode statusCode) => new ByteContentResult(statusCode, string.Empty, new byte[]{});
+
+            /// <summary>
+            /// Specific <see cref="HttpListenerResponse"/> handling.
+            /// </summary>
+            /// <param name="response"></param>
             protected override void ExecuteResultCore(HttpListenerResponse response)
             {
                 response.ContentLength64 = _content.Length;
@@ -389,27 +448,34 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
+        /// <summary>
+        /// <see cref="HttpListenerContentResult"/> implementation to serialize the result as <see cref="AS4Message"/>.
+        /// </summary>
         private class AS4MessageContentResult : HttpListenerContentResult
         {
+            private static readonly ISerializerProvider SerializerProvider = new Registry().SerializerProvider;
             private readonly InternalMessage _internalMessage;
 
-            private static readonly ISerializerProvider SerializerProvider = new Registry().SerializerProvider;
-
             /// <summary>
-            /// Initializes a new instance of the <see cref="AS4MessageContentResult"/> class.
+            /// Initializes a new instance of the <see cref="AS4MessageContentResult" /> class.
             /// </summary>
-            public AS4MessageContentResult(HttpStatusCode statusCode, string contentType, InternalMessage internalMessage) : base(statusCode, contentType)
+            public AS4MessageContentResult(HttpStatusCode statusCode, string contentType, InternalMessage internalMessage)
+                : base(statusCode, contentType)
             {
                 _internalMessage = internalMessage;
             }
 
+            /// <summary>
+            /// Specific <see cref="HttpListenerResponse"/> handling.
+            /// </summary>
+            /// <param name="response"></param>
             protected override void ExecuteResultCore(HttpListenerResponse response)
             {
                 using (Stream responseStream = response.OutputStream)
                 {
                     if (_internalMessage.AS4Message?.IsEmpty == false)
                     {
-                        var serializer = SerializerProvider.Get(_internalMessage.AS4Message.ContentType);
+                        ISerializer serializer = SerializerProvider.Get(_internalMessage.AS4Message.ContentType);
                         serializer.Serialize(_internalMessage.AS4Message, responseStream, CancellationToken.None);
                     }
                 }
@@ -417,5 +483,15 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         #endregion
+
+        /// <summary>
+        /// Stop the <see cref="IReceiver"/> instance from receiving.
+        /// </summary>
+        public void StopReceiving()
+        {
+            Logger.Debug($"Stop listening on {Prefix}");
+
+            _listener?.Close();
+        }
     }
 }

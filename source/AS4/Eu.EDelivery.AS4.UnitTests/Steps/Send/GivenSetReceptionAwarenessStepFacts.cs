@@ -42,10 +42,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Assert
                 AssertReceptionAwareness(
                     messageId,
-                    a =>
+                    awareness =>
                     {
-                        Assert.Equal(receptionAwareness.RetryCount, a.TotalRetryCount);
-                        Assert.Equal(receptionAwareness.RetryInterval, a.RetryInterval);
+                        Assert.Equal(receptionAwareness.RetryCount, awareness.TotalRetryCount);
+                        Assert.Equal(receptionAwareness.RetryInterval, awareness.RetryInterval);
                     });
             }
 
@@ -59,6 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     Assert.NotNull(receptionAwareness);
                     Assert.Equal(0, receptionAwareness.CurrentRetryCount);
                     Assert.False(receptionAwareness.IsCompleted);
+
                     condition(receptionAwareness);
                 }
             }
@@ -71,8 +72,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var userMessage = new UserMessage(messageId);
                 var as4Message = new AS4Message {SendingPMode = pmode};
                 as4Message.UserMessages.Add(userMessage);
-                var internalMessage = new InternalMessage(as4Message);
-                return internalMessage;
+
+                return new InternalMessage(as4Message);
             }
         }
 
