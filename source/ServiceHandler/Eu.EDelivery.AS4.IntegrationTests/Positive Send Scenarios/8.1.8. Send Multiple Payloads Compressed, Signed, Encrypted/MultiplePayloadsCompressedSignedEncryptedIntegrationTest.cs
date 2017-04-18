@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._8
     public class MultiplePayloadsCompressedSignedEncryptedIntegrationTest : IntegrationTestTemplate
     {
         private const string SubmitMessageFilename = "\\8.1.8-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
         private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
 
         [Fact]

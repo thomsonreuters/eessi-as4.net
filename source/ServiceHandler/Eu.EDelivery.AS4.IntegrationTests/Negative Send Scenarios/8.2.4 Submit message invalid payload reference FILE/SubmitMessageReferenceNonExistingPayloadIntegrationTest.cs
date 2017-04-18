@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._4_Sub
 
         public SubmitMessageReferenceNonExistingPayloadIntegrationTest()
         {
-            this._as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+            this._as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
             this._as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 

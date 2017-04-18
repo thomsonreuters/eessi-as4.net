@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
         public ReceiveAsyncSignedErrorIntegrationTest()
         {
             _sender = new StubSender {Url = "http://localhost:9090/msh", HandleResponse = response => null};
-            _as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+            _as4MessagesPath = $"{AS4IntegrationMessagesPath}{SubmitMessageFilename}";
             _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
 
             UpdateSubmitMessageId();
