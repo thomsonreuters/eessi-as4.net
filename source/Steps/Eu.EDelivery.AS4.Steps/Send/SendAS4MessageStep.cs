@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             ISendConfiguration sendConfiguration = GetSendConfigurationFrom(as4Message);
             
-            HttpWebRequest request = HttpPostRequest.Create(sendConfiguration.Protocol.Url, as4Message.ContentType);
+            HttpWebRequest request = HttpRequestFactory.CreatePostRequest(sendConfiguration.Protocol.Url, as4Message.ContentType);
 
             AssignClientCertificate(sendConfiguration.TlsConfiguration, request);
 

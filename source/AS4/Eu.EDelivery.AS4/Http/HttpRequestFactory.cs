@@ -5,12 +5,12 @@ namespace Eu.EDelivery.AS4.Http
     /// <summary>
     /// <see cref="HttpWebRequest"/> creator for a persistent instance throughout the AS4 Component.
     /// </summary>
-    public class HttpPostRequest
+    public class HttpRequestFactory
     {
         /// <summary>
-        /// Prevents a default instance of the <see cref="HttpPostRequest"/> class from being created.
+        /// Prevents a default instance of the <see cref="HttpRequestFactory"/> class from being created.
         /// </summary>
-        private HttpPostRequest() {}
+        private HttpRequestFactory() {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebRequest"/> class 
@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Http
         /// <param name="url"></param>
         /// <param name="contentType"></param>
         /// <returns></returns>
-        public static HttpWebRequest Create(string url, string contentType)
+        public static HttpWebRequest CreatePostRequest(string url, string contentType)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = "POST";

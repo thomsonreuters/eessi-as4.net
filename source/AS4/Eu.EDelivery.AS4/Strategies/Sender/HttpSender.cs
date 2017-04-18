@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private HttpWebRequest CreateHttpPostRequest(string contentType, byte[] contents)
         {
             // TODO: verify if destinationUri is a valid http endpoint.
-            HttpWebRequest request = HttpPostRequest.Create(_destinationUri, contentType);
+            HttpWebRequest request = HttpRequestFactory.CreatePostRequest(_destinationUri, contentType);
 
             using (Stream requestStream = request.GetRequestStream())
             {
