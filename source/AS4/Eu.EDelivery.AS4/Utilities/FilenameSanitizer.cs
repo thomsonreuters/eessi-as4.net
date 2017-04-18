@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.Utilities
     {
         public static string EnsureValidFilename(string filename)
         {
-            return String.Join("", filename.Split(Path.GetInvalidFileNameChars()));
+            return string.Join(string.Empty, filename.Split(Path.GetInvalidFileNameChars()));
         }
     }
 }

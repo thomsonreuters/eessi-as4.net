@@ -333,6 +333,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
+    <Compile Include="Receivers\GivenHttpReceiverFacts.cs" />
     <Compile Include="Receivers\GivenPollingReceiverFacts.cs" />
     <Compile Include="Receivers\StubValidPollingTemplate.cs" />
     <Compile Include="Receivers\StubInvalidPollingTemplate.cs" />
@@ -392,6 +393,7 @@
     <Compile Include="Steps\ReceptionAwareness\GivenReceptionAwarenessUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Repositories\GivenDatastoreRepositoryFacts.cs" />
     <Compile Include="Steps\Repositories\GivenMimeTypeRepositoryFacts.cs" />
+    <Compile Include="Steps\SaboteurStep.cs" />
     <Compile Include="Steps\Send\GivenCompressPayloadsStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecompressAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDeterminePModesStepFacts.cs" />
@@ -405,6 +407,7 @@
     <Compile Include="Steps\Send\Response\GivenResponseHandlerFacts.cs" />
     <Compile Include="Steps\Send\Response\StubAS4ResponseHandler.cs" />
     <Compile Include="Steps\Services\GivenInExceptionServiceFacts.cs" />
+    <Compile Include="Steps\SinkStep.cs" />
     <Compile Include="Steps\Services\GivenInMessageServiceFacts.cs" />
     <Compile Include="Steps\SpyStep.cs" />
     <Compile Include="Steps\Submit\GivenRetrievepayloadsStepFacts.cs" />
@@ -419,7 +422,11 @@
     <Compile Include="Strategies\Method\LocationMethod.cs" />
     <Compile Include="Strategies\Retriever\GivenPayloadRetrieverProviderFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenWebPayloadRetrieverFacts.cs" />
-    <Compile Include="Strategies\Sender\GivenHttpDeliverSenderFacts.cs" />
+    <Compile Include="Strategies\Sender\GivenFileSenderFacts.cs" />
+    <Compile Include="Strategies\Sender\GivenHttpSenderFacts.cs" />
+    <Compile Include="Strategies\Sender\GivenReliableSenderFacts.cs" />
+    <Compile Include="Strategies\Sender\SaboteurSender.cs" />
+    <Compile Include="Strategies\Sender\SpySender.cs" />
     <Compile Include="Strategies\Uploader\GivenAttachmentUploaderProvider.cs" />
     <Compile Include="Strategies\Uploader\GivenPayloadServiceAttachmentUploaderFacts.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploader.cs" />
