@@ -5,7 +5,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._7
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._7._Send_Multiple_Payloads_Compressed_Encrypted
 {
     /// <summary>
     /// Testing the Application with multiple payloads compressed and encrypted

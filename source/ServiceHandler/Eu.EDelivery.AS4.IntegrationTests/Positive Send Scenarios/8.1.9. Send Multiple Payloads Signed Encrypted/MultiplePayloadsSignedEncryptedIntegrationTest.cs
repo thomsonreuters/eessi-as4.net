@@ -5,7 +5,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._9
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._9._Send_Multiple_Payloads_Signed_Encrypted
 {
     /// <summary>
     /// Testing the Application with multiple payloads signed and encrypted
