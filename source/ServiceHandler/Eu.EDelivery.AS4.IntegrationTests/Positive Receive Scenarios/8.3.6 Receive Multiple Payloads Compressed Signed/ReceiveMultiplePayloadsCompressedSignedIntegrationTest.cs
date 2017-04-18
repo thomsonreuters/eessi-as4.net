@@ -43,18 +43,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
             File.Copy(_holodeckMessagesPath, _destFileName);
 
             // Assert
-            bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path);
-            if (areFilesFound) Console.WriteLine(@"Receive Multiple Payloads Compressed and Signed Integration Test succeeded!");
-            else Retry();
-        }
-
-        private void Retry()
-        {
-            var startDir = new DirectoryInfo(AS4FullInputPath);
-            FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
-
-            ValidatePolledFiles(files);
+            bool areFilesFound = PollingAt(AS4FullInputPath);
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Receive Multiple Payloads Compressed and Signed Integration Test succeeded!");
+            }
         }
 
         /// <summary>

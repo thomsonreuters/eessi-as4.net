@@ -27,43 +27,30 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._13
         public void ThenSendingSinglePayloadSucceeds()
         {
             // Before
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.StartAS4Component();
-            base.CleanUpFiles(AS4FullInputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            StartAS4Component();
+            CleanUpFiles(AS4FullInputPath);
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             // Arrange
-            base.CopyPModeToHolodeckA("8.3.13-pmode.xml");
+            CopyPModeToHolodeckA("8.3.13-pmode.xml");
 
             // Act
-            File.Copy(this._holodeckMessagesPath, this._destFileName);
+            File.Copy(_holodeckMessagesPath, _destFileName);
 
             // Assert
-            bool areFilesFound = AreFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Receive Single Payload Return Async Signed NRR Integration Test succeeded!");
-            else Retry();
-        }
-
-        private void Retry()
-        {
-            var startDir = new DirectoryInfo(AS4FullInputPath);
-            FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
-
-            ValidatePolledFiles(files);
-        }
-
-        private bool AreFilesFound()
-        {
-            const int retryCount = 2000;
-            return base.PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml", retryCount);
+            bool areFilesFound = PollingAt(Properties.Resources.holodeck_A_input_path);
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Receive Single Payload Return Async Signed NRR Integration Test succeeded!");
+            }
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
-            this._holodeck.AssertReceiptOnHolodeckA();
+            _holodeck.AssertReceiptOnHolodeckA();
         }
     }
 }
