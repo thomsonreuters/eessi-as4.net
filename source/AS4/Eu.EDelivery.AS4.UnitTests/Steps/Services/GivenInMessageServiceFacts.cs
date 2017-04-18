@@ -16,13 +16,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         [Fact]
         public void TestFindSignalMessageDuplicates()
         {
-           TestFindMessageDuplicates((messageIds, service) => service.FindDuplicateUserMessageIds(messageIds));
+           TestFindMessageDuplicates((messageIds, service) => service.FindDuplicateSignalMessageIds(messageIds));
         }
 
         [Fact]
         public void TestFindUserMessageDuplicates()
         {
-            TestFindMessageDuplicates((messageIds, service) => service.FindDuplicateSignalMessageIds(messageIds));
+            TestFindMessageDuplicates((messageIds, service) => service.FindDuplicateUserMessageIds(messageIds));
         }
 
         private static void TestFindMessageDuplicates(Func<IEnumerable<string>, InMessageService, IDictionary<string, bool>> actAction)
@@ -46,7 +46,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
 
             mockedRepository
                 .Setup(r => r.SelectInMessageIdsIn(It.IsAny<IEnumerable<string>>()))
-                .Returns(new[] { expectedMessageId });
+                .Returns(new[] {expectedMessageId});
+
+            mockedRepository
+                .Setup(r => r.SelectRefInMessageIdsIn(It.IsAny<IEnumerable<string>>()))
+                .Returns(new[] {expectedMessageId});
 
             return mockedRepository;
         }
