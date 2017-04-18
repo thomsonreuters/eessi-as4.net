@@ -30,6 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly ISerializerProvider _provider;
         private readonly ICertificateRepository _repository;
         private readonly IAS4ResponseHandler _responseHandler;
+        private readonly Func<DatastoreContext> _createDatastore;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private AS4Message _originalAS4Message;
@@ -37,18 +38,23 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
-        public SendAS4MessageStep() : this(Registry.Instance.SerializerProvider) {}
+        public SendAS4MessageStep() : this(Registry.Instance.SerializerProvider, Registry.Instance.CreateDatastoreContext) {}
+
+        /// <summary>Initializes a new instance of the <see cref="SendAS4MessageStep"/> class.</summary>
+        /// <param name="createDatastore">The create Datastore.</param>
+        public SendAS4MessageStep(Func<DatastoreContext> createDatastore) : this(Registry.Instance.SerializerProvider, createDatastore) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
         /// Create a Send AS4Message Step
         /// with a given Serializer Provider
         /// </summary>
-        /// <param name="provider">
-        /// </param>
-        public SendAS4MessageStep(ISerializerProvider provider)
+        /// <param name="provider"></param>
+        /// <param name="createDatastore"></param>
+        public SendAS4MessageStep(ISerializerProvider provider, Func<DatastoreContext> createDatastore)
         {
             _provider = provider;
+            _createDatastore = createDatastore;
             _responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
             _repository = Registry.Instance.CertificateRepository;
         }
@@ -90,7 +96,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateOperation(_originalAS4Message, Operation.Undetermined);
+                UpdateMessageStatus(_originalAS4Message, Operation.Undetermined, OutStatus.Exception);
 
                 AS4Exception resultedException =
                     AS4ExceptionBuilder.WithDescription("Failed to send AS4Message")
@@ -173,7 +179,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 
                 // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
                 // we've sent the message, so update the status to sent.
-                UpdateOperation(_originalAS4Message, Operation.Sent);
+                UpdateMessageStatus(_originalAS4Message, Operation.Sent, OutStatus.Sent);
 
                 using (WebResponse webResponse = await request.GetResponseAsync().ConfigureAwait(false))
                 {
@@ -191,18 +197,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private static void UpdateOperation(AS4Message as4Message, Operation operation)
+        private void UpdateMessageStatus(AS4Message as4Message, Operation operation, OutStatus status)
         {
             if (as4Message == null)
             {
                 return;
             }
 
-            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = _createDatastore())
             {
                 var repository = new DatastoreRepository(context);
 
-                repository.UpdateOutMessages(as4Message.MessageIds, outMessage => outMessage.Operation = operation );
+                repository.UpdateOutMessages(
+                    as4Message.MessageIds,
+                    outMessage =>
+                    {
+                        outMessage.Operation = operation;
+                        outMessage.Status = status;
+                    });
                 
 
                 context.SaveChanges();

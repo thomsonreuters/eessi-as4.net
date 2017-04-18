@@ -105,5 +105,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 return Task.FromResult(NullInternalMessage.Instance);
             }
         }
+
+        public class InMessages
+        {
+        }
     }
 }

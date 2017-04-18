@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -19,9 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     public class SendUpdateDataStoreStep : IStep
     {
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _createDatastoreContext;
-        private AS4Message _as4Message;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep" /> class
@@ -45,106 +42,113 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            _as4Message = internalMessage.AS4Message;
-
             using (DatastoreContext context = _createDatastoreContext())
             {
                 var inMessageService = new InMessageService(new DatastoreRepository(context));
+                var signalMessageUpdate = new SignalMessageStatement(internalMessage, inMessageService, cancellationToken);
 
-                foreach (SignalMessage signalMessage in internalMessage.AS4Message.SignalMessages)
-                {
-                    _logger.Info($"{internalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
-
-                    TryUpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
-                }
-
+                signalMessageUpdate.InsertSignalMessages();
                 await context.SaveChangesAsync(cancellationToken);
             }
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TryUpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
+        /// <summary>
+        /// Method Object for the <see cref="SignalMessage"/> instances.
+        /// </summary>
+        private class SignalMessageStatement
         {
-            try
-            {
-                UpdateSignalMessage(signalMessage, inMessageService, cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
-                throw ThrowAS4UpdateDatastoreException(description, exception);
-            }
-        }
+            private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private void UpdateSignalMessage(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
-        {
-            if (signalMessage is Receipt)
-            {
-                UpdateReceipt(signalMessage, inMessageService, cancellationToken);
-            }
-            else if (signalMessage is Error)
-            {
-                UpdateError(signalMessage, inMessageService, cancellationToken);
-            }
-            else
-            {
-                UpdateOther(signalMessage, inMessageService, cancellationToken);
-            }
-        }
+            private readonly InternalMessage _originalMessage;
+            private readonly IInMessageService _messageService;
+            private readonly CancellationToken _cancellation;
 
-        private void UpdateReceipt(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
-        {
-            var receipt = signalMessage as Receipt;
-
-            if (receipt != null && receipt.NonRepudiationInformation == null)
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SignalMessageStatement"/> class.
+            /// </summary>
+            public SignalMessageStatement(
+                InternalMessage originalMessage,
+                IInMessageService messageService,
+                CancellationToken cancellation)
             {
-                receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
+                _originalMessage = originalMessage;
+                _messageService = messageService;
+                _cancellation = cancellation;
             }
 
-            inMessageService.InsertReceipt(signalMessage, _as4Message, cancellationToken);
+            /// <summary>
+            /// Start updating the <see cref="SignalMessage"/> instances for the 'Send' operation.
+            /// </summary>
+            public void InsertSignalMessages()
+            {
+                foreach (SignalMessage signalMessage in _originalMessage.AS4Message.SignalMessages)
+                {
+                    Logger.Info($"{_originalMessage.Prefix} Update SignalMessage {signalMessage.MessageId}");
 
-            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage) ? OutStatus.Ack : OutStatus.NotApplicable;
+                    AttemptToInsertSignalMessage(signalMessage);
+                }
+            }
 
-            inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
-        }
+            private void AttemptToInsertSignalMessage(SignalMessage signalMessage)
+            {
+                try
+                {
+                    InsertSignalMessage(signalMessage);
+                }
+                catch (Exception exception)
+                {
+                    string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
+                    throw ThrowAS4UpdateDatastoreException(description, exception);
+                }
+            }
 
-        private NonRepudiationInformation CreateNonRepudiationInformation()
-        {
-            ArrayList references = _as4Message.SecurityHeader.GetReferences();
+            private void InsertSignalMessage(SignalMessage signalMessage)
+            {
+                if (signalMessage is Receipt)
+                {
+                    InsertReceipt(signalMessage);
+                }
+                else if (signalMessage is Error)
+                {
+                    InsertError(signalMessage);
+                }
+            }
 
-            return new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
-        }
+            private void InsertReceipt(SignalMessage signalMessage)
+            {
+                if (signalMessage is Receipt receipt && receipt.NonRepudiationInformation == null)
+                {
+                    receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
+                }
 
-        private void UpdateError(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
-        {
-            inMessageService.InsertError(signalMessage, _as4Message, cancellationToken);
+                _messageService.InsertReceipt(signalMessage, _originalMessage.AS4Message, _cancellation);
+            }
 
-            OutStatus status = IsSignalMessageReferenceUserMessage(signalMessage) ? OutStatus.Nack : OutStatus.NotApplicable;
+            private NonRepudiationInformation CreateNonRepudiationInformation()
+            {
+                ArrayList references = _originalMessage.AS4Message.SecurityHeader.GetReferences();
 
-            inMessageService.UpdateSignalMessage(signalMessage, status, cancellationToken);
-        }
+                return new NonRepudiationInformationBuilder().WithSignedReferences(references).Build();
+            }
 
-        private bool IsSignalMessageReferenceUserMessage(SignalMessage signalMessage)
-        {
-            return signalMessage.RefToMessageId?.Equals(_as4Message.PrimaryUserMessage?.MessageId) ?? false;
-        }
+            private void InsertError(SignalMessage signalMessage)
+            {
+                _messageService.InsertError(signalMessage, _originalMessage.AS4Message, _cancellation);
+            }
 
-        private static void UpdateOther(SignalMessage signalMessage, InMessageService inMessageService, CancellationToken cancellationToken)
-        {
-            inMessageService.UpdateSignalMessage(signalMessage, OutStatus.Sent, cancellationToken);
-        }
+            private AS4Exception ThrowAS4UpdateDatastoreException(string description, Exception innerException)
+            {
+                Logger.Error(description);
 
-        private AS4Exception ThrowAS4UpdateDatastoreException(string description, Exception innerException)
-        {
-            _logger.Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .WithMessageIds(_as4Message.MessageIds)
-                .WithSendingPMode(_as4Message.SendingPMode)
-                .Build();
+                return AS4ExceptionBuilder
+                    .WithDescription(description)
+                    .WithInnerException(innerException)
+                    .WithMessageIds(_originalMessage.AS4Message.MessageIds)
+                    .WithSendingPMode(_originalMessage.AS4Message.SendingPMode)
+                    .Build();
+            }
         }
     }
 }

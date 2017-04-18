@@ -52,9 +52,6 @@
       <HintPath>..\..\packages\Castle.Core.4.0.0\lib\net45\Castle.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ChinhDo.Transactions, Version=1.3.0.32, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\TxFileManager.1.3\lib\net20\ChinhDo.Transactions.dll</HintPath>
-    </Reference>
     <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
       <Private>True</Private>
@@ -411,6 +408,7 @@
     <Compile Include="Steps\Send\Response\StubAS4ResponseHandler.cs" />
     <Compile Include="Steps\Services\GivenInExceptionServiceFacts.cs" />
     <Compile Include="Steps\SinkStep.cs" />
+    <Compile Include="Steps\Services\GivenInMessageServiceFacts.cs" />
     <Compile Include="Steps\SpyStep.cs" />
     <Compile Include="Steps\Submit\GivenRetrievepayloadsStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
@@ -517,6 +515,7 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Repositories\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
