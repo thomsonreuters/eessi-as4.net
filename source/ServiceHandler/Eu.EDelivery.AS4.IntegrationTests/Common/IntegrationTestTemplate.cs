@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
 using Xunit;
@@ -16,14 +14,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     [Collection(HolodeckCollection.CollectionId)]
     public class IntegrationTestTemplate : IDisposable
     {
-        protected static readonly string AS4MessagesPath = $@".\{Properties.Resources.submit_messages_path}";
+        protected static readonly string AS4IntegrationMessagesPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}\integrationtest-messages");
+        protected static readonly string AS4MessagesRootPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}");
         protected static readonly string AS4FullOutputPath = Path.GetFullPath($@".\{Properties.Resources.submit_output_path}");
         protected static readonly string AS4ReceiptsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
         protected static readonly string AS4ErrorsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_errors_path}");
         protected static readonly string AS4ExceptionsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_exceptions_path}");
 
         protected readonly string HolodeckBInputPath = Properties.Resources.holodeck_B_input_path;
-        protected static readonly string HolodeckMessagesPath = AS4MessagesPath + "\\holodeck-messages";
+        protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
         public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
 
         private Process _as4ComponentProcess;
@@ -41,7 +40,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
-            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", GetLocalIpAddress());
+            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", AS4Component.HostAddress);
 
             LeaveAS4ComponentRunningDuringValidation = false;
 
@@ -102,18 +101,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
-        private static string GetLocalIpAddress()
-        {
-            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("Local IP Address Not Found!");
-        }
         #endregion
 
         /// <summary>
@@ -220,10 +207,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             WaitForHolodeckToPickUp();
         }
 
-        private void WaitForHolodeckToPickUp()
+        private static void WaitForHolodeckToPickUp()
         {
             Console.WriteLine(@"Wait for Holodeck to pick-up the new PMode");
-            Thread.Sleep(6000);
+            Thread.Sleep(1000);
         }
 
         /// <summary>
@@ -232,7 +219,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="directoryPath">Directory Path to poll</param>
         /// <param name="extension"></param>
         /// <param name="retryCount">Retry Count in miliseconds</param>
-        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 1000)
+        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 2500)
         {
             string location = FindAliasLocation(directoryPath);
             Console.WriteLine($@"Start polling to {location}");
@@ -249,7 +236,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 }
 
                 Thread.Sleep(2000);
-                i += 10;
+                i += 100;
             }
 
             StopApplication();

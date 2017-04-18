@@ -192,7 +192,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             Stream encryptedStream = EncryptData(attachment.Content, algorithm);
 
             attachment.Content = encryptedStream;
-            attachment.Content = encryptedStream;
             attachment.ContentType = "application/octet-stream";
 
             return new EncryptedDataBuilder()
@@ -481,8 +480,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     // The decrypted data can contain MIME headers, therefore we'll need to parse
                     // the decrypted data as a MimePart, and make sure that the content is set correctly
                     // in the attachment.
-                    //var part = MimeEntity.Load(MimeKit.ContentType.Parse(decryptedData), new MemoryStream(decryptedData)) as MimePart;
-
+                    
                     var part = MimeEntity.Load(decryptedData) as MimePart;
 
                     if (part == null)

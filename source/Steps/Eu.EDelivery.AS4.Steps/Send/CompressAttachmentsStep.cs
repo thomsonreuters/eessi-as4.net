@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +7,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         public CompressAttachmentsStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -38,9 +38,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (!internalMessage.AS4Message.SendingPMode.MessagePackaging.UseAS4Compression)
+            {
                 return await ReturnSameInternalMessage(internalMessage);
+            }
 
-            this._internalMessage = internalMessage;
+            _internalMessage = internalMessage;
             await TryCompressAS4MessageAsync(internalMessage.AS4Message.Attachments);
 
             return await StepResult.SuccessAsync(internalMessage);
@@ -48,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
-            this._logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Compression is disabled");
+            _logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Compression is disabled");
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -56,8 +58,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                this._logger.Info(
-                    $"{this._internalMessage.Prefix} Compress AS4 Message Attachments with GZip Compression");
+                _logger.Info(
+                    $"{_internalMessage.Prefix} Compress AS4 Message Attachments with GZip Compression");
                 await CompressAttachments(attachments);
             }
             catch (SystemException exception)
@@ -66,7 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private async Task CompressAttachments(IEnumerable<Attachment> attachments)
+        private static async Task CompressAttachments(IEnumerable<Attachment> attachments)
         {
             foreach (Attachment attachment in attachments)
             {
@@ -75,17 +77,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private async Task CompressAttachmentAsync(Attachment attachment)
+        private static async Task CompressAttachmentAsync(Attachment attachment)
         {
-            var memoryStream = new MemoryStream();
-            using (var gzipCompression = new GZipStream(memoryStream, CompressionMode.Compress, leaveOpen: true))
-                await attachment.Content.CopyToAsync(gzipCompression);
+            var outputStream = new VirtualStream();
 
-            memoryStream.Position = 0;
-            attachment.Content = memoryStream;
+            using (var gzipCompression = new GZipStream(outputStream, CompressionMode.Compress, leaveOpen: true))
+            {
+                await attachment.Content.CopyToAsync(gzipCompression);
+            }
+
+            outputStream.Position = 0;
+            attachment.Content = outputStream;
         }
 
-        private void AssignAttachmentProperties(Attachment attachment)
+        private static void AssignAttachmentProperties(Attachment attachment)
         {
             attachment.Properties["CompressionType"] = "application/gzip";
             attachment.Properties["MimeType"] = attachment.ContentType;
@@ -94,14 +99,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private AS4Exception ThrowAS4CompressingException(Exception innerException)
         {
-            string description = $"{this._internalMessage.Prefix} Attachments cannot be compressed";
-            this._logger.Error(description);
+            string description = $"{_internalMessage.Prefix} Attachments cannot be compressed";
+            _logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
-                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
+                .WithMessageIds(_internalMessage.AS4Message.MessageIds)
+                .WithSendingPMode(_internalMessage.AS4Message.SendingPMode)
                 .Build();
         }
     }

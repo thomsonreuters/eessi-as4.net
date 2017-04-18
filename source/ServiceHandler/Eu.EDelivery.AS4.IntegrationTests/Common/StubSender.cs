@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     public class StubSender
     {
         private readonly ISerializer _serializer;
-        public string Url { get; set; } = "http://localhost:8080/msh/";
+        public string Url { get; set; } = $"http://localhost:8081/msh/";
         public Func<WebResponse, AS4Message> HandleResponse { get; set; }
 
         public StubSender()

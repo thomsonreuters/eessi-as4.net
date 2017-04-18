@@ -14,78 +14,90 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
     public class SinglePayloadMessageIdsIntegrationTest : IntegrationTestTemplate
     {
         private const string SubmitMessageFilename = "\\8.1.11-sample.xml";
+
         private readonly string _as4MessagesPath;
         private readonly string _as4OutputPath;
+        private readonly Holodeck _holodeck;
 
         public SinglePayloadMessageIdsIntegrationTest()
         {
-            this._as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-            this._as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+            _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
+            _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
+
+            _holodeck = new Holodeck();
         }
 
         [Fact]
         public void ThenSendingSinglePayloadWithMessageIdsSucceeds()
         {
             // Before
-            base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartAS4Component();
-            base.CleanUpFiles(AS4FullOutputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            base.CleanUpFiles(AS4ReceiptsPath);
+            CleanUpFiles(HolodeckBInputPath);
+            StartAS4Component();
+            CleanUpFiles(AS4FullOutputPath);
+            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
+            CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            base.CopyPModeToHolodeckB("8.1.11-pmode.xml");
+            CopyPModeToHolodeckB("8.1.11-pmode.xml");
 
             // Act
-            File.Copy(this._as4MessagesPath, this._as4OutputPath);
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = base.PollingAt(AS4ReceiptsPath);
-            if (areFilesFound) Console.WriteLine(@"Single Payload with Message Properties Integration Test succeeded!");
-            Assert.True(areFilesFound);
+            bool areFilesFound = PollingAt(AS4ReceiptsPath);
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Single Payload with Message Properties Integration Test succeeded!");
+            }
+
+            Assert.True(areFilesFound, "Send Single Payload with Message Id failed");
         }
 
+        /// <summary>
+        /// Perform extra validation for the output files of Holodeck
+        /// </summary>
+        /// <param name="files">The files.</param>
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
-            // Assert
             AssertPayloads();
             AssertAS4Receipt();
         }
 
         private void AssertPayloads()
         {
-            IEnumerable<FileInfo> files = new DirectoryInfo(base.HolodeckBInputPath).GetFiles();
+            IEnumerable<FileInfo> files = new DirectoryInfo(HolodeckBInputPath).GetFiles();
 
-            FileInfo receivedPayload = files.FirstOrDefault(f => f.Extension.Equals(".jpg"));
-            var sendPayload = new FileInfo(Properties.Resources.submitmessage_single_payload_path);
-
-            Assert.NotNull(receivedPayload);
-            Assert.Equal(sendPayload.Length, receivedPayload.Length);
+            _holodeck.AssertEarthPayload(files.FirstOrDefault(f => f.Extension.Equals(".jpg")));
 
             FileInfo receipt = files.FirstOrDefault(f => f.Extension.Equals(".xml"));
-            if (receipt != null) AssertHolodeckReceipt(receipt);
+            if (receipt != null)
+            {
+                AssertHolodeckReceipt(receipt);
+            }
         }
 
         private void AssertHolodeckReceipt(FileInfo receipt)
         {
             var xmlDocument = new XmlDocument();
-            if (receipt != null) xmlDocument.Load(receipt.FullName);
+            if (receipt != null)
+            {
+                xmlDocument.Load(receipt.FullName);
+            }
 
             AssertXmlTag("RefToMessageId", xmlDocument);
             AssertXmlTag("MessageId", xmlDocument);
             AssertXmlTag("ConversationId", xmlDocument);
         }
 
-        private void AssertXmlTag(string localName, XmlDocument xmlDocument)
+        private static void AssertXmlTag(string localName, XmlDocument xmlDocument)
         {
-            XmlNode xmlNode = xmlDocument
-                .SelectSingleNode($"//*[local-name()='{localName}']");
+            XmlNode xmlNode = xmlDocument.SelectSingleNode($"//*[local-name()='{localName}']");
 
             Assert.NotNull(xmlNode);
             Console.WriteLine($@"{localName} found in Receipt");
         }
 
-        private void AssertAS4Receipt()
+        private static void AssertAS4Receipt()
         {
             FileInfo receipt = new DirectoryInfo(AS4ReceiptsPath).GetFiles("*.xml").FirstOrDefault();
 

@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
             try
             {
-                if (String.IsNullOrWhiteSpace(webResponse.ContentType))
+                if (string.IsNullOrWhiteSpace(webResponse.ContentType))
                 {
                     Logger.Info("No ContentType set - returning an empty AS4 response.");
                     return new InternalMessage(new AS4MessageBuilder().Build());

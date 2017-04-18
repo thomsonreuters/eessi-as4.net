@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </summary>
         public OutMessageBuilder()
         {
-            this._provider = new SerializerProvider();
+            _provider = new SerializerProvider();
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </param>
         public OutMessageBuilder(ISerializerProvider provider)
         {
-            this._provider = provider;
+            _provider = provider;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public OutMessageBuilder WithAS4Message(AS4Message as4Message)
         {
-            this._as4Message = as4Message;
+            _as4Message = as4Message;
             return this;
         }
 
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public OutMessageBuilder WithEbmsMessageId(string messageId)
         {
-            this._messageId = messageId;
+            _messageId = messageId;
             return this;
         }
 
@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public OutMessageBuilder WithEbmsMessageType(MessageType messageType)
         {
-            this._messageType = messageType;
+            _messageType = messageType;
             return this;
         }
 
@@ -87,8 +87,10 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </returns>
         public OutMessage Build(CancellationToken cancellationToken)
         {
-            if (this._as4Message == null)
+            if (_as4Message == null)
+            {
                 throw new AS4Exception("Builder needs an AS4Message for building a OutMessage");
+            }
 
             OutMessage outMessage = CreateDefaultOutMessage();
 
@@ -100,26 +102,30 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
         private SendingProcessingMode GetSendingPMode()
         {
-            bool isSendPModeNotFound = this._as4Message.SendingPMode?.Id == null;
-            ReceivingProcessingMode receivePMode = this._as4Message.ReceivingPMode;
+            bool isSendPModeNotFound = _as4Message.SendingPMode?.Id == null;
+            ReceivingProcessingMode receivePMode = _as4Message.ReceivingPMode;
             bool isCallback = receivePMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
 
-            if (isSendPModeNotFound && this._messageType == MessageType.Receipt && isCallback)
+            if (isSendPModeNotFound && _messageType == MessageType.Receipt && isCallback)
+            {
                 return Config.Instance.GetSendingPMode(receivePMode.ReceiptHandling.SendingPMode);
+            }
 
-            if (isSendPModeNotFound && this._messageType == MessageType.Error && isCallback)
+            if (isSendPModeNotFound && _messageType == MessageType.Error && isCallback)
+            {
                 return Config.Instance.GetSendingPMode(receivePMode.ErrorHandling.SendingPMode);
+            }
 
-            return this._as4Message.SendingPMode;
+            return _as4Message.SendingPMode;
         }
 
         private OutMessage CreateDefaultOutMessage()
         {
             return new OutMessage
             {
-                EbmsMessageId = this._messageId,
-                ContentType = this._as4Message.ContentType,
-                EbmsMessageType = this._messageType,
+                EbmsMessageId = _messageId,
+                ContentType = _as4Message.ContentType,
+                EbmsMessageType = _messageType,
                 Operation = Operation.NotApplicable,                
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now
@@ -128,21 +134,24 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
         private void AddMessageBodyToMessage(MessageEntity messageEntity, CancellationToken token)
         {
-            ISerializer serializer = this._provider.Get(this._as4Message.ContentType);
+            ISerializer serializer = _provider.Get(_as4Message.ContentType);
             using (var outputStream = new MemoryStream())
             {
-                serializer.Serialize(this._as4Message, outputStream, token);
+                serializer.Serialize(_as4Message, outputStream, token);
 
                 messageEntity.MessageBody = outputStream.ToArray();
-                messageEntity.ContentType = this._as4Message.ContentType;
+                messageEntity.ContentType = _as4Message.ContentType;
             }
+           
             CloseAttachmentContentStreams();
         }
 
         private void CloseAttachmentContentStreams()
         {
-            foreach (Attachment attachment in this._as4Message.Attachments)
+            foreach (Attachment attachment in _as4Message.Attachments)
+            {
                 attachment.Content.Close();
+            }
         }
     }
 }

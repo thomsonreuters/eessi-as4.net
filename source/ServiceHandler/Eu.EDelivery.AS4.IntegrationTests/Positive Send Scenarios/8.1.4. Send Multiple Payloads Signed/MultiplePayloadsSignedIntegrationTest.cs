@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
     public class MultiplePayloadsSignedIntegrationTest : IntegrationTestTemplate
     {
         private const string SubmitMessageFilename = "\\8.1.4-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
         private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
 
         [Fact]
@@ -35,6 +35,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
             // Assert
             bool areFilesFound = PollingAt(AS4ReceiptsPath);
             if (areFilesFound) Console.WriteLine(@"Multiple Payloads Signed Integration Test succeeded!");
+            Assert.True(areFilesFound, "Multiple Payloads Signed failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

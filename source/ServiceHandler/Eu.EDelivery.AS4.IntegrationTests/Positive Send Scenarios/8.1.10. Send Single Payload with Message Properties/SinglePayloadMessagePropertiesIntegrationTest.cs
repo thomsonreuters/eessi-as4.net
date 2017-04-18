@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._10._S
 
         public SinglePayloadMessagePropertiesIntegrationTest()
         {
-            this._as4MessagesPath = $"{AS4MessagesPath}{SubmitMessageFilename}";
+            this._as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
             this._as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 
@@ -27,22 +27,25 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._10._S
         public void ThenSendingSinglePayloadWithMessagePropertiesSucceeds()
         {
             // Before
-            base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartAS4Component();
-            base.CleanUpFiles(AS4FullOutputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            base.CleanUpFiles(AS4ReceiptsPath);
+            CleanUpFiles(HolodeckBInputPath);
+            StartAS4Component();
+            CleanUpFiles(AS4FullOutputPath);
+            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
+            CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            base.CopyPModeToHolodeckB("8.1.10-pmode.xml");
+            CopyPModeToHolodeckB("8.1.10-pmode.xml");
 
             // Act
-            File.Copy(this._as4MessagesPath, this._as4OutputPath);
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = base.PollingAt(AS4ReceiptsPath);
-            if (areFilesFound) Console.WriteLine(@"Single Payload with Message Properties Integration Test succeeded!");
-            Assert.True(areFilesFound);
+            bool areFilesFound = PollingAt(AS4ReceiptsPath);
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Single Payload with Message Properties Integration Test succeeded!");
+            }
+            Assert.True(areFilesFound, "Single Payload with Message Properties failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
@@ -56,7 +59,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._10._S
         private void AssertPayloads()
         {
             FileInfo receivedPayload = new DirectoryInfo(base.HolodeckBInputPath).GetFiles("*.jpg").FirstOrDefault();
-            var sendPayload = new FileInfo(Properties.Resources.submitmessage_single_payload_path);
+            var sendPayload = new FileInfo(Path.GetFullPath($".\\{Properties.Resources.submitmessage_single_payload_path}"));
 
             Assert.NotNull(receivedPayload);
             Assert.Equal(sendPayload.Length, receivedPayload.Length);

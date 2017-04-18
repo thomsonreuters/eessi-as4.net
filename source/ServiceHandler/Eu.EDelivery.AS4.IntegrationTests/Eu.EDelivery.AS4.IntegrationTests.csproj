@@ -232,9 +232,9 @@
     <Compile Include="Positive Send Scenarios\8.1.5. Send Multiple Payloads Encrypted\MultiplePayloadsEncryptedIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.6. Send Multiple Payloads Compressed Signed\MultiplePayloadsCompressedSignedIntegrationTest.cs" />
     <Compile Include="Common\IntegrationTestTemplate.cs" />
-    <Compile Include="Positive Send Scenarios\8.1.7. Send Multiple Payloads Compressed, Encrypted\MultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
-    <Compile Include="Positive Send Scenarios\8.1.8. Send Multiple Payloads Compressed, Signed, Encrypted\MultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
-    <Compile Include="Positive Send Scenarios\8.1.9. Send Multiple Payloads Signed, Encrypted\MultiplePayloadsSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.7. Send Multiple Payloads Compressed Encrypted\MultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.8. Send Multiple Payloads Compressed Signed Encrypted\MultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.9. Send Multiple Payloads Signed Encrypted\MultiplePayloadsSignedEncryptedIntegrationTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

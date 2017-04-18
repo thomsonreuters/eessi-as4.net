@@ -504,8 +504,6 @@
     <Compile Include="Model\Core\Receipt.cs" />
     <Compile Include="Model\Core\SignalMessage.cs" />
     <Compile Include="Model\Core\UserMessage.cs" />
-    <Compile Include="Net\AS4Headers.cs" />
-    <Compile Include="Net\SoapHeaderCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Receivers\IReceiver.cs" />
     <Compile Include="Resources\Schemas.Designer.cs">
