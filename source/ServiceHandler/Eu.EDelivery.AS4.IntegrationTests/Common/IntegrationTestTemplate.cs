@@ -218,7 +218,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <param name="directoryPath">Directory Path to poll</param>
         /// <param name="extension"></param>
         /// <param name="retryCount">Retry Count in miliseconds</param>
-        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 10000)
+        protected bool PollingAt(string directoryPath, string extension = "*", int retryCount = 2500)
         {
             string location = FindAliasLocation(directoryPath);
             Console.WriteLine($@"Start polling to {location}");
