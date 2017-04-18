@@ -10,14 +10,14 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public PartInfo()
         {
-            this.Properties = new Dictionary<string, string>();
+            Properties = new Dictionary<string, string>();
         }
 
         public PartInfo(string href)
         {
-            this.Href = href;
-            this.Properties = new Dictionary<string, string>();
-            this.Schemas = new List<Schema>();
+            Href = href;
+            Properties = new Dictionary<string, string>();
+            Schemas = new List<Schema>();
         }
     }
 }

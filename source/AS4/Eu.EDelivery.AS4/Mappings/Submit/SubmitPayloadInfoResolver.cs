@@ -25,7 +25,10 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         public List<PartInfo> Resolve(SubmitMessage submitMessage)
         {
             var returnPayloads = new List<PartInfo>();
-            if (submitMessage.Payloads == null) return returnPayloads;
+            if (submitMessage.Payloads == null)
+            {
+                return returnPayloads;
+            }
 
             ResolvePartInfosFromSubmitMessage(submitMessage, returnPayloads);
 
@@ -47,7 +50,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
 
             var returnPayload = new PartInfo(href.StartsWith("cid:") ? href : $"cid:{href}");
             if (submitPayload.Schemas != null)
+            {
                 InsertSchemasInPayload(submitPayload, returnPayload);
+            }
 
             InsertPropertiesInPayload(submitMessage, submitPayload, returnPayload);
             return returnPayload;
@@ -59,7 +64,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             {
                 var schema = AS4Mapper.Map<Model.Core.Schema>(submitSchema);
                 if (string.IsNullOrEmpty(schema.Location))
+                {
                     throw new AS4Exception("Invalid Schema: Schema needs a location");
+                }
 
                 returnPartInfo.Schemas.Add(schema);
             }
@@ -68,9 +75,15 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         private static void InsertPropertiesInPayload(SubmitMessage message, Payload submitPayload, PartInfo returnPartInfo)
         {
             if (message.PMode.MessagePackaging.UseAS4Compression)
+            {
                 AddCompressionProperties(submitPayload, returnPartInfo);
+            }
 
-            if (submitPayload.PayloadProperties == null) return;
+            if (submitPayload.PayloadProperties == null)
+            {
+                return;
+            }
+
             AddPayloadProperties(submitPayload, returnPartInfo);
         }
 
@@ -79,7 +92,9 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             foreach (PayloadProperty payloadProperty in submitPayload.PayloadProperties)
             {
                 if (string.IsNullOrEmpty(payloadProperty.Name))
+                {
                     throw new AS4Exception("Invalid Payload Property: Property requires name");
+                }
 
                 returnPartInfo.Properties[payloadProperty.Name] = payloadProperty.Value;
             }
@@ -90,9 +105,13 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             returnPartInfo.Properties["CompressionType"] = "application/gzip";
 
             if (!string.IsNullOrEmpty(submitPayload.MimeType))
+            {
                 returnPartInfo.Properties["MimeType"] = submitPayload.MimeType;
-
-            else returnPartInfo.Properties["MimeType"] = "application/octet-stream";
+            }
+            else
+            {
+                returnPartInfo.Properties["MimeType"] = "application/octet-stream";
+            }
         }
     }
 }
