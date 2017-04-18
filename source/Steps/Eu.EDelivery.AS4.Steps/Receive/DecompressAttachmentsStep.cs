@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 using Exception = System.Exception;
 
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public DecompressAttachmentsStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._internalMessage = internalMessage;
+            _internalMessage = internalMessage;
 
             if (!internalMessage.AS4Message.HasAttachments)
             {
@@ -55,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
-            this._logger.Debug($"{this._internalMessage.Prefix} AS4Message hasn't got any Attachments");
+            _logger.Debug($"{_internalMessage.Prefix} AS4Message hasn't got any Attachments");
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -64,8 +65,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             try
             {
                 await DecompressAttachments(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), as4Message.Attachments);
-                this._logger.Info(
-                    $"{this._internalMessage.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
+                _logger.Info(
+                    $"{_internalMessage.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
             }
             catch (Exception exception)
             {
@@ -73,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private async Task DecompressAttachments(List<Model.Core.PartInfo> messagePayloadInformation, ICollection<Attachment> attachments)
+        private async Task DecompressAttachments(List<PartInfo> messagePayloadInformation, ICollection<Attachment> attachments)
         {            
             foreach (Attachment attachment in attachments)
             {
@@ -105,7 +106,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (isNotCompressed)
             {
-                this._logger.Debug($"{this._internalMessage.Prefix} Attachment {attachment.Id} is not Compressed");
+                _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} is not Compressed");
             }
 
             return isNotCompressed;
@@ -118,21 +119,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task DecompressAttachment(Attachment attachment)
         {
-            this._logger.Debug($"{this._internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
+            _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
 
             attachment.Content.Position = 0;
-            var memoryStream = new MemoryStream();
+            var outputStream = new VirtualStream();
 
             using (var gzipCompression = new GZipStream(
                 attachment.Content, CompressionMode.Decompress, leaveOpen: true))
             {
-                await gzipCompression.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
-                attachment.Content = memoryStream;
+                await gzipCompression.CopyToAsync(outputStream);
+                outputStream.Position = 0;
+                attachment.Content = outputStream;
             }
         }
 
-        private static void AssignAttachmentProperties(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
+        private static void AssignAttachmentProperties(List<PartInfo> messagePayloadInfo, Attachment attachment)
         {
             attachment.Properties["CompressionType"] = GzipContentType;
             string mimeType = GetMimeType(messagePayloadInfo, attachment);
@@ -151,7 +152,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             attachment.ContentType = mimeType;
         }
 
-        private static string GetMimeType(List<Model.Core.PartInfo> messagePayloadInfo, Attachment attachment)
+        private static string GetMimeType(List<PartInfo> messagePayloadInfo, Attachment attachment)
         {
             return messagePayloadInfo.Find(i => i.Href.Equals("cid:" + attachment.Id)).Properties["MimeType"];
         }

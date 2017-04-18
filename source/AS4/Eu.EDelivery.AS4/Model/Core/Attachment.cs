@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -12,8 +11,24 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string Id { get; set; }
         public string ContentType { get; set; }
 
+        private Stream _content;
+
         [XmlIgnore]
-        public Stream Content { get; set; }
+        public Stream Content
+        {
+            get
+            {
+                return _content;
+            }
+            set
+            {
+                if (ReferenceEquals(_content, value) == false)
+                {
+                    _content?.Dispose();
+                }
+                _content = value;
+            }
+        }
 
         public string Location { get; set; }
         public List<Schema> Schemas { get; set; }
@@ -25,15 +40,15 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public Attachment(string id)
         {
-            this.Id = id;
+            Id = id;
             InitializeDefaults();
         }
 
         private void InitializeDefaults()
         {
-            this.Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            this.Schemas = new List<Schema>();
-            this.ContentType = "application/octet-stream";
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            Schemas = new List<Schema>();
+            ContentType = "application/octet-stream";
         }
     }
 

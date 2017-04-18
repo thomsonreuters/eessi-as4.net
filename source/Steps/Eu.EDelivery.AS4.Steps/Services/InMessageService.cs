@@ -205,14 +205,12 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <returns></returns>
         public void UpdateSignalMessage(SignalMessage signalMessage, OutStatus status, CancellationToken cancellationToken)
         {
-            _repository.UpdateOutMessage(signalMessage.RefToMessageId,
-                outMessage =>
-                {
-                    if (status != OutStatus.NotApplicable)
-                    {
-                        outMessage.Status = status;
-                    }
-                });
+            if (status == OutStatus.NotApplicable)
+            {
+                return;
+            }
+
+            _repository.UpdateOutMessage(signalMessage.RefToMessageId, outMessage => outMessage.Status = status);
         }
     }
 

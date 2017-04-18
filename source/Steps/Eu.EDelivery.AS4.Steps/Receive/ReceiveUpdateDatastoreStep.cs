@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             TryUpdateSignalMessage(signalMessage, service, token);
         }
 
-        private bool IsSignalMessageDuplicate(SignalMessage signalMessage, InMessageService service)
+        private static bool IsSignalMessageDuplicate(SignalMessage signalMessage, InMessageService service)
         {
             bool isDuplicate = service.ContainsSignalMessageWithReferenceToMessageId(signalMessage.RefToMessageId);
 
