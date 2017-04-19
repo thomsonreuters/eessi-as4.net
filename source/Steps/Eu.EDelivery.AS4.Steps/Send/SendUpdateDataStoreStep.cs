@@ -19,19 +19,22 @@ namespace Eu.EDelivery.AS4.Steps.Send
     public class SendUpdateDataStoreStep : IStep
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;
+        private readonly IAS4MessageBodyPersister _messageBodyPersister;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep" /> class
         /// </summary>
-        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext) {}
+        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.IncomingAS4MessageBodyPersister) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class.
         /// </summary>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
-        public SendUpdateDataStoreStep(Func<DatastoreContext> createDatastoreContext)
+        /// <param name="messageBodyPersister"></param>
+        public SendUpdateDataStoreStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyPersister messageBodyPersister)
         {
             _createDatastoreContext = createDatastoreContext;
+            _messageBodyPersister = messageBodyPersister;
         }
 
         /// <summary>
@@ -44,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
-                var inMessageService = new InMessageService(new DatastoreRepository(context));
+                var inMessageService = new InMessageService(new DatastoreRepository(context), _messageBodyPersister);
                 var signalMessageUpdate = new SignalMessageStatement(internalMessage, inMessageService, cancellationToken);
 
                 signalMessageUpdate.InsertSignalMessages();

@@ -8,11 +8,13 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -30,7 +32,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext);
+            Mock<IAS4MessageBodyPersister> bodyPersister = new Mock<IAS4MessageBodyPersister>();
+            bodyPersister.Setup(p => p.SaveAS4Message(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).Returns(string.Empty);
+
+            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext, bodyPersister.Object);
         }
 
         /// <summary>

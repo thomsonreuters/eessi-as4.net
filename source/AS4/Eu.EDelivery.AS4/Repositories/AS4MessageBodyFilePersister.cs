@@ -42,10 +42,13 @@ namespace Eu.EDelivery.AS4.Repositories
 
             string fileName = Path.Combine(_storeLocation, $"{messageId}.as4");
 
-            using (var fs = File.Create(fileName))
+            if (!File.Exists((fileName)))
             {
-                var serializer = _provider.Get(message.ContentType);
-                serializer.Serialize(message, fs, cancellationToken);
+                using (var fs = File.Create(fileName))
+                {
+                    var serializer = _provider.Get(message.ContentType);
+                    serializer.Serialize(message, fs, cancellationToken);
+                }
             }
 
             return $"file://{fileName}";

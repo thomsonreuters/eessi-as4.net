@@ -19,6 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
     public class InMessageService : IInMessageService
     {
         private readonly IDatastoreRepository _repository;
+        private readonly IAS4MessageBodyPersister _messageBodyPersister;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -27,9 +28,10 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>
         /// <param name="respository">
         /// </param>
-        public InMessageService(IDatastoreRepository respository)
+        public InMessageService(IDatastoreRepository respository, IAS4MessageBodyPersister as4MessageBodyPersister)
         {
             _repository = respository;
+            _messageBodyPersister = as4MessageBodyPersister;
             _logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -78,7 +80,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
             _logger.Info($"Update Message: {usermessage.MessageId} as User Message");
             InMessage inMessage = CreateUserInMessage(usermessage, as4Message, cancellationToken);
 
-            _repository.InsertInMessage(inMessage);
+            _repository.InsertInMessage(inMessage, _messageBodyPersister);
         }
 
         private static InMessage CreateUserInMessage(
@@ -118,7 +120,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
             _logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
             InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, cancellationToken);
 
-            _repository.InsertInMessage(inMessage);
+            _repository.InsertInMessage(inMessage, _messageBodyPersister);
 
             UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
         }
@@ -171,7 +173,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, cancellationToken);
 
-            _repository.InsertInMessage(inMessage);
+            _repository.InsertInMessage(inMessage, _messageBodyPersister);
 
             UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
         }

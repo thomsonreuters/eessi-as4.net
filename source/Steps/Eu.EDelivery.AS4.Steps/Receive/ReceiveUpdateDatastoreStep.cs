@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -22,19 +21,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _createDatastoreContext;
+        private readonly IAS4MessageBodyPersister _messageBodyPersister;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep" /> class
         /// </summary>
-        public ReceiveUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext) { }
+        public ReceiveUpdateDatastoreStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.IncomingAS4MessageBodyPersister) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveUpdateDatastoreStep"/> class.
         /// </summary>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
-        public ReceiveUpdateDatastoreStep(Func<DatastoreContext> createDatastoreContext)
+        /// <param name="messageBodyPersister">The <see cref="IAS4MessageBodyPersister"/> that must be used to persist the messagebody content.</param>
+        public ReceiveUpdateDatastoreStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyPersister messageBodyPersister)
         {
             _createDatastoreContext = createDatastoreContext;
+            _messageBodyPersister = messageBodyPersister;
         }
 
         /// <summary>
@@ -51,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
-                var service = new InMessageService(repository);
+                var service = new InMessageService(repository, _messageBodyPersister);
                 var messageUpdate = new EbmsMessageStatement(internalMessage, service, token);
 
                 messageUpdate.InsertUserMessages();
