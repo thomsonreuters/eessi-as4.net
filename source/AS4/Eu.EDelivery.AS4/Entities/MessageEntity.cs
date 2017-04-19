@@ -1,6 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Repositories;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Entities
 {
@@ -13,16 +18,35 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string EbmsRefToMessageId { get; set; }
 
+        [MaxLength(256)]
         public string ContentType { get; set; }
 
         public string PMode { get; set; }
 
+        /// <summary>
+        /// Gets or sets the AS4Message instance for which this MessageEntity is an instance.
+        /// </summary>
+        /// <remarks>
+        /// This property is not persisted to the Datastore.  It is used to persist the Message in another location by an
+        /// <see cref="IAS4MessageBodyPersister" />
+        /// </remarks>
+        [NotMapped]
+        internal AS4Message Message { get; set; }
+
+        /// <summary>
+        /// Gets to the location where the AS4Message body can be found.
+        /// </summary>
+        [MaxLength(512)]
+        public string MessageLocation { get; internal set; }
+
+        [Obsolete("The Message Body is no longer stored in the Datastore")]
         public byte[] MessageBody { get; set; }
 
         [NotMapped]
         public Operation Operation { get; set; }
 
         [Column("Operation")]
+        [MaxLength(50)]
         public string OperationString
         {
             get { return Operation.ToString(); }
@@ -43,6 +67,7 @@ namespace Eu.EDelivery.AS4.Entities
         public ExceptionType ExceptionType { get; set; }
 
         [Column("MEP")]
+        [MaxLength(25)]
         public string MEPString
         {
             get { return MEP.ToString(); }
@@ -50,6 +75,7 @@ namespace Eu.EDelivery.AS4.Entities
         }
 
         [Column("EbmsMessageType")]
+        [MaxLength(50)]
         public string EbmsMessageTypeString
         {
             get { return EbmsMessageType.ToString(); }
@@ -57,6 +83,7 @@ namespace Eu.EDelivery.AS4.Entities
         }
 
         [Column("ExceptionType")]
+        [MaxLength(75)]
         public string ExceptionTypeString
         {
             get { return ExceptionType.ToString(); }
@@ -64,20 +91,42 @@ namespace Eu.EDelivery.AS4.Entities
         }
 
         [Column("Status")]
+        [MaxLength(50)]
         public abstract string StatusString { get; set; }
 
         /// <summary>
-        /// Update the <see cref="Entity"/> to lock it with a given <paramref name="value"/>.
+        /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
         /// </summary>
-        /// <param name="value">Value indicating the <see cref="Entity"/> is locked.</param>
+        /// <param name="value">Value indicating the <see cref="Entity" /> is locked.</param>
         public override void Lock(string value)
         {
-            var updatedOperation = (Operation) Enum.Parse(typeof(Operation), value, ignoreCase: true);
+            var updatedOperation = (Operation) Enum.Parse(typeof(Operation), value, true);
 
             if (updatedOperation != Operation.NotApplicable)
             {
                 Operation = updatedOperation;
             }
+        }
+
+        /// <summary>
+        /// Retrieves the Message body as a stream.
+        /// </summary>
+        /// <param name="retrieverProvider">
+        /// The AS4MessageBodyRetrieverProvider which is responsible for providing the correct
+        /// IAS4MessageRepository that loads the AS4Message body.
+        /// </param>
+        /// <returns>A Stream which contains the MessageBody</returns>
+        public Stream RetrieveMessageBody(AS4MessageBodyRetrieverProvider retrieverProvider)
+        {
+            if (string.IsNullOrWhiteSpace(MessageLocation))
+            {
+                LogManager.GetCurrentClassLogger().Warn("Unable to retrieve the AS4 Message Body: MessageLocation is not set.");
+                return Stream.Null;
+            }
+
+            IAS4MessageBodyRetriever repository = retrieverProvider.Get(MessageLocation);
+
+            return repository.LoadAS4MessageStream(MessageLocation);
         }
     }
 }

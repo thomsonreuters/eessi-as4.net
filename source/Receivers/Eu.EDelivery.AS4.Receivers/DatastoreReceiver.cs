@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _specification = new DatastoreSpecification();
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
         /// Create a Data Store Out Message Receiver with a given Data Store Context Delegate
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             return TimeSpan.FromMilliseconds(miliseconds);
         }
-                
+
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
         /// </summary>
@@ -247,9 +247,9 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
 
-            using (var memoryStream = new MemoryStream(messageEntity.MessageBody))
+            using (var stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
             {
-                ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, memoryStream);
+                ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
                 messageCallback(receivedMessage, token);
             }
         }

@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
         }
 
-        private AS4Exception ThrowAS4FailedRetrievePayloadsException(InternalMessage internalMessage, Exception exception)
+        private static AS4Exception ThrowAS4FailedRetrievePayloadsException(InternalMessage internalMessage, Exception exception)
         {
             string description = $"{internalMessage.Prefix} Failed to retrieve Submit Message Payloads";
             Logger.Error(description);

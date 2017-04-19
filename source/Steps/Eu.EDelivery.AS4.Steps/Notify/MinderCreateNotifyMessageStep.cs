@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     public abstract class MinderCreateNotifyMessageStep : IStep
     {
         // TODO: this step should be replaced by a Transformer
-       
+
         private readonly ILogger _logger;
 
         protected abstract string MinderUriPrefix { get; }
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
                 if (ent != null)
                 {
-                    using (var stream = new MemoryStream(ent.MessageBody))
+                    using (var stream = ent.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
                     {
                         stream.Position = 0;
                         var s = Registry.Instance.SerializerProvider.Get(ent.ContentType);
@@ -149,12 +149,12 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private void AssignServiceAction(UserMessage userMessage)
         {
             userMessage.CollaborationInfo.Action = "Notify";
-            userMessage.CollaborationInfo.Service.Value = MinderUriPrefix;            
+            userMessage.CollaborationInfo.Service.Value = MinderUriPrefix;
         }
 
         private void AssignToPartyIdentification(UserMessage userMessage)
-        {            
-//            userMessage.Sender = new Party($"{MinderUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
+        {
+            //            userMessage.Sender = new Party($"{MinderUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
 
             userMessage.Receiver.PartyIds.First().Id = "minder";
             userMessage.Receiver.Role = $"{MinderUriPrefix}/testdriver";

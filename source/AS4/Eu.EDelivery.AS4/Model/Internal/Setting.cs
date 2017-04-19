@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Xml;
@@ -127,7 +126,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         public string Provider { get; set; }
 
-        public string ConnectionString { get; set; }
+        public string ConnectionString { get; set; }        
     }
 
     [Serializable]
