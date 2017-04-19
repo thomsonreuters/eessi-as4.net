@@ -17,24 +17,32 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._5._Se
         public void Test()
         {
             // Before
-            base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartAS4Component();
-            base.CleanUpFiles(AS4FullOutputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            base.CleanUpFiles(AS4ReceiptsPath);
+            CleanUpFiles(HolodeckBInputPath);
+            StartAS4Component();
+            CleanUpFiles(AS4FullOutputPath);
+            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
+            CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            base.CopyPModeToHolodeckB("8.1.5-pmode.xml");
+            CopyPModeToHolodeckB("8.1.5-pmode.xml");
 
             // Act
-            File.Copy(this._as4MessagesPath, this._as4OutputPath);
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = base.PollingAt(HolodeckBInputPath);
-            if (areFilesFound) Console.WriteLine(@"Multiple Payloads Encrypted Integration Test succeeded!");
+            bool areFilesFound = PollingAt(HolodeckBInputPath);
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Multiple Payloads Encrypted Integration Test succeeded!");
+            }
+
             Assert.True(areFilesFound, "Multiple Payloads Encryption Failed: no files are found during polling.");
         }
 
+        /// <summary>
+        /// Perform extra validation for the output files of Holodeck
+        /// </summary>
+        /// <param name="files">The files.</param>
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             AssertPayloads();
