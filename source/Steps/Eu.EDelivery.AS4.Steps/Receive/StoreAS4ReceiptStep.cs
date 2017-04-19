@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(context);
 
-                new OutMessageService(repository).InsertReceipt(internalMessage.AS4Message);
+                new OutMessageService(repository, Config.Instance.OutgoingAS4MessageBodyPersister).InsertReceipt(internalMessage.AS4Message);
                 
                 await context.SaveChangesAsync(cancellationToken);
 

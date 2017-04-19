@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -11,7 +9,6 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
@@ -21,16 +18,28 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// </summary>
     public class StoreAS4MessageStep : IStep
     {
-        private readonly ILogger _logger;
 
-        private InternalMessage _internalMessage;
+        // TODO: this class should be reviewed IMHO.  We should not save AS4Messages, but we should
+        // save the MessagePart in the OutMessage table.  Each MessagePart has its own messagebody.
+        // Right now, the MessageBody is the complete AS4Message; every OutMessage refers to that same messagebody which 
+        // is not correct.
+        // At this stage, there should be no AS4-message in my opinion, only UserMessages and SignalMessages.
+
+        private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class
+        /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.
         /// </summary>
-        public StoreAS4MessageStep()
+        public StoreAS4MessageStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.
+        /// </summary>
+        public StoreAS4MessageStep(IAS4MessageBodyPersister as4MessageBodyPersister)
+        {
+            _as4MessageBodyPersister = as4MessageBodyPersister;
         }
 
         /// <summary>
@@ -41,72 +50,50 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
         {
-            this._internalMessage = internalMessage;
-
-            IList<MessageUnit> messageUnits = GetMessageUnits(internalMessage).ToList();
-            await TryStoreOutMessagesAsync(messageUnits, token);
+            await TryStoreOutMessagesAsync(internalMessage.AS4Message, token);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private static IEnumerable<MessageUnit> GetMessageUnits(InternalMessage internalMessage)
-        {
-            return internalMessage.AS4Message.SignalMessages
-                .Cast<MessageUnit>()
-                .Concat(internalMessage.AS4Message.UserMessages);
-        }
-
-        private async Task TryStoreOutMessagesAsync(IList<MessageUnit> messageUnits, CancellationToken token)
+        private async Task TryStoreOutMessagesAsync(AS4Message as4Message, CancellationToken token)
         {
             try
             {
-                await StoreOutMessagesAsync(messageUnits, token);
+                await StoreOutMessagesAsync(as4Message, token);
             }
             catch (Exception exception)
             {
-                throw ThrowAS4ExceptionWithInnerException(exception);
+                throw ThrowAS4ExceptionWithInnerException(as4Message, exception);
             }
         }
 
-        private AS4Exception ThrowAS4ExceptionWithInnerException(Exception exception)
+        private static AS4Exception ThrowAS4ExceptionWithInnerException(AS4Message message, Exception exception)
         {
             return AS4ExceptionBuilder
                 .WithDescription("Unable to store AS4 Messages")
                 .WithInnerException(exception)
-                .WithSendingPMode(this._internalMessage.AS4Message.SendingPMode)
-                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)                
+                .WithSendingPMode(message.SendingPMode)
+                .WithMessageIds(message.MessageIds)
                 .Build();
         }
 
-        private async Task StoreOutMessagesAsync(IList<MessageUnit> messageUnits, CancellationToken token)
+        private async Task StoreOutMessagesAsync(AS4Message as4Message, CancellationToken token)
         {
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                foreach (MessageUnit messageUnit in messageUnits)
-                {
-                    _logger.Info($"[{messageUnit.MessageId}] Store AS4 Message");
-                    OutMessage outMessage = CreateOutMessage(messageUnit, token);
-                    repository.InsertOutMessage(outMessage);
-                }
+                var builder = OutMessageBuilder.ForAS4Message(as4Message)
+                                               .WithEbmsMessageType(MessageType.UserMessage);
+                OutMessage message = builder.Build(token);
+
+                message.Operation = Operation.ToBeSent;                
+
+                repository.InsertOutMessage(message, _as4MessageBodyPersister);
 
                 await context.SaveChangesAsync(token);
             }
         }
 
-        private OutMessage CreateOutMessage(MessageUnit messageUnit, CancellationToken cancellationToken)
-        {
-            OutMessage outMessage = new OutMessageBuilder()
-                .WithEbmsMessageType(MessageType.UserMessage)
-                .WithAS4Message(this._internalMessage.AS4Message)
-                .WithEbmsMessageId(messageUnit.MessageId)
-                .Build(cancellationToken);
-
-            outMessage.EbmsRefToMessageId = messageUnit.RefToMessageId;
-            outMessage.Operation = Operation.ToBeSent;
-
-            return outMessage;
-        }
     }
 }

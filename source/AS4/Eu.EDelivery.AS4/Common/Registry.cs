@@ -22,6 +22,7 @@ namespace Eu.EDelivery.AS4.Common
             RegisterDeliverSenderProvider();
             RegisterNotifySenderProvider();
             RegisterAttachmentUploaderProvider();
+            RegisterAS4MessageBodyRetrieverProvider();
         }
 
         public Func<DatastoreContext> CreateDatastoreContext { get; set; }
@@ -37,6 +38,11 @@ namespace Eu.EDelivery.AS4.Common
         public ISerializerProvider SerializerProvider { get; }
 
         public IAttachmentUploaderProvider AttachmentUploader { get; private set; }
+
+        public IAS4MessageBodyPersister AS4MessageBodyPersister { get; set; }
+
+        public AS4MessageBodyRetrieverProvider MessageBodyRetrieverProvider { get; private set; }
+        
 
         private void RegisterPayloadStrategyProvider()
         {
@@ -71,5 +77,13 @@ namespace Eu.EDelivery.AS4.Common
             AttachmentUploader.Accept(s => s.Equals("EMAIL", StringComparison.OrdinalIgnoreCase), new EmailAttachmentUploader(mimeTypeRepository));
             AttachmentUploader.Accept(s => s.Equals("PAYLOAD-SERVICE", StringComparison.OrdinalIgnoreCase), new PayloadServiceAttachmentUploader());
         }
+
+        private void RegisterAS4MessageBodyRetrieverProvider()
+        {
+            MessageBodyRetrieverProvider = new AS4MessageBodyRetrieverProvider();
+            MessageBodyRetrieverProvider.Accept(l => l.StartsWith("file://", StringComparison.OrdinalIgnoreCase), new 
+                AS4MessageBodyFileRetriever());                
+        }
+
     }
 }

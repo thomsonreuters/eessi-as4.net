@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
@@ -20,7 +22,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         public GivenStoreAS4MessageStepsFacts()
         {
-            _module = new StoreAS4MessageStep();
+            var mockedAs4BodyPersister = new Mock<IAS4MessageBodyPersister>();
+            mockedAs4BodyPersister.Setup(p => p.SaveAS4Message(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).Returns(string.Empty);
+
+            _module = new StoreAS4MessageStep(mockedAs4BodyPersister.Object);
         }
 
         /// <summary>
@@ -32,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             public async Task ThenTransmitMessageSucceedsAsync()
             {
                 // Arrange
-                AS4Message message = new AS4MessageBuilder().Build();
+                AS4Message message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
                 var internalMessage = new InternalMessage(message);
 
                 // Act

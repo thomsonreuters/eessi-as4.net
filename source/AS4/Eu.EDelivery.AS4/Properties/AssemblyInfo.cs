@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: InternalsVisibleTo("Eu.EDelivery.AS4.UnitTests")]
+[assembly: InternalsVisibleTo("Eu.EDelivery.AS4.Fe.UnitTests")]
 [assembly: InternalsVisibleTo("Eu.EDelivery.AS4.ServiceHandler")]
 [assembly: InternalsVisibleTo("Eu.EDelivery.AS4.IntegrationTests")]
 // General Information about an assembly is controlled through the following 

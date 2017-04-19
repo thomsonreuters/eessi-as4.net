@@ -19,13 +19,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class CreateAS4ErrorStep : IStep
     {
         private readonly ILogger _logger;
+        private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
 
         /// <summary>
-        /// Initializes a new intance of the type <see cref="CreateAS4ErrorStep"/> class
+        /// Initializes a new instance of the type <see cref="CreateAS4ErrorStep"/> class
         /// </summary>
-        public CreateAS4ErrorStep()
+        public CreateAS4ErrorStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
         {
             _logger = LogManager.GetCurrentClassLogger();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class
+        /// </summary>
+        /// <param name="as4MessageBodyPersister">The <see cref="IAS4MessageBodyPersister"/> that must be used to persist the MessageBody.</param>
+        public CreateAS4ErrorStep(IAS4MessageBodyPersister as4MessageBodyPersister)
+        {
+            _as4MessageBodyPersister = as4MessageBodyPersister;
         }
 
         /// <summary>
@@ -42,12 +52,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             var errorMessage = CreateAS4ErrorMessage(internalMessage);
-
+            
             // Save the Error Message as well .... 
             using (var db = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(db);
-                var service = new OutMessageService(repository);
+                var service = new OutMessageService(repository, _as4MessageBodyPersister);
 
                 service.InsertError(errorMessage);
 
@@ -59,7 +69,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Message CreateAS4ErrorMessage(InternalMessage internalMessage)
         {
-            this._logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
+            _logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
 
             var builder = new AS4MessageBuilder();
 
@@ -82,7 +92,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             errorMessage.SendingPMode = internalMessage.AS4Message.SendingPMode;
 
             return errorMessage;
-
         }
 
         private static bool ShouldCreateError(InternalMessage internalMessage)

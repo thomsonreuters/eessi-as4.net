@@ -8,6 +8,8 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
@@ -33,7 +35,7 @@ namespace Eu.EDelivery.AS4.Common
             _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
         }
 
-        public static Config Instance => (Config) Singleton;
+        public static Config Instance => (Config)Singleton;
 
         /// <summary>
         /// Gets a value indicating whether the FE needs to be started in process.
@@ -44,6 +46,16 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets a value indicating whether the Payload Service needs to be started in process.
         /// </summary>
         public bool PayloadServiceInProcess { get; private set; }
+
+        /// <summary>
+        /// The <see cref="IAS4MessageBodyPersister"/> that must be used for incoming messages.
+        /// </summary>
+        public IAS4MessageBodyPersister IncomingAS4MessageBodyPersister { get; } = new AS4MessageBodyFilePersister(@".\database\as4messages\in", SerializerProvider.Default);
+
+        /// <summary>
+        /// The <see cref="IAS4MessageBodyPersister"/> that must be used for outgoing messages.
+        /// </summary>
+        public IAS4MessageBodyPersister OutgoingAS4MessageBodyPersister { get; } = new AS4MessageBodyFilePersister(@".\database\as4messages\out", SerializerProvider.Default);
 
         public bool IsInitialized { get; private set; }
 
@@ -135,7 +147,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             if (_settings.Agents.MinderTestAgents == null)
             {
-                return new SettingsMinderAgent[] {};
+                return new SettingsMinderAgent[] { };
             }
 
             return _settings.Agents.MinderTestAgents.Where(a => a.Enabled);
@@ -251,7 +263,7 @@ namespace Eu.EDelivery.AS4.Common
             _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
 
             FeInProcess = _settings.FeInProcess;
-            PayloadServiceInProcess = _settings.PayloadServiceInProcess;
+            PayloadServiceInProcess = _settings.PayloadServiceInProcess;            
         }
 
         private void AddCustomSettings()
@@ -270,7 +282,7 @@ namespace Eu.EDelivery.AS4.Common
         private void AddCustomAgents()
         {
             _agents = new List<SettingsAgent>();
-            
+
             AddCustomAgentsIfNotNull(_settings.Agents.ReceptionAwarenessAgent);
             AddCustomAgentsIfNotNull(_settings.Agents.NotifyAgents);
             AddCustomAgentsIfNotNull(_settings.Agents.DeliverAgents);
