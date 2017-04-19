@@ -84,18 +84,14 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private static InMessage CreateUserInMessage(
             UserMessage userMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
-            InMessage inMessage = new InMessageBuilder()
-                .WithAS4Message(as4Message)
-                .WithEbmsMessageType(MessageType.UserMessage)
-                .WithMessageUnit(userMessage)
-                .WithPModeString(AS4XmlSerializer.ToString(as4Message.ReceivingPMode))
-                .Build(cancellationToken);
+            InMessage inMessage = InMessageBuilder.ForUserMessage(userMessage, as4Message)
+                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.ReceivingPMode))
+                                                  .Build(cancellationToken);
 
             if (NeedUserMessageBeDelivered(as4Message.ReceivingPMode, userMessage))
             {
                 AddOperationDelivered(inMessage);
             }
-
 
             return inMessage;
         }
@@ -130,12 +126,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private static InMessage CreateReceiptInMessage(
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
-            InMessage inMessage = new InMessageBuilder()
-                .WithAS4Message(as4Message)
-                .WithEbmsMessageType(MessageType.Receipt)
-                .WithMessageUnit(signalMessage)
-                .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
-                .Build(cancellationToken);
+            InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, as4Message)
+                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
+                                                  .Build(cancellationToken);
 
             if (ReceiptDoesNotNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)
             {
@@ -186,12 +179,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private static InMessage CreateErrorInMessage(
             SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
         {
-            InMessage inMessage = new InMessageBuilder()
-                .WithAS4Message(as4Message)
-                .WithEbmsMessageType(MessageType.Error)
-                .WithMessageUnit(signalMessage)
-                .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
-                .Build(cancellationToken);
+            InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, as4Message)
+                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
+                                                  .Build(cancellationToken);
 
             if (ErrorDontNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)
             {

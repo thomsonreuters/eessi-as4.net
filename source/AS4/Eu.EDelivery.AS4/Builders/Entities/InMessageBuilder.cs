@@ -1,10 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -13,66 +11,40 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     /// </summary>
     public class InMessageBuilder
     {
-        private readonly ISerializerProvider _provider;
-
-        private MessageUnit _messageUnit;
-        private AS4Message _as4Message;
+        private readonly MessageUnit _messageUnit;
+        private readonly AS4Message _as4Message;
         private string _pmodeString;
-        private MessageType _messageType;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="InMessageBuilder"/> class. 
-        /// Starting the Builder
-        /// </summary>
-        public InMessageBuilder() : this(SerializerProvider.Default)
-        {            
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMessageBuilder"/> class. 
         /// Starting the Builder with a given Serialize Provider
-        /// </summary>
-        /// <param name="provider">
-        /// </param>
-        public InMessageBuilder(ISerializerProvider provider)
-        {
-            _provider = provider;
-        }
-
-        /// <summary>
-        /// Add a <see cref="AS4Message"/> Body
-        /// to the Builder
-        /// </summary>
-        /// <param name="as4Message"></param>
-        /// <returns></returns>
-        public InMessageBuilder WithAS4Message(AS4Message as4Message)
-        {
-            _as4Message = as4Message;
-            return this;
-        }
-
-        /// <summary>
-        /// Add a SignalMessage to the Root
-        /// of the Builder
-        /// </summary>
-        /// <param name="messageUnit"></param>
-        /// <returns></returns>
-        public InMessageBuilder WithMessageUnit(MessageUnit messageUnit)
+        /// </summary>                
+        private InMessageBuilder(MessageUnit messageUnit, AS4Message as4Message)
         {
             _messageUnit = messageUnit;
-            return this;
+            _as4Message = as4Message;
         }
 
         /// <summary>
-        /// Add the Message Type
-        /// to the Builder
+        /// Creates a new InMessageBuilder instance that can instantiate an <see cref="InMessage"/> for the received <paramref name="userMessage"/>
         /// </summary>
-        /// <param name="messageType"></param>
+        /// <param name="userMessage"></param>
+        /// <param name="belongsToAS4Message"></param>
         /// <returns></returns>
-        public InMessageBuilder WithEbmsMessageType(MessageType messageType)
+        public static InMessageBuilder ForUserMessage(UserMessage userMessage, AS4Message belongsToAS4Message)
         {
-            _messageType = messageType;
-            return this;
+            return new InMessageBuilder(userMessage, belongsToAS4Message);
+        }
+
+        /// <summary>
+        /// Creates a new InMessageBuilder instance that can instantiate an <see cref="InMessage"/> for the received <paramref name="signalMessage"/>
+        /// </summary>
+        /// <param name="signalMessage"></param>
+        /// <param name="belongsToAS4Message"></param>
+        /// <returns></returns>
+        public static InMessageBuilder ForSignalMessage(SignalMessage signalMessage, AS4Message belongsToAS4Message)
+        {
+            return new InMessageBuilder(signalMessage, belongsToAS4Message);
         }
 
         public InMessageBuilder WithPModeString(string pmode)
@@ -99,13 +71,13 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
             return new InMessage
             {
-                EbmsMessageId = this._messageUnit.MessageId,
-                EbmsRefToMessageId = this._messageUnit.RefToMessageId,
-                EbmsMessageType = this._messageType,
-                MessageBody = CreateMessageBody(this._as4Message, cancellationToken),
-                ContentType = this._as4Message.ContentType,
-                PMode = this._pmodeString,
-                MEP = MessageExchangePattern.Push,
+                EbmsMessageId = _messageUnit.MessageId,
+                EbmsRefToMessageId = _messageUnit.RefToMessageId,
+                EbmsMessageType = DetermineMessageType(_messageUnit),
+                ContentType = _as4Message.ContentType,
+                Message = _as4Message,
+                PMode = _pmodeString,
+                MEP = MessageExchangePattern.Push, // TODO: this is hardcoded; is this correct ? Is this even relevant for inmsg ?
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.UtcNow,
@@ -113,13 +85,31 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             };
         }
 
-        private byte[] CreateMessageBody(AS4Message as4Message, CancellationToken token)
+        private static MessageType DetermineMessageType(MessageUnit messageUnit)
         {
-            var memoryStream = new MemoryStream();
-            ISerializer serializer = this._provider.Get(as4Message.ContentType);
-            serializer.Serialize(as4Message, memoryStream, token);
+            if (messageUnit is UserMessage)
+            {
+                return MessageType.UserMessage;
+            }
+            if (messageUnit is Receipt)
+            {
+                return MessageType.Receipt;
+            }
+            if (messageUnit is Error)
+            {
+                return MessageType.Error;
+            }
 
-            return memoryStream.ToArray();
+            throw new InvalidOperationException("There is no MessageType mapped for this MessageUnit.");
         }
+
+        ////private byte[] CreateMessageBody(AS4Message as4Message, CancellationToken token)
+        ////{
+        ////    var memoryStream = new MemoryStream();
+        ////    ISerializer serializer = this._provider.Get(as4Message.ContentType);
+        ////    serializer.Serialize(as4Message, memoryStream, token);
+
+        ////    return memoryStream.ToArray();
+        ////}
     }
 }
