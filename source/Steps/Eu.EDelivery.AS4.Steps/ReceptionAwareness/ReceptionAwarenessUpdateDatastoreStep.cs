@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 _logger.Debug("Executing ReceptionAwarenessDataStoreStep");
 
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             string messageId = _receptionAwareness.InternalMessageId;
             _logger.Info($"[{messageId}] Reception Awareness completed");
-            UpdateReceptionAwareness(x => x.IsCompleted = true, repository);
+            UpdateReceptionAwareness(x => x.Status = ReceptionStatus.Completed, repository);
         }
 
         private bool MessageNeedsToBeResend(IDatastoreRepository repository)
@@ -101,10 +101,11 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             return
                 _receptionAwareness.CurrentRetryCount < _receptionAwareness.TotalRetryCount &&
+
                 // Is it necessary that this is a repository method ?
                 repository.GetOutMessageOperation(_receptionAwareness.InternalMessageId) != Operation.Sending &&
                 DateTimeOffset.UtcNow.CompareTo(deadlineForResend) > 0 &&
-                _receptionAwareness.IsCompleted == false;
+                _receptionAwareness.Status != ReceptionStatus.Completed;
         }
 
         private void UpdateForResendMessage(IDatastoreRepository repository)
@@ -125,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             string messageId = _receptionAwareness.InternalMessageId;
             _logger.Info($"[{messageId}] ebMS message is unanswered");
 
-            UpdateReceptionAwareness(awareness => awareness.IsCompleted = true, repository);
+            UpdateReceptionAwareness(awareness => awareness.Status = ReceptionStatus.Completed, repository);
             repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
 
             Error errorMessage = CreateError();

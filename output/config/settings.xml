@@ -137,8 +137,9 @@
     <ReceptionAwarenessAgent name="Reception Awareness Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">ReceptionAwareness</Setting>
-        <Setting key="Field">IsCompleted</Setting>
-        <Setting key="Value">false</Setting>
+        <Setting key="Field">Status</Setting>
+        <Setting key="Value">Pending</Setting>
+        <Setting key="Update">Busy</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ReceptionAwarenessTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <Steps>

@@ -13,6 +13,12 @@ namespace Eu.EDelivery.AS4.Entities
 
         public bool IsTransient => Id == default(long);
 
+        /// <summary>
+        /// Update the <see cref="Entity"/> to lock it with a given <paramref name="value"/>.
+        /// </summary>
+        /// <param name="value">Value indicating the <see cref="Entity"/> is locked.</param>
+        public virtual void Lock(string value) { }
+
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
         /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
         /// <param name="other">An object to compare with this object.</param>
