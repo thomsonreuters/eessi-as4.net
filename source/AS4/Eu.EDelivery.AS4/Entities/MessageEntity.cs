@@ -31,24 +31,6 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         [MaxLength(512)]
         public string MessageLocation { get; internal set; }
-
-        /// <summary>
-        /// Retrieves the Message body as a stream.
-        /// </summary>        
-        /// <param name="retrieverProvider">The AS4MessageBodyRetrieverProvider which is responsible for providing the correct IAS4MessageRepository that loads the AS4Message body.</param>
-        /// <returns>A Stream which contains the MessageBody</returns>
-        public Stream RetrieveMessageBody(AS4MessageBodyRetrieverProvider retrieverProvider)
-        {
-            if (string.IsNullOrWhiteSpace(MessageLocation))
-            {
-                NLog.LogManager.GetCurrentClassLogger().Warn("Unable to retrieve the AS4 Message Body: MessageLocation is not set.");
-                return Stream.Null;
-            }
-
-            var repository = retrieverProvider.Get(MessageLocation);
-
-            return repository.LoadAS4MessageStream(MessageLocation);
-        }
         
         [Obsolete("The Message Body is no longer stored in the Datastore")]
         public byte[] MessageBody { get; set; }
@@ -92,5 +74,24 @@ namespace Eu.EDelivery.AS4.Entities
 
         [Column("Status"), MaxLength(50)]
         public abstract string StatusString { get; set; }
+
+        /// <summary>
+        /// Retrieves the Message body as a stream.
+        /// </summary>        
+        /// <param name="retrieverProvider">The AS4MessageBodyRetrieverProvider which is responsible for providing the correct IAS4MessageRepository that loads the AS4Message body.</param>
+        /// <returns>A Stream which contains the MessageBody</returns>
+        public Stream RetrieveMessageBody(AS4MessageBodyRetrieverProvider retrieverProvider)
+        {
+            if (string.IsNullOrWhiteSpace(MessageLocation))
+            {
+                NLog.LogManager.GetCurrentClassLogger().Warn("Unable to retrieve the AS4 Message Body: MessageLocation is not set.");
+                return Stream.Null;
+            }
+
+            var repository = retrieverProvider.Get(MessageLocation);
+
+            return repository.LoadAS4MessageStream(MessageLocation);
+        }
+
     }
 }
