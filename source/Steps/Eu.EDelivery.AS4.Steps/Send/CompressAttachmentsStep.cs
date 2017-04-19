@@ -17,17 +17,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     public class CompressAttachmentsStep : IStep
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private InternalMessage _internalMessage;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompressAttachmentsStep"/> class. 
-        /// Create a default Compress Attachment Step
-        /// </summary>
-        public CompressAttachmentsStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
 
         /// <summary>
         /// Compress the <see cref="AS4Message" /> if required
@@ -48,9 +39,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
+        private static async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
-            _logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Compression is disabled");
+            Logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Compression is disabled");
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -58,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                _logger.Info(
+                Logger.Info(
                     $"{_internalMessage.Prefix} Compress AS4 Message Attachments with GZip Compression");
                 await CompressAttachments(attachments);
             }
@@ -100,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private AS4Exception ThrowAS4CompressingException(Exception innerException)
         {
             string description = $"{_internalMessage.Prefix} Attachments cannot be compressed";
-            _logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)

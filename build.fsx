@@ -15,6 +15,7 @@ Target "Compile" (fun _ ->
             Verbosity = Some(Quiet)
             Targets = ["Build"]
             Properties = [ "Optimize", "True"; "DebugSymbols", "True"; "Configuration", buildMode]
+            RestorePackagesFlag = true
          }
     build setParams "./source/AS4.sln" |> DoNothing
 )

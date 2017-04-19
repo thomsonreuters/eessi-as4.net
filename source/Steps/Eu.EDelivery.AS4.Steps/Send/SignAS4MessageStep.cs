@@ -19,16 +19,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     public class SignAS4MessageStep : IStep
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICertificateRepository _repository;
-        private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SignAS4Message"/> class
+        /// Initializes a new instance of the <see cref="SignAS4MessageStep"/> class
         /// </summary>
         public SignAS4MessageStep()
         {
             _repository = Registry.Instance.CertificateRepository;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -40,7 +39,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
         public SignAS4MessageStep(ICertificateRepository repository)
         {
             _repository = repository;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -59,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (internalMessage.AS4Message.SendingPMode?.Security.Signing.IsEnabled != true)
             {
-                _logger.Info($"{internalMessage.Prefix} Sending PMode {internalMessage.AS4Message.SendingPMode?.Id} Signing is disabled");
+                Logger.Info($"{internalMessage.Prefix} Sending PMode {internalMessage.AS4Message.SendingPMode?.Id} Signing is disabled");
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
@@ -73,12 +71,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                _logger.Info($"{message.Prefix} Sign AS4 Message with given Signing Information");
+                Logger.Info($"{message.Prefix} Sign AS4 Message with given Signing Information");
                 SignAS4Message(message, cancellationToken);
             }
             catch (Exception exception)
             {
-                _logger.Error(exception.Message);
+                Logger.Error(exception.Message);
                 throw ThrowCommonSigningException(message.AS4Message, exception.Message, exception);
             }
         }
@@ -105,9 +103,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return certificate;
         }
 
-        private AS4Exception ThrowCommonSigningException(AS4Message as4Message, string description, Exception innerException = null)
+        private static AS4Exception ThrowCommonSigningException(AS4Message as4Message, string description, Exception innerException = null)
         {
-            _logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
@@ -127,7 +125,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .WithCertificate(certificate)
                 .WithSigningId(message.SigningId, signing.HashFunction);
 
-            foreach (var attachment in message.Attachments)
+            foreach (Attachment attachment in message.Attachments)
             {
                 builder.WithAttachment(attachment, signing.HashFunction);
             }

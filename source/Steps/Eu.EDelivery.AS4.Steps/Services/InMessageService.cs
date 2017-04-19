@@ -66,28 +66,6 @@ namespace Eu.EDelivery.AS4.Steps.Services
         }
 
         /// <summary>
-        /// Get a UserMessage by a given <paramref name="messageId"/>
-        /// </summary>
-        /// <param name="messageId"></param>
-        /// <returns></returns>
-        public bool ContainsUserMessageWithId(string messageId)
-        {
-            _logger.Debug($"Find UserMessage for EbmsMessageId: {messageId}");
-            return _repository.InMessageExists(m => m.EbmsMessageId.Equals(messageId));
-        }
-
-        /// <summary>
-        /// Get SignalMessage by a given <paramref name="refToMessageId"/>
-        /// </summary>
-        /// <param name="refToMessageId"></param>
-        /// <returns></returns>
-        public bool ContainsSignalMessageWithReferenceToMessageId(string refToMessageId)
-        {
-            _logger.Debug($"Find SignalMessage for RefToEbmsMessageId: {refToMessageId}");
-            return _repository.InMessageExists(m => m.EbmsRefToMessageId == refToMessageId);
-        }
-
-        /// <summary>
         /// Update a given User Message in the Data store
         /// </summary>
         /// <param name="usermessage"></param>
@@ -249,9 +227,6 @@ namespace Eu.EDelivery.AS4.Steps.Services
 
     public interface IInMessageService
     {
-        bool ContainsUserMessageWithId(string messageId);
-        bool ContainsSignalMessageWithReferenceToMessageId(string refToMessageId);
-
         void InsertUserMessage(UserMessage usermessage, AS4Message as4Message, CancellationToken cancellationToken);
         void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
         void InsertError(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
