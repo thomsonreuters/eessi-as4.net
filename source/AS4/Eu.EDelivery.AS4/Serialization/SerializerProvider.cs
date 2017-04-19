@@ -18,13 +18,15 @@ namespace Eu.EDelivery.AS4.Serialization
     {
         private readonly IDictionary<string, ISerializer> _serializers;
 
+        public static ISerializerProvider Default = new SerializerProvider();
+
         internal SerializerProvider()
         {
-            this._serializers = new Dictionary<string, ISerializer>();
+            _serializers = new Dictionary<string, ISerializer>();
 
             var soapSerializer = new SoapEnvelopeSerializer();
-            this._serializers.Add(Constants.ContentTypes.Soap, soapSerializer);
-            this._serializers.Add(Constants.ContentTypes.Mime, new MimeMessageSerializer(soapSerializer));
+            _serializers.Add(Constants.ContentTypes.Soap, soapSerializer);
+            _serializers.Add(Constants.ContentTypes.Mime, new MimeMessageSerializer(soapSerializer));
         }
 
         /// <summary>
@@ -35,9 +37,13 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public ISerializer Get(string contentType)
         {
-            foreach (string key in this._serializers.Keys)
+            foreach (string key in _serializers.Keys)
+            {
                 if (KeyMatchesContentType(contentType, key))
-                    return this._serializers[key];
+                {
+                    return _serializers[key];
+                }
+            }
 
             throw new AS4Exception($"No given Serializer found for a given Content Type: {contentType}");
         }

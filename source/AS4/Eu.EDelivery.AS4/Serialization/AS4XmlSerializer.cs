@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             using (var memoryStream = new MemoryStream())
             {
-                var provider = new SerializerProvider();
+                var provider = SerializerProvider.Default;
 
                 ISerializer serializer = provider.Get(Constants.ContentTypes.Soap);
                 serializer.Serialize(as4Message, memoryStream, cancellationToken);

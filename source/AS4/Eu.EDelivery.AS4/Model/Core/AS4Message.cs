@@ -74,6 +74,15 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsPulling => PrimarySignalMessage is PullRequest;
 
+        public string GetPrimaryMessageId()
+        {
+            if (IsUserMessage)
+            {
+                return PrimaryUserMessage.MessageId;
+            }
+            return PrimarySignalMessage?.MessageId;        
+        }
+
         /// <summary>
         /// Add Attachment to <see cref="AS4Message" />
         /// </summary>
@@ -96,6 +105,14 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             ContentType = contentTypeString.Replace("Content-Type: ", string.Empty);
+        }
+
+        public void CloseAttachments()
+        {
+            foreach (Attachment attachment in Attachments)
+            {
+                attachment.Content.Dispose();
+            }
         }
     }
 }
