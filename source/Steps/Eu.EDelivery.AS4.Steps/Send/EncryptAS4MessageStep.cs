@@ -21,24 +21,23 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     public class EncryptAS4MessageStep : IStep
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICertificateRepository _certificateRepository;
 
         ////private InternalMessage _internalMessage;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TryEncryptAS4Message"/> class
+        /// Initializes a new instance of the <see cref="EncryptAS4MessageStep"/> class
         /// </summary>
         public EncryptAS4MessageStep() : this(Registry.Instance.CertificateRepository) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TryEncryptAS4Message"/> class
+        /// Initializes a new instance of the <see cref="EncryptAS4MessageStep"/> class
         /// </summary>
         /// <param name="certificateRepository"></param>
         public EncryptAS4MessageStep(ICertificateRepository certificateRepository)
         {
-            this._certificateRepository = certificateRepository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _certificateRepository = certificateRepository;
         }
 
         /// <summary>
@@ -61,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private void TryEncryptAS4Message(InternalMessage internalMessage)
         {
-            this._logger.Info($"{internalMessage.Prefix} Encrypt AS4 Message with given Encryption Information");
+            Logger.Info($"{internalMessage.Prefix} Encrypt AS4 Message with given Encryption Information");
             try
             {
                 IEncryptionStrategy strategy = CreateEncryptStrategy(internalMessage);
@@ -81,12 +80,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             X509Certificate2 certificate = RetrieveCertificate(internalMessage);
 
-            var builder = EncryptionStrategyBuilder.Create(as4Message);
+            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(as4Message);
 
             builder.WithDataEncryptionConfiguration(new DataEncryptionConfiguration(encryption.Algorithm));
-            builder.WithKeyEncryptionConfiguration(new KeyEncryptionConfiguration(null,
-                encryption.KeyTransport.TransportAlgorithm, encryption.KeyTransport.DigestAlgorithm,
-                encryption.KeyTransport.MgfAlgorithm));
+            builder.WithKeyEncryptionConfiguration(
+                new KeyEncryptionConfiguration(
+                    tokenReference: null,
+                    encryptionMethod: encryption.KeyTransport.TransportAlgorithm,
+                    digestMethod: encryption.KeyTransport.DigestAlgorithm,
+                    mgf: encryption.KeyTransport.MgfAlgorithm));
             
             builder.WithCertificate(certificate);
             builder.WithAttachments(as4Message.Attachments);
@@ -98,20 +100,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             Encryption encryption = internalMessage.AS4Message.SendingPMode.Security.Encryption;
 
-            X509Certificate2 certificate = this._certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
-           
-            return certificate;
+            return _certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
         }
         
-        private Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
+        private static Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
-            this._logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Encryption is disabled");
+            Logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Encryption is disabled");
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private AS4Exception ThrowCommonEncryptionException(InternalMessage internalMessage, string description, Exception innerException = null)
+        private static AS4Exception ThrowCommonEncryptionException(InternalMessage internalMessage, string description, Exception innerException = null)
         {
-            this._logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
