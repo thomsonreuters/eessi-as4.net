@@ -18,6 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Services
     {
         private readonly ILogger _logger;
         private readonly IDatastoreRepository _repository;
+        private readonly IAS4MessageBodyPersister _messageBodyPersister;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService"/> class. 
@@ -26,9 +27,11 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// </summary>
         /// <param name="repository">
         /// </param>
-        public OutMessageService(IDatastoreRepository repository)
+        /// <param name="as4MessageBodyPersister">The <see cref="IAS4MessageBodyPersister"/> that must be used to persist the AS4 Message Body.</param>
+        public OutMessageService(IDatastoreRepository repository, IAS4MessageBodyPersister as4MessageBodyPersister)
         {
             _repository = repository;
+            _messageBodyPersister = as4MessageBodyPersister;
             _logger = LogManager.GetCurrentClassLogger();
         }
 
@@ -68,9 +71,9 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private void TryInsertOutcomingOutMessage(AS4Message as4Message, MessageType messageType)
         {
             try
-            {                
+            {
                 OutMessage outMessage = CreateOutMessageForSignal(as4Message, messageType);
-                _repository.InsertOutMessage(outMessage);
+                _repository.InsertOutMessage(outMessage, _messageBodyPersister);
             }
             catch (Exception ex)
             {
@@ -86,12 +89,10 @@ namespace Eu.EDelivery.AS4.Steps.Services
         private static OutMessage CreateOutMessageForSignal(AS4Message message, MessageType messageType)
         {
             var primarySignalMessage = message.PrimarySignalMessage;
-            
-            OutMessage outMessage = new OutMessageBuilder()
-                .WithAS4Message(message)
-                .WithEbmsMessageId(primarySignalMessage.MessageId)
-                .WithEbmsMessageType(messageType)
-                .Build(CancellationToken.None);
+
+            OutMessage outMessage = OutMessageBuilder.ForAS4Message(message)
+                                                     .WithEbmsMessageType(messageType)
+                                                     .Build(CancellationToken.None);
 
             outMessage.EbmsRefToMessageId = primarySignalMessage.RefToMessageId;
 

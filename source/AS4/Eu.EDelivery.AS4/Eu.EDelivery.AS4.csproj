@@ -334,6 +334,9 @@
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Receivers\ExponentialIntervalReceiver.cs" />
     <Compile Include="Receivers\IntervalRequest.cs" />
+    <Compile Include="Repositories\AS4MessageBodyFilePersister.cs" />
+    <Compile Include="Repositories\AS4MessageBodyFileRetriever.cs" />
+    <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
     <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />

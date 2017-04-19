@@ -1,12 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
@@ -16,6 +18,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
     /// </summary>
     public class GivenDatastoreRepositoryFacts : GivenDatastoreFacts
     {
+        private readonly Mock<IAS4MessageBodyPersister> _mockedMessageBodyPersister;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GivenDatastoreRepositoryFacts"/> class.
+        /// </summary>
+        public GivenDatastoreRepositoryFacts()
+        {
+            _mockedMessageBodyPersister = new Mock<IAS4MessageBodyPersister>();
+            _mockedMessageBodyPersister.Setup(r => r.SaveAS4Message(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).Returns(string.Empty);
+        }
+
+
         public class OutMessages : GivenDatastoreRepositoryFacts
         {
             [Theory]
@@ -47,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    new DatastoreRepository(context).InsertOutMessage(outMessage);
+                    new DatastoreRepository(context).InsertOutMessage(outMessage, _mockedMessageBodyPersister.Object);
 
                     await context.SaveChangesAsync();
                 }
@@ -123,6 +137,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                     InException inException =
                         context.InExceptions.FirstOrDefault(m => m.EbmsRefToMessageId.Equals(messageId));
                     assertAction(inException);
+
                 }
             }
         }
@@ -247,7 +262,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    context.InMessages.Add(new InMessage(){EbmsMessageId = ebmsMessageId, Operation = operation});
+                    context.InMessages.Add(new InMessage() { EbmsMessageId = ebmsMessageId, Operation = operation });
                     context.SaveChanges();
                 }
             }
@@ -256,7 +271,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    context.InMessages.Add(new InMessage {EbmsRefToMessageId = refToEbmsMessageId});
+                    context.InMessages.Add(new InMessage { EbmsRefToMessageId = refToEbmsMessageId });
                     context.SaveChanges();
                 }
             }

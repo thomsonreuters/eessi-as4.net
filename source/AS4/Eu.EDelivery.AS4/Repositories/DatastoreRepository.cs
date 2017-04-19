@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -160,9 +161,15 @@ namespace Eu.EDelivery.AS4.Repositories
         /// into the Data store
         /// </summary>
         /// <param name="outMessage"></param>
-        public void InsertOutMessage(OutMessage outMessage)
+        /// <param name="bodyPersister">The <see cref="IAS4MessageBodyPersister"/> instance that must be used to persist the AS4 MessageBody.</param>
+        public void InsertOutMessage(OutMessage outMessage, IAS4MessageBodyPersister bodyPersister)
         {
+            string messageLocation = bodyPersister.SaveAS4Message(outMessage.Message, CancellationToken.None);
+            outMessage.MessageLocation = messageLocation;
+
             _dbContext.OutMessages.Add(outMessage);
+            
+            outMessage.Message?.CloseAttachments();
         }
 
         /// <summary>
@@ -446,7 +453,7 @@ namespace Eu.EDelivery.AS4.Repositories
         void UpdateInMessage(string messageId, Action<InMessage> updateAction);        
         bool InMessageExists(Func<InMessage, bool> predicate);
 
-        void InsertOutMessage(OutMessage outMessage);
+        void InsertOutMessage(OutMessage outMessage, IAS4MessageBodyPersister bodyPersister);
         void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
         OutMessage GetOutMessageById(string messageId);
         Operation GetOutMessageOperation(string messageId);
