@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.ReceptionAwareness;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
+using EntityReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 {
@@ -29,18 +30,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             [Fact]
             public async Task ThenMessageIsAlreadyAwnseredAsync()
             {
-                Entities.ReceptionAwareness awareness;
-
                 // Arrange
-                using (var context = new DatastoreContext(Options))
-                {
-                    awareness = CreateDefaultReceptionAwareness();
-                    context.ReceptionAwareness.Add(awareness);
-
-                    await context.SaveChangesAsync();
-
-                    ArrangeMessageIsAlreadyAnswered(awareness.InternalMessageId);                                       
-                }
+                EntityReceptionAwareness awareness = InsertAlreadyAnswerdMessage();
 
                 var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
                 var step = new ReceptionAwarenessUpdateDatastoreStep();
@@ -49,7 +40,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.True(x.IsCompleted));
+                AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.Equal(ReceptionStatus.Completed, x.Status));
+            }
+
+            private EntityReceptionAwareness InsertAlreadyAnswerdMessage()
+            {
+                EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
+
+                InsertReceptionAwareness(awareness);
+
+                ArrangeMessageIsAlreadyAnswered(awareness.InternalMessageId);
+
+                return awareness;
             }
 
             private void ArrangeMessageIsAlreadyAnswered(string messageId)
@@ -66,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             public async Task ThenMessageIsUnansweredAsync()
             {
                 // Arrange
-                Entities.ReceptionAwareness awareness = CreateDefaultReceptionAwareness();
+                EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
                 awareness.CurrentRetryCount = awareness.TotalRetryCount;
                 InsertReceptionAwareness(awareness);
                 InsertOutMessage(awareness.InternalMessageId);
@@ -79,7 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
                 // Assert
                 AssertInMessage(awareness.InternalMessageId);
-                AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.True(x.IsCompleted));
+                AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.Equal(ReceptionStatus.Completed, x.Status));
             }
 
             private void AssertInMessage(string messageId)
@@ -92,11 +94,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 }
             }
 
-            private void AssertReceptionAwareness(string messageId, Action<Entities.ReceptionAwareness> condition)
+            private void AssertReceptionAwareness(string messageId, Action<EntityReceptionAwareness> condition)
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    Entities.ReceptionAwareness awareness =
+                    EntityReceptionAwareness awareness =
                         context.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
 
                     Assert.NotNull(awareness);
@@ -105,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             }
         }
 
-        protected void InsertReceptionAwareness(Entities.ReceptionAwareness receptionAwareness)
+        protected void InsertReceptionAwareness(EntityReceptionAwareness receptionAwareness)
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
@@ -127,12 +129,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             }
         }
 
-        protected Entities.ReceptionAwareness CreateDefaultReceptionAwareness()
+        protected EntityReceptionAwareness CreateDefaultReceptionAwareness()
         {
-            return new Entities.ReceptionAwareness
+            return new EntityReceptionAwareness
             {
                 CurrentRetryCount = 0,
-                IsCompleted = false,
+                Status = ReceptionStatus.Pending,
                 InternalMessageId = "message-id",
                 LastSendTime = DateTimeOffset.UtcNow.AddMinutes(-1),
                 RetryInterval = "00:00:00",

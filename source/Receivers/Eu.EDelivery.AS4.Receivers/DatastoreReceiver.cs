@@ -25,10 +25,10 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private Func<DatastoreContext> _storeExpression;
         private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
-        private Operation _operation;
+        private string _updateValue;
         private IDictionary<string, string> _properties;
 
-        protected override ILogger Logger { get; }
+        protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class
@@ -36,7 +36,6 @@ namespace Eu.EDelivery.AS4.Receivers
         public DatastoreReceiver()
         {
             _specification = new DatastoreSpecification();
-            Logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -47,19 +46,18 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </param>
         /// <param name="findExpression">
         /// </param>
-        /// <param name="updatedOperation">
+        /// <param name="updateValue">
         /// </param>
         public DatastoreReceiver(
             Func<DatastoreContext> storeExpression,
             Func<DatastoreContext, IEnumerable<Entity>> findExpression,
-            Operation updatedOperation = Operation.NotApplicable)
+            string updateValue)
         {
             _storeExpression = storeExpression;
             _findExpression = findExpression;
-            _operation = updatedOperation;
 
             _specification = new DatastoreSpecification();
-            Logger = LogManager.GetCurrentClassLogger();
+            _updateValue = updateValue;
         }
 
         #region Configuration
@@ -121,12 +119,9 @@ namespace Eu.EDelivery.AS4.Receivers
 
             _specification.Configure(args);
             _findExpression = _specification.GetExpression().Compile();
-
             _storeExpression = () => new DatastoreContext(Config.Instance);
 
-            _operation = properties.ContainsKey(SettingKeys.UpdateValue)
-                             ? (Operation)Enum.Parse(typeof(Operation), properties[SettingKeys.UpdateValue])
-                             : Operation.NotApplicable;
+            properties.TryGetValue(SettingKeys.UpdateValue, out _updateValue);
         }
 
         #endregion
@@ -219,12 +214,9 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             // Make sure that all message-entities are locked before continue to process them.
-            if (_operation != Operation.NotApplicable)
+            foreach (Entity entity in entities)
             {
-                foreach (MessageEntity messageEntity in entities.OfType<MessageEntity>())
-                {
-                    messageEntity.Operation = _operation;
-                }
+                entity.Lock(_updateValue);
             }
 
             context.SaveChanges();

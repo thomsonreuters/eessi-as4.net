@@ -284,6 +284,9 @@
     <Compile Include="Common\GivenRegistryFacts.cs" />
     <Compile Include="Common\NullInternalMessage.cs" />
     <Compile Include="Common\StubConfig.cs" />
+    <Compile Include="Entities\GivenExceptionEntityFacts.cs" />
+    <Compile Include="Entities\GivenMessageEntityFacts.cs" />
+    <Compile Include="Entities\GivenReceptionAwarenessFacts.cs" />
     <Compile Include="Extensions\AS4MessageExtensions.cs" />
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />

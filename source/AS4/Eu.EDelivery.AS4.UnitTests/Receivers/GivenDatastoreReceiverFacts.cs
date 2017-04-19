@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             _receiver = new DatastoreReceiver(
                 storeExpression: () => new DatastoreContext(base.Options),
                 findExpression: x => x.OutMessages.Where(m => m.Operation == Operation.ToBeSent),
-                updatedOperation: Operation.Sending);
+                updateValue: Operation.Sending.ToString());
 
             SeedDataStoreWithOutMessage();
         }
