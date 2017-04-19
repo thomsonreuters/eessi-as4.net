@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             }
         }
 
-        private IDisposable UseStubbedHttpServerThatReturns(UploadResult expectedResult)
+        private static IDisposable UseStubbedHttpServerThatReturns(UploadResult expectedResult)
         {
             var builder = new MockedHttpServerBuilder();
 
