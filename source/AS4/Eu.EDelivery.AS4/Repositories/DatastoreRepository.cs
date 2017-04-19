@@ -5,7 +5,6 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
@@ -67,46 +66,42 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Insert a given <see cref="InMessage"/>
-        /// into the Data store
+        /// Insert a given <see cref="InMessage"/> into the Data store
         /// </summary>
         /// <param name="inMessage"></param>
-        /// <returns></returns>
         public void InsertInMessage(InMessage inMessage)
         {
             _dbContext.InMessages.Add(inMessage);
         }
 
         /// <summary>
-        /// Update a found InMessage (by AS4 Message Id)
-        /// in the Data store
+        /// Update a found InMessage (by AS4 Message Id) in the Data store
         /// </summary>
         /// <param name="messageId"></param>
         /// <param name="updateAction"></param>
-        /// <returns></returns>
         public void UpdateInMessage(string messageId, Action<InMessage> updateAction)
         {
             // There might exist multiple InMessage records for the given messageId, therefore we cannot use
             // caching here.            
-            var inMessageIds = _dbContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(m => m.Id).ToArray();
+            long[] inMessageIds = _dbContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(m => m.Id).ToArray();
 
             foreach (long id in inMessageIds)
             {
-                var msg = GetInMessageEntityFor(messageId, id);
-                if (msg == null)
+                InMessage message = GetInMessageEntityFor(messageId, id);
+                if (message == null)
                 {
                     LogManager.GetCurrentClassLogger().Warn($"Unable to update InMessage {messageId}.  There exists no such InMessage.");
                     return;
                 }
 
-                updateAction(msg);
-                msg.ModificationTime = DateTimeOffset.UtcNow;
+                updateAction(message);
+                message.ModificationTime = DateTimeOffset.UtcNow;
             }
         }
 
         private InMessage GetInMessageEntityFor(string ebmsMessageId, long id)
         {
-            InMessage msg = new InMessage() { EbmsMessageId = ebmsMessageId };
+            var msg = new InMessage { EbmsMessageId = ebmsMessageId };
 
             msg.InitializeIdFromDatabase(id);
 
@@ -138,7 +133,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public OutMessage GetOutMessageById(string messageId)
         {
-            var message = _dbContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
+            OutMessage message = _dbContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
 
             if (message != null && message.Id != default(long))
             {
@@ -171,49 +166,38 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Update a found OutMessage (by AS4 Message Id)
-        /// in the Data store
+        /// Update a found OutMessage (by AS4 Message Id) in the Data store.
         /// </summary>
         /// <param name="messageId"></param>
         /// <param name="updateAction"></param>
-        /// <returns></returns>
         public void UpdateOutMessage(string messageId, Action<OutMessage> updateAction)
         {
             // We need to know the Id, since Attaching only works when the Primary Key is known.
             // Still, retrieving only the PK will still be faster then retrieving the complete entity.
             // Maybe we should define the ebmsId as the PK ?            
-            var keyMap = GetMessageIdsForEbmsMessageIds(_dbContext.OutMessages, _outMessageIdMap, messageId);
+            Dictionary<string, long> keyMap = GetMessageIdsForEbmsMessageIds(_dbContext.OutMessages, _outMessageIdMap, messageId);
 
             if (keyMap.ContainsKey(messageId))
             {
-                var msg = GetOutMessageEntityFor(messageId, keyMap[messageId]);
-                if (msg != null)
-                {
-                    updateAction(msg);
-                    msg.ModificationTime = DateTimeOffset.UtcNow;
-                }
+                OutMessage msg = GetOutMessageEntityFor(messageId, keyMap[messageId]);
+                UpdateMessageEntityIfNotNull(updateAction, msg);
             }
         }
 
         public void UpdateOutMessages(IEnumerable<string> messageIds, Action<OutMessage> updateAction)
         {
-            var idMap = GetMessageIdsForEbmsMessageIds(_dbContext.OutMessages, _outMessageIdMap, messageIds.ToArray());
+            Dictionary<string, long> idMap = GetMessageIdsForEbmsMessageIds(_dbContext.OutMessages, _outMessageIdMap, messageIds.ToArray());
 
-            foreach (var kvp in idMap)
+            foreach (KeyValuePair<string, long> kvp in idMap)
             {
                 OutMessage msg = GetOutMessageEntityFor(kvp.Key, kvp.Value);
-
-                if (msg != null)
-                {
-                    updateAction(msg);
-                    msg.ModificationTime = DateTimeOffset.UtcNow;
-                }
+                UpdateMessageEntityIfNotNull(updateAction, msg);
             }
         }
 
         private OutMessage GetOutMessageEntityFor(string ebmsMessageId, long id)
         {
-            OutMessage msg = new OutMessage() { EbmsMessageId = ebmsMessageId };
+            var msg = new OutMessage { EbmsMessageId = ebmsMessageId };
             msg.InitializeIdFromDatabase(id);
 
             if (_dbContext.IsEntityAttached(msg) == false)
@@ -233,12 +217,25 @@ namespace Eu.EDelivery.AS4.Repositories
             return msg;
         }
 
+        private static void UpdateMessageEntityIfNotNull(Action<OutMessage> updateAction, OutMessage msg)
+        {
+            if (msg != null)
+            {
+                updateAction(msg);
+                msg.ModificationTime = DateTimeOffset.UtcNow;
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="SendingProcessingMode"/> instance of the <see cref="OutMessage"/> with the given <paramref name="ebmsMessageId"/>.
+        /// </summary>
+        /// <param name="ebmsMessageId">Ebms Message Id to retrieve the <see cref="SendingProcessingMode"/> from.</param>
+        /// <returns></returns>
         public SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId)
         {
-            var p = _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(ebmsMessageId)).Select(m => m.PMode).FirstOrDefault();
-            var pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(p);
+            string pmodeString = _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(ebmsMessageId)).Select(m => m.PMode).FirstOrDefault();
 
-            return pmode;
+            return AS4XmlSerializer.FromString<SendingProcessingMode>(pmodeString);
         }
 
         #endregion
@@ -246,11 +243,9 @@ namespace Eu.EDelivery.AS4.Repositories
         #region Reception Awareness related functionality
 
         /// <summary>
-        /// Insert a given <see cref="ReceptionAwareness"/>
-        /// into the Data store
+        /// Insert a given <see cref="ReceptionAwareness"/> into the Data store.
         /// </summary>
         /// <param name="receptionAwareness"></param>
-        /// <returns></returns>
         public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness)
         {
             _dbContext.ReceptionAwareness.Add(receptionAwareness);
@@ -258,9 +253,9 @@ namespace Eu.EDelivery.AS4.Repositories
 
         public IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds)
         {
-            var entities = _dbContext.ReceptionAwareness.Where(r => messageIds.Contains(r.InternalMessageId)).ToArray();
+            ReceptionAwareness[] entities = _dbContext.ReceptionAwareness.Where(r => messageIds.Contains(r.InternalMessageId)).ToArray();
 
-            foreach (var entity in entities)
+            foreach (ReceptionAwareness entity in entities)
             {
                 _receptionAwarenessIdMap.Set(entity.InternalMessageId, entity.Id, CacheLifeTime);
             }
@@ -269,12 +264,10 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Update a found <see cref="ReceptionAwareness"/>
-        /// in the Data store
+        /// Update a found <see cref="ReceptionAwareness"/> in the Data store.
         /// </summary>
         /// <param name="refToMessageId"></param>
         /// <param name="updateAction"></param>
-        /// <returns></returns>
         public void UpdateReceptionAwareness(string refToMessageId, Action<ReceptionAwareness> updateAction)
         {
             long id = GetReceptionAwarenessIdForMessageId(_dbContext, refToMessageId);
@@ -285,7 +278,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 return;
             }
 
-            ReceptionAwareness entity = new ReceptionAwareness() { InternalMessageId = refToMessageId };
+            var entity = new ReceptionAwareness { InternalMessageId = refToMessageId };
             entity.InitializeIdFromDatabase(id);
 
             if (_dbContext.IsEntityAttached(entity) == false)
@@ -311,23 +304,19 @@ namespace Eu.EDelivery.AS4.Repositories
         #region OutException related functionality
 
         /// <summary>
-        /// Insert a given <see cref="OutException"/>
-        /// into the Data store
+        /// Insert a given <see cref="OutException"/> into the Data store.
         /// </summary>
         /// <param name="outException"></param>
-        /// <returns></returns>
         public void InsertOutException(OutException outException)
         {
             _dbContext.OutExceptions.Add(outException);
         }
 
         /// <summary>
-        /// Update a found OutException (by AS4 Ref Message Id)
-        /// in the Data store
+        /// Update a found OutException (by AS4 Ref Message Id) in the Data store.
         /// </summary>
         /// <param name="refToMessageId"></param>
         /// <param name="updateAction"></param>
-        /// <returns></returns>
         public void UpdateOutException(string refToMessageId, Action<OutException> updateAction)
         {
 
@@ -347,23 +336,18 @@ namespace Eu.EDelivery.AS4.Repositories
         #region InException functionality
 
         /// <summary>
-        /// Insert a given <see cref="InException"/>
-        /// into the Data store
-        /// </summary>
+        /// Insert a given <see cref="InException"/> into the Data store.</summary>
         /// <param name="inException"></param>
-        /// <returns></returns>
         public void InsertInException(InException inException)
         {
             _dbContext.InExceptions.Add(inException);
         }
 
         /// <summary>
-        /// Update a found InException (by AS4 Ref Message Id)
-        /// in the Data store
+        /// Update a found InException (by AS4 Ref Message Id) in the Data store.
         /// </summary>
         /// <param name="refToMessageId"></param>
         /// <param name="updateAction"></param>
-        /// <returns></returns>
         public void UpdateInException(string refToMessageId, Action<InException> updateAction)
         {
             IEnumerable<InException> inExceptions = _dbContext.InExceptions
@@ -381,12 +365,10 @@ namespace Eu.EDelivery.AS4.Repositories
         #region MessageId <> Id mapping
 
         // TODO: encapsulate in an inner class which implements IDisposable.
-
         private static MemoryCache _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());        
         private static MemoryCache _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
 
         private static readonly TimeSpan CacheLifeTime = TimeSpan.FromSeconds(30);
-
 
         internal static void ResetCaches()
         {
@@ -400,19 +382,18 @@ namespace Eu.EDelivery.AS4.Repositories
             _receptionAwarenessIdMap.Dispose();
         }
 
-        private static Dictionary<string, long> GetMessageIdsForEbmsMessageIds<T>(DbSet<T> messages, MemoryCache cache, params string[] ebmsMessageIds) where T : MessageEntity
+        private static Dictionary<string, long> GetMessageIdsForEbmsMessageIds<T>(IQueryable<T> messages, IMemoryCache cache, params string[] ebmsMessageIds) where T : MessageEntity
         {
-            Dictionary<string, long> result = new Dictionary<string, long>();
+            var result = new Dictionary<string, long>();
 
-            HashSet<string> nonCachedMessageIds = new HashSet<string>();
+            var nonCachedMessageIds = new HashSet<string>();
 
             ebmsMessageIds = ebmsMessageIds.Distinct().ToArray();
 
             // First try to retrieve the items that are already cached.
             foreach (string messageId in ebmsMessageIds)
             {
-                long id;
-                if (cache.TryGetValue(messageId, out id))
+                if (cache.TryGetValue(messageId, out long id))
                 {
                     result.Add(messageId, id);
                 }
@@ -441,9 +422,8 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private static long GetReceptionAwarenessIdForMessageId(DatastoreContext context, string messageId)
         {
-            long id;
 
-            if (_receptionAwarenessIdMap.TryGetValue(messageId, out id) == false)
+            if (_receptionAwarenessIdMap.TryGetValue(messageId, out long id) == false)
             {
                 id = context.ReceptionAwareness.Where(r => r.InternalMessageId == messageId).Select(r => r.Id).FirstOrDefault();
 

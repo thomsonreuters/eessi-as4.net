@@ -21,15 +21,10 @@ namespace Eu.EDelivery.AS4.Common
     public class DatastoreContext : DbContext
     {
         private readonly IConfig _config;
-        private RetryPolicy _policy;
         private readonly IDictionary<string, Func<string, DbContextOptionsBuilder>> _providers =
             new Dictionary<string, Func<string, DbContextOptionsBuilder>>(StringComparer.InvariantCulture);
 
-        public DbSet<InMessage> InMessages { get; set; }
-        public DbSet<OutMessage> OutMessages { get; set; }
-        public DbSet<InException> InExceptions { get; set; }
-        public DbSet<OutException> OutExceptions { get; set; }
-        public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
+        private RetryPolicy _policy;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreContext"/> class. 
@@ -60,6 +55,16 @@ namespace Eu.EDelivery.AS4.Common
                 .Handle<DbUpdateException>()
                 .RetryAsync();
         }
+
+        public DbSet<InMessage> InMessages { get; set; }
+
+        public DbSet<OutMessage> OutMessages { get; set; }
+
+        public DbSet<InException> InExceptions { get; set; }
+
+        public DbSet<OutException> OutExceptions { get; set; }
+
+        public DbSet<ReceptionAwareness> ReceptionAwareness { get; set; }
 
         /// <summary>
         ///     <para>
