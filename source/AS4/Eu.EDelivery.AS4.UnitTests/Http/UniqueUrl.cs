@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
         /// <returns></returns>
         public static string Create()
         {
-            return $"http://localhost:{Random.Next(4800, 4900)}";
+            return $"http://localhost:{Random.Next(4700, 4800)}";
         }
     }
 }
