@@ -61,21 +61,6 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 Assert.True(info.Description == "DESCRIPTION");
             }
 
-            [Fact(Skip = "This is not the case anymore")]
-            public void When_No_InfoAttribute_Present_Property_Info_Should_Be_Used()
-            {
-                // Setup
-                Setup();
-
-                // Act
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.Tests.TestData.ITestReceiver");
-
-                // Assert
-                var first = result.First();
-                Assert.True(first.Name == "TestReceiver");
-                Assert.True(first.Properties.Any(x => x.FriendlyName == "Name"));
-            }
-
             [Fact]
             public void When_Only_DescriptionAttribute_Is_Present_It_Should_Be_Used()
             {

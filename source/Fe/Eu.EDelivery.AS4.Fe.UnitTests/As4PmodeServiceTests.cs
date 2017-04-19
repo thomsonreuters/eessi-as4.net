@@ -94,16 +94,6 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 // Act
                 await Assert.ThrowsAsync(typeof(ArgumentException), () => test.Service.GetReceivingByName(string.Empty));
             }
-
-            [Fact(Skip = "Not required anymore")]
-            public async Task Throws_Exception_When_Pmode_Doesnt_Exist()
-            {
-                // Setup
-                var test = Setup();
-
-                // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.GetReceivingByName("IDONTEXIST"));
-            }
         }
 
         public class GetSendingNames : As4PmodeServiceTests
