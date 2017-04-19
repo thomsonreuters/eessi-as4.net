@@ -24,9 +24,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// Initializes a new instance of the <see cref="InMessageBuilder"/> class. 
         /// Starting the Builder
         /// </summary>
-        public InMessageBuilder()
-        {
-            _provider = new SerializerProvider();
+        public InMessageBuilder() : this(SerializerProvider.Default)
+        {            
         }
 
         /// <summary>
