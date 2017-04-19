@@ -1,5 +1,6 @@
 #r "tools/FAKE/FakeLib.dll"
 
+open System
 open Fake
 open Fake.Testing
 open Fake.DotCover
@@ -36,6 +37,7 @@ Target "IntegrationTests" (fun _ ->
         { p with 
             ShadowCopy = false; 
             Parallel = ParallelMode.NoParallelization;
+            TimeOut = TimeSpan.FromMinutes(30.0)
         }
     ["./output/Eu.EDelivery.AS4.IntegrationTests.dll"] |> xUnit2 integrationTestsParams
 )
