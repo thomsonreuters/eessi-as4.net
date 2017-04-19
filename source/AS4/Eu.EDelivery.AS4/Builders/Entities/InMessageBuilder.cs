@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </summary>
         public InMessageBuilder()
         {
-            this._provider = new SerializerProvider();
+            _provider = new SerializerProvider();
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </param>
         public InMessageBuilder(ISerializerProvider provider)
         {
-            this._provider = provider;
+            _provider = provider;
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InMessageBuilder WithAS4Message(AS4Message as4Message)
         {
-            this._as4Message = as4Message;
+            _as4Message = as4Message;
             return this;
         }
 
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InMessageBuilder WithMessageUnit(MessageUnit messageUnit)
         {
-            this._messageUnit = messageUnit;
+            _messageUnit = messageUnit;
             return this;
         }
 
@@ -72,13 +72,13 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InMessageBuilder WithEbmsMessageType(MessageType messageType)
         {
-            this._messageType = messageType;
+            _messageType = messageType;
             return this;
         }
 
         public InMessageBuilder WithPModeString(string pmode)
         {
-            this._pmodeString = pmode;
+            _pmodeString = pmode;
             return this;
         }
 
@@ -89,10 +89,14 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InMessage Build(CancellationToken cancellationToken)
         {
-            if(this._as4Message == null)
+            if (_as4Message == null)
+            {
                 throw new AS4Exception("Builder needs a AS4Message for building an InMessage");
-            if (this._messageUnit == null)
+            }
+            if (_messageUnit == null)
+            {
                 throw new AS4Exception("Builder needs a Message Unit for building an InMessage");
+            }
 
             return new InMessage
             {
@@ -104,7 +108,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 PMode = this._pmodeString,
                 MEP = MessageExchangePattern.Push,
                 Status = InStatus.Received,
-                Operation = Operation.NotApplicable,                
+                Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.UtcNow,
                 ModificationTime = DateTimeOffset.UtcNow
             };
