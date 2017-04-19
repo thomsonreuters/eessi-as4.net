@@ -1,5 +1,4 @@
 ﻿using System.Xml;
-using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Notify
