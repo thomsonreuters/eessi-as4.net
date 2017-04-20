@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         #region InMessage related functionality
-                     
+
         /// <summary>
         /// Verifies whether there exists an InMessage entity that conforms to the specified predicate.
         /// </summary>
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public bool InMessageExists(Func<InMessage, bool> predicate)
         {
-            return _dbContext.InMessages.Any(predicate);            
+            return _dbContext.InMessages.Any(predicate);
         }
 
         /// <summary>
@@ -70,9 +70,15 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Insert a given <see cref="InMessage"/> into the Data store
         /// </summary>
         /// <param name="inMessage"></param>
-        public void InsertInMessage(InMessage inMessage)
+        /// <param name="bodyPersister"></param>
+        public void InsertInMessage(InMessage inMessage, IAS4MessageBodyPersister bodyPersister )
         {
+            string messageLocation = bodyPersister.SaveAS4Message(inMessage.Message, CancellationToken.None);
+            inMessage.MessageLocation = messageLocation;
+                        
             _dbContext.InMessages.Add(inMessage);
+
+            inMessage.Message?.CloseAttachments();
         }
 
         /// <summary>
@@ -168,7 +174,7 @@ namespace Eu.EDelivery.AS4.Repositories
             outMessage.MessageLocation = messageLocation;
 
             _dbContext.OutMessages.Add(outMessage);
-            
+
             outMessage.Message?.CloseAttachments();
         }
 
@@ -372,20 +378,20 @@ namespace Eu.EDelivery.AS4.Repositories
         #region MessageId <> Id mapping
 
         // TODO: encapsulate in an inner class which implements IDisposable.
-        private static MemoryCache _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());        
+        private static MemoryCache _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
         private static MemoryCache _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
 
         private static readonly TimeSpan CacheLifeTime = TimeSpan.FromSeconds(30);
 
         internal static void ResetCaches()
         {
-            _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());            
+            _outMessageIdMap = new MemoryCache(new MemoryCacheOptions());
             _receptionAwarenessIdMap = new MemoryCache(new MemoryCacheOptions());
         }
 
         public static void DisposeCaches()
         {
-            _outMessageIdMap.Dispose();            
+            _outMessageIdMap.Dispose();
             _receptionAwarenessIdMap.Dispose();
         }
 
@@ -442,15 +448,15 @@ namespace Eu.EDelivery.AS4.Repositories
 
             return id;
         }
-        
+
         #endregion
 
     }
 
     public interface IDatastoreRepository
     {
-        void InsertInMessage(InMessage inMessage);
-        void UpdateInMessage(string messageId, Action<InMessage> updateAction);        
+        void InsertInMessage(InMessage inMessage, IAS4MessageBodyPersister bodyPersister);
+        void UpdateInMessage(string messageId, Action<InMessage> updateAction);
         bool InMessageExists(Func<InMessage, bool> predicate);
 
         void InsertOutMessage(OutMessage outMessage, IAS4MessageBodyPersister bodyPersister);

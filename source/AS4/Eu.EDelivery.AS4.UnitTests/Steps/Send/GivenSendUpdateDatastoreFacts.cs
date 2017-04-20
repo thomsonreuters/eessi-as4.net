@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -10,6 +9,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     {
         public GivenSendUpdateDatastoreFacts()
         {
-            Step = new SendUpdateDataStoreStep(GetDataStoreContext);
+            Step = new SendUpdateDataStoreStep(GetDataStoreContext, StubMessageBodyPersister.Default);
         }
 
         /// <summary>

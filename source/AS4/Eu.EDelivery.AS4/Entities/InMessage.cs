@@ -10,9 +10,7 @@ namespace Eu.EDelivery.AS4.Entities
     {
         [NotMapped]
         public InStatus Status { get; set; }
-
-        public string Attachments { get; set; }
-
+    
         public override string StatusString
         {
             get
