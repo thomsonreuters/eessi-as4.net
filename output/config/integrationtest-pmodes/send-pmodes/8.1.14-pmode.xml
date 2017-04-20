@@ -6,7 +6,7 @@
   <MepBinding>Pull</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://__IPADDRESS__:9090/msh</Url>
+      <Url>http://localhost:9090/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -20,7 +20,7 @@
     <SubChannel />
     <Mpc>http://example.holodeckb2b.org/mpc/2</Mpc>
     <Protocol>
-      <Url>http://__IPADDRESS__:9090/msh</Url>
+      <Url>http://localhost:9090/msh</Url>
     </Protocol>
   </PullConfiguration>
   <Reliability>

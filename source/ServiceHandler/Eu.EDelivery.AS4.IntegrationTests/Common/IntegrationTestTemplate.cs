@@ -40,7 +40,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
-            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", AS4Component.HostAddress);
 
             LeaveAS4ComponentRunningDuringValidation = false;
         }
