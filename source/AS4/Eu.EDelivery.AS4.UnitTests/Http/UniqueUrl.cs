@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
             return $"http://localhost:{GetOpenPort()}";
         }
 
-        public static int GetOpenPort(int startPort = 2555)
+        public static int GetOpenPort(int startPort = 4600)
         {
             List<int> usedPorts = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners().Select(p => p.Port).ToList();
 
