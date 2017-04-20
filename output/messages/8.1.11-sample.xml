@@ -1,11 +1,9 @@
 <?xml version="1.0"?>
 <SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
-	<MessageInfo>
-    <MessageId>message-id</MessageId>
-    <RefToMessageId>reftomessage-id</RefToMessageId>
+  <MessageInfo>
+    <MessageId>__MESSAGEID__</MessageId>
+    <RefToMessageId>__REFTOMESSAGEID__</RefToMessageId>
   </MessageInfo>
-
-
   <Collaboration>
     <AgreementRef>
       <PModeId>8.1.11-pmode</PModeId>

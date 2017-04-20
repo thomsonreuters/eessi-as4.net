@@ -92,11 +92,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             foreach (string filePath in Directory.EnumerateFiles(Path.GetFullPath(directory)))
             {
-                string oldContents = File.ReadAllText(filePath);
-                string newContents = oldContents.Replace(token, value);
-
-                File.WriteAllText(filePath, newContents);
+                ReplaceTokenInFile(token, value, filePath);
             }
+        }
+
+        protected static void ReplaceTokenInFile(string token, string value, string filePath)
+        {
+            string oldContents = File.ReadAllText(filePath);
+            string newContents = oldContents.Replace(token, value);
+
+            File.WriteAllText(filePath, newContents);
         }
 
         #endregion
