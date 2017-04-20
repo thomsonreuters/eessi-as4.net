@@ -1,17 +1,15 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Moq;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -23,10 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     {
         public GivenSendUpdateDatastoreFacts()
         {
-            Mock<IAS4MessageBodyPersister> bodyPersister = new Mock<IAS4MessageBodyPersister>();
-            bodyPersister.Setup(p => p.SaveAS4Message(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).Returns(string.Empty);
-
-            Step = new SendUpdateDataStoreStep(GetDataStoreContext, bodyPersister.Object);
+            Step = new SendUpdateDataStoreStep(GetDataStoreContext, StubMessageBodyPersister.Default);
         }
 
         /// <summary>

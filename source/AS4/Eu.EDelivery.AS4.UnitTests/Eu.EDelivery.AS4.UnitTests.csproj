@@ -337,6 +337,7 @@
     <Compile Include="Receivers\GivenPollingReceiverFacts.cs" />
     <Compile Include="Receivers\StubValidPollingTemplate.cs" />
     <Compile Include="Receivers\StubInvalidPollingTemplate.cs" />
+    <Compile Include="Repositories\StubMessageBodyPersister.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -515,7 +516,6 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Repositories\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

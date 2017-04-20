@@ -4,11 +4,10 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Moq;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
@@ -21,11 +20,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         private readonly StoreAS4MessageStep _module;
 
         public GivenStoreAS4MessageStepsFacts()
-        {
-            var mockedAs4BodyPersister = new Mock<IAS4MessageBodyPersister>();
-            mockedAs4BodyPersister.Setup(p => p.SaveAS4Message(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).Returns(string.Empty);
-
-            _module = new StoreAS4MessageStep(mockedAs4BodyPersister.Object);
+        {            
+            _module = new StoreAS4MessageStep(StubMessageBodyPersister.Default);
         }
 
         /// <summary>
