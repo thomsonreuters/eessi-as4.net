@@ -321,7 +321,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     if (processorResult.Exception != null)
                     {
                         return new ByteContentResult(
-                            HttpStatusCode.InternalServerError,
+                            HttpStatusCode.BadRequest,
                             "text/plain",
                             Encoding.UTF8.GetBytes(processorResult.Exception.Message));
                     }

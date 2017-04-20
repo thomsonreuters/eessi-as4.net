@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
         public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
 
-        private Process _as4ComponentProcess;
+        protected AS4Component AS4Component { get; } = new AS4Component();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.
@@ -102,19 +102,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         #endregion
-
-        /// <summary>
-        /// Start AS4 Component Application
-        /// </summary>
-        protected void StartAS4Component()
-        {
-            _as4ComponentProcess = Process.Start("Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe");
-
-            if (_as4ComponentProcess != null)
-            {
-                Console.WriteLine($@"Application Started with Process Id: {_as4ComponentProcess.Id}");
-            }
-        }
 
         /// <summary>
         /// Cleanup files in a given Directory
@@ -325,10 +312,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            if (!_as4ComponentProcess.HasExited)
-            {
-                _as4ComponentProcess.Kill();
-            }
+            AS4Component.Dispose();
 
             DisposeChild();
         }

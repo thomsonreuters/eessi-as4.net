@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
             CleanUpFiles(Properties.Resources.holodeck_A_output_path);
             CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
-            StartAS4Component();
+            AS4Component.Start();
 
             // Arrange
             CopyPModeToHolodeckA("8.3.6-pmode.xml");

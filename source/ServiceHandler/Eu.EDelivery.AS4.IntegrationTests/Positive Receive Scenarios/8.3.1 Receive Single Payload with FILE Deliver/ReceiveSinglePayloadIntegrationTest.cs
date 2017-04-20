@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._1_
         {
             // Before
             CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            StartAS4Component();
+            AS4Component.Start();
             CleanUpFiles(AS4FullInputPath);
             CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
             CleanUpFiles(Properties.Resources.holodeck_A_output_path);

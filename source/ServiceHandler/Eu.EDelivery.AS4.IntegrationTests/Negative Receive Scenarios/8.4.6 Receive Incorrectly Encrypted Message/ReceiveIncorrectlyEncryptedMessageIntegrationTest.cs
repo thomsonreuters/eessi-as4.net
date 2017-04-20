@@ -26,13 +26,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._6_
         public async void ReceivingIncorrectlyEncryptedMessageFails()
         {
             // Before
-            base.StartAS4Component();
+            this.AS4Component.Start();
             base.CleanUpFiles(AS4FullInputPath);
 
             // Act
             var contentType = "multipart/related; boundary=\"=-WoWSZIFF06iwFV8PHCZ0dg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
             string messageWrongEncrypted = Properties.Resources.as4_soap_wrong_encrypted_message;
-            AS4Message as4Message = await this._sender.SendAsync(messageWrongEncrypted, contentType);
+            AS4Message as4Message = await this._sender.SendMessage(messageWrongEncrypted, contentType);
 
             // Assert
             AssertErrorMessage(as4Message);

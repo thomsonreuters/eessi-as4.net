@@ -30,13 +30,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._3_
         public async void ThenSendingSinglePayloadSucceedsAsync()
         {
             // Before
-            base.StartAS4Component();
+            this.AS4Component.Start();
             base.CleanUpFiles(AS4FullInputPath);
 
             // Act
             string messageMissingMimeProperty = Properties.Resources.as4message_missing_mime_property;
             AS4Message as4Message = await this._sender
-                .SendAsync(messageMissingMimeProperty, ContentType);
+                .SendMessage(messageMissingMimeProperty, ContentType);
 
             // Assert
             AssertErrorMessage(as4Message);

@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._16
             CopyMessageToHolodeckA("8.3.16-sample.mmd");
 
             // Act
-            StartAS4Component();
+            AS4Component.Start();
 
             // Assert
             PollingAt(AS4FullInputPath);

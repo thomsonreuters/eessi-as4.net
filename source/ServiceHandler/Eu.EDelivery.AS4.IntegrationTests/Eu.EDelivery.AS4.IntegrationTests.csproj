@@ -204,6 +204,7 @@
     <Compile Include="Negative Send Scenarios\8.2.6 Configure PMode nonexisting encryption certificate\SendMessageWithNonExistingEncryptionCertificateIntegrationTest.cs" />
     <Compile Include="Negative Send Scenarios\8.2.7 Send message to nonexisting URL\SubmitMessageReferenceNonExistingUrlIntegrationTest.cs" />
     <Compile Include="Negative Send Scenarios\8.2.8 Send message to incorrectly configured R MSH\SendMessageToIncorrectlyConfiguredRMSHIntegrationTest.cs" />
+    <Compile Include="Negative Send Scenarios\8.2.9 Submit invalid serialized message result in Bad Request\SubmitInvalidSerializedMessageTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.16 Receive Singe Payload Via Payload Service\ReceiveSinglePayloadViaPayloadService.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.1 Receive Single Payload with FILE Deliver\ReceiveSinglePayloadIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.10 Receive Single Payload Return Sync Receipt\ReceiveSinglePayloadReturnSyncReceiptIntegrationTest.cs" />
@@ -261,6 +262,7 @@
     <None Include="Resources\as4message.txt" />
     <None Include="packages.config" />
     <None Include="Resources\earth.jpg" />
+    <None Include="Resources\pdf-document.pdf" />
     <None Include="Scripts\change-ip-in-pmode.ps1" />
     <None Include="Scripts\start-as4-component-application.ps1" />
     <None Include="Scripts\stop-as4-component-application.ps1" />
