@@ -345,8 +345,8 @@ namespace Eu.EDelivery.AS4.Receivers
                             contentType: processorResult.AS4Message.ContentType, internalMessage: processorResult);
                     }
 
-                    // In any other case, return a bad request ?
-                    return ByteContentResult.Empty(HttpStatusCode.BadRequest);
+                    // In any other case, return a internal server error ?
+                    return ByteContentResult.Empty(HttpStatusCode.InternalServerError);
                 }
 
                 private static bool AreReceiptsOrErrorsSendInCallbackMode(InternalMessage processorResult)
