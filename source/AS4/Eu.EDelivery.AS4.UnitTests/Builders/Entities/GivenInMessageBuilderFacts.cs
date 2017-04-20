@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Act / Assert
                 Assert.Throws<AS4Exception>(
-                    () => InMessageBuilder.ForSignalMessage(messageUnit, null).Build(CancellationToken.None));
+                    () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null).Build(CancellationToken.None));
             }
 
             [Fact]
