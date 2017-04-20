@@ -43,7 +43,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", AS4Component.HostAddress);
 
             LeaveAS4ComponentRunningDuringValidation = false;
-
         }
 
         public bool LeaveAS4ComponentRunningDuringValidation { get; set; }
