@@ -14,13 +14,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class StoreAS4ReceiptStep : IStep
     {
         private readonly ILogger _logger;
+        private readonly IAS4MessageBodyPersister _messageBodyPersister;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class.
+        /// </summary>
+        public StoreAS4ReceiptStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
+        {                
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class
         /// </summary>
-        public StoreAS4ReceiptStep()
+        public StoreAS4ReceiptStep(IAS4MessageBodyPersister messageBodyPersister)
         {
             _logger = LogManager.GetCurrentClassLogger();
+            _messageBodyPersister = messageBodyPersister;
         }
 
         /// <summary>
@@ -40,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(context);
 
-                new OutMessageService(repository, Config.Instance.OutgoingAS4MessageBodyPersister).InsertReceipt(internalMessage.AS4Message);
+                new OutMessageService(repository, _messageBodyPersister).InsertReceipt(internalMessage.AS4Message);
                 
                 await context.SaveChangesAsync(cancellationToken);
 

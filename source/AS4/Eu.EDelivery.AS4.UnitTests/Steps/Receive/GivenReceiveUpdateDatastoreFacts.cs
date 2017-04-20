@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext);
+            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext, StubMessageBodyPersister.Default);
         }
 
         /// <summary>

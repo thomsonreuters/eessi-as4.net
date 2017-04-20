@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// Receiver which listens on a given target URL
     /// </summary>
-    public class HttpReceiver : IReceiver
+    public class HttpReceiver : IReceiver, IDisposable
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
@@ -492,6 +492,14 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger.Debug($"Stop listening on {Prefix}");
 
             _listener?.Close();
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            ((IDisposable) _listener)?.Dispose();
         }
     }
 }

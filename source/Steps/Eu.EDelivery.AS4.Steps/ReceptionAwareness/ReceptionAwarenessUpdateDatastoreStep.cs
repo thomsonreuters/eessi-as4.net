@@ -19,15 +19,24 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     public class ReceptionAwarenessUpdateDatastoreStep : IStep
     {
         private readonly ILogger _logger;
+        private readonly IAS4MessageBodyPersister _inMessageBodyPersister;
 
         private Entities.ReceptionAwareness _receptionAwareness;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class.
+        /// </summary>
+        public ReceptionAwarenessUpdateDatastoreStep() : this(Config.Instance.IncomingAS4MessageBodyPersister)
+        {
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
         /// </summary>
-        public ReceptionAwarenessUpdateDatastoreStep()
+        public ReceptionAwarenessUpdateDatastoreStep(IAS4MessageBodyPersister inMessageBodyPersister)
         {
             _logger = LogManager.GetCurrentClassLogger();
+            _inMessageBodyPersister = inMessageBodyPersister;
         }
 
         /// <summary>
@@ -132,7 +141,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             Error errorMessage = CreateError();
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
-            new InMessageService(repository).InsertError(errorMessage, as4Message, cancellationToken);
+            new InMessageService(repository, _inMessageBodyPersister).InsertError(errorMessage, as4Message, cancellationToken);
         }
 
         private Error CreateError()
