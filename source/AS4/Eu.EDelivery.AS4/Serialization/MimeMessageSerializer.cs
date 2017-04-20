@@ -233,7 +233,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 .WithDescription("The use of MIME is not consistent with the required usage in this specification")
                 .WithInnerException(exception)
                 .WithErrorCode(ErrorCode.Ebms0007)
-                .WithExceptionType(ExceptionType.MimeInconsistency)
+                .WithErrorAlias(ErrorAlias.MimeInconsistency)
                 .Build();
         }
 

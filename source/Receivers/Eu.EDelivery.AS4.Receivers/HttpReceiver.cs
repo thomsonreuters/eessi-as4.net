@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -320,10 +321,13 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     if (processorResult.Exception != null)
                     {
-                        return new ByteContentResult(
-                            HttpStatusCode.BadRequest,
-                            "text/plain",
-                            Encoding.UTF8.GetBytes(processorResult.Exception.Message));
+                        return
+                            new ByteContentResult(
+                                processorResult.Exception.ErrorCode == ErrorCode.NotApplicable
+                                    ? HttpStatusCode.BadRequest
+                                    : HttpStatusCode.InternalServerError,
+                                "text/plain",
+                                Encoding.UTF8.GetBytes(processorResult.Exception.Message));
                     }
 
                     // Ugly hack until the Transformer is refactored.
@@ -345,8 +349,8 @@ namespace Eu.EDelivery.AS4.Receivers
                             contentType: processorResult.AS4Message.ContentType, internalMessage: processorResult);
                     }
 
-                    // In any other case, return a internal server error ?
-                    return ByteContentResult.Empty(HttpStatusCode.InternalServerError);
+                    // In any other case, return a bad request error ?
+                    return ByteContentResult.Empty(HttpStatusCode.BadRequest);
                 }
 
                 private static bool AreReceiptsOrErrorsSendInCallbackMode(InternalMessage processorResult)

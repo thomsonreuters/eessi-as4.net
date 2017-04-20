@@ -387,7 +387,7 @@
     <Compile Include="Entities\OutMessage.cs" />
     <Compile Include="Exceptions\AS4Exception.cs" />
     <Compile Include="Exceptions\ErrorCode.cs" />
-    <Compile Include="Exceptions\ExceptionType.cs" />
+    <Compile Include="Exceptions\ErrorAlias.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Mappings\Deliver\DeliverMessageMap.cs" />
     <Compile Include="Mappings\Entities\MessageMap.cs" />

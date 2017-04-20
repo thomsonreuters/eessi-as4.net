@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Exceptions
     public class AS4Exception : Exception
     {
         public ErrorCode ErrorCode { get; internal set; }
-        public ExceptionType ExceptionType { get; internal set; }
+        public ErrorAlias ErrorAlias { get; internal set; }
         public string PMode { get; internal set; }
         public string[] MessageIds
         {

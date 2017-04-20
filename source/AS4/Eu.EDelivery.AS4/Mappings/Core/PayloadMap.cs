@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .WithDescription($"AS4Message only support embedded Payloads and: '{modelPartInfo.Href}' was given")
                 .WithErrorCode(ErrorCode.Ebms0011)
                 .WithMessageIds(IdentifierFactory.Instance.Create())
-                .WithExceptionType(ExceptionType.ExternalPayloadError)
+                .WithErrorAlias(ErrorAlias.ExternalPayloadError)
                 .Build();
         }
     }

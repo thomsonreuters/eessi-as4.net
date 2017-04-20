@@ -74,42 +74,31 @@ namespace Eu.EDelivery.AS4.Exceptions
             }
         }
 
+        private static readonly IDictionary<ErrorCode, ErrorAlias> ErrorAliases = new Dictionary<ErrorCode, ErrorAlias>
+        {
+            [ErrorCode.Ebms0001] = ErrorAlias.ValueNotRecognized,
+            [ErrorCode.Ebms0002] = ErrorAlias.FeatureNotSupported,
+            [ErrorCode.Ebms0003] = ErrorAlias.ValueInconsistent,
+            [ErrorCode.Ebms0004] = ErrorAlias.Other,
+            [ErrorCode.Ebms0005] = ErrorAlias.ConnectionFailure,
+            [ErrorCode.Ebms0006] = ErrorAlias.EmptyMessagePartitionChannel,
+            [ErrorCode.Ebms0007] = ErrorAlias.MimeInconsistency,
+            [ErrorCode.Ebms0008] = ErrorAlias.FeatureNotSupported,
+            [ErrorCode.Ebms0009] = ErrorAlias.InvalidHeader,
+            [ErrorCode.Ebms0010] = ErrorAlias.ProcessingModeMismatch,
+            [ErrorCode.Ebms0011] = ErrorAlias.ExternalPayloadError,
+            [ErrorCode.Ebms0101] = ErrorAlias.FailedAuthentication,
+            [ErrorCode.Ebms0102] = ErrorAlias.FailedDecryption,
+            [ErrorCode.Ebms0301] = ErrorAlias.MissingReceipt,
+            [ErrorCode.Ebms0302] = ErrorAlias.InvalidReceipt,
+            [ErrorCode.Ebms0303] = ErrorAlias.DecompressionFailure
+        };
+
         public static string GetShortDescription(ErrorCode errorCode)
         {
-            switch (errorCode)
-            {
-                case ErrorCode.Ebms0001:
-                    return "ValueNotRecognized";
-                case ErrorCode.Ebms0002:
-                    return "FeatureNotSupported";
-                case ErrorCode.Ebms0003:
-                    return "ValueInconsistent";
-                case ErrorCode.Ebms0004:
-                    return "Other";
-                case ErrorCode.Ebms0005:
-                    return "ConnectionFailure";
-                case ErrorCode.Ebms0006:
-                    return "EmptyMessagePartitionChannel";
-                case ErrorCode.Ebms0007:
-                    return "MimeInconsistency";
-                case ErrorCode.Ebms0008:
-                    return "FeatureNotSupported";
-                case ErrorCode.Ebms0009:
-                    return "InvalidHeader";
-                case ErrorCode.Ebms0010:
-                    return "ProcessingModeMismatch";
-                case ErrorCode.Ebms0011:
-                    return "ExternalPayloadError";
-                case ErrorCode.Ebms0301:
-                    return "MissingReceipt";
-                case ErrorCode.Ebms0302:
-                    return "InvalidReceipt";
-                case ErrorCode.Ebms0303:
-                    return "DecompressionFailure";
+            ErrorAliases.TryGetValue(errorCode, out var alias);
 
-                default:
-                    return null;
-            }
+            return alias == ErrorAlias.NonApplicable ? null : alias.ToString();
         }
     }
 }

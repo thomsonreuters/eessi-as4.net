@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
-                .WithExceptionType(ExceptionType.ConnectionFailure)
+                .WithErrorAlias(ErrorAlias.ConnectionFailure)
                 .WithInnerException(innerException)
                 .WithReceivingPMode(this._internalMessage.AS4Message.ReceivingPMode)
                 .Build();
