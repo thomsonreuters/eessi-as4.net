@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Exceptions
 
         public ErrorCode ErrorCode { get; internal set; }
 
-        public ExceptionType ExceptionType { get; internal set; }
+        public ErrorAlias ErrorAlias { get; internal set; }
 
         public string PMode { get; internal set; }
 
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Exceptions
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.AddValue(nameof(ErrorCode), ErrorCode);
-            info.AddValue(nameof(ExceptionType), ExceptionType);
+            info.AddValue(nameof(ErrorAlias), ErrorAlias);
             info.AddValue(nameof(PMode), PMode);
             info.AddValue(nameof(MessageIds), MessageIds, typeof(string[]));
 
