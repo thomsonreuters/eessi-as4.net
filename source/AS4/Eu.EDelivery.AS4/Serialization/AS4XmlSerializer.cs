@@ -38,14 +38,13 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static string ToString<T>(T data)
         {
-            using (var stringWriter = new StringWriter())
+            var stringBuilder = new StringBuilder();
+            using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, DefaultXmlWriterSettings))
             {
-                using (XmlWriter xmlWriter = XmlWriter.Create(stringWriter, DefaultXmlWriterSettings))
-                {
-                    var serializer = new XmlSerializer(typeof(T));
-                    serializer.Serialize(xmlWriter, data);
-                    return stringWriter.ToString();
-                }
+                var serializer = new XmlSerializer(typeof(T));
+                serializer.Serialize(xmlWriter, data);
+
+                return stringBuilder.ToString();
             }
         }
 
@@ -77,19 +76,12 @@ namespace Eu.EDelivery.AS4.Serialization
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
             envelopeStream.Position = 0;
-            var envelopeXmlDocument = new XmlDocument() { PreserveWhitespace = true };
+            var envelopeXmlDocument = new XmlDocument() {PreserveWhitespace = true};
 
             envelopeXmlDocument.Load(envelopeStream);
 
             return envelopeXmlDocument;
         }
-
-        private static readonly XmlReaderSettings DefaultXmlReaderSettings = new XmlReaderSettings
-        {
-            Async = true,
-            CloseInput = false,
-            IgnoreComments = true,
-        };
 
         /// <summary>
         /// Deserialize a Xml stream to a Model.
@@ -147,8 +139,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlSerializer GetSerializerForType(Type type)
         {
-            if (!Serializers.ContainsKey(type))
-                Serializers[type] = new XmlSerializer(type);
+            if (!Serializers.ContainsKey(type)) Serializers[type] = new XmlSerializer(type);
             return Serializers[type];
         }
     }

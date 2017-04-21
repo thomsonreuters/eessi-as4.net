@@ -10,13 +10,84 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal class BinarySecurityTokenReference : SecurityTokenReference
     {
-        public BinarySecurityTokenReference()
-        {
-        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
+        /// </summary>
+        public BinarySecurityTokenReference() {}
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
+        /// </summary>
+        /// <param name="securityTokenElement">The 'Security' element to append the <see cref="BinarySecurityTokenReference"/>.</param>
         public BinarySecurityTokenReference(XmlElement securityTokenElement)
         {
-            this.LoadXml(securityTokenElement);
+            LoadXml(securityTokenElement);
+        }
+
+        /// <summary>
+        /// Load the Xml from Element into Binary Security Token Reference
+        /// </summary>
+        /// <param name="element"></param>
+        public override sealed void LoadXml(XmlElement element)
+        {
+            XmlElement referenceElement = GetReferenceElement(element);
+
+            if (referenceElement != null)
+            {
+                AssignReferenceId(referenceElement);
+            }
+
+            XmlElement binarySecurityTokenElement = GetBinarySecurityTokenElementFrom(element);
+            if (binarySecurityTokenElement != null)
+            {
+                AssignCertificate(binarySecurityTokenElement);
+            }
+        }
+
+        private static XmlElement GetReferenceElement(XmlNode node)
+        {
+            return
+                node.ChildNodes.OfType<XmlElement>()
+                    .FirstOrDefault(
+                        e => e.LocalName == "Reference" && e.NamespaceURI == Constants.Namespaces.WssSecuritySecExt);
+        }
+
+        private void AssignReferenceId(XmlElement referenceElement)
+        {
+            if (referenceElement.LocalName.Equals("Reference", StringComparison.OrdinalIgnoreCase) == false)
+            {
+                throw new ArgumentException(
+                    @"The given XmlElement is not a Reference element",
+                    nameof(referenceElement));
+            }
+
+            XmlAttribute uriAttribute = referenceElement.Attributes["URI"];
+            if (uriAttribute != null)
+            {
+                ReferenceId = uriAttribute.Value;
+            }
+        }
+
+        private XmlElement GetBinarySecurityTokenElementFrom(XmlNode node)
+        {
+            XmlNode securityHeader = node.ParentNode?.ParentNode?.ParentNode;
+            return securityHeader?.ChildNodes.OfType<XmlElement>().FirstOrDefault(IsElementABinarySecurityTokenElement);
+        }
+
+        private bool IsElementABinarySecurityTokenElement(XmlElement x)
+        {
+            // Extra check on ReferenceId. 
+            XmlAttribute idAttribute = x.Attributes["Id", Constants.Namespaces.WssSecurityUtility];
+            string pureId = ReferenceId.Replace("#", string.Empty);
+
+            return x.LocalName == "BinarySecurityToken" && idAttribute?.Value == pureId
+                   && x.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;
+        }
+
+        private void AssignCertificate(XmlNode binarySecurityTokenElement)
+        {
+            byte[] base64String = Convert.FromBase64String(binarySecurityTokenElement.InnerText);
+            Certificate = new X509Certificate2(base64String);
         }
 
         /// <summary>
@@ -29,6 +100,7 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             XmlElement securityTokenElement = GetSecurityToken(document);
             element.AppendChild(securityTokenElement);
+
             return element;
         }
 
@@ -48,14 +120,14 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             binarySecurityToken.SetAttribute("EncodingType", Constants.Namespaces.Base64Binary);
             binarySecurityToken.SetAttribute("ValueType", Constants.Namespaces.ValueType);
-            binarySecurityToken.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, this.ReferenceId);
+            binarySecurityToken.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, ReferenceId);
         }
 
         private void AppendCertificate(XmlDocument document, XmlElement binarySecurityToken)
         {
-            if (this.Certificate != null)
+            if (Certificate != null)
             {
-                string rawData = Convert.ToBase64String(this.Certificate.GetRawCertData());
+                string rawData = Convert.ToBase64String(Certificate.GetRawCertData());
                 XmlNode rawDataNode = document.CreateTextNode(rawData);
                 binarySecurityToken.AppendChild(rawDataNode);
             }
@@ -83,70 +155,7 @@ namespace Eu.EDelivery.AS4.Security.References
         private void SetReferenceSecurityAttributes(XmlElement referenceElement)
         {
             referenceElement.SetAttribute("ValueType", Constants.Namespaces.ValueType);
-            referenceElement.SetAttribute("URI", "#" + this.ReferenceId);
-        }
-
-        /// <summary>
-        /// Load the Xml from Element into Binary Security Token Reference
-        /// </summary>
-        /// <param name="element"></param>
-        public override void LoadXml(XmlElement element)
-        {
-            var referenceElement = GetReferenceElement(element);
-
-            if (referenceElement != null)
-            {
-                AssignReferenceId(referenceElement);
-            }
-
-            XmlElement binarySecurityTokenElement = GetBinarySecurityTokenElementFrom(element);
-            if (binarySecurityTokenElement != null)
-            {
-                AssignCertificate(binarySecurityTokenElement);
-            }
-        }
-
-        private void AssignCertificate(XmlElement binarySecurityTokenElement)
-        {
-            byte[] base64String = Convert.FromBase64String(binarySecurityTokenElement.InnerText);
-            this.Certificate = new X509Certificate2(base64String);
-        }
-
-        private void AssignReferenceId(XmlElement referenceElement)
-        {
-            if (referenceElement.LocalName.Equals("Reference", StringComparison.OrdinalIgnoreCase) == false)
-            {
-                throw new ArgumentException(@"The given XmlElement is not a Reference element", nameof(referenceElement));
-            }
-
-            XmlAttribute uriAttribute = referenceElement.Attributes?["URI"];
-            if (uriAttribute != null)
-            {
-                this.ReferenceId = uriAttribute.Value;
-            }
-        }
-
-        private XmlElement GetBinarySecurityTokenElementFrom(XmlNode node)
-        {
-            XmlNode securityHeader = node.ParentNode?.ParentNode?.ParentNode;
-            return securityHeader?.ChildNodes?.OfType<XmlElement>()
-                .FirstOrDefault(IsElementABinarySecurityTokenElement);
-        }
-
-        private bool IsElementABinarySecurityTokenElement(XmlElement x)
-        {
-            // Extra check on ReferenceId. 
-            XmlAttribute idAttribute = x.Attributes["Id", Constants.Namespaces.WssSecurityUtility];
-            string pureId = this.ReferenceId.Replace("#", string.Empty);
-
-            return x.LocalName == "BinarySecurityToken" &&
-                   idAttribute?.Value == pureId &&
-                   x.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;
-        }
-
-        private static XmlElement GetReferenceElement(XmlNode node)
-        {
-            return node.ChildNodes.OfType<XmlElement>().FirstOrDefault(e => e.LocalName == "Reference" && e.NamespaceURI == Constants.Namespaces.WssSecuritySecExt);
+            referenceElement.SetAttribute("URI", "#" + ReferenceId);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -17,7 +16,6 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <typeparam name="T"></typeparam>
     public abstract class ExponentialIntervalReceiver<T> : IReceiver where T : IntervalRequest
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IDictionary<DateTime, List<T>> _runSchedule;
         private readonly List<T> _intervalRequests;
         private readonly Timer _timer;
@@ -44,7 +42,7 @@ namespace Eu.EDelivery.AS4.Receivers
             _timer.Stop();
 
             List<T> intervalRequests = SelectAllRequestsForThisEvent(eventArgs);
-            Logger.Debug($"{intervalRequests.Count} request(s) will send on '{eventArgs.SignalTime}'");
+            LogManager.GetCurrentClassLogger().Debug($"{intervalRequests.Count} request(s) will send on '{eventArgs.SignalTime}'");
             RemoveAllSelectedRequestsForThisEvent(eventArgs);
 
             WaitForAllRequests(intervalRequests);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// Receiver which listens on a given target URL
     /// </summary>
-    public class HttpReceiver : IReceiver, IDisposable
+    public sealed class HttpReceiver : IReceiver, IDisposable
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
@@ -497,9 +498,17 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
+        [SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "_listener", Justification = "Warning but not justified")]
         public void Dispose()
         {
-            ((IDisposable) _listener)?.Dispose();
+            try
+            {
+                ((IDisposable) _listener)?.Dispose();
+            }
+            catch (Exception exception)
+            {
+                Logger.Debug(exception.Message);
+            }
         }
     }
 }
