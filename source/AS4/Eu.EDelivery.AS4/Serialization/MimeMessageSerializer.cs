@@ -55,11 +55,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private void SerializeToMimeStream(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
-            using (var tempStream = new VirtualStream())
+            using (var bodyPartStream = new MemoryStream())
             {
-                _soapSerializer.Serialize(message, tempStream, cancellationToken);
+                _soapSerializer.Serialize(message, bodyPartStream, cancellationToken);
 
-                MimeMessage mimeMessage = CreateMimeMessage(message, tempStream);
+                MimeMessage mimeMessage = CreateMimeMessage(message, bodyPartStream);
                 FormatOptions formatOptions = GetFormatOptions();
 
                 mimeMessage.WriteTo(formatOptions, stream, cancellationToken);

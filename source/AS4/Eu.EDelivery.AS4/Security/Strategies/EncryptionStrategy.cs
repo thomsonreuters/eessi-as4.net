@@ -202,12 +202,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 .Build();
         }
 
-        private const int FiveHunderdMegaByte = 512_000;
-
         private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)
         {
-            Stream encryptedStream = new VirtualStream(); //secretStream.Length);
-            
+            Stream encryptedStream = VirtualStream.CreateVirtualStream(expectedSize: secretStream.Length);
+
             var cryptoStream = new CryptoStream(encryptedStream, algorithm.CreateEncryptor(), CryptoStreamMode.Write);
             CipherMode origMode = algorithm.Mode;
             PaddingMode origPadding = algorithm.Padding;
@@ -381,7 +379,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private Stream DecryptData(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)
         {
-            Stream decryptedStream = new VirtualStream(); //encryptedTextStream.Length);
+            Stream decryptedStream = VirtualStream.CreateVirtualStream(expectedSize: encryptedTextStream.Length);
 
             // save the original symmetric algorithm
             CipherMode origMode = encryptionAlgorithm.Mode;
