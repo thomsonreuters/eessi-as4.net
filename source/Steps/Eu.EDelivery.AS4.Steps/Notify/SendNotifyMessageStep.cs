@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 .WithDescription(description)
                 .WithInnerException(exception)                
                 .WithMessageIds(this._internalMessage.NotifyMessage.MessageInfo.MessageId)
-                .WithExceptionType(ExceptionType.ConnectionFailure);
+                .WithErrorAlias(ErrorAlias.ConnectionFailure);
 
             AddPModeToBuilder(builder);
 

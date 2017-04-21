@@ -6,6 +6,20 @@ open Fake.Testing
 open Fake.DotCover
 open Fake.DotNetCli
 
+Target "Restore" (fun _ ->
+    let dotnetResult = ExecProcess (fun info -> 
+        info.FileName <- "dotnet"
+        info.Arguments <- "restore ./source/AS4.sln") (TimeSpan.FromMinutes 5.0)
+    
+    if dotnetResult <> 0 then trace "dotnet returned with a non-zero exit code"
+
+    let nugetResult = ExecProcess (fun info -> 
+        info.FileName <- "tools/NuGet/nuget.exe"
+        info.Arguments <- "restore -NonInteractive ./source/AS4.sln") (TimeSpan.FromMinutes 5.0)
+
+    if nugetResult <> 0 then trace "NuGet.exe returned with a non-zero exit code"
+)
+
 /// <summary>
 /// Compile the Solution with a 'Release' configuraiton.
 /// </summary>
@@ -52,7 +66,7 @@ Target "Coverage" (fun _ ->
         { defaults with 
             TargetExecutable = "./source/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe"; 
             Output = dotCoverSnapShot; 
-            Filters = "-:FluentValidation"}
+            Filters = "-:FluentValidation;-:*.Resources*"}
     unitTestAssemblies |> DotCoverXUnit2 dotCoverParams unitTestsParams
 
 

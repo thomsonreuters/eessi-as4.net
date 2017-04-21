@@ -15,25 +15,58 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     public class StubSender
     {
         private readonly ISerializer _serializer;
-        public string Url { get; set; } = $"http://localhost:8081/msh/";
-        public Func<WebResponse, AS4Message> HandleResponse { get; set; }
 
         public StubSender()
         {
             var soapSerializer = new SoapEnvelopeSerializer();
-            this._serializer = new MimeMessageSerializer(soapSerializer);
+            _serializer = new MimeMessageSerializer(soapSerializer);
         }
 
         public StubSender(ISerializer serializer)
         {
-            this._serializer = serializer;
+            _serializer = serializer;
+        }
+
+        public string Url { get; set; } = $"http://localhost:8081/msh/";
+
+        public Func<WebResponse, AS4Message> HandleResponse { get; set; }
+
+        /// <summary>
+        /// Send a resource to the AS4 Component.
+        /// </summary>
+        /// <returns></returns>
+        public HttpWebResponse SendPdf()
+        {
+            WaitToMakeSureAS4ComponentIsStarted();
+            HttpWebRequest webRequest = CreateWebRequest("application/pdf");
+            SendWebRequest(webRequest, Properties.Resources.pdf_document);
+
+            return TryHandleRawResponse(webRequest) as HttpWebResponse;
+        }
+
+        private static WebResponse TryHandleRawResponse(WebRequest webRequest)
+        {
+            try
+            {
+                using (WebResponse responseStream = webRequest.GetResponse())
+                {
+                    return responseStream;
+                }
+            }
+            catch (WebException exception)
+            {
+                Console.WriteLine(exception.Message);
+                return exception.Response;
+            }
         }
 
         /// <summary>
         /// Sends a MIME AS4 Message
         /// which is not signed, compressed or encrypted
         /// </summary>
-        public Task<AS4Message> SendAsync(string message, string contentType)
+        /// <param name="message"></param>
+        /// <param name="contentType"></param>
+        public Task<AS4Message> SendMessage(string message, string contentType)
         {
             WaitToMakeSureAS4ComponentIsStarted();
             HttpWebRequest webRequest = CreateWebRequest(contentType);
@@ -42,14 +75,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             return TryHandleWebResponse(webRequest);
         }
 
-        private void WaitToMakeSureAS4ComponentIsStarted()
+        private static void WaitToMakeSureAS4ComponentIsStarted()
         {
             Thread.Sleep(3000);
         }
 
         private HttpWebRequest CreateWebRequest(string contentType)
         {
-            var request = WebRequest.Create(this.Url) as HttpWebRequest;
+            var request = WebRequest.Create(Url) as HttpWebRequest;
             request.Method = "POST";
             request.ContentType = contentType;
             request.KeepAlive = false;
@@ -62,7 +95,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         private void SendWebRequest(WebRequest webRequest, string message)
         {
-            Console.WriteLine($@"Send Web Request to: {this.Url}");
+            Console.WriteLine($@"Send Web Request to: {Url}");
             using (Stream requestStream = webRequest.GetRequestStream())
             {
                 byte[] messageBytes = Encoding.UTF8.GetBytes(message);
@@ -87,28 +120,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             using (WebResponse responseStream = webRequest.GetResponse())
             {
-                if (this.HandleResponse != null)
-                    return this.HandleResponse(responseStream);
+                if (HandleResponse != null)
+                {
+                    return HandleResponse(responseStream);
+                }
 
                 return await GetAS4ResponseAsync(responseStream);
             }
         }
 
-        private async Task<AS4Message> GetAS4ResponseAsync(WebResponse response)
+        private async Task<AS4Message> HandleWebExceptionAsync(WebException webException)
+        {
+            if (HandleResponse != null)
+            {
+                return HandleResponse(webException.Response);
+            }
+
+            return await GetAS4ResponseAsync(webException.Response);
+        }
+
+        private static async Task<AS4Message> GetAS4ResponseAsync(WebResponse response)
         {
             string contentType = response.ContentType;
             Stream responseStream = response.GetResponseStream();
 
-            return await new SoapEnvelopeSerializer()
-                .DeserializeAsync(responseStream, contentType, CancellationToken.None);
-        }
-
-        private async Task<AS4Message> HandleWebExceptionAsync(WebException webException)
-        {
-            if (this.HandleResponse != null)
-                return this.HandleResponse(webException.Response);
-
-            return await GetAS4ResponseAsync(webException.Response);
+            return await new SoapEnvelopeSerializer().DeserializeAsync(responseStream, contentType, CancellationToken.None);
         }
     }
 }

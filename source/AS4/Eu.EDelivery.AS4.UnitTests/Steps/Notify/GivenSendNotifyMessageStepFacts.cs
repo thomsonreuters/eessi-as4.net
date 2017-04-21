@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 AS4Exception exception =
                     await Assert.ThrowsAsync<AS4Exception>(
                         () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
-                Assert.Equal(ExceptionType.ConnectionFailure, exception.ExceptionType);
+                Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
             }
 
             private void SetupFailedNotifySender()

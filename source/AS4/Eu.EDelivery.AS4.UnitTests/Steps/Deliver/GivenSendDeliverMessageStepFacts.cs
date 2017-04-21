@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Act
                 AS4Exception exception = await Assert.ThrowsAsync<AS4Exception>(()
                     => base._step.ExecuteAsync(internalMessage, CancellationToken.None));
-                Assert.Equal(ExceptionType.ConnectionFailure, exception.ExceptionType);
+                Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
             }
 
             private void SetupFailedDeliverSender()

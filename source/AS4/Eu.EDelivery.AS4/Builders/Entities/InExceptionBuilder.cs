@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 EbmsRefToMessageId = _messageId,
                 Exception = _as4Exception.ToString(),
                 Operation = GetOperation(),
-                ExceptionType = _as4Exception.ExceptionType,
+                ErrorAlias = _as4Exception.ErrorAlias,
                 PMode = _as4Exception.PMode,
 
                 // TODO: define Operation Method

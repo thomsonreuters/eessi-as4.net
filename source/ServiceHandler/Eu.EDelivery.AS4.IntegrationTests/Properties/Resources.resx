@@ -363,4 +363,7 @@
   <data name="holodeck_B_output_path" xml:space="preserve">
     <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\data\msg_out</value>
   </data>
+  <data name="pdf_document" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\pdf-document.pdf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

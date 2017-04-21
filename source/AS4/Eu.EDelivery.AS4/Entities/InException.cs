@@ -10,13 +10,13 @@ namespace Eu.EDelivery.AS4.Entities
     public class InException : ExceptionEntity
     {
         [NotMapped]
-        public ExceptionType ExceptionType { get; set; }
+        public ErrorAlias ErrorAlias { get; set; }
 
         [Column("ExceptionType")]
         public string ExceptionTypeString
         {
-            get { return this.ExceptionType.ToString(); }
-            set { this.ExceptionType = (ExceptionType)Enum.Parse(typeof(ExceptionType), value, true); }
+            get { return this.ErrorAlias.ToString(); }
+            set { this.ErrorAlias = (ErrorAlias)Enum.Parse(typeof(ErrorAlias), value, true); }
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Assert
                 Assert.Equal(as4Exception.PMode, inException.PMode);
-                Assert.Equal(as4Exception.ExceptionType, inException.ExceptionType);
+                Assert.Equal(as4Exception.ErrorAlias, inException.ErrorAlias);
             }
 
             [Fact]
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Assert
                 Assert.Equal(messageId, inException.EbmsRefToMessageId);
                 Assert.Equal(as4Exception.PMode, inException.PMode);
-                Assert.Equal(as4Exception.ExceptionType, inException.ExceptionType);
+                Assert.Equal(as4Exception.ErrorAlias, inException.ErrorAlias);
             }
         }
 
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return AS4ExceptionBuilder
                 .WithDescription("Test Exception")
                 .WithPModeString("<PMode></PMode>")
-                .WithExceptionType(ExceptionType.ConnectionFailure)
+                .WithErrorAlias(ErrorAlias.ConnectionFailure)
                 .Build();
         }
     }

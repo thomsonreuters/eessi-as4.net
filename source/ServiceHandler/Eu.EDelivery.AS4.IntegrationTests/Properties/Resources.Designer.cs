@@ -283,6 +283,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static string pdf_document {
+            get {
+                object obj = ResourceManager.GetObject("pdf_document", resourceCulture);
+                return System.Text.Encoding.UTF8.GetString((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;PMode xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns=&quot;eu:edelivery:as4:pmode&quot;&gt;
         ///  &lt;Id&gt;push-sample&lt;/Id&gt;

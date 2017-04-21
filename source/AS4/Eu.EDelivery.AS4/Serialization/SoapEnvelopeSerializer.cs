@@ -241,7 +241,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 AS4ExceptionBuilder.WithDescription("Invalid ebMS Envelope Document")
                                    .WithInnerException(exception)
                                    .WithErrorCode(ErrorCode.Ebms0009)
-                                   .WithExceptionType(ExceptionType.InvalidHeader)
+                                   .WithErrorAlias(ErrorAlias.InvalidHeader)
                                    .Build();
         }
 

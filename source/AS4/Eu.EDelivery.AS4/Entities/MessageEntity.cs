@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Entities
         public MessageType EbmsMessageType { get; set; }
 
         [NotMapped]
-        public ExceptionType ExceptionType { get; set; }
+        public ErrorAlias ErrorAlias { get; set; }
 
         [Column("MEP")]
         [MaxLength(25)]
@@ -86,8 +86,8 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(75)]
         public string ExceptionTypeString
         {
-            get { return ExceptionType.ToString(); }
-            set { ExceptionType = (ExceptionType) Enum.Parse(typeof(ExceptionType), value, true); }
+            get { return ErrorAlias.ToString(); }
+            set { ErrorAlias = (ErrorAlias) Enum.Parse(typeof(ErrorAlias), value, true); }
         }
 
         [Column("Status")]
