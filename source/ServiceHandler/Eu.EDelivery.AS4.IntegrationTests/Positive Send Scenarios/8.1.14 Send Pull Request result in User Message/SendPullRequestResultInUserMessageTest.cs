@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
@@ -22,17 +21,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             CleanUpFiles(AS4FullInputPath);
             CleanUpFiles(Properties.Resources.holodeck_B_output_path);
             
-            TryDeleteFile("settings-temp.xml");
-            TryDeleteFile("8.1.14-settings.xml");
-
-            TryMoveFile("settings.xml", "settings-temp.xml");
-            TryMoveFile("settings-8.1.14.xml", "settings.xml");
+            AS4Component.OverrideSettings("8.1.14-settings.xml");
 
             CopyPModeToHolodeckB("8.1.14-pmode.xml");
             CopyMessageToHolodeckB("8.1.14-sample.mmd");
 
             // Act
-            StartAS4Component();
+            AS4Component.Start();
 
             //// Assert
             bool areFilesFound = PollingAt(AS4FullInputPath);
@@ -61,52 +56,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
         private static void AssertReceipt(FileInfo receipt)
         {
             Assert.NotNull(receipt);
-        }
-
-        /// <summary>
-        /// Dispose custom resources in subclass implementation.
-        /// </summary>
-        protected override void DisposeChild()
-        {
-            TryDeleteFile("settings-temp.xml");
-            TryDeleteFile("settings.xml");
-            TryCopyFile(@"integrationtest-settings\settings.xml", @"settings.xml");
-        }
-
-        private static void TryCopyFile(string sourceFile, string destFile)
-        {
-            try
-            {
-                File.Copy(Path.GetFullPath($@".\config\{sourceFile}"), Path.GetFullPath($@".\config\{destFile}"));
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        private static void TryMoveFile(string sourceFile, string destFile)
-        {
-            try
-            {
-                File.Move(Path.GetFullPath($@".\config\{sourceFile}"), Path.GetFullPath($@".\config\{destFile}"));
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        private static void TryDeleteFile(string fileName)
-        {
-            try
-            {
-                File.Delete(Path.GetFullPath($@".\config\{fileName}"));
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
         }
     }
 }

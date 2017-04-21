@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
     /// </summary>
     public class GivenAS4ExceptionBuilderFacts
     {
-        private const ExceptionType TesExceptionType = ExceptionType.NonApplicable;
+        private const ErrorAlias TesExceptionType = ErrorAlias.NonApplicable;
         private const string TestAS4Description = "Test AS4 Description";
         private const ErrorCode TestErrorCode = ErrorCode.Ebms0001;
         private readonly string[] _testMessageIds = {"Test AS4 Message Id"};
@@ -63,11 +63,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                     .WithDescription(TestAS4Description)
                     .WithMessageIds(_testMessageIds)
                     .WithErrorCode(TestErrorCode)
-                    .WithExceptionType(TesExceptionType)
+                    .WithErrorAlias(TesExceptionType)
                     .Build();
 
                 // Assert
-                Assert.Equal(TesExceptionType, as4Exception.ExceptionType);
+                Assert.Equal(TesExceptionType, as4Exception.ErrorAlias);
             }
 
             [Fact]
@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 var existingAS4Exception = new AS4Exception("Test Exising AS4 Exception")
                 {
                     ErrorCode = ErrorCode.Ebms0001,
-                    ExceptionType = ExceptionType.ConnectionFailure,
+                    ErrorAlias = ErrorAlias.ConnectionFailure,
                     PMode = "<PMode></PMode>"
                 };
 
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 AS4Exception as4Exception = AS4ExceptionBuilder
                     .WithDescription("New Description")
                     .WithErrorCode(ErrorCode.Ebms0002)
-                    .WithExceptionType(ExceptionType.ExternalPayloadError)
+                    .WithErrorAlias(ErrorAlias.ExternalPayloadError)
                     .WithMessageIds("message-id-2")
                     .WithPModeString("<PMode></PMode>")
                     .WithInnerException(existingAS4Exception)
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 
                 // Assert
                 Assert.Equal(existingAS4Exception.ErrorCode, as4Exception.ErrorCode);
-                Assert.Equal(existingAS4Exception.ExceptionType, as4Exception.ExceptionType);
+                Assert.Equal(existingAS4Exception.ErrorAlias, as4Exception.ErrorAlias);
                 Assert.Equal(2, as4Exception.MessageIds.Length);
             }
 

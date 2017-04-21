@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         private readonly string _description;
         private Exception _innerException;
         private ErrorCode _errorCode;
-        private ExceptionType _exceptionType;
+        private ErrorAlias _exceptionType;
         private string _pmodeString;
 
         private AS4Exception _as4Exception;
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
             }
 
             if (as4Exception.ErrorCode != default(ErrorCode)) this._errorCode = as4Exception.ErrorCode;
-            if (as4Exception.ExceptionType != default(ExceptionType)) this._exceptionType = as4Exception.ExceptionType;
+            if (as4Exception.ErrorAlias != default(ErrorAlias)) this._exceptionType = as4Exception.ErrorAlias;
             if (!string.IsNullOrEmpty(as4Exception.PMode)) this._pmodeString = as4Exception.PMode;
         }
 
@@ -104,11 +104,11 @@ namespace Eu.EDelivery.AS4.Builders.Core
         }
 
         /// <summary>
-        /// Assign a <see cref="ExceptionType"/> to the <see cref="AS4Exception"/>
+        /// Assign a <see cref="ErrorAlias"/> to the <see cref="AS4Exception"/>
         /// </summary>
         /// <param name="exceptionType"></param>
         /// <returns></returns>
-        public AS4ExceptionBuilder WithExceptionType(ExceptionType exceptionType)
+        public AS4ExceptionBuilder WithErrorAlias(ErrorAlias exceptionType)
         {
             this._exceptionType = exceptionType;
 
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         {
             this._as4Exception.ErrorCode = this._errorCode;
             this._as4Exception.SetMessageIds(_messageIds);
-            this._as4Exception.ExceptionType = this._exceptionType;
+            this._as4Exception.ErrorAlias = this._exceptionType;
             this._as4Exception.PMode = this._pmodeString;
         }
     }

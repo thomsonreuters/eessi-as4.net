@@ -32,16 +32,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
         {
             // Before
             CleanUpFiles(HolodeckBInputPath);
-            StartAS4Component();
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
             CopyPModeToHolodeckB("8.1.11-pmode.xml");
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            AS4Component.Start();
 
             // Assert
             bool areFilesFound = PollingAt(AS4ReceiptsPath);
@@ -52,6 +52,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
 
             Assert.True(areFilesFound, "Send Single Payload with Message Id failed");
         }
+
+        private static string GenerateId() => Guid.NewGuid().ToString("N");
 
         /// <summary>
         /// Perform extra validation for the output files of Holodeck
@@ -76,7 +78,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
             }
         }
 
-        private void AssertHolodeckReceipt(FileInfo receipt)
+        private static void AssertHolodeckReceipt(FileSystemInfo receipt)
         {
             var xmlDocument = new XmlDocument();
             if (receipt != null)
@@ -89,7 +91,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
             AssertXmlTag("ConversationId", xmlDocument);
         }
 
-        private static void AssertXmlTag(string localName, XmlDocument xmlDocument)
+        private static void AssertXmlTag(string localName, XmlNode xmlDocument)
         {
             XmlNode xmlNode = xmlDocument.SelectSingleNode($"//*[local-name()='{localName}']");
 

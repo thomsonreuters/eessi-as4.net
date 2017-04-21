@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
         public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
 
-        private Process _as4ComponentProcess;
+        protected AS4Component AS4Component { get; } = new AS4Component();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.
@@ -40,10 +40,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
-            ReplaceTokensInDirectoryFiles(@".\config\send-pmodes", "__IPADDRESS__", AS4Component.HostAddress);
+
+            CleanUpFiles(Path.GetFullPath(@".\database"));
+            CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
 
             LeaveAS4ComponentRunningDuringValidation = false;
-
         }
 
         public bool LeaveAS4ComponentRunningDuringValidation { get; set; }
@@ -94,26 +95,24 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             foreach (string filePath in Directory.EnumerateFiles(Path.GetFullPath(directory)))
             {
-                string oldContents = File.ReadAllText(filePath);
-                string newContents = oldContents.Replace(token, value);
-
-                File.WriteAllText(filePath, newContents);
+                ReplaceTokenInFile(token, value, filePath);
             }
+        }
+
+        protected static void ReplaceTokenInFile(string token, string value, string filePath)
+        {
+            string oldContents = File.ReadAllText(filePath);
+            string newContents = oldContents.Replace(token, value);
+
+            File.WriteAllText(filePath, newContents);
         }
 
         #endregion
 
-        /// <summary>
-        /// Start AS4 Component Application
-        /// </summary>
-        protected void StartAS4Component()
+        private static void CleanUpDirectory(string directoryPath)
         {
-            _as4ComponentProcess = Process.Start("Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe");
-
-            if (_as4ComponentProcess != null)
-            {
-                Console.WriteLine($@"Application Started with Process Id: {_as4ComponentProcess.Id}");
-            }
+            EnsureDirectory(directoryPath);
+            Directory.Delete(directoryPath, recursive: true);
         }
 
         /// <summary>
@@ -325,10 +324,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            if (!_as4ComponentProcess.HasExited)
-            {
-                _as4ComponentProcess.Kill();
-            }
+            AS4Component.Dispose();
 
             DisposeChild();
         }

@@ -1,10 +1,9 @@
 ﻿namespace Eu.EDelivery.AS4.Exceptions
 {
     /// <summary>
-    /// Exception Type used to determine if an AS4 Message 
-    /// has to be resend when an AS4 Exception occur
+    /// Short Description for the <see cref="ErrorCode"/>.
     /// </summary>
-    public enum ExceptionType
+    public enum ErrorAlias
     {
         NonApplicable = 0,
 
@@ -16,6 +15,12 @@
         MimeInconsistency,
         InvalidHeader,
         ProcessingModeMismatch,
-        ExternalPayloadError
+        ExternalPayloadError,
+        Other,
+        FailedAuthentication,
+        FailedDecryption,
+        MissingReceipt,
+        InvalidReceipt,
+        DecompressionFailure
     }
 }

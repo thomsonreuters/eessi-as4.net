@@ -1,12 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>pmode-unsigned</Id>
+  <Id>pull-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
-  <MepBinding>Push</MepBinding>
+  <MepBinding>Pull</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://localhost:9090/msh</Url>
+      <Url>http://10.124.29.152:9090/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
@@ -17,7 +17,11 @@
     </TlsConfiguration>
   </PushConfiguration>
   <PullConfiguration>
+    <Mpc>http://example.holodeckb2b.org/mpc/2</Mpc>
     <SubChannel />
+    <Protocol>
+      <Url>http://10.124.29.152:9090/msh</Url>
+    </Protocol>
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
@@ -40,7 +44,7 @@
   </ExceptionHandling>
   <Security>
     <Signing>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <PrivateKeyFindValue>PartyA</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
@@ -52,7 +56,7 @@
     </Encryption>
   </Security>
   <MessagePackaging>
-    <UseAS4Compression>true</UseAS4Compression>
+    <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
     <CollaborationInfo>

@@ -52,7 +52,7 @@ Target "Coverage" (fun _ ->
         { defaults with 
             TargetExecutable = "./source/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe"; 
             Output = dotCoverSnapShot; 
-            Filters = "-:FluentValidation"}
+            Filters = "-:FluentValidation;-:*.Resources*"}
     unitTestAssemblies |> DotCoverXUnit2 dotCoverParams unitTestsParams
 
 
