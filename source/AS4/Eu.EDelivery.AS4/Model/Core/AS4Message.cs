@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string ContentType { get; set; }
 
         public XmlDocument EnvelopeDocument { get; set; }
-
+        
         // PModes
         public SendingProcessingMode SendingPMode { get; set; }
 
@@ -80,7 +81,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 return PrimaryUserMessage.MessageId;
             }
-            return PrimarySignalMessage?.MessageId;        
+            return PrimarySignalMessage?.MessageId;
         }
 
         /// <summary>
@@ -113,6 +114,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             {
                 attachment.Content.Dispose();
             }
-        }
+        }              
     }
 }

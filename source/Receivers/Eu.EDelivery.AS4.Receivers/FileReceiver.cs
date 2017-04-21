@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 using (Stream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
                 {
                     fileStream.Seek(0, SeekOrigin.Begin);
-                    var receivedMessage = new ReceivedMessage(fileInfo.Name, fileStream, contentType);
+                    var receivedMessage = new ReceivedMessage(fileStream, contentType);
                     internalMessage = await messageCallback(receivedMessage, token);
                 }
 

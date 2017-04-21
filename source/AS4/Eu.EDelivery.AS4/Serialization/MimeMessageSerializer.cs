@@ -66,9 +66,9 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static MimeMessage CreateMimeMessage(AS4Message message, Stream stream)
+        private static MimeMessage CreateMimeMessage(AS4Message message, Stream bodyPartStream)
         {
-            MimePart bodyPart = GetBodyPartFromStream(stream);
+            MimePart bodyPart = GetBodyPartFromStream(bodyPartStream);
             Multipart bodyMultipart = CreateMultiPartFromBodyPart(bodyPart);
 
             var mimeMessage = new MimeMessage { Body = bodyMultipart };
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static void AddAttachmentsToBodyMultiPart(AS4Message message, Multipart bodyMultipart)
         {
             foreach (Attachment attachment in message.Attachments)
-            {                
+            {
                 AddAttachmentToMultipart(bodyMultipart, attachment);
             }
         }
@@ -171,25 +171,29 @@ namespace Eu.EDelivery.AS4.Serialization
             CancellationToken cancellationToken)
         {
             PreConditions(inputStream, contentType);
-            
-            using (var memoryStream = new MemoryStream(
-                Encoding.UTF8.GetBytes($"Content-Type: {contentType}\r\n\r\n")))
-            {
-                var chainedStream = new ChainedStream();
-                chainedStream.Add(memoryStream, leaveOpen: false);
-                chainedStream.Add(inputStream, leaveOpen: true);
 
-                return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken);
-            }
+            var memoryStream = new MemoryStream(
+                Encoding.UTF8.GetBytes($"Content-Type: {contentType}\r\n\r\n"));
+
+            var chainedStream = new ChainedStream();
+            chainedStream.Add(memoryStream, leaveOpen: true);
+            chainedStream.Add(inputStream, leaveOpen: true);
+
+            return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken);
+
         }
 
         private void PreConditions(Stream inputStream, string contentType)
         {
             if (inputStream == null)
+            {
                 throw new ArgumentNullException(nameof(inputStream));
+            }
 
             if (contentType == null)
+            {
                 throw new ArgumentNullException(nameof(contentType));
+            }
         }
 
         private async Task<AS4Message> ParseStreamToAS4MessageAsync(
@@ -198,7 +202,9 @@ namespace Eu.EDelivery.AS4.Serialization
             CancellationToken cancellationToken)
         {
             if (inputStream == null)
+            {
                 throw new ArgumentNullException(nameof(inputStream));
+            }
 
             List<MimePart> bodyParts = TryParseBodyParts(inputStream, cancellationToken);
             Stream envelopeStream = bodyParts.First().ContentObject.Open();
@@ -215,7 +221,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             try
             {
-                MimeMessage mimeMessage = new MimeParser(inputStream).ParseMessage(cancellationToken);
+                MimeMessage mimeMessage = new MimeParser(inputStream, persistent: true).ParseMessage(cancellationToken);
                 List<MimePart> bodyParts = mimeMessage.BodyParts.OfType<MimePart>().ToList();
                 if (bodyParts.Count <= 0) throw new AS4Exception("MIME Body Parts are empty");
 
@@ -229,7 +235,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static AS4Exception ThrowAS4MimeInconsistencyException(Exception exception)
         {
-            return AS4ExceptionBuilder                
+            return AS4ExceptionBuilder
                 .WithDescription("The use of MIME is not consistent with the required usage in this specification")
                 .WithInnerException(exception)
                 .WithErrorCode(ErrorCode.Ebms0007)
@@ -260,7 +266,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             return new Attachment(id: bodyPart.ContentId)
             {
-                Content = bodyPart.ContentObject.Stream,
+                Content = bodyPart.ContentObject.Open(),
                 ContentType = bodyPart.ContentType.MimeType,
             };
         }

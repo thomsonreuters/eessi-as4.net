@@ -26,8 +26,8 @@ namespace Eu.EDelivery.AS4.Transformers
         /// </summary>
         public SubmitMessageXmlTransformer()
         {
-            this._validator = new SubmitMessageValidator();
-            this._logger = LogManager.GetCurrentClassLogger();
+            _validator = new SubmitMessageValidator();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
-            _logger.Info($"Transforming ReceivedMessage {message.Id} to InternalMessage");
+            _logger.Info($"Transforming ReceivedMessage to InternalMessage");
             
             var submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
             ValidateSubmitMessage(submitMessage);
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void LogTransformedInformation()
         {
-            this._logger.Info("SubmitMessage is successfully tranfromed from Xml");
+            _logger.Info("SubmitMessage is successfully tranfromed from Xml");
         }
     }
 }

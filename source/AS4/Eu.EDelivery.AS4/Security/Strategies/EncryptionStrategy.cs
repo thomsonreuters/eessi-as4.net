@@ -202,9 +202,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 .Build();
         }
 
+        private const int FiveHunderdMegaByte = 512_000;
+
         private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)
         {
-            Stream encryptedStream = new VirtualStream();
+            Stream encryptedStream = new VirtualStream(); //secretStream.Length);
+            
             var cryptoStream = new CryptoStream(encryptedStream, algorithm.CreateEncryptor(), CryptoStreamMode.Write);
             CipherMode origMode = algorithm.Mode;
             PaddingMode origPadding = algorithm.Padding;
@@ -368,7 +371,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             Attachment attachment = _attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
 
             Stream decryptedStream = DecryptData(encryptedData, attachment.Content, decryptAlgorithm);
-           
+
             var transformer = AttachmentTransformer.Create(encryptedData.Type);
 
             transformer.Transform(attachment, decryptedStream);
@@ -378,7 +381,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private Stream DecryptData(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)
         {
-            Stream decryptedStream = new VirtualStream();
+            Stream decryptedStream = new VirtualStream(); //encryptedTextStream.Length);
 
             // save the original symmetric algorithm
             CipherMode origMode = encryptionAlgorithm.Mode;
@@ -391,7 +394,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 decryptionIV = GetDecryptionIV(encryptedData, encryptedTextStream, null);
             }
-            
+
             if (decryptionIV != null)
             {
                 encryptionAlgorithm.IV = decryptionIV;
@@ -480,7 +483,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     // The decrypted data can contain MIME headers, therefore we'll need to parse
                     // the decrypted data as a MimePart, and make sure that the content is set correctly
                     // in the attachment.
-                    
+
                     var part = MimeEntity.Load(decryptedData) as MimePart;
 
                     if (part == null)
@@ -507,7 +510,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public override void Transform(Attachment attachment, Stream decryptedData)
                 {
-                    attachment.Content.Dispose();                    
+                    attachment.Content.Dispose();
                     attachment.Content = decryptedData;
                 }
             }

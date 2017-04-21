@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
 
             attachment.Content.Position = 0;
-            var outputStream = new VirtualStream();
+            var outputStream = new VirtualStream(attachment.Content.Length);
 
             using (var gzipCompression = new GZipStream(
                 attachment.Content, CompressionMode.Decompress, leaveOpen: true))

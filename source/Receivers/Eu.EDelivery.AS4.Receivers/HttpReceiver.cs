@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -186,7 +187,14 @@ namespace Eu.EDelivery.AS4.Receivers
                 if (processor != null && request.HttpMethod == "POST")
                 {
                     ReceivedMessage receivedMessage = CreateReceivedMessage(request);
-                    processorResult = await processor(receivedMessage, CancellationToken.None);
+                    try
+                    {
+                        processorResult = await processor(receivedMessage, CancellationToken.None);
+                    }
+                    finally
+                    {
+                        receivedMessage.RequestStream.Dispose();
+                    }
                 }
 
                 return ExecuteCore(request, processorResult);
@@ -194,7 +202,16 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)
             {
-                return new ReceivedMessage(request.RawUrl, request.InputStream, request.ContentType);
+                if (request.ContentLength64 > 209_715_200)
+                {
+                    VirtualStream str = new VirtualStream(VirtualStream.MemoryFlag.OnlyToDisk);
+                    request.InputStream.CopyTo(str);
+                    str.Position = 0;
+
+                    return new ReceivedMessage(str, request.ContentType);
+                }
+
+                return new ReceivedMessage(request.InputStream, request.ContentType);
             }
 
             /// <summary>
@@ -346,8 +363,9 @@ namespace Eu.EDelivery.AS4.Receivers
                     if (AreReceiptsOrErrorsSendInResponseMode(processorResult))
                     {
                         return new AS4MessageContentResult(
-                            statusCode: DetermineHttpCodeFrom(processorResult), 
-                            contentType: processorResult.AS4Message.ContentType, internalMessage: processorResult);
+                            statusCode: DetermineHttpCodeFrom(processorResult),
+                            contentType: processorResult.AS4Message?.ContentType, 
+                            internalMessage: processorResult);
                     }
 
                     // In any other case, return a bad request error ?
@@ -372,7 +390,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                         if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                         {
-                            return (HttpStatusCode) errorHttpCode;
+                            return (HttpStatusCode)errorHttpCode;
                         }
 
                         return HttpStatusCode.InternalServerError;
@@ -409,7 +427,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <param name="response"></param>
             public void ExecuteResult(HttpListenerResponse response)
             {
-                response.StatusCode = (int) _statusCode;
+                response.StatusCode = (int)_statusCode;
                 response.ContentType = _contentType;
                 response.KeepAlive = false;
 
@@ -440,7 +458,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// </summary>
             /// <param name="statusCode">Embedded <see cref="HttpStatusCode"/> in the empty result.</param>
             /// <returns></returns>
-            public static ByteContentResult Empty(HttpStatusCode statusCode) => new ByteContentResult(statusCode, string.Empty, new byte[]{});
+            public static ByteContentResult Empty(HttpStatusCode statusCode) => new ByteContentResult(statusCode, string.Empty, new byte[] { });
 
             /// <summary>
             /// Specific <see cref="HttpListenerResponse"/> handling.
