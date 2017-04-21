@@ -16,7 +16,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Send.Response;
-using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
@@ -38,11 +37,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
-        public SendAS4MessageStep() : this(Registry.Instance.SerializerProvider, Registry.Instance.CreateDatastoreContext) {}
+        public SendAS4MessageStep() : this(Registry.Instance.SerializerProvider, Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>Initializes a new instance of the <see cref="SendAS4MessageStep"/> class.</summary>
         /// <param name="createDatastore">The create Datastore.</param>
-        public SendAS4MessageStep(Func<DatastoreContext> createDatastore) : this(Registry.Instance.SerializerProvider, createDatastore) {}
+        public SendAS4MessageStep(Func<DatastoreContext> createDatastore) : this(Registry.Instance.SerializerProvider, createDatastore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -80,7 +79,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 HttpWebRequest request = CreateWebRequest(internalMessage.AS4Message);
                 await TryHandleHttpRequestAsync(request, internalMessage, cancellationToken);
-                
+
                 return await TryHandleHttpResponseAsync(request, internalMessage, cancellationToken);
             }
             catch (Exception exception)
@@ -116,7 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private HttpWebRequest CreateWebRequest(AS4Message as4Message)
         {
             ISendConfiguration sendConfiguration = GetSendConfigurationFrom(as4Message);
-            
+
             HttpWebRequest request = HttpRequestFactory.CreatePostRequest(sendConfiguration.Protocol.Url, as4Message.ContentType);
 
             AssignClientCertificate(sendConfiguration.TlsConfiguration, request);
@@ -158,55 +157,22 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var as4Message = internalMessage.AS4Message;
 
                 Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(as4Message).Protocol.Url}");
-                ISerializer serializer = _provider.Get(as4Message.ContentType);
 
+                long messageSize = as4Message.DetermineMessageSize(_provider);
                 const int threshold = 209_715_200;
 
-                // Determine the size of the AS4 Message so that we can set the content-length 
-                using (DetermineSizeStream sizeStream = new DetermineSizeStream())
+                if (messageSize > threshold)
                 {
-                    serializer.Serialize(as4Message, sizeStream, cancellationToken);
-
-                    if (sizeStream.Length > threshold)
-                    {
-                        request.AllowWriteStreamBuffering = false;
-                        request.ContentLength = sizeStream.Length;
-                    }
-
-                    using (Stream requestStream = await request.GetRequestStreamAsync())
-                    {
-                        serializer.Serialize(as4Message, requestStream, cancellationToken);
-                    }
+                    request.AllowWriteStreamBuffering = false;
+                    request.ContentLength = messageSize;
                 }
 
-                
-                ////////VirtualStream tempStream = new VirtualStream(threshold, threshold);
+                using (Stream requestStream = await request.GetRequestStreamAsync())
+                {
+                    ISerializer serializer = _provider.Get(as4Message.ContentType);
 
-                ////////if (internalMessage.AS4Message.GetAttachmentSize() > threshold)
-                ////////{                    
-                ////////    serializer.Serialize(internalMessage.AS4Message, tempStream, cancellationToken);
-                ////////    tempStream.Position = 0;
-                ////////    request.AllowWriteStreamBuffering = false;
-                ////////    request.ContentLength = tempStream.Length;
-
-                ////////    var str = new DetermineSizeStream();
-                ////////    serializer.Serialize(internalMessage.AS4Message, str, cancellationToken);
-                ////////    // str.Length;
-
-                ////////}
-
-                ////////using (Stream requestStream = await request.GetRequestStreamAsync())
-                ////////{
-                ////////    // If the attachment size of the AS4 Message exceeds a certain limit, then use a temp stream, set content length and use copy to.
-                ////////    if (tempStream.Length > 0)
-                ////////    {
-                ////////        await tempStream.CopyToAsync(requestStream);
-                ////////    }
-                ////////    else
-                ////////    {
-                ////////        serializer.Serialize(internalMessage.AS4Message, requestStream, cancellationToken);
-                ////////    }
-                ////////}
+                    serializer.Serialize(as4Message, requestStream, cancellationToken);
+                }
             }
             catch (WebException exception)
             {
@@ -222,7 +188,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Debug($"AS4 Message received from: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
-                
+
                 // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
                 // we've sent the message, so update the status to sent.
                 UpdateMessageStatus(_originalAS4Message, Operation.Sent, OutStatus.Sent);
@@ -261,7 +227,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         outMessage.Operation = operation;
                         outMessage.Status = status;
                     });
-                
+
 
                 context.SaveChanges();
             }
@@ -292,7 +258,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static ISendConfiguration GetSendConfigurationFrom(AS4Message as4Message)
         {
             return as4Message.IsPulling
-                       ? (ISendConfiguration) as4Message.SendingPMode?.PullConfiguration
+                       ? (ISendConfiguration)as4Message.SendingPMode?.PullConfiguration
                        : as4Message.SendingPMode?.PushConfiguration;
         }
     }
