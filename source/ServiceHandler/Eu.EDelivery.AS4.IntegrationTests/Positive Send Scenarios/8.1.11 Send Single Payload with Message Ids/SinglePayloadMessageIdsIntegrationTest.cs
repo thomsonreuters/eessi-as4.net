@@ -39,8 +39,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
             // Arrange
             CopyPModeToHolodeckB("8.1.11-pmode.xml");
             File.Copy(_as4MessagesPath, _as4OutputPath);
-            ReplaceTokenInFile("__MESSAGEID__", GenerateId(), _as4OutputPath);
-            ReplaceTokenInFile("__REFTOMESSAGEID__", GenerateId(), _as4OutputPath);
 
             // Act
             AS4Component.Start();

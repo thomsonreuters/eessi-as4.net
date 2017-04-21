@@ -41,6 +41,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
 
+            CleanUpFiles(Path.GetFullPath(@".\database"));
+            CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
+
             LeaveAS4ComponentRunningDuringValidation = false;
         }
 
@@ -105,6 +108,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         #endregion
+
+        private static void CleanUpDirectory(string directoryPath)
+        {
+            EnsureDirectory(directoryPath);
+            Directory.Delete(directoryPath, recursive: true);
+        }
 
         /// <summary>
         /// Cleanup files in a given Directory
