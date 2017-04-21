@@ -16,12 +16,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._8._Se
         private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
         private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
 
-        [Fact]
+        [Fact(Skip = "Waiting for verification of the 'Interop Tests'")]
         public void ThenSendingMultiplePayloadCompressedEncryptedSucceeds()
         {
             // Before
             CleanUpFiles(HolodeckBInputPath);
-            StartAS4Component();
+            AS4Component.Start();
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4ReceiptsPath);

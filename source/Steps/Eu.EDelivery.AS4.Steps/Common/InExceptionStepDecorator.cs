@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
                 inException.MessageBody = GetAS4MessageByteRepresentation(message.AS4Message);
 
                 repository.InsertInException(inException);
-                UpdateInMessage(messageId, exception.ExceptionType, repository);
+                UpdateInMessage(messageId, exception.ErrorAlias, repository);
             }
             catch (Exception ex)
             {
@@ -117,13 +117,13 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
         }
 
-        private static void UpdateInMessage(string messageId, ExceptionType exceptionType, IDatastoreRepository repository)
+        private static void UpdateInMessage(string messageId, ErrorAlias exceptionType, IDatastoreRepository repository)
         {
             repository.UpdateInMessage(messageId,
                 message =>
                 {
                     message.Status = InStatus.Exception;
-                    message.ExceptionType = exceptionType;
+                    message.ErrorAlias = exceptionType;
                 });
         }
     }

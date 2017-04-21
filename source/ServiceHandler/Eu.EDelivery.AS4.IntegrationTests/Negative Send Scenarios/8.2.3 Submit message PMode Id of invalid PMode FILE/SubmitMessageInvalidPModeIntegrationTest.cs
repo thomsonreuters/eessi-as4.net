@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._3_Sub
         {
             // Before
             base.CleanUpFiles(base.HolodeckBInputPath);
-            base.StartAS4Component();
+            this.AS4Component.Start();
             base.CleanUpFiles(AS4FullOutputPath);
             base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
 

@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.ReceptionAwareness;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 using EntityReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 EntityReceptionAwareness awareness = InsertAlreadyAnswerdMessage();
 
                 var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
-                var step = new ReceptionAwarenessUpdateDatastoreStep();
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyPersister.Default);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -74,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
-                var step = new ReceptionAwarenessUpdateDatastoreStep();
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyPersister.Default);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);

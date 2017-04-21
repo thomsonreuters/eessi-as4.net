@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>pmode-unsigned</Id>
+  <Id>8.2.6-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -35,12 +35,17 @@
     <NotifyMethod />
   </ErrorHandling>
   <ExceptionHandling>
-    <NotifyMessageProducer>false</NotifyMessageProducer>
-    <NotifyMethod />
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\exceptions\" />
+      </Parameters>
+    </NotifyMethod>
   </ExceptionHandling>
   <Security>
     <Signing>
-      <IsEnabled>true</IsEnabled>
+      <IsEnabled>false</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <PrivateKeyFindValue>PartyA</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
@@ -48,24 +53,22 @@
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Encryption>
-      <IsEnabled>false</IsEnabled>
+      <IsEnabled>true</IsEnabled>
+      <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
+      <PublicKeyFindValue>NonExisting</PublicKeyFindValue>
+      <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
     </Encryption>
   </Security>
   <MessagePackaging>
-    <UseAS4Compression>true</UseAS4Compression>
+    <Mpc>TestMpc</Mpc>
+    <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>
-    <CollaborationInfo>
-      <Service>
-        <Name>demo:service</Name>
-      </Service>
-      <Action>demo:action:send</Action>
-    </CollaborationInfo>
     <PartyInfo>
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>org:eu:europa:as4:example:accesspoint:A</Id>
+            <Id>org:eu:europa:as4:example</Id>
           </PartyId>
         </PartyIds>
         <Role>Sender</Role>
@@ -73,21 +76,11 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>org:holodeckb2b:example:accesspoint:B</Id>
+            <Id>org:holodeckb2b:example:company:B</Id>
           </PartyId>
         </PartyIds>
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
-    <MessageProperties>
-      <MessageProperty>
-        <Name>OriginalSender</Name>
-        <Value>organization:A1</Value>
-      </MessageProperty>
-      <MessageProperty>
-        <Name>FinalRecipient</Name>
-        <Value>organization:A2</Value>
-      </MessageProperty>
-    </MessageProperties>
   </MessagePackaging>
 </PMode>

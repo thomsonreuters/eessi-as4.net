@@ -26,12 +26,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
         public async void ThenReceivingIncorrectlySignedMessageFails()
         {
             // Before
-            base.StartAS4Component();
+            this.AS4Component.Start();
             base.CleanUpFiles(AS4FullInputPath);
 
             // Act
             string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_message;
-            AS4Message as4Message = await this._sender.SendAsync(messageWrongSigned, Constants.ContentTypes.Soap);
+            AS4Message as4Message = await this._sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
             AssertErrorMessage(as4Message);

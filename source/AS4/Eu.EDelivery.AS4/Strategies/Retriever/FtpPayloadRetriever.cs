@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
                 .WithDescription(description)
                 .WithInnerException(exception)
                 .WithErrorCode(ErrorCode.Ebms0011)
-                .WithExceptionType(ExceptionType.ExternalPayloadError)
+                .WithErrorAlias(ErrorAlias.ExternalPayloadError)
                 .Build();
         }
     }

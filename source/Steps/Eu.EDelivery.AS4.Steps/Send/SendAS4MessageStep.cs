@@ -235,7 +235,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithErrorCode(ErrorCode.Ebms0005)
-                .WithExceptionType(ExceptionType.ConnectionFailure)
+                .WithErrorAlias(ErrorAlias.ConnectionFailure)
                 .WithMessageIds(internalMessage.AS4Message.MessageIds)
                 .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
                 .WithInnerException(exception)
