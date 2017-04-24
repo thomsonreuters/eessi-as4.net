@@ -255,7 +255,7 @@ namespace Eu.EDelivery.AS4.Receivers
             using (var stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
             {
                 ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                var result = await messageCallback(receivedMessage, token);
+                InternalMessage result = await messageCallback(receivedMessage, token);
                 result?.Dispose();
             }
         }
@@ -269,10 +269,11 @@ namespace Eu.EDelivery.AS4.Receivers
             };
         }
 
-        private static void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
-            messageCallback(message, token);
+            InternalMessage result = await messageCallback(message, token);
+            result?.Dispose();
         }
 
         protected override void HandleMessageException(Entity message, Exception exception)
