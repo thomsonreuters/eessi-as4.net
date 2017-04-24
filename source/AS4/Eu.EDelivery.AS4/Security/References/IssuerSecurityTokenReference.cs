@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Issuer Security Strategy to add a Security Reference to the Message
     /// </summary>
-    internal class IssuerSecurityTokenReference : SecurityTokenReference
+    internal sealed class IssuerSecurityTokenReference : SecurityTokenReference
     {
         private readonly ICertificateRepository _certifcateRepository;
         private readonly string _keyInfoId;
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// from the given <paramref name="element" />
         /// </summary>
         /// <param name="element"></param>
-        public override sealed void LoadXml(XmlElement element)
+        public override void LoadXml(XmlElement element)
         {
             var xmlIssuerSerial = (XmlElement)element.SelectSingleNode(".//*[local-name()='X509SerialNumber']");
 

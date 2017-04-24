@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Binary Security Token Strategy to add a Security Reference to the Message
     /// </summary>
-    internal class BinarySecurityTokenReference : SecurityTokenReference
+    internal sealed class BinarySecurityTokenReference : SecurityTokenReference
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// Load the Xml from Element into Binary Security Token Reference
         /// </summary>
         /// <param name="element"></param>
-        public override sealed void LoadXml(XmlElement element)
+        public override void LoadXml(XmlElement element)
         {
             XmlElement referenceElement = GetReferenceElement(element);
 

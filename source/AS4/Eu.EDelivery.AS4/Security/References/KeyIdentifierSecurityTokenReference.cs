@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Security Token Reference Strategy for the Key Identifier
     /// </summary>
-    internal class KeyIdentifierSecurityTokenReference : SecurityTokenReference
+    internal sealed class KeyIdentifierSecurityTokenReference : SecurityTokenReference
     {
         private readonly string _keyInfoId;
         private readonly ICertificateRepository _certificateReposistory;
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// from the given <paramref name="element" />
         /// </summary>
         /// <param name="element"></param>
-        public override sealed void LoadXml(XmlElement element)
+        public override void LoadXml(XmlElement element)
         {
             var xmlKeyIdentifier = element.SelectSingleNode(".//*[local-name()='KeyIdentifier']") as XmlElement;
             if (xmlKeyIdentifier == null)
