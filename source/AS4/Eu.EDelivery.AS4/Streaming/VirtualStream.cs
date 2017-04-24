@@ -77,6 +77,11 @@ namespace Eu.EDelivery.AS4.Streaming
         /// <returns></returns>
         public static VirtualStream CreateVirtualStream(long expectedSize)
         {
+            if (expectedSize < 0)
+            {
+                throw new ArgumentException("ExpectedSize must be larger than 0.", nameof(expectedSize));
+            }
+
             return CreateVirtualStream(expectedSize, ThresholdMax);
         }
 

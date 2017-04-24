@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         /// <param name="value">Value indicating the <see cref="Entity"/> is locked.</param>
         public override void Lock(string value)
-        {
+        {            
             StatusString = value;
         }
     }

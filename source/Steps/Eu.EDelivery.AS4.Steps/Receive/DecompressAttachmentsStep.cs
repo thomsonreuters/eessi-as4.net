@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private const string GzipContentType = "application/gzip";
 
         private readonly ILogger _logger;
-        
+
         private InternalMessage _internalMessage;
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         }
 
         private async Task DecompressAttachments(List<PartInfo> messagePayloadInformation, ICollection<Attachment> attachments)
-        {            
+        {
             foreach (Attachment attachment in attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
@@ -122,7 +122,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
 
             attachment.Content.Position = 0;
-            var outputStream = VirtualStream.CreateVirtualStream(expectedSize: attachment.Content.Length);
+
+            VirtualStream outputStream;
+
+            if (attachment.Content.CanSeek)
+            {
+                outputStream = VirtualStream.CreateVirtualStream(expectedSize: attachment.Content.Length);
+            }
+            else
+            {
+                outputStream = new VirtualStream();
+            }
 
             using (var gzipCompression = new GZipStream(
                 attachment.Content, CompressionMode.Decompress, leaveOpen: true))
@@ -157,7 +167,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return messagePayloadInfo.Find(i => i.Href.Equals("cid:" + attachment.Id)).Properties["MimeType"];
         }
 
-        private static AS4Exception ThrowAS4CannotDecompressException( AS4Message as4Message, Exception exception)
+        private static AS4Exception ThrowAS4CannotDecompressException(AS4Message as4Message, Exception exception)
         {
             string description = $"Cannot decompress the message: {exception.Message}";
             LogManager.GetCurrentClassLogger().Error(description);

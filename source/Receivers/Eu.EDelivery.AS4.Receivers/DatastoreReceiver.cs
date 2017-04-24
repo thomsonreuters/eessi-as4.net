@@ -213,9 +213,15 @@ namespace Eu.EDelivery.AS4.Receivers
                 return entities;
             }
 
+            if (_updateValue == null)
+            {
+                Logger.Warn($"No UpdateValue configured for {_properties[SettingKeys.Field]}. The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
+                return entities;
+            }
+
             // Make sure that all message-entities are locked before continue to process them.
             foreach (Entity entity in entities)
-            {
+            {                
                 entity.Lock(_updateValue);
             }
 
