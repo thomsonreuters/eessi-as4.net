@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
@@ -10,27 +11,60 @@ namespace Eu.EDelivery.AS4.Security.References
     /// <summary>
     /// Security Token Reference Strategy for the Key Identifier
     /// </summary>
-    internal class KeyIdentifierSecurityTokenReference : SecurityTokenReference
+    internal sealed class KeyIdentifierSecurityTokenReference : SecurityTokenReference
     {
         private readonly string _keyInfoId;
-
         private readonly ICertificateRepository _certificateReposistory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyIdentifierSecurityTokenReference"/> class. 
-        /// Create a new <see cref="SecurityTokenReference"/>
-        /// to handle <see cref="X509ReferenceType.KeyIdentifier"/> configuration
         /// </summary>
+        /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(ICertificateRepository certificateRepository)
         {
-            this._certificateReposistory = certificateRepository;
-            this._keyInfoId = $"KI-{Guid.NewGuid()}";
+            _certificateReposistory = certificateRepository;
+            _keyInfoId = $"KI-{Guid.NewGuid()}";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyIdentifierSecurityTokenReference"/> class.
+        /// </summary>
+        /// <param name="envelope">SOAP Envelope with a Key Identifier Security Token Reference.</param>
+        /// <param name="certificateRepository">Repository to obtain the certificate needed to embed it into the Key Identifier Security Token Reference.</param>
         public KeyIdentifierSecurityTokenReference(XmlElement envelope, ICertificateRepository certificateRepository)
         {
-            this._certificateReposistory = certificateRepository;
+            _certificateReposistory = certificateRepository;
             LoadXml(envelope);
+        }
+
+        /// <summary>
+        /// Load the <see cref="X509Certificate2" />
+        /// from the given <paramref name="element" />
+        /// </summary>
+        /// <param name="element"></param>
+        public override void LoadXml(XmlElement element)
+        {
+            var xmlKeyIdentifier = element.SelectSingleNode(".//*[local-name()='KeyIdentifier']") as XmlElement;
+            if (xmlKeyIdentifier == null)
+            {
+                throw new AS4Exception("No KeyIdentifier tag found in given XmlElement");
+            }
+
+            SoapHexBinary soapHexBinary = RetrieveHexBinaryFromKeyIdentifier(xmlKeyIdentifier);
+            SaveCertificateWithHexBinary(soapHexBinary);
+        }
+
+        private static SoapHexBinary RetrieveHexBinaryFromKeyIdentifier(XmlNode xmlKeyIdentifier)
+        {
+            byte[] base64Bytes = Convert.FromBase64String(xmlKeyIdentifier.InnerText);
+            return new SoapHexBinary(base64Bytes);
+        }
+
+        private void SaveCertificateWithHexBinary(SoapHexBinary soapHexBinary)
+        {
+            Certificate = _certificateReposistory.GetCertificate(
+                X509FindType.FindBySubjectKeyIdentifier,
+                soapHexBinary.ToString());
         }
 
         /// <summary>
@@ -53,13 +87,17 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <returns></returns>
         public override XmlElement GetXml()
         {
-            var xmlDocument = new XmlDocument { PreserveWhitespace = true };
+            var xmlDocument = new XmlDocument {PreserveWhitespace = true};
 
-            XmlElement securityTokenReferenceElement = xmlDocument
-                .CreateElement("wsse", "SecurityTokenReference", Constants.Namespaces.WssSecuritySecExt);
+            XmlElement securityTokenReferenceElement = xmlDocument.CreateElement(
+                prefix: "wsse",
+                localName: "SecurityTokenReference",
+                namespaceURI: Constants.Namespaces.WssSecuritySecExt);
 
-            XmlElement keyIdentifierElement = xmlDocument
-                .CreateElement("wsse", "KeyIdentifier", Constants.Namespaces.WssSecuritySecExt);
+            XmlElement keyIdentifierElement = xmlDocument.CreateElement(
+                prefix: "wsse",
+                localName: "KeyIdentifier",
+                namespaceURI: Constants.Namespaces.WssSecuritySecExt);
 
             SetKeyIfentifierSecurityAttributes(keyIdentifierElement);
             keyIdentifierElement.InnerText = GetSubjectKeyIdentifier();
@@ -76,9 +114,13 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private string GetSubjectKeyIdentifier()
         {
-            foreach (X509Extension extension in this.Certificate.Extensions)
+            foreach (X509Extension extension in Certificate.Extensions)
             {
-                if (IsExtensionNotSubjectKeyIdentifier(extension)) continue;
+                if (IsExtensionNotSubjectKeyIdentifier(extension))
+                {
+                    continue;
+                }
+
                 return RetrieveBinary64SubjectKeyIdentifier(extension);
             }
 
@@ -93,34 +135,9 @@ namespace Eu.EDelivery.AS4.Security.References
             return Convert.ToBase64String(base64Binary.Value);
         }
 
-        private static bool IsExtensionNotSubjectKeyIdentifier(X509Extension extension)
+        private static bool IsExtensionNotSubjectKeyIdentifier(AsnEncodedData extension)
         {
             return !string.Equals(extension.Oid.FriendlyName, "Subject Key Identifier");
-        }
-
-        /// <summary>
-        /// Load the <see cref="X509Certificate2"/>
-        /// from the given <paramref name="element"/>
-        /// </summary>
-        /// <param name="element"></param>
-        public override void LoadXml(XmlElement element)
-        {
-            var xmlKeyIdentifier = element.SelectSingleNode(".//*[local-name()='KeyIdentifier']") as XmlElement;
-            if (xmlKeyIdentifier == null) throw new AS4Exception("No KeyIdentifier tag found in given XmlElement");
-
-            SoapHexBinary soapHexBinary = RetrieveHexBinaryFromKeyIdentifier(xmlKeyIdentifier);
-            SaveCertificateWithHexBinary(soapHexBinary);
-        }
-
-        private void SaveCertificateWithHexBinary(SoapHexBinary soapHexBinary)
-        {
-            this.Certificate = this._certificateReposistory.GetCertificate(X509FindType.FindBySubjectKeyIdentifier, soapHexBinary.ToString());
-        }
-
-        private static SoapHexBinary RetrieveHexBinaryFromKeyIdentifier(XmlElement xmlKeyIdentifier)
-        {
-            byte[] base64Bytes = Convert.FromBase64String(xmlKeyIdentifier.InnerText);
-            return new SoapHexBinary(base64Bytes);
         }
     }
 }

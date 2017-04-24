@@ -11,22 +11,22 @@ using NLog;
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
     /// <summary>
-    /// <see cref="IStep"/> implementation 
-    /// to create a default configured <see cref="AS4Message"/>
+    /// <see cref="IStep" /> implementation
+    /// to create a default configured <see cref="AS4Message" />
     /// </summary>
     public class CreateDefaultAS4MessageStep : IConfigStep
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IConfig _config;
+
         private IDictionary<string, string> _properties;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateDefaultAS4MessageStep"/>
+        /// Initializes a new instance of the <see cref="CreateDefaultAS4MessageStep" /> class.
         /// </summary>
         public CreateDefaultAS4MessageStep()
         {
-            this._config = Config.Instance;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _config = Config.Instance;
         }
 
         /// <summary>
@@ -35,11 +35,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="properties"></param>
         public void Configure(IDictionary<string, string> properties)
         {
-            this._properties = properties;
+            _properties = properties;
         }
 
         /// <summary>
-        /// Start creating a <see cref="AS4Message"/>
+        /// Start creating a <see cref="AS4Message" />
         /// </summary>
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             AddDefaultAS4Message(internalMessage);
-            this._logger.Info($"{internalMessage.Prefix} Default AS4 Message is created");
+            Logger.Info($"{internalMessage.Prefix} Default AS4 Message is created");
 
             return await StepResult.SuccessAsync(internalMessage);
         }
@@ -64,11 +64,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private SendingProcessingMode GetDefaultPMode()
         {
-            string pmodeKey = this._properties?["default-pmode"];
-            return this._config.GetSendingPMode(pmodeKey);
+            string pmodeKey = _properties?["default-pmode"];
+            return _config.GetSendingPMode(pmodeKey);
         }
 
-        private void AddPartInfos(AS4Message as4Message)
+        private static void AddPartInfos(AS4Message as4Message)
         {
             foreach (Attachment attachment in as4Message.Attachments)
             {
@@ -76,17 +76,17 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
         }
 
-        private void AddPartInfo(AS4Message as4Message, Attachment attachment)
+        private static void AddPartInfo(AS4Message as4Message, Attachment attachment)
         {
             PartInfo partInfo = CreateAttachmentPartInfo(attachment);
             as4Message.PrimaryUserMessage.PayloadInfo.Add(partInfo);
         }
 
-        private PartInfo CreateAttachmentPartInfo(Attachment attachment)
+        private static PartInfo CreateAttachmentPartInfo(Attachment attachment)
         {
             return new PartInfo("cid:" + attachment.Id)
             {
-                Properties = new Dictionary<string, string> { ["MimeType"] = attachment.ContentType }
+                Properties = new Dictionary<string, string> {["MimeType"] = attachment.ContentType}
             };
         }
     }

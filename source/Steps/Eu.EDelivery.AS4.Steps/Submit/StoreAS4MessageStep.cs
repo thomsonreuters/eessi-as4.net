@@ -18,25 +18,22 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// </summary>
     public class StoreAS4MessageStep : IStep
     {
-
         // TODO: this class should be reviewed IMHO.  We should not save AS4Messages, but we should
         // save the MessagePart in the OutMessage table.  Each MessagePart has its own messagebody.
         // Right now, the MessageBody is the complete AS4Message; every OutMessage refers to that same messagebody which 
         // is not correct.
         // At this stage, there should be no AS4-message in my opinion, only UserMessages and SignalMessages.
-
         private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.
+        /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
-        public StoreAS4MessageStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
-        {
-        }
+        public StoreAS4MessageStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.
         /// </summary>
+        /// <param name="as4MessageBodyPersister">The as 4 Message Body Persister.</param>
         public StoreAS4MessageStep(IAS4MessageBodyPersister as4MessageBodyPersister)
         {
             _as4MessageBodyPersister = as4MessageBodyPersister;
@@ -79,21 +76,19 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private async Task StoreOutMessagesAsync(AS4Message as4Message, CancellationToken token)
         {
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                var builder = OutMessageBuilder.ForAS4Message(as4Message)
-                                               .WithEbmsMessageType(MessageType.UserMessage);
+                OutMessageBuilder builder = OutMessageBuilder.ForAS4Message(as4Message).WithEbmsMessageType(MessageType.UserMessage);
                 OutMessage message = builder.Build(token);
 
-                message.Operation = Operation.ToBeSent;                
+                message.Operation = Operation.ToBeSent;
 
                 repository.InsertOutMessage(message, _as4MessageBodyPersister);
 
                 await context.SaveChangesAsync(token);
             }
         }
-
     }
 }

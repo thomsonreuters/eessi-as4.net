@@ -34,35 +34,15 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var tasks = new List<Task>();
                     IEnumerable<TIn> messagesToPoll = GetMessagesToPoll(cancellationToken);
 
                     if (messagesToPoll.Any())
                     {
-                        tasks.AddRange(CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken));
-
-                        try
-                        {
-                            try
-                            {
-                                Task.WaitAll(tasks.ToArray());
-                            }
-                            catch (AggregateException err)
-                            {
-                                err.Handle(e => e is TaskCanceledException);
-                            }
-                        }
-                        catch (Exception exception)
-                        {
-                            foreach (TIn message in messagesToPoll)
-                            {
-                                HandleMessageException(message, exception);
-                            }
-                        }
+                        IEnumerable<Task> taskCollection = CreateTaskForEachMessage(messagesToPoll, onMessage, cancellationToken);
+                        WaitForAllTasksToComplete(taskCollection, messagesToPoll);
                     }
                     else
                     {
-                       // Task.Delay(PollingInterval, cancellationToken).Wait(cancellationToken);
                        Thread.Sleep(PollingInterval);
                     }
                 }
@@ -78,6 +58,27 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
+        private void WaitForAllTasksToComplete(IEnumerable<Task> taskCollection, IEnumerable<TIn> messagesToPoll)
+        {
+            try
+            {
+                try
+                {
+                    Task.WaitAll(taskCollection.ToArray());
+                }
+                catch (AggregateException err)
+                {
+                    err.Handle(e => e is TaskCanceledException);
+                }
+            }
+            catch (Exception exception)
+            {
+                foreach (TIn message in messagesToPoll)
+                {
+                    HandleMessageException(message, exception);
+                }
+            }
+        }
 
         /// <summary>
         /// Declaration to where the Message are and can be polled
@@ -111,19 +112,23 @@ namespace Eu.EDelivery.AS4.Receivers
             Func<TOut, CancellationToken, Task<InternalMessage>> messageCallback,
             CancellationToken cancellationToken)
         {
-            return messagesToPoll.Where(m => m != null).Select(
-                message => Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))                              
-                               .ContinueWith(task =>
-                               {
-                                   if (task.Exception?.InnerExceptions != null)
-                                   {
-                                       foreach (Exception ex in task.Exception?.InnerExceptions)
-                                       {
-                                           LogManager.GetCurrentClassLogger().Fatal(ex.Message);
-                                           LogManager.GetCurrentClassLogger().Fatal(ex.StackTrace);
-                                       }
-                                   }
-                               }, TaskContinuationOptions.OnlyOnFaulted));
+            return messagesToPoll
+                .Where(m => m != null)
+                .Select(message => 
+                    Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))
+                        .ContinueWith(LogInnerExceptions, TaskContinuationOptions.OnlyOnFaulted));
+        }
+
+        private static void LogInnerExceptions(Task task)
+        {
+            if (task.Exception?.InnerExceptions != null)
+            {
+                foreach (Exception ex in task.Exception?.InnerExceptions)
+                {
+                    LogManager.GetCurrentClassLogger().Fatal(ex.Message);
+                    LogManager.GetCurrentClassLogger().Fatal(ex.StackTrace);
+                }
+            }
         }
     }
 }

@@ -19,31 +19,29 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// </summary>
     public class RetrieveSendingPModeStep : IStep
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IConfig _config;
-        private readonly ILogger _logger;
-        private readonly IValidator<SendingProcessingMode> _validator;        
+        private readonly IValidator<SendingProcessingMode> _validator;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep"/> class
+        /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
         /// </summary>
         public RetrieveSendingPModeStep()
         {
-            this._config = Config.Instance;
-            this._validator = new SendingProcessingModeValidator();
-            this._logger = LogManager.GetCurrentClassLogger();
+            _config = Config.Instance;
+            _validator = new SendingProcessingModeValidator();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep"/> class
-        /// Create a new Retrieve PMode Step with a given <see cref="IConfig"/>
+        /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
+        /// Create a new Retrieve PMode Step with a given <see cref="IConfig" />
         /// </summary>
         /// <param name="config">
         /// </param>
         public RetrieveSendingPModeStep(IConfig config)
         {
-            this._config = config;
-            this._validator = new SendingProcessingModeValidator();
-            this._logger = LogManager.GetCurrentClassLogger();
+            _config = config;
+            _validator = new SendingProcessingModeValidator();
         }
 
         /// <summary>
@@ -56,7 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public async Task<StepResult> ExecuteAsync(InternalMessage message, CancellationToken cancellationToken)
         {
             try
-            {                
+            {
                 RetrieveSendPMode(message);
                 return await StepResult.SuccessAsync(message);
             }
@@ -79,14 +77,14 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             string processingModeId = RetrieveProcessingModeId(message.SubmitMessage.Collaboration);
 
-            SendingProcessingMode pmode = this._config.GetSendingPMode(processingModeId);
+            SendingProcessingMode pmode = _config.GetSendingPMode(processingModeId);
 
-            this._logger.Info($"{message.Prefix} Sending PMode {pmode.Id} was retrieved");
+            Logger.Info($"{message.Prefix} Sending PMode {pmode.Id} was retrieved");
 
             return pmode;
         }
 
-        private string RetrieveProcessingModeId( CollaborationInfo collaborationInfo)
+        private string RetrieveProcessingModeId(CollaborationInfo collaborationInfo)
         {
             if (collaborationInfo == null)
             {
@@ -99,16 +97,18 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private void ValidatePMode(SendingProcessingMode pmode)
         {
             _validator.Validate(pmode);
-            _logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message");
+            Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message");
         }
 
-        private static AS4Exception ThrowAS4CannotRetrieveSendPModeException(InternalMessage internalMessage, Exception exception)
+        private static AS4Exception ThrowAS4CannotRetrieveSendPModeException(
+            InternalMessage internalMessage,
+            Exception exception)
         {
             string generatedMessageId = Guid.NewGuid().ToString();
 
             return AS4ExceptionBuilder
                 .WithDescription($"[generated: {generatedMessageId}] Cannot retrieve Sending PMode", exception)
-                .WithInnerException(exception)                
+                .WithInnerException(exception)
                 .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
                 .WithMessageIds(generatedMessageId)
                 .Build();

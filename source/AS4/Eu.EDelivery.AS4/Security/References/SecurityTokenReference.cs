@@ -30,7 +30,5 @@ namespace Eu.EDelivery.AS4.Security.References
         public abstract override XmlElement GetXml();
 
         public abstract override void LoadXml(XmlElement element);
-
-        
     }
 }
