@@ -71,28 +71,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 await Assert.ThrowsAsync<AS4Exception>(
                     () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
             }
-
-            [Fact]
-            public async Task ThenExecuteRetrievesPModeSucceedsWithTwoStepsAsync()
-            {
-                // Arrange
-                var internalMessage = new InternalMessage(GetStubSubmitMessage());
-                _mockedConfig = new Mock<IConfig>();
-                _mockedConfig.Setup(c => c.GetSendingPMode(It.IsAny<string>())).Returns(GetStubRightProcessingMode());
-
-                // Act
-                var step1 = new RetrieveSendingPModeStep(_mockedConfig.Object);
-                var step2 = new RetrieveSendingPModeStep(_mockedConfig.Object);
-
-                StepResult result1 = null, result2 = null;
-                await Task.Run(async () => result1 = await step1.ExecuteAsync(internalMessage, CancellationToken.None));
-                await Task.Run(async () => result2 = await step2.ExecuteAsync(internalMessage, CancellationToken.None));
-
-                // Assert
-                Assert.NotNull(result1);
-                Assert.NotNull(result2);
-                Assert.Equal(result1.InternalMessage.SendingPModeString, result2.InternalMessage.SendingPModeString);
-            }
         }
     }
 }

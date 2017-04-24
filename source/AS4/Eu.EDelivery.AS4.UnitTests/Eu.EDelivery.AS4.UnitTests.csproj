@@ -509,6 +509,7 @@
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
     <Content Include="Resources\receipt.xml" />
+    <Content Include="Resources\receivingprocessingmode.xml" />
     <Content Include="Resources\sendingprocessingmode.xml" />
     <Content Include="Resources\submitmessage.xml" />
     <None Include="Resources\as4-soap-wrong-encrypted-message" />

@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             return envelopeXmlDocument;
         }
 
-        protected Task<AS4Message> GetEncryptedMessageAsync()
+        protected static Task<AS4Message> GetEncryptedMessageAsync()
         {
             Stream inputStream = new MemoryStream(Properties.Resources.as4_encrypted_message);
             var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());

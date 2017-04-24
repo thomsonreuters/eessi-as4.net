@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
         }
 
         [Fact]
-        public async Task ThenUploadAttachmentFails_IfAttachmentCannotBeUploaded()
+        public async Task ThenUploadAttachmentFails_IfPayloadServiceIsNotRunning()
         {
             var uploader = new PayloadServiceAttachmentUploader();
             uploader.Configure(new LocationMethod(SharedUrl));

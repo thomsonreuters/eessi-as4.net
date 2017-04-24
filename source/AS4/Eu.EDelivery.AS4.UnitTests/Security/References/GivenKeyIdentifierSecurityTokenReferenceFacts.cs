@@ -88,9 +88,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 XmlElement xmlElement = _reference.GetXml();
 
                 // Assert
-                Assert.NotNull(xmlElement);
-                Assert.Equal("wsse:SecurityTokenReference", xmlElement.Name);
-                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement.NamespaceURI);
+                Assert.Equal("wsse:SecurityTokenReference", xmlElement?.Name);
+                Assert.Equal(Constants.Namespaces.WssSecuritySecExt, xmlElement?.NamespaceURI);
             }
         }
 

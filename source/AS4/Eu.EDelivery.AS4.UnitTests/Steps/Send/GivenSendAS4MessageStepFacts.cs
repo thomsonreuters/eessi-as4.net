@@ -141,10 +141,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task SendReturnsEmptyResponseForEmptyRequest()
         {
             // Arrange
+            InternalMessage dummyMessage = CreateAnonymousPullRequest();
             using (CreateMockedHttpServerThatReturnsStatusCode(HttpStatusCode.Accepted))
             {
-                InternalMessage dummyMessage = CreateAnonymousPullRequest();
-
                 // Act
                 StepResult actualResult = await _step.ExecuteAsync(dummyMessage, CancellationToken.None);
 
