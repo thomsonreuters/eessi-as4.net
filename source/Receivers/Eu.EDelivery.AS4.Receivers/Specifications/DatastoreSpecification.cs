@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-
+using NLog;
 using Expression = System.Linq.Expressions.Expression<System.Func<
     Eu.EDelivery.AS4.Common.DatastoreContext,
     System.Collections.Generic.IEnumerable<Eu.EDelivery.AS4.Entities.Entity>>>;
@@ -16,6 +17,8 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
     internal class DatastoreSpecification
     {
         private DatastoreSpecificationArgs _arguments;
+
+        private PropertyInfo _filterPropertyInfo;
 
         /// <summary>
         /// Configure the given <see cref="DatastoreSpecification"/>
@@ -56,12 +59,23 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
 
             return query.ToList();
         }
-
+        
         private bool Where<T>(T dbSet)
         {
             string name = _arguments.FilterColumnName;
-            
-            object propertyValue = dbSet.GetType().GetProperty(name).GetValue(dbSet);
+
+            if (_filterPropertyInfo == null)
+            {
+                _filterPropertyInfo = dbSet.GetType().GetProperty(name);
+            }
+
+            if (_filterPropertyInfo == null)
+            {
+                LogManager.GetCurrentClassLogger().Error($"FilterColumn {_arguments.FilterColumnName} on DatastoreReceiver could not be found.");
+                return false;
+            }
+
+            object propertyValue = _filterPropertyInfo.GetValue(dbSet);
             object configuredValue = ParseConfiguredValue(propertyValue);
 
             return propertyValue.Equals(configuredValue);

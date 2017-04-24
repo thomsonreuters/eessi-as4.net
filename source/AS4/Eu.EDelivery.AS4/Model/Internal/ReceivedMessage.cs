@@ -36,26 +36,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             RequestStream = requestStream;
             ContentType = contentType;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
-        /// Create a new Received Message with a given RequestStream
-        /// and Processing Mode
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="requestStream">
-        /// </param>
-        /// <param name="contentType">
-        /// </param>
-        public ReceivedMessage(string id, Stream requestStream, string contentType)
-        {
-            RequestStream = requestStream;
-            ContentType = contentType;
-            Id = id;
-        }
-
-        public string Id { get; private set; }
+        }        
 
         public string ContentType { get; set; }
 

@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
         public static void Main()
         {
             Console.SetWindowSize(Console.LargestWindowWidth, Console.WindowHeight);
-
+            
             Kernel kernel = CreateKernel();
             if (kernel == null)
             {
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                     x =>
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        //NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
+                        NLog.LogManager.GetCurrentClassLogger().Fatal(x.Exception?.ToString());
                     },
                     TaskContinuationOptions.OnlyOnFaulted);
 

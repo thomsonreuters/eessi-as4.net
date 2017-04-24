@@ -167,7 +167,7 @@ namespace Eu.EDelivery.AS4.Agents
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
-            Logger.Debug($"{AgentConfig.Name} received and starts handling message with id {message.Id}");
+            Logger.Debug($"{AgentConfig.Name} received and starts handling message.");
 
 
 #if METRICS
@@ -240,7 +240,7 @@ namespace Eu.EDelivery.AS4.Agents
                 }
             }
 
-            Logger.Debug($"{AgentConfig.Name} finished handling message with id {message.Id}");
+            Logger.Debug($"{AgentConfig.Name} finished handling message.");
         }
     }
 }
