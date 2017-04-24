@@ -105,9 +105,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public void AppendEncryptionElements(XmlElement securityElement)
         {
             if (securityElement == null)
+            {
                 throw new ArgumentNullException(nameof(securityElement));
+            }
             if (securityElement.OwnerDocument == null)
+            {
                 throw new ArgumentException(@"SecurityHeader needs to have an OwnerDocument", nameof(securityElement));
+            }
 
             XmlDocument securityDocument = securityElement.OwnerDocument;
 
@@ -204,16 +208,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)
         {
-            Stream encryptedStream;
-
-            if (secretStream.CanSeek)
-            {
-                encryptedStream = VirtualStream.CreateVirtualStream(expectedSize: secretStream.Length);
-            }
-            else
-            {
-                encryptedStream = new VirtualStream();
-            }
+            Stream encryptedStream = VirtualStream.CreateVirtualStream(expectedSize: (secretStream.CanSeek) ? secretStream.Length : VirtualStream.ThresholdMax);
 
             var cryptoStream = new CryptoStream(encryptedStream, algorithm.CreateEncryptor(), CryptoStreamMode.Write);
             CipherMode origMode = algorithm.Mode;
@@ -388,17 +383,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private Stream DecryptData(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)
         {
-            Stream decryptedStream;
-
-            if (encryptedTextStream.CanSeek)
-            {
-                decryptedStream = VirtualStream.CreateVirtualStream(expectedSize: encryptedTextStream.Length);
-            }
-            else
-            {
-                decryptedStream = new VirtualStream();
-            }
-
+            Stream decryptedStream = VirtualStream.CreateVirtualStream(expectedSize: (encryptedTextStream.CanSeek) ? encryptedTextStream.Length : VirtualStream.ThresholdMax); 
+            
             // save the original symmetric algorithm
             CipherMode origMode = encryptionAlgorithm.Mode;
             PaddingMode origPadding = encryptionAlgorithm.Padding;

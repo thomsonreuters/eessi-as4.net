@@ -202,7 +202,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)
             {
-                if (request.ContentLength64 > 209_715_200) // TODO: create a constants class with those predef sizes ?
+                if (request.ContentLength64 > VirtualStream.ThresholdMax) 
                 {
                     VirtualStream str = new VirtualStream(VirtualStream.MemoryFlag.OnlyToDisk);
                     request.InputStream.CopyTo(str);
@@ -364,7 +364,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     {
                         return new AS4MessageContentResult(
                             statusCode: DetermineHttpCodeFrom(processorResult),
-                            contentType: processorResult.AS4Message?.ContentType, 
+                            contentType: processorResult.AS4Message?.ContentType,
                             internalMessage: processorResult);
                     }
 
@@ -525,7 +525,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-                ((IDisposable) _listener)?.Dispose();
+                ((IDisposable)_listener)?.Dispose();
             }
             catch (Exception exception)
             {
