@@ -202,7 +202,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)
             {
-                if (request.ContentLength64 > 209_715_200)
+                if (request.ContentLength64 > 209_715_200) // TODO: create a constants class with those predef sizes ?
                 {
                     VirtualStream str = new VirtualStream(VirtualStream.MemoryFlag.OnlyToDisk);
                     request.InputStream.CopyTo(str);
