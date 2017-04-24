@@ -340,6 +340,7 @@
     <Compile Include="Receivers\GivenPollingReceiverFacts.cs" />
     <Compile Include="Receivers\StubValidPollingTemplate.cs" />
     <Compile Include="Receivers\StubInvalidPollingTemplate.cs" />
+    <Compile Include="Repositories\GivenAS4MessageBodyFileRetrieverFacts.cs" />
     <Compile Include="Repositories\SaboteurMessageBodyRetriever.cs" />
     <Compile Include="Repositories\StubMessageBodyPersister.cs" />
     <Compile Include="Resources\Samples.Designer.cs">

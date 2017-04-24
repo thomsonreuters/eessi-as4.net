@@ -7,9 +7,19 @@ namespace Eu.EDelivery.AS4.Repositories
     {
         public Stream LoadAS4MessageStream(string location)
         {
+            if (string.IsNullOrEmpty(location))
+            {
+                return null;
+            }
+
             if (location.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
             {
                 location = location.Substring("file://".Length);
+            }
+
+            if (!File.Exists(location))
+            {
+                return null;
             }
 
             return File.OpenRead(location);

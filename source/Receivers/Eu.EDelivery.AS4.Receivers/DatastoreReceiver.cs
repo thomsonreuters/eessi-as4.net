@@ -249,8 +249,15 @@ namespace Eu.EDelivery.AS4.Receivers
 
             using (var stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
             {
-                ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                messageCallback(receivedMessage, token);
+                if (stream == null)
+                {
+                    Logger.Error($"MessageBody cannot be retrieved for Ebms Message Id: {messageEntity.EbmsMessageId}");
+                }
+                else
+                {
+                    ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
+                    messageCallback(receivedMessage, token);
+                }
             }
         }
 

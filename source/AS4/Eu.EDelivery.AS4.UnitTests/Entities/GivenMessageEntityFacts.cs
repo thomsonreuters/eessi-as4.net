@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 using (Stream actualStream = sut.RetrieveMessageBody(retrieverProvider: null))
                 {
                     // Assert
-                    Assert.Equal(Stream.Null, actualStream);
+                    Assert.Null(actualStream);
                 }
             }
 
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 using (Stream actualStream = sut.RetrieveMessageBody(stubProvider))
                 {
                     // Assert
-                    Assert.Equal(Stream.Null, actualStream);
+                    Assert.Null(actualStream);
                 }
             }
         }

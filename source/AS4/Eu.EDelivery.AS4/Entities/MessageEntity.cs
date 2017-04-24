@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.Entities
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
                 LogManager.GetCurrentClassLogger().Warn("Unable to retrieve the AS4 Message Body: MessageLocation is not set.");
-                return Stream.Null;
+                return null;
             }
 
             IAS4MessageBodyRetriever repository = retrieverProvider.Get(MessageLocation);
@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.Entities
             {
                 LogManager.GetCurrentClassLogger().Error(exception.Message);
 
-                return Stream.Null;
+                return null;
             }
         }
     }
