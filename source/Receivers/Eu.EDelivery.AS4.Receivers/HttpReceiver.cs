@@ -184,20 +184,27 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 InternalMessage processorResult = null;
 
-                if (processor != null && request.HttpMethod == "POST")
+                try
                 {
-                    ReceivedMessage receivedMessage = CreateReceivedMessage(request);
-                    try
+                    if (processor != null && request.HttpMethod == "POST")
                     {
-                        processorResult = await processor(receivedMessage, CancellationToken.None);
+                        ReceivedMessage receivedMessage = CreateReceivedMessage(request);
+                        try
+                        {
+                            processorResult = await processor(receivedMessage, CancellationToken.None);
+                        }
+                        finally
+                        {
+                            receivedMessage.RequestStream.Dispose();
+                        }
                     }
-                    finally
-                    {
-                        receivedMessage.RequestStream.Dispose();
-                    }
-                }
 
-                return ExecuteCore(request, processorResult);
+                    return ExecuteCore(request, processorResult);
+                }
+                finally
+                {
+                    processorResult?.Dispose();
+                }
             }
 
             private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)

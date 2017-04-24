@@ -163,7 +163,6 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
-
             try
             {
                 return GetMessagesEntitiesForConfiguredExpression();
@@ -221,7 +220,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             // Make sure that all message-entities are locked before continue to process them.
             foreach (Entity entity in entities)
-            {                
+            {
                 entity.Lock(_updateValue);
             }
 
@@ -249,15 +248,15 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private void ReceiveMessageEntity(MessageEntity messageEntity, Function messageCallback, CancellationToken token)
+        private async void ReceiveMessageEntity(MessageEntity messageEntity, Function messageCallback, CancellationToken token)
         {
             Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
 
-          //  using (var stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
+            using (var stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
             {
-                var stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider);
                 ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                messageCallback(receivedMessage, token);
+                InternalMessage result = await messageCallback(receivedMessage, token);
+                result?.Dispose();
             }
         }
 
@@ -270,10 +269,11 @@ namespace Eu.EDelivery.AS4.Receivers
             };
         }
 
-        private static void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
-            messageCallback(message, token);
+            InternalMessage result = await messageCallback(message, token);
+            result?.Dispose();
         }
 
         protected override void HandleMessageException(Entity message, Exception exception)

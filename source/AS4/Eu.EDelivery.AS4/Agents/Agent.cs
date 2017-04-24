@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Agents
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
-        public virtual async Task<InternalMessage> OnReceived(
+        protected virtual async Task<InternalMessage> OnReceived(
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {

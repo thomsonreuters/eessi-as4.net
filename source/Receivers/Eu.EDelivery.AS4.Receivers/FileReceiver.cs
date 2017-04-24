@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private string Password => _properties.ReadOptionalProperty(SettingKeys.Password);
 
         private int _batchSize;
-       
+
         protected override ILogger Logger { get; }
 
         [Info("Polling interval", "", "int")]
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Receivers
         public void Configure(IEnumerable<Setting> settings)
         {
             _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
-            
+
             var configuredBatchSize = _properties.ReadOptionalProperty(SettingKeys.BatchSize, "50");
 
             if (Int32.TryParse(configuredBatchSize, out _batchSize) == false)
@@ -123,15 +123,23 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 MoveFile(fileInfo, "processing");
 
-                InternalMessage internalMessage;
-                using (Stream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
-                {
-                    fileStream.Seek(0, SeekOrigin.Begin);
-                    var receivedMessage = new ReceivedMessage(fileStream, contentType);
-                    internalMessage = await messageCallback(receivedMessage, token);
-                }
+                InternalMessage internalMessage = null;
 
-                NotifyReceivedFile(fileInfo, internalMessage);
+                try
+                {
+                    using (Stream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read))
+                    {
+                        fileStream.Seek(0, SeekOrigin.Begin);
+                        var receivedMessage = new ReceivedMessage(fileStream, contentType);
+                        internalMessage = await messageCallback(receivedMessage, token);
+                    }
+
+                    NotifyReceivedFile(fileInfo, internalMessage);
+                }
+                finally
+                {
+                    internalMessage?.Dispose();
+                }
             }
             catch (Exception ex)
             {

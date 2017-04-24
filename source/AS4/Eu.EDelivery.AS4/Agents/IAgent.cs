@@ -10,8 +10,7 @@ namespace Eu.EDelivery.AS4.Agents
     /// </summary>
     public interface IAgent
     {
-        AgentConfig AgentConfig { get; }
-        Task<InternalMessage> OnReceived(ReceivedMessage message, CancellationToken cancellationToken);
+        AgentConfig AgentConfig { get; }     
         Task Start(CancellationToken cancellationToken);
         void Stop();
     }
