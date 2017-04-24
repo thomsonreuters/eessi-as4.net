@@ -2,7 +2,7 @@
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>8.3.13-pmode</Id>
   <Mep>OneWay</Mep>
-  <MepBinding>Pull</MepBinding>
+  <MepBinding>Push</MepBinding>
   <Reliability>
     <DuplicateElimination>
       <IsEnabled>false</IsEnabled>
@@ -11,7 +11,7 @@
   <ReceiptHandling>
     <UseNNRFormat>false</UseNNRFormat>
     <ReplyPattern>Callback</ReplyPattern>
-    <SendingPMode>pmode</SendingPMode>
+    <SendingPMode>pmode-callback</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
@@ -19,7 +19,7 @@
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>
-    <SendingPMode>pmode</SendingPMode>
+    <SendingPMode>pmode-callback</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>

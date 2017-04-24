@@ -18,27 +18,30 @@ using NLog;
 namespace Eu.EDelivery.AS4.Builders.Security
 {
     /// <summary>
-    /// Builder used to create <see cref="ISigningStrategy"/> implementation Models
+    /// Builder used to create <see cref="ISigningStrategy" /> implementation Models
     /// </summary>
     public class SigningStrategyBuilder
     {
-        private readonly ISecurityTokenReferenceProvider _tokenProvider = new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
         private readonly ISignatureAlgorithmProvider _algorithmProvider = new SignatureAlgorithmProvider();
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly XmlDocument _envelopeDocument;
-
-        private SignatureAlgorithm _signatureAlgorithm = null;
-        private SecurityTokenReference _securityTokenReference = null;
-
-        private readonly List<Tuple<SigningId, string>> _references = new List<Tuple<SigningId, string>>();
-        private X509Certificate2 _certificate;
         private readonly List<Tuple<Attachment, string>> _attachmentReferences = new List<Tuple<Attachment, string>>();
 
+        private readonly XmlDocument _envelopeDocument;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly List<Tuple<SigningId, string>> _references = new List<Tuple<SigningId, string>>();
+
+        private readonly ISecurityTokenReferenceProvider _tokenProvider =
+            new SecurityTokenReferenceProvider(Registry.Instance.CertificateRepository);
+
+        private X509Certificate2 _certificate;
+        private SecurityTokenReference _securityTokenReference;
+
+        private SignatureAlgorithm _signatureAlgorithm;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="SigningStrategyBuilder"/> class. 
-        /// Create new <see cref="SigningStrategyBuilder"/> 
-        /// with given <paramref name="as4Message"/>
+        /// Initializes a new instance of the <see cref="SigningStrategyBuilder" /> class.
+        /// Create new <see cref="SigningStrategyBuilder" />
+        /// with given <paramref name="as4Message" />
         /// </summary>
         /// <param name="as4Message">
         /// </param>
@@ -50,14 +53,13 @@ namespace Eu.EDelivery.AS4.Builders.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SigningStrategyBuilder"/> class. 
-        /// Create a new <see cref="SigningStrategyBuilder"/> 
-        /// with given <paramref name="envelopeDocument"/>
+        /// Initializes a new instance of the <see cref="SigningStrategyBuilder" /> class.
+        /// Create a new <see cref="SigningStrategyBuilder" />
+        /// with given <paramref name="envelopeDocument" />
         /// </summary>
         /// <param name="envelopeDocument">
         /// </param>
         public SigningStrategyBuilder(XmlDocument envelopeDocument)
-
         {
             _envelopeDocument = envelopeDocument;
 
@@ -65,127 +67,40 @@ namespace Eu.EDelivery.AS4.Builders.Security
             _securityTokenReference = RetrieveSigningSecurityTokenReference(envelopeDocument);
         }
 
-        private SignatureAlgorithm RetrieveSignatureAlgorithm(XmlDocument envelopeDocument)
-        {
-            SignatureAlgorithm algorithm = this._algorithmProvider.Get(envelopeDocument);
-
-            this._logger.Debug($"Verify with Signature Algorithm: {algorithm.GetIdentifier()}");
-            return algorithm;
-        }
-
-        private SecurityTokenReference RetrieveSigningSecurityTokenReference(XmlDocument envelopeDocument)
-        {
-            if (envelopeDocument == null)
-            {
-                throw new ArgumentNullException(nameof(envelopeDocument));
-            }
-
-            var tokenNodes =
-                envelopeDocument.SelectNodes(@"//*[local-name()='Signature']//*[local-name()='SecurityTokenReference']")?.OfType<XmlElement>().ToArray();
-
-            if (tokenNodes != null)
-            {
-                LogManager.GetCurrentClassLogger().Info($"{tokenNodes.Count()} Signature Tokens retrieved.");
-
-                XmlElement securityTokenElement = tokenNodes.FirstOrDefault();
-
-                if (securityTokenElement != null)
-                {
-                    SecurityTokenReference token = this._tokenProvider.Get(securityTokenElement, SecurityTokenType.Signing);
-
-                    this._logger.Debug($"Verify with Security Token Reference: {token.GetType().Name}");
-
-                    return token;
-                }
-            }
-
-            throw AS4ExceptionBuilder.WithDescription("No Security Token Reference element found in given Xml Document")
-                                       .WithErrorCode(ErrorCode.Ebms0101)
-                                       .Build();
-
-        }
-
         /// <summary>
-        /// Add Security Token Reference to Security Header
+        /// Build the Security Header
         /// </summary>
-        /// <param name="keyReferenceMethod"></param>
         /// <returns></returns>
-        public SigningStrategyBuilder WithSecurityTokenReference(X509ReferenceType keyReferenceMethod)
+        public ISigningStrategy Build()
         {
-            this._logger.Debug($"Signing with Signature Token Reference {keyReferenceMethod}");
+            var strategy = new SigningStrategy(_envelopeDocument, _securityTokenReference);
 
-            this._securityTokenReference = this._tokenProvider.Get(keyReferenceMethod);
-
-
-            return this;
-        }
-
-        /// <summary>
-        /// Add Signature Algorithm to Security Header
-        /// </summary>
-        /// <param name="signatureAlgorithmIdentifier"></param>
-        /// <returns></returns>
-        public SigningStrategyBuilder WithSignatureAlgorithm(string signatureAlgorithmIdentifier)
-        {
-            this._logger.Debug($"Setting Signing Algorithm: {signatureAlgorithmIdentifier}");
-
-            if (this._signatureAlgorithm != null)
+            if (_signatureAlgorithm != null)
             {
-                this._logger.Warn($"There is already a signature-algorithm configured ({_signatureAlgorithm.GetType().FullName}).  This one will be overwritten.");
+                // TODO: i believe that this is a mandatory item.
+                strategy.AddAlgorithm(_signatureAlgorithm);
             }
 
-            this._signatureAlgorithm = this._algorithmProvider.Get(signatureAlgorithmIdentifier);
-
-            return this;
-        }
-
-        public SigningStrategyBuilder WithSignatureAlgorithm(SignatureAlgorithm algorithm)
-        {
-            this._logger.Debug($"Setting Signing Algorithm: {algorithm.GetType().FullName}");
-
-            if (this._signatureAlgorithm != null)
+            if (_certificate != null)
             {
-                this._logger.Warn($"There is already a signature-algorithm configured ({_signatureAlgorithm.GetType().FullName}).  This one will be overwritten.");
+                // TODO: certificate should be mandatory ?
+                strategy.AddCertificate(_certificate);
             }
 
-
-            this._signatureAlgorithm = algorithm;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Add Signing Id to Security Header
-        /// </summary>
-        /// <param name="signingId"></param>
-        /// <param name="hashFunction"></param>
-        /// <returns></returns>
-        public SigningStrategyBuilder WithSigningId(SigningId signingId, string hashFunction)
-        {
-            this._logger.Debug($"Signing HashFunction: {hashFunction}");
-
-            this._references.Add(new Tuple<SigningId, string>(signingId, hashFunction));
-
-
-            return this;
-        }
-
-        /// <summary>
-        /// Add a <see cref="X509Certificate2"/> to the Security Header
-        /// </summary>
-        /// <param name="certificate"></param>
-        /// <returns></returns>
-        public SigningStrategyBuilder WithCertificate(X509Certificate2 certificate)
-        {
-            this._logger.Debug($"Using certificate {certificate.FriendlyName}");
-
-            if (this._certificate != null)
+            foreach (Tuple<SigningId, string> reference in _references)
             {
-                this._logger.Warn($"There is already a certificate configured ({this._certificate.FriendlyName}). This one will be overwritten.");
+                string hashFunction = reference.Item2;
+
+                strategy.AddXmlReference(reference.Item1.HeaderSecurityId, hashFunction);
+                strategy.AddXmlReference(reference.Item1.BodySecurityId, hashFunction);
             }
 
-            this._certificate = certificate;
-            return this;
+            foreach (Tuple<Attachment, string> attachmentReference in _attachmentReferences)
+            {
+                strategy.AddAttachmentReference(attachmentReference.Item1, attachmentReference.Item2);
+            }
+
+            return strategy;
         }
 
         /// <summary>
@@ -196,47 +111,138 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// <returns></returns>
         public SigningStrategyBuilder WithAttachment(Attachment attachment, string hashFunction)
         {
-            this._logger.Debug($"Signing with Attachment {attachment.Id} with Reference");
+            Logger.Debug($"Signing with Attachment {attachment.Id} with Reference");
 
-            this._attachmentReferences.Add(new Tuple<Attachment, string>(attachment, hashFunction));
+            _attachmentReferences.Add(new Tuple<Attachment, string>(attachment, hashFunction));
 
             return this;
         }
 
         /// <summary>
-        /// Build the Security Header
+        /// Add a <see cref="X509Certificate2" /> to the Security Header
         /// </summary>
+        /// <param name="certificate"></param>
         /// <returns></returns>
-        public ISigningStrategy Build()
+        public SigningStrategyBuilder WithCertificate(X509Certificate2 certificate)
         {
-            var strategy = new SigningStrategy(this._envelopeDocument, this._securityTokenReference);
+            Logger.Debug($"Using certificate {certificate.FriendlyName}");
 
-            if (this._signatureAlgorithm != null)
+            if (_certificate != null)
             {
-                // TODO: i believe that this is a mandatory item.
-                strategy.AddAlgorithm(this._signatureAlgorithm);
+                Logger.Warn(
+                    $"There is already a certificate configured ({_certificate.FriendlyName}). This one will be overwritten.");
             }
 
-            if (this._certificate != null)
+            _certificate = certificate;
+            return this;
+        }
+
+        /// <summary>
+        /// Add Security Token Reference to Security Header
+        /// </summary>
+        /// <param name="keyReferenceMethod"></param>
+        /// <returns></returns>
+        public SigningStrategyBuilder WithSecurityTokenReference(X509ReferenceType keyReferenceMethod)
+        {
+            Logger.Debug($"Signing with Signature Token Reference {keyReferenceMethod}");
+
+            _securityTokenReference = _tokenProvider.Get(keyReferenceMethod);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="SignatureAlgorithm"/> to Security Header based on the given <paramref name="signatureAlgorithmIdentifier"/>.
+        /// </summary>
+        /// <param name="signatureAlgorithmIdentifier">Identifier to define the <see cref="SignatureAlgorithm"/>.</param>
+        /// <returns></returns>
+        public SigningStrategyBuilder WithSignatureAlgorithm(string signatureAlgorithmIdentifier)
+        {
+            LogNewSignatureAlgorithm(signatureAlgorithmIdentifier);
+
+            _signatureAlgorithm = _algorithmProvider.Get(signatureAlgorithmIdentifier);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="SignatureAlgorithm"/> to the Security Header
+        /// </summary>
+        /// <param name="algorithm"><see cref="SignatureAlgorithm"/> to include inside the Security Header.</param>
+        /// <returns></returns>
+        public SigningStrategyBuilder WithSignatureAlgorithm(SignatureAlgorithm algorithm)
+        {
+            LogNewSignatureAlgorithm(algorithm.GetType().FullName);
+
+            _signatureAlgorithm = algorithm;
+
+            return this;
+        }
+
+        private void LogNewSignatureAlgorithm(string algorithm)
+        {
+            Logger.Debug($"Setting Signing Algorithm: {algorithm}");
+
+            if (_signatureAlgorithm != null)
             {
-                // TODO: certificate should be mandatory ?
-                strategy.AddCertificate(_certificate);
+                Logger.Warn(
+                    $"There is already a signature-algorithm configured ({_signatureAlgorithm.GetType().FullName}).  This one will be overwritten.");
+            }
+        }
+
+        /// <summary>
+        /// Add Signing Id to Security Header
+        /// </summary>
+        /// <param name="signingId"></param>
+        /// <param name="hashFunction"></param>
+        /// <returns></returns>
+        public SigningStrategyBuilder WithSigningId(SigningId signingId, string hashFunction)
+        {
+            Logger.Debug($"Signing HashFunction: {hashFunction}");
+
+            _references.Add(new Tuple<SigningId, string>(signingId, hashFunction));
+
+            return this;
+        }
+
+        private SignatureAlgorithm RetrieveSignatureAlgorithm(XmlDocument envelopeDocument)
+        {
+            SignatureAlgorithm algorithm = _algorithmProvider.Get(envelopeDocument);
+
+            Logger.Debug($"Verify with Signature Algorithm: {algorithm.GetIdentifier()}");
+            return algorithm;
+        }
+
+        private SecurityTokenReference RetrieveSigningSecurityTokenReference(XmlDocument envelopeDocument)
+        {
+            if (envelopeDocument == null)
+            {
+                throw new ArgumentNullException(nameof(envelopeDocument));
             }
 
-            foreach (var reference in this._references)
-            {
-                var hashFunction = reference.Item2;
+            XmlElement[] tokenNodes =
+                envelopeDocument.SelectNodes(@"//*[local-name()='Signature']//*[local-name()='SecurityTokenReference']")
+                                ?.OfType<XmlElement>().ToArray();
 
-                strategy.AddXmlReference(reference.Item1.HeaderSecurityId, hashFunction);
-                strategy.AddXmlReference(reference.Item1.BodySecurityId, hashFunction);
+            if (tokenNodes != null)
+            {
+                Logger.Info($"{tokenNodes.Length} Signature Tokens retrieved.");
+
+                XmlElement securityTokenElement = tokenNodes.FirstOrDefault();
+
+                if (securityTokenElement != null)
+                {
+                    SecurityTokenReference token = _tokenProvider.Get(securityTokenElement, SecurityTokenType.Signing);
+
+                    Logger.Debug($"Verify with Security Token Reference: {token.GetType().Name}");
+
+                    return token;
+                }
             }
 
-            foreach (var attachmentReference in this._attachmentReferences)
-            {
-                strategy.AddAttachmentReference(attachmentReference.Item1, attachmentReference.Item2);
-            }
-
-            return strategy;
+            throw AS4ExceptionBuilder.WithDescription("No Security Token Reference element found in given Xml Document")
+                                     .WithErrorCode(ErrorCode.Ebms0101)
+                                     .Build();
         }
     }
 }

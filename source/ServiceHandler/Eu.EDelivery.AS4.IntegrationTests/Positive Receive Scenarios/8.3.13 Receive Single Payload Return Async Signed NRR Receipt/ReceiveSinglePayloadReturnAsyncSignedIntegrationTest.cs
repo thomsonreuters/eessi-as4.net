@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._13
             this._holodeck = new Holodeck();
         }
 
-        [Fact(Skip = "Datastore is locked?")]
+        [Fact]
         public void ThenSendingSinglePayloadSucceeds()
         {
             // Before
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._13
             File.Copy(_holodeckMessagesPath, _destFileName);
 
             // Assert
-            bool areFilesFound = PollingAt(Properties.Resources.holodeck_A_input_path);
+            bool areFilesFound = PollingAt(Properties.Resources.holodeck_A_input_path, retryCount: 5000);
             if (areFilesFound)
             {
                 Console.WriteLine(@"Receive Single Payload Return Async Signed NRR Integration Test succeeded!");

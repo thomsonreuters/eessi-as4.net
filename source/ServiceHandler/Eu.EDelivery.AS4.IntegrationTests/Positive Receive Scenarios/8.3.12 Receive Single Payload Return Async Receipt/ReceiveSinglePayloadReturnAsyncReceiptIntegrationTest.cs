@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._12
             _holodeck = new Holodeck();
         }
 
-        [Fact(Skip = "Datastore is locked?")]
+        [Fact]
         public void ThenReceiveSinglePayloadReturnAsyncReceiptSucceeds()
         {
             // Before
