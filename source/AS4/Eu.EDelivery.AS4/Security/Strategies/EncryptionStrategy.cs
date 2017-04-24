@@ -105,9 +105,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public void AppendEncryptionElements(XmlElement securityElement)
         {
             if (securityElement == null)
+            {
                 throw new ArgumentNullException(nameof(securityElement));
+            }
             if (securityElement.OwnerDocument == null)
+            {
                 throw new ArgumentException(@"SecurityHeader needs to have an OwnerDocument", nameof(securityElement));
+            }
 
             XmlDocument securityDocument = securityElement.OwnerDocument;
 
@@ -204,7 +208,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)
         {
-            Stream encryptedStream = new VirtualStream();
+            Stream encryptedStream = VirtualStream.CreateVirtualStream(expectedSize: (secretStream.CanSeek) ? secretStream.Length : VirtualStream.ThresholdMax);
+
             var cryptoStream = new CryptoStream(encryptedStream, algorithm.CreateEncryptor(), CryptoStreamMode.Write);
             CipherMode origMode = algorithm.Mode;
             PaddingMode origPadding = algorithm.Padding;
@@ -368,7 +373,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             Attachment attachment = _attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
 
             Stream decryptedStream = DecryptData(encryptedData, attachment.Content, decryptAlgorithm);
-           
+
             var transformer = AttachmentTransformer.Create(encryptedData.Type);
 
             transformer.Transform(attachment, decryptedStream);
@@ -378,8 +383,8 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private Stream DecryptData(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)
         {
-            Stream decryptedStream = new VirtualStream();
-
+            Stream decryptedStream = VirtualStream.CreateVirtualStream(expectedSize: (encryptedTextStream.CanSeek) ? encryptedTextStream.Length : VirtualStream.ThresholdMax); 
+            
             // save the original symmetric algorithm
             CipherMode origMode = encryptionAlgorithm.Mode;
             PaddingMode origPadding = encryptionAlgorithm.Padding;
@@ -391,7 +396,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 decryptionIV = GetDecryptionIV(encryptedData, encryptedTextStream, null);
             }
-            
+
             if (decryptionIV != null)
             {
                 encryptionAlgorithm.IV = decryptionIV;
@@ -480,7 +485,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     // The decrypted data can contain MIME headers, therefore we'll need to parse
                     // the decrypted data as a MimePart, and make sure that the content is set correctly
                     // in the attachment.
-                    
+
                     var part = MimeEntity.Load(decryptedData) as MimePart;
 
                     if (part == null)
@@ -507,7 +512,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public override void Transform(Attachment attachment, Stream decryptedData)
                 {
-                    attachment.Content.Dispose();                    
+                    attachment.Content.Dispose();
                     attachment.Content = decryptedData;
                 }
             }

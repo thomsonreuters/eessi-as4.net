@@ -71,11 +71,11 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="inMessage"></param>
         /// <param name="bodyPersister"></param>
-        public void InsertInMessage(InMessage inMessage, IAS4MessageBodyPersister bodyPersister )
+        public void InsertInMessage(InMessage inMessage, IAS4MessageBodyPersister bodyPersister)
         {
             string messageLocation = bodyPersister.SaveAS4Message(inMessage.Message, CancellationToken.None);
             inMessage.MessageLocation = messageLocation;
-                        
+
             _dbContext.InMessages.Add(inMessage);
 
             inMessage.Message?.CloseAttachments();

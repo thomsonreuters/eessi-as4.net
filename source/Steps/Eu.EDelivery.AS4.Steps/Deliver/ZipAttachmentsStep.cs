@@ -55,6 +55,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private void ZipAttachments()
         {
             var stream = new VirtualStream();
+
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
             {
                 CreateAttachmentEntries(archive);

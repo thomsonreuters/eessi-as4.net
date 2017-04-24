@@ -30,14 +30,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public DecryptAS4MessageStep()
         {
-            this._certificateRepository = Registry.Instance.CertificateRepository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _certificateRepository = Registry.Instance.CertificateRepository;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public DecryptAS4MessageStep(ICertificateRepository certificateRepository)
         {
-            this._certificateRepository = certificateRepository;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _certificateRepository = certificateRepository;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -49,7 +49,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (internalMessage.AS4Message.IsSignalMessage)
+            {
                 return await StepResult.SuccessAsync(internalMessage);
+            }
 
             PreConditions(internalMessage);
 
@@ -89,7 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (isIgnored)
             {
-                this._logger.Info($"{internalMessage.Prefix} Decryption Receiving PMode {pmode.Id} is ignored");
+                _logger.Info($"{internalMessage.Prefix} Decryption Receiving PMode {pmode.Id} is ignored");
             }
 
             return isIgnored;
@@ -99,9 +101,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
+                _logger.Info($"{internalMessage.Prefix} Start decrypting AS4 Message ...");
                 IEncryptionStrategy strategy = CreateDecryptStrategy(internalMessage);
                 internalMessage.AS4Message.SecurityHeader.Decrypt(strategy);
-                this._logger.Info($"{internalMessage.Prefix} AS4 Message is decrypted correctly");
+                _logger.Info($"{internalMessage.Prefix} AS4 Message is decrypted correctly");
             }
             catch (Exception exception)
             {
@@ -141,7 +144,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message as4Message = internalMessage.AS4Message;
             description = internalMessage.Prefix + description;
-            this._logger.Error(description);
+            _logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
