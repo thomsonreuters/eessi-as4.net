@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult stepResult = await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                GetAssertAttachment(stepResult);
+                Assert.NotNull(stepResult.InternalMessage.AS4Message.Attachments.First().Content);
             }
 
             [Fact]
@@ -104,7 +104,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 var attachments = (IList<Attachment>)_internalMessage.AS4Message.Attachments;
 
-                foreach (Attachment a in attachments) a.ContentType = "not supported MIME type";
+                foreach (Attachment attachment1 in attachments)
+                {
+                    attachment1.ContentType = "not supported MIME type";
+                }
 
                 // Act
                 StepResult stepResult = await _step.ExecuteAsync(_internalMessage, CancellationToken.None);

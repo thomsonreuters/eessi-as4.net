@@ -49,7 +49,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies
             {
                 // Arrange
                 const string prefix = "file";
-                var mockedStrategy = new Mock<IPayloadRetriever>();
 
                 // Act / Assert
                 _provider.Accept(payload => payload.Location.StartsWith(prefix), null);

@@ -21,64 +21,48 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenExceptionTransformerFacts
     {
-        private readonly Mock<ISerializerProvider> _mockekdProvider;
-
         public GivenExceptionTransformerFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-            _mockekdProvider = new Mock<ISerializerProvider>();
-            _mockekdProvider.Setup(p => p.Get(It.IsAny<string>())).Returns(new SoapEnvelopeSerializer());
         }
 
         public class GivenValidArguments : GivenExceptionTransformerFacts
         {
-            [Fact]
-            public async Task ThenTransformSucceedsWithValidInExceptionAsync()
-            {
-                // Arrange
-                InException inException = CreateDefaultInException();
-                var receivedMessage = new ReceivedEntityMessage(inException);
-                var transformer = new ExceptionTransformer(_mockekdProvider.Object);
-
-                // Act
-                InternalMessage internalMessage = await transformer.TransformAsync(
-                                                      receivedMessage,
-                                                      CancellationToken.None);
-
-                // Assert
-                Assert.NotNull(internalMessage.AS4Message.PrimarySignalMessage);
-                Assert.NotNull(internalMessage.AS4Message.SendingPMode);
-                Assert.NotNull(internalMessage.AS4Message.EnvelopeDocument);
-            }
-
             [Fact]
             public async Task ThenTransformSucceedsWithValidInExceptionForErrorPropertiesAsync()
             {
                 // Arrange
                 InException inException = CreateDefaultInException();
                 var receivedMessage = new ReceivedEntityMessage(inException);
-                var transformer = new ExceptionTransformer(_mockekdProvider.Object);
+                var transformer = new ExceptionTransformer(CreateStubSerializerProvider());
 
                 // Act
-                InternalMessage internalMessage = await transformer.TransformAsync(
-                                                      receivedMessage,
-                                                      CancellationToken.None);
+                InternalMessage internalMessage = 
+                    await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
                 // Assert
-                var error = internalMessage.AS4Message.PrimarySignalMessage as Error;
-                Assert.NotNull(error);
+                var error = (Error) internalMessage.AS4Message.PrimarySignalMessage;
                 Assert.True(error.IsFormedByException);
                 Assert.Equal(inException.Exception, error.Exception.Message);
             }
 
-            private InException CreateDefaultInException()
+            private static InException CreateDefaultInException()
             {
                 return new InException
                 {
                     EbmsRefToMessageId = "ref-to-message-id",
                     Exception = "Test Exception description",
-                    PMode = AS4XmlSerializer.ToString(new ReceivingProcessingMode())
+                    PMode = Properties.Resources.receivingprocessingmode
                 };
+            }
+
+            private static ISerializerProvider CreateStubSerializerProvider()
+            {
+                var stubProvider = new Mock<ISerializerProvider>();
+
+                stubProvider.Setup(p => p.Get(It.IsAny<string>())).Returns(new SoapEnvelopeSerializer());
+
+                return stubProvider.Object;
             }
         }
 

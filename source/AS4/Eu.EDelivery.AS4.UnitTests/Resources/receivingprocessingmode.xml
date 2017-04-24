@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<PMode xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="eu:edelivery:as4:pmode">
+  <Mep>OneWay</Mep>
+  <MepBinding>Pull</MepBinding>
+  <Reliability>
+    <DuplicateElimination>
+      <IsEnabled>false</IsEnabled>
+    </DuplicateElimination>
+  </Reliability>
+  <ReceiptHandling>
+    <UseNNRFormat>false</UseNNRFormat>
+    <ReplyPattern>Response</ReplyPattern>
+  </ReceiptHandling>
+  <ErrorHandling>
+    <UseSoapFault>false</UseSoapFault>
+    <ReplyPattern>Response</ReplyPattern>
+    <ResponseHttpCode>0</ResponseHttpCode>
+  </ErrorHandling>
+  <ExceptionHandling>
+    <NotifyMessageConsumer>false</NotifyMessageConsumer>
+    <NotifyMethod />
+  </ExceptionHandling>
+  <Security>
+    <SigningVerification>
+      <Signature>Allowed</Signature>
+    </SigningVerification>
+    <Decryption>
+      <Encryption>Allowed</Encryption>
+    </Decryption>
+  </Security>
+  <MessagePackaging />
+  <Deliver>
+    <IsEnabled>false</IsEnabled>
+    <PayloadReferenceMethod />
+    <DeliverMethod />
+  </Deliver>
+</PMode>

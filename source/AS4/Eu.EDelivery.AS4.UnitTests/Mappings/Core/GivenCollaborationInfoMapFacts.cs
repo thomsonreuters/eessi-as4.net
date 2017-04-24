@@ -13,16 +13,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
         public void SucceedsFromXmlToCore_IfAgreementRefIsFilled()
         {
             // Arrange
+            const string expectedRef = "http://agreements.holodeckb2b.org/examples/agreement1";
             var expectedInfo = new Xml.CollaborationInfo
             {
-                AgreementRef = new Xml.AgreementRef {Value = "http://agreements.holodeckb2b.org/examples/agreement1"}
+                AgreementRef = new Xml.AgreementRef {Value = expectedRef}
             };
 
             // Act
             var actualInfo = AS4Mapper.Map<AS4.Model.Core.CollaborationInfo>(expectedInfo);
 
             // Assert
-            Assert.Equal(expectedInfo.AgreementRef.Value, actualInfo.AgreementReference.Value);
+            Assert.Equal(expectedRef, actualInfo.AgreementReference.Value);
         }
 
         [Fact]
