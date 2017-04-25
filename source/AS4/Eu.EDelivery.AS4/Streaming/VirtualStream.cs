@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Streaming
     public sealed class VirtualStream : Stream, ICloneable
     {
         public const int ThresholdMax = ThresholdSize.FiftyMegabytes;
-        public const int DefaultBufferSize = 10240;
+        public const int DefaultBufferSize = 8192;
 
         private bool _isDisposed;
         private bool _isInMemory;
@@ -94,7 +94,9 @@ namespace Eu.EDelivery.AS4.Streaming
         {
             if (expectedSize > thresholdSize)
             {
-                return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, CreatePersistentStream(DefaultBufferSize));
+                int bufferSize = (expectedSize > ThresholdSize.FiftyMegabytes) ? 204_800 : DefaultBufferSize;
+
+                return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, CreatePersistentStream(bufferSize));
             }
 
             return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(DefaultBufferSize));
