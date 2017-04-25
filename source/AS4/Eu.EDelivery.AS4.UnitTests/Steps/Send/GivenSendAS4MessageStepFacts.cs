@@ -15,7 +15,6 @@ using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Http;
 using Eu.EDelivery.AS4.UnitTests.Model.Core;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -25,7 +24,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     /// </summary>
     public class GivenSendAS4MessageStepFacts : GivenDatastoreFacts
     {
-        private static readonly string SharedUrl = UniqueHost.Create();
         private readonly Func<DatastoreContext> _inMemoryDatastore;
 
         /// <summary>
@@ -145,8 +143,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             return new SendingProcessingMode
             {
-                PullConfiguration = new PullConfiguration {Protocol = {Url = SharedUrl}},
-                PushConfiguration = new PushConfiguration { Protocol = {Url = SharedUrl}},
+                PullConfiguration = new PullConfiguration {Protocol = {Url = "http://ignored/path"}},
+                PushConfiguration = new PushConfiguration { Protocol = {Url = "http://ignored/path"}},
                 Reliability = {ReceptionAwareness = {IsEnabled = true}}
             };
         }

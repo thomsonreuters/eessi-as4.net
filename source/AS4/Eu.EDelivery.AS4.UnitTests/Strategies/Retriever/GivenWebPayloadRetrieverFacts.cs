@@ -3,49 +3,52 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Strategies.Retriever;
-using Eu.EDelivery.AS4.UnitTests.Http;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
-using SimpleHttpMock;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
 {
     public class GivenWebPayloadRetrieverFacts
     {
-        private static readonly string SharedUrl = UniqueHost.Create();
-
         [Fact]
         public async Task ThenDownloadPayloadSucceeds()
         {
-            const string expectedPayload = "message data!";
-            var retriever = new HttpPayloadRetriever();
+            // Arrange
+            const string expectedPayload = "message data!", location = "http://ignored/path";
+            var retriever = new HttpPayloadRetriever(request => RespondWithContent(expectedPayload));
 
-            using (CreateStubServerThatReturns(expectedPayload))
-            using (var streamReader = new StreamReader(await retriever.RetrievePayloadAsync(SharedUrl)))
+            // Act
+            using (var streamReader = new StreamReader(await retriever.RetrievePayloadAsync(location)))
             {
+                // Assert
                 string actualPayload = streamReader.ReadToEnd();
                 Assert.Equal(expectedPayload, actualPayload);
             }
         }
 
+        private static Task<HttpResponseMessage> RespondWithContent(string expectedPayload)
+        {
+            var response = new HttpResponseMessage {Content = new StringContent(expectedPayload)};
+            return Task.FromResult(response);
+        }
+
         [Fact]
         public async Task ThenDownloadFailed_IfReturnCodeIsntSuccessful()
         {
-            var retriever = new HttpPayloadRetriever();
+            // Arrange
+            const string location = "http://ignored/path";
+            var retriever = new HttpPayloadRetriever(request => RespondWithStatusCode(HttpStatusCode.BadGateway));
 
-            using (CreateStubServerThatReturns(content: null, statusCode: HttpStatusCode.BadGateway))
-            {
-                Assert.Equal(Stream.Null, await retriever.RetrievePayloadAsync(SharedUrl));
-            }
+            // Act
+            Stream actualPayload = await retriever.RetrievePayloadAsync(location);
+
+            // Assert
+            Assert.Equal(Stream.Null, actualPayload);
         }
 
-        private static MockedHttpServer CreateStubServerThatReturns(string content, HttpStatusCode statusCode = HttpStatusCode.OK)
+        private static Task<HttpResponseMessage> RespondWithStatusCode(HttpStatusCode statusCode)
         {
-            var builder = new MockedHttpServerBuilder();
-
-            builder.WhenGet(SharedUrl).RespondContent(statusCode, request => new StringContent(content));
-
-            return builder.Build(SharedUrl);
+            var response = new HttpResponseMessage(statusCode);
+            return Task.FromResult(response);
         }
     }
 }

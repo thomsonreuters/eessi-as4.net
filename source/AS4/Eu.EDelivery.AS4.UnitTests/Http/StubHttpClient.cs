@@ -36,12 +36,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
             _expectedStatusCode = expectedStatusCode;
         }
 
+        public bool IsCalled { get; private set; }
+
         /// <summary>
         /// Creates a <see cref="StubHttpClient"/> that returns an empty response with a given status code
         /// </summary>
         /// <param name="statusCode"></param>
         /// <returns></returns>
-        public static IHttpClient ThatReturns(HttpStatusCode statusCode) => new StubHttpClient(statusCode);
+        public static StubHttpClient ThatReturns(HttpStatusCode statusCode) => new StubHttpClient(statusCode);
 
         /// <summary>
         /// Creates a <see cref="StubHttpClient"/> that returns a filled body with 
@@ -62,6 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
             var request = new Mock<HttpWebRequest>();
 
             request.Setup(r => r.GetRequestStreamAsync()).ReturnsAsync(Stream.Null);
+            request.Setup(r => r.GetRequestStream()).Returns(Stream.Null);
 
             return request.Object;
         }
@@ -73,6 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
         /// <returns></returns>
         public Task<(HttpWebResponse response, WebException exception)> Respond(HttpWebRequest request)
         {
+            IsCalled = true;
             var response = new Mock<HttpWebResponse>();
 
             if (_expectedMessage != null)

@@ -12,6 +12,21 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
     public class HttpPayloadRetriever : IPayloadRetriever
     {
         private static readonly HttpClient HttpClient = new HttpClient();
+        private readonly Func<HttpRequestMessage, Task<HttpResponseMessage>> _sendRequest;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpPayloadRetriever" /> class.
+        /// </summary>
+        public HttpPayloadRetriever() : this(HttpClient.SendAsync) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpPayloadRetriever" /> class.
+        /// </summary>
+        /// <param name="sendRequest"></param>
+        public HttpPayloadRetriever(Func<HttpRequestMessage, Task<HttpResponseMessage>> sendRequest)
+        {
+            _sendRequest = sendRequest;
+        }
 
         /// <summary>
         /// Retrieve the payload from the given location
@@ -33,11 +48,12 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// There is an invalid character sequence in <paramref name="location" />.-or- The MS-DOS path specified in
         /// <paramref name="location" /> must start with c:\\.
         /// </exception>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<Stream> RetrievePayloadAsync(string location)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(location));
 
-            HttpResponseMessage response = await HttpClient.SendAsync(request);
+            HttpResponseMessage response = await _sendRequest(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
