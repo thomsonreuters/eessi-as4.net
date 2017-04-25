@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -24,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage" />
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public void Send(DeliverMessageEnvelope deliverMessage)
+        public Task SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             throw new SaboteurException("Sabotage 'Deliver' Send");
         }
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// Start sending the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="notifyMessage"></param>
-        public void Send(NotifyMessageEnvelope notifyMessage)
+        public Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             throw new SaboteurException("Sabotage 'Notify' Send");
         }

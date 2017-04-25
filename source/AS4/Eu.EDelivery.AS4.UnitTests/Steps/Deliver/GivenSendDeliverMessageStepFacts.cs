@@ -53,8 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                base._mockedSender.Verify(s
-                    => s.Send(It.IsAny<DeliverMessageEnvelope>()), Times.Once);
+                base._mockedSender.Verify(s => s.SendAsync(It.IsAny<DeliverMessageEnvelope>()), Times.Once);
             }
 
             private static ReceivingProcessingMode CreateDefaultReceivingPMode()
@@ -85,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             private void SetupFailedDeliverSender()
             {
                 base._mockedSender
-                    .Setup(s => s.Send(It.IsAny<DeliverMessageEnvelope>()))
+                    .Setup(s => s.SendAsync(It.IsAny<DeliverMessageEnvelope>()))
                     .Throws(new AS4Exception("Failed to send Deliver Message"));
                 base._step = new SendDeliverMessageStep(base._mockedProvider.Object);
             }

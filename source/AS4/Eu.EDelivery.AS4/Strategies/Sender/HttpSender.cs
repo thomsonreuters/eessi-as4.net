@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage" />
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async void Send(DeliverMessageEnvelope deliverMessage)
+        public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             Logger.Info($"Send Deliver {deliverMessage.MessageInfo.MessageId} to {_destinationUri}");
 
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="NotifyMessage" />
         /// </summary>
         /// <param name="notifyMessage"></param>
-        public async void Send(NotifyMessageEnvelope notifyMessage)
+        public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {_destinationUri}");
 

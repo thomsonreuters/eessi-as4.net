@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                _mockedSender.Verify(s => s.Send(It.IsAny<NotifyMessageEnvelope>()), Times.AtLeastOnce);
+                _mockedSender.Verify(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>()), Times.AtLeastOnce);
             }
 
             [Fact]
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                _mockedSender.Verify(s => s.Send(It.IsAny<NotifyMessageEnvelope>()));
+                _mockedSender.Verify(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>()));
             }
         }
 
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void SetupFailedNotifySender()
             {
-                _mockedSender.Setup(s => s.Send(It.IsAny<NotifyMessageEnvelope>())).Throws<Exception>();
+                _mockedSender.Setup(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>())).Throws<Exception>();
                 _step = new SendNotifyMessageStep(_mockedProvider.Object);
             }
         }
