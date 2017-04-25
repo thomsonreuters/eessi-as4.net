@@ -30,6 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly ICertificateRepository _repository;
         private readonly IAS4ResponseHandler _responseHandler;
         private readonly Func<DatastoreContext> _createDatastore;
+        private readonly IHttpClient _httpClient;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private AS4Message _originalAS4Message;
@@ -37,23 +38,28 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
-        public SendAS4MessageStep() : this(Registry.Instance.SerializerProvider, Registry.Instance.CreateDatastoreContext) { }
-
-        /// <summary>Initializes a new instance of the <see cref="SendAS4MessageStep"/> class.</summary>
-        /// <param name="createDatastore">The create Datastore.</param>
-        public SendAS4MessageStep(Func<DatastoreContext> createDatastore) : this(Registry.Instance.SerializerProvider, createDatastore) { }
+        public SendAS4MessageStep() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
         /// Create a Send AS4Message Step
         /// with a given Serializer Provider
         /// </summary>
-        /// <param name="provider"></param>
         /// <param name="createDatastore"></param>
-        public SendAS4MessageStep(ISerializerProvider provider, Func<DatastoreContext> createDatastore)
+        public SendAS4MessageStep(Func<DatastoreContext> createDatastore)
+            : this(createDatastore, new ReliableHttpClient()) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
+        /// </summary>
+        /// <param name="createDatastore">Delegate to create a new context.</param>
+        /// <param name="client">Instance to handle the HTTP response.</param>
+        public SendAS4MessageStep(Func<DatastoreContext> createDatastore, IHttpClient client)
         {
-            _provider = provider;
             _createDatastore = createDatastore;
+            _httpClient = client;
+
+            _provider = Registry.Instance.SerializerProvider;
             _responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
             _repository = Registry.Instance.CertificateRepository;
         }
@@ -116,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             ISendConfiguration sendConfiguration = GetSendConfigurationFrom(as4Message);
 
-            HttpWebRequest request = HttpRequestFactory.CreatePostRequest(sendConfiguration.Protocol.Url, as4Message.ContentType);
+            HttpWebRequest request = _httpClient.Request(sendConfiguration.Protocol.Url, as4Message.ContentType);
 
             AssignClientCertificate(sendConfiguration.TlsConfiguration, request);
 
@@ -181,32 +187,25 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
 
         private async Task<StepResult> TryHandleHttpResponseAsync(
-            WebRequest request,
+            HttpWebRequest request,
             InternalMessage internalMessage,
             CancellationToken cancellationToken)
         {
-            try
+            Logger.Debug(
+                $"AS4 Message received from: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
+
+            // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
+            // we've sent the message, so update the status to sent.
+            UpdateMessageStatus(_originalAS4Message, Operation.Sent, OutStatus.Sent);
+
+            (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request);
+
+            if (response.webResponse != null && ContentTypeSupporter.IsContentTypeSupported(response.webResponse.ContentType))
             {
-                Logger.Debug($"AS4 Message received from: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
-
-                // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
-                // we've sent the message, so update the status to sent.
-                UpdateMessageStatus(_originalAS4Message, Operation.Sent, OutStatus.Sent);
-
-                using (WebResponse webResponse = await request.GetResponseAsync().ConfigureAwait(false))
-                {
-                    return await HandleAS4Response(internalMessage, webResponse, cancellationToken);
-                }
+                return await HandleAS4Response(internalMessage, response.webResponse, cancellationToken);
             }
-            catch (WebException exception)
-            {
-                if (exception.Response != null && ContentTypeSupporter.IsContentTypeSupported(exception.Response.ContentType))
-                {
-                    return await HandleAS4Response(internalMessage, exception.Response, cancellationToken);
-                }
 
-                throw CreateFailedSendAS4Exception(internalMessage, exception);
-            }
+            throw CreateFailedSendAS4Exception(internalMessage, response.exception);
         }
 
         private void UpdateMessageStatus(AS4Message as4Message, Operation operation, OutStatus status)

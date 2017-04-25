@@ -126,7 +126,21 @@ namespace Eu.EDelivery.AS4.Entities
 
             IAS4MessageBodyRetriever repository = retrieverProvider.Get(MessageLocation);
 
-            return repository.LoadAS4MessageStream(MessageLocation);
+            return TryLoadMessageStream(repository);
+        }
+
+        private Stream TryLoadMessageStream(IAS4MessageBodyRetriever repository)
+        {
+            try
+            {
+                return repository.LoadAS4MessageStream(MessageLocation);
+            }
+            catch (Exception exception)
+            {
+                LogManager.GetCurrentClassLogger().Error(exception.Message);
+
+                return Stream.Null;
+            }
         }
     }
 }

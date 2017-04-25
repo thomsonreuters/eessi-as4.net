@@ -236,6 +236,9 @@
       <HintPath>..\..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
       <Private>True</Private>
@@ -291,7 +294,9 @@
     <Compile Include="Extensions\GivenIDictionaryExtensionFacts.cs" />
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
+    <Compile Include="Http\GivenReliableHttpClientFacts.cs" />
     <Compile Include="Http\SpyHttpServer.cs" />
+    <Compile Include="Http\StubHttpClient.cs" />
     <Compile Include="Http\UniqueUrl.cs" />
     <Compile Include="Mappings\Core\GivenAgreementRefMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenCollaborationInfoMapFacts.cs" />
@@ -336,10 +341,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
-    <Compile Include="Receivers\GivenHttpReceiverFacts.cs" />
     <Compile Include="Receivers\GivenPollingReceiverFacts.cs" />
     <Compile Include="Receivers\StubValidPollingTemplate.cs" />
     <Compile Include="Receivers\StubInvalidPollingTemplate.cs" />
+    <Compile Include="Repositories\SaboteurMessageBodyRetriever.cs" />
     <Compile Include="Repositories\StubMessageBodyPersister.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
       <AutoGen>True</AutoGen>

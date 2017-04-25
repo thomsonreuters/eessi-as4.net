@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
         /// <param name="url"></param>
         /// <param name="statusCode">The HTTP Status Code.</param>
         /// <returns></returns>
-        public static SpyHttpServer CreateWith(string url, HttpStatusCode statusCode)
+        public static SpyHttpServer SpyOn(string url, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             var builder = new MockedHttpServerBuilder();
             var spyServer = new SpyHttpServer();
