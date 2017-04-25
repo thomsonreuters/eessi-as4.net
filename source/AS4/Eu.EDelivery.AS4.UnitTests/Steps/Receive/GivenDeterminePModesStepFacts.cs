@@ -8,7 +8,6 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
-using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Steps.Participant;
@@ -271,19 +270,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         protected void SetupPModes(params PMode[] pmodes)
         {
             _mockedConfig.Setup(c => c.GetReceivingPModes()).Returns(pmodes);
-        }
-
-        internal void AssertServiceAction(string action, PModeParticipant participant, int point = 3)
-        {
-            CollaborationInfo collaborationInfo = participant.PMode.MessagePackaging.CollaborationInfo;
-            if (collaborationInfo != null && collaborationInfo.Action.Equals(action)) Assert.Equal(point, participant.Points);
-        }
-
-        internal void AssertAgreementRef(AgreementReference agreementRef, PModeParticipant participant)
-        {
-            AgreementReference pmodeAgreementRef =
-                participant.PMode.MessagePackaging.CollaborationInfo?.AgreementReference;
-            if (pmodeAgreementRef != null && pmodeAgreementRef.Equals(agreementRef)) Assert.Equal(4, participant.Points);
         }
 
         protected PMode CreatePModeWithAgreementRef(AgreementReference agreementRef)

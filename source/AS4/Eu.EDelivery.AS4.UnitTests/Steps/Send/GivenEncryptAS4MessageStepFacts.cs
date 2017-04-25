@@ -81,17 +81,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        protected Task<AS4Message> GetEncryptedAS4MessageAsync()
-        {
-            Stream inputStream = new MemoryStream(Properties.Resources.as4_encrypted_message);
-            var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-
-            return serializer.DeserializeAsync(
-                inputStream,
-                "multipart/related; boundary=\"MIMEBoundary_64ed729f813b10a65dfdc363e469e2206ff40c4aa5f4bd11\"",
-                CancellationToken.None);
-        }
-
         protected AS4Message CreateEncryptedAS4Message()
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));

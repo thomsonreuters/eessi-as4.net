@@ -337,9 +337,6 @@
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
     <Compile Include="Receivers\GivenHttpReceiverFacts.cs" />
-    <Compile Include="Receivers\GivenPollingReceiverFacts.cs" />
-    <Compile Include="Receivers\StubValidPollingTemplate.cs" />
-    <Compile Include="Receivers\StubInvalidPollingTemplate.cs" />
     <Compile Include="Repositories\StubMessageBodyPersister.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
       <AutoGen>True</AutoGen>
