@@ -79,29 +79,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     new Setting("Value", "ToBeSend"), new Setting("Update", "Sending")
                 };
             }
-
-            [Fact]
-            public void ThenStartReceivingSucceeds()
-            {
-                // Arrange
-                var source = new CancellationTokenSource();
-
-                // Act
-                _receiver.StartReceiving((message, token) => AssertOnReceivedMessage(message, source), source.Token);
-            }
-
-            private static Task<InternalMessage> AssertOnReceivedMessage(
-                ReceivedMessage message,
-                CancellationTokenSource source)
-            {
-                // Assert
-                Assert.NotNull(message);
-                Assert.IsType<ReceivedMessageEntityMessage>(message);
-                Assert.NotNull(message.RequestStream);
-
-                source.Cancel();
-                return Task.FromResult(NullInternalMessage.Instance);
-            }
         }
     }
 }
