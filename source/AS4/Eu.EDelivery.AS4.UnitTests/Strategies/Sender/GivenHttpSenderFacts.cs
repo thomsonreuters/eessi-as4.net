@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             string sharedUrl = UniqueHost.Create();
             httpSender.Configure(new LocationMethod(sharedUrl));
 
-            using (SpyHttpServer spyServer = SpyHttpServer.CreateWith(sharedUrl, HttpStatusCode.Accepted))
+            using (SpyHttpServer spyServer = SpyHttpServer.SpyOn(sharedUrl, HttpStatusCode.Accepted))
             {
                 // Act
                 httpSender.Send(CreateAnonymousDeliverEnvelope());
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             string sharedUrl = UniqueHost.Create();
             sut.Configure(new LocationMethod(sharedUrl));
 
-            using (SpyHttpServer spyServer = SpyHttpServer.CreateWith(sharedUrl, HttpStatusCode.OK))
+            using (SpyHttpServer spyServer = SpyHttpServer.SpyOn(sharedUrl))
             {
                 // Act
                 sut.Send(CreateAnonymousNotifyEnvelope());
