@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         public InternalMessage OriginalRequest { get; }
 
         /// <summary>
-        /// 
+        /// Create a new <see cref="AS4Response"/> instance.
         /// </summary>
         /// <param name="requestMessage"></param>
         /// <param name="webResponse"></param>

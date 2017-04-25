@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 ReceivedMessage receivedMessage,
                 CancellationToken cancellationToken)
             {
-                var actualPMode = AS4XmlSerializer.Deserialize<SendingProcessingMode>(receivedMessage.RequestStream);
+                var actualPMode = AS4XmlSerializer.FromStream<SendingProcessingMode>(receivedMessage.RequestStream);
                 Assert.Equal("01-pmode", actualPMode.Id);
 
                 if (_seriewatch.TrackSerie(maxSerieCount: 3))

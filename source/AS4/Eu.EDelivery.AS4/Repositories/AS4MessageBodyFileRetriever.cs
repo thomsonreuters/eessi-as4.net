@@ -18,7 +18,11 @@ namespace Eu.EDelivery.AS4.Repositories
 
     public interface IAS4MessageBodyRetriever
     {
+        /// <summary>
+        /// Loads a <see cref="Stream"/> at a given stored <paramref name="location"/>.
+        /// </summary>
+        /// <param name="location">The location on which the <see cref="Stream"/> is stored.</param>
+        /// <returns></returns>
         Stream LoadAS4MessageStream(string location);
     }
-
 }

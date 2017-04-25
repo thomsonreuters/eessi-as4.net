@@ -1,61 +1,47 @@
-﻿using System;
-using System.IO;
-using System.Net;
+﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Strategies.Uploader;
-using Eu.EDelivery.AS4.UnitTests.Http;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Method;
 using Newtonsoft.Json;
-using SimpleHttpMock;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
 {
     public class GivenPayloadServiceAttachmentUploaderFacts
     {
-        private static readonly string SharedUrl = UniqueHost.Create();
-
         [Fact]
         public async Task ThenUploadAttachmentSucceeds()
         {
             // Arrange
-            var uploader = new PayloadServiceAttachmentUploader();
-            uploader.Configure(new LocationMethod(SharedUrl));
             UploadResult expectedResult = CreateAnonymousUploadResult();
+            var uploader = new PayloadServiceAttachmentUploader((uri, content) => PostRequest(expectedResult));
+            uploader.Configure(new LocationMethod(null));
 
-            using (UseStubbedHttpServerThatReturns(expectedResult))
-            {
-                // Act
-                UploadResult actualResult = await uploader.Upload(CreateAnonymousAttachment());
+            // Act
+            UploadResult actualResult = await uploader.Upload(CreateAnonymousAttachment());
 
-                // Assert
-                Assert.Equal(expectedResult, actualResult);
-            }
+            // Assert
+            Assert.Equal(expectedResult, actualResult);
         }
 
-        private static IDisposable UseStubbedHttpServerThatReturns(UploadResult expectedResult)
+        private static Task<HttpResponseMessage> PostRequest(UploadResult expectedResult)
         {
-            var builder = new MockedHttpServerBuilder();
+            var response = new HttpResponseMessage
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(expectedResult))
+            };
 
-            builder.WhenPost(SharedUrl).RespondContent(
-                HttpStatusCode.OK,
-                request =>
-                {
-                    string serializedContent = JsonConvert.SerializeObject(expectedResult);
-                    return new StringContent(serializedContent);
-                });
-
-            return builder.Build(SharedUrl);
+            return Task.FromResult(response);
         }
 
         [Fact]
         public async Task ThenUploadAttachmentFails_IfPayloadServiceIsNotRunning()
         {
             var uploader = new PayloadServiceAttachmentUploader();
-            uploader.Configure(new LocationMethod(SharedUrl));
+            uploader.Configure(new LocationMethod(null));
 
             await Assert.ThrowsAsync<AS4Exception>(() => uploader.Upload(CreateAnonymousAttachment()));
         }

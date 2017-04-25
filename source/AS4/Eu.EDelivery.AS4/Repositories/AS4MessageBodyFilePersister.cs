@@ -9,12 +9,14 @@ namespace Eu.EDelivery.AS4.Repositories
 {
     internal class AS4MessageBodyFilePersister : IAS4MessageBodyPersister
     {
-        private readonly string _storeLocation;
         private readonly ISerializerProvider _provider;
+        private readonly string _storeLocation;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4MessageBodyFilePersister"/> class.
         /// </summary>
+        /// <param name="storeLocation">The store Location.</param>
+        /// <param name="provider">The provider.</param>
         public AS4MessageBodyFilePersister(string storeLocation, ISerializerProvider provider)
         {
             _storeLocation = storeLocation;
@@ -35,18 +37,18 @@ namespace Eu.EDelivery.AS4.Repositories
 
             string messageId = message.GetPrimaryMessageId();
 
-            if (String.IsNullOrWhiteSpace(messageId))
+            if (string.IsNullOrWhiteSpace(messageId))
             {
                 throw new AS4Exception("The AS4Message to store has no Primary Message Id");
             }
 
             string fileName = Path.Combine(_storeLocation, $"{messageId}.as4");
 
-            if (!File.Exists((fileName)))
+            if (!File.Exists(fileName))
             {
-                using (var fs = File.Create(fileName))
+                using (FileStream fs = File.Create(fileName))
                 {
-                    var serializer = _provider.Get(message.ContentType);
+                    ISerializer serializer = _provider.Get(message.ContentType);
                     serializer.Serialize(message, fs, cancellationToken);
                 }
             }
@@ -59,5 +61,4 @@ namespace Eu.EDelivery.AS4.Repositories
     {
         string SaveAS4Message(AS4Message message, CancellationToken cancellationToken);
     }
-
 }

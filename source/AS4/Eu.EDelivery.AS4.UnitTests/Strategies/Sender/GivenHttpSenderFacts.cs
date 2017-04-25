@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -18,18 +19,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         public void ThenUploadPayloadSucceeds_IfDeliverMessage()
         {
             // Arrange
-            var httpSender = new HttpSender();
-            string sharedUrl = UniqueHost.Create();
-            httpSender.Configure(new LocationMethod(sharedUrl));
+            StubHttpClient spyClient = StubHttpClient.ThatReturns(HttpStatusCode.OK);
+            var httpSender = new HttpSender(spyClient);
+            httpSender.Configure(new LocationMethod("ignored location"));
 
-            using (SpyHttpServer spyServer = SpyHttpServer.CreateWith(sharedUrl, HttpStatusCode.Accepted))
-            {
-                // Act
-                httpSender.Send(CreateAnonymousDeliverEnvelope());
+            // Act
+            httpSender.Send(CreateAnonymousDeliverEnvelope());
 
-                // Assert
-                Assert.True(spyServer.IsCalled);
-            }
+            // Assert
+            Assert.True(spyClient.IsCalled);
         }
 
         private static DeliverMessageEnvelope CreateAnonymousDeliverEnvelope()
@@ -41,18 +39,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         public void ThenUploadPaloadSucceeds_IfNotifyMessage()
         {
             // Arrange
-            var sut = new HttpSender();
-            string sharedUrl = UniqueHost.Create();
-            sut.Configure(new LocationMethod(sharedUrl));
+            StubHttpClient spyClient = StubHttpClient.ThatReturns(HttpStatusCode.OK);
+            var sut = new HttpSender(spyClient);
+            sut.Configure(new LocationMethod("ignored location"));
 
-            using (SpyHttpServer spyServer = SpyHttpServer.CreateWith(sharedUrl, HttpStatusCode.OK))
-            {
-                // Act
-                sut.Send(CreateAnonymousNotifyEnvelope());
+            // Act
+            sut.Send(CreateAnonymousNotifyEnvelope());
 
-                // Assert
-                Assert.True(spyServer.IsCalled);
-            }
+            // Assert
+            Assert.True(spyClient.IsCalled);
         }
 
         private static NotifyMessageEnvelope CreateAnonymousNotifyEnvelope()

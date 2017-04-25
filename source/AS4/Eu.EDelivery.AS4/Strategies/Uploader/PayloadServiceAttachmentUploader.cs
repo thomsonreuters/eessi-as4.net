@@ -16,7 +16,22 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private static readonly HttpClient HttpClient = new HttpClient();
+        private readonly Func<string, HttpContent, Task<HttpResponseMessage>> _postRequest;
         private string _location;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PayloadServiceAttachmentUploader"/> class.
+        /// </summary>
+        public PayloadServiceAttachmentUploader() : this(HttpClient.PostAsync) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PayloadServiceAttachmentUploader" /> class.
+        /// </summary>
+        /// <param name="postRequest"></param>
+        public PayloadServiceAttachmentUploader(Func<string, HttpContent, Task<HttpResponseMessage>> postRequest)
+        {
+            _postRequest = postRequest;
+        }
 
         /// <summary>
         /// Configure the <see cref="IAttachmentUploader" />
@@ -51,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         {
             var form = new MultipartFormDataContent {{new StreamContent(attachment.Content), attachment.Id, attachment.Id}};
 
-            HttpResponseMessage response = await HttpClient.PostAsync(_location, form);
+            HttpResponseMessage response = await _postRequest(_location, form);
             Logger.Info($"Upload Attachment returns HTTP Status Code: {response.StatusCode}");
 
             return response;
