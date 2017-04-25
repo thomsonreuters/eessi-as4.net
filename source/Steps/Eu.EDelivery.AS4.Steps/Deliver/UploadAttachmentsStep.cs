@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             IAttachmentUploader uploader = _provider.Get(payloadReferenceMethod.Type);
             uploader.Configure(payloadReferenceMethod);
-            UploadResult attachmentResult = await uploader.Upload(attachment);
+            UploadResult attachmentResult = await uploader.UploadAsync(attachment);
 
             attachment.Location = attachmentResult.DownloadUrl;
         }

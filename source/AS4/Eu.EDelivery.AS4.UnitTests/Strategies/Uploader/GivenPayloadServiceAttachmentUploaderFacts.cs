@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             uploader.Configure(new LocationMethod(null));
 
             // Act
-            UploadResult actualResult = await uploader.Upload(CreateAnonymousAttachment());
+            UploadResult actualResult = await uploader.UploadAsync(CreateAnonymousAttachment());
 
             // Assert
             Assert.Equal(expectedResult, actualResult);
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             var uploader = new PayloadServiceAttachmentUploader();
             uploader.Configure(new LocationMethod(null));
 
-            await Assert.ThrowsAsync<AS4Exception>(() => uploader.Upload(CreateAnonymousAttachment()));
+            await Assert.ThrowsAsync<AS4Exception>(() => uploader.UploadAsync(CreateAnonymousAttachment()));
         }
 
         private static UploadResult CreateAnonymousUploadResult()
