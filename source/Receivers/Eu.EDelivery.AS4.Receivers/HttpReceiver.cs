@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Receivers
             RequestHandler handler = RequestHandler.GetHandler(context.Request);
             HttpListenerContentResult handleResult = await handler.ExecuteAsync(context.Request, messageCallback);
 
-            handleResult.ExecuteResult(context.Response);
+            await handleResult.ExecuteResultAsync(context.Response);
 
             context.Response.Close();
         }
@@ -209,7 +209,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             private static async Task<ReceivedMessage> CreateReceivedMessage(HttpListenerRequest request)
             {
-                if (request.ContentLength64 > VirtualStream.ThresholdMax) 
+                if (request.ContentLength64 > VirtualStream.ThresholdMax)
                 {
                     VirtualStream str = new VirtualStream(VirtualStream.MemoryFlag.OnlyToDisk);
                     await request.InputStream.CopyToAsync(str);
@@ -432,20 +432,20 @@ namespace Eu.EDelivery.AS4.Receivers
             /// Handeling the <see cref="HttpListenerResponse"/>.
             /// </summary>
             /// <param name="response"></param>
-            public void ExecuteResult(HttpListenerResponse response)
+            public async Task ExecuteResultAsync(HttpListenerResponse response)
             {
                 response.StatusCode = (int)_statusCode;
                 response.ContentType = _contentType;
                 response.KeepAlive = false;
 
-                ExecuteResultCore(response);
+                await ExecuteResultAsyncCore(response);
             }
 
             /// <summary>
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected abstract void ExecuteResultCore(HttpListenerResponse response);
+            protected abstract Task ExecuteResultAsyncCore(HttpListenerResponse response);
         }
 
         private class ByteContentResult : HttpListenerContentResult
@@ -471,10 +471,10 @@ namespace Eu.EDelivery.AS4.Receivers
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected override void ExecuteResultCore(HttpListenerResponse response)
+            protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
                 response.ContentLength64 = _content.Length;
-                response.OutputStream.Write(_content, 0, _content.Length);
+                await response.OutputStream.WriteAsync(_content, 0, _content.Length);
             }
         }
 
@@ -483,7 +483,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         private class AS4MessageContentResult : HttpListenerContentResult
         {
-            private static readonly ISerializerProvider SerializerProvider = new Registry().SerializerProvider;
+            private static readonly ISerializerProvider SerializerProvider = Serialization.SerializerProvider.Default;
             private readonly InternalMessage _internalMessage;
 
             /// <summary>
@@ -499,8 +499,10 @@ namespace Eu.EDelivery.AS4.Receivers
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected override void ExecuteResultCore(HttpListenerResponse response)
+            protected override Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
+                // TODO: If we can create an SerializeAsync method, then this method can be really made async as well.
+
                 using (Stream responseStream = response.OutputStream)
                 {
                     if (_internalMessage.AS4Message?.IsEmpty == false)
@@ -509,6 +511,8 @@ namespace Eu.EDelivery.AS4.Receivers
                         serializer.Serialize(_internalMessage.AS4Message, responseStream, CancellationToken.None);
                     }
                 }
+
+                return Task.FromResult(0);
             }
         }
 
