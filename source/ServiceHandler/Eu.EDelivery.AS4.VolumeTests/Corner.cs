@@ -26,21 +26,21 @@ namespace Eu.EDelivery.AS4.VolumeTests
         }
 
         /// <summary>
-        /// Place a given <paramref name="message"/> at the Corner's location to retrieve files.
+        /// Place a given <paramref name="messageContent"/> at the Corner's location to retrieve files.
         /// </summary>
-        /// <param name="message">Message that the corner must retrieve.</param>
-        public void PlaceMessageAtCorner(string message)
+        /// <param name="messageContent">Message that the corner must retrieve.</param>
+        public void PlaceMessageAtCorner(string messageContent)
         {
-            WriteMessageToCorner(message);
-        }
+            for (var i = 0; i < 1; i++)
+            {
+                string id = Guid.NewGuid().ToString();
+                string generatedMessage = messageContent.Replace("__ATTACHMENTID__", id);
+                string outMessagePath = Path.Combine(_cornerDirectory.FullName, $@"messages\out\{id}.xml");
 
-        private void WriteMessageToCorner(string message)
-        {
-            string id = Guid.NewGuid().ToString();
-            string generatedMessage = message.Replace("__ATTACHMENTID__", id);
-            string outMessagePath = Path.Combine(_cornerDirectory.FullName, $@"message\out\{id}.xml");
+                File.WriteAllText(outMessagePath, generatedMessage);
+            }
 
-            File.WriteAllText(outMessagePath, generatedMessage);
+            Thread.Sleep(TimeSpan.FromSeconds(30));
         }
 
         /// <summary>
@@ -101,6 +101,11 @@ namespace Eu.EDelivery.AS4.VolumeTests
 
         private static void CopyDirectory(DirectoryInfo sourceDirectory, string destDirName)
         {
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
             CopyFiles(sourceDirectory, destDirName);
             CopySubDirectories(sourceDirectory, destDirName);
         }
@@ -111,12 +116,6 @@ namespace Eu.EDelivery.AS4.VolumeTests
             foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destDirName, file.Name);
-
-                if (!Directory.Exists(temppath))
-                {
-                    Directory.CreateDirectory(destDirName);
-                }
-
                 file.CopyTo(temppath, overwrite: true);
             }
         }
