@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 throw new ArgumentNullException(nameof(envelopeStream));
             }
 
-            using (Stream stream = CopyEnvelopeStream(envelopeStream))
+            using (Stream stream = await CopyEnvelopeStream(envelopeStream))
             {
                 XmlDocument envelopeDocument = LoadXmlDocument(stream);
 
@@ -187,11 +187,11 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static Stream CopyEnvelopeStream(Stream envelopeStream)
+        private static async Task<Stream> CopyEnvelopeStream(Stream envelopeStream)
         {
             Stream stream = new MemoryStream();
 
-            envelopeStream.CopyTo(stream);
+            await envelopeStream.CopyToAsync(stream);
             stream.Position = 0;
 
             return stream;

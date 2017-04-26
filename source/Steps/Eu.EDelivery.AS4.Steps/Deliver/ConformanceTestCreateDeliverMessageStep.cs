@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,12 +30,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// </summary>
         public ConformanceTestCreateDeliverMessageStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._logger.Info("Create Deliver Message");
+            _logger.Info("Create Deliver Message");
 
             var deliverMessage = CreateMinderDeliverMessage(internalMessage);
 
@@ -62,12 +61,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 content = memoryStream.ToArray();
             }
 
-
-            internalMessage.DeliverMessage = new DeliverMessageEnvelope(new MessageInfo()
-            {
-                MessageId = deliverMessage.MessageId,
-                RefToMessageId = deliverMessage.RefToMessageId
-            },
+            internalMessage.DeliverMessage = new DeliverMessageEnvelope(
+                new MessageInfo()
+                {
+                    MessageId = deliverMessage.MessageId,
+                    RefToMessageId = deliverMessage.RefToMessageId
+                },
                 content,
                 msg.ContentType);
 
@@ -117,7 +116,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return deliverMessage;
         }
 
-        private void AddMessageProperty(UserMessage message, string propertyName, string propertyValue)
+        private static void AddMessageProperty(UserMessage message, string propertyName, string propertyValue)
         {
             if (propertyValue == null)
             {

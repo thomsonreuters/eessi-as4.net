@@ -188,7 +188,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     if (processor != null && request.HttpMethod == "POST")
                     {
-                        ReceivedMessage receivedMessage = CreateReceivedMessage(request);
+                        ReceivedMessage receivedMessage = await CreateReceivedMessage(request);
                         try
                         {
                             processorResult = await processor(receivedMessage, CancellationToken.None);
@@ -207,12 +207,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
             }
 
-            private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)
+            private static async Task<ReceivedMessage> CreateReceivedMessage(HttpListenerRequest request)
             {
                 if (request.ContentLength64 > VirtualStream.ThresholdMax) 
                 {
                     VirtualStream str = new VirtualStream(VirtualStream.MemoryFlag.OnlyToDisk);
-                    request.InputStream.CopyTo(str);
+                    await request.InputStream.CopyToAsync(str);
                     str.Position = 0;
 
                     return new ReceivedMessage(str, request.ContentType);
