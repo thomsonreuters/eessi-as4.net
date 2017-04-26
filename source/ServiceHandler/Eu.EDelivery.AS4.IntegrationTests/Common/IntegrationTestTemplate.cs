@@ -268,11 +268,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 return false;
             }
 
-            if (!LeaveAS4ComponentRunningDuringValidation)
-            {
-                StopApplication();
-            }
-
             WriteFilesToConsole(files);
             ValidatePolledFiles(files);
 
