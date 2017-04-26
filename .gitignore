@@ -59,6 +59,10 @@ results.xml
 *.VisualState.xml
 TestResult.xml
 
+# Volume Testing
+/output-c2/
+/output-c3/
+
 # Build Results of an ATL Project
 [Dd]ebugPS/
 [Rr]eleasePS/
