@@ -93,10 +93,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// Decrypts the message and its attachments.
         /// </summary>
         /// <param name="encryptionStrategy"></param>
-        public void Decrypt(IEncryptionStrategy encryptionStrategy)
+        public async Task DecryptAsync(IEncryptionStrategy encryptionStrategy)
         {
             _encryptionStrategy = encryptionStrategy;
-            _encryptionStrategy.DecryptMessageAsync();
+            await _encryptionStrategy.DecryptMessageAsync();
         }
 
         /// <summary>

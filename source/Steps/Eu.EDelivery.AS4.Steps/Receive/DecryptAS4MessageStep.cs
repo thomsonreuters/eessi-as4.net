@@ -60,10 +60,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            TryDecryptAS4Message(internalMessage);
+            await TryDecryptAS4MessageAsync(internalMessage);
+
             return await StepResult.SuccessAsync(internalMessage);
         }
-
 
         private void PreConditions(InternalMessage internalMessage)
         {
@@ -72,16 +72,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Decryption decryption = pmode.Security.Decryption;
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
+            {
                 throw ThrowCommonAS4Exception(
-                    internalMessage,
-                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
-                    ErrorCode.Ebms0103);
+                      internalMessage,
+                      $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
+                      ErrorCode.Ebms0103);
+            }
 
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
+            {
                 throw ThrowCommonAS4Exception(
-                    internalMessage,
-                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
-                    ErrorCode.Ebms0103);
+                      internalMessage,
+                      $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
+                      ErrorCode.Ebms0103);
+            }
         }
 
         private bool IsEncryptedIgnored(InternalMessage internalMessage)
@@ -97,13 +101,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isIgnored;
         }
 
-        private void TryDecryptAS4Message(InternalMessage internalMessage)
+        private async Task TryDecryptAS4MessageAsync(InternalMessage internalMessage)
         {
             try
             {
                 _logger.Info($"{internalMessage.Prefix} Start decrypting AS4 Message ...");
                 IEncryptionStrategy strategy = CreateDecryptStrategy(internalMessage);
-                internalMessage.AS4Message.SecurityHeader.Decrypt(strategy);
+                await internalMessage.AS4Message.SecurityHeader.DecryptAsync(strategy);
                 _logger.Info($"{internalMessage.Prefix} AS4 Message is decrypted correctly");
             }
             catch (Exception exception)
@@ -138,7 +142,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             return certificate;
         }
-      
+
         private AS4Exception ThrowCommonAS4Exception(InternalMessage internalMessage,
             string description, ErrorCode errorCode, Exception exception = null)
         {
