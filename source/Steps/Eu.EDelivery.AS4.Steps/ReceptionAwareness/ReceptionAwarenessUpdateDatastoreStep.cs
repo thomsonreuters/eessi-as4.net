@@ -77,6 +77,11 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                             _logger.Debug("Message is unanswered.");
                             UpdateForUnansweredMessage(repository, cancellationToken);
                         }
+                        else
+                        {
+                            // In any other case, the Status should be reset to Pending.
+                            repository.UpdateReceptionAwareness(_receptionAwareness.InternalMessageId, ra => ra.Status = ReceptionStatus.Pending);
+                        }
                     }
                 }
 
@@ -123,6 +128,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             _logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {_receptionAwareness.CurrentRetryCount + 1})");
 
             repository.UpdateOutMessage(messageId, x => x.Operation = Operation.ToBeSent);
+            repository.UpdateReceptionAwareness(messageId, ra => ra.Status = ReceptionStatus.Pending);
         }
 
         private bool IsMessageUnanswered()
