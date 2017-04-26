@@ -50,21 +50,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             if (Content != null)
             {
-                Stream streamToWorkOn = Content;
-
-                if (Content is NonCloseableStream)
-                {
-                    streamToWorkOn = ((NonCloseableStream)Content).InnerStream;
-                }
-                else if (Content is FilteredStream)
-                {
-                    streamToWorkOn = ((FilteredStream)Content).Source;
-                }
-
-                if (streamToWorkOn.CanSeek && streamToWorkOn.Position != 0)
-                {
-                    streamToWorkOn.Position = 0;
-                }
+                StreamPositionMover.MovePositionToStreamStart(Content);                
             }
         }
 

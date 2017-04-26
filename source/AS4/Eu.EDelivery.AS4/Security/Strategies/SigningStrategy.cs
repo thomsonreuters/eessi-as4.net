@@ -342,28 +342,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             if (referenceStream != null)
             {
-                Stream streamToWorkOn = referenceStream;
-
-                var filteredStream = referenceStream as FilteredStream;
-
-                if (filteredStream != null)
-                {
-                    streamToWorkOn = filteredStream.Source;
-                }
-                else
-                {
-                    var nonCloseableStream = referenceStream as NonCloseableStream;
-
-                    if (nonCloseableStream != null)
-                    {
-                        streamToWorkOn = nonCloseableStream.InnerStream;
-                    }
-                }
-
-                if (streamToWorkOn.CanSeek && referenceStream.Position != 0)
-                {
-                    referenceStream.Position = 0;
-                }
+                StreamPositionMover.MovePositionToStreamStart(referenceStream);
             }
         }
     }
