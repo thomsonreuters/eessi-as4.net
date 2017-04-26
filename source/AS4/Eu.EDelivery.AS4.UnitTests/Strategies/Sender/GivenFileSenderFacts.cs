@@ -15,14 +15,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         private static readonly string ExpectedFileName = Path.Combine(ExpectedDirectoryPath, AnonymousDeliverMessage().MessageInfo.MessageId + ".xml");
 
         [Fact]
-        public void StoresFileOnFileSystem_IfDeliverMessage()
+        public async void StoresFileOnFileSystem_IfDeliverMessage()
         {
             // Arrange
             var sut = new FileSender();
             sut.Configure(new LocationMethod(ExpectedDirectoryPath));
 
             // Act
-            sut.Send(AnonymousDeliverMessage());
+            await sut.SendAsync(AnonymousDeliverMessage());
 
             // Assert
             Assert.True(File.Exists(ExpectedFileName));
@@ -34,14 +34,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         }
 
         [Fact]
-        public void StoresFileOnFileSystem_IfNotifyMessage()
+        public async void StoresFileOnFileSystem_IfNotifyMessage()
         {
             // Arrange
             var sut = new FileSender();
             sut.Configure(new LocationMethod(ExpectedDirectoryPath));
 
             // Act
-            sut.Send(AnonymousNotifyMessage());
+            await sut.SendAsync(AnonymousNotifyMessage());
 
             Assert.True(File.Exists(ExpectedFileName));
         }

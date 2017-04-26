@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
     public class GivenHttpSenderFacts
     {
         [Fact]
-        public void ThenUploadPayloadSucceeds_IfDeliverMessage()
+        public async void ThenUploadPayloadSucceeds_IfDeliverMessage()
         {
             // Arrange
             StubHttpClient spyClient = StubHttpClient.ThatReturns(HttpStatusCode.OK);
@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             httpSender.Configure(new LocationMethod("ignored location"));
 
             // Act
-            httpSender.Send(CreateAnonymousDeliverEnvelope());
+            await httpSender.SendAsync(CreateAnonymousDeliverEnvelope());
 
             // Assert
             Assert.True(spyClient.IsCalled);
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         }
 
         [Fact]
-        public void ThenUploadPaloadSucceeds_IfNotifyMessage()
+        public async void ThenUploadPaloadSucceeds_IfNotifyMessage()
         {
             // Arrange
             StubHttpClient spyClient = StubHttpClient.ThatReturns(HttpStatusCode.OK);
@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             sut.Configure(new LocationMethod("ignored location"));
 
             // Act
-            sut.Send(CreateAnonymousNotifyEnvelope());
+            await sut.SendAsync(CreateAnonymousNotifyEnvelope());
 
             // Assert
             Assert.True(spyClient.IsCalled);
@@ -54,5 +54,5 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         {
             return new NotifyMessageEnvelope(new AS4.Model.Notify.MessageInfo(), default(Status), new byte[0], "text/plain");
         }
-     }
+    }
 }
