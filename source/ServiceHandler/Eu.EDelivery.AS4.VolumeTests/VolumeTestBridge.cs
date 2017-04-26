@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Eu.EDelivery.AS4.VolumeTests
 {
@@ -7,6 +8,8 @@ namespace Eu.EDelivery.AS4.VolumeTests
     /// </summary>
     public class VolumeTestBridge : IDisposable
     {
+        private readonly Stopwatch _stopWatch;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VolumeTestBridge" /> class.
         /// </summary>
@@ -14,6 +17,8 @@ namespace Eu.EDelivery.AS4.VolumeTests
         {
             Corner2 = Corner.StartNew("c2");
             Corner3 = Corner.StartNew("c3");
+
+            _stopWatch = Stopwatch.StartNew();
         }
 
         /// <summary>
@@ -31,6 +36,9 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// </summary>
         public void Dispose()
         {
+            _stopWatch.Stop();
+            Console.WriteLine($@"Volume Test took: {_stopWatch.Elapsed:g} to run");
+
             Corner2.Dispose();
             Corner3.Dispose();
         }
