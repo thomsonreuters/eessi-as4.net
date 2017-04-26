@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            await TryDecryptAS4MessageAsync(internalMessage);
+            TryDecryptAS4MessageAsync(internalMessage);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
@@ -101,13 +101,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isIgnored;
         }
 
-        private async Task TryDecryptAS4MessageAsync(InternalMessage internalMessage)
+        private void TryDecryptAS4MessageAsync(InternalMessage internalMessage)
         {
             try
             {
                 _logger.Info($"{internalMessage.Prefix} Start decrypting AS4 Message ...");
                 IEncryptionStrategy strategy = CreateDecryptStrategy(internalMessage);
-                await internalMessage.AS4Message.SecurityHeader.DecryptAsync(strategy);
+                internalMessage.AS4Message.SecurityHeader.Decrypt(strategy);
                 _logger.Info($"{internalMessage.Prefix} AS4 Message is decrypted correctly");
             }
             catch (Exception exception)
