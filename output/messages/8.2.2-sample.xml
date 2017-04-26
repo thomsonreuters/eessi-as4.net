@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <Collaboration>
+    <AgreementRef>
+      <PModeId>8.2.2-pmode</PModeId>
+      <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
+    </AgreementRef>
+    <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+    <Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</Action>
+    <Service>
+      <Value>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Value>
+      <Type>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Type>
+    </Service>
+  </Collaboration>
+
+  <MessageProperties>
+    <MessageProperty>
+      <Name>Test</Name>
+      <Type>Test</Type>
+      <Value>Test</Value>
+    </MessageProperty>
+    <MessageProperty>
+      <Name>Test</Name>
+      <Type>Test</Type>
+      <Value>Test</Value>
+    </MessageProperty>
+  </MessageProperties>
+
+  <Payloads>
+    <Payload>
+      <Id>earth2</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location>file:///C:\Dev\AS4.NETv1.0.1\AS4.NET\output\messages\attachments\earth(2).jpg</Location>
+      <PayloadProperties>
+        <PayloadProperty>
+           <Name>Test</Name>
+          <Value>Test</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+  </Payloads>
+</SubmitMessage>
