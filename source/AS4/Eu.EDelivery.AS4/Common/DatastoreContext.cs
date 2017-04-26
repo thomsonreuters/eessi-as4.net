@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -112,7 +113,15 @@ namespace Eu.EDelivery.AS4.Common
 
         private void ConfigureProviders(DbContextOptionsBuilder optionsBuilder)
         {
-            _providers["Sqlite"] = c => optionsBuilder.UseSqlite(c);
+            _providers["Sqlite"] = c =>
+            {
+                if (!Directory.Exists(c))
+                {
+                    Directory.CreateDirectory(c);
+                }
+
+                return optionsBuilder.UseSqlite(c);
+            };
             _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
             _providers["InMemory"] = c => optionsBuilder.UseInMemoryDatabase(c);
 

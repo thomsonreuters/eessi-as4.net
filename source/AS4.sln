@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{9B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eu.EDelivery.AS4.PayloadService", "PayloadService\Eu.EDelivery.AS4.PayloadService.csproj", "{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.VolumeTests", "ServiceHandler\Eu.EDelivery.AS4.VolumeTests\Eu.EDelivery.AS4.VolumeTests.csproj", "{73016C9C-15FD-4051-A16F-7245A2267DEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73016C9C-15FD-4051-A16F-7245A2267DEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73016C9C-15FD-4051-A16F-7245A2267DEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73016C9C-15FD-4051-A16F-7245A2267DEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73016C9C-15FD-4051-A16F-7245A2267DEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,5 +94,6 @@ Global
 		{F82AAC30-6DDC-442C-849D-5DDD0478893B} = {366569F7-B349-4BCE-9879-904A933BC73F}
 		{BF046E70-9AB2-48C8-9E86-BE35429FADC0} = {366569F7-B349-4BCE-9879-904A933BC73F}
 		{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30} = {9B817A6A-2DC2-4A74-B9AE-EA50D6E4A864}
+		{73016C9C-15FD-4051-A16F-7245A2267DEC} = {366569F7-B349-4BCE-9879-904A933BC73F}
 	EndGlobalSection
 EndGlobal
