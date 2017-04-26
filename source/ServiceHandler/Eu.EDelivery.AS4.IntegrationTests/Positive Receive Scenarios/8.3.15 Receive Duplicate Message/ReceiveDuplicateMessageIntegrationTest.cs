@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -40,6 +41,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._15
 
         private static void AssertMessageIsNotDelivered()
         {
+            Thread.Sleep(1000);
+
             var deliverDirectory = new DirectoryInfo(AS4FullInputPath);
             FileInfo[] files = deliverDirectory.GetFiles("*.xml");
 

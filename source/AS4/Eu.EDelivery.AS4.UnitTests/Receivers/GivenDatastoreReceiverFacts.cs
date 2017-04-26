@@ -24,9 +24,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         public GivenDatastoreReceiverFacts()
         {
             _receiver = new DatastoreReceiver(
-                storeExpression: () => new DatastoreContext(base.Options),
-                findExpression: x => x.OutMessages.Where(m => m.Operation == Operation.ToBeSent),
-                updateValue: Operation.Sending.ToString());
+                () => new DatastoreContext(Options),
+                x => x.OutMessages.Where(m => m.Operation == Operation.ToBeSent),
+                Operation.Sending.ToString());
 
             SeedDataStoreWithOutMessage();
         }
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         private void SeedDataStoreWithOutMessage()
         {
             // Insert the seed data that is expected by all test methods
-            using (var context = new DatastoreContext(base.Options))
+            using (var context = new DatastoreContext(Options))
             {
                 context.OutMessages.Add(CreateStubOutMessage());
                 context.SaveChanges();
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             public void ThenConfigureSucceeds()
             {
                 // Arrange
-               IEnumerable<Setting> properties = CreateDefaultDatastoreReceiverSettings();
+                IEnumerable<Setting> properties = CreateDefaultDatastoreReceiverSettings();
 
                 // Act
                 _receiver.Configure(properties);
@@ -75,39 +75,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 return new[]
                 {
-                    new Setting("Table", "OutMessages"),
-                    new Setting("Field", "Operation"),
-                    new Setting("Value", "ToBeSend"),
-                    new Setting("Update", "Sending")    
+                    new Setting("Table", "OutMessages"), new Setting("Field", "Operation"),
+                    new Setting("Value", "ToBeSend"), new Setting("Update", "Sending")
                 };
             }
-
-            [Fact]
-            public void ThenStartReceivingSucceeds()
-            {
-                // Arrange
-                var source = new CancellationTokenSource();
-
-                // Act
-                base._receiver.StartReceiving(
-                    (message, token) => AssertOnReceivedMessage(message, source), source.Token);
-            }
-
-            private static Task<InternalMessage> AssertOnReceivedMessage(
-                ReceivedMessage message, CancellationTokenSource source)
-            {
-                // Assert
-                Assert.NotNull(message);
-                Assert.IsType<ReceivedMessageEntityMessage>(message);
-                Assert.NotNull(message.RequestStream);
-
-                source.Cancel();
-                return Task.FromResult(NullInternalMessage.Instance);
-            }
-        }
-
-        public class InMessages
-        {
         }
     }
 }

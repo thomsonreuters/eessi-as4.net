@@ -341,6 +341,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
+    <Compile Include="Repositories\GivenAS4MessageBodyFileRetrieverFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubXmlAttribute.cs" />
