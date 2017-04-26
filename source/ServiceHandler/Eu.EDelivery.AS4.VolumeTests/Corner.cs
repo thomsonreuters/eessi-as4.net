@@ -31,8 +31,14 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// <param name="message">Message that the corner must retrieve.</param>
         public void PlaceMessageAtCorner(string message)
         {
-            string generatedMessage = message.Replace("__ATTACHMENTID__", Guid.NewGuid().ToString());
-            string outMessagePath = Path.Combine(_cornerDirectory.FullName, @"message\out\message.xml");
+            WriteMessageToCorner(message);
+        }
+
+        private void WriteMessageToCorner(string message)
+        {
+            string id = Guid.NewGuid().ToString();
+            string generatedMessage = message.Replace("__ATTACHMENTID__", id);
+            string outMessagePath = Path.Combine(_cornerDirectory.FullName, $@"message\out\{id}.xml");
 
             File.WriteAllText(outMessagePath, generatedMessage);
         }
