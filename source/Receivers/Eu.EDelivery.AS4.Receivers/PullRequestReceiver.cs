@@ -92,11 +92,19 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             InternalMessage resultedMessage = await _messageCallback(intervalPullRequest);
 
-            bool isUserMessage = resultedMessage.AS4Message.IsUserMessage;
-            Interval intervalResult = isUserMessage ? Interval.Reset : Interval.Increase;
-            Logger.Debug($"'Pull Request' resulted in a '{(isUserMessage ? "User Message" : "Error" )}' so the next interval will be '{intervalResult}'");
+            try
+            {
+                bool isUserMessage = resultedMessage.AS4Message.IsUserMessage;
+                Interval intervalResult = isUserMessage ? Interval.Reset : Interval.Increase;
+                Logger.Debug(
+                    $"'Pull Request' resulted in a '{(isUserMessage ? "User Message" : "Error")}' so the next interval will be '{intervalResult}'");
 
-            return intervalResult;
+                return intervalResult;
+            }
+            finally
+            {
+                resultedMessage?.Dispose();
+            }
         }
     }
 }

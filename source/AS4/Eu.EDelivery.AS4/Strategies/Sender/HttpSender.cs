@@ -16,7 +16,22 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     public class HttpSender : IDeliverSender, INotifySender
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly IHttpClient _httpClient;
         private string _destinationUri;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpSender"/> class.
+        /// </summary>
+        public HttpSender() : this(new ReliableHttpClient()) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpSender"/> class.
+        /// </summary>
+        /// <param name="client">HTTP client to handle the request/respond actions.</param>
+        public HttpSender(IHttpClient client)
+        {
+            _httpClient = client;
+        }
 
         /// <summary>
         /// Configure the <see cref="IDeliverSender" />
@@ -32,7 +47,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage" />
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public async void Send(DeliverMessageEnvelope deliverMessage)
+        public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             Logger.Info($"Send Deliver {deliverMessage.MessageInfo.MessageId} to {_destinationUri}");
 
@@ -46,7 +61,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="NotifyMessage" />
         /// </summary>
         /// <param name="notifyMessage"></param>
-        public async void Send(NotifyMessageEnvelope notifyMessage)
+        public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {_destinationUri}");
 
@@ -59,7 +74,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private HttpWebRequest CreateHttpPostRequest(string contentType, byte[] contents)
         {
             // TODO: verify if destinationUri is a valid http endpoint.
-            HttpWebRequest request = HttpRequestFactory.CreatePostRequest(_destinationUri, contentType);
+            HttpWebRequest request = _httpClient.Request(_destinationUri, contentType);
 
             using (Stream requestStream = request.GetRequestStream())
             {
@@ -69,22 +84,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             return request;
         }
 
-        private static async Task<HttpWebResponse> SendHttpPostRequest(WebRequest request)
+        private async Task<HttpWebResponse> SendHttpPostRequest(HttpWebRequest request)
         {
-            HttpWebResponse response;
+            HttpWebResponse response = (await _httpClient.Respond(request)).response;
 
-            try
+            if (response == null)
             {
-                response = await request.GetResponseAsync() as HttpWebResponse;
-
-                if (response == null)
-                {
-                    Logger.Error("No WebResponse received for http notification.");
-                }
-            }
-            catch (WebException exception)
-            {
-                response = exception.Response as HttpWebResponse;
+                Logger.Error("No WebResponse received for http notification.");
             }
 
             bool isInvalidResponse = response != null && !IsResponseValid(response);

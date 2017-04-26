@@ -14,18 +14,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <see cref="IStep"/> implementation to .zip the attachments to one file
     /// </summary>
     public class ZipAttachmentsStep : IStep
-    {
-        private readonly ILogger _logger;
+    {        
         private readonly IMimeTypeRepository _repository;
-        private AS4Message _as4Message;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ZipAttachmentsStep"/> class
         /// </summary>
         public ZipAttachmentsStep()
         {
-            _repository = new MimeTypeRepository();
-            _logger = LogManager.GetCurrentClassLogger();
+            _repository = new MimeTypeRepository();            
         }
 
         /// <summary>
@@ -35,48 +32,51 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {
-            _as4Message = internalMessage.AS4Message;
-
-            if (HasAS4MessageMultipleAttachments())
+        {           
+            if (HasAS4MessageMultipleAttachments(internalMessage.AS4Message))
             {
-                ZipAttachments();
+                Stream zippedStream = await ZipAttachmentsInAS4Message(internalMessage.AS4Message);
+
+                Attachment zipAttachment = CreateZippedAttachment(zippedStream);
+
+                AS4Message message = OverwriteAttachmentEntries(internalMessage.AS4Message, zipAttachment);
+
+                internalMessage.AS4Message = message;
             }
 
-            _logger.Info($"{internalMessage.Prefix} Zip the Attachments to a single file");
+            LogManager.GetCurrentClassLogger().Info($"{internalMessage.Prefix} Zip the Attachments to a single file");
+
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private bool HasAS4MessageMultipleAttachments()
+        private static bool HasAS4MessageMultipleAttachments(AS4Message as4Message)
         {
-            return _as4Message.Attachments.Count > 1;
+            return as4Message.Attachments.Count > 1;
         }
 
-        private void ZipAttachments()
+        private async Task<Stream> ZipAttachmentsInAS4Message(AS4Message message)
         {
             var stream = new VirtualStream();
+
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
-            {
-                CreateAttachmentEntries(archive);
+            {                
+                foreach (Attachment attachment in message.Attachments)
+                {
+                    ZipArchiveEntry archiveEntry = CreateAttachmentEntry(archive, attachment);
+                    await AddAttachmentStreamToEntry(attachment.Content, archiveEntry);
+                }
             }
 
-            Attachment zipAttachment = CreateZippedAttachment(stream);
-            OverrideAS4MessageAttachments(zipAttachment);
-        }
+            stream.Position = 0;
 
-        private void CreateAttachmentEntries(ZipArchive archive)
-        {
-            foreach (Attachment attachment in _as4Message.Attachments)
-            {
-                CreateAttachmentEntry(archive, attachment);
-            }
+            return stream;
         }
-
-        private void CreateAttachmentEntry(ZipArchive archive, Attachment attachment)
+        
+        private ZipArchiveEntry CreateAttachmentEntry(ZipArchive archive, Attachment attachment)
         {
             string entryName = GetAttachmentEntryName(attachment);
             ZipArchiveEntry entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
-            AddAttachmentStreamToEntry(attachment.Content, entry);
+            return entry;            
         }
 
         private string GetAttachmentEntryName(Attachment attachment)
@@ -84,18 +84,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return attachment.Id + _repository.GetExtensionFromMimeType(attachment.ContentType);
         }
 
-        private static void AddAttachmentStreamToEntry(Stream attachmentStream, ZipArchiveEntry entry)
+        private static async Task AddAttachmentStreamToEntry(Stream attachmentStream, ZipArchiveEntry entry)
         {
             using (Stream entryStream = entry.Open())
             {
-                attachmentStream.CopyTo(entryStream);
+                await attachmentStream.CopyToAsync(entryStream);
             }
         }
 
         private static Attachment CreateZippedAttachment(Stream stream)
-        {
-            stream.Position = 0;
-
+        {           
             return new Attachment
             {
                 ContentType = "application/zip",
@@ -103,10 +101,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             };
         }
 
-        private void OverrideAS4MessageAttachments(Attachment zipAttachment)
+        private static AS4Message OverwriteAttachmentEntries(AS4Message message, Attachment zipAttachment)
         {
-            _as4Message.Attachments.Clear();
-            _as4Message.Attachments.Add(zipAttachment);
-        }
+            message.Attachments.Clear();
+            message.Attachments.Add(zipAttachment);
+
+            return message;
+        }        
     }
 }

@@ -133,16 +133,16 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            LogReceiverSpecs();
+            LogReceiverSpecs(true);
             StartPolling(messageCallback, cancellationToken);
         }
 
         public void StopReceiving()
         {
-            LogReceiverSpecs();
+            LogReceiverSpecs(false);
         }
 
-        private void LogReceiverSpecs()
+        private void LogReceiverSpecs(bool startReceiving)
         {
             if (_properties == null)
             {
@@ -153,7 +153,9 @@ namespace Eu.EDelivery.AS4.Receivers
             string field = _properties[SettingKeys.Field];
             string value = _properties[SettingKeys.FilterValue];
 
-            Logger.Debug($"Start Receiving on Datastore FROM {table} WHERE {field} == {value}");
+            string action = startReceiving ? "Start" : "Stop";
+
+            Logger.Debug($"{action} Receiving on Datastore FROM {table} WHERE {field} == {value}");
         }
 
         /// <summary>
@@ -163,7 +165,6 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override IEnumerable<Entity> GetMessagesToPoll(CancellationToken cancellationToken)
         {
-
             try
             {
                 return GetMessagesEntitiesForConfiguredExpression();
@@ -213,6 +214,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 return entities;
             }
 
+            if (_updateValue == null)
+            {
+                Logger.Warn($"No UpdateValue configured for {_properties[SettingKeys.Field]}. The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
+                return entities;
+            }
+
             // Make sure that all message-entities are locked before continue to process them.
             foreach (Entity entity in entities)
             {
@@ -243,7 +250,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private void ReceiveMessageEntity(MessageEntity messageEntity, Function messageCallback, CancellationToken token)
+        private async void ReceiveMessageEntity(MessageEntity messageEntity, Function messageCallback, CancellationToken token)
         {
             Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
 
@@ -270,10 +277,11 @@ namespace Eu.EDelivery.AS4.Receivers
             };
         }
 
-        private static void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
-            messageCallback(message, token);
+            InternalMessage result = await messageCallback(message, token);
+            result?.Dispose();
         }
 
         protected override void HandleMessageException(Entity message, Exception exception)

@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public async Task<UploadResult> Upload(Attachment attachment)
+        public async Task<UploadResult> UploadAsync(Attachment attachment)
         {
             string downloadUrl = AssembleFileDownloadUrlFor(attachment);
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             return $"{locationParameter.Value}{fileName}{extension}";
         }
 
-        private async Task TryUploadAttachment(Attachment attachment, string attachmentFilePath)
+        private static async Task TryUploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             try
             {
@@ -78,13 +78,13 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             }
         }
 
-        private AS4Exception ThrowAS4UploadException(string description)
+        private static AS4Exception ThrowAS4UploadException(string description)
         {
             Logger.Info(description);
             return new AS4Exception(description);
         }
 
-        private async Task UploadAttachment(Attachment attachment, string attachmentFilePath)
+        private static async Task UploadAttachment(Attachment attachment, string attachmentFilePath)
         {
             // Create the directory, if it does not exist.
             Directory.CreateDirectory(Path.GetDirectoryName(attachmentFilePath));

@@ -28,9 +28,9 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="mimeTypeRepository"></param>
         public EmailAttachmentUploader(IMimeTypeRepository mimeTypeRepository)
         {
-            this._repository = mimeTypeRepository;
-            this._config = Config.Instance;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _repository = mimeTypeRepository;
+            _config = Config.Instance;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <param name="payloadReferenceMethod"></param>
         public void Configure(Method payloadReferenceMethod)
         {
-            this._method = payloadReferenceMethod;
+            _method = payloadReferenceMethod;
         }
 
         /// <summary>
@@ -48,31 +48,21 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        public Task<UploadResult> Upload(Attachment attachment)
+        public Task<UploadResult> UploadAsync(Attachment attachment)
         {
             SendAttachmentAsMail(attachment);
 
-            return Task.FromResult(new UploadResult {PayloadId = attachment.Id});
+            return Task.FromResult(new UploadResult { PayloadId = attachment.Id });
         }
 
         /// <summary>
         /// Start uploading <see cref="Attachment"/>
         /// </summary>
         /// <param name="attachment"></param>
-        public Task UploadAsync(Attachment attachment)
-        {
-            SendAttachmentAsMail(attachment);
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Start uploading <see cref="Attachment"/>
-        /// </summary>
-        /// <param name="attachment"></param>
-        public void SendAttachmentAsMail(Attachment attachment)
+        private void SendAttachmentAsMail(Attachment attachment)
         {
             var mail = new MailMessage();
-            var smtpServer = new SmtpClient(this._config.GetSetting("smtpserver"));
+            var smtpServer = new SmtpClient(_config.GetSetting("smtpserver"));
 
             AddCommonInfoToMailMessage(mail);
             AddEMailAttachmentToMail(attachment, mail);
@@ -85,8 +75,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private void AddCommonInfoToMailMessage(MailMessage mail)
         {
-            mail.From = new MailAddress(this._config.GetSetting("smtpusername"));
-            
+            mail.From = new MailAddress(_config.GetSetting("smtpusername"));
+
             AssignIfNotNull("body", body => mail.Body = body);
             AssignIfNotNull("subject", subject => mail.Subject = subject);
             AssignIfNotNull("to", to => mail.To.Add(to));
@@ -94,15 +84,21 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private void AssignIfNotNull(string key, Action<string> targetAction)
         {
-            Parameter parameter = this._method[key];
-            if (parameter?.Value != null) targetAction(parameter.Value);
-            else this._logger.Debug($"Following key is not defined in Paylaod Reference Method: {key}");
+            Parameter parameter = _method[key];
+            if (parameter?.Value != null)
+            {
+                targetAction(parameter.Value);
+            }
+            else
+            {
+                _logger.Debug($"Following key is not defined in Paylaod Reference Method: {key}");
+            }
         }
 
         private void AddSecurityToSmtpServer(SmtpClient smtpServer)
         {
             int smtpServerPort;
-            int.TryParse(this._config.GetSetting("smtpport"), out smtpServerPort);
+            int.TryParse(_config.GetSetting("smtpport"), out smtpServerPort);
             smtpServer.Port = smtpServerPort;
 
             SetNetWorkCredentials(smtpServer);
@@ -112,12 +108,12 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private void SetNetWorkCredentials(SmtpClient smtpServer)
         {
             smtpServer.Credentials = new System.Net.NetworkCredential(
-                this._config.GetSetting("smtpusername"), this._config.GetSetting("smtppassword"));
+                _config.GetSetting("smtpusername"), _config.GetSetting("smtppassword"));
         }
 
         private void AddEMailAttachmentToMail(Attachment attachment, MailMessage mail)
         {
-            string extension = this._repository.GetExtensionFromMimeType(attachment.ContentType);
+            string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
             var emailAttachment = new System.Net.Mail.Attachment(attachment.Content, attachment.Id + extension);
 
             mail.Attachments.Add(emailAttachment);
@@ -138,7 +134,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         private AS4Exception ThrowUnableToSendAS4Exception(Exception innerException)
         {
             const string description = "Unable to Send E-Mail";
-            this._logger.Error(description);
+            _logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
@@ -148,8 +144,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private void LogUploadInformation(Attachment attachment)
         {
-            string toEmailAddress = this._method["to"]?.Value;
-            this._logger.Info($"Attachment {attachment.Id} is send as Mail Attachment to {toEmailAddress}");
+            string toEmailAddress = _method["to"]?.Value;
+            _logger.Info($"Attachment {attachment.Id} is send as Mail Attachment to {toEmailAddress}");
         }
     }
 }

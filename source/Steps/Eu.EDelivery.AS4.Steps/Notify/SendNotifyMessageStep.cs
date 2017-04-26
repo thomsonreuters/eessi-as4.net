@@ -27,8 +27,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// </summary>
         public SendNotifyMessageStep()
         {
-            this._provider = Registry.Instance.NotifySenderProvider;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _provider = Registry.Instance.NotifySenderProvider;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -42,8 +42,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// </param>
         public SendNotifyMessageStep(INotifySenderProvider provider)
         {
-            this._provider = provider;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _provider = provider;
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -56,30 +56,30 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <exception cref="AS4Exception">Throws exception when Notify Message is send incorrectly</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            this._internalMessage = internalMessage;
-            this._logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
+            _internalMessage = internalMessage;
+            _logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
 
-            TrySendNotifyMessage(internalMessage.NotifyMessage);
+            await TrySendNotifyMessage(internalMessage.NotifyMessage);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TrySendNotifyMessage(NotifyMessageEnvelope notifyMessage)
+        private async Task TrySendNotifyMessage(NotifyMessageEnvelope notifyMessage)
         {
             try
             {
                 Method notifyMethod = GetNotifyMethod(notifyMessage);
-                SendNotifyMessage(notifyMessage, notifyMethod);
+                await SendNotifyMessage(notifyMessage, notifyMethod);
             }
             catch (Exception exception)
             {
                 throw ThrowAS4SendException("Notify Message was not send correctly", exception);
             }
         }
-        
+
         private Method GetNotifyMethod(NotifyMessageEnvelope notifyMessage)
         {
-            SendingProcessingMode sendPMode = this._internalMessage.AS4Message.SendingPMode;
-            ReceivingProcessingMode receivePMode = this._internalMessage.AS4Message.ReceivingPMode;
+            SendingProcessingMode sendPMode = _internalMessage.AS4Message.SendingPMode;
+            ReceivingProcessingMode receivePMode = _internalMessage.AS4Message.ReceivingPMode;
 
             switch (notifyMessage.StatusCode)
             {
@@ -95,21 +95,21 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return IsNotifyMessageFormedBySending() ? sendHandling?.NotifyMethod : receivehandling?.NotifyMethod;
         }
 
-        private void SendNotifyMessage(NotifyMessageEnvelope notifyMessage, Method notifyMethod)
+        private async Task SendNotifyMessage(NotifyMessageEnvelope notifyMessage, Method notifyMethod)
         {
-            INotifySender sender = this._provider.GetNotifySender(notifyMethod.Type);
+            INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
             sender.Configure(notifyMethod);
-            sender.Send(notifyMessage);
+            await sender.SendAsync(notifyMessage);
         }
 
         private AS4Exception ThrowAS4SendException(string description, Exception exception = null)
         {
-            this._logger.Error(description);
+            _logger.Error(description);
 
             AS4ExceptionBuilder builder = AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithInnerException(exception)                
-                .WithMessageIds(this._internalMessage.NotifyMessage.MessageInfo.MessageId)
+                .WithInnerException(exception)
+                .WithMessageIds(_internalMessage.NotifyMessage.MessageInfo.MessageId)
                 .WithErrorAlias(ErrorAlias.ConnectionFailure);
 
             AddPModeToBuilder(builder);
@@ -120,14 +120,18 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private void AddPModeToBuilder(AS4ExceptionBuilder builder)
         {
             if (IsNotifyMessageFormedBySending())
-                builder.WithSendingPMode(this._internalMessage.AS4Message.SendingPMode);
+            {
+                builder.WithSendingPMode(_internalMessage.AS4Message.SendingPMode);
+            }
             else
-                builder.WithReceivingPMode(this._internalMessage.AS4Message.ReceivingPMode);
+            {
+                builder.WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode);
+            }
         }
 
         public bool IsNotifyMessageFormedBySending()
         {
-            return this._internalMessage.AS4Message.SendingPMode?.Id != null;
+            return _internalMessage.AS4Message.SendingPMode?.Id != null;
         }
     }
 }

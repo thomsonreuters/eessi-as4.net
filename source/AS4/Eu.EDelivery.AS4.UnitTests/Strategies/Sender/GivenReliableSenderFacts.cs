@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -55,22 +56,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
                 var sut = new ReliableSender(deliverSender: new SaboteurSender());
 
                 // Act / Assert
-                AssertReliableSenderOn(() => sut.Send(DummyDeliverMessage));
+                AssertReliableSenderOn(async () => await sut.SendAsync(DummyDeliverMessage));
             }
 
             [Fact]
-            public void SenderCatchesAndRetrhowsAS4Exception_IfNotifyMesage()
+            public void SenderCatchesAndRethrowsAS4Exception_IfNotifyMesage()
             {
                 // Arrange
                 var sut = new ReliableSender(notifySender: new SaboteurSender());
 
                 // Act / Assert
-                AssertReliableSenderOn(() => sut.Send(DummyNotifyMessage));
+                AssertReliableSenderOn(async () => await sut.SendAsync(DummyNotifyMessage));
             }
 
-            private static void AssertReliableSenderOn(Action actAction)
+            private static async void AssertReliableSenderOn(Func<Task> actAction)
             {
-                var as4Exception = Assert.Throws<AS4Exception>(actAction);
+                var as4Exception = await Assert.ThrowsAsync<AS4Exception>(actAction);
                 Assert.IsType<SaboteurException>(as4Exception.InnerException);
             }
         }

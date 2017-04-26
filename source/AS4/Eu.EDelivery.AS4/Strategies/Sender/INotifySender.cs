@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Notify;
+﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
@@ -12,7 +13,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="notifyMessage"></param>
-        void Send(NotifyMessageEnvelope notifyMessage);
+        Task SendAsync(NotifyMessageEnvelope notifyMessage);
 
         /// <summary>
         /// Configure the <see cref="INotifySender"/>

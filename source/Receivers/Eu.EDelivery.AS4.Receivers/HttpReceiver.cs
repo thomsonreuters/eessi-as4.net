@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -141,7 +142,7 @@ namespace Eu.EDelivery.AS4.Receivers
             RequestHandler handler = RequestHandler.GetHandler(context.Request);
             HttpListenerContentResult handleResult = await handler.ExecuteAsync(context.Request, messageCallback);
 
-            handleResult.ExecuteResult(context.Response);
+            await handleResult.ExecuteResultAsync(context.Response);
 
             context.Response.Close();
         }
@@ -183,18 +184,41 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 InternalMessage processorResult = null;
 
-                if (processor != null && request.HttpMethod == "POST")
+                try
                 {
-                    ReceivedMessage receivedMessage = CreateReceivedMessage(request);
-                    processorResult = await processor(receivedMessage, CancellationToken.None);
-                }
+                    if (processor != null && request.HttpMethod == "POST")
+                    {
+                        ReceivedMessage receivedMessage = await CreateReceivedMessage(request);
+                        try
+                        {
+                            processorResult = await processor(receivedMessage, CancellationToken.None);
+                        }
+                        finally
+                        {
+                            receivedMessage.RequestStream.Dispose();
+                        }
+                    }
 
-                return ExecuteCore(request, processorResult);
+                    return ExecuteCore(request, processorResult);
+                }
+                finally
+                {
+                    processorResult?.Dispose();
+                }
             }
 
-            private static ReceivedMessage CreateReceivedMessage(HttpListenerRequest request)
+            private static async Task<ReceivedMessage> CreateReceivedMessage(HttpListenerRequest request)
             {
-                return new ReceivedMessage(request.RawUrl, request.InputStream, request.ContentType);
+                if (request.ContentLength64 > VirtualStream.ThresholdMax)
+                {
+                    VirtualStream str = new VirtualStream(VirtualStream.MemoryFlag.OnlyToDisk);
+                    await request.InputStream.CopyToAsync(str);
+                    str.Position = 0;
+
+                    return new ReceivedMessage(str, request.ContentType);
+                }
+
+                return new ReceivedMessage(request.InputStream, request.ContentType);
             }
 
             /// <summary>
@@ -346,8 +370,9 @@ namespace Eu.EDelivery.AS4.Receivers
                     if (AreReceiptsOrErrorsSendInResponseMode(processorResult))
                     {
                         return new AS4MessageContentResult(
-                            statusCode: DetermineHttpCodeFrom(processorResult), 
-                            contentType: processorResult.AS4Message.ContentType, internalMessage: processorResult);
+                            statusCode: DetermineHttpCodeFrom(processorResult),
+                            contentType: processorResult.AS4Message?.ContentType,
+                            internalMessage: processorResult);
                     }
 
                     // In any other case, return a bad request error ?
@@ -372,7 +397,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                         if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                         {
-                            return (HttpStatusCode) errorHttpCode;
+                            return (HttpStatusCode)errorHttpCode;
                         }
 
                         return HttpStatusCode.InternalServerError;
@@ -407,20 +432,20 @@ namespace Eu.EDelivery.AS4.Receivers
             /// Handeling the <see cref="HttpListenerResponse"/>.
             /// </summary>
             /// <param name="response"></param>
-            public void ExecuteResult(HttpListenerResponse response)
+            public async Task ExecuteResultAsync(HttpListenerResponse response)
             {
-                response.StatusCode = (int) _statusCode;
+                response.StatusCode = (int)_statusCode;
                 response.ContentType = _contentType;
                 response.KeepAlive = false;
 
-                ExecuteResultCore(response);
+                await ExecuteResultAsyncCore(response);
             }
 
             /// <summary>
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected abstract void ExecuteResultCore(HttpListenerResponse response);
+            protected abstract Task ExecuteResultAsyncCore(HttpListenerResponse response);
         }
 
         private class ByteContentResult : HttpListenerContentResult
@@ -440,16 +465,16 @@ namespace Eu.EDelivery.AS4.Receivers
             /// </summary>
             /// <param name="statusCode">Embedded <see cref="HttpStatusCode"/> in the empty result.</param>
             /// <returns></returns>
-            public static ByteContentResult Empty(HttpStatusCode statusCode) => new ByteContentResult(statusCode, string.Empty, new byte[]{});
+            public static ByteContentResult Empty(HttpStatusCode statusCode) => new ByteContentResult(statusCode, string.Empty, new byte[] { });
 
             /// <summary>
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected override void ExecuteResultCore(HttpListenerResponse response)
+            protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
                 response.ContentLength64 = _content.Length;
-                response.OutputStream.Write(_content, 0, _content.Length);
+                await response.OutputStream.WriteAsync(_content, 0, _content.Length);
             }
         }
 
@@ -458,7 +483,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         private class AS4MessageContentResult : HttpListenerContentResult
         {
-            private static readonly ISerializerProvider SerializerProvider = new Registry().SerializerProvider;
+            private static readonly ISerializerProvider SerializerProvider = Serialization.SerializerProvider.Default;
             private readonly InternalMessage _internalMessage;
 
             /// <summary>
@@ -474,8 +499,10 @@ namespace Eu.EDelivery.AS4.Receivers
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected override void ExecuteResultCore(HttpListenerResponse response)
+            protected override Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
+                // TODO: If we can create an SerializeAsync method, then this method can be really made async as well.
+
                 using (Stream responseStream = response.OutputStream)
                 {
                     if (_internalMessage.AS4Message?.IsEmpty == false)
@@ -484,6 +511,8 @@ namespace Eu.EDelivery.AS4.Receivers
                         serializer.Serialize(_internalMessage.AS4Message, responseStream, CancellationToken.None);
                     }
                 }
+
+                return Task.FromResult(0);
             }
         }
 
@@ -507,7 +536,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-                ((IDisposable) _listener)?.Dispose();
+                ((IDisposable)_listener)?.Dispose();
             }
             catch (Exception exception)
             {

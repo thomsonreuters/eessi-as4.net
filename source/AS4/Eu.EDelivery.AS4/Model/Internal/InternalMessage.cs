@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <summary>
     /// Canonical Message Format inside the Steps
     /// </summary>
-    public class InternalMessage : IMessage
+    public class InternalMessage : IMessage, IDisposable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="InternalMessage" /> class.
@@ -127,6 +127,13 @@ namespace Eu.EDelivery.AS4.Model.Internal
         private static Attachment CreateAttachmentFromPayload(Payload payload)
         {
             return new Attachment(payload.Id) {ContentType = payload.MimeType, Location = payload.Location};
+        }
+
+
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            AS4Message?.CloseAttachments();
         }
     }
 }

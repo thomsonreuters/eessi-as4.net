@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -31,12 +32,12 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        public void Send(DeliverMessageEnvelope deliverMessage)
+        public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
         {
             EnsureDirectory(_destinationPath);
 
             string location = CombineDestinationFullName(deliverMessage.MessageInfo.MessageId, _destinationPath);
-            WriteContentsToFile(location, deliverMessage.DeliverMessage);
+            await WriteContentsToFile(location, deliverMessage.DeliverMessage);
 
             Logger.Info($"DeliverMessage {deliverMessage.MessageInfo.MessageId} is successfully Send to: {location}");
         }
@@ -45,12 +46,12 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="NotifyMessage"/>
         /// </summary>
         /// <param name="notifyMessage"></param>
-        public void Send(NotifyMessageEnvelope notifyMessage)
+        public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             EnsureDirectory(_destinationPath);
 
             string location = CombineDestinationFullName(notifyMessage.MessageInfo.MessageId, _destinationPath);
-            WriteContentsToFile(location, notifyMessage.NotifyMessage);
+            await WriteContentsToFile(location, notifyMessage.NotifyMessage);
 
             Logger.Info($"NotifyMessage {notifyMessage.MessageInfo.MessageId} is successfully Send to: {location}");
         }
@@ -76,11 +77,11 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             return Path.Combine(destinationFolder ?? string.Empty, filename);
         }
 
-        private static void WriteContentsToFile(string locationPath, byte[] contents)
+        private static async Task WriteContentsToFile(string locationPath, byte[] contents)
         {
             using (FileStream fileStream = File.Create(locationPath))
             {
-                fileStream.Write(contents, 0, contents.Length);
+                await fileStream.WriteAsync(contents, 0, contents.Length);
             }
         }
     }

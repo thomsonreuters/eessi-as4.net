@@ -47,24 +47,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {            
+        {
             if (!internalMessage.AS4Message.SendingPMode.Security.Encryption.IsEnabled)
             {
                 return await ReturnSameInternalMessage(internalMessage);
             }
 
-            TryEncryptAS4Message(internalMessage);
+            await TryEncryptAS4MessageAsync(internalMessage);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private void TryEncryptAS4Message(InternalMessage internalMessage)
+        private async Task TryEncryptAS4MessageAsync(InternalMessage internalMessage)
         {
             Logger.Info($"{internalMessage.Prefix} Encrypt AS4 Message with given Encryption Information");
             try
             {
                 IEncryptionStrategy strategy = CreateEncryptStrategy(internalMessage);
-                internalMessage.AS4Message.SecurityHeader.Encrypt(strategy);
+                await internalMessage.AS4Message.SecurityHeader.EncryptAsync(strategy);
             }
             catch (Exception exception)
             {
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     encryptionMethod: encryption.KeyTransport.TransportAlgorithm,
                     digestMethod: encryption.KeyTransport.DigestAlgorithm,
                     mgf: encryption.KeyTransport.MgfAlgorithm));
-            
+
             builder.WithCertificate(certificate);
             builder.WithAttachments(as4Message.Attachments);
 
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             return _certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
         }
-        
+
         private static Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
             Logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Encryption is disabled");

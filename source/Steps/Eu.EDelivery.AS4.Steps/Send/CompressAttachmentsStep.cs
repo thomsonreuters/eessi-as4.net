@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task CompressAttachmentAsync(Attachment attachment)
         {
-            var outputStream = new VirtualStream();
+            var outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
             using (var gzipCompression = new GZipStream(outputStream, CompressionMode.Compress, leaveOpen: true))
             {

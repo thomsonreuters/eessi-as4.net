@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -105,9 +106,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         public void AppendEncryptionElements(XmlElement securityElement)
         {
             if (securityElement == null)
+            {
                 throw new ArgumentNullException(nameof(securityElement));
+            }
             if (securityElement.OwnerDocument == null)
+            {
                 throw new ArgumentException(@"SecurityHeader needs to have an OwnerDocument", nameof(securityElement));
+            }
 
             XmlDocument securityDocument = securityElement.OwnerDocument;
 
@@ -139,7 +144,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <summary>
         /// Encrypts the <see cref="AS4Message"/> and its attachments.
         /// </summary>
-        public void EncryptMessage()
+        public async Task EncryptMessageAsync()
         {
             _encryptedDatas.Clear();
 
@@ -151,7 +156,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             using (SymmetricAlgorithm encryptionAlgorithm =
                 CreateSymmetricAlgorithm(_dataEncryptionConfig.EncryptionMethod, encryptionKey))
             {
-                EncryptAttachmentsWithAlgorithm(as4EncryptedKey, encryptionAlgorithm);
+                await EncryptAttachmentsWithAlgorithmAsync(as4EncryptedKey, encryptionAlgorithm);
             }
 
             _as4EncryptedKey = as4EncryptedKey;
@@ -176,20 +181,20 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return builder.Build();
         }
 
-        private void EncryptAttachmentsWithAlgorithm(AS4EncryptedKey encryptedKey, SymmetricAlgorithm encryptionAlgorithm)
+        private async Task EncryptAttachmentsWithAlgorithmAsync(AS4EncryptedKey encryptedKey, SymmetricAlgorithm encryptionAlgorithm)
         {
             foreach (Attachment attachment in _attachments)
             {
-                EncryptedData encryptedData = EncryptAttachmentContents(attachment, encryptedKey, encryptionAlgorithm);
+                EncryptedData encryptedData = await EncryptAttachmentContentsAsync(attachment, encryptedKey, encryptionAlgorithm);
 
                 _encryptedDatas.Add(encryptedData);
                 encryptedKey.AddDataReference(encryptedData.Id);
             }
         }
 
-        private EncryptedData EncryptAttachmentContents(Attachment attachment, AS4EncryptedKey encryptedKey, SymmetricAlgorithm algorithm)
+        private async Task<EncryptedData> EncryptAttachmentContentsAsync(Attachment attachment, AS4EncryptedKey encryptedKey, SymmetricAlgorithm algorithm)
         {
-            Stream encryptedStream = EncryptData(attachment.Content, algorithm);
+            Stream encryptedStream = await EncryptDataAsync(attachment.Content, algorithm);
 
             attachment.Content = encryptedStream;
             attachment.ContentType = "application/octet-stream";
@@ -202,9 +207,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 .Build();
         }
 
-        private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)
+        private async Task<Stream> EncryptDataAsync(Stream secretStream, SymmetricAlgorithm algorithm)
         {
-            Stream encryptedStream = new VirtualStream();
+            Stream encryptedStream = VirtualStream.CreateVirtualStream(expectedSize: (secretStream.CanSeek) ? secretStream.Length : VirtualStream.ThresholdMax);
+
             var cryptoStream = new CryptoStream(encryptedStream, algorithm.CreateEncryptor(), CryptoStreamMode.Write);
             CipherMode origMode = algorithm.Mode;
             PaddingMode origPadding = algorithm.Padding;
@@ -213,7 +219,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 algorithm.Mode = Mode;
                 algorithm.Padding = Padding;
-                secretStream.CopyTo(cryptoStream);
+                await secretStream.CopyToAsync(cryptoStream);
             }
             finally
             {
@@ -323,7 +329,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <summary>
         /// Decrypts the <see cref="AS4Message"/>, replacing the encrypted content with the decrypted content.
         /// </summary>
-        public void DecryptMessage()
+        public async Task DecryptMessageAsync()
         {
             IEnumerable<EncryptedData> encryptedDatas =
                 new EncryptedDataSerializer(_document).SerializeEncryptedDatas();
@@ -334,20 +340,20 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             foreach (EncryptedData encryptedData in encryptedDatas)
             {
-                TryDecryptEncryptedData(encryptedData, key);
+                await TryDecryptEncryptedData(encryptedData, key);
             }
 
             _as4EncryptedKey = as4EncryptedKey;
         }
 
-        private void TryDecryptEncryptedData(EncryptedData encryptedData, byte[] key)
+        private async Task TryDecryptEncryptedData(EncryptedData encryptedData, byte[] key)
         {
             try
             {
                 using (SymmetricAlgorithm decryptAlgorithm =
                                 CreateSymmetricAlgorithm(encryptedData.EncryptionMethod.KeyAlgorithm, key))
                 {
-                    DecryptAttachment(encryptedData, decryptAlgorithm);
+                    await DecryptAttachmentAsync(encryptedData, decryptAlgorithm);
                 }
             }
             catch (Exception ex)
@@ -362,13 +368,13 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private void DecryptAttachment(EncryptedData encryptedData, SymmetricAlgorithm decryptAlgorithm)
+        private async Task DecryptAttachmentAsync(EncryptedData encryptedData, SymmetricAlgorithm decryptAlgorithm)
         {
             string uri = encryptedData.CipherData.CipherReference.Uri;
             Attachment attachment = _attachments.Single(x => string.Equals(x.Id, uri.Substring(4)));
 
-            Stream decryptedStream = DecryptData(encryptedData, attachment.Content, decryptAlgorithm);
-           
+            Stream decryptedStream = await DecryptDataAsync(encryptedData, attachment.Content, decryptAlgorithm);
+
             var transformer = AttachmentTransformer.Create(encryptedData.Type);
 
             transformer.Transform(attachment, decryptedStream);
@@ -376,9 +382,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             attachment.ContentType = encryptedData.MimeType;
         }
 
-        private Stream DecryptData(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)
+        private async Task<Stream> DecryptDataAsync(EncryptedData encryptedData, Stream encryptedTextStream, SymmetricAlgorithm encryptionAlgorithm)
         {
-            Stream decryptedStream = new VirtualStream();
+            Stream decryptedStream = VirtualStream.CreateVirtualStream(expectedSize: (encryptedTextStream.CanSeek) ? encryptedTextStream.Length : VirtualStream.ThresholdMax);
 
             // save the original symmetric algorithm
             CipherMode origMode = encryptionAlgorithm.Mode;
@@ -391,18 +397,19 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             {
                 decryptionIV = GetDecryptionIV(encryptedData, encryptedTextStream, null);
             }
-            
+
             if (decryptionIV != null)
             {
                 encryptionAlgorithm.IV = decryptionIV;
             }
 
             var cryptoStream = new CryptoStream(encryptedTextStream, encryptionAlgorithm.CreateDecryptor(), CryptoStreamMode.Read);
+
             try
             {
                 encryptionAlgorithm.Mode = Mode;
                 encryptionAlgorithm.Padding = Padding;
-                cryptoStream.CopyTo(decryptedStream);
+                await cryptoStream.CopyToAsync(decryptedStream);
             }
             finally
             {
@@ -480,7 +487,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                     // The decrypted data can contain MIME headers, therefore we'll need to parse
                     // the decrypted data as a MimePart, and make sure that the content is set correctly
                     // in the attachment.
-                    
+
                     var part = MimeEntity.Load(decryptedData) as MimePart;
 
                     if (part == null)
@@ -507,7 +514,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 public override void Transform(Attachment attachment, Stream decryptedData)
                 {
-                    attachment.Content.Dispose();                    
+                    attachment.Content.Dispose();
                     attachment.Content = decryptedData;
                 }
             }

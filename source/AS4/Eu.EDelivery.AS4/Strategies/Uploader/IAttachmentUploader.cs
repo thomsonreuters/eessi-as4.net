@@ -21,6 +21,6 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// </summary>
         /// <param name="attachment"></param>
         /// <returns></returns>
-        Task<UploadResult> Upload(Attachment attachment);
+        Task<UploadResult> UploadAsync(Attachment attachment);
     }
 }

@@ -163,11 +163,11 @@ namespace Eu.EDelivery.AS4.Agents
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
-        public virtual async Task<InternalMessage> OnReceived(
+        protected virtual async Task<InternalMessage> OnReceived(
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
-            Logger.Debug($"{AgentConfig.Name} received and starts handling message with id {message.Id}");
+            Logger.Debug($"{AgentConfig.Name} received and starts handling message.");
 
 
 #if METRICS
@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.Agents
             sw.Start();
 #endif
 
-            InternalMessage internalMessage = await TryTransform(message, cancellationToken);
+            InternalMessage internalMessage = await TryTransformAsync(message, cancellationToken);
 
             if (internalMessage.Exception != null)
             {
@@ -195,7 +195,7 @@ namespace Eu.EDelivery.AS4.Agents
             return result.InternalMessage;
         }
 
-        private async Task<InternalMessage> TryTransform(ReceivedMessage message, CancellationToken cancellationToken)
+        private async Task<InternalMessage> TryTransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             try
             {
@@ -240,7 +240,7 @@ namespace Eu.EDelivery.AS4.Agents
                 }
             }
 
-            Logger.Debug($"{AgentConfig.Name} finished handling message with id {message.Id}");
+            Logger.Debug($"{AgentConfig.Name} finished handling message.");
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private const string GzipContentType = "application/gzip";
 
         private readonly ILogger _logger;
-        
+
         private InternalMessage _internalMessage;
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         }
 
         private async Task DecompressAttachments(List<PartInfo> messagePayloadInformation, ICollection<Attachment> attachments)
-        {            
+        {
             foreach (Attachment attachment in attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
@@ -121,11 +121,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
 
-            attachment.Content.Position = 0;
-            var outputStream = new VirtualStream();
+            if (attachment.Content.CanSeek && attachment.Content.Position != 0)
+            {
+                attachment.Content.Position = 0;
+            }
 
-            using (var gzipCompression = new GZipStream(
-                attachment.Content, CompressionMode.Decompress, leaveOpen: true))
+            VirtualStream outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
+
+            using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, leaveOpen: true))
             {
                 await gzipCompression.CopyToAsync(outputStream);
                 outputStream.Position = 0;
@@ -157,7 +160,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return messagePayloadInfo.Find(i => i.Href.Equals("cid:" + attachment.Id)).Properties["MimeType"];
         }
 
-        private static AS4Exception ThrowAS4CannotDecompressException( AS4Message as4Message, Exception exception)
+        private static AS4Exception ThrowAS4CannotDecompressException(AS4Message as4Message, Exception exception)
         {
             string description = $"Cannot decompress the message: {exception.Message}";
             LogManager.GetCurrentClassLogger().Error(description);

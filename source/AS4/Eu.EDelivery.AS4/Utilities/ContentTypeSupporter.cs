@@ -7,6 +7,11 @@
     {
         public static bool IsContentTypeSupported(string contentType)
         {
+            if (string.IsNullOrWhiteSpace(contentType))
+            {
+                return true;
+            }
+
             return IsMimeContentType(contentType) || IsSoapContentType(contentType);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
@@ -14,8 +15,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         private ISigningStrategy _signingStrategy;
         private IEncryptionStrategy _encryptionStrategy;
 
-        public bool IsSigned => this._signingStrategy != null;
-        public bool IsEncrypted => this._encryptionStrategy != null;
+        public bool IsSigned => _signingStrategy != null;
+        public bool IsEncrypted => _encryptionStrategy != null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityHeader"/> class. 
@@ -36,8 +37,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </param>
         public SecurityHeader(ISigningStrategy signingStrategy, IEncryptionStrategy encryptionStrategy)
         {
-            this._signingStrategy = signingStrategy;
-            this._encryptionStrategy = encryptionStrategy;
+            _signingStrategy = signingStrategy;
+            _encryptionStrategy = encryptionStrategy;
         }
 
         /// <summary>
@@ -47,8 +48,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="signingStrategy"></param>
         public void Sign(ISigningStrategy signingStrategy)
         {
-            this._signingStrategy = signingStrategy;
-            this._signingStrategy.SignSignature();
+            _signingStrategy = signingStrategy;
+            _signingStrategy.SignSignature();
         }
 
         /// <summary>
@@ -61,8 +62,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             XmlElement securityElement = xmlDocument
                 .CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
 
-            this._encryptionStrategy?.AppendEncryptionElements(securityElement);
-            this._signingStrategy?.AppendSignature(securityElement);
+            _encryptionStrategy?.AppendEncryptionElements(securityElement);
+            _signingStrategy?.AppendSignature(securityElement);
 
             return securityElement;
         }
@@ -74,7 +75,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public ArrayList GetReferences()
         {
-            return this._signingStrategy == null ? new ArrayList() : this._signingStrategy.GetSignedReferences();
+            return _signingStrategy == null ? new ArrayList() : this._signingStrategy.GetSignedReferences();
         }
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </returns>
         public bool Verify(VerifyConfig options)
         {
-            return this._signingStrategy.VerifySignature(options);
+            return _signingStrategy.VerifySignature(options);
         }
 
         /// <summary>
@@ -94,18 +95,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="encryptionStrategy"></param>
         public void Decrypt(IEncryptionStrategy encryptionStrategy)
         {
-            this._encryptionStrategy = encryptionStrategy;
-            this._encryptionStrategy.DecryptMessage();
+            _encryptionStrategy = encryptionStrategy;
+            _encryptionStrategy.DecryptMessageAsync();
         }
 
         /// <summary>
         /// Encrypts the message and its attachments.
         /// </summary>
         /// <param name="encryptionStrategy"></param>
-        public void Encrypt(IEncryptionStrategy encryptionStrategy)
+        public async Task EncryptAsync(IEncryptionStrategy encryptionStrategy)
         {
-            this._encryptionStrategy = encryptionStrategy;
-            this._encryptionStrategy.EncryptMessage();
+            _encryptionStrategy = encryptionStrategy;
+            await _encryptionStrategy.EncryptMessageAsync();
         }
     }
 }

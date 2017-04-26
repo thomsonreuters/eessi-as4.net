@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Model.Deliver;
+﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.Strategies.Sender
@@ -12,7 +13,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// Start sending the <see cref="DeliverMessage"/>
         /// </summary>
         /// <param name="deliverMessage"></param>
-        void Send(DeliverMessageEnvelope deliverMessage);
+        Task SendAsync(DeliverMessageEnvelope deliverMessage);
 
         /// <summary>
         /// Configure the <see cref="IDeliverSender"/>
