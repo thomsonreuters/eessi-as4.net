@@ -319,8 +319,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             foreach (object transform in reference.TransformChain)
             {
                 var attachmentTransform = transform as AttachmentSignatureTransform;
+
                 if (attachmentTransform != null)
+                {
                     attachmentTransform.ContentType = attachment.ContentType;
+                }
             }
         }
 
@@ -337,14 +340,21 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             var referenceStream = RefTargetField.GetValue(reference) as Stream;
 
-            Stream streamToWorkOn = referenceStream;
-            if (streamToWorkOn != null)
+            if (referenceStream != null)
             {
-                streamToWorkOn.Position = 0;
-            }
-            if (referenceStream is FilteredStream)
-            {
-                (referenceStream as FilteredStream).Source.Position = 0;
+                var filteredStream = referenceStream as FilteredStream;
+
+                if (filteredStream != null)
+                {
+                    filteredStream.Source.Position = 0;
+                }
+                else
+                {
+                    if (referenceStream.CanSeek && referenceStream.Position != 0)
+                    {
+                        referenceStream.Position = 0;
+                    }
+                }
             }
         }
     }

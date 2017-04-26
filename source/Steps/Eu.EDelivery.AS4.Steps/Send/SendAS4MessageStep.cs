@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="createDatastore"></param>
         public SendAS4MessageStep(Func<DatastoreContext> createDatastore)
-            : this(createDatastore, new ReliableHttpClient()) {}
+            : this(createDatastore, new ReliableHttpClient()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -242,7 +242,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             string protocolUrl = GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url;
             string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
+
             Logger.Error(description);
+            Logger.Error(exception.Message);
+            if (exception.InnerException != null)
+            {
+                Logger.Error(exception.InnerException.Message);
+            }
 
             return AS4ExceptionBuilder
                 .WithDescription(description)

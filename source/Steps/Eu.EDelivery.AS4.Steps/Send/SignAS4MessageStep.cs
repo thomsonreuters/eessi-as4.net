@@ -135,10 +135,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static void ResetAttachmentContents(AS4Message as4Message)
         {
-            foreach (Attachment attachment in as4Message.Attachments)
-            {
-                attachment.Content.Position = 0;
-            }
+            ////////foreach (Attachment attachment in as4Message.Attachments)
+            ////////{
+            ////////    attachment.Content.Position = 0;
+            ////////}
         }
     }
 }

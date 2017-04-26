@@ -133,13 +133,13 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            LogReceiverSpecs(true);
+            LogReceiverSpecs(startReceiving: true);
             StartPolling(messageCallback, cancellationToken);
         }
 
         public void StopReceiving()
         {
-            LogReceiverSpecs(false);
+            LogReceiverSpecs(startReceiving: false);
         }
 
         private void LogReceiverSpecs(bool startReceiving)
