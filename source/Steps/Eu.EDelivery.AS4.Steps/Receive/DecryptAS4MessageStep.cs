@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            TryDecryptAS4MessageAsync(internalMessage);
+            TryDecryptAS4Message(internalMessage);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return isIgnored;
         }
 
-        private void TryDecryptAS4MessageAsync(InternalMessage internalMessage)
+        private void TryDecryptAS4Message(InternalMessage internalMessage)
         {
             try
             {
