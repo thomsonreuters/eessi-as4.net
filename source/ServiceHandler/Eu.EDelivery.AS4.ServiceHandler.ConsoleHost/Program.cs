@@ -58,7 +58,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
                 Console.WriteLine($@"Stopped: {task.Status}");
 
                 if (task.IsFaulted && task.Exception != null)
+                {
                     Console.WriteLine(task.Exception.ToString());
+                }
             }
             finally
             {

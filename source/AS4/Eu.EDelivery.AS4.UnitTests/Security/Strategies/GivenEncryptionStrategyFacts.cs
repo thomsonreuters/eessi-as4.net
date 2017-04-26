@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                                              .Build();
 
                 // Act
-                encryptionStrategy.DecryptMessage();
+                await encryptionStrategy.DecryptMessageAsync();
 
                 // Assert
                 Assert.Equal(Properties.Resources.flower1, GetAttachmentContents(as4Message.Attachments.ElementAt(0)));
@@ -41,18 +41,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             }
 
             [Fact]
-            public void ThenEncryptEncryptsTheAttachmentsCorrectly()
+            public async void ThenEncryptEncryptsTheAttachmentsCorrectly()
             {
                 // Arrange
                 byte[] attachmentContents = Encoding.UTF8.GetBytes("hi!");
-                var attachment = new Attachment("attachment-id") {Content = new MemoryStream(attachmentContents)};
+                var attachment = new Attachment("attachment-id") { Content = new MemoryStream(attachmentContents) };
 
                 AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
                 IEncryptionStrategy encryptionStrategy = CreateEncryptionStrategyForEncrypting(as4Message);
 
                 // Act
-                encryptionStrategy.EncryptMessage();
+                await encryptionStrategy.EncryptMessageAsync();
 
                 // Assert
                 Attachment firstAttachment = as4Message.Attachments.ElementAt(0);
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                     EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument).Build();
 
                 // Act&Assert
-                Assert.ThrowsAny<Exception>(() => encryptionStrategy.DecryptMessage());
+                await Assert.ThrowsAnyAsync<Exception>(async () => await encryptionStrategy.DecryptMessageAsync());
             }
         }
 
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         {
             envelopeStream.Position = 0;
             var envelopeXmlDocument = new XmlDocument();
-            var readerSettings = new XmlReaderSettings {CloseInput = false};
+            var readerSettings = new XmlReaderSettings { CloseInput = false };
 
             using (XmlReader reader = XmlReader.Create(envelopeStream, readerSettings))
             {

@@ -133,16 +133,16 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            LogReceiverSpecs();
+            LogReceiverSpecs(true);
             StartPolling(messageCallback, cancellationToken);
         }
 
         public void StopReceiving()
         {
-            LogReceiverSpecs();
+            LogReceiverSpecs(false);
         }
 
-        private void LogReceiverSpecs()
+        private void LogReceiverSpecs(bool startReceiving)
         {
             if (_properties == null)
             {
@@ -153,7 +153,9 @@ namespace Eu.EDelivery.AS4.Receivers
             string field = _properties[SettingKeys.Field];
             string value = _properties[SettingKeys.FilterValue];
 
-            Logger.Debug($"Start Receiving on Datastore FROM {table} WHERE {field} == {value}");
+            string action = startReceiving ? "Start" : "Stop";
+
+            Logger.Debug($"{action} Receiving on Datastore FROM {table} WHERE {field} == {value}");
         }
 
         /// <summary>
