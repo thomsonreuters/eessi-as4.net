@@ -1,4 +1,5 @@
 ﻿using Xunit;
+using Xunit.Sdk;
 using static Eu.EDelivery.AS4.VolumeTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.VolumeTests
@@ -11,19 +12,30 @@ namespace Eu.EDelivery.AS4.VolumeTests
         [Fact]
         public void TestIncreasingNumberOfMessages()
         {
+            // Arrange
+            const int messageCount = 100;
+
             // Act
-            Corner2.PlaceMessageAtCorner(SIMPLE_ONEWAY_TO_C3);
+            Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             // Assert
-            AssertOnHunderdFiles("*.jpg");
-            AssertOnHunderdFiles("*.xml");
+            PollingTill(messageCount, Corner3, () => AssertMessages(messageCount));
         }
 
-        private void AssertOnHunderdFiles(string searchPattern)
+        private void AssertMessages(int messageCount)
         {
-            int fileCount = Corner3.CountDeliveredFiles(searchPattern);
+            AssertOnFileCount(messageCount, "*.jpg", $"Payloads count expected to be '{messageCount}'");
+            AssertOnFileCount(messageCount, "*.xml", $"Deliver Message count expected to be '{messageCount}'");
+        }
 
-            Assert.Equal(100, fileCount);
+        private void AssertOnFileCount(int expectedCount, string searchPattern, string userMessage)
+        {
+            int actualCount = Corner3.CountDeliveredMessages(searchPattern);
+
+            if (expectedCount != actualCount)
+            {
+                throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
+            }
         }
     }
 }
