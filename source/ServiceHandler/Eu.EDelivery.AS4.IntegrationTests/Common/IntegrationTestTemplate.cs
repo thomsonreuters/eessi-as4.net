@@ -39,8 +39,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
-            ReplaceTokensInDirectoryFiles(@".\messages", "__OUTPUTPATH__", Path.GetFullPath("."));
-
             CleanUpFiles(Path.GetFullPath(@".\database"));
             CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
 
@@ -88,14 +86,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 string temppath = Path.Combine(destDirName, file.Name);
                 file.CopyTo(temppath, overwrite: true);
-            }
-        }
-
-        private static void ReplaceTokensInDirectoryFiles(string directory, string token, string value)
-        {
-            foreach (string filePath in Directory.EnumerateFiles(Path.GetFullPath(directory)))
-            {
-                ReplaceTokenInFile(token, value, filePath);
             }
         }
 
