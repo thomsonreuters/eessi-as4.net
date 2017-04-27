@@ -41,12 +41,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             CleanUpFiles(Path.GetFullPath(@".\database"));
             CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
-
-            LeaveAS4ComponentRunningDuringValidation = false;
         }
 
-        public bool LeaveAS4ComponentRunningDuringValidation { get; set; }
-        
         #region Fixture Setup
         private static void CopyDirectory(string sourceDirName, string destDirName)
         {
