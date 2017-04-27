@@ -50,14 +50,20 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
             catch (AS4Exception exception)
             {
-                using (var context = Registry.Instance.CreateDatastoreContext())
+                try
                 {
-                    var repository = new DatastoreRepository(context);
-                    HandleInException(exception, internalMessage, repository);
+                    using (var context = Registry.Instance.CreateDatastoreContext())
+                    {
+                        var repository = new DatastoreRepository(context);
+                        HandleInException(exception, internalMessage, repository);
 
-                    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
-
+                catch (Exception ex)
+                {
+                    _logger.Fatal($"An unexpected error occured: {ex.Message}");
+                }
                 return StepResult.Failed(exception);
             }
             catch (Exception exception)
