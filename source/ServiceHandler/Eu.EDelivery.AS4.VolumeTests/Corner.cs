@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Xml;
 
 namespace Eu.EDelivery.AS4.VolumeTests
 {
@@ -40,17 +42,10 @@ namespace Eu.EDelivery.AS4.VolumeTests
 
                 File.WriteAllText(outMessagePath, generatedMessage);
             }
-
-            WaitTillAS4ComponentIsReadyToAssert();
-        }
-
-        private static void WaitTillAS4ComponentIsReadyToAssert()
-        {
-            Thread.Sleep(TimeSpan.FromSeconds(30));
         }
 
         /// <summary>
-        /// Count the files that are delivered on the created corner.
+        /// Count the messages that are delivered on the created corner.
         /// </summary>
         /// <param name="searchPattern">
         /// The search string to match against the names of files. This parameter can contain a combination of valid literal path
@@ -58,12 +53,35 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// which returns all files.
         /// </param>
         /// <returns></returns>
-        public int CountDeliveredFiles(string searchPattern)
+        public int CountDeliveredMessages(string searchPattern = "*")
         {
-            string deliverPath = Path.Combine(_cornerDirectory.FullName, "messages", "in");
-            var deliverDirectory = new DirectoryInfo(deliverPath);
-
+            DirectoryInfo deliverDirectory = GetMessageDirectory(subDirectory: "in");
             return deliverDirectory.GetFiles(searchPattern).Length;
+        }
+
+        /// <summary>
+        /// Cleanup the delivered messages from the Corner's deliver directory.
+        /// </summary>
+        public void CleanupMessages()
+        {
+           CleanUpMessageDirectory("in");
+           CleanUpMessageDirectory("out");
+        }
+
+        private void CleanUpMessageDirectory(string subDirectory)
+        {
+            DirectoryInfo messageDirectory = GetMessageDirectory(subDirectory);
+
+            foreach (FileInfo deliveredMessage in messageDirectory.GetFiles())
+            {
+                deliveredMessage.Delete();
+            }
+        }
+
+        private DirectoryInfo GetMessageDirectory(string subDirectory)
+        {
+            string deliverPath = Path.Combine(_cornerDirectory.FullName, "messages", subDirectory);
+            return new DirectoryInfo(deliverPath);
         }
 
         /// <summary>
@@ -94,8 +112,6 @@ namespace Eu.EDelivery.AS4.VolumeTests
             CopyDirectory(outputDirectory, cornerDirectory.FullName);
             IncludeCornerSettingsIn(cornerDirectory, $"{cornerPrefix}-settings.xml");
             IncludeCornerPModesIn(cornerDirectory);
-
-            CleanUpDirectory(Path.Combine(cornerDirectory.FullName, "database"));
 
             return cornerDirectory;
         }
@@ -142,7 +158,26 @@ namespace Eu.EDelivery.AS4.VolumeTests
                 cornerDirectory.GetFiles("*.xml", SearchOption.AllDirectories)
                                .First(f => f.Name.Equals(cornerSettingsFileName));
 
-            File.Copy(cornerSettings.FullName, Path.Combine(cornerDirectory.FullName, "config", "settings.xml"), overwrite: true);
+            string newSettingsFilePath = Path.Combine(cornerDirectory.FullName, "config", "settings.xml");
+            File.Copy(cornerSettings.FullName, newSettingsFilePath, overwrite: true);
+
+            DropSettingsDatabase(newSettingsFilePath);
+        }
+
+        private static void DropSettingsDatabase(string newSettingsFilePath)
+        {
+            string xml = File.ReadAllText(newSettingsFilePath);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(xml);
+
+            string connectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
+            using (var sqlConnection = new SqlConnection(connectionString))
+            {
+                sqlConnection.Open();
+                
+                var dropDatabaseCommand = new SqlCommand($"USE [master]; DROP DATABASE {sqlConnection.Database}", sqlConnection);
+                dropDatabaseCommand.ExecuteNonQuery();
+            }
         }
 
         private static void IncludeCornerPModesIn(FileSystemInfo cornerDirectory)
@@ -158,13 +193,6 @@ namespace Eu.EDelivery.AS4.VolumeTests
 
             CopyFiles(volumeSendPModes, outputSendPModes.FullName);
             CopyFiles(volumeReceivePModes, outputReceivePModes.FullName);
-        }
-
-        private static void CleanUpDirectory(string directoryPath)
-        {
-            Console.WriteLine($@"Deleting files at location: {directoryPath}");
-
-            Directory.Delete(directoryPath, recursive: true);
         }
 
         /// <summary>
