@@ -11,19 +11,22 @@ namespace Eu.EDelivery.AS4.VolumeTests
         [Fact]
         public void TestIncreasingNumberOfMessages()
         {
+            // Arrange
+            const int messageCount = 100;
+
             // Act
-            Corner2.PlaceMessageAtCorner(SIMPLE_ONEWAY_TO_C3);
+            Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             // Assert
-            AssertOnHunderdFiles("*.jpg");
-            AssertOnHunderdFiles("*.xml");
+            AssertOnFileCount(messageCount, "*.jpg");
+            AssertOnFileCount(messageCount, "*.xml");
         }
 
-        private void AssertOnHunderdFiles(string searchPattern)
+        private void AssertOnFileCount(int messageCount, string searchPattern)
         {
             int fileCount = Corner3.CountDeliveredFiles(searchPattern);
 
-            Assert.Equal(100, fileCount);
+            Assert.Equal(messageCount, fileCount);
         }
     }
 }

@@ -26,20 +26,26 @@ namespace Eu.EDelivery.AS4.VolumeTests
         }
 
         /// <summary>
-        /// Place a given <paramref name="messageContent"/> at the Corner's location to retrieve files.
+        /// Place the given <paramref name="messageContents"/> <paramref name="messageCount"/> times at the Corner's location to retrieve files.
         /// </summary>
-        /// <param name="messageContent">Message that the corner must retrieve.</param>
-        public void PlaceMessageAtCorner(string messageContent)
+        /// <param name="messageCount">Amount of messages to send.</param>
+        /// <param name="messageContents">Content of the message to send.</param>
+        public void PlaceMessages(int messageCount, string messageContents)
         {
-            for (var i = 0; i < 1; i++)
+            for (var i = 0; i < messageCount; i++)
             {
                 string id = Guid.NewGuid().ToString();
-                string generatedMessage = messageContent.Replace("__ATTACHMENTID__", id);
+                string generatedMessage = messageContents.Replace("__ATTACHMENTID__", id);
                 string outMessagePath = Path.Combine(_cornerDirectory.FullName, $@"messages\out\{id}.xml");
 
                 File.WriteAllText(outMessagePath, generatedMessage);
             }
 
+            WaitTillAS4ComponentIsReadyToAssert();
+        }
+
+        private static void WaitTillAS4ComponentIsReadyToAssert()
+        {
             Thread.Sleep(TimeSpan.FromSeconds(30));
         }
 
