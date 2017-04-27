@@ -1,6 +1,4 @@
-﻿using System;
-using Eu.EDelivery.AS4.ServiceHandler;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Eu.EDelivery.AS4.ServiceHandler;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
@@ -13,19 +11,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler
         [Fact]
         public void KernelHasNothingToClose()
         {
-            try
-            {
-                // Arrange
-                var sut = new Kernel(agents: null);
+            // Arrange
+            var sut = new Kernel(null);
 
-                // Act 
-                sut.Dispose();
-            }
-            catch (Exception exception)
-            {
-                // Assert
-                throw new AssertFailedException("'Kernel has nothing to close test' failed", exception);
-            }
+            // Act 
+            sut.Dispose();
         }
     }
 }

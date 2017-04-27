@@ -159,7 +159,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static ISigningStrategy CreateSignStrategy(AS4Message as4Message)
         {
-            X509Certificate2 certificate = new StubCertificateRepository().GetDummyCertificate();
+            X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
             SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message, CancellationToken.None)
                 .WithSecurityTokenReference(X509ReferenceType.BSTReference)

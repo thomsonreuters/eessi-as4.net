@@ -285,7 +285,6 @@
     <Compile Include="Common\GivenDataStoreFacts.cs" />
     <Compile Include="Common\GivenDatastoreStepFacts.cs" />
     <Compile Include="Common\GivenRegistryFacts.cs" />
-    <Compile Include="Common\NullInternalMessage.cs" />
     <Compile Include="Common\StubConfig.cs" />
     <Compile Include="Entities\GivenExceptionEntityFacts.cs" />
     <Compile Include="Entities\GivenMessageEntityFacts.cs" />
@@ -295,9 +294,7 @@
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
     <Compile Include="Http\GivenReliableHttpClientFacts.cs" />
-    <Compile Include="Http\SpyHttpServer.cs" />
     <Compile Include="Http\StubHttpClient.cs" />
-    <Compile Include="Http\UniqueUrl.cs" />
     <Compile Include="Mappings\Core\GivenAgreementRefMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenCollaborationInfoMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />

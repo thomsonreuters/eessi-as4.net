@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             {
                 // Arrange
                 _builder = new SigningStrategyBuilder(new AS4Message(), CancellationToken.None);
-                X509Certificate2 certificate = new StubCertificateRepository().GetDummyCertificate();
+                X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
                 // Act
                 ISigningStrategy signingStrategy =
