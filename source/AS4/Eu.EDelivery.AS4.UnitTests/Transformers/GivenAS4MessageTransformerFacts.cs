@@ -5,15 +5,14 @@ using System.Xml.Serialization;
 using AutoMapper;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
-using Eu.EDelivery.AS4.Utilities;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
@@ -23,46 +22,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenAS4MessageTransformerFacts
     {
-        private readonly AS4MessageTransformer _transformer;
-        private AS4Message _as4Message;
-        private Attachment _attachment;
-
         public GivenAS4MessageTransformerFacts()
         {
-            this._transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
-
-            CreateAS4Message();
-            CreateAttachment();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-        }
-
-        private void CreateAS4Message()
-        {
-            var userMessage = new UserMessage(messageId: "message-id")
-            {
-                Receiver = new Party("Receiver", new PartyId()),
-                Sender = new Party("Sender", new PartyId())
-            };
-
-            this._as4Message = new AS4MessageBuilder()
-                .WithSendingPMode(new SendingProcessingMode())
-                .WithUserMessage(userMessage)
-                .Build();
-
-            this._as4Message.ContentType = Constants.ContentTypes.Soap;
-        }
-
-        private void CreateAttachment()
-        {
-            this._attachment = new Attachment(id: "attachment-id")
-            {
-                Content = new MemoryStream(),
-                ContentType = "image/jpeg"
-            };
-
-            var xmlSerializer = new XmlSerializer(typeof(string));
-            xmlSerializer.Serialize(this._attachment.Content, "<Root></Root>");
-            this._attachment.Content.Position = 0;
         }
 
         /// <summary>
@@ -75,12 +37,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransfromSuceedsWithSoapdAS4StreamAsync()
             {
                 // Arrange
-                MemoryStream memoryStream = base._as4Message.ToStream();
-                var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
+                MemoryStream memoryStream = CreateAS4MessageWithAttachment().ToStream();
+                var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);
 
                 // Act
-                InternalMessage internalMessage = await base._transformer
-                    .TransformAsync(receivedMessage, CancellationToken.None);
+                InternalMessage internalMessage = await Transform(receivedMessage);
 
                 // Assert
                 Assert.NotNull(internalMessage);
@@ -98,15 +59,86 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {
                 // Arrange
-                base._as4Message.UserMessages = new[] {new UserMessage("message-id")};
-                MemoryStream memoryStream = base._as4Message.ToStream();
+                AS4Message as4Message = CreateAS4MessageWithoutAttachments();
+                as4Message.UserMessages = new[] {new UserMessage("message-id")};
+                MemoryStream memoryStream = as4Message.ToStream();
+
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AutoMapperMappingException>(
-                    () => base._transformer
-                        .TransformAsync(receivedMessage, CancellationToken.None));
+                await Assert.ThrowsAsync<AutoMapperMappingException>(() => Transform(receivedMessage));
+            }
+
+            [Fact]
+            public async Task ThenTransformFails_IfContentIsNotSupported()
+            {
+                // Arrange
+                var saboteurMessage = new ReceivedMessage(Stream.Null, "not-supported-content-type");
+
+                await VerifyIfTheTranformReturnsErrorMessage(saboteurMessage);
+            }
+
+            [Fact]
+            public async Task ThenTransformFails_IfRequestStreamIsNull()
+            {
+                // Arrange
+                var saboteurMessage = new ReceivedMessage(requestStream: null);
+
+                await VerifyIfTheTranformReturnsErrorMessage(saboteurMessage);
+            }
+
+            private async Task VerifyIfTheTranformReturnsErrorMessage(ReceivedMessage saboteurMessage)
+            {
+                // Act
+                InternalMessage actualMessage = await Transform(saboteurMessage);
+
+                // Assert
+                Assert.IsType<Error>(actualMessage.AS4Message.PrimarySignalMessage);
             }
         }
+
+        private static AS4Message CreateAS4MessageWithAttachment()
+        {
+            AS4Message as4Message = CreateAS4MessageWithoutAttachments();
+
+            as4Message.ContentType = Constants.ContentTypes.Mime;
+            as4Message.AddAttachment(CreateAttachment());
+
+            return as4Message;
+        }
+
+        private static AS4Message CreateAS4MessageWithoutAttachments()
+        {
+            var userMessage = new UserMessage("message-id")
+            {
+                Receiver = new Party("Receiver", new PartyId()),
+                Sender = new Party("Sender", new PartyId())
+            };
+
+            AS4Message as4Message =
+                new AS4MessageBuilder().WithSendingPMode(new SendingProcessingMode())
+                                       .WithUserMessage(userMessage)
+                                       .Build();
+            as4Message.ContentType = Constants.ContentTypes.Soap;
+
+            return as4Message;
+        }
+
+        private static Attachment CreateAttachment()
+        {
+            var attachment = new Attachment("attachment-id") {Content = new MemoryStream(), ContentType = "application/xml"};
+
+            var xmlSerializer = new XmlSerializer(typeof(string));
+            xmlSerializer.Serialize(attachment.Content, "<?xml version=\"1.0\"?><Root></Root>");
+            attachment.Content.Position = 0;
+
+            return attachment;
+        }
+
+        protected async Task<InternalMessage> Transform(ReceivedMessage message)
+        {
+            var transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
+            return await transformer.TransformAsync(message, CancellationToken.None);
+        } 
     }
 }

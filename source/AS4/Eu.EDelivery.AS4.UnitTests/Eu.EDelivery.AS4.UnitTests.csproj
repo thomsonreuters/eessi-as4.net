@@ -374,6 +374,7 @@
     <Compile Include="Servicehandler\Builder\GivenGenericTypeBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenReceiverBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenStepBuilderFacts.cs" />
+    <Compile Include="Servicehandler\GivenKernelFacts.cs" />
     <Compile Include="Steps\Common\GivenInExceptionDecoratorStep.cs" />
     <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
