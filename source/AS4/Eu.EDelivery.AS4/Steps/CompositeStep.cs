@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps
 
             foreach (IStep step in _steps)
             {
-                StepResult result = await step.ExecuteAsync(messageToSend, cancellationToken);
+                StepResult result = await step.ExecuteAsync(messageToSend, cancellationToken).ConfigureAwait(false);
 
                 if (result.InternalMessage != null)
                 {

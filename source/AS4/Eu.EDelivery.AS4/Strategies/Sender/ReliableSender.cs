@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="deliverMessage"></param>
         public async Task SendAsync(DeliverMessageEnvelope deliverMessage)
         {
-            await SendMessage(deliverMessage, _deliverSender.SendAsync);
+            await SendMessage(deliverMessage, _deliverSender.SendAsync).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -62,14 +62,14 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public async Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
-            await SendMessage(notifyMessage, _notifySender.SendAsync);
+            await SendMessage(notifyMessage, _notifySender.SendAsync).ConfigureAwait(false);
         }
 
         private static async Task SendMessage<T>(T message, Func<T, Task> sendAction)
         {
             try
             {
-                await sendAction(message);
+                await sendAction(message).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

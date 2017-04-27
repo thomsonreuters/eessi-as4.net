@@ -52,14 +52,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                     if (exception == null)
                     {
-                        return await _step.ExecuteAsync(internalMessage, cancellationToken);
+                        return await _step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
                     }
 
                     _originalAS4Message = internalMessage.AS4Message;
 
-                    var result = await HandleImplicitError(internalMessage.AS4Message, inExceptionService);
+                    var result = await HandleImplicitError(internalMessage.AS4Message, inExceptionService).ConfigureAwait(false);
 
-                    await context.SaveChangesAsync(cancellationToken);
+                    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                     return result;
                 }
@@ -79,8 +79,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                     InitializeFields(internalMessage);
 
-                    var result = await HandleInException(exception, internalMessage.AS4Message, inExceptionService);
-                    await context.SaveChangesAsync(cancellationToken);
+                    var result = await HandleInException(exception, internalMessage.AS4Message, inExceptionService).ConfigureAwait(false);
+                    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                     return result;
                 }

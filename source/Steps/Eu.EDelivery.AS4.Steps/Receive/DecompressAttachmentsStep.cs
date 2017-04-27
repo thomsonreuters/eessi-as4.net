@@ -47,10 +47,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!internalMessage.AS4Message.HasAttachments)
             {
-                return await ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(internalMessage).ConfigureAwait(false);
             }
 
-            await TryDecompressAttachments(internalMessage.AS4Message);
+            await TryDecompressAttachments(internalMessage.AS4Message).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                await DecompressAttachments(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), as4Message.Attachments);
+                await DecompressAttachments(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), as4Message.Attachments).ConfigureAwait(false);
                 _logger.Info(
                     $"{_internalMessage.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
             }
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     throw ThrowMissingMimeTypePartyPropertyException(attachment);
                 }
 
-                await DecompressAttachment(attachment);
+                await DecompressAttachment(attachment).ConfigureAwait(false);
                 AssignAttachmentProperties(messagePayloadInformation, attachment);
             }
         }
@@ -121,16 +121,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
 
-            if (attachment.Content.CanSeek && attachment.Content.Position != 0)
-            {
-                attachment.Content.Position = 0;
-            }
-
+            attachment.ResetContentPosition();
+            
             VirtualStream outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, leaveOpen: true))
             {
-                await gzipCompression.CopyToAsync(outputStream);
+                await gzipCompression.CopyToAsync(outputStream).ConfigureAwait(false);
                 outputStream.Position = 0;
                 attachment.Content = outputStream;
             }

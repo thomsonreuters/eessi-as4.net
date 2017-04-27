@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         {
             try
             {
-                return await _step.ExecuteAsync(internalMessage, cancellationToken);
+                return await _step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
             }
             catch (AS4Exception exception)
             {
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
                 {
                     HandleOutException(exception, internalMessage, new DatastoreRepository(context));
 
-                    await context.SaveChangesAsync(cancellationToken);
+                    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 }
                 return StepResult.Failed(exception, internalMessage);
             }

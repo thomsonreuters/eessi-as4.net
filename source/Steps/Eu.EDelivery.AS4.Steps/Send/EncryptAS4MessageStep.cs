@@ -53,18 +53,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await ReturnSameInternalMessage(internalMessage);
             }
 
-            await TryEncryptAS4MessageAsync(internalMessage);
+            TryEncryptAS4Message(internalMessage);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private async Task TryEncryptAS4MessageAsync(InternalMessage internalMessage)
+        private void TryEncryptAS4Message(InternalMessage internalMessage)
         {
             Logger.Info($"{internalMessage.Prefix} Encrypt AS4 Message with given Encryption Information");
             try
             {
                 IEncryptionStrategy strategy = CreateEncryptStrategy(internalMessage);
-                await internalMessage.AS4Message.SecurityHeader.EncryptAsync(strategy);
+                internalMessage.AS4Message.SecurityHeader.Encrypt(strategy);
             }
             catch (Exception exception)
             {

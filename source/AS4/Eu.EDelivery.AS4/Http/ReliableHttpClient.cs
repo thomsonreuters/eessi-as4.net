@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Http
         {
             try
             {
-                WebResponse response = await request.GetResponseAsync();
+                WebResponse response = await request.GetResponseAsync().ConfigureAwait(false);
 
                 return (response as HttpWebResponse, exception: null);
             }

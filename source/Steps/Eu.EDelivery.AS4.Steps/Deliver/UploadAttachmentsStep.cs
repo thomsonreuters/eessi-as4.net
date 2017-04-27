@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             _internalMessage = internalMessage;
 
-            await UploadAttachments(internalMessage.AS4Message.Attachments);
+            await UploadAttachments(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             try
             {
                 _logger.Info($"{_internalMessage.Prefix} Start Uploading Attachment...");
-                await UploadAttachment(attachment);
+                await UploadAttachment(attachment).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             IAttachmentUploader uploader = _provider.Get(payloadReferenceMethod.Type);
             uploader.Configure(payloadReferenceMethod);
-            UploadResult attachmentResult = await uploader.UploadAsync(attachment);
+            UploadResult attachmentResult = await uploader.UploadAsync(attachment).ConfigureAwait(false);
 
             attachment.Location = attachmentResult.DownloadUrl;
         }

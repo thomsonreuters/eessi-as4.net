@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             _internalMessage = internalMessage;
-            
+
             PreConditions();
             if (MessageDoesNotNeedToBeVerified())
             {
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private void PreConditions()
         {
-            AS4Message as4Message = this._internalMessage.AS4Message;
+            AS4Message as4Message = _internalMessage.AS4Message;
             ReceivingProcessingMode pmode = as4Message.ReceivingPMode;
             SigningVerification verification = pmode?.Security.SigningVerification;
 
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                return await VerifySignature();
+                return await VerifySignature().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -100,6 +100,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             _logger.Info($"{_internalMessage.Prefix} AS4 Message has a valid Signature present");
+
+            foreach (Attachment attachment in _internalMessage.AS4Message.Attachments)
+            {
+                attachment.ResetContentPosition();
+            }
 
             return await StepResult.SuccessAsync(_internalMessage);
         }

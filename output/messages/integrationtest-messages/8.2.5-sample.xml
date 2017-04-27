@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
-
   <Collaboration>
     <AgreementRef>
       <PModeId>8.2.5-pmode</PModeId>
@@ -13,7 +12,6 @@
       <Type>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</Type>
     </Service>
   </Collaboration>
-
   <MessageProperties>
     <MessageProperty>
       <Name>Test</Name>
@@ -26,15 +24,14 @@
       <Value>Test</Value>
     </MessageProperty>
   </MessageProperties>
-
   <Payloads>
     <Payload>
       <Id>earth2</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///__OUTPUTPATH__\messages\attachments\earth(2).jpg</Location>
+      <Location>file:///.\messages\attachments\earth(2).jpg</Location>
       <PayloadProperties>
         <PayloadProperty>
-           <Name>Test</Name>
+          <Name>Test</Name>
           <Value>Test</Value>
         </PayloadProperty>
       </PayloadProperties>

@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             foreach (Payload payload in SubmitMessage.Payloads)
             {
                 Attachment attachment = CreateAttachmentFromPayload(payload);
-                attachment.Content = await retrieval(payload);
+                attachment.Content = await retrieval(payload).ConfigureAwait(false);
                 AS4Message.AddAttachment(attachment);
             }
         }

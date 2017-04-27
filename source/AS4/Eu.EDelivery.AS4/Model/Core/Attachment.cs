@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Factories;
+using MimeKit.IO;
+using Eu.EDelivery.AS4.Streaming;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -42,6 +44,14 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             Id = id;
             InitializeDefaults();
+        }
+
+        public void ResetContentPosition()
+        {
+            if (Content != null)
+            {
+                StreamPositionMover.MovePositionToStreamStart(Content);                
+            }
         }
 
         private void InitializeDefaults()

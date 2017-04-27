@@ -18,14 +18,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._16
     {
         private static readonly HttpClient HttpClient = new HttpClient();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ReceiveSinglePayloadViaPayloadService"/> class.
-        /// </summary>
-        public ReceiveSinglePayloadViaPayloadService()
-        {
-            LeaveAS4ComponentRunningDuringValidation = true;
-        }
-
         [Fact]
         public void RunIntegrationTest()
         {

@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string downloadUrl = AssembleFileDownloadUrlFor(attachment);
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
-            await TryUploadAttachment(attachment, attachmentFilePath);
+            await TryUploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
             return new UploadResult {DownloadUrl = attachmentFilePath};
         }
 
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         {
             try
             {
-                await UploadAttachment(attachment, attachmentFilePath);
+                await UploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
             }
             catch (SystemException ex)
             {
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
             using (FileStream fileStream = File.Create(attachmentFilePath))
             {
-                await attachment.Content.CopyToAsync(fileStream);
+                await attachment.Content.CopyToAsync(fileStream).ConfigureAwait(false);
             }
 
             Logger.Info($"Attachment {attachment.Id} is uploaded successfully to {attachment.Location}");

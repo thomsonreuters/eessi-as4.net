@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -28,12 +29,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._15
             CleanUpFiles(AS4FullInputPath);
 
             // Act
-            _sender.SendMessage(Properties.Resources.duplicated_as4message, ContentType);
-            CleanUpFiles(AS4FullInputPath);
-            _sender.SendMessage(Properties.Resources.duplicated_as4message, ContentType);
+            Task send1 = _sender.SendMessage(Properties.Resources.duplicated_as4message, ContentType);
+            send1.ContinueWith(task => CleanUpFiles(AS4FullInputPath));
+            send1.Wait();
 
-            // Assert
-            AssertMessageIsNotDelivered();
+            Task send2 = _sender.SendMessage(Properties.Resources.duplicated_as4message, ContentType);
+            send2.ContinueWith(task => AssertMessageIsNotDelivered());
+            send2.Wait();
 
             // After
             StopApplication();

@@ -133,13 +133,13 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="cancellationToken"></param>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            LogReceiverSpecs(true);
+            LogReceiverSpecs(startReceiving: true);
             StartPolling(messageCallback, cancellationToken);
         }
 
         public void StopReceiving()
         {
-            LogReceiverSpecs(false);
+            LogReceiverSpecs(startReceiving: false);
         }
 
         private void LogReceiverSpecs(bool startReceiving)
@@ -263,7 +263,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 else
                 {
                     ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                    await messageCallback(receivedMessage, token);
+                    await messageCallback(receivedMessage, token).ConfigureAwait(false);
                 }
             }
         }
@@ -280,7 +280,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
-            InternalMessage result = await messageCallback(message, token);
+            InternalMessage result = await messageCallback(message, token).ConfigureAwait(false);
             result?.Dispose();
         }
 

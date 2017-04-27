@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             _internalMessage = internalMessage;
-            await TryCompressAS4MessageAsync(internalMessage.AS4Message.Attachments);
+            await TryCompressAS4MessageAsync(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             foreach (Attachment attachment in attachments)
             {
-                await CompressAttachmentAsync(attachment);
+                await CompressAttachmentAsync(attachment).ConfigureAwait(false);
                 AssignAttachmentProperties(attachment);
             }
         }
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             using (var gzipCompression = new GZipStream(outputStream, CompressionMode.Compress, leaveOpen: true))
             {
-                await attachment.Content.CopyToAsync(gzipCompression);
+                await attachment.Content.CopyToAsync(gzipCompression).ConfigureAwait(false);
             }
 
             outputStream.Position = 0;

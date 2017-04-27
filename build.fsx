@@ -29,7 +29,14 @@ Target "Compile" (fun _ ->
         { defaults with
             Verbosity = Some(Quiet)
             Targets = ["Build"]
-            Properties = [ "Optimize", "True"; "DebugSymbols", "True"; "Configuration", buildMode]
+            NodeReuse = false
+            NoLogo = true
+            Properties = 
+                [ "Optimize", "True" 
+                  "DebugSymbols", "True" 
+                  "Configuration", buildMode
+                  "VisualStudioVersion", "15.0"
+                  "Platform", "any cpu" ]
             RestorePackagesFlag = true
          }
     build setParams "./source/AS4.sln" |> DoNothing
@@ -90,7 +97,8 @@ Target "Inspect" (fun _ ->
             )
 )
 
-"Compile" 
+"Restore"
+==> "Compile" 
 ==> "UnitTests" 
 ==> "Coverage" 
 ==> "Inspect"
