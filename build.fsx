@@ -90,7 +90,8 @@ Target "Inspect" (fun _ ->
             )
 )
 
-"Compile" 
+"Restore"
+==> "Compile" 
 ==> "UnitTests" 
 ==> "Coverage" 
 ==> "Inspect"
