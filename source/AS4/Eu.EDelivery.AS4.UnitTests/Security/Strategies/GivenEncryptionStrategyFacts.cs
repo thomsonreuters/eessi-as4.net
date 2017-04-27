@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         public class GivenValidArgumentsForDecryptMessage : GivenEncryptionStrategyFacts
         {
             [Fact]
-            public async Task ThenDecryptDecryptsTheAttachmentsCorrectly()
+            public async void ThenDecryptDecryptsTheAttachmentsCorrectly()
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                                              .Build();
 
                 // Act
-                await encryptionStrategy.DecryptMessageAsync();
+                encryptionStrategy.DecryptMessage();
 
                 // Assert
                 Assert.Equal(Properties.Resources.flower1, GetAttachmentContents(as4Message.Attachments.ElementAt(0)));
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             }
 
             [Fact]
-            public async void ThenEncryptEncryptsTheAttachmentsCorrectly()
+            public void ThenEncryptEncryptsTheAttachmentsCorrectly()
             {
                 // Arrange
                 byte[] attachmentContents = Encoding.UTF8.GetBytes("hi!");
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 IEncryptionStrategy encryptionStrategy = CreateEncryptionStrategyForEncrypting(as4Message);
 
                 // Act
-                await encryptionStrategy.EncryptMessageAsync();
+                encryptionStrategy.EncryptMessage();
 
                 // Assert
                 Attachment firstAttachment = as4Message.Attachments.ElementAt(0);
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         public class GivenInvalidArgumentsForDecryptMessage : GivenEncryptionStrategyFacts
         {
             [Fact]
-            public async Task ThenDecryptThrowsAnAS4Exception()
+            public async void ThenDecryptThrowsAnAS4Exception()
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                     EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument).Build();
 
                 // Act&Assert
-                await Assert.ThrowsAnyAsync<Exception>(async () => await encryptionStrategy.DecryptMessageAsync());
+                Assert.ThrowsAny<Exception>( () => encryptionStrategy.DecryptMessage());
             }
         }
 

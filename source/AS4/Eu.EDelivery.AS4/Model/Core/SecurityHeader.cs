@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Threading.Tasks;
+﻿using System.Collections;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
@@ -58,7 +56,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public XmlElement GetXml()
         {
-            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
+            var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
             XmlElement securityElement = xmlDocument
                 .CreateElement("wsse", "Security", Constants.Namespaces.WssSecuritySecExt);
 
@@ -75,7 +73,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public ArrayList GetReferences()
         {
-            return _signingStrategy == null ? new ArrayList() : this._signingStrategy.GetSignedReferences();
+            return _signingStrategy == null ? new ArrayList() : _signingStrategy.GetSignedReferences();
         }
 
         /// <summary>
@@ -96,17 +94,17 @@ namespace Eu.EDelivery.AS4.Model.Core
         public void Decrypt(IEncryptionStrategy encryptionStrategy)
         {
             _encryptionStrategy = encryptionStrategy;
-            _encryptionStrategy.DecryptMessageAsync();
+            _encryptionStrategy.DecryptMessage();
         }
 
         /// <summary>
         /// Encrypts the message and its attachments.
         /// </summary>
         /// <param name="encryptionStrategy"></param>
-        public async Task EncryptAsync(IEncryptionStrategy encryptionStrategy)
+        public void Encrypt(IEncryptionStrategy encryptionStrategy)
         {
             _encryptionStrategy = encryptionStrategy;
-            await _encryptionStrategy.EncryptMessageAsync();
+            _encryptionStrategy.EncryptMessage();
         }
     }
 }

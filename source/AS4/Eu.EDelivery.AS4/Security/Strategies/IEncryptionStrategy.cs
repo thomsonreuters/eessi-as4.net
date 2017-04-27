@@ -10,12 +10,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <summary>
         /// Decrypts the <see cref="AS4Message"/>, replacing the encrypted content with the decrypted content.
         /// </summary>
-        Task DecryptMessageAsync();
+        void DecryptMessage();
 
         /// <summary>
         /// Encrypts the <see cref="AS4Message"/> and its attachments.
         /// </summary>
-        Task EncryptMessageAsync();
+        void EncryptMessage();
 
         /// <summary>
         /// Appends all encryption elements, such as <see cref="EncryptedKey"/> and <see cref="EncryptedData"/> elements.

@@ -121,11 +121,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
 
-            if (attachment.Content.CanSeek && attachment.Content.Position != 0)
-            {
-                attachment.Content.Position = 0;
-            }
-
+            attachment.ResetContentPosition();
+            
             VirtualStream outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, leaveOpen: true))

@@ -137,7 +137,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             foreach (Attachment attachment in as4Message.Attachments)
             {
-                attachment.Content.Position = 0;
+                attachment.ResetContentPosition();
             }
         }
     }

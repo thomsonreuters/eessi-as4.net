@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 using MimeKit.IO;
 
@@ -127,6 +128,17 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void AddAttachmentToMultipart(Multipart bodyMultipart, Attachment attachment)
         {
+            // A stream that is passed to a ContentObject must be seekable.  If this is not the case,
+            // we'll have to create a new stream which is seekable and assign it to the Attachment.Content.
+
+            if (attachment.Content.CanSeek == false)
+            {
+                var tempStream = new VirtualStream();
+                attachment.Content.CopyTo(tempStream);
+                tempStream.Position = 0;
+                attachment.Content = tempStream;
+            }
+
             var attachmentMimePart = new MimePart(attachment.ContentType)
             {
                 ContentId = attachment.Id,

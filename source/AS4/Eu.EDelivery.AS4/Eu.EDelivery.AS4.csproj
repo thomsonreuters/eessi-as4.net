@@ -468,6 +468,7 @@
     <Compile Include="Strategies\Uploader\IAttachmentUploader.cs" />
     <Compile Include="Strategies\Retriever\PayloadRetrieverProvider.cs" />
     <Compile Include="Strategies\Uploader\UploadResult.cs" />
+    <Compile Include="Streaming\StreamPositionMover.cs" />
     <Compile Include="Transformers\ITransformer.cs" />
     <Compile Include="Common\Config.cs" />
     <Compile Include="Agents\IAgent.cs" />

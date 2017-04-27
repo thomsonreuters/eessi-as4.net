@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Security.Repositories
         /// <param name="reference"></param>
         public AttachmentReferenceRepository(Reference reference)
         {
-            this._reference = reference;
+            _reference = reference;
         }
 
         /// <summary>
@@ -35,18 +35,31 @@ namespace Eu.EDelivery.AS4.Security.Repositories
             FieldInfo fieldInfo = typeof(Reference).GetField(
                 "m_refTarget",
                 BindingFlags.Instance | BindingFlags.NonPublic);
-            if (fieldInfo == null) return;
-            var referenceStream = fieldInfo.GetValue(this._reference) as Stream;
-
-            Stream streamToWorkOn = referenceStream;
-            if (streamToWorkOn != null)
+            if (fieldInfo == null)
             {
-                streamToWorkOn.Position = 0;
-                if (referenceStream is NonCloseableStream)
-                    streamToWorkOn = (referenceStream as NonCloseableStream).InnerStream;
+                return;
             }
-            if (referenceStream is FilteredStream)
-                (referenceStream as FilteredStream).Source.Position = 0;
+
+            var referenceStream = fieldInfo.GetValue(_reference) as Stream;            
+
+            if (referenceStream != null)
+            {
+                Stream streamToWorkOn = referenceStream;
+
+                if (referenceStream is NonCloseableStream)
+                {
+                    streamToWorkOn = ((NonCloseableStream) referenceStream).InnerStream;
+                }
+                else if (referenceStream is FilteredStream)
+                {
+                    streamToWorkOn = ((FilteredStream) referenceStream).Source;
+                }
+
+                if (streamToWorkOn.CanSeek && streamToWorkOn.Position != 0)
+                {
+                    streamToWorkOn.Position = 0;
+                }               
+            }            
         }
 
         /// <summary>

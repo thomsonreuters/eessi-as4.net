@@ -61,9 +61,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             TryDecryptAS4Message(internalMessage);
+
             return await StepResult.SuccessAsync(internalMessage);
         }
-
 
         private void PreConditions(InternalMessage internalMessage)
         {
@@ -72,16 +72,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Decryption decryption = pmode.Security.Decryption;
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
+            {
                 throw ThrowCommonAS4Exception(
-                    internalMessage,
-                    $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
-                    ErrorCode.Ebms0103);
+                      internalMessage,
+                      $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
+                      ErrorCode.Ebms0103);
+            }
 
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
+            {
                 throw ThrowCommonAS4Exception(
-                    internalMessage,
-                    $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
-                    ErrorCode.Ebms0103);
+                      internalMessage,
+                      $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
+                      ErrorCode.Ebms0103);
+            }
         }
 
         private bool IsEncryptedIgnored(InternalMessage internalMessage)
@@ -138,7 +142,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             return certificate;
         }
-      
+
         private AS4Exception ThrowCommonAS4Exception(InternalMessage internalMessage,
             string description, ErrorCode errorCode, Exception exception = null)
         {
