@@ -43,7 +43,7 @@ Target "Compile" (fun _ ->
 )
 
 let unitTestAssemblies = ["./output/Eu.EDelivery.AS4.UnitTests.dll"; "./output/Eu.EDelivery.AS4.Fe.UnitTests.dll"]
-let unitTestsParams p = { p with ShadowCopy = false; Parallel = ParallelMode.All;}
+let unitTestsParams p = { p with ShadowCopy = false; Parallel = ParallelMode.All; XmlOutputPath = Some "./output/testResults.xml" }
 
 /// <summary>
 /// Test the 'Unit Test' assemblies.
