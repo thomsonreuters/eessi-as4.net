@@ -31,9 +31,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         /// <param name="config">The config.</param>
         public AgentProvider(IConfig config)
         {
-            this._config = config;
-            this._logger = LogManager.GetCurrentClassLogger();
-            this._agents = new Collection<IAgent>();
+           _config = config;
+           _logger = LogManager.GetCurrentClassLogger();
+           _agents = new Collection<IAgent>();
 
             TryAddCustomAgentsToProvider();
         }
@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         /// <returns></returns>
         public IEnumerable<IAgent> GetAgents()
         {
-            return this._agents;
+            return _agents;
         }
 
         private void TryAddCustomAgentsToProvider()
@@ -56,32 +56,37 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             }
             catch (AS4Exception exception)
             {
-                this._logger.Error(exception.Message);
+                _logger.Error(exception.Message);
             }
         }
 
         private void AddCustomAgentsToProvider()
         {
-            foreach (SettingsAgent settingAgent in this._config.GetSettingsAgents())
+            foreach (SettingsAgent settingAgent in _config.GetSettingsAgents())
             {
                 IAgent agent = GetAgentFromSettings(settingAgent);
 
-                this._agents.Add(agent);
+                _agents.Add(agent);
             }
         }
 
         private void AddMinderAgentsToProvider()
         {
-            IEnumerable<SettingsMinderAgent> minderTestAgents = this._config.GetEnabledMinderTestAgents();
+            IEnumerable<SettingsMinderAgent> minderTestAgents = _config.GetEnabledMinderTestAgents();
 
             foreach (SettingsMinderAgent agent in minderTestAgents)
             {
-                this._agents.Add(CreateMinderTestAgent(agent.Url, agent.Transformer));
+                _agents.Add(CreateMinderTestAgent(agent.Url, agent.Transformer));
             }
         }
 
         private static IAgent GetAgentFromSettings(SettingsAgent agent)
         {
+            if (agent == null)
+            {
+                throw new ArgumentNullException(nameof(agent));
+            }
+
             IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
 
             return new Agent(new AgentConfig(agent.Name), receiver, agent.Transformer, agent.Steps);
