@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 this._logger.Warn($"{internalMessage.Prefix} AS4Message does not contain a primary SignalMessage");
             }
 
-            var notifyEnvelope = await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage);
+            var notifyEnvelope = await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage).ConfigureAwait(false);
 
             internalMessage.NotifyMessage = notifyEnvelope;
 

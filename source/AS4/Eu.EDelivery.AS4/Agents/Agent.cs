@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.Agents
             sw.Start();
 #endif
 
-            InternalMessage internalMessage = await TryTransformAsync(message, cancellationToken);
+            InternalMessage internalMessage = await TryTransformAsync(message, cancellationToken).ConfigureAwait(false);
 
             if (internalMessage.Exception != null)
             {
@@ -184,7 +184,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             IStep step = CreateSteps();
 
-            StepResult result = await step.ExecuteAsync(internalMessage, cancellationToken);
+            StepResult result = await step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
 
             LogIfStepResultFailed(result, message);
 
@@ -200,7 +200,7 @@ namespace Eu.EDelivery.AS4.Agents
             try
             {
                 var transformer = GenericTypeBuilder.FromType(_transformerConfiguration.Type).Build<ITransformer>();
-                return await transformer.TransformAsync(message, cancellationToken);
+                return await transformer.TransformAsync(message, cancellationToken).ConfigureAwait(false);
             }
             catch (AS4Exception exception)
             {

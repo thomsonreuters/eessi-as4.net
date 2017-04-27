@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var signalMessageUpdate = new SignalMessageStatement(internalMessage, inMessageService, cancellationToken);
 
                 signalMessageUpdate.InsertSignalMessages();
-                await context.SaveChangesAsync(cancellationToken);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return await StepResult.SuccessAsync(internalMessage);

@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             _internalMessage = internalMessage;
             _logger.Info($"{this._internalMessage.Prefix} Update AS4 UserMessages in Datastore");
 
-            await UpdateUserMessageAsync(internalMessage.DeliverMessage);
+            await UpdateUserMessageAsync(internalMessage.DeliverMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
                 repository.UpdateInMessage(messageId, UpdateNotifiedInMessage);
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 

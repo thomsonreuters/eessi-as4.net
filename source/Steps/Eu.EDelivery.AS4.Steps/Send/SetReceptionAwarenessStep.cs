@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return await ReturnSameResult(internalMessage, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
             }
 
-            await InsertReceptionAwarenessAsync(internalMessage);
+            await InsertReceptionAwarenessAsync(internalMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 // For every MessageId for which no ReceptionAwareness entity exists, create one.
                 InsertReceptionAwarenessForMessagesWithout(as4Message, repository, existingReceptionAwarenessEntities);
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 

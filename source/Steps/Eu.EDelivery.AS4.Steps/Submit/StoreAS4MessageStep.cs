@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
         {
-            await TryStoreOutMessagesAsync(internalMessage.AS4Message, token);
+            await TryStoreOutMessagesAsync(internalMessage.AS4Message, token).ConfigureAwait(false);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             try
             {
-                await StoreOutMessagesAsync(as4Message, token);
+                await StoreOutMessagesAsync(as4Message, token).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
                 repository.InsertOutMessage(message, _as4MessageBodyPersister);
 
-                await context.SaveChangesAsync(token);
+                await context.SaveChangesAsync(token).ConfigureAwait(false);
             }
         }
     }

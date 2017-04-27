@@ -52,8 +52,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         {
             try
             {
-                HttpResponseMessage response = await PostAttachmentAsMultipart(attachment);
-                return await DeserializeResponseAsUploadResult(response);
+                HttpResponseMessage response = await PostAttachmentAsMultipart(attachment).ConfigureAwait(false);
+                return await DeserializeResponseAsUploadResult(response).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         {
             var form = new MultipartFormDataContent {{new StreamContent(attachment.Content), attachment.Id, attachment.Id}};
 
-            HttpResponseMessage response = await _postRequest(_location, form);
+            HttpResponseMessage response = await _postRequest(_location, form).ConfigureAwait(false);
             Logger.Info($"Upload Attachment returns HTTP Status Code: {response.StatusCode}");
 
             return response;
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private static async Task<UploadResult> DeserializeResponseAsUploadResult(HttpResponseMessage response)
         {
-            string serializedContent = await response.Content.ReadAsStringAsync();
+            string serializedContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<UploadResult>(serializedContent);
         }
     }

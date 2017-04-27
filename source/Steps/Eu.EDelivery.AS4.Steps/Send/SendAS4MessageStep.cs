@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             _originalAS4Message = internalMessage.AS4Message;
 
-            return await TrySendAS4MessageAsync(internalMessage, cancellationToken);
+            return await TrySendAS4MessageAsync(internalMessage, cancellationToken).ConfigureAwait(false);
         }
 
         private async Task<StepResult> TrySendAS4MessageAsync(
@@ -84,9 +84,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 HttpWebRequest request = CreateWebRequest(internalMessage.AS4Message);
-                await TryHandleHttpRequestAsync(request, internalMessage, cancellationToken);
+                await TryHandleHttpRequestAsync(request, internalMessage, cancellationToken).ConfigureAwait(false);
 
-                return await TryHandleHttpResponseAsync(request, internalMessage, cancellationToken);
+                return await TryHandleHttpResponseAsync(request, internalMessage, cancellationToken).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -173,7 +173,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     request.ContentLength = messageSize;
                 }
 
-                using (Stream requestStream = await request.GetRequestStreamAsync())
+                using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
                 {
                     ISerializer serializer = _provider.Get(as4Message.ContentType);
 
@@ -202,7 +202,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (response.webResponse != null && ContentTypeSupporter.IsContentTypeSupported(response.webResponse.ContentType))
             {
-                return await HandleAS4Response(internalMessage, response.webResponse, cancellationToken);
+                return await HandleAS4Response(internalMessage, response.webResponse, cancellationToken).ConfigureAwait(false);
             }
 
             throw CreateFailedSendAS4Exception(internalMessage, response.exception);
@@ -235,7 +235,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private async Task<StepResult> HandleAS4Response(InternalMessage originalMessage, WebResponse webResponse, CancellationToken cancellation)
         {
             AS4Response as4Response = await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation);
-            return await _responseHandler.HandleResponse(as4Response);
+            return await _responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
         }
 
         protected AS4Exception CreateFailedSendAS4Exception(InternalMessage internalMessage, Exception exception)

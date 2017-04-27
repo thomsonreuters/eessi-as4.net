@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             Logger.Info($"Send Deliver {deliverMessage.MessageInfo.MessageId} to {_destinationUri}");
 
             HttpWebRequest request = CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage);
-            HttpWebResponse response = await SendHttpPostRequest(request);
+            HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             response?.Close();
         }
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
             Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {_destinationUri}");
 
             HttpWebRequest request = CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
-            HttpWebResponse httpPostResponse = await SendHttpPostRequest(request);
+            HttpWebResponse httpPostResponse = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             httpPostResponse?.Close();
         }

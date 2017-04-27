@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             _internalMessage = internalMessage;
             _logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
 
-            await TrySendNotifyMessage(internalMessage.NotifyMessage);
+            await TrySendNotifyMessage(internalMessage.NotifyMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             try
             {
                 Method notifyMethod = GetNotifyMethod(notifyMessage);
-                await SendNotifyMessage(notifyMessage, notifyMethod);
+                await SendNotifyMessage(notifyMessage, notifyMethod).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
             sender.Configure(notifyMethod);
-            await sender.SendAsync(notifyMessage);
+            await sender.SendAsync(notifyMessage).ConfigureAwait(false);
         }
 
         private AS4Exception ThrowAS4SendException(string description, Exception exception = null)

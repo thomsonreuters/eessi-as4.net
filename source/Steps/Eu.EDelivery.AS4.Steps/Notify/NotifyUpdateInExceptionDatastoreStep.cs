@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             {
                 UpdateDatastore(notifyMessageEnv, new DatastoreRepository(context));
 
-                await context.SaveChangesAsync(cancellationToken);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return await StepResult.SuccessAsync(internalMessage);

@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     {
                         fileStream.Seek(0, SeekOrigin.Begin);
                         var receivedMessage = new ReceivedMessage(fileStream, contentType);
-                        internalMessage = await messageCallback(receivedMessage, token);
+                        internalMessage = await messageCallback(receivedMessage, token).ConfigureAwait(false);
                     }
 
                     NotifyReceivedFile(fileInfo, internalMessage);

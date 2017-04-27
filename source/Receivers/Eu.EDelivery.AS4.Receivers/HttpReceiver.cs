@@ -114,9 +114,9 @@ namespace Eu.EDelivery.AS4.Receivers
                                 // that we're listening on another context.
                                 semaphore.Release();
 
-                                HttpListenerContext context = await httpContextTask;
+                                HttpListenerContext context = await httpContextTask.ConfigureAwait(false);
 
-                                await ProcessRequestAsync(context, messageCallback);
+                                await ProcessRequestAsync(context, messageCallback).ConfigureAwait(false);
                             });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed                 
                     }
@@ -140,9 +140,9 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
 
             RequestHandler handler = RequestHandler.GetHandler(context.Request);
-            HttpListenerContentResult handleResult = await handler.ExecuteAsync(context.Request, messageCallback);
+            HttpListenerContentResult handleResult = await handler.ExecuteAsync(context.Request, messageCallback).ConfigureAwait(false);
 
-            await handleResult.ExecuteResultAsync(context.Response);
+            await handleResult.ExecuteResultAsync(context.Response).ConfigureAwait(false);
 
             context.Response.Close();
         }
@@ -188,10 +188,10 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     if (processor != null && request.HttpMethod == "POST")
                     {
-                        ReceivedMessage receivedMessage = await CreateReceivedMessage(request);
+                        ReceivedMessage receivedMessage = await CreateReceivedMessage(request).ConfigureAwait(false);
                         try
                         {
-                            processorResult = await processor(receivedMessage, CancellationToken.None);
+                            processorResult = await processor(receivedMessage, CancellationToken.None).ConfigureAwait(false);
                         }
                         finally
                         {
@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 if (request.ContentLength64 > VirtualStream.ThresholdMax)
                 {
                     VirtualStream str = new VirtualStream(VirtualStream.MemoryFlag.OnlyToDisk);
-                    await request.InputStream.CopyToAsync(str);
+                    await request.InputStream.CopyToAsync(str).ConfigureAwait(false);
                     str.Position = 0;
 
                     return new ReceivedMessage(str, request.ContentType);
@@ -438,7 +438,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 response.ContentType = _contentType;
                 response.KeepAlive = false;
 
-                await ExecuteResultAsyncCore(response);
+                await ExecuteResultAsyncCore(response).ConfigureAwait(false);
             }
 
             /// <summary>
@@ -474,7 +474,7 @@ namespace Eu.EDelivery.AS4.Receivers
             protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
                 response.ContentLength64 = _content.Length;
-                await response.OutputStream.WriteAsync(_content, 0, _content.Length);
+                await response.OutputStream.WriteAsync(_content, 0, _content.Length).ConfigureAwait(false);
             }
         }
 

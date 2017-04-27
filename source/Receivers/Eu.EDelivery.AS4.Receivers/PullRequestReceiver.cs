@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <returns></returns>
         protected override async Task<Interval> OnRequestReceived(PModePullRequest intervalPullRequest)
         {
-            InternalMessage resultedMessage = await _messageCallback(intervalPullRequest);
+            InternalMessage resultedMessage = await _messageCallback(intervalPullRequest).ConfigureAwait(false);
 
             try
             {

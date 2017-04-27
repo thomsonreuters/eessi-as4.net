@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             _logger.Info($"{internalMessage.Prefix} Start sending the Deliver Message " +
                               "to the consuming Business Application");
 
-            await TrySendDeliverMessage(internalMessage.DeliverMessage);
+            await TrySendDeliverMessage(internalMessage.DeliverMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                await SendDeliverMessage(deliverMessage);
+                await SendDeliverMessage(deliverMessage).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             IDeliverSender sender = _provider.GetDeliverSender(deliverMethod.Type);
             sender.Configure(deliverMethod);
-            await sender.SendAsync(deliverMessage);
+            await sender.SendAsync(deliverMessage).ConfigureAwait(false);
         }
 
         private AS4Exception ThrowSendDeliverAS4Exception(string description, Exception innerException)

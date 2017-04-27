@@ -263,7 +263,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 else
                 {
                     ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                    await messageCallback(receivedMessage, token);
+                    await messageCallback(receivedMessage, token).ConfigureAwait(false);
                 }
             }
         }
@@ -280,7 +280,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
-            InternalMessage result = await messageCallback(message, token);
+            InternalMessage result = await messageCallback(message, token).ConfigureAwait(false);
             result?.Dispose();
         }
 

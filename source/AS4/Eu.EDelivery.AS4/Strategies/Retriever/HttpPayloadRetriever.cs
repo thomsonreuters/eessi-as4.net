@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpPayloadRetriever" /> class.
         /// </summary>
-        public HttpPayloadRetriever() : this(HttpClient.SendAsync) {}
+        public HttpPayloadRetriever() : this(HttpClient.SendAsync) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpPayloadRetriever" /> class.
@@ -53,14 +53,14 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
         {
             var request = new HttpRequestMessage(HttpMethod.Get, new Uri(location));
 
-            HttpResponseMessage response = await _sendRequest(request);
+            HttpResponseMessage response = await _sendRequest(request).ConfigureAwait(false);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 return Stream.Null;
             }
 
-            return await response.Content.ReadAsStreamAsync();
+            return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
         }
     }
 }
