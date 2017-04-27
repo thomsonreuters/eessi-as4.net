@@ -263,7 +263,7 @@ namespace Eu.EDelivery.AS4.Common
             _configuration["CertificateRepository"] = _settings.CertificateStore?.Repository?.Type;
 
             FeInProcess = _settings.FeInProcess;
-            PayloadServiceInProcess = _settings.PayloadServiceInProcess;            
+            PayloadServiceInProcess = _settings.PayloadServiceInProcess;
         }
 
         private void AddCustomSettings()
@@ -296,7 +296,7 @@ namespace Eu.EDelivery.AS4.Common
         {
             if (agents != null)
             {
-                _agents.AddRange(agents);
+                _agents.AddRange(agents.Where(a => a != null));
             }
         }
 

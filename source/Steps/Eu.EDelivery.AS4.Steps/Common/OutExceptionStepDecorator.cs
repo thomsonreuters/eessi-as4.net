@@ -56,12 +56,19 @@ namespace Eu.EDelivery.AS4.Steps.Common
                 _logger.Error(exception.Message);
 
                 internalMessage.Exception = exception;
-
-                using (var context = Registry.Instance.CreateDatastoreContext())
+                try
                 {
-                    HandleOutException(exception, internalMessage, new DatastoreRepository(context));
+                    using (var context = Registry.Instance.CreateDatastoreContext())
+                    {
+                        HandleOutException(exception, internalMessage, new DatastoreRepository(context));
 
-                    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Fatal($"An unexpected error occured: {ex.Message}");
+
                 }
                 return StepResult.Failed(exception, internalMessage);
             }
