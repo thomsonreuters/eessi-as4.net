@@ -190,7 +190,7 @@ namespace Eu.EDelivery.AS4.Serialization
             chainedStream.Add(memoryStream, leaveOpen: true);
             chainedStream.Add(inputStream, leaveOpen: true);
 
-            return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken);
+            return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
 
         }
 
@@ -221,7 +221,7 @@ namespace Eu.EDelivery.AS4.Serialization
             Stream envelopeStream = bodyParts.First().ContentObject.Open();
 
             AS4Message message = await _soapSerializer
-                .DeserializeAsync(envelopeStream, contentType, cancellationToken);
+                .DeserializeAsync(envelopeStream, contentType, cancellationToken).ConfigureAwait(false);
 
             AddBodyPartsAsAttachmentsToMessage(bodyParts, message);
 

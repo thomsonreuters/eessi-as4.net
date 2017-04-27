@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             try
             {
-                return await VerifySignature();
+                return await VerifySignature().ConfigureAwait(false);
             }
             catch (Exception exception)
             {

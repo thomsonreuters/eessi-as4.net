@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 messageUpdate.InsertUserMessages();
                 messageUpdate.InsertSignalMessages();
 
-                await context.SaveChangesAsync(token);
+                await context.SaveChangesAsync(token).ConfigureAwait(false);
             }
 
             return await StepResult.SuccessAsync(internalMessage);

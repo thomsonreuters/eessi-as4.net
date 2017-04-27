@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {           
             if (HasAS4MessageMultipleAttachments(internalMessage.AS4Message))
             {
-                Stream zippedStream = await ZipAttachmentsInAS4Message(internalMessage.AS4Message);
+                Stream zippedStream = await ZipAttachmentsInAS4Message(internalMessage.AS4Message).ConfigureAwait(false);
 
                 Attachment zipAttachment = CreateZippedAttachment(zippedStream);
 
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             LogManager.GetCurrentClassLogger().Info($"{internalMessage.Prefix} Zip the Attachments to a single file");
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(internalMessage).ConfigureAwait(false);
         }
 
         private static bool HasAS4MessageMultipleAttachments(AS4Message as4Message)
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 foreach (Attachment attachment in message.Attachments)
                 {
                     ZipArchiveEntry archiveEntry = CreateAttachmentEntry(archive, attachment);
-                    await AddAttachmentStreamToEntry(attachment.Content, archiveEntry);
+                    await AddAttachmentStreamToEntry(attachment.Content, archiveEntry).ConfigureAwait(false);
                 }
             }
 
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             using (Stream entryStream = entry.Open())
             {
-                await attachmentStream.CopyToAsync(entryStream);
+                await attachmentStream.CopyToAsync(entryStream).ConfigureAwait(false);
             }
         }
 

@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             var notifyMessage = internalMessage.NotifyMessage;
             _logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
-            await UpdateDatastoreAsync(notifyMessage);
+            await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
             
         }
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 var repository = new DatastoreRepository(context);
                 repository.UpdateOutMessage(notifyMessage.MessageInfo.MessageId, UpdateNotifiedOutMessage);
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 

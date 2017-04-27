@@ -39,12 +39,12 @@ namespace Eu.EDelivery.AS4.Steps
             if (this._condition(internalMessage))
             {
                 var steps = StepBuilder.FromSettings(this._thenStepConfig).Build();
-                return await steps.ExecuteAsync(internalMessage, cancellationToken);
+                return await steps.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var steps = StepBuilder.FromSettings(this._elseStepConfig).Build();
-                return await steps.ExecuteAsync(internalMessage, cancellationToken);
+                return await steps.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
             }
         }
     }

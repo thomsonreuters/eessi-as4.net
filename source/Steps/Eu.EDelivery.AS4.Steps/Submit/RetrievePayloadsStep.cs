@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            await TryRetrievePayloads(internalMessage);
+            await TryRetrievePayloads(internalMessage).ConfigureAwait(false);
 
             return await StepResult.SuccessAsync(internalMessage);
         }

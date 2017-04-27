@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         {
             var response = new AS4Response(requestMessage, webResponse)
             {
-                ResultedMessage = await TryDeserializeHttpResponse(webResponse, cancellation)
+                ResultedMessage = await TryDeserializeHttpResponse(webResponse, cancellation).ConfigureAwait(false)
             };
 
             response.ResultedMessage.AS4Message.SendingPMode = response.OriginalRequest?.AS4Message.SendingPMode;
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 ISerializer serializer = Registry.Instance.SerializerProvider.Get(webResponse.ContentType);
 
                 deserializedResponse = await serializer
-                    .DeserializeAsync(webResponse.GetResponseStream(), webResponse.ContentType, cancellation);
+                    .DeserializeAsync(webResponse.GetResponseStream(), webResponse.ContentType, cancellation).ConfigureAwait(false);
             }
             catch (Exception exception)
             {

@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Messaging CreateMessagingHeader(AS4Message message)
         {
-            var messagingHeader = new Messaging {SecurityId = message.SigningId.HeaderSecurityId};
+            var messagingHeader = new Messaging { SecurityId = message.SigningId.HeaderSecurityId };
 
             if (message.IsSignalMessage)
             {
@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 return;
             }
 
-            var to = new To {Role = Constants.Namespaces.EbmsNextMsh};
+            var to = new To { Role = Constants.Namespaces.EbmsNextMsh };
             builder.SetToHeader(to);
 
             string actionValue = as4Message.PrimarySignalMessage.GetActionValue();
@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 throw new ArgumentNullException(nameof(envelopeStream));
             }
 
-            using (Stream stream = await CopyEnvelopeStream(envelopeStream))
+            using (Stream stream = await CopyEnvelopeStream(envelopeStream).ConfigureAwait(false))
             {
                 XmlDocument envelopeDocument = LoadXmlDocument(stream);
 
@@ -173,7 +173,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 // ValidateEnvelopeDocument(envelopeDocument);
                 stream.Position = 0;
 
-                var as4Message = new AS4Message {ContentType = contentType, EnvelopeDocument = envelopeDocument};
+                var as4Message = new AS4Message { ContentType = contentType, EnvelopeDocument = envelopeDocument };
 
                 using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
                 {
@@ -191,7 +191,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             Stream stream = new MemoryStream();
 
-            await envelopeStream.CopyToAsync(stream);
+            await envelopeStream.CopyToAsync(stream).ConfigureAwait(false);
             stream.Position = 0;
 
             return stream;
@@ -249,7 +249,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             stream.Position = 0;
 
-            var document = new XmlDocument {PreserveWhitespace = true};
+            var document = new XmlDocument { PreserveWhitespace = true };
             document.Load(stream);
 
             return document;
@@ -407,7 +407,7 @@ namespace Eu.EDelivery.AS4.Serialization
             IEnumerator enumerator = body.AnyAttr.GetEnumerator();
             while (enumerator.MoveNext())
             {
-                var attribute = (XmlAttribute) enumerator.Current;
+                var attribute = (XmlAttribute)enumerator.Current;
                 if (attribute.LocalName.Equals("Id"))
                 {
                     return attribute.Value;

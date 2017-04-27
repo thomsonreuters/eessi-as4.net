@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 service.InsertError(errorMessage);
 
-                await db.SaveChangesAsync(cancellationToken);
+                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return await StepResult.SuccessAsync(new InternalMessage(errorMessage));

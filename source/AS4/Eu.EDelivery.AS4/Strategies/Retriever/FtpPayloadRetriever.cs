@@ -58,9 +58,9 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             return ftpRequest;
         }
 
-        private async Task<Stream> GetFtpFile(FtpWebRequest ftpRequest)
+        private static async Task<Stream> GetFtpFile(FtpWebRequest ftpRequest)
         {
-            using (WebResponse ftpResponse = await ftpRequest.GetResponseAsync())
+            using (WebResponse ftpResponse = await ftpRequest.GetResponseAsync().ConfigureAwait(false))
             {
                 return ftpResponse.GetResponseStream();
             }
