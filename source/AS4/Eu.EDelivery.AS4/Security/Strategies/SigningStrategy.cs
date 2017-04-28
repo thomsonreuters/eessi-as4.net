@@ -70,14 +70,23 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             SecurityTokenReference.Certificate = certificate;
             KeyInfo.AddClause(SecurityTokenReference);
         }
+        
+        private static readonly object CertificateReaderLocker = new object();
 
         private static RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
         {
             var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
+
             var key = new RSACryptoServiceProvider(cspParams);
 
-            string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
-            key.FromXmlString(keyXml);
+            // When handling a large load of messages in parallel, we sometimes get a 'file is in use' exception
+            // when loading the private key from the certificate.  Therefore, we synchronize access when
+            // loading the private key to prevent this.
+            lock (CertificateReaderLocker)
+            {
+                string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
+                key.FromXmlString(keyXml);
+            }
 
             return key;
         }
