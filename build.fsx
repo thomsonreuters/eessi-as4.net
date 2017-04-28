@@ -73,7 +73,8 @@ Target "Coverage" (fun _ ->
         { defaults with 
             TargetExecutable = "./source/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe"; 
             Output = dotCoverSnapShot; 
-            Filters = "-:FluentValidation;-:type=*.Resources*;-:*.Resources.Schemas;-:type=Eu.EDelivery.AS4.Xml*"}
+            Filters = "-:FluentValidation;-:type=*.Resources*;-:*.Resources.Schemas;-:type=Eu.EDelivery.AS4.Xml*;-:type=*Tests.TestData.*"
+            AttributeFilters = "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute;"}
     unitTestAssemblies |> DotCoverXUnit2 dotCoverParams unitTestsParams
 
 

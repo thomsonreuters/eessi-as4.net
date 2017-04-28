@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
+    [ExcludeFromCodeCoverage]
     public class InteropTestingSubmitReceiveMessageTransformer : ITransformer
     {
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)

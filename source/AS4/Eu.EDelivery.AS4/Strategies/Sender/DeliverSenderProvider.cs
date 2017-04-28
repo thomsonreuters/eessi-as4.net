@@ -40,6 +40,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// </summary>
         /// <param name="operationMethod"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        /// <exception cref="AS4Exception"></exception>
         public IDeliverSender GetDeliverSender(string operationMethod)
         {
             DeliverSenderEntry entry = _senders.FirstOrDefault(s => s.Condition(operationMethod));
