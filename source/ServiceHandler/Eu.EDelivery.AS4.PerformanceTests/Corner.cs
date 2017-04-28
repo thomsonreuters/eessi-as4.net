@@ -61,11 +61,15 @@ namespace Eu.EDelivery.AS4.VolumeTests
 
         public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
         {
-            FileSystemWatcher fs = new FileSystemWatcher(GetMessageDirectory(subDirectory: "in").FullName);
+            string deliverDirectoryName = GetMessageDirectory(subDirectory: "in").FullName;
+
+            FileSystemWatcher fs = new FileSystemWatcher(deliverDirectoryName);
             fs.IncludeSubdirectories = false;
 
             ManualResetEvent waiter = new ManualResetEvent(false);
             bool allMessagesDelivered = false;
+
+            fs.EnableRaisingEvents = true;
 
             object syncRoot = new object();
 
@@ -73,7 +77,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
             {
                 lock (syncRoot)
                 {
-                    if (Directory.GetFiles(searchPattern).Count() >= numberOfMessages)
+                    if (Directory.GetFiles(deliverDirectoryName, searchPattern).Count() >= numberOfMessages)
                     {
                         fs.EnableRaisingEvents = false;
                         allMessagesDelivered = true;
@@ -87,12 +91,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
             waiter.WaitOne(timeout);
 
             return allMessagesDelivered;
-        }
-
-        private static void Fs_Created(object sender, FileSystemEventArgs e)
-        {
-
-        }
+        }       
 
         /// <summary>
         /// Cleanup the delivered messages from the Corner's deliver directory.
@@ -210,12 +209,21 @@ namespace Eu.EDelivery.AS4.VolumeTests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xml);
 
-            string connectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
-            using (var sqlConnection = new SqlConnection(connectionString))
+            string mshConnectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
+
+            // Modify the connectionstring so that we initially connect to the master - database.
+            // Otherwise, the connection will fail if the database doesn't exist yet.
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(mshConnectionString);
+            string databaseName = builder.InitialCatalog;
+            builder.InitialCatalog = "master";
+
+            string masterConnectionString = builder.ConnectionString;
+
+            using (var sqlConnection = new SqlConnection(masterConnectionString))
             {
                 sqlConnection.Open();
 
-                var dropDatabaseCommand = new SqlCommand($"USE [master]; DROP DATABASE {sqlConnection.Database}", sqlConnection);
+                var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {databaseName}", sqlConnection);
                 dropDatabaseCommand.ExecuteNonQuery();
             }
         }
