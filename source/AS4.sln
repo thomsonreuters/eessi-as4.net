@@ -29,7 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{9B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eu.EDelivery.AS4.PayloadService", "PayloadService\Eu.EDelivery.AS4.PayloadService.csproj", "{A3BADCB2-1638-4C18-A1F8-0764C1FB0E30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.VolumeTests", "ServiceHandler\Eu.EDelivery.AS4.VolumeTests\Eu.EDelivery.AS4.VolumeTests.csproj", "{73016C9C-15FD-4051-A16F-7245A2267DEC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eu.EDelivery.AS4.PerformanceTests", "ServiceHandler\Eu.EDelivery.AS4.PerformanceTests\Eu.EDelivery.AS4.PerformanceTests.csproj", "{73016C9C-15FD-4051-A16F-7245A2267DEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
