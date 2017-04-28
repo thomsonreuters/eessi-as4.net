@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
 
             Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
 
-            _output.WriteLine($"Processing {messageCount} messages took {sw.Elapsed.TotalSeconds} seconds");
-        }       
+            _output.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
+        }
     }
 }

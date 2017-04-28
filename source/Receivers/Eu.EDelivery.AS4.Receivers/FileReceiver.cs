@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -101,7 +102,7 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger.Debug($"Stop receiving on '{Path.GetFullPath(FilePath)}'...");
         }
 
-        private void GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
+        private async Task GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
             if (!fileInfo.Exists)
             {
@@ -110,12 +111,12 @@ namespace Eu.EDelivery.AS4.Receivers
 
             Logger.Info($"Getting Message from file '{fileInfo.Name}'");
 
-            OpenStreamFromMessage(fileInfo, messageCallback, token);
+            await OpenStreamFromMessage(fileInfo, messageCallback, token);
 
             _pendingFiles.Remove(fileInfo);
         }
 
-        private async void OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
+        private async Task OpenStreamFromMessage(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
             try
             {
@@ -134,7 +135,7 @@ namespace Eu.EDelivery.AS4.Receivers
                         internalMessage = await messageCallback(receivedMessage, token).ConfigureAwait(false);
                     }
 
-                    NotifyReceivedFile(fileInfo, internalMessage);
+                    await NotifyReceivedFile(fileInfo, internalMessage).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -148,11 +149,11 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private void NotifyReceivedFile(FileInfo fileInfo, InternalMessage internalMessage)
+        private async Task NotifyReceivedFile(FileInfo fileInfo, InternalMessage internalMessage)
         {
             if (internalMessage.Exception != null)
             {
-                HandleException(fileInfo, internalMessage.Exception);
+                await HandleException(fileInfo, internalMessage.Exception);
             }
             else
             {
@@ -160,20 +161,20 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private void HandleException(FileInfo fileInfo, AS4Exception as4Exception)
+        private async Task HandleException(FileInfo fileInfo, AS4Exception as4Exception)
         {
             MoveFile(fileInfo, "exception");
-            CreateExceptionFile(fileInfo, as4Exception);
+            await CreateExceptionFile(fileInfo, as4Exception);
         }
 
-        private void CreateExceptionFile(FileSystemInfo fileInfo, AS4Exception as4Exception)
+        private async Task CreateExceptionFile(FileSystemInfo fileInfo, AS4Exception as4Exception)
         {
             string fileName = fileInfo.FullName + ".details";
             Logger.Info($"Exception Details are stored at: {fileName}");
 
             using (var streamWriter = new StreamWriter(fileName))
             {
-                streamWriter.WriteLine(as4Exception.ToString());
+                await streamWriter.WriteLineAsync(as4Exception.ToString()).ConfigureAwait(false);
             }
         }
 
@@ -309,7 +310,7 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
         {
             Logger.Info($"Received Message from Filesystem: {entity.Name}");
-            WithImpersonation(() => GetMessageFromFile(entity, messageCallback, token));
+            WithImpersonation(async () => await GetMessageFromFile(entity, messageCallback, token));
         }
 
         /// <summary>
