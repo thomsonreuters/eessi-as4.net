@@ -59,13 +59,48 @@ namespace Eu.EDelivery.AS4.VolumeTests
             return deliverDirectory.GetFiles(searchPattern).Length;
         }
 
+        public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
+        {
+            FileSystemWatcher fs = new FileSystemWatcher(GetMessageDirectory(subDirectory: "in").FullName);
+            fs.IncludeSubdirectories = false;
+
+            ManualResetEvent waiter = new ManualResetEvent(false);
+            bool allMessagesDelivered = false;
+
+            object syncRoot = new object();
+
+            fs.Created += (o, args) =>
+            {
+                lock (syncRoot)
+                {
+                    if (Directory.GetFiles(searchPattern).Count() >= numberOfMessages)
+                    {
+                        fs.EnableRaisingEvents = false;
+                        allMessagesDelivered = true;
+                        action();
+
+                        waiter.Set();
+                    }
+                }
+            };
+
+            waiter.WaitOne(timeout);
+
+            return allMessagesDelivered;
+        }
+
+        private static void Fs_Created(object sender, FileSystemEventArgs e)
+        {
+
+        }
+
         /// <summary>
         /// Cleanup the delivered messages from the Corner's deliver directory.
         /// </summary>
         public void CleanupMessages()
         {
-           CleanUpMessageDirectory("in");
-           CleanUpMessageDirectory("out");
+            CleanUpMessageDirectory("in");
+            CleanUpMessageDirectory("out");
         }
 
         private void CleanUpMessageDirectory(string subDirectory)
@@ -97,7 +132,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
                 new ProcessStartInfo(
                     Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
             cornerInfo.WorkingDirectory = cornerDirectory.FullName;
-           
+
             var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
             Thread.Sleep(1000);
 
@@ -156,7 +191,12 @@ namespace Eu.EDelivery.AS4.VolumeTests
         {
             FileInfo cornerSettings =
                 cornerDirectory.GetFiles("*.xml", SearchOption.AllDirectories)
-                               .First(f => f.Name.Equals(cornerSettingsFileName));
+                               .FirstOrDefault(f => f.Name.Equals(cornerSettingsFileName));
+
+            if (cornerSettings == null)
+            {
+                throw new FileNotFoundException($"Could not find the settings file: {cornerSettingsFileName}");
+            }
 
             string newSettingsFilePath = Path.Combine(cornerDirectory.FullName, "config", "settings.xml");
             File.Copy(cornerSettings.FullName, newSettingsFilePath, overwrite: true);
@@ -174,7 +214,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
             using (var sqlConnection = new SqlConnection(connectionString))
             {
                 sqlConnection.Open();
-                
+
                 var dropDatabaseCommand = new SqlCommand($"USE [master]; DROP DATABASE {sqlConnection.Database}", sqlConnection);
                 dropDatabaseCommand.ExecuteNonQuery();
             }
