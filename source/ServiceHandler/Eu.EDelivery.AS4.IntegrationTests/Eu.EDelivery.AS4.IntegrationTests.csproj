@@ -186,8 +186,6 @@
     <Compile Include="Common\AS4Component.cs" />
     <Compile Include="Common\Holodeck.cs" />
     <Compile Include="Common\StubSender.cs" />
-    <Compile Include="Common\ComponentTestTemplate.cs" />
-    <Compile Include="Component Test Scenarios\SubmitAgentFacts.cs" />
     <Compile Include="Fixture\HolodeckFixture.cs" />
     <Compile Include="Fixture\ParentProcess.cs">
       <SubType>Component</SubType>
