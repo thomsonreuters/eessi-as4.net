@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.VolumeTests
 {
@@ -16,9 +17,15 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// </summary>
         public VolumeTestBridge()
         {
-            Corner2 = Corner.StartNew("c2");
-            Corner3 = Corner.StartNew("c3");
+            var startCorner2 = Corner.StartNew("c2");
+            var startCorner3 = Corner.StartNew("c3");
 
+            Task.WhenAll(startCorner2, startCorner3).ContinueWith((o) =>
+            {
+                Corner2 = startCorner2.Result;
+                Corner3 = startCorner3.Result;
+            }).Wait();
+            
             Corner2.CleanupMessages();
             Corner3.CleanupMessages();
 
@@ -28,12 +35,12 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// <summary>
         /// Gets the facade for the AS4 Corner 2 instance.
         /// </summary>
-        protected Corner Corner2 { get; }
+        protected Corner Corner2 { get; private set; }
 
         /// <summary>
         /// Gets the facade for the AS4 Corner 3 instance.
         /// </summary>
-        protected Corner Corner3 { get; }
+        protected Corner Corner3 { get; private set; }
 
         /// <summary>
         /// Start the polling of messages on the delivered directory to assert using the <paramref name="assertAction" /> till the

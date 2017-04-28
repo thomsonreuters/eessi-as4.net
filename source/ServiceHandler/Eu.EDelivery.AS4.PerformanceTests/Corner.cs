@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Eu.EDelivery.AS4.VolumeTests
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
             waiter.WaitOne(timeout);
 
             return allMessagesDelivered;
-        }       
+        }
 
         /// <summary>
         /// Cleanup the delivered messages from the Corner's deliver directory.
@@ -123,19 +124,23 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// </summary>
         /// <param name="prefix">Corner Prefix</param>
         /// <returns></returns>
-        public static Corner StartNew(string prefix)
+        public static Task<Corner> StartNew(string prefix)
         {
-            DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
+            return Task.Run(() =>
+            {
 
-            var cornerInfo =
-                new ProcessStartInfo(
-                    Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
-            cornerInfo.WorkingDirectory = cornerDirectory.FullName;
+                DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
 
-            var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
-            Thread.Sleep(1000);
+                var cornerInfo =
+                    new ProcessStartInfo(
+                        Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
+                cornerInfo.WorkingDirectory = cornerDirectory.FullName;
 
-            return corner;
+                var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
+                Thread.Sleep(1000);
+
+                return corner;
+            });
         }
 
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
