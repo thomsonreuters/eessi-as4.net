@@ -75,6 +75,6 @@ namespace Eu.EDelivery.AS4.VolumeTests
 
             Corner2.Dispose();
             Corner3.Dispose();
-        }
+        }   
     }
 }
