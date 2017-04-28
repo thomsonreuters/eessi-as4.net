@@ -2,19 +2,19 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace Eu.EDelivery.AS4.VolumeTests
+namespace Eu.EDelivery.AS4.PerformanceTests
 {
     /// <summary>
     /// Bridge to add an extra abstraction layer for the AS4 Corner creation/destruction.
     /// </summary>
-    public class VolumeTestBridge : IDisposable
+    public class PerformanceTestBridge : IDisposable
     {
         private readonly Stopwatch _stopWatch;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VolumeTestBridge" /> class.
+        /// Initializes a new instance of the <see cref="PerformanceTestBridge" /> class.
         /// </summary>
-        public VolumeTestBridge()
+        public PerformanceTestBridge()
         {
             Corner2 = Corner.StartNew("c2");
             Corner3 = Corner.StartNew("c3");
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
         public void Dispose()
         {
             _stopWatch.Stop();
-            Console.WriteLine($@"Volume Test took: {_stopWatch.Elapsed:g} to run");
+            Console.WriteLine($@"Performance Test took: {_stopWatch.Elapsed:g} to run");
 
             Corner2.Dispose();
             Corner3.Dispose();

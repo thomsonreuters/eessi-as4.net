@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Eu.EDelivery.AS4.VolumeTests.Properties {
+namespace Eu.EDelivery.AS4.PerformanceTests.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.VolumeTests.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Eu.EDelivery.AS4.VolumeTests.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Eu.EDelivery.AS4.PerformanceTests.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

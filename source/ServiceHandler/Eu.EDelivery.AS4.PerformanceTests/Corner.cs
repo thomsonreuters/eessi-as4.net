@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml;
 
-namespace Eu.EDelivery.AS4.VolumeTests
+namespace Eu.EDelivery.AS4.PerformanceTests
 {
     /// <summary>
     /// Facade for the AS4 Component as a Corner.

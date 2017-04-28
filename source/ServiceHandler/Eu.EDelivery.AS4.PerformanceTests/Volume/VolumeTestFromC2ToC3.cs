@@ -1,13 +1,13 @@
-﻿using Xunit;
+﻿using Eu.EDelivery.AS4.PerformanceTests.Properties;
+using Xunit;
 using Xunit.Sdk;
-using static Eu.EDelivery.AS4.VolumeTests.Properties.Resources;
 
-namespace Eu.EDelivery.AS4.VolumeTests
+namespace Eu.EDelivery.AS4.PerformanceTests.Volume
 {
     /// <summary>
-    /// 2. C3 (product B) to C2 (product A) oneWay signed and encrypted with increasing number of messages of a 10KB payload - triggered by M-K on C4
+    /// 1. C2 (product A) to C3 (product B) oneWay signed and encrypted with increasing number of messages of a 10KB payload - triggered by M-K on C1
     /// </summary>
-    public class VolumeTestFromC3ToC2 : VolumeTestBridge
+    public class VolumeTestFromC2ToC3 : PerformanceTestBridge
     {
         [Fact]
         public void TestIncreasingNumberOfMessages()
@@ -16,10 +16,10 @@ namespace Eu.EDelivery.AS4.VolumeTests
             const int messageCount = 100;
 
             // Act
-            Corner3.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C2);
+            Corner2.PlaceMessages(messageCount, Resources.SIMPLE_ONEWAY_TO_C3);
 
             // Assert
-            PollingTill(messageCount, Corner2, () => AssertMessages(messageCount));
+            PollingTill(messageCount, Corner3, () => AssertMessages(messageCount));
         }
 
         private void AssertMessages(int messageCount)
@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
 
         private void AssertOnFileCount(int expectedCount, string searchPattern, string userMessage)
         {
-            int actualCount = Corner2.CountDeliveredMessages(searchPattern);
+            int actualCount = Corner3.CountDeliveredMessages(searchPattern);
 
             if (expectedCount != actualCount)
             {
