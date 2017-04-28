@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             // Assert
-            PollingTill(messageCount, Corner3, () => AssertMessages(messageCount));
+            PollingTillAllMessages(messageCount, Corner3, () => AssertMessages(messageCount));
         }
 
         private void AssertMessages(int messageCount)

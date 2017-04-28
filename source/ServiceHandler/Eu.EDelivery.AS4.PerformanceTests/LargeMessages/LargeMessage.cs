@@ -8,36 +8,45 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         /// <summary>
         /// Create a large file for a given size.
         /// </summary>
-        /// <param name="filePath">The file Path.</param>
+        /// <param name="directory">The directory.</param>
         /// <param name="value"></param>
         /// <param name="metric">The metric.</param>
-        public static void CreateFile(string filePath, int value, Size metric)
+        public static string CreateFile(DirectoryInfo directory, int value, Size metric)
         {
+            string filePath = Path.Combine(directory.FullName, "image.jpg");
             using (FileStream fileStream = File.Create(filePath))
             {
                 fileStream.Seek(value * (long) metric, SeekOrigin.Begin);
                 fileStream.WriteByte(0);
             }
-        }
 
-        public enum Size : long
-        {
-            GB = 1024 * 1024 * 1024,
-            MB = 1024 * 1024
+            return $"file:///{filePath}";
         }
 
         [Fact]
         public void CreateExpectedFile()
         {
             // Arrange
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "message.txt");
-
+            var currentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+            
             // Act
-            CreateFile(filePath, value: 1, metric: Size.MB);
+            string filePath = CreateFile(currentDirectory, value: 1, metric: Size.MB);
 
             // Assert
-            int actualSize = File.ReadAllBytes(filePath).Length;
-            Assert.Equal((long) Size.MB, actualSize);
+            int expectedSize = Floor((int) Size.MB);
+            int actualSize = Floor(File.ReadAllBytes(filePath).Length);
+            Assert.Equal(expectedSize, actualSize);
         }
+
+        private static int Floor(int value)
+        {
+            return value - (value % 10);
+        }
+    }
+
+    public enum Size : long
+    {
+        GB = 1024 * 1024 * 1024,
+        MB = 1024 * 1024
     }
 }

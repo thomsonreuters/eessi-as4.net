@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <Collaboration>
+    <AgreementRef>
+      <PModeId>ACT_SIMPLE_ONEWAY_FROM_AS4.NET-C2_TO_AS4.NET-C3</PModeId>
+      <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
+    </AgreementRef>
+    <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+    <Action>ACT_SIMPLE_ONEWAY</Action>
+    <Service>
+      <Value>SRV_SIMPLE_ONEWAY</Value>
+    </Service>
+  </Collaboration>
+
+  <MessageProperties>
+    <MessageProperty>
+      <Name>Test</Name>
+      <Type>Test</Type>
+      <Value>Test</Value>
+    </MessageProperty>
+    <MessageProperty>
+      <Name>Test</Name>
+      <Type>Test</Type>
+      <Value>Test</Value>
+    </MessageProperty>
+  </MessageProperties>
+
+  <Payloads>
+    <Payload>
+      <Id>__ATTACHMENTID__</Id>
+      <MimeType>image/jpeg</MimeType>
+      <Location>__ATTACHMENTLOCATION__</Location>
+      <PayloadProperties>
+        <PayloadProperty>
+           <Name>Test</Name>
+          <Value>Test</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+  </Payloads>
+</SubmitMessage>

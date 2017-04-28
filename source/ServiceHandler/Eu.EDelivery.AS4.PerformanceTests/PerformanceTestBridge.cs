@@ -36,33 +36,49 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         protected Corner Corner3 { get; }
 
         /// <summary>
-        /// Start the polling of messages on the delivered directory to assert using the <paramref name="assertAction" /> till the
+        /// Start polling for a single message on the delivered directory to assert using the <paramref name="assertion"/>
+        /// </summary>
+        /// <param name="corner">Corner to use as delivered target.</param>
+        /// <param name="assertion">Assertion of the delivered message.</param>
+        protected void PollingTillFirstPayload(Corner corner, Action assertion)
+        {
+           PollingForMessages(
+               predicate: () => corner.CountDeliveredMessages() == 2, 
+               assertion: assertion, 
+               range: new PollingRange(retryCount: 20, retrySeconds: 15));
+        }
+
+        /// <summary>
+        /// Start the polling of messages on the delivered directory to assert using the <paramref name="assertion" /> till the
         /// <paramref name="messageCount" /> is reached.
         /// </summary>
         /// <param name="messageCount">Amount of messages to wait for.</param>
         /// <param name="corner">Corner to use as delivered target.</param>
-        /// <param name="assertAction">Assertion of delivered messages.</param>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        protected void PollingTill(int messageCount, Corner corner, Action assertAction)
+        /// <param name="assertion">Assertion of delivered messages.</param>
+        protected void PollingTillAllMessages(int messageCount, Corner corner, Action assertion)
         {
-            const int timeOut = 6;
-            var retryCount = 0;
-            TimeSpan retryInterval = TimeSpan.FromSeconds(10);
+            PollingForMessages(
+                predicate: () => messageCount <= corner.CountDeliveredMessages(), 
+                assertion: assertion, 
+                range: new PollingRange(retryCount: 10, retrySeconds: 10));
+        }
 
-            while (retryCount <= timeOut)
+        private static void PollingForMessages(Func<bool> predicate, Action assertion, PollingRange range)
+        {
+            while (range.InRange)
             {
-                if (messageCount <= corner.CountDeliveredMessages())
+                if (predicate())
                 {
-                    assertAction();
+                    assertion();
                     return;
                 }
 
-                retryCount++;
-                Thread.Sleep(retryInterval);
+                range.Increase();
+                Thread.Sleep(range.RetryInterval);
             }
 
             // Assert anyway to let the test fail.
-            assertAction();
+            assertion();
         }
 
         /// <summary>
@@ -75,6 +91,29 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
             Corner2.Dispose();
             Corner3.Dispose();
-        }   
+        }  
+    }
+
+    public class PollingRange
+    {
+        private readonly int _retryCount;
+        private int _currentRetry;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PollingRange"/> class.
+        /// </summary>
+        /// <param name="retryCount">The retry Count.</param>
+        /// <param name="retrySeconds">The retry Seconds.</param>
+        public PollingRange(int retryCount, int retrySeconds)
+        {
+            _retryCount = retryCount;
+            RetryInterval = TimeSpan.FromSeconds(retrySeconds);
+        }
+
+        public TimeSpan RetryInterval { get; }
+
+        public bool InRange => _currentRetry <= _retryCount;
+
+        public void Increase() => ++_currentRetry;
     }
 }

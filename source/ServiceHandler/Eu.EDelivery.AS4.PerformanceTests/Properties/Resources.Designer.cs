@@ -105,5 +105,28 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Properties {
                 return ResourceManager.GetString("SIMPLE_ONEWAY_TO_C3", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;Collaboration&gt;
+        ///    &lt;AgreementRef&gt;
+        ///      &lt;PModeId&gt;ACT_SIMPLE_ONEWAY_FROM_AS4.NET-C2_TO_AS4.NET-C3&lt;/PModeId&gt;
+        ///      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
+        ///    &lt;/AgreementRef&gt;
+        ///    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
+        ///    &lt;Action&gt;ACT_SIMPLE_ONEWAY&lt;/Action&gt;
+        ///    &lt;Service&gt;
+        ///      &lt;Value&gt;SRV_SIMPLE_ONEWAY&lt;/Value&gt;
+        ///    &lt;/Service&gt;
+        ///  &lt;/Collaboration&gt;
+        ///
+        ///  &lt;MessagePro [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SIMPLE_ONEWAY_TO_C3_SIZE {
+            get {
+                return ResourceManager.GetString("SIMPLE_ONEWAY_TO_C3_SIZE", resourceCulture);
+            }
+        }
     }
 }
