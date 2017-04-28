@@ -5,7 +5,7 @@
   <PayloadServiceInProcess>false</PayloadServiceInProcess> 
   <Database>
     <Provider>SqlServer</Provider>
-    <ConnectionString>Server=.;Database=c3messages;Trusted_Connection=True;</ConnectionString>
+    <ConnectionString>Server=as4_perftest;Database=c3messages;Trusted_Connection=True;</ConnectionString>
   </Database>
   <CertificateStore>
     <StoreName>My</StoreName>
