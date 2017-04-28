@@ -1,6 +1,6 @@
-﻿using Eu.EDelivery.AS4.PerformanceTests.Properties;
-using Xunit;
+﻿using Xunit;
 using Xunit.Sdk;
+using static Eu.EDelivery.AS4.PerformanceTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.PerformanceTests.Volume
 {
@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             const int messageCount = 100;
 
             // Act
-            Corner2.PlaceMessages(messageCount, Resources.SIMPLE_ONEWAY_TO_C3);
+            Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             // Assert
             PollingTill(messageCount, Corner3, () => AssertMessages(messageCount));

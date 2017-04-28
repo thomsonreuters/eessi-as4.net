@@ -59,15 +59,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Corner.cs" />
+    <Compile Include="LargeMessages\LargeMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="VolumeTestBridge.cs" />
-    <Compile Include="VolumeTests\VolumeTestFromC2ToC3.cs" />
-    <Compile Include="VolumeTestFromC3ToC2.cs" />
+    <Compile Include="PerformanceTestBridge.cs" />
+    <Compile Include="Volume\VolumeTestFromC2ToC3.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -87,9 +87,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="LargeMessagesTests\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
