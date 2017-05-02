@@ -5,7 +5,11 @@ open Fake
 open Fake.Testing
 open Fake.DotCover
 open Fake.DotNetCli
+open Fake.Git.Information
 
+/// <summary>
+/// Restore the Solution packages.
+/// </summary>
 Target "Restore" (fun _ ->
     let dotnetResult = ExecProcess (fun info -> 
         info.FileName <- "dotnet"
@@ -21,7 +25,7 @@ Target "Restore" (fun _ ->
 )
 
 /// <summary>
-/// Compile the Solution with a 'Release' configuraiton.
+/// Compile the Solution with a 'Release' configuration.
 /// </summary>
 Target "Compile" (fun _ ->
     let buildMode = getBuildParamOrDefault "buildMode" "Release"
@@ -98,11 +102,26 @@ Target "Inspect" (fun _ ->
             )
 )
 
+/// <summary>
+/// Run the Post-Release PS scripts.
+/// </summary>
+Target "Release" (fun _ ->
+    DeleteDir "./output/Staging"
+    Shell.Exec("powershell.exe", "-File ../scripts/add-probing.ps1", "./output/") |> ignore
+    Shell.Exec("powershell.exe", "-File ../scripts/stagingscript.ps1", "./output/") |> ignore
+    Shell.Exec("powershell.exe", "-File GenerateXsd.ps1", "./scripts/") |> ignore
+
+    !! "./output/Staging/**/*.*"
+        -- "*.zip"
+        |> Zip "./output/Staging" ("./output/AS4.NET - " + (getBranchName ".") + ".zip")
+)
+
 "Restore"
 ==> "Compile" 
 ==> "UnitTests" 
 ==> "Coverage" 
 ==> "Inspect"
+==> "Release"
 
 "Compile"
 ==> "IntegrationTests"
