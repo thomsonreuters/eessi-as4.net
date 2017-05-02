@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Eu.EDelivery.AS4.VolumeTests
@@ -59,13 +60,47 @@ namespace Eu.EDelivery.AS4.VolumeTests
             return deliverDirectory.GetFiles(searchPattern).Length;
         }
 
+        public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
+        {
+            string deliverDirectoryName = GetMessageDirectory(subDirectory: "in").FullName;
+
+            FileSystemWatcher fs = new FileSystemWatcher(deliverDirectoryName);
+            fs.IncludeSubdirectories = false;
+
+            ManualResetEvent waiter = new ManualResetEvent(false);
+            bool allMessagesDelivered = false;
+
+            fs.EnableRaisingEvents = true;
+
+            object syncRoot = new object();
+
+            fs.Created += (o, args) =>
+            {
+                lock (syncRoot)
+                {
+                    if (Directory.GetFiles(deliverDirectoryName, searchPattern).Count() >= numberOfMessages)
+                    {
+                        fs.EnableRaisingEvents = false;
+                        allMessagesDelivered = true;
+                        action();
+
+                        waiter.Set();
+                    }
+                }
+            };
+
+            waiter.WaitOne(timeout);
+
+            return allMessagesDelivered;
+        }
+
         /// <summary>
         /// Cleanup the delivered messages from the Corner's deliver directory.
         /// </summary>
         public void CleanupMessages()
         {
-           CleanUpMessageDirectory("in");
-           CleanUpMessageDirectory("out");
+            CleanUpMessageDirectory("in");
+            CleanUpMessageDirectory("out");
         }
 
         private void CleanUpMessageDirectory(string subDirectory)
@@ -89,19 +124,23 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// </summary>
         /// <param name="prefix">Corner Prefix</param>
         /// <returns></returns>
-        public static Corner StartNew(string prefix)
+        public static Task<Corner> StartNew(string prefix)
         {
-            DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
+            return Task.Run(() =>
+            {
 
-            var cornerInfo =
-                new ProcessStartInfo(
-                    Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
-            cornerInfo.WorkingDirectory = cornerDirectory.FullName;
-           
-            var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
-            Thread.Sleep(1000);
+                DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
 
-            return corner;
+                var cornerInfo =
+                    new ProcessStartInfo(
+                        Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
+                cornerInfo.WorkingDirectory = cornerDirectory.FullName;
+
+                var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
+                Thread.Sleep(1000);
+
+                return corner;
+            });
         }
 
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
@@ -156,7 +195,12 @@ namespace Eu.EDelivery.AS4.VolumeTests
         {
             FileInfo cornerSettings =
                 cornerDirectory.GetFiles("*.xml", SearchOption.AllDirectories)
-                               .First(f => f.Name.Equals(cornerSettingsFileName));
+                               .FirstOrDefault(f => f.Name.Equals(cornerSettingsFileName));
+
+            if (cornerSettings == null)
+            {
+                throw new FileNotFoundException($"Could not find the settings file: {cornerSettingsFileName}");
+            }
 
             string newSettingsFilePath = Path.Combine(cornerDirectory.FullName, "config", "settings.xml");
             File.Copy(cornerSettings.FullName, newSettingsFilePath, overwrite: true);
@@ -170,12 +214,21 @@ namespace Eu.EDelivery.AS4.VolumeTests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xml);
 
-            string connectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
-            using (var sqlConnection = new SqlConnection(connectionString))
+            string mshConnectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
+
+            // Modify the connectionstring so that we initially connect to the master - database.
+            // Otherwise, the connection will fail if the database doesn't exist yet.
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(mshConnectionString);
+            string databaseName = builder.InitialCatalog;
+            builder.InitialCatalog = "master";
+
+            string masterConnectionString = builder.ConnectionString;
+
+            using (var sqlConnection = new SqlConnection(masterConnectionString))
             {
                 sqlConnection.Open();
-                
-                var dropDatabaseCommand = new SqlCommand($"USE [master]; DROP DATABASE {sqlConnection.Database}", sqlConnection);
+
+                var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {databaseName}", sqlConnection);
                 dropDatabaseCommand.ExecuteNonQuery();
             }
         }

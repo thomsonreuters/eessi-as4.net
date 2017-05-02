@@ -1,16 +1,29 @@
-﻿using Xunit;
+﻿using System;
+using System.Diagnostics;
+using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 using static Eu.EDelivery.AS4.VolumeTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.VolumeTests
 {
     /// <summary>
-    /// 1. C2 (product A) to C3 (product B) oneWay signed and encrypted with increasing number of messages of a 10KB payload - triggered by M-K on C1
+    /// 1. C2 (product A) to C3 (product B) oneWay signed and encrypted with increasing number of messages of a 10KB payload.
     /// </summary>
     public class VolumeTestFromC2ToC3 : VolumeTestBridge
     {
+        private readonly ITestOutputHelper _output;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VolumeTestFromC2ToC3"/> class.
+        /// </summary>
+        public VolumeTestFromC2ToC3(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
-        public void TestIncreasingNumberOfMessages()
+        public void TestSendingHundredMessages()
         {
             // Arrange
             const int messageCount = 100;
@@ -37,5 +50,30 @@ namespace Eu.EDelivery.AS4.VolumeTests
                 throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
             }
         }
+
+        [Fact]
+        public void MeasureSendingHundredMessages()
+        {
+            // Arrange
+            const int messageCount = 100;
+            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(90);
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            // Act
+            Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
+
+            bool allMessagesDelivered =
+                Corner3.ExecuteWhenNumberOfMessagesAreDelivered(
+                    messageCount,
+                    () => { sw.Stop(); },
+                    timeout: maxExecutionTime,
+                    searchPattern: "*.xml");
+
+            Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
+
+            _output.WriteLine($"Processing {messageCount} messages took {sw.Elapsed.TotalSeconds} seconds");
+        }       
     }
 }
