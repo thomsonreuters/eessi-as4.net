@@ -297,7 +297,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private static void IncludeCornerPModesIn(FileSystemInfo cornerDirectory)
         {
             Func<string, DirectoryInfo> getPModeDirectory =
-                subFolder => new DirectoryInfo(Path.Combine(cornerDirectory.FullName, "config", subFolder));
+                subFolder =>
+                {
+                    string directoryPath = Path.Combine(cornerDirectory.FullName, "config", subFolder);
+
+                    if (!Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+
+                    return new DirectoryInfo(directoryPath);
+                };
 
             DirectoryInfo volumeSendPModes = getPModeDirectory(@"volumetest-pmodes\send-pmodes"),
                           volumeReceivePModes = getPModeDirectory(@"volumetest-pmodes\receive-pmodes");
