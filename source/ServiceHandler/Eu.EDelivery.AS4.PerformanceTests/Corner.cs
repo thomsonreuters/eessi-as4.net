@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
         {
-            var outputDirectory = new DirectoryInfo(Path.GetFullPath("."));
+            var outputDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
             Console.WriteLine(outputDirectory.FullName);
             DirectoryInfo cornerDirectory = CreateCornerIn(outputDirectory, $"output-{cornerPrefix}");
 
