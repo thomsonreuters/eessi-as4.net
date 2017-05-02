@@ -147,6 +147,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private DirectoryInfo GetMessageDirectory(string subDirectory)
         {
             string deliverPath = Path.Combine(_cornerDirectory.FullName, "messages", subDirectory);
+
+            if (!Directory.Exists(deliverPath))
+            {
+                Directory.CreateDirectory(deliverPath);
+            }
+
             return new DirectoryInfo(deliverPath);
         }
 
