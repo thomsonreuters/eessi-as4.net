@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
@@ -191,7 +192,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             string newSettingsFilePath = Path.Combine(cornerDirectory.FullName, "config", "settings.xml");
             File.Copy(cornerSettings.FullName, newSettingsFilePath, overwrite: true);
 
-            //DropSettingsDatabase(newSettingsFilePath);
+            DropSettingsDatabase(newSettingsFilePath);
         }
 
         private static void DropSettingsDatabase(string newSettingsFilePath)
@@ -204,9 +205,21 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             using (var sqlConnection = new SqlConnection(connectionString))
             {
                 sqlConnection.Open();
-                
+
                 var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {sqlConnection.Database}", sqlConnection);
+                TryExecuteCommand(dropDatabaseCommand);
+            }
+        }
+
+        private static void TryExecuteCommand(IDbCommand dropDatabaseCommand)
+        {
+            try
+            {
                 dropDatabaseCommand.ExecuteNonQuery();
+            }
+            catch (SqlException exception)
+            {
+                Console.WriteLine(exception.Message);
             }
         }
 
