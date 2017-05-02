@@ -28,19 +28,24 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         {
             // Arrange
             var currentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
-            
+
             // Act
             string filePath = CreateFile(currentDirectory, value: 1, metric: Size.MB);
 
             // Assert
-            int expectedSize = Floor((int) Size.MB);
-            int actualSize = Floor(File.ReadAllBytes(filePath).Length);
+            int expectedSize = Floor((int)Size.MB);
+            int actualSize = Floor(ReadLargeFileLength(filePath));
             Assert.Equal(expectedSize, actualSize);
         }
 
         private static int Floor(int value)
         {
             return value - (value % 10);
+        }
+
+        private static int ReadLargeFileLength(string filePath)
+        {
+            return File.ReadAllBytes(filePath.Replace("file:///", string.Empty)).Length;
         }
     }
 

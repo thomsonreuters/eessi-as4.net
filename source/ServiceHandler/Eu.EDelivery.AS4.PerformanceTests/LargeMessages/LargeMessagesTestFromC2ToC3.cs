@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
         [InlineData(512, Size.MB)]
         [InlineData(1, Size.GB)]
         [InlineData(2, Size.GB)]
+        [InlineData(3, Size.GB)]
         public void TestIncreasingPayloadSize(int value, Size metric)
         {
             // Act

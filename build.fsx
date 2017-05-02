@@ -66,10 +66,17 @@ Target "IntegrationTests" (fun _ ->
 )
 
 /// <summary>
-/// Test the 'Component Test' assemblies
+/// Test the 'Component Test' assemblies.
 /// </summary>
 Target "ComponentTests" (fun _ ->
     ["./output/Eu.EDelivery.AS4.ComponentTests.dll"] |> xUnit2 longRunningTestsParams
+)
+
+/// <summary>
+/// Test the 'Performance Test' assemblies.
+/// </summary>
+Target "PerformanceTests" (fun _ ->
+    ["./output/Eu.EDelivery.AS4.PerformanceTests.dll"] |> xUnit2 longRunningTestsParams
 )
 
 /// <summary>
@@ -129,6 +136,6 @@ Target "Release" (fun _ ->
 ==> "Release"
 
 "Compile"
-==> "IntegrationTests" <=> "ComponentTests"
+==> "IntegrationTests" <=> "ComponentTests" <=> "PerformanceTests"
 
 RunTargetOrDefault "Inspect"
