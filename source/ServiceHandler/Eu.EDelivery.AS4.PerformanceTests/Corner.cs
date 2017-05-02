@@ -208,7 +208,19 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destDirName, file.Name);
+                TryCopyFile(file, temppath);
+            }
+        }
+
+        private static void TryCopyFile(FileInfo file, string temppath)
+        {
+            try
+            {
                 file.CopyTo(temppath, overwrite: true);
+            }
+            catch (IOException exception)
+            {
+                Console.WriteLine(exception.Message);
             }
         }
 
