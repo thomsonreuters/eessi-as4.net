@@ -17,7 +17,6 @@ using Eu.EDelivery.AS4.Security.Repositories;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Transforms;
 using Eu.EDelivery.AS4.Streaming;
-using MimeKit.IO;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
 
 namespace Eu.EDelivery.AS4.Security.Strategies
@@ -70,24 +69,24 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             SecurityTokenReference.Certificate = certificate;
             KeyInfo.AddClause(SecurityTokenReference);
         }
-        
+
         private static readonly object CertificateReaderLocker = new object();
         private static readonly CspParameters CspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY", Flags = CspProviderFlags.UseMachineKeyStore };
 
         private static RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
-        {                     
-            var key = new RSACryptoServiceProvider(CspParams);
-
+        {
             // When handling a large load of messages in parallel, we sometimes get a 'file is in use' exception
             // when loading the private key from the certificate.  Therefore, we synchronize access when
             // loading the private key to prevent this.
             lock (CertificateReaderLocker)
             {
+                var key = new RSACryptoServiceProvider(CspParams);
+
                 string keyXml = certificate.PrivateKey.ToXmlString(includePrivateParameters: true);
                 key.FromXmlString(keyXml);
-            }
 
-            return key;
+                return key;
+            }
         }
 
         /// <summary>
@@ -165,15 +164,15 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void AddSecurityTokenReferenceToKeyInfo()
         {
-            if (!this.KeyInfo.OfType<SecurityTokenReference>().Any() && this.SecurityTokenReference != null)
+            if (!KeyInfo.OfType<SecurityTokenReference>().Any() && SecurityTokenReference != null)
             {
-                this.KeyInfo.AddClause(this.SecurityTokenReference);
+                KeyInfo.AddClause(SecurityTokenReference);
             }
         }
 
         private void AppendSecurityTokenElements(XmlElement securityElement)
         {
-            foreach (SecurityTokenReference reference in this.KeyInfo.OfType<SecurityTokenReference>())
+            foreach (SecurityTokenReference reference in KeyInfo.OfType<SecurityTokenReference>())
             {
                 if (reference.Certificate == null)
                 {
@@ -214,7 +213,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             CryptoConfig.AddAlgorithm(algorithm.GetType(), algorithm.GetIdentifier());
             CryptoConfig.AddAlgorithm(typeof(AttachmentSignatureTransform), AttachmentSignatureTransform.Url);
-            CryptoConfig.AddAlgorithm(typeof(SecurityTokenReference), this._securityTokenReferenceNamespace);
+            CryptoConfig.AddAlgorithm(typeof(SecurityTokenReference), _securityTokenReferenceNamespace);
         }
 
         /// <summary>
@@ -234,7 +233,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             X509ChainStatus[] status;
 
-            if (!VerifyCertificate(this.SecurityTokenReference.Certificate, out status))
+            if (!VerifyCertificate(SecurityTokenReference.Certificate, out status))
             {
                 throw ThrowAS4SignException($"The signing certificate is not trusted: {string.Join(" ", status.Select(s => s.StatusInformation))}");
             }
@@ -242,12 +241,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             LoadXml(GetSignatureElement());
             AddUnreconizedAttachmentReferences(options.Attachments);
 
-            return CheckSignature(this.SecurityTokenReference.Certificate, verifySignatureOnly: true);
+            return CheckSignature(SecurityTokenReference.Certificate, verifySignatureOnly: true);
         }
 
         private XmlElement GetSignatureElement()
         {
-            XmlNode nodeSignature = this._document.SelectSingleNode("//*[local-name()='Signature'] ");
+            XmlNode nodeSignature = _document.SelectSingleNode("//*[local-name()='Signature'] ");
             var xmlSignature = nodeSignature as XmlElement;
             if (nodeSignature == null || xmlSignature == null)
                 throw ThrowAS4SignException("Invalid Signature: Signature Tag not found");
@@ -278,7 +277,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private void AddUnreconizedAttachmentReferences(ICollection<Attachment> attachments)
         {
-            IEnumerable<CryptoReference> references = this.SignedInfo
+            IEnumerable<CryptoReference> references = SignedInfo
                 .References.Cast<CryptoReference>().Where(ReferenceIsCidReference());
 
             foreach (CryptoReference reference in references)

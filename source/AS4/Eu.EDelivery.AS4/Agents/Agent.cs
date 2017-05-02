@@ -153,6 +153,7 @@ namespace Eu.EDelivery.AS4.Agents
                 {
                     Logger.Fatal($"Inner Exception: {exception.InnerException.Message}");
                 }
+                Logger.Fatal(exception.StackTrace);
 
                 throw;
             }

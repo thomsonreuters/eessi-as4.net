@@ -50,14 +50,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                 throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
             }
         }
-
-        //   http://stackoverflow.com/questions/22093843/pass-complex-parameters-to-theory
-
+        
         [Theory]
-        [InlineData(100, 90)]
-        //[InlineData(500, 200)]
-        //[InlineData(1000, 500)]
-        //[InlineData(10000, 1800)]
+        [InlineData(100, 60)]
+        [InlineData(500, 180)]
+        [InlineData(1000, 500)]
+     //   [InlineData(5000, 1800)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
             // Arrange            
@@ -75,6 +73,11 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                     () => { sw.Stop(); },
                     timeout: maxExecutionTime,
                     searchPattern: "*.xml");
+
+            if (allMessagesDelivered == false)
+            {
+                _output.WriteLine($"Number of messages delivered: {Corner3.CountDeliveredMessages("*.xml")}");                
+            }
 
             Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
 
