@@ -11,66 +11,6 @@ namespace Eu.EDelivery.AS4.Extensions
     public static class DictionaryExtensions
     {
         /// <summary>
-        /// Removes the item from the dictionary with the given key.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="dictionary"></param>
-        /// <param name="key"></param>
-        public static void Demote<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
-        {
-            if (!dictionary.ContainsKey(key))
-            {
-                return;
-            }
-
-            dictionary.Remove(key);
-        }
-
-        /// <summary>
-        /// Returns the given <see cref="IDictionary{TKey, TValue}" /> as a string
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="dictionary"></param>
-        /// <returns></returns>
-        public static string Flatten<TKey, TValue>(this IDictionary<TKey, TValue> dictionary)
-        {
-            if (dictionary == null || dictionary.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            var buffer = new StringBuilder();
-            foreach (TKey key in dictionary.Keys)
-            {
-                buffer.AppendFormat("{0}:{1};", key, dictionary[key]);
-            }
-
-            return buffer.ToString(0, buffer.Length - 1);
-        }
-
-        /// <summary>
-        /// Replaces the value if the key exists, otherwise adds the key-value.
-        /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
-        /// <param name="dictionary"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        public static void Merge<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
-        {
-            if (dictionary.ContainsKey(key))
-            {
-                dictionary[key] = value;
-            }
-            else
-            {
-                dictionary.Add(key, value);
-            }
-        }
-
-        /// <summary>
         /// Read a required property
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
