@@ -499,20 +499,17 @@ namespace Eu.EDelivery.AS4.Receivers
             /// Specific <see cref="HttpListenerResponse"/> handling.
             /// </summary>
             /// <param name="response"></param>
-            protected override Task ExecuteResultAsyncCore(HttpListenerResponse response)
+            protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
-                // TODO: If we can create an SerializeAsync method, then this method can be really made async as well.
-
                 using (Stream responseStream = response.OutputStream)
                 {
                     if (_internalMessage.AS4Message?.IsEmpty == false)
                     {
                         ISerializer serializer = SerializerProvider.Get(_internalMessage.AS4Message.ContentType);
-                        serializer.Serialize(_internalMessage.AS4Message, responseStream, CancellationToken.None);
+
+                        await serializer.SerializeAsync(_internalMessage.AS4Message, responseStream, CancellationToken.None).ConfigureAwait(false);
                     }
                 }
-
-                return Task.FromResult(0);
             }
         }
 

@@ -51,12 +51,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             }
         }
 
-        [Fact]
-        public void MeasureSendingHundredMessages()
+        //   http://stackoverflow.com/questions/22093843/pass-complex-parameters-to-theory
+
+        [Theory]
+        [InlineData(100, 90)]
+        //[InlineData(500, 200)]
+        //[InlineData(1000, 500)]
+        //[InlineData(10000, 1800)]
+        public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
-            // Arrange
-            const int messageCount = 100;
-            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(90);
+            // Arrange            
+            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(maxExecutionTimeInSeconds);
 
             Stopwatch sw = new Stopwatch();
             sw.Start();

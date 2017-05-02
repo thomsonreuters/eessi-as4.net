@@ -122,6 +122,11 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
             waiter.WaitOne(timeout);
 
+            if (allMessagesDelivered == false)
+            {
+                Console.WriteLine($"Number of messages delivered: {Directory.GetFiles(deliverDirectoryName, searchPattern).Count()}");
+            }
+
             return allMessagesDelivered;
         }
 

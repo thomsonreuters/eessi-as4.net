@@ -32,6 +32,11 @@ namespace Eu.EDelivery.AS4.Serialization
             _soapSerializer = serializer;
         }
 
+        public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
+        {
+            return Task.Run(() => this.Serialize(message, stream, cancellationToken), cancellationToken);
+        }
+
         /// <summary>
         /// Serialize <see cref="AS4Message" /> to a <see cref="Stream" />
         /// </summary>

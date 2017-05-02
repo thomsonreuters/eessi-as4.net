@@ -72,12 +72,11 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         }
         
         private static readonly object CertificateReaderLocker = new object();
+        private static readonly CspParameters CspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY", Flags = CspProviderFlags.UseMachineKeyStore };
 
         private static RSACryptoServiceProvider GetSigningKeyFromCertificate(X509Certificate2 certificate)
-        {
-            var cspParams = new CspParameters(24) { KeyContainerName = "XML_DISG_RSA_KEY" };
-
-            var key = new RSACryptoServiceProvider(cspParams);
+        {                     
+            var key = new RSACryptoServiceProvider(CspParams);
 
             // When handling a large load of messages in parallel, we sometimes get a 'file is in use' exception
             // when loading the private key from the certificate.  Therefore, we synchronize access when

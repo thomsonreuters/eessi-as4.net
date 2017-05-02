@@ -50,6 +50,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlSchema _envelopeSchema;
 
+        public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
+        {
+            return Task.Run(() => this.Serialize(message, stream, cancellationToken), cancellationToken);
+        }
+
         /// <summary>
         /// Serialize SOAP Envelope to a <see cref="Stream" />
         /// </summary>
