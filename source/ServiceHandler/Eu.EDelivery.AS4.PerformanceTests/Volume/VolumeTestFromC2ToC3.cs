@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             _output = output;
         }
 
-        [Fact(Skip = "d")]
+        [Fact]
         public void TestSendingHundredMessages()
         {
             // Arrange
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             }
         }
 
-        [Fact(Skip = "d")]
+        [Fact]
         public void MeasureSendingHundredMessages()
         {
             // Arrange
