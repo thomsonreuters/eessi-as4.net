@@ -1,6 +1,5 @@
 
 $cmd = "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\xsd.exe"
-$output = Get-Location ../output/Staging/Documentation/Schemas
 
 & $cmd ../output/Staging/bin/Eu.EDelivery.AS4.dll  /type:Eu.EDelivery.AS4.Model.Submit.SubmitMessage /o:../output/Staging/Documentation/Schemas
 Rename-Item ../output/Staging/Documentation/Schemas/schema0.xsd submitmessage-schema.xsd
@@ -17,7 +16,7 @@ Rename-Item ../output/Staging/Documentation/Schemas/schema0.xsd send-pmode-schem
 & $cmd ../output/Staging/bin/Eu.EDelivery.AS4.dll  /type:Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode /o:../output/Staging/Documentation/Schemas
 Rename-Item ../output/Staging/Documentation/Schemas/schema0.xsd receive-pmode-schema.xsd
 
-Get-ChildItem $output -Filter '*.xsd' | % {
+Get-ChildItem ../output/Staging/Documentation/Schemas -Filter '*.xsd' | % {
         $content = [xml](Get-Content $_.FullName)
      
         Select-Xml $content -XPath "//*[local-name()='any']" | % {

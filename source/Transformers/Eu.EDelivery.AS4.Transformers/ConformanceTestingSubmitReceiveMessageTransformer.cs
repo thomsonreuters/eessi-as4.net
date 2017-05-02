@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
+    [ExcludeFromCodeCoverage]
     public class ConformanceTestingSubmitReceiveMessageTransformer : ITransformer
     {
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)

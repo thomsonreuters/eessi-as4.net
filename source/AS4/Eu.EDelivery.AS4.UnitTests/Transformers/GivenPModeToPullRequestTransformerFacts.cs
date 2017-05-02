@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
+using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
@@ -87,6 +89,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 invalidSendingPMode.PullConfiguration = null;
                 
                 yield return new object[] {new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
+
+                var message = new Mock<ReceivedMessage>();
+                message.Setup(m => m.AssignPropertiesTo(It.IsAny<AS4Message>())).Throws<Exception>();
+                yield return new object[] {message.Object};
             }
         }
     }

@@ -40,6 +40,7 @@ Move-Item -Path .\Assets\*.* .\Staging\Assets\
 Move-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
 Move-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe.config .\Staging\
 Move-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
+Move-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
 
 If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
 	Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\

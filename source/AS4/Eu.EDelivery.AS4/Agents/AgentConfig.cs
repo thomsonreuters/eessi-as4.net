@@ -12,14 +12,4 @@
             Name = name;
         }
     }
-
-    /// <summary>
-    /// Null Object for the Agent Config
-    /// </summary>
-    public class NullAgentConfig : AgentConfig
-    {
-        private NullAgentConfig() : base("[Null Agent Config]") {}
-
-        public static readonly NullAgentConfig Default = new NullAgentConfig();
-    }
 }

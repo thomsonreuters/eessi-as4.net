@@ -18,10 +18,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         public GivenIssuerSecurityTokenReferenceFacts()
         {
             var certRepository = new StubCertificateRepository();
-            _dummyCertificate = certRepository.GetDummyCertificate();
+            _dummyCertificate = certRepository.GetStubCertificate();
             _reference = new IssuerSecurityTokenReference(certRepository)
             {
-                Certificate = certRepository.GetDummyCertificate()
+                Certificate = certRepository.GetStubCertificate()
             };
         }
 

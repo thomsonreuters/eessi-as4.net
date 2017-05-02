@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Notify
 {
+    [ExcludeFromCodeCoverage]
     public abstract class MinderCreateNotifyMessageStep : IStep
     {
         // TODO: this step should be replaced by a Transformer

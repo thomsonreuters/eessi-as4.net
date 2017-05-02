@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
             _reference = new KeyIdentifierSecurityTokenReference(repository)
             {
-                Certificate = repository.GetDummyCertificate()
+                Certificate = repository.GetStubCertificate()
             };
         }
 
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 _reference.LoadXml(keyIdentifierXml);
 
                 // Assert
-                Assert.Equal(new StubCertificateRepository().GetDummyCertificate(), _reference.Certificate);
+                Assert.Equal(new StubCertificateRepository().GetStubCertificate(), _reference.Certificate);
             }
         }
     }

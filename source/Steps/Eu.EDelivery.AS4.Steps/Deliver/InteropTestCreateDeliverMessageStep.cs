@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,6 +16,7 @@ using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
+    [ExcludeFromCodeCoverage]
     public class InteropTestCreateDeliverMessageStep : IStep
     {
         // TODO: this Step should be replaced by a Transformer.

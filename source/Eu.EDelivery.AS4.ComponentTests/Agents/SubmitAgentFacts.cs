@@ -3,10 +3,10 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.IntegrationTests.Common;
+using Eu.EDelivery.AS4.ComponentTests.Common;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Component_Test_Scenarios
+namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
 
     public class SubmitAgentFacts : ComponentTestTemplate
@@ -32,11 +32,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Component_Test_Scenarios
             [Fact]
             public async void ThenAgentRespondsWithHttpAccepted()
             {
-                const string submitMessageFile = @".\samples\messages\01-sample-message.xml";
-
-                Assert.True(File.Exists(submitMessageFile), "The SubmitMessage could not be found.");
-
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, File.ReadAllText(submitMessageFile));
+                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, GetValidSubmitMessage());
 
                 using (var response = await _httpClient.SendAsync(request))
                 {
@@ -64,6 +60,19 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Component_Test_Scenarios
                     Assert.False(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
                 }
             }
+
+            private static string GetValidSubmitMessage()
+            {
+                return @"<?xml version=""1.0""?>
+                            <SubmitMessage xmlns = ""urn:cef:edelivery:eu:as4:messages""> 
+                                <Collaboration> 
+                                    <AgreementRef>
+                                        <PModeId>componentsubmittest-pmode</PModeId> 
+                                    </AgreementRef> 
+                                </Collaboration> 
+                                <Payloads/>   
+                            </SubmitMessage>";
+            }
         }
 
         public class GivenInvalidSubmitMessage : SubmitAgentFacts
@@ -76,7 +85,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Component_Test_Scenarios
                 using (var response = await _httpClient.SendAsync(request))
                 {
                     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-                    Assert.True(String.IsNullOrWhiteSpace(response.Content.Headers.ContentType?.ToString()));
                 }
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.PerformanceTests
 {
@@ -16,8 +17,15 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// </summary>
         public PerformanceTestBridge()
         {
-            Corner2 = Corner.StartNew("c2");
-            Corner3 = Corner.StartNew("c3");
+            Task<Corner> startCorner2 = Corner.StartNew("c2");
+            Task<Corner> startCorner3 = Corner.StartNew("c3");
+
+            Task.WhenAll(startCorner2, startCorner3).ContinueWith(
+                task =>
+                {
+                    Corner2 = startCorner2.Result;
+                    Corner3 = startCorner3.Result;
+                }).Wait();
 
             Corner2.CleanupMessages();
             Corner3.CleanupMessages();
@@ -28,12 +36,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <summary>
         /// Gets the facade for the AS4 Corner 2 instance.
         /// </summary>
-        protected Corner Corner2 { get; }
+        protected Corner Corner2 { get; private set; }
 
         /// <summary>
         /// Gets the facade for the AS4 Corner 3 instance.
         /// </summary>
-        protected Corner Corner3 { get; }
+        protected Corner Corner3 { get; private set; }
 
         /// <summary>
         /// Start polling for a single message on the delivered directory to assert using the <paramref name="assertion"/>

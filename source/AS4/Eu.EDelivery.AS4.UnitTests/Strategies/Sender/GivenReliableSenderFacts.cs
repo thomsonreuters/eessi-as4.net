@@ -46,9 +46,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 
         public class Send
         {
-            private static DeliverMessageEnvelope DummyDeliverMessage => new DeliverMessageEnvelope(null, null, null);
-            private static NotifyMessageEnvelope DummyNotifyMessage => new NotifyMessageEnvelope(null, default(Status), null, null);
-
             [Fact]
             public void SenderCatchesAndRetrowsAS4Exception_IfDeliverMessage()
             {
@@ -56,7 +53,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
                 var sut = new ReliableSender(deliverSender: new SaboteurSender());
 
                 // Act / Assert
-                AssertReliableSenderOn(async () => await sut.SendAsync(DummyDeliverMessage));
+                AssertReliableSenderOn(async () => await sut.SendAsync(DummyDeliverMessage()));
+            }
+
+            private static DeliverMessageEnvelope DummyDeliverMessage()
+            {
+                return new DeliverMessageEnvelope(null, null, null);
             }
 
             [Fact]
@@ -66,13 +68,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
                 var sut = new ReliableSender(notifySender: new SaboteurSender());
 
                 // Act / Assert
-                AssertReliableSenderOn(async () => await sut.SendAsync(DummyNotifyMessage));
+                AssertReliableSenderOn(async () => await sut.SendAsync(DummyNotifyMessage()));
             }
 
             private static async void AssertReliableSenderOn(Func<Task> actAction)
             {
                 var as4Exception = await Assert.ThrowsAsync<AS4Exception>(actAction);
                 Assert.IsType<SaboteurException>(as4Exception.InnerException);
+            }
+
+            private static NotifyMessageEnvelope DummyNotifyMessage()
+            {
+                return new NotifyMessageEnvelope(null, default(Status), null, null);
             }
         }
     }
