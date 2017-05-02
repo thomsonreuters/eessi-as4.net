@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
 
         public GivenBinarySecurityTokenReferenceFacts()
         {
-            _dummyCertificate = new StubCertificateRepository().GetDummyCertificate();
+            _dummyCertificate = new StubCertificateRepository().GetStubCertificate();
 
             _reference = new BinarySecurityTokenReference();
             _dummyReferenceId = _reference.ReferenceId;

@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var certificateRepositoryMock = new Mock<ICertificateRepository>();
 
             certificateRepositoryMock.Setup(x => x.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
-                                     .Returns(new StubCertificateRepository().GetDummyCertificate());
+                                     .Returns(new StubCertificateRepository().GetStubCertificate());
 
             _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
         }

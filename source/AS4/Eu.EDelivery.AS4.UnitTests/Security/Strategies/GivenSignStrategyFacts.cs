@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 var signStrategy = new SigningStrategy(xmlDocument, new BinarySecurityTokenReference());
 
                 signStrategy.AddAlgorithm(new RsaPkCs1Sha256SignatureAlgorithm());
-                signStrategy.AddCertificate(new StubCertificateRepository().GetDummyCertificate());
+                signStrategy.AddCertificate(new StubCertificateRepository().GetStubCertificate());
                 signStrategy.AddXmlReference(signingId.HeaderSecurityId, Constants.HashFunctions.First());
                 signStrategy.AddXmlReference(signingId.BodySecurityId, Constants.HashFunctions.First());
 

@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// <summary>
     /// Stub Certificate for the Certificate Related Tests
     /// </summary>
-    public class StubCertificateRepository : ICertificateRepository, IDisposable
+    public sealed class StubCertificateRepository : ICertificateRepository, IDisposable
     {
         private readonly X509Store _certificateStore;
         private readonly X509Certificate2 _dummyCertificate;
@@ -27,25 +27,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             _certificateStore.Add(_dummyCertificate);
         }
 
+        /// <summary>
+        /// Find a <see cref="X509Certificate2"/> based on the given <paramref name="privateKeyReference"/> for the <paramref name="findType"/>.
+        /// </summary>
+        /// <param name="findType">Kind of searching approach.</param>
+        /// <param name="privateKeyReference">Value to search in the repository.</param>
+        /// <returns></returns>
         public X509Certificate2 GetCertificate(X509FindType findType, string privateKeyReference)
         {
-            return _certificateStore.Certificates.Find(findType, privateKeyReference, false)[0];
+            return _certificateStore.Certificates.Find(findType, privateKeyReference, validOnly: false)[0];
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public X509Certificate2 GetDummyCertificate()
+        /// <summary>
+        /// Get a 'Stub' certificate that can be used during signing/encryption.
+        /// </summary>
+        /// <returns></returns>
+        public X509Certificate2 GetStubCertificate()
         {
             return _dummyCertificate;
         }
 
-        protected virtual void Dispose(bool disposing)
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
         {
-            if (disposing) _dummyCertificate.Dispose();
+            _dummyCertificate.Dispose();
         }
     }
 }

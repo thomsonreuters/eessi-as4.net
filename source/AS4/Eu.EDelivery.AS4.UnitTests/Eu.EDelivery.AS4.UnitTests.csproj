@@ -285,7 +285,6 @@
     <Compile Include="Common\GivenDataStoreFacts.cs" />
     <Compile Include="Common\GivenDatastoreStepFacts.cs" />
     <Compile Include="Common\GivenRegistryFacts.cs" />
-    <Compile Include="Common\NullInternalMessage.cs" />
     <Compile Include="Common\StubConfig.cs" />
     <Compile Include="Entities\GivenExceptionEntityFacts.cs" />
     <Compile Include="Entities\GivenMessageEntityFacts.cs" />
@@ -295,9 +294,7 @@
     <Compile Include="Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Factories\GivenUserMessageFactoryFacts.cs" />
     <Compile Include="Http\GivenReliableHttpClientFacts.cs" />
-    <Compile Include="Http\SpyHttpServer.cs" />
     <Compile Include="Http\StubHttpClient.cs" />
-    <Compile Include="Http\UniqueUrl.cs" />
     <Compile Include="Mappings\Core\GivenAgreementRefMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenCollaborationInfoMapFacts.cs" />
     <Compile Include="Mappings\Core\GivenErrorMapFacts.cs" />
@@ -341,6 +338,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
+    <Compile Include="Receivers\GivenIntervalRequestFacts.cs" />
     <Compile Include="Repositories\GivenAS4MessageBodyFileRetrieverFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
@@ -374,6 +372,7 @@
     <Compile Include="Servicehandler\Builder\GivenGenericTypeBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenReceiverBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenStepBuilderFacts.cs" />
+    <Compile Include="Servicehandler\GivenKernelFacts.cs" />
     <Compile Include="Steps\Common\GivenInExceptionDecoratorStep.cs" />
     <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
@@ -432,6 +431,7 @@
     <Compile Include="Strategies\Method\LocationMethod.cs" />
     <Compile Include="Strategies\Retriever\GivenPayloadRetrieverProviderFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenWebPayloadRetrieverFacts.cs" />
+    <Compile Include="Strategies\Sender\GivenSenderProviderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenFileSenderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenHttpSenderFacts.cs" />
     <Compile Include="Strategies\Sender\GivenReliableSenderFacts.cs" />
@@ -441,6 +441,7 @@
     <Compile Include="Strategies\Uploader\GivenPayloadServiceAttachmentUploaderFacts.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploader.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploaderProvider.cs" />
+    <Compile Include="Streaming\GivenStreamPositionMoverFacts.cs" />
     <Compile Include="Streaming\VirtualStreamFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />

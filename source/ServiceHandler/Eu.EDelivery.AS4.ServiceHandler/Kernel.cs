@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Create Startup Kernel
+        /// Initializes a new instance of the <see cref="Kernel"/> class. 
         /// </summary>
         /// <param name="agents"></param>
         public Kernel(IEnumerable<IAgent> agents)
@@ -77,6 +77,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler
 
         private void CloseAgents()
         {
+            if (_agents == null)
+            {
+                return;
+            }
+
             foreach (IAgent agent in _agents)
             {
                 var disposableAgent = agent as IDisposable;

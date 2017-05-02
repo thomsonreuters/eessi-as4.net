@@ -10,13 +10,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
     /// </summary>
     public class GivenIDictionaryExtensionFacts
     {
+        private const string TestKey = "$mandatory-key$";
+        private const string TestValue = "$mandatory-value$";
         private readonly IDictionary<string, string> _dictionary;
-        private readonly string _key = "$mandatory-key$";
-        private readonly string _value = "$mandatory-value$";
 
         public GivenIDictionaryExtensionFacts()
         {
-            _dictionary = new Dictionary<string, string> {[_key] = _value};
+            _dictionary = new Dictionary<string, string> {[TestKey] = TestValue};
         }
 
         /// <summary>
@@ -25,49 +25,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
         public class GivenIDictionaryExtesionSucceeds : GivenIDictionaryExtensionFacts
         {
             [Fact]
-            public void ThenDemoteSucceeds()
-            {
-                // Act
-                _dictionary.Demote(_key);
-
-                // Assert
-                Assert.DoesNotContain(_dictionary.Keys, k => k.Equals(_key));
-            }
-
-            [Fact]
-            public void ThenFlattenSucceeds()
-            {
-                // Act
-                string result = _dictionary.Flatten();
-
-                // Assert
-                Assert.Equal($"{_key}:{_value}", result);
-            }
-
-            [Fact]
-            public void ThenMergeSucceeds()
-            {
-                // Arrange
-                const string extraValue = "$extra-value$";
-                const string newKey = "$new-key$";
-
-                // Act
-                _dictionary.Merge(_key, extraValue);
-                _dictionary.Merge(newKey, extraValue);
-
-                // Assert
-                Assert.Equal(_dictionary[_key], extraValue);
-                Assert.Equal(_dictionary[newKey], extraValue);
-            }
-
-            [Fact]
             public void ThenReadMandatoryPropertySucceeds()
             {
                 // Act
-                string value = _dictionary.ReadMandatoryProperty(_key);
+                string value = _dictionary.ReadMandatoryProperty(TestKey);
 
                 // Assert
-                Assert.Same(_value, value);
+                Assert.Same(TestValue, value);
             }
 
             [Fact]
