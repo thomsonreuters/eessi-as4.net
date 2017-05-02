@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
@@ -6,8 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.PerformanceTests.LargeMessages;
 
-namespace Eu.EDelivery.AS4.VolumeTests
+namespace Eu.EDelivery.AS4.PerformanceTests
 {
     /// <summary>
     /// Facade for the AS4 Component as a Corner.
@@ -29,6 +31,20 @@ namespace Eu.EDelivery.AS4.VolumeTests
         }
 
         /// <summary>
+        /// Place the given <paramref name="messageContents"/> at the Corner's location to retrieve files.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="metric">The metric.</param>
+        /// <param name="messageContents">Content of the message to send.</param>
+        public void PlaceLargeMessage(int value, Size metric, string messageContents)
+        {
+            string fileLocation = LargeMessage.CreateFile(_cornerDirectory, value, metric);
+            messageContents = messageContents.Replace("__ATTACHMENTLOCATION__", fileLocation);
+
+            PlaceMessages(messageCount: 1, messageContents: messageContents);
+        }
+
+        /// <summary>
         /// Place the given <paramref name="messageContents"/> <paramref name="messageCount"/> times at the Corner's location to retrieve files.
         /// </summary>
         /// <param name="messageCount">Amount of messages to send.</param>
@@ -46,6 +62,17 @@ namespace Eu.EDelivery.AS4.VolumeTests
         }
 
         /// <summary>
+        /// Gets the first delivered message length from the Corner's delivered target.
+        /// </summary>
+        /// <param name="searchPattern">The search Pattern.</param>
+        /// <returns></returns>
+        public int FirstDeliveredMessageLength(string searchPattern = "*")
+        {
+            FileInfo firstMessage = GetDeliveredFiles(searchPattern).FirstOrDefault();
+            return firstMessage != null ? (int) firstMessage.Length : 0;
+        }
+
+        /// <summary>
         /// Count the messages that are delivered on the created corner.
         /// </summary>
         /// <param name="searchPattern">
@@ -56,8 +83,12 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// <returns></returns>
         public int CountDeliveredMessages(string searchPattern = "*")
         {
-            DirectoryInfo deliverDirectory = GetMessageDirectory(subDirectory: "in");
-            return deliverDirectory.GetFiles(searchPattern).Length;
+           return GetDeliveredFiles(searchPattern).Length;
+        }
+
+        private FileInfo[] GetDeliveredFiles(string searchPattern = "*")
+        {
+            return GetMessageDirectory(subDirectory: "in").GetFiles(searchPattern);
         }
 
         public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
@@ -126,10 +157,10 @@ namespace Eu.EDelivery.AS4.VolumeTests
         /// <returns></returns>
         public static Task<Corner> StartNew(string prefix)
         {
-            return Task.Run(() =>
-            {
-
-                DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
+            return Task.Run(
+                () =>
+                {
+                    DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
 
                 var cornerInfo =
                     new ProcessStartInfo(
@@ -228,8 +259,20 @@ namespace Eu.EDelivery.AS4.VolumeTests
             {
                 sqlConnection.Open();
 
-                var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {databaseName}", sqlConnection);
+                var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {sqlConnection.Database}", sqlConnection);
+                TryExecuteCommand(dropDatabaseCommand);
+            }
+        }
+
+        private static void TryExecuteCommand(IDbCommand dropDatabaseCommand)
+        {
+            try
+            {
                 dropDatabaseCommand.ExecuteNonQuery();
+            }
+            catch (SqlException exception)
+            {
+                Console.WriteLine(exception.Message);
             }
         }
 

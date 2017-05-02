@@ -3,14 +3,14 @@ using System.Diagnostics;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using static Eu.EDelivery.AS4.VolumeTests.Properties.Resources;
+using static Eu.EDelivery.AS4.PerformanceTests.Properties.Resources;
 
-namespace Eu.EDelivery.AS4.VolumeTests
+namespace Eu.EDelivery.AS4.PerformanceTests.Volume
 {
     /// <summary>
     /// 1. C2 (product A) to C3 (product B) oneWay signed and encrypted with increasing number of messages of a 10KB payload.
     /// </summary>
-    public class VolumeTestFromC2ToC3 : VolumeTestBridge
+    public class VolumeTestFromC2ToC3 : PerformanceTestBridge
     {
         private readonly ITestOutputHelper _output;
 
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.VolumeTests
             Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             // Assert
-            PollingTill(messageCount, Corner3, () => AssertMessages(messageCount));
+            PollingTillAllMessages(messageCount, Corner3, () => AssertMessages(messageCount));
         }
 
         private void AssertMessages(int messageCount)
