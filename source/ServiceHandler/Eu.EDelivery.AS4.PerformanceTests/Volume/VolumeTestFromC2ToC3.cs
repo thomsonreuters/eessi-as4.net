@@ -50,13 +50,16 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                 throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
             }
         }
-
-        [Fact]
-        public void MeasureSendingHundredMessages()
+        
+        [Theory]
+        [InlineData(100, 60)]
+        [InlineData(500, 180)]
+        [InlineData(1000, 500)]
+     //   [InlineData(5000, 1800)]
+        public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
-            // Arrange
-            const int messageCount = 100;
-            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(90);
+            // Arrange            
+            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(maxExecutionTimeInSeconds);
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -71,9 +74,14 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                     timeout: maxExecutionTime,
                     searchPattern: "*.xml");
 
+            if (allMessagesDelivered == false)
+            {
+                _output.WriteLine($"Number of messages delivered: {Corner3.CountDeliveredMessages("*.xml")}");                
+            }
+
             Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
 
-            _output.WriteLine($"Processing {messageCount} messages took {sw.Elapsed.TotalSeconds} seconds");
-        }       
+            _output.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
+        }
     }
 }

@@ -77,6 +77,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
+                if (exception.InnerException != null)
+                {
+                    Logger.Error(exception.InnerException.Message);
+                }
+                Logger.Debug(exception.StackTrace);
                 throw ThrowCommonSigningException(message.AS4Message, exception.Message, exception);
             }
         }

@@ -22,6 +22,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             _fixedMessage = as4Message;
         }
 
+        public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Serialize(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
             throw new System.NotImplementedException();
