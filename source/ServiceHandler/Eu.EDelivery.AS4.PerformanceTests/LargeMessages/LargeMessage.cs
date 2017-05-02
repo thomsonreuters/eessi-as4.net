@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
 
     public enum Size : long
     {
-        GB = 1024 * 1024 * 1024,
-        MB = 1024 * 1024
+        GB = 1024 ^ 3,
+        MB = 1024 ^ 2
     }
 }
