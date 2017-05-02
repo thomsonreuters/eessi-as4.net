@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 outputDirectory = new DirectoryInfo(Path.GetFullPath(@"..\..\..\..\..\output"));
             }
 
-            Console.WriteLine(outputDirectory.FullName);
+            Console.WriteLine($@"Corner {cornerPrefix} Directory set on {outputDirectory.FullName}");
             DirectoryInfo cornerDirectory = CreateCornerIn(outputDirectory, $"output-{cornerPrefix}");
 
             CopyDirectory(outputDirectory, cornerDirectory.FullName);
@@ -258,6 +258,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 throw new FileNotFoundException($"Could not find the settings file: {cornerSettingsFileName}");
             }
 
+            Console.WriteLine($@"Copy settings file: {cornerSettingsFileName}");
             string newSettingsFilePath = Path.Combine(cornerDirectory.FullName, "config", "settings.xml");
             File.Copy(cornerSettings.FullName, newSettingsFilePath, overwrite: true);
 
@@ -270,7 +271,13 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xml);
 
-            string mshConnectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
+            XmlNode connectionStringNode = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']");
+            if (connectionStringNode == null)
+            {
+                throw new XmlException($"No '<ConnectionString/>' node found in settings file: {newSettingsFilePath}");
+            }
+
+            string mshConnectionString = connectionStringNode.InnerText;
 
             // Modify the connectionstring so that we initially connect to the master - database.
             // Otherwise, the connection will fail if the database doesn't exist yet.
@@ -284,7 +291,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 sqlConnection.Open();
 
-                TryExecuteCommand(new SqlCommand($"USE [master]; DROP DATABASE IF EXISTS {databaseName}", sqlConnection));
+                TryExecuteCommand(new SqlCommand($"DROP DATABASE IF EXISTS {databaseName}", sqlConnection));
             }
         }
 
@@ -292,6 +299,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         {
             try
             {
+                Console.WriteLine(dropDatabaseCommand.CommandText);
                 dropDatabaseCommand.ExecuteNonQuery();
             }
             catch (SqlException exception)
@@ -321,7 +329,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             DirectoryInfo outputSendPModes = getPModeDirectory(@"send-pmodes"),
                           outputReceivePModes = getPModeDirectory(@"receive-pmodes");
 
+            Console.WriteLine($@"Copy '{volumeSendPModes.FullName}' to '{outputSendPModes.FullName}'");
             CopyFiles(volumeSendPModes, outputSendPModes.FullName);
+
+            Console.WriteLine($@"Copy '{volumeReceivePModes.FullName}' to '{outputReceivePModes.FullName}'");
             CopyFiles(volumeReceivePModes, outputReceivePModes.FullName);
         }
 
