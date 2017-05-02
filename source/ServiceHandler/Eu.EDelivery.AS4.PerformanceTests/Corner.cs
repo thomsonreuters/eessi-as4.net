@@ -272,8 +272,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 sqlConnection.Open();
 
-                var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {sqlConnection.Database}", sqlConnection);
-                TryExecuteCommand(dropDatabaseCommand);
+                TryExecuteCommand(new SqlCommand("USE [master]; DROP DATABASE IF EXISTS c2messages", sqlConnection));
+                TryExecuteCommand(new SqlCommand("USE [master]; DROP DATABASE IF EXISTS c3messages", sqlConnection));
             }
         }
 
