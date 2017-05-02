@@ -177,6 +177,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
         {
             var outputDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+            if (outputDirectory.Name.Equals("Release"))
+            {
+                outputDirectory = new DirectoryInfo(Path.GetFullPath(@"..\..\..\..\..\output"));
+            }
+
             Console.WriteLine(outputDirectory.FullName);
             DirectoryInfo cornerDirectory = CreateCornerIn(outputDirectory, $"output-{cornerPrefix}");
 
@@ -262,7 +268,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
             // Modify the connectionstring so that we initially connect to the master - database.
             // Otherwise, the connection will fail if the database doesn't exist yet.
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(mshConnectionString);
+            var builder = new SqlConnectionStringBuilder(mshConnectionString);
             string databaseName = builder.InitialCatalog;
             builder.InitialCatalog = "master";
 
@@ -272,8 +278,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 sqlConnection.Open();
 
-                TryExecuteCommand(new SqlCommand("USE [master]; DROP DATABASE IF EXISTS c2messages", sqlConnection));
-                TryExecuteCommand(new SqlCommand("USE [master]; DROP DATABASE IF EXISTS c3messages", sqlConnection));
+                TryExecuteCommand(new SqlCommand($"USE [master]; DROP DATABASE IF EXISTS {databaseName}", sqlConnection));
             }
         }
 
