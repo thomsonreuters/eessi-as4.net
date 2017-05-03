@@ -39,7 +39,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
             var builder = new MockedHttpServerBuilder();
             var target = new StubHttpDeliverTarget();
 
-
             builder.WhenPost(location).RespondContent(
                 httpStatusCode: HttpStatusCode.OK,
                 contentFn: request =>
