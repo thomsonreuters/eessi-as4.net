@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
 
         private static int ReadLargeFileLength(string filePath)
         {
-            return File.ReadAllBytes(filePath.Replace("file:///", string.Empty)).Length;
+            return (int) new FileInfo(filePath.Replace("file:///", string.Empty)).Length;
         }
     }
 
