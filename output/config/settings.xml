@@ -49,8 +49,7 @@
     <SendAgent name="Send Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutMessages</Setting>
-        <Setting key="Field">Operation</Setting>
-        <Setting key="Value">ToBeSent</Setting>
+        <Setting key="Field">Operation = ToBeSent AND MEP = Push </Setting>
         <Setting key="Update">Sending</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />

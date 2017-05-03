@@ -5,16 +5,15 @@ using System.Reflection;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using NLog;
-using Expression = System.Linq.Expressions.Expression<System.Func<
-    Eu.EDelivery.AS4.Common.DatastoreContext,
-    System.Collections.Generic.IEnumerable<Eu.EDelivery.AS4.Entities.Entity>>>;
+using Expression = System.Linq.Expressions.Expression<System.Func<Eu.EDelivery.AS4.Common.DatastoreContext,
+            System.Collections.Generic.IEnumerable<Eu.EDelivery.AS4.Entities.Entity>>>;
 
 namespace Eu.EDelivery.AS4.Receivers.Specifications
 {
     /// <summary>
     /// Specification to define <see cref="Expression"/> Models
     /// </summary>
-    internal class DatastoreSpecification
+    internal class DatastoreSpecification : IDatastoreSpecification
     {
         private DatastoreSpecificationArgs _arguments;
 
@@ -28,6 +27,11 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
         {
             _arguments = args;
         }
+
+        /// <summary>
+        /// Gets the friendly expression of the specification.
+        /// </summary>
+        public string FriendlyExpression => $"FROM {_arguments.TableName} WHERE {_arguments.Filter} == {_arguments.FilterValue}";
 
         /// <summary>
         /// Get the Expression for the <see cref="DatastoreContext"/>
@@ -60,22 +64,22 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
             return query.ToList();
         }
         
-        private bool Where<T>(T dbSet)
+        private bool Where<T>(T databaseSet)
         {
-            string name = _arguments.FilterColumnName;
+            string name = _arguments.Filter;
 
             if (_filterPropertyInfo == null)
             {
-                _filterPropertyInfo = dbSet.GetType().GetProperty(name);
+                _filterPropertyInfo = databaseSet.GetType().GetProperty(name);
             }
 
             if (_filterPropertyInfo == null)
             {
-                LogManager.GetCurrentClassLogger().Error($"FilterColumn {_arguments.FilterColumnName} on DatastoreReceiver could not be found.");
+                LogManager.GetCurrentClassLogger().Error($"FilterColumn {_arguments.Filter} on DatastoreReceiver could not be found.");
                 return false;
             }
 
-            object propertyValue = _filterPropertyInfo.GetValue(dbSet);
+            object propertyValue = _filterPropertyInfo.GetValue(databaseSet);
             object configuredValue = ParseConfiguredValue(propertyValue);
 
             return propertyValue.Equals(configuredValue);
@@ -102,7 +106,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
     internal class DatastoreSpecificationArgs
     {
         public string TableName { get; }
-        public string FilterColumnName { get; }
+        public string Filter { get; }
         public string FilterValue { get; }
 
         public int TakeRecords { get; }
@@ -110,27 +114,39 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreSpecificationArgs"/> class.
         /// </summary>
-        public DatastoreSpecificationArgs(string tableName, string filterColumn, string filterValue, int take)
+        /// <param name="tableName">The table Name.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="take">The take.</param>
+        public DatastoreSpecificationArgs(string tableName, string filter, int take = 20)
         {
-            if (String.IsNullOrWhiteSpace(tableName))
+            if (string.IsNullOrWhiteSpace(tableName))
             {
                 throw new ArgumentException("A tablename should be specified.", nameof(tableName));
             }
 
-            if (String.IsNullOrWhiteSpace(filterColumn))
+            if (string.IsNullOrWhiteSpace(filter))
             {
-                throw new ArgumentException("A column where to filter on should be specified.", nameof(filterColumn));
+                throw new ArgumentException("A column where to filter on should be specified.", nameof(filter));
             }
 
-            if (String.IsNullOrWhiteSpace(filterValue))
+            TableName = tableName;
+            Filter = filter;
+            TakeRecords = take;
+        }
+
+        /// <summary>Initializes a new instance of the <see cref="DatastoreSpecificationArgs"/> class.</summary>
+        /// <param name="tableName">The table Name.</param>
+        /// <param name="filterColumn">The filter Column.</param>
+        /// <param name="filterValue">The filter Value.</param>
+        /// <param name="take">The take.</param>
+        public DatastoreSpecificationArgs(string tableName, string filterColumn, string filterValue, int take) : this(tableName, filterColumn, take)
+        {
+            if (string.IsNullOrWhiteSpace(filterValue))
             {
                 throw new ArgumentException("A filtervalue should be specified.", nameof(filterValue));
             }
 
-            TableName = tableName;
-            FilterColumnName = filterColumn;
             FilterValue = filterValue;
-            TakeRecords = take;
         }
     }
 }

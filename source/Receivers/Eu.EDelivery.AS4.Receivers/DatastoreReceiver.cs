@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
-        private readonly DatastoreSpecification _specification;
+        private IDatastoreSpecification _specification;
 
         private Func<DatastoreContext> _storeExpression;
         private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public DatastoreReceiver()
         {
-            _specification = new DatastoreSpecification();
+            _specification = new ExpressionDatastoreSpecification();
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Receivers
             _storeExpression = storeExpression;
             _findExpression = findExpression;
 
-            _specification = new DatastoreSpecification();
+            _specification = new ExpressionDatastoreSpecification();
             _updateValue = updateValue;
         }
 
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             public const string PollingInterval = "PollingInterval";
             public const string Table = "Table";
-            public const string Field = "Field";
+            public const string Filter = "Field";
             public const string FilterValue = "Value";
             public const string TakeRows = "BatchSize";
             public const string UpdateValue = "Update";
@@ -112,10 +112,18 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _properties = properties;
 
-            var args = new DatastoreSpecificationArgs(_properties.ReadMandatoryProperty(SettingKeys.Table),
-                                                      _properties.ReadMandatoryProperty(SettingKeys.Field),
-                                                      _properties.ReadMandatoryProperty(SettingKeys.FilterValue),
-                                                      Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.TakeRows, "20")));
+            string filterValue = _properties.ReadOptionalProperty(SettingKeys.FilterValue);
+            string tableName = _properties.ReadMandatoryProperty(SettingKeys.Table);
+            string filterColumn = _properties.ReadMandatoryProperty(SettingKeys.Filter);
+            int take = Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.TakeRows, "20"));
+
+            DatastoreSpecificationArgs args = string.IsNullOrEmpty(filterValue) 
+                ? new DatastoreSpecificationArgs(tableName, filterColumn, take)
+                : new DatastoreSpecificationArgs(tableName, filterColumn, filterValue, take);
+
+            _specification = string.IsNullOrEmpty(args.FilterValue)
+                                 ? (IDatastoreSpecification) new ExpressionDatastoreSpecification()
+                                 : new DatastoreSpecification();
 
             _specification.Configure(args);
             _findExpression = _specification.GetExpression().Compile();
@@ -148,14 +156,9 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 return;
             }
-
-            string table = _properties[SettingKeys.Table];
-            string field = _properties[SettingKeys.Field];
-            string value = _properties[SettingKeys.FilterValue];
-
+            
             string action = startReceiving ? "Start" : "Stop";
-
-            Logger.Debug($"{action} Receiving on Datastore FROM {table} WHERE {field} == {value}");
+            Logger.Debug($"{action} Receiving on Datastore {_specification.FriendlyExpression}");
         }
 
         /// <summary>
@@ -216,7 +219,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             if (_updateValue == null)
             {
-                Logger.Warn($"No UpdateValue configured for {_properties[SettingKeys.Field]}. The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
+                Logger.Warn($"No UpdateValue configured for {_properties[SettingKeys.Filter]}. The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
                 return entities;
             }
 
