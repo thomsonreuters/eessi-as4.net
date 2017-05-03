@@ -106,6 +106,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="predicateFile">The predicate File.</param>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         protected void CleanUpFiles(string directory, Func<string, bool> predicateFile = null)
         {
             EnsureDirectory(directory);

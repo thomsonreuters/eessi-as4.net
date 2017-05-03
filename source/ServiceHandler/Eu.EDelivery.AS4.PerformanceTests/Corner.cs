@@ -147,6 +147,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private DirectoryInfo GetMessageDirectory(string subDirectory)
         {
             string deliverPath = Path.Combine(_cornerDirectory.FullName, "messages", subDirectory);
+
+            if (!Directory.Exists(deliverPath))
+            {
+                Directory.CreateDirectory(deliverPath);
+            }
+
             return new DirectoryInfo(deliverPath);
         }
 
@@ -177,6 +183,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
         {
             var outputDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+            Console.WriteLine($@"Corner {cornerPrefix} Directory set on {outputDirectory.FullName}");
             DirectoryInfo cornerDirectory = CreateCornerIn(outputDirectory, $"output-{cornerPrefix}");
 
             CopyDirectory(outputDirectory, cornerDirectory.FullName);
@@ -208,7 +216,19 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destDirName, file.Name);
+                TryCopyFile(file, temppath);
+            }
+        }
+
+        private static void TryCopyFile(FileInfo file, string temppath)
+        {
+            try
+            {
                 file.CopyTo(temppath, overwrite: true);
+            }
+            catch (IOException exception)
+            {
+                Console.WriteLine(exception.Message);
             }
         }
 
@@ -233,6 +253,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 throw new FileNotFoundException($"Could not find the settings file: {cornerSettingsFileName}");
             }
 
+            Console.WriteLine($@"Copy settings file: {cornerSettingsFileName}");
             string newSettingsFilePath = Path.Combine(cornerDirectory.FullName, "config", "settings.xml");
             File.Copy(cornerSettings.FullName, newSettingsFilePath, overwrite: true);
 
@@ -245,11 +266,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xml);
 
-            string mshConnectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
+            XmlNode connectionStringNode = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']");
+            if (connectionStringNode == null)
+            {
+                throw new XmlException($"No '<ConnectionString/>' node found in settings file: {newSettingsFilePath}");
+            }
+
+            string mshConnectionString = connectionStringNode.InnerText;
 
             // Modify the connectionstring so that we initially connect to the master - database.
             // Otherwise, the connection will fail if the database doesn't exist yet.
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(mshConnectionString);
+            var builder = new SqlConnectionStringBuilder(mshConnectionString);
             string databaseName = builder.InitialCatalog;
             builder.InitialCatalog = "master";
 
@@ -259,8 +286,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 sqlConnection.Open();
 
-                var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {sqlConnection.Database}", sqlConnection);
-                TryExecuteCommand(dropDatabaseCommand);
+                TryExecuteCommand(new SqlCommand($"DROP DATABASE IF EXISTS {databaseName}", sqlConnection));
             }
         }
 
@@ -268,6 +294,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         {
             try
             {
+                Console.WriteLine(dropDatabaseCommand.CommandText);
                 dropDatabaseCommand.ExecuteNonQuery();
             }
             catch (SqlException exception)
@@ -279,7 +306,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private static void IncludeCornerPModesIn(FileSystemInfo cornerDirectory)
         {
             Func<string, DirectoryInfo> getPModeDirectory =
-                subFolder => new DirectoryInfo(Path.Combine(cornerDirectory.FullName, "config", subFolder));
+                subFolder =>
+                {
+                    string directoryPath = Path.Combine(cornerDirectory.FullName, "config", subFolder);
+
+                    if (!Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+
+                    return new DirectoryInfo(directoryPath);
+                };
 
             DirectoryInfo volumeSendPModes = getPModeDirectory(@"volumetest-pmodes\send-pmodes"),
                           volumeReceivePModes = getPModeDirectory(@"volumetest-pmodes\receive-pmodes");
@@ -287,7 +324,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             DirectoryInfo outputSendPModes = getPModeDirectory(@"send-pmodes"),
                           outputReceivePModes = getPModeDirectory(@"receive-pmodes");
 
+            Console.WriteLine($@"Copy '{volumeSendPModes.FullName}' to '{outputSendPModes.FullName}'");
             CopyFiles(volumeSendPModes, outputSendPModes.FullName);
+
+            Console.WriteLine($@"Copy '{volumeReceivePModes.FullName}' to '{outputReceivePModes.FullName}'");
             CopyFiles(volumeReceivePModes, outputReceivePModes.FullName);
         }
 

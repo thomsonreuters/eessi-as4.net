@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         /// <summary>
         /// Initializes a new instance of the <see cref="VolumeTestFromC2ToC3"/> class.
         /// </summary>
+        /// <param name="output">The console output for the test run.</param>
         public VolumeTestFromC2ToC3(ITestOutputHelper output)
         {
             _output = output;
