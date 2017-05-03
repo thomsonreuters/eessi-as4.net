@@ -115,13 +115,28 @@ namespace Eu.EDelivery.AS4.Common
         {
             _providers["Sqlite"] = c =>
             {
-                if (!Directory.Exists(c))
+                string GetDirectoryFromConnectionString(string connectionString)
+                {
+                    string[] parts = connectionString.Split('=');
+
+                    if (parts.Length != 2)
+                    {
+                        return string.Empty;
+                    }
+
+                    return Path.GetDirectoryName(parts[1]);
+                }
+
+                string databaseLocation = GetDirectoryFromConnectionString(c);
+
+                if (!String.IsNullOrWhiteSpace(databaseLocation) && !Directory.Exists(databaseLocation))
                 {
                     Directory.CreateDirectory(c);
                 }
 
                 return optionsBuilder.UseSqlite(c);
             };
+
             _providers["SqlServer"] = c => optionsBuilder.UseSqlServer(c);
             _providers["InMemory"] = c => optionsBuilder.UseInMemoryDatabase(c);
 
