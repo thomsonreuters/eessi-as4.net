@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Common
 {
@@ -70,6 +72,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         private static void TryMoveConfigFile(string sourceFile, string destFile)
         {
            TryFileOperation(() => File.Move, sourceFile, destFile);
+        }
+
+        /// <summary>
+        ///  Assert on a received Receipt on the AS4 Component.
+        /// </summary>
+        public void AssertReceipt()
+        {
+            string receiptPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
+            FileInfo receipt = new DirectoryInfo(receiptPath).GetFiles("*.xml").FirstOrDefault();
+
+            Assert.NotNull(receipt);
         }
 
         /// <summary>

@@ -34,6 +34,19 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
+        /// Assert the single payload on Holodeck B.
+        /// </summary>
+        public void AssertSinglePayloadOnHolodeckB()
+        {
+            FileInfo receivedPayload =
+                new DirectoryInfo(Properties.Resources.holodeck_B_input_path).GetFiles("*.jpg").FirstOrDefault();
+            FileInfo sendPayload = AS4Component.SubmitSinglePayloadImage;
+
+            Assert.NotNull(receivedPayload);
+            Assert.Equal(sendPayload.Length, receivedPayload.Length);
+        }
+
+        /// <summary>
         /// Assert if the given <paramref name="receivedPayload" /> matches the 'Earth' payload.
         /// </summary>
         /// <param name="receivedPayload"></param>

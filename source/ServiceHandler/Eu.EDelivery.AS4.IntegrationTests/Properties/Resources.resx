@@ -366,4 +366,46 @@
   <data name="pdf_document" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\pdf-document.pdf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="submitmessage_8_1_15_xml" xml:space="preserve">
+    <value>&lt;?xml version="1.0"?&gt;
+&lt;SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages"&gt;
+  &lt;Collaboration&gt;
+    &lt;AgreementRef&gt;
+      &lt;PModeId&gt;8.1.15-pmode&lt;/PModeId&gt;
+      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
+    &lt;/AgreementRef&gt;
+    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
+    &lt;Action&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test&lt;/Action&gt;
+    &lt;Service&gt;
+      &lt;Value&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service&lt;/Value&gt;
+      &lt;Type&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service&lt;/Type&gt;
+    &lt;/Service&gt;
+  &lt;/Collaboration&gt;
+  &lt;MessageProperties&gt;
+    &lt;MessageProperty&gt;
+      &lt;Name&gt;Test&lt;/Name&gt;
+      &lt;Type&gt;Test&lt;/Type&gt;
+      &lt;Value&gt;Test&lt;/Value&gt;
+    &lt;/MessageProperty&gt;
+    &lt;MessageProperty&gt;
+      &lt;Name&gt;Test&lt;/Name&gt;
+      &lt;Type&gt;Test&lt;/Type&gt;
+      &lt;Value&gt;Test&lt;/Value&gt;
+    &lt;/MessageProperty&gt;
+  &lt;/MessageProperties&gt;
+  &lt;Payloads&gt;
+    &lt;Payload&gt;
+      &lt;Id&gt;earth2&lt;/Id&gt;
+      &lt;MimeType&gt;image/jpeg&lt;/MimeType&gt;
+      &lt;Location&gt;file:///.\messages\attachments\earth(2).jpg&lt;/Location&gt;
+      &lt;PayloadProperties&gt;
+        &lt;PayloadProperty&gt;
+          &lt;Name&gt;Test&lt;/Name&gt;
+          &lt;Value&gt;Test&lt;/Value&gt;
+        &lt;/PayloadProperty&gt;
+      &lt;/PayloadProperties&gt;
+    &lt;/Payload&gt;
+  &lt;/Payloads&gt;
+&lt;/SubmitMessage&gt;</value>
+  </data>
 </root>

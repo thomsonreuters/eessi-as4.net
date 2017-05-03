@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Eu.EDelivery.AS4.IntegrationTests.Attributes;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -24,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
             this._holodeck = new Holodeck();
         }
 
-        [Fact]
+        [RetryFact(MaxRetries = 2)]
         public void ThenReceiveMultiplePayloadsSignedSucceeds()
         {
             // Before
