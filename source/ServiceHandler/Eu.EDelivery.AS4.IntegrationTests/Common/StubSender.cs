@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -14,19 +15,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// </summary>
     public class StubSender
     {
-        private readonly ISerializer _serializer;
-
-        public StubSender()
-        {
-            var soapSerializer = new SoapEnvelopeSerializer();
-            _serializer = new MimeMessageSerializer(soapSerializer);
-        }
-
-        public StubSender(ISerializer serializer)
-        {
-            _serializer = serializer;
-        }
-
         public string Url { get; set; } = $"http://localhost:8081/msh/";
 
         public Func<WebResponse, AS4Message> HandleResponse { get; set; }

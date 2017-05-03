@@ -1,10 +1,8 @@
 using System;
-using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Serialization;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_Receive_Incorrectly_Signed_Message
@@ -18,30 +16,29 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
 
         public ReceiveIncorrectlySignedMessageIntegrationTest()
         {
-            var soapSerializer = new SoapEnvelopeSerializer();
-            this._sender = new StubSender(soapSerializer);
+            _sender = new StubSender();
         }
 
         [Fact]
         public async void ThenReceivingIncorrectlySignedMessageFails()
         {
             // Before
-            this.AS4Component.Start();
-            base.CleanUpFiles(AS4FullInputPath);
+            AS4Component.Start();
+            CleanUpFiles(AS4FullInputPath);
 
             // Act
             string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_message;
-            AS4Message as4Message = await this._sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
+            AS4Message as4Message = await _sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
             AssertErrorMessage(as4Message);
 
             // After
             Console.WriteLine(@"Receive Compressed Message Incorrectly Signed Integration Test succeeded!");
-            base.StopApplication();
+            StopApplication();
         }
 
-        private void AssertErrorMessage(AS4Message as4Message)
+        private static void AssertErrorMessage(AS4Message as4Message)
         {
             var error = as4Message.PrimarySignalMessage as Error;
             Assert.NotNull(error);
@@ -50,9 +47,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
             AssertErrorCode(error);
         }
 
-        private void AssertErrorCode(Error error)
+        private static void AssertErrorCode(Error error)
         {
-            string errorCode = error.Errors.FirstOrDefault().ErrorCode;
+            string errorCode = error.Errors.First().ErrorCode;
             Assert.Equal($"EBMS:{(int)ErrorCode.Ebms0101:0000}", errorCode);
         }
     }

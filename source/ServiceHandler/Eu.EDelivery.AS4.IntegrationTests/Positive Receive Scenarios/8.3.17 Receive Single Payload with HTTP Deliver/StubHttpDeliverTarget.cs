@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using SimpleHttpMock;
 
@@ -7,12 +8,26 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
 {
     public class StubHttpDeliverTarget : IDisposable
     {
+        private readonly ManualResetEvent _waitHandle;
         private MockedHttpServer _httpServer;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubHttpDeliverTarget"/> class.
+        /// </summary>
+        public StubHttpDeliverTarget()
+        {
+            _waitHandle = new ManualResetEvent(initialState: false);
+        }
 
         /// <summary>
         /// Gets the Deliver Message Content
         /// </summary>
         public string DeliverMessageContent { get; private set; }
+
+        /// <summary>
+        /// Gets the value to indicate whether the Stub HTTP server is called or not.
+        /// </summary>
+        public bool IsCalled => _waitHandle.WaitOne(TimeSpan.FromMinutes(1));
 
         /// <summary>
         /// Create Stub target at a given <paramref name="location"/>.
@@ -30,6 +45,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
                 {
                     Task<string> task = request.Content.ReadAsStringAsync();
                     Task.WhenAll(task).ContinueWith(t => target.DeliverMessageContent = task.Result).Wait();
+
+                    target._waitHandle.Set();
 
                     return null;
                 });
