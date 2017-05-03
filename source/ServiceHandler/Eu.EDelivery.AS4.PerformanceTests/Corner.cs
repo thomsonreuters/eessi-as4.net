@@ -184,11 +184,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         {
             var outputDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-            if (outputDirectory.Name.Equals("Release"))
-            {
-                outputDirectory = new DirectoryInfo(Path.GetFullPath(@"..\..\..\..\..\output"));
-            }
-
             Console.WriteLine($@"Corner {cornerPrefix} Directory set on {outputDirectory.FullName}");
             DirectoryInfo cornerDirectory = CreateCornerIn(outputDirectory, $"output-{cornerPrefix}");
 
