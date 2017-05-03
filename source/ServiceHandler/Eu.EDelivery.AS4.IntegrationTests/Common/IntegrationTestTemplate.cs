@@ -159,7 +159,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             File.Copy(
                 sourceFileName: $".{Properties.Resources.holodeck_test_pmodes}\\{fileName}",
-                destFileName: $"{directory}\\{fileName}");
+                destFileName: $"{directory}\\{fileName}",
+                overwrite: true);
         }
 
         /// <summary>

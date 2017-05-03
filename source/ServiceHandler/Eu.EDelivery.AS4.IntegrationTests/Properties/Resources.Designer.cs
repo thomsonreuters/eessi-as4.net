@@ -346,7 +346,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
         ///  &lt;Collaboration&gt;
         ///    &lt;AgreementRef&gt;
-        ///      &lt;PModeId&gt;8.3.17-pmode&lt;/PModeId&gt;
+        ///      &lt;PModeId&gt;8.1.15-pmode&lt;/PModeId&gt;
         ///      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
         ///    &lt;/AgreementRef&gt;
         ///    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
@@ -354,9 +354,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         ///    &lt;Service&gt;
         ///      &lt;Value&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/se [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string submitmessage_8_3_17_xml {
+        internal static string submitmessage_8_1_15_xml {
             get {
-                return ResourceManager.GetString("submitmessage_8_3_17_xml", resourceCulture);
+                return ResourceManager.GetString("submitmessage_8_1_15_xml", resourceCulture);
             }
         }
         

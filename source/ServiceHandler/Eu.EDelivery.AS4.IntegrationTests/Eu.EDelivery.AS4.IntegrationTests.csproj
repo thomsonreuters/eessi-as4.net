@@ -242,7 +242,7 @@
     <Compile Include="Positive Receive Scenarios\8.3.14 Receive Test Message\ReceiveTestMessageIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.15 Receive Duplicate Message\ReceiveDuplicateMessageIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.17 Receive Single Payload with HTTP Deliver\StubHttpDeliverTarget.cs" />
-    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Single Payload with HTTP Deliver\TestSubmitDeliverSinglePayloadViaHttp.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Single Payload with HTTP Deliver\TestHttpDeliverSinglePayloadViaHttp.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.5 Receive Multiple Payloads Encrypted\ReceiveMultiplePayloadsEncryptedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.7 Receive Multiple Payloads Compressed Encrypted\ReceiveMultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.8 Receive Multiple Payloads Compressed Signed Encrypted\ReceiveMultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
@@ -257,6 +257,7 @@
     <Compile Include="Positive Send Scenarios\8.1.11 Send Single Payload with Message Ids\SinglePayloadMessageIdsIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.13 Receive Async Error\ReceiveAsyncSignedErrorIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.14 Send Pull Request result in User Message\SendPullRequestResultInUserMessageTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.15 Send Single Payload with HTTP Submit\SendSinglePayloadHttpSubmitTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.2. Send Multiple Payloads with FILE Submit\MultiplePayloadIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.3. Send Multiple Payloads Compressed\MultiplePayloadsCompressedIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.4. Send Multiple Payloads Signed\MultiplePayloadsSignedIntegrationTest.cs" />

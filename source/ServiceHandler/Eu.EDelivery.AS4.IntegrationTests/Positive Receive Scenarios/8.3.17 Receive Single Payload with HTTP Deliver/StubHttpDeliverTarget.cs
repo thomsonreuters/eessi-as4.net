@@ -22,12 +22,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
         /// <summary>
         /// Gets the Deliver Message Content
         /// </summary>
-        public string DeliverMessageContent { get; private set; }
+        public string DeliveredMessage { get; private set; }
 
         /// <summary>
         /// Gets the value to indicate whether the Stub HTTP server is called or not.
         /// </summary>
-        public bool IsCalled => _waitHandle.WaitOne(TimeSpan.FromMinutes(1));
+        public bool IsCalled => _waitHandle.WaitOne(TimeSpan.FromMinutes(2));
 
         /// <summary>
         /// Create Stub target at a given <paramref name="location"/>.
@@ -39,12 +39,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
             var builder = new MockedHttpServerBuilder();
             var target = new StubHttpDeliverTarget();
 
+
             builder.WhenPost(location).RespondContent(
                 httpStatusCode: HttpStatusCode.OK,
                 contentFn: request =>
                 {
                     Task<string> task = request.Content.ReadAsStringAsync();
-                    Task.WhenAll(task).ContinueWith(t => target.DeliverMessageContent = task.Result).Wait();
+                    target.DeliveredMessage = task.Result;
 
                     target._waitHandle.Set();
 
