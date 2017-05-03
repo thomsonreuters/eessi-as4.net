@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Eu.EDelivery.AS4.Http
@@ -19,6 +20,7 @@ namespace Eu.EDelivery.AS4.Http
             request.KeepAlive = false;
             request.Connection = "Open";
             request.ProtocolVersion = HttpVersion.Version11;
+            request.ServicePoint.ConnectionLimit = 12 * Environment.ProcessorCount;
 
             ServicePointManager.Expect100Continue = false;
 

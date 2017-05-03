@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             };
 
             waiter.WaitOne(timeout);
-
+            
             return allMessagesDelivered;
         }
 
