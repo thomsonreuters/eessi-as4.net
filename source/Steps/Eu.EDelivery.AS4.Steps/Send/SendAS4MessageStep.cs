@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     ISerializer serializer = _provider.Get(as4Message.ContentType);
 
-                    serializer.Serialize(as4Message, requestStream, cancellationToken);
+                    await serializer.SerializeAsync(as4Message, requestStream, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (WebException exception)
