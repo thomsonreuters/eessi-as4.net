@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Steps.Services;
+using Eu.EDelivery.AS4.Services;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
@@ -136,7 +136,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             return _receptionAwareness.CurrentRetryCount >= _receptionAwareness.TotalRetryCount;
         }
 
-        private void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
+        private async void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
         {
             string messageId = _receptionAwareness.InternalMessageId;
             _logger.Info($"[{messageId}] ebMS message is unanswered");
@@ -147,7 +147,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             Error errorMessage = CreateError();
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
-            new InMessageService(repository, _inMessageBodyPersister).InsertError(errorMessage, as4Message, cancellationToken);
+            //new InMessageService(repository, _inMessageBodyPersister).InsertError(errorMessage, as4Message, cancellationToken);
+            await new InMessageService(repository, _inMessageBodyPersister).InsertAS4Message(as4Message, cancellationToken);
         }
 
         private Error CreateError()

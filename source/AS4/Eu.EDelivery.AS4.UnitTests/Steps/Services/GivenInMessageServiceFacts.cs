@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Steps.Services;
+using Eu.EDelivery.AS4.Services;
 using Moq;
 using Xunit;
 

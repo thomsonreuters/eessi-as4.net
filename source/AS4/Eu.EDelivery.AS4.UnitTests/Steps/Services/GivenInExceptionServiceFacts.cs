@@ -4,7 +4,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Steps.Services;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Moq;
 using Xunit;

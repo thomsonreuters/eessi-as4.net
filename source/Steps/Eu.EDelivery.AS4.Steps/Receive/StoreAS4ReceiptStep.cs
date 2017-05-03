@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Steps.Services;
+using Eu.EDelivery.AS4.Services;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive

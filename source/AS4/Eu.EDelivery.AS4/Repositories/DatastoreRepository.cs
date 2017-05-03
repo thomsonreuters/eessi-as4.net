@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Microsoft.Extensions.Caching.Memory;
@@ -73,12 +74,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="bodyPersister"></param>
         public void InsertInMessage(InMessage inMessage, IAS4MessageBodyPersister bodyPersister)
         {
-            string messageLocation = bodyPersister.SaveAS4Message(inMessage.Message, CancellationToken.None);
-            inMessage.MessageLocation = messageLocation;
+            if (String.IsNullOrWhiteSpace(inMessage.MessageLocation))
+            {
+                // TODO: throw an exception.
+            }
 
             _dbContext.InMessages.Add(inMessage);
-
-            inMessage.Message?.CloseAttachments();
         }
 
         /// <summary>
