@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         public int FirstDeliveredMessageLength(string searchPattern = "*")
         {
             FileInfo firstMessage = GetDeliveredFiles(searchPattern).FirstOrDefault();
-            return firstMessage != null ? (int) firstMessage.Length : 0;
+            return firstMessage != null ? (int)firstMessage.Length : 0;
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <returns></returns>
         public int CountDeliveredMessages(string searchPattern = "*")
         {
-           return GetDeliveredFiles(searchPattern).Length;
+            return GetDeliveredFiles(searchPattern).Length;
         }
 
         private FileInfo[] GetDeliveredFiles(string searchPattern = "*")
@@ -91,15 +91,51 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             return GetMessageDirectory(subDirectory: "in").GetFiles(searchPattern);
         }
 
+        /// <summary>
+        /// Count the number of files that are present in the Receipts directory.
+        /// </summary>
+        /// <returns></returns>
+        public int CountReceivedReceipts()
+        {
+            return GetMessageDirectory(subDirectory: "receipts").GetFiles().Length;
+        }
+
+        /// <summary>
+        /// Executes an Action when the specified <paramref name="numberOfReceipts"/> are received.
+        /// </summary>
+        /// <param name="numberOfReceipts"></param>
+        /// <param name="action"></param>
+        /// <param name="timeout">The maximum allowed timeframe before the method returns</param>
+        /// <returns>True if the specified number of receipts is received; otherwise false.</returns>
+        public bool ExecuteWhenNumberOfReceiptsAreReceived(int numberOfReceipts, Action action, TimeSpan timeout)
+        {
+            string receiptDirectory = GetMessageDirectory(subDirectory: "receipts").FullName;
+
+            return ExecuteWhenNumberOfFilesAreFoundInDirectory(receiptDirectory, "*.xml", numberOfReceipts, action, timeout);
+        }
+
+        /// <summary>
+        /// Executes an Action when the specified <paramref name="numberOfMessages"/> are delivered.
+        /// </summary>
+        /// <param name="numberOfMessages"></param>
+        /// <param name="action"></param>
+        /// <param name="timeout">The maximum allowed timeframe before the method returns</param>
+        /// <param name="searchPattern"></param>
+        /// <returns>True if the specified number of messages are delivered; otherwise false.</returns>
         public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
         {
             string deliverDirectoryName = GetMessageDirectory(subDirectory: "in").FullName;
 
-            FileSystemWatcher fs = new FileSystemWatcher(deliverDirectoryName);
+            return ExecuteWhenNumberOfFilesAreFoundInDirectory(deliverDirectoryName, searchPattern, numberOfMessages, action, timeout);
+        }
+
+        private static bool ExecuteWhenNumberOfFilesAreFoundInDirectory(string location, string searchPattern, int numberOfFiles, Action action, TimeSpan timeout)
+        {
+            FileSystemWatcher fs = new FileSystemWatcher(location);
             fs.IncludeSubdirectories = false;
 
             ManualResetEvent waiter = new ManualResetEvent(false);
-            bool allMessagesDelivered = false;
+            bool allFilesFound = false;
 
             fs.EnableRaisingEvents = true;
 
@@ -109,10 +145,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 lock (syncRoot)
                 {
-                    if (Directory.GetFiles(deliverDirectoryName, searchPattern).Count() >= numberOfMessages)
+                    if (Directory.GetFiles(location, searchPattern).Count() >= numberOfFiles)
                     {
                         fs.EnableRaisingEvents = false;
-                        allMessagesDelivered = true;
+                        allFilesFound = true;
                         action();
 
                         waiter.Set();
@@ -121,8 +157,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             };
 
             waiter.WaitOne(timeout);
-            
-            return allMessagesDelivered;
+
+            return allFilesFound;
         }
 
         /// <summary>
@@ -132,6 +168,9 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         {
             CleanUpMessageDirectory("in");
             CleanUpMessageDirectory("out");
+            CleanUpMessageDirectory("receipts");
+            CleanUpMessageDirectory("errors");
+            CleanUpMessageDirectory("exceptions");
         }
 
         private void CleanUpMessageDirectory(string subDirectory)
@@ -168,16 +207,16 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 {
                     DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
 
-                var cornerInfo =
-                    new ProcessStartInfo(
-                        Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
-                cornerInfo.WorkingDirectory = cornerDirectory.FullName;
+                    var cornerInfo =
+                        new ProcessStartInfo(
+                            Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
+                    cornerInfo.WorkingDirectory = cornerDirectory.FullName;
 
-                var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
-                Thread.Sleep(1000);
+                    var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
+                    Thread.Sleep(1000);
 
-                return corner;
-            });
+                    return corner;
+                });
         }
 
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
