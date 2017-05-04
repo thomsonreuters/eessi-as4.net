@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Eu.EDelivery.AS4.IntegrationTests.Attributes;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -18,53 +17,36 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
         private readonly string _as4OutputPath;
 
         private readonly StubSender _sender;
-        private static string _sharedMessageId;
 
         public ReceiveAsyncSignedErrorIntegrationTest()
         {
             _sender = new StubSender {Url = "http://localhost:9090/msh", HandleResponse = response => null};
             _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
             _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-
-            UpdateSubmitMessageId();
         }
 
-        private void UpdateSubmitMessageId()
-        {
-            var xmlDocument = new XmlDocument();
-            xmlDocument.Load(Path.GetFullPath(_as4MessagesPath));
-
-            XmlNode messageIdNode = xmlDocument.SelectSingleNode("//*[local-name()='MessageId']");
-            Assert.NotNull(messageIdNode);
-
-            _sharedMessageId = Guid.NewGuid().ToString();
-            messageIdNode.InnerText = _sharedMessageId;
-
-            xmlDocument.Save(_as4MessagesPath);
-        }
-
-        [RetryFact(MaxRetries = 2)]
+        [Fact]
         public async void ThenSendAsyncErrorSucceedsAsync()
         {
             // Before
+            string sharedMessageId = UpdateSubmitMessageId();
             CleanUpFiles(HolodeckBInputPath);
-            AS4Component.Start();
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4ErrorsPath);
+
+            AS4Component.Start();
 
             // Arrange
             CopyPModeToHolodeckB("8.1.13-pmode.xml");
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Act
-            string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_callback_message;
-            messageWrongSigned = messageWrongSigned.Replace("2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131", _sharedMessageId);
-
+            string messageWrongSigned = ReplaceSubmitMessageIdWith(sharedMessageId);
             await _sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
-            bool areFilesFound = AreFilesFound();
+            bool areFilesFound = PollingAt(AS4ErrorsPath, "*.xml");
             if (areFilesFound)
             {
                 Console.WriteLine(@"Receive Async Error Integration Test succeeded!");
@@ -73,10 +55,28 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             Assert.True(areFilesFound, "Send Async Error failed");
         }
 
-        private bool AreFilesFound()
+        private string UpdateSubmitMessageId()
         {
-            const int retryCount = 2000;
-            return PollingAt(AS4ErrorsPath, "*.xml", retryCount);
+            var xmlDocument = new XmlDocument();
+            xmlDocument.Load(Path.GetFullPath(_as4MessagesPath));
+
+            XmlNode messageIdNode = xmlDocument.SelectSingleNode("//*[local-name()='MessageId']");
+            Assert.NotNull(messageIdNode);
+
+            string sharedMessageId = Guid.NewGuid().ToString();
+            messageIdNode.InnerText = sharedMessageId;
+
+            xmlDocument.Save(_as4MessagesPath);
+
+            return sharedMessageId;
+        }
+
+        private static string ReplaceSubmitMessageIdWith(string sharedMessageId)
+        {
+            string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_callback_message;
+            messageWrongSigned = messageWrongSigned.Replace("2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131", sharedMessageId);
+
+            return messageWrongSigned;
         }
 
         /// <summary>

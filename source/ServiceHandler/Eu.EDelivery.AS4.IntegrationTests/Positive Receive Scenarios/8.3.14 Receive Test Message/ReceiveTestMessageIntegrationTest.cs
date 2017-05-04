@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
@@ -23,7 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._14
             this._holodeck = new Holodeck();
         }
 
-        [Fact]
+        [Retry(MaxRetries = 3)]
         public void ThenReceiveTestMessageSucceeds()
         {
             // Before
@@ -41,19 +40,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._14
             File.Copy(this._holodeckMessagesPath, this._destFileName);
 
             // Assert
-            bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml");
-            if (areFilesFound) Console.WriteLine(@"Receive Test Message Integration Test succeeded!");
-            else Retry();
-
-        }
-
-        private void Retry()
-        {
-            var startDir = new DirectoryInfo(AS4FullInputPath);
-            FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
-
-            ValidatePolledFiles(files);
+            Assert.True(PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml", retryCount: 5000), "Receive Test Message Integration Test failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
     /// </summary>
     public class SendPullRequestResultInUserMessageTest : IntegrationTestTemplate
     {
-        [Fact]
+        [Retry(MaxRetries = 2)]
         public void ThenSendingPullRequestSucceeds()
         {
             // Setup
@@ -22,14 +22,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
             CleanUpFiles(Properties.Resources.holodeck_B_output_path);
             
             AS4Component.OverrideSettings("8.1.14-settings.xml");
-
-            CopyPModeToHolodeckB("8.1.14-pmode.xml");
-            CopyMessageToHolodeckB("8.1.14-sample.mmd");
-
-            // Act
             AS4Component.Start();
 
-            //// Assert
+            CopyPModeToHolodeckB("8.1.14-pmode.xml");
+
+            // Act
+            CopyMessageToHolodeckB("8.1.14-sample.mmd");
+
+            // Assert
             bool areFilesFound = PollingAt(AS4FullInputPath);
             Assert.True(areFilesFound, "Pull Request > User Message failed");
         }

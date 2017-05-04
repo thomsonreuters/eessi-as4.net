@@ -13,17 +13,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
     /// </summary>
     public class ReceiveAsyncSignedNRRReceiptIntegrationTest : IntegrationTestTemplate
     {
-        private const string SubmitMessageFilename = "\\8.1.12-sample.xml";
         private readonly string _as4MessagesPath;
         private readonly string _as4OutputPath;
 
         public ReceiveAsyncSignedNRRReceiptIntegrationTest()
         {
-            _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-            _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
+            const string submitMessage = "\\8.1.12-sample.xml";
+            _as4MessagesPath = $"{AS4MessagesRootPath}{submitMessage}";
+            _as4OutputPath = $"{AS4FullOutputPath}{submitMessage}";
         }
 
-        [Fact]
+        [Retry(MaxRetries = 3)]
         public void ThenSendAsyncSignedNRRReceiptSucceeds()
         {
             // Before
@@ -40,32 +40,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = AreFilesFound();
-            if (areFilesFound)
-            {
-                Console.WriteLine(@"Receive Async Signed NRR Receipt Integration Test succeeded!");
-            }
-            else
-            {
-                Retry();
-            }
-
-            Assert.True(areFilesFound, "Send Async Signed NRR Receipt failed");
-        }
-
-        private void Retry()
-        {
-            var startDir = new DirectoryInfo(AS4FullInputPath);
-            FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
-
-            ValidatePolledFiles(files);
-        }
-
-        private bool AreFilesFound()
-        {
-            const int retryCount = 2000;
-            return PollingAt(AS4ReceiptsPath, "*.xml", retryCount);
+            Assert.True(PollingAt(AS4ReceiptsPath, "*.xml"), "Send Async Signed NRR Receipt failed");
         }
 
         /// <summary>
