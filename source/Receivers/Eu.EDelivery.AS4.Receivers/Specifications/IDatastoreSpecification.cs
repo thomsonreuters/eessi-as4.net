@@ -11,6 +11,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
         string FriendlyExpression { get; }
 
         void Configure(DatastoreSpecificationArgs args);
+
         Expression<Func<DatastoreContext, IEnumerable<Entity>>> GetExpression();
     }
 }

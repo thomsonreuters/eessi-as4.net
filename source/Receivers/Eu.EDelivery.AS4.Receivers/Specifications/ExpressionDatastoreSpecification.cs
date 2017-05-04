@@ -58,10 +58,15 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
 
         private bool Where<T>(T databaseSet)
         {
-            string[] ands = _arguments.Filter.Split(new[] {" AND "}, StringSplitOptions.RemoveEmptyEntries);
+            return ProofOfConcept(databaseSet);
+        }
+
+        private bool ProofOfConcept<T>(T databaseSet)
+        {
+            string[] ands = _arguments.Filter.Split(new[] { " AND " }, StringSplitOptions.RemoveEmptyEntries);
 
             bool? globalExpression =
-                ands.Select(and => and.Split(new[] {"="}, StringSplitOptions.RemoveEmptyEntries))
+                ands.Select(and => and.Split(new[] { "=" }, StringSplitOptions.RemoveEmptyEntries))
                     .Select(entries => WhereSingle(databaseSet, entries[0].Trim(), entries[1].Trim()))
                     .Aggregate<bool, bool?>(
                         seed: null,
@@ -79,20 +84,6 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
             object configuredValue = ParseConfiguredValue(propertyValue, columnValue);
 
             return propertyValue.Equals(configuredValue);
-        }
-
-        /// <summary>
-        /// Locks a given <paramref name="entity"/> with a given <paramref name="updateExpression"/>.
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="updateExpression"></param>
-        public void LockEntity(Entity entity, string updateExpression)
-        {
-            string[] entries = updateExpression.Split(new[] {" = "}, StringSplitOptions.RemoveEmptyEntries);
-            PropertyInfo property = entity.GetType().GetProperty(entries[0].Trim());
-            object configuredValue = ParseConfiguredValue(property, entries[1].Trim());
-
-            property.SetValue(entity, configuredValue);
         }
 
         private static object ParseConfiguredValue(object propertyValue, string columnValue)

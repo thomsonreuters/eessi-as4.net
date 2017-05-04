@@ -10,27 +10,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
 {
     public class GivenExpressionDatastoreSpecificationFacts : GivenDatastoreFacts
     {
-        [Fact]
-        public void LocksEntityByUpdatingExpectedProperty()
+        [Theory]
+        [InlineData("Operation = ToBeDelivered AND MEP = Push")]
+        [InlineData("Operation = ToBeDelivered OR MEP = Push")]
+        public void GetsExpectedInMessage_IfAndExpression(string filter)
         {
             // Arrange
-            var specification = new ExpressionDatastoreSpecification();
-            var entity = new InMessage {Operation = Operation.ToBeDelivered};
-            
-            // Act
-            specification.LockEntity(entity, "Operation = Delivered");
-
-            // Assert
-            Assert.Equal(Operation.Delivered, entity.Operation);
-        }
-
-        [Fact]
-        public void GetsExpectedInMessage_IfAndExpression()
-        {
-            // Arrange
-            ExpressionDatastoreSpecification specification = CreateExpressionWith(
-                table: "InMessages",
-                filter: "Operation = ToBeDelivered AND MEP = Push");
+            ExpressionDatastoreSpecification specification = CreateExpressionWith("InMessages", filter);
 
             // Act
             var expectedMessage = new InMessage {Operation = Operation.ToBeDelivered, MEP = MessageExchangePattern.Push};
@@ -40,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
             Assert.Equal(expectedMessage, actualMessages.First() as InMessage);
         }
 
-        private IEnumerable<Entity> RunExpressionFor(ExpressionDatastoreSpecification specification, InMessage expectedMessage)
+        private IEnumerable<Entity> RunExpressionFor(IDatastoreSpecification specification, InMessage expectedMessage)
         {
             using (DatastoreContext stubDatastore = CreateDatastoreWith(expectedMessage))
             {
