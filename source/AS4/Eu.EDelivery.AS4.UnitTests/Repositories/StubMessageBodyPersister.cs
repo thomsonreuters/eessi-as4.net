@@ -9,9 +9,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     {
         internal static StubMessageBodyPersister Default = new StubMessageBodyPersister();
 
-        public string SaveAS4Message(AS4Message message, CancellationToken cancellationToken)
+        public Task<string> SaveAS4MessageAsync(AS4Message message, CancellationToken cancellationToken)
         {
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
     }
 }

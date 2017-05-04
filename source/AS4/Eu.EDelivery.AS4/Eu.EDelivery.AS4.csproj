@@ -441,6 +441,10 @@
     <Compile Include="Security\Transforms\AttachmentSignatureTransform.cs" />
     <Compile Include="Security\References\IssuerSecurityTokenReference.cs" />
     <Compile Include="Security\References\KeyIdentifierSecurityTokenReference.cs" />
+    <Compile Include="Services\InExceptionService.cs" />
+    <Compile Include="Services\InMessageService.cs" />
+    <Compile Include="Services\OutExceptionService.cs" />
+    <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />
     <Compile Include="Strategies\Sender\ReliableSender.cs" />
@@ -593,9 +597,7 @@
       <LastGenOutput>Schemas.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PayloadService\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

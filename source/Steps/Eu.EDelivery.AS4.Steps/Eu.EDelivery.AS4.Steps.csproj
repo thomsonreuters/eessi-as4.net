@@ -220,9 +220,6 @@
     <Compile Include="Send\Response\PullRequestResponseHandler.cs" />
     <Compile Include="Send\Response\TailResponseHandler.cs" />
     <Compile Include="Send\SetReceptionAwarenessStep.cs" />
-    <Compile Include="Services\InExceptionService.cs" />
-    <Compile Include="Services\OutMessageService.cs" />
-    <Compile Include="Services\InMessageService.cs" />
     <Compile Include="Receive\ReceiveExceptionStepDecorator.cs" />
     <Compile Include="Receive\DecompressAttachmentsStep.cs" />
     <Compile Include="Receive\Participant\PModeParticipant.cs" />

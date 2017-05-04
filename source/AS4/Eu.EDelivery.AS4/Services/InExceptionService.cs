@@ -9,7 +9,7 @@ using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
-namespace Eu.EDelivery.AS4.Steps.Services
+namespace Eu.EDelivery.AS4.Services
 {
     /// <summary>
     /// Service to expose Data store related operations
@@ -96,5 +96,5 @@ namespace Eu.EDelivery.AS4.Steps.Services
         /// <param name="exception"></param>
         /// <param name="as4Message"></param>
         void InsertAS4Exception(AS4Exception exception, AS4Message as4Message);
-    }
+    }    
 }

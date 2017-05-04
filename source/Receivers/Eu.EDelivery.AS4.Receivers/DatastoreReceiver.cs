@@ -199,6 +199,13 @@ namespace Eu.EDelivery.AS4.Receivers
                 catch (Exception exception)
                 {
                     Logger.Error(exception.Message);
+                    Logger.Trace(exception.StackTrace);
+                    if (exception.InnerException != null)
+                    {
+                        Logger.Error(exception.InnerException.Message);
+                        Logger.Trace(exception.InnerException.StackTrace);
+                    }
+
                     transaction.Rollback();
                 }
             }
@@ -296,6 +303,12 @@ namespace Eu.EDelivery.AS4.Receivers
             foreach (Exception ex in aggregate.InnerExceptions)
             {
                 Logger.Error(ex.Message);
+                Logger.Trace(ex.StackTrace);
+                if (ex.InnerException != null)
+                {
+                    Logger.Error(ex.InnerException.Message);
+                    Logger.Trace(ex.StackTrace);
+                }
             }
         }
 

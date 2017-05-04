@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Steps.Services;
+using Eu.EDelivery.AS4.Services;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                         if (IsMessageUnanswered())
                         {
                             _logger.Debug("Message is unanswered.");
-                            UpdateForUnansweredMessage(repository, cancellationToken);
+                            await UpdateForUnansweredMessage(repository, cancellationToken);
                         }
                         else
                         {
@@ -87,7 +87,6 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
                 await context.SaveChangesAsync(cancellationToken);
             }
-
 
             WaitRetryInterval("Waiting retry interval...");
 
@@ -136,7 +135,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             return _receptionAwareness.CurrentRetryCount >= _receptionAwareness.TotalRetryCount;
         }
 
-        private void UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
+        private async Task UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
         {
             string messageId = _receptionAwareness.InternalMessageId;
             _logger.Info($"[{messageId}] ebMS message is unanswered");
@@ -147,14 +146,14 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             Error errorMessage = CreateError();
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
-            new InMessageService(repository, _inMessageBodyPersister).InsertError(errorMessage, as4Message, cancellationToken);
+            var inMessageService = new InMessageService(repository, _inMessageBodyPersister);
+            await inMessageService.InsertAS4Message(as4Message, cancellationToken).ConfigureAwait(false);
         }
 
         private Error CreateError()
         {
             AS4Exception as4Exception = CreateAS4Exception();
             string messageId = _receptionAwareness.InternalMessageId;
-
 
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
@@ -198,8 +197,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             string messageId = _receptionAwareness.InternalMessageId;
 
             _logger.Info($"[{messageId}] {description}");
-
-            Thread.Sleep(retryInterval);
+            Thread.Sleep(retryInterval);            
         }
     }
 }
