@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             AssertErrorCode(errorCode, errorTag);
         }
 
-        private void AssertErrorCode(ErrorCode errorCode, XmlNode errorTag)
+        private static void AssertErrorCode(ErrorCode errorCode, XmlNode errorTag)
         {
             string errorCodeString = $"Ebms:{(int) errorCode:0000}";
             XmlAttribute errorCodeAttribute = errorTag.Attributes["errorCode"];
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Assert.Equal(errorCodeString, errorCodeAttribute.InnerText);
         }
 
-        private XmlNode SelectErrorTag(FileInfo error)
+        private static XmlNode SelectErrorTag(FileInfo error)
         {
             var xmlDocument = new XmlDocument();
             using (FileStream filesStream = error.Open(FileMode.Open, FileAccess.Read))
