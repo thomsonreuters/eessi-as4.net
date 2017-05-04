@@ -51,12 +51,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
                 throw new AssertActualExpectedException(expectedCount, actualCount, userMessage);
             }
         }
-        
+
         [Theory]
         [InlineData(100, 60)]
-        //[InlineData(500, 180)]
-        //[InlineData(1000, 500)]
-     //   [InlineData(5000, 1800)]
+        [InlineData(500, 180)]
+        [InlineData(1000, 500)]
+        //   [InlineData(5000, 1800)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
             // Arrange            
@@ -69,15 +69,15 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             bool allMessagesDelivered =
-                Corner3.ExecuteWhenNumberOfMessagesAreDelivered(
+                Corner2.ExecuteWhenNumberOfReceiptsAreReceived(
                     messageCount,
                     () => { sw.Stop(); },
-                    timeout: maxExecutionTime,
-                    searchPattern: "*.xml");
+                    timeout: maxExecutionTime);
 
             if (allMessagesDelivered == false)
             {
-                _output.WriteLine($"Number of messages delivered: {Corner3.CountDeliveredMessages("*.xml")}");                
+                _output.WriteLine($"Number of messages delivered at C3: {Corner3.CountDeliveredMessages("*.xml")}");
+                _output.WriteLine($"Number of receipts received at C2: {Corner2.CountReceivedReceipts()}");
             }
 
             Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
