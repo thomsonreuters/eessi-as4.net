@@ -88,8 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                 await context.SaveChangesAsync(cancellationToken);
             }
 
-
-            await WaitRetryInterval("Waiting retry interval...");
+            WaitRetryInterval("Waiting retry interval...");
 
             return await StepResult.SuccessAsync(internalMessage);
         }
@@ -148,7 +147,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
             var inMessageService = new InMessageService(repository, _inMessageBodyPersister);
-            await inMessageService.InsertAS4Message(as4Message, cancellationToken);
+            await inMessageService.InsertAS4Message(as4Message, cancellationToken).ConfigureAwait(false);
         }
 
         private Error CreateError()
@@ -192,14 +191,13 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             repository.UpdateReceptionAwareness(messageId, updateAction);
         }
 
-        private async Task WaitRetryInterval(string description)
+        private void WaitRetryInterval(string description)
         {
             TimeSpan retryInterval = TimeSpan.Parse(_receptionAwareness.RetryInterval);
             string messageId = _receptionAwareness.InternalMessageId;
 
             _logger.Info($"[{messageId}] {description}");
-
-            await Task.Delay(retryInterval);
+            Thread.Sleep(retryInterval);            
         }
     }
 }
