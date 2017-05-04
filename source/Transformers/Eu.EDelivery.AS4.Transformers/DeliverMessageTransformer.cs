@@ -40,7 +40,8 @@ namespace Eu.EDelivery.AS4.Transformers
                                          .Build();
             }
 
-            // Get the AS4Message that is referred to by this entityMessage.            
+            // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
+            // the one usermessage that should be delivered.
             AS4Message as4Message = await RetrieveAS4Message(entityMessage, cancellationToken);
 
             if (as4Message.UserMessages.Count != 1)
@@ -48,45 +49,57 @@ namespace Eu.EDelivery.AS4.Transformers
                 throw new InvalidOperationException("The AS4Message should contain only one UserMessage.");
             }
 
-            var deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, as4Message);
-            
-            ValidateDeliverMessage(deliverMessage);
+            InternalMessage internalMessage = new InternalMessage(as4Message);
 
-            var internalMessage = new InternalMessage(as4Message);
-
-            var serialized = AS4XmlSerializer.ToString(deliverMessage);
-
-            internalMessage.DeliverMessage = new DeliverMessageEnvelope(deliverMessage.MessageInfo,
-                                                                        Encoding.UTF8.GetBytes(serialized),
-                                                                        "application/xml");
+            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(as4Message);
 
             return internalMessage;
         }
 
+        /// <summary>
+        /// Retrieves the AS4Message that is referenced by the received ReceivedMessage and modify it so that it only contains
+        /// a single UserMessage.
+        /// </summary>
+        /// <param name="entityMessage"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private static async Task<AS4Message> RetrieveAS4Message(ReceivedMessageEntityMessage entityMessage, CancellationToken cancellationToken)
         {
             var as4Transformer = new AS4MessageTransformer();
             var internalMessage = await as4Transformer.TransformAsync(entityMessage, cancellationToken);
 
-            var as4Message = internalMessage.AS4Message;
+            var as4Message = RemoveUnnecessaryMessages(internalMessage.AS4Message, entityMessage.MessageEntity.EbmsMessageId);
 
+            as4Message = RemoveUnnecessaryAttachments(as4Message);
+
+            return as4Message;
+        }
+
+        private static AS4Message RemoveUnnecessaryMessages(AS4Message as4Message, string userMessageId)
+        {
             // Create the DeliverMessage for this specific UserMessage that has been received.
             var userMessage =
-                as4Message.UserMessages.FirstOrDefault(m => m.MessageId.Equals(entityMessage.MessageEntity.EbmsMessageId, StringComparison.OrdinalIgnoreCase));
+                as4Message.UserMessages.FirstOrDefault(m => m.MessageId.Equals(userMessageId, StringComparison.OrdinalIgnoreCase));
 
             if (userMessage == null)
             {
-                throw new InvalidOperationException($"The UserMessage with ID {entityMessage.MessageEntity.EbmsMessageId} could not be found in the referenced AS4Message.");
+                throw new InvalidOperationException($"The UserMessage with ID {userMessageId} could not be found in the referenced AS4Message.");
             }
 
             // Remove all the user- and signalmessages from the AS4Message, except the userMessage that we're about to deliver.
+            as4Message.SignalMessages.Clear();
             as4Message.UserMessages.Clear();
             as4Message.UserMessages.Add(userMessage);
 
+            return as4Message;
+        }
+
+        private static AS4Message RemoveUnnecessaryAttachments(AS4Message as4Message)
+        {
             // Remove the attachments that are not part of the UserMessage that is to be delivered.
             List<Attachment> attachments = new List<Attachment>();
 
-            foreach (var partInfo in userMessage.PayloadInfo)
+            foreach (var partInfo in as4Message.PrimaryUserMessage.PayloadInfo)
             {
                 attachments.Add(as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo)));
             }
@@ -106,6 +119,19 @@ namespace Eu.EDelivery.AS4.Transformers
             }
 
             return as4Message;
+        }
+
+        protected virtual DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
+        {
+            var deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, as4Message);
+
+            ValidateDeliverMessage(deliverMessage);
+
+            var serialized = AS4XmlSerializer.ToString(deliverMessage);
+
+            return new DeliverMessageEnvelope(deliverMessage.MessageInfo,
+                                              Encoding.UTF8.GetBytes(serialized),
+                                              "application/xml");
         }
 
         private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, AS4Message as4Message)
