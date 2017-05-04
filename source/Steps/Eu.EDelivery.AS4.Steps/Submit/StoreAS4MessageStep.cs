@@ -78,12 +78,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
-                var repository = new DatastoreRepository(context);
-                var service = new OutMessageService(repository, _as4MessageBodyPersister);
+                var service = new OutMessageService(new DatastoreRepository(context), _as4MessageBodyPersister);
 
-                await service.InsertAS4Message(as4Message, Operation.ToBeSent,  token);
+                await service.InsertAS4Message(as4Message, Operation.ToBeSent, token);
 
-                
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
             }
         }

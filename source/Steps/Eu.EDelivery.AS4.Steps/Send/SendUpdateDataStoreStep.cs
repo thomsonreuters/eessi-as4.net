@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {
+        {           
             using (DatastoreContext context = _createDatastoreContext())
             {
                 var inMessageService = new InMessageService(new DatastoreRepository(context), _messageBodyPersister);

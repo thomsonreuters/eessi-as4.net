@@ -96,5 +96,5 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="exception"></param>
         /// <param name="as4Message"></param>
         void InsertAS4Exception(AS4Exception exception, AS4Message as4Message);
-    }
+    }    
 }

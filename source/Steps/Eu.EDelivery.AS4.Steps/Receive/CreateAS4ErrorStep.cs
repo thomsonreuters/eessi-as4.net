@@ -57,9 +57,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             // Save the Error Message as well .... 
             using (var db = Registry.Instance.CreateDatastoreContext())
             {
-                var repository = new DatastoreRepository(db);
-                var service = new OutMessageService(repository, _as4MessageBodyPersister);
-               
+                var service = new OutMessageService(new DatastoreRepository(db), _as4MessageBodyPersister);
+
                 // The service will determine the correct operation for each message-part.
                 await service.InsertAS4Message(errorMessage, Operation.NotApplicable, cancellationToken);
 

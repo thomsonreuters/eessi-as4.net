@@ -443,6 +443,7 @@
     <Compile Include="Security\References\KeyIdentifierSecurityTokenReference.cs" />
     <Compile Include="Services\InExceptionService.cs" />
     <Compile Include="Services\InMessageService.cs" />
+    <Compile Include="Services\OutExceptionService.cs" />
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Strategies\Sender\FileSender.cs" />
     <Compile Include="Strategies\Sender\HttpSender.cs" />

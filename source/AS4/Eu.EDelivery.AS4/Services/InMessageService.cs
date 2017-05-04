@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -19,7 +20,7 @@ namespace Eu.EDelivery.AS4.Services
     /// for the Update Data store Steps
     /// </summary>
     public class InMessageService : IInMessageService
-    {
+    {        
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyPersister _messageBodyPersister;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -28,11 +29,11 @@ namespace Eu.EDelivery.AS4.Services
         /// Initializes a new instance of the <see cref="InMessageService"/> class. 
         /// Create a new Data store Repository
         /// </summary>
-        /// <param name="respository"> </param>
+        /// <param name="repository"></param>
         /// <param name="as4MessageBodyPersister"></param>
-        public InMessageService(IDatastoreRepository respository, IAS4MessageBodyPersister as4MessageBodyPersister)
+        public InMessageService(IDatastoreRepository repository, IAS4MessageBodyPersister as4MessageBodyPersister)
         {
-            _repository = respository;
+            _repository = repository;
             _messageBodyPersister = as4MessageBodyPersister;
         }
 
@@ -92,7 +93,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 signalMessage.IsDuplicated = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
                 AttemptToInsertSignalMessage(signalMessage, as4Message, location, cancellationToken);
-            }            
+            }
         }
 
         #region UserMessage related
@@ -198,7 +199,7 @@ namespace Eu.EDelivery.AS4.Services
                 ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", as4Message, exception);
             }
         }
-       
+
         private void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
         {
             Logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");

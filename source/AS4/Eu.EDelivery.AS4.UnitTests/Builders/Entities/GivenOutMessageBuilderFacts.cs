@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBuildOutMessageSucceedsWithAS4Message()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message(Guid.NewGuid().ToString());
+                AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
 
                 // Act
                 OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message.PrimaryUserMessage, as4Message)
@@ -30,6 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Assert
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
+                Assert.Equal(MessageType.UserMessage, outMessage.EbmsMessageType);
                 Assert.Equal(AS4XmlSerializer.ToString(as4Message.SendingPMode), outMessage.PMode);
             }
 
@@ -38,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = CreateDefaultAS4Message(messageId);
+                AS4Message as4Message = CreateAS4MessageWithUserMessage(messageId);
 
 
                 // Act
@@ -50,29 +51,65 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
 
             [Fact]
-            public void ThenBuildOutMessageSucceedsWithAS4MessageAndMessageType()
+            public void ThenBuildOutMessageSucceedsForReceiptMessage()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message(Guid.NewGuid().ToString());
-                const MessageType messageType = MessageType.Receipt;
+                string messageId = Guid.NewGuid().ToString();
+                AS4Message as4Message = CreateAS4MessageWithReceiptMessage(messageId);
 
                 // Act
-                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message.PrimaryUserMessage, as4Message)
-                                                          .WithEbmsMessageType(messageType)
-                                                          .Build(CancellationToken.None);
+                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message.PrimarySignalMessage, as4Message)
+                                                         .Build(CancellationToken.None);
 
                 // Assert
-                Assert.Equal(messageType, outMessage.EbmsMessageType);
+                Assert.Equal(messageId, outMessage.EbmsMessageId);
+                Assert.Equal(MessageType.Receipt, outMessage.EbmsMessageType);
+            }
+
+            [Fact]
+            public void ThenBuildOutMessageSucceedsForErrorMessage()
+            {
+                // Arrange
+                string messageId = Guid.NewGuid().ToString();
+                AS4Message as4Message = CreateAS4MessageWithErrorMessage(messageId);
+
+                // Act
+                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message.PrimarySignalMessage, as4Message)
+                                                         .Build(CancellationToken.None);
+
+                // Assert
+                Assert.Equal(messageId, outMessage.EbmsMessageId);
+                Assert.Equal(MessageType.Error, outMessage.EbmsMessageType);
             }
         }
 
-        protected AS4Message CreateDefaultAS4Message(string messageId)
+        protected AS4Message CreateAS4MessageWithUserMessage(string messageId)
         {
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
                 SendingPMode = new SendingProcessingMode { Id = "pmode-id" },
                 UserMessages = new List<UserMessage>() { new UserMessage(messageId) }
+            };
+        }
+
+        protected AS4Message CreateAS4MessageWithReceiptMessage(string messageId)
+        {
+            return new AS4Message
+            {
+                ContentType = "application/soap+xml",
+                SendingPMode = new SendingProcessingMode { Id = "pmode-id" },
+                SignalMessages = new List<SignalMessage>() { new Receipt { MessageId = messageId } }
+            };
+        }
+
+        protected AS4Message CreateAS4MessageWithErrorMessage(string messageId)
+        {
+            return new AS4Message
+            {
+                ContentType = "application/soap+xml",
+                SendingPMode = new SendingProcessingMode { Id = "pmode-id" },
+                SignalMessages = new List<SignalMessage>() { new Error { MessageId = messageId } }
             };
         }
     }

@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 await new OutMessageService(repository, _messageBodyPersister).InsertAS4Message(internalMessage.AS4Message, Operation.NotApplicable, cancellationToken);
 
-                await context.SaveChangesAsync(cancellationToken);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                 _logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
             }
