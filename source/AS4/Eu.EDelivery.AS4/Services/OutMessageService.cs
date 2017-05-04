@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -35,45 +36,45 @@ namespace Eu.EDelivery.AS4.Services
             _logger = LogManager.GetCurrentClassLogger();
         }
 
-        /// <summary>
-        /// Insert <see cref="Model.Core.Receipt"/>
-        /// into the Data store
-        /// </summary>        
-        /// <param name="as4Message"></param>
-        /// <returns></returns>
-        public void InsertReceipt(AS4Message as4Message)
+        public async Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken)
         {
-            // The Primary SignalMessage of the given AS4Message should be a Receipt
-            if (!(as4Message.IsSignalMessage && as4Message.PrimarySignalMessage is Receipt))
+            string location = await _messageBodyPersister.SaveAS4MessageAsync(message, cancellationToken);
+
+            foreach (var userMessage in message.UserMessages)
             {
-                throw new ArgumentException(@"The AS4Message should represent a Receipt", nameof(AS4Message));
+                TryInsertOutcomingOutMessage(userMessage, message, MessageType.UserMessage, location, operation);
             }
 
-            TryInsertOutcomingOutMessage(as4Message, MessageType.Receipt);
-        }
-
-        /// <summary>
-        /// Insert <see cref="Model.Core.Error"/>
-        /// into the Data store
-        /// </summary>        
-        /// <param name="as4Message"></param>
-        /// <returns></returns>
-        public void InsertError(AS4Message as4Message)
-        {
-            if (!(as4Message.IsSignalMessage && as4Message.PrimarySignalMessage is Error))
+            foreach (var signalMessage in message.SignalMessages)
             {
-                throw new ArgumentException(@"The AS4Message should represent an Error", nameof(AS4Message));
+                MessageType type = DetermineSignalMessageType(signalMessage);
+                TryInsertOutcomingOutMessage(signalMessage, message, type, location, operation);
             }
 
-            TryInsertOutcomingOutMessage(as4Message, MessageType.Error);
         }
 
-        private void TryInsertOutcomingOutMessage(AS4Message as4Message, MessageType messageType)
+        private static MessageType DetermineSignalMessageType(SignalMessage signalMessage)
+        {
+            // TODO: this logic should be moved to the outmessagebuilder.
+            if (signalMessage is Receipt)
+            {
+                return MessageType.Receipt;
+            }
+            if (signalMessage is Error)
+            {
+                return MessageType.Error;
+            }
+            throw new ArgumentOutOfRangeException();
+        }
+
+        private void TryInsertOutcomingOutMessage(MessageUnit message, AS4Message as4Message, MessageType messageType, string location, Operation operation)
         {
             try
             {
-                OutMessage outMessage = CreateOutMessageForSignal(as4Message, messageType);
-                _repository.InsertOutMessage(outMessage, _messageBodyPersister);
+                OutMessage outMessage = CreateOutMessageForMessageUnit(message, messageType, as4Message);
+                outMessage.MessageLocation = location;
+                outMessage.Operation = operation;
+                _repository.InsertOutMessage(outMessage);
             }
             catch (Exception ex)
             {
@@ -86,27 +87,25 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private static OutMessage CreateOutMessageForSignal(AS4Message message, MessageType messageType)
+        private static OutMessage CreateOutMessageForMessageUnit(MessageUnit messageUnit, MessageType messageType, AS4Message as4Message)
         {
-            var primarySignalMessage = message.PrimarySignalMessage;
-
-            OutMessage outMessage = OutMessageBuilder.ForAS4Message(message)
+            OutMessage outMessage = OutMessageBuilder.ForAS4Message(messageUnit, as4Message)
                                                      .WithEbmsMessageType(messageType)
                                                      .Build(CancellationToken.None);
 
-            outMessage.EbmsRefToMessageId = primarySignalMessage.RefToMessageId;
+            if (messageType != MessageType.UserMessage)
+            {
+                Operation operation;
+                OutStatus status;
 
-            Operation operation;
-            OutStatus status;
+                DetermineCorrectReplyPattern(messageType, as4Message, out operation, out status);
 
-            DetermineCorrectReplyPattern(messageType, message, out operation, out status);
-
-            outMessage.Status = status;
-            outMessage.Operation = operation;
+                outMessage.Status = status;
+                outMessage.Operation = operation;
+            }
 
             return outMessage;
         }
-
 
         private static void DetermineCorrectReplyPattern(MessageType outMessageType, AS4Message message, out Operation operation, out OutStatus status)
         {
@@ -130,7 +129,6 @@ namespace Eu.EDelivery.AS4.Services
 
     public interface IOutMessageService
     {
-        void InsertError(AS4Message as4Message);
-        void InsertReceipt(AS4Message as4Message);
+        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);
     }
 }

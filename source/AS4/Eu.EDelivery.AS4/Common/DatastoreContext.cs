@@ -327,6 +327,7 @@ namespace Eu.EDelivery.AS4.Common
             while (innerException != null)
             {
                 logger.Error(innerException.Message);
+                logger.Error(innerException.StackTrace);
 
                 mostInnerException = innerException;
                 innerException = innerException.InnerException;

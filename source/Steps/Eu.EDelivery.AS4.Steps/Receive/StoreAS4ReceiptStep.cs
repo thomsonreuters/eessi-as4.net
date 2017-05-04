@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
@@ -20,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class.
         /// </summary>
         public StoreAS4ReceiptStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
-        {                
+        {
         }
 
         /// <summary>
@@ -49,14 +50,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(context);
 
-                new OutMessageService(repository, _messageBodyPersister).InsertReceipt(internalMessage.AS4Message);
-                
+                await new OutMessageService(repository, _messageBodyPersister).InsertAS4Message(internalMessage.AS4Message, Operation.NotApplicable, cancellationToken);
+
                 await context.SaveChangesAsync(cancellationToken);
 
                 _logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
             }
 
             return await StepResult.SuccessAsync(internalMessage);
-        }        
+        }
     }
 }

@@ -22,19 +22,18 @@ namespace Eu.EDelivery.AS4.Services
     {
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyPersister _messageBodyPersister;
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMessageService"/> class. 
         /// Create a new Data store Repository
         /// </summary>
-        /// <param name="respository">
-        /// </param>
+        /// <param name="respository"> </param>
+        /// <param name="as4MessageBodyPersister"></param>
         public InMessageService(IDatastoreRepository respository, IAS4MessageBodyPersister as4MessageBodyPersister)
         {
             _repository = respository;
             _messageBodyPersister = as4MessageBodyPersister;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -71,37 +70,32 @@ namespace Eu.EDelivery.AS4.Services
 
         public async Task InsertAS4Message(AS4Message as4Message, CancellationToken cancellationToken)
         {
-            IDictionary<string, bool> duplicateUserMessages = this.DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
+            // TODO: should we start the transaction here.
 
-            string location = _messageBodyPersister.SaveAS4Message(as4Message, cancellationToken);
+            string location = await _messageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
+
+            IDictionary<string, bool> duplicateUserMessages =
+                this.DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
 
             foreach (UserMessage userMessage in as4Message.UserMessages)
             {
                 userMessage.IsTest = IsUserMessageTest(userMessage);
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
 
-                try
-                {
-                    InMessage inMessage = CreateUserInMessage(userMessage, as4Message, location, cancellationToken);
-                    _repository.InsertInMessage(inMessage, _messageBodyPersister);
-                }
-                catch(Exception ex)
-                {
-                    ThrowAS4Exception($"Unable to update UserMessage {userMessage.MessageId}", as4Message, ex);
-                }
+                AttemptToInsertUserMessage(userMessage, as4Message, location, cancellationToken);
             }
 
-            IDictionary<string, bool> duplicateSignalMessages = this
-                    .DetermineDuplicateSignalMessageIds(as4Message.SignalMessages.Select(m => m.RefToMessageId));
+            IDictionary<string, bool> duplicateSignalMessages =
+                this.DetermineDuplicateSignalMessageIds(as4Message.SignalMessages.Select(m => m.RefToMessageId));
 
             foreach (SignalMessage signalMessage in as4Message.SignalMessages)
             {
                 signalMessage.IsDuplicated = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
                 AttemptToInsertSignalMessage(signalMessage, as4Message, location, cancellationToken);
-            }
-
-            await Task.FromResult(0);
+            }            
         }
+
+        #region UserMessage related
 
         private static bool IsUserMessageTest(UserMessage userMessage)
         {
@@ -112,53 +106,10 @@ namespace Eu.EDelivery.AS4.Services
 
             if (isTestMessage)
             {
-             //   Logger.Info($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
+                Logger.Info($"[{userMessage.MessageId}] Incoming User Message is 'Test Message'");
             }
 
             return isTestMessage;
-        }
-
-        private static bool IsSignalMessageDuplicate(MessageUnit signalMessage, IDictionary<string, bool> duplicateSignalMessages)
-        {
-            duplicateSignalMessages.TryGetValue(signalMessage.RefToMessageId, out var isDuplicate);
-
-            if (isDuplicate)
-            {
-         //       Logger.Info($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
-            }
-
-            return isDuplicate;
-        }
-
-        private void AttemptToInsertSignalMessage(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
-        {
-            try
-            {
-                if (signalMessage is Receipt)
-                {
-                    this.InsertReceipt(signalMessage, as4Message, location, token);
-                }
-                else if (signalMessage is Error)
-                {
-                    this.InsertError(signalMessage, as4Message, location, token);
-                }
-            }
-            catch (Exception exception)
-            {
-                ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}",as4Message, exception);
-            }
-        }
-
-        private void ThrowAS4Exception(string description, AS4Message message, Exception exception)
-        {
-            //Logger.Error(description);
-
-            throw AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(message.MessageIds)
-                .WithInnerException(exception)
-                .WithReceivingPMode(message.ReceivingPMode)
-                .Build();
         }
 
         private static bool IsUserMessageDuplicate(MessageUnit userMessage, IDictionary<string, bool> duplicateUserMessages)
@@ -167,33 +118,27 @@ namespace Eu.EDelivery.AS4.Services
 
             if (isDuplicate)
             {
-        //        Logger.Info($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
+                Logger.Info($"[{userMessage.MessageId}] Incoming User Message is a duplicated one");
             }
 
             return isDuplicate;
         }
 
-        /// <summary>
-        /// Update a given User Message in the Data store
-        /// </summary>
-        /// <param name="usermessage"></param>
-        /// <param name="as4Message"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        ////public void InsertUserMessage(
-        ////    UserMessage usermessage, AS4Message as4Message, CancellationToken cancellationToken)
-        ////{
-        ////    _logger.Info($"Update Message: {usermessage.MessageId} as User Message");
-
-        ////    string location = _messageBodyPersister.SaveAS4Message(as4Message, cancellationToken);
-
-        ////    InMessage inMessage = CreateUserInMessage(usermessage, as4Message, location, cancellationToken);            
-
-        ////    _repository.InsertInMessage(inMessage, _messageBodyPersister);                                   
-        ////}
+        private void AttemptToInsertUserMessage(UserMessage userMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
+        {
+            try
+            {
+                InMessage inMessage = CreateUserInMessage(userMessage, as4Message, location, cancellationToken);
+                _repository.InsertInMessage(inMessage);
+            }
+            catch (Exception ex)
+            {
+                ThrowAS4Exception($"Unable to update UserMessage {userMessage.MessageId}", as4Message, ex);
+            }
+        }
 
         private static InMessage CreateUserInMessage(
-            UserMessage userMessage, AS4Message as4Message, string messageLocation, CancellationToken cancellationToken)
+             UserMessage userMessage, AS4Message as4Message, string messageLocation, CancellationToken cancellationToken)
         {
             InMessage inMessage = InMessageBuilder.ForUserMessage(userMessage, as4Message)
                                                   .WithPModeString(AS4XmlSerializer.ToString(as4Message.ReceivingPMode))
@@ -219,21 +164,56 @@ namespace Eu.EDelivery.AS4.Services
             inMessage.Operation = Operation.ToBeDelivered;
         }
 
+        #endregion
+
+        #region SignalMessage related
+
+        private static bool IsSignalMessageDuplicate(MessageUnit signalMessage, IDictionary<string, bool> duplicateSignalMessages)
+        {
+            duplicateSignalMessages.TryGetValue(signalMessage.RefToMessageId, out var isDuplicate);
+
+            if (isDuplicate)
+            {
+                Logger.Info($"[{signalMessage.RefToMessageId}] Incoming Signal Message is a duplicated one");
+            }
+
+            return isDuplicate;
+        }
+
+        private void AttemptToInsertSignalMessage(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
+        {
+            try
+            {
+                if (signalMessage is Receipt)
+                {
+                    this.InsertReceipt(signalMessage, as4Message, location, token);
+                }
+                else if (signalMessage is Error)
+                {
+                    this.InsertError(signalMessage, as4Message, location, token);
+                }
+            }
+            catch (Exception exception)
+            {
+                ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", as4Message, exception);
+            }
+        }
+       
         private void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
         {
-            _logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
+            Logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
             InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, location, token);
 
-            _repository.InsertInMessage(inMessage, _messageBodyPersister);
+            _repository.InsertInMessage(inMessage);
 
             UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
         }
 
         private void InsertError(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
         {
-            _logger.Info($"Update Message: {signalMessage.MessageId} as Error");
+            Logger.Info($"Update Message: {signalMessage.MessageId} as Error");
 
-            if (_logger.IsWarnEnabled)
+            if (Logger.IsWarnEnabled)
             {
                 var errorSignalMessage = signalMessage as Error;
 
@@ -241,34 +221,17 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     foreach (var error in errorSignalMessage.Errors)
                     {
-                        _logger.Warn($"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");
+                        Logger.Warn($"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");
                     }
                 }
             }
 
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, location, cancellationToken);
 
-            _repository.InsertInMessage(inMessage, _messageBodyPersister);
+            _repository.InsertInMessage(inMessage);
 
             UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
         }
-
-        /// <summary>
-        /// Update a given Receipt Signal Message in the Data store
-        /// </summary>
-        /// <param name="signalMessage"></param>
-        /// <param name="as4Message"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        ////public void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
-        ////{
-        ////    _logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
-        ////    InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, cancellationToken);
-
-        ////    _repository.InsertInMessage(inMessage, _messageBodyPersister);
-
-        ////    UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
-        ////}
 
         private static InMessage CreateReceiptInMessage(
             SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
@@ -277,6 +240,7 @@ namespace Eu.EDelivery.AS4.Services
                                                   .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
+
             if (ReceiptDoesNotNeedToBeNotified(as4Message) || signalMessage.IsDuplicated)
             {
                 return inMessage;
@@ -291,37 +255,6 @@ namespace Eu.EDelivery.AS4.Services
         {
             return !as4Message.SendingPMode.ReceiptHandling.NotifyMessageProducer;
         }
-
-        /// <summary>
-        /// Update a given Error Signal Message in the Data store
-        /// </summary>
-        /// <param name="signalMessage"></param>
-        /// <param name="as4Message"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        //////public void InsertError(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken)
-        //////{
-        //////    _logger.Info($"Update Message: {signalMessage.MessageId} as Error");
-
-        //////    if (_logger.IsWarnEnabled)
-        //////    {
-        //////        var errorSignalMessage = signalMessage as Error;
-
-        //////        if (errorSignalMessage != null)
-        //////        {
-        //////            foreach (var error in errorSignalMessage.Errors)
-        //////            {
-        //////                _logger.Warn($"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");
-        //////            }
-        //////        }
-        //////    }
-
-        //////    InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, cancellationToken);
-
-        //////    _repository.InsertInMessage(inMessage, _messageBodyPersister);
-
-        //////    UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
-        //////}
 
         private static InMessage CreateErrorInMessage(
             SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
@@ -361,15 +294,25 @@ namespace Eu.EDelivery.AS4.Services
             _repository.UpdateOutMessage(signalMessage.RefToMessageId,
                 outMessage => outMessage.Status = status);
         }
+
+        #endregion SignalMessage related
+
+        private static void ThrowAS4Exception(string description, AS4Message message, Exception exception)
+        {
+            Logger.Error(description);
+
+            throw AS4ExceptionBuilder
+                .WithDescription(description)
+                .WithMessageIds(message.MessageIds)
+                .WithInnerException(exception)
+                .WithReceivingPMode(message.ReceivingPMode)
+                .Build();
+        }
     }
 
     public interface IInMessageService
     {
         Task InsertAS4Message(AS4Message as4Message, CancellationToken cancellationToken);
-
-        //void InsertUserMessage(UserMessage usermessage, AS4Message as4Message, CancellationToken cancellationToken);
-        //void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
-        //void InsertError(SignalMessage signalMessage, AS4Message as4Message, CancellationToken cancellationToken);
 
         /// <summary>
         /// Search for duplicate <see cref="UserMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.

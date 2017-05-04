@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         private static Mock<IAS4MessageBodyPersister> CreateMockedAS4MessageBodyPersister()
         {
             var inMessageBodyPersister = new Mock<IAS4MessageBodyPersister>();
-            inMessageBodyPersister.Setup(m => m.SaveAS4Message(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).Returns(string.Empty);
+            inMessageBodyPersister.Setup(m => m.SaveAS4MessageAsync(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).ReturnsAsync(string.Empty);
 
             return inMessageBodyPersister;
         }

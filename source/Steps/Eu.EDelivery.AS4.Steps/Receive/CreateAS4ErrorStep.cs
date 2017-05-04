@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -52,14 +53,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             var errorMessage = CreateAS4ErrorMessage(internalMessage);
-            
+
             // Save the Error Message as well .... 
             using (var db = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(db);
                 var service = new OutMessageService(repository, _as4MessageBodyPersister);
-
-                service.InsertError(errorMessage);
+               
+                // The service will determine the correct operation for each message-part.
+                await service.InsertAS4Message(errorMessage, Operation.NotApplicable, cancellationToken);
 
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }

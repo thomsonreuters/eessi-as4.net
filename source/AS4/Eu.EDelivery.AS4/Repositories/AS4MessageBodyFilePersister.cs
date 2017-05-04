@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.Repositories
             }
         }
 
-        public string SaveAS4Message(AS4Message message, CancellationToken cancellationToken)
+        public async Task<string> SaveAS4MessageAsync(AS4Message message, CancellationToken cancellationToken)
         {
             if (message == null)
             {
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 using (FileStream fs = File.Create(fileName))
                 {
                     ISerializer serializer = _provider.Get(message.ContentType);
-                    serializer.Serialize(message, fs, cancellationToken);
+                    await serializer.SerializeAsync(message, fs, cancellationToken);
                 }
             }
 
@@ -59,6 +60,6 @@ namespace Eu.EDelivery.AS4.Repositories
 
     public interface IAS4MessageBodyPersister
     {
-        string SaveAS4Message(AS4Message message, CancellationToken cancellationToken);
+        Task<string> SaveAS4MessageAsync(AS4Message message, CancellationToken cancellationToken);
     }
 }

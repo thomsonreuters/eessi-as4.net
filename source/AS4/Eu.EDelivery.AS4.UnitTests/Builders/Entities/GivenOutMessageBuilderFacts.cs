@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 AS4Message as4Message = CreateDefaultAS4Message(Guid.NewGuid().ToString());
 
                 // Act
-                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message)
+                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message.PrimaryUserMessage, as4Message)
                                                          .Build(CancellationToken.None);
 
                 // Assert
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
 
                 // Act
-                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message)
+                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message.PrimaryUserMessage, as4Message)
                                                          .Build(CancellationToken.None);
 
                 // Assert
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 const MessageType messageType = MessageType.Receipt;
 
                 // Act
-                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message)
+                OutMessage outMessage = OutMessageBuilder.ForAS4Message(as4Message.PrimaryUserMessage, as4Message)
                                                           .WithEbmsMessageType(messageType)
                                                           .Build(CancellationToken.None);
 

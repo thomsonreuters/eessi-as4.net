@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
@@ -71,8 +72,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Insert a given <see cref="InMessage"/> into the Data store
         /// </summary>
         /// <param name="inMessage"></param>
-        /// <param name="bodyPersister"></param>
-        public void InsertInMessage(InMessage inMessage, IAS4MessageBodyPersister bodyPersister)
+        public void InsertInMessage(InMessage inMessage)
         {
             if (String.IsNullOrWhiteSpace(inMessage.MessageLocation))
             {
@@ -169,14 +169,16 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="outMessage"></param>
         /// <param name="bodyPersister">The <see cref="IAS4MessageBodyPersister"/> instance that must be used to persist the AS4 MessageBody.</param>
-        public void InsertOutMessage(OutMessage outMessage, IAS4MessageBodyPersister bodyPersister)
+        public void InsertOutMessage(OutMessage outMessage)
         {
-            string messageLocation = bodyPersister.SaveAS4Message(outMessage.Message, CancellationToken.None);
-            outMessage.MessageLocation = messageLocation;
+            if (String.IsNullOrWhiteSpace(outMessage.MessageLocation))
+            {
+                // TODO: throw exception.
+            }
 
             _dbContext.OutMessages.Add(outMessage);
 
-            outMessage.Message?.CloseAttachments();
+        
         }
 
         /// <summary>
@@ -456,11 +458,11 @@ namespace Eu.EDelivery.AS4.Repositories
 
     public interface IDatastoreRepository
     {
-        void InsertInMessage(InMessage inMessage, IAS4MessageBodyPersister bodyPersister);
+        void InsertInMessage(InMessage inMessage);
         void UpdateInMessage(string messageId, Action<InMessage> updateAction);
         bool InMessageExists(Func<InMessage, bool> predicate);
 
-        void InsertOutMessage(OutMessage outMessage, IAS4MessageBodyPersister bodyPersister);
+        void InsertOutMessage(OutMessage outMessage);
         void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
         OutMessage GetOutMessageById(string messageId);
         Operation GetOutMessageOperation(string messageId);

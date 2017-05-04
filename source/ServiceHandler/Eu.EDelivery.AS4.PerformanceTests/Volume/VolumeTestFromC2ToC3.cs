@@ -53,8 +53,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         
         [Theory]
         [InlineData(100, 60)]
-        [InlineData(500, 180)]
-        [InlineData(1000, 500)]
+        //[InlineData(500, 180)]
+        //[InlineData(1000, 500)]
      //   [InlineData(5000, 1800)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
