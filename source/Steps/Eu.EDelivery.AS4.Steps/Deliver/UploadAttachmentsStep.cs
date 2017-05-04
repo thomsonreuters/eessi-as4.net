@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,10 +60,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             _internalMessage = internalMessage;
 
+            
+
             await UploadAttachments(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
-
+        
         private async Task UploadAttachments(IEnumerable<Attachment> attachments)
         {
             await Task.WhenAll(attachments.Select(TryUploadAttachment));

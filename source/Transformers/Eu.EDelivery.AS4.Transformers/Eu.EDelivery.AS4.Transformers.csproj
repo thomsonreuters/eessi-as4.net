@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AS4MessageTransformer.cs" />
+    <Compile Include="DeliverMessageTransformer.cs" />
     <Compile Include="ExceptionTransformer.cs" />
     <Compile Include="InteropTestingSubmitReceiveMessageTransformer.cs" />
     <Compile Include="ConformanceTestingSubmitReceiveMessageTransformer.cs" />

@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
 
             attachment.ResetContentPosition();
-            
+
             VirtualStream outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, leaveOpen: true))
@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static string GetMimeType(List<PartInfo> messagePayloadInfo, Attachment attachment)
         {
-            return messagePayloadInfo.Find(i => i.Href.Equals("cid:" + attachment.Id)).Properties["MimeType"];
+            return messagePayloadInfo.Find(i => attachment.Matches(i)).Properties["MimeType"];
         }
 
         private static AS4Exception ThrowAS4CannotDecompressException(AS4Message as4Message, Exception exception)

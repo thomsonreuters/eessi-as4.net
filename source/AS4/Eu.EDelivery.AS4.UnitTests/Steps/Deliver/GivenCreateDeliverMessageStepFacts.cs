@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// <summary>
     /// Testing <see cref="CreateDeliverMessageStep" />
     /// </summary>
+    [Obsolete("The CreateDeliverMessageStep has been replaced by a transformer.  Create a Transformer UnitTest instead.")]
     public class GivenCreateDeliverMessageStepFacts
     {
         private readonly CreateDeliverMessageStep _step;
