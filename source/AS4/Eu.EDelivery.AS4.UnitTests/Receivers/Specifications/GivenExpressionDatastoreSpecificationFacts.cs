@@ -12,14 +12,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
     {
         [Theory]
         [InlineData("Operation = ToBeDelivered AND MEP = Push")]
-        [InlineData("Operation = ToBeDelivered OR MEP = Push")]
+        [InlineData("(Operation = ToBeDelivered OR MEP = Push) AND EbmsMessageType = UserMessage")]
         public void GetsExpectedInMessage_IfAndExpression(string filter)
         {
             // Arrange
             ExpressionDatastoreSpecification specification = CreateExpressionWith("InMessages", filter);
+            var expectedMessage = new InMessage {Operation = Operation.ToBeDelivered, MEP = MessageExchangePattern.Push};
 
             // Act
-            var expectedMessage = new InMessage {Operation = Operation.ToBeDelivered, MEP = MessageExchangePattern.Push};
             IEnumerable<Entity> actualMessages = RunExpressionFor(specification, expectedMessage);
 
             // Assert
@@ -46,7 +46,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         private DatastoreContext CreateDatastoreWith(InMessage expectedMessage)
         {
             var context = new DatastoreContext(Options);
-            context.InMessages.Add(new InMessage {Operation = Operation.DeadLettered, MEP = MessageExchangePattern.Push});
+            context.InMessages.Add(
+                new InMessage {Operation = Operation.DeadLettered, EbmsMessageType = MessageType.Receipt});
             context.InMessages.Add(expectedMessage);
             context.SaveChanges();
 
