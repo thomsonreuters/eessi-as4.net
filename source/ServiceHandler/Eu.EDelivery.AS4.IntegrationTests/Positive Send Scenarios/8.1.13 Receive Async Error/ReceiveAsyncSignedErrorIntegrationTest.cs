@@ -31,17 +31,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             // Before
             string sharedMessageId = UpdateSubmitMessageId();
             CleanUpFiles(HolodeckBInputPath);
-            AS4Component.Start();
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4ErrorsPath);
+
+            AS4Component.Start();
 
             // Arrange
             CopyPModeToHolodeckB("8.1.13-pmode.xml");
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Act
-            string messageWrongSigned = ReplaceSubmitMessageidWith(sharedMessageId);
+            string messageWrongSigned = ReplaceSubmitMessageIdWith(sharedMessageId);
             await _sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
@@ -70,7 +71,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             return sharedMessageId;
         }
 
-        private static string ReplaceSubmitMessageidWith(string sharedMessageId)
+        private static string ReplaceSubmitMessageIdWith(string sharedMessageId)
         {
             string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_callback_message;
             messageWrongSigned = messageWrongSigned.Replace("2e0a5701-790a-4a53-a8b7-e7f528fc1b53@10.124.29.131", sharedMessageId);
