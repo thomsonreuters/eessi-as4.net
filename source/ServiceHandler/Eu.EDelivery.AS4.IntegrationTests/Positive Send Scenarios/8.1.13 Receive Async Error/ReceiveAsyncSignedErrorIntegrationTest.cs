@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using Eu.EDelivery.AS4.IntegrationTests.Attributes;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -43,7 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             xmlDocument.Save(_as4MessagesPath);
         }
 
-        [RetryFact(MaxRetries = 2)]
+        [Retry(maxRetries: 2)]
         public async void ThenSendAsyncErrorSucceedsAsync()
         {
             // Before
