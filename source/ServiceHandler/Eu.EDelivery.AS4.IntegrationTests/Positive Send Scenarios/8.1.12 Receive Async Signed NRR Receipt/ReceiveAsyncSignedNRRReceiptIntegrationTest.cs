@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = PollingAt(AS4ReceiptsPath, "*.xml", 2000);
+            bool areFilesFound = PollingAt(AS4ReceiptsPath, "*.xml");
             if (areFilesFound)
             {
                 Console.WriteLine(@"Receive Async Signed NRR Receipt Integration Test succeeded!");
