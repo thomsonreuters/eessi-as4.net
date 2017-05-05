@@ -1,8 +1,7 @@
-﻿using System.IO;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -18,6 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// Describes how an <see cref="AS4Message"/> 
     /// is being used to create a <see cref="DeliverMessage"/>
     /// </summary>
+    [Obsolete("This step has been replaced by a Transformer")]
     public class CreateDeliverMessageStep : IStep
     {
         private readonly ILogger _logger;

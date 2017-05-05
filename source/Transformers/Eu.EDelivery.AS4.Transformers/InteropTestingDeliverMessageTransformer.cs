@@ -1,58 +1,39 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
-using Eu.EDelivery.AS4.Model.Internal;
-using NLog;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
-namespace Eu.EDelivery.AS4.Steps.Deliver
+namespace Eu.EDelivery.AS4.Transformers
 {
     [ExcludeFromCodeCoverage]
-    [Obsolete]
-    public class InteropTestCreateDeliverMessageStep : IStep
+    public class InteropTestingDeliverMessageTransformer : DeliverMessageTransformer
     {
-        // TODO: this Step should be replaced by a Transformer.
+        private const string InteropUriPrefix = "http://www.esens.eu/as4/interoptest";
 
-        private const string ConformanceUriPrefix = "http://www.esens.eu/as4/interoptest";
-        private readonly ILogger _logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConformanceTestCreateDeliverMessageStep"/>
-        /// </summary>
-        public InteropTestCreateDeliverMessageStep()
+        protected override DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
-
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {
-            this._logger.Info("Create Deliver Message");
-
-            var deliverMessage = CreateDeliverMessage(internalMessage);
+            var deliverMessage = CreateMinderDeliverMessage(as4Message);
 
             // The Minder Deliver Message should be an AS4-Message.
             var builder = new AS4MessageBuilder();
 
             builder.WithUserMessage(deliverMessage);
 
-            foreach (var att in internalMessage.AS4Message.Attachments)
+            foreach (var att in as4Message.Attachments)
             {
                 builder.WithAttachment(att);
             }
 
             var msg = builder.Build();
 
-            var serializer = Registry.Instance.SerializerProvider.Get(msg.ContentType);
+            var serializer = Common.Registry.Instance.SerializerProvider.Get(msg.ContentType);
 
             byte[] content;
 
@@ -62,34 +43,37 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 content = memoryStream.ToArray();
             }
 
-
-            internalMessage.DeliverMessage = new DeliverMessageEnvelope(new MessageInfo()
+            return new DeliverMessageEnvelope(
+                new MessageInfo()
                 {
                     MessageId = deliverMessage.MessageId,
                     RefToMessageId = deliverMessage.RefToMessageId
                 },
                 content,
                 msg.ContentType);
-
-            return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private UserMessage CreateDeliverMessage(InternalMessage internalMessage)
+        private static UserMessage CreateMinderDeliverMessage(AS4Message as4Message)
         {
-            UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
+            UserMessage userMessage = as4Message.PrimaryUserMessage;
 
-            UserMessage deliverMessage = new UserMessage(userMessage.MessageId);
-            deliverMessage.RefToMessageId = userMessage.RefToMessageId;
-            deliverMessage.Timestamp = userMessage.Timestamp;
+            UserMessage deliverMessage = new UserMessage(userMessage.MessageId)
+            {
+                RefToMessageId = userMessage.RefToMessageId,
+                Timestamp = userMessage.Timestamp,
+                CollaborationInfo =
+                {
+                    Action = "Deliver",
+                    Service = {Value = InteropUriPrefix},
+                    ConversationId = userMessage.CollaborationInfo.ConversationId
+                },
+                Sender = new Party($"{InteropUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
+                Receiver = new Party($"{InteropUriPrefix}/testdriver", new PartyId("minder"))
+            };
 
-            deliverMessage.CollaborationInfo.Action = "Deliver";
-            deliverMessage.CollaborationInfo.Service.Value = ConformanceUriPrefix;
-            deliverMessage.CollaborationInfo.ConversationId = userMessage.CollaborationInfo.ConversationId;
 
             // Party Information: sender is the receiver of the AS4Message that has been received.
             //                    receiver is minder.
-            deliverMessage.Sender = new Party($"{ConformanceUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
-            deliverMessage.Receiver = new Party($"{ConformanceUriPrefix}/testdriver", new PartyId("minder"));
 
             // Set the PayloadInfo.
             foreach (var pi in userMessage.PayloadInfo)
@@ -117,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return deliverMessage;
         }
 
-        private void AddMessageProperty(UserMessage message, string propertyName, string propertyValue)
+        private static void AddMessageProperty(UserMessage message, string propertyName, string propertyValue)
         {
             if (propertyValue == null)
             {
