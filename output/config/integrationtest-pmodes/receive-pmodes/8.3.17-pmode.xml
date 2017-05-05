@@ -83,7 +83,7 @@
     <DeliverMethod>
       <Type>HTTP</Type>
       <Parameters>
-          <Parameter name="location" value="http://localhost:5000/"/>
+          <Parameter name="location" value="http://localhost:4001/"/>
         </Parameters>
     </DeliverMethod>
   </Deliver>

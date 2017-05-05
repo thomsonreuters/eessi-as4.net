@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -8,7 +9,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._15_Se
     public class SendSinglePayloadHttpSubmitTest : IntegrationTestTemplate
     {
         [Fact]
-        public void RunIntegrationTest()
+        public async Task RunIntegrationTest()
         {
             // Before
             CleanUpFiles(HolodeckBInputPath);
@@ -25,7 +26,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._15_Se
             CopyPModeToHolodeckB("8.1.15-pmode.xml");
 
             // Act
-            stubSender.SendMessage(Properties.Resources.submitmessage_8_1_15_xml, "application/xml");
+            await stubSender.SendMessage(Properties.Resources.submitmessage_8_1_15_xml, "application/xml");
 
             // Assert
             Assert.True(PollingAt(AS4ReceiptsPath), "Send Single Payload HTTP Submit failed");

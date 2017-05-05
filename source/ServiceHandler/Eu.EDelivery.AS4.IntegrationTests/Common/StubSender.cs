@@ -106,14 +106,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         private async Task<AS4Message> HandleWebResponse(HttpWebRequest webRequest)
         {
-            using (WebResponse responseStream = webRequest.GetResponse())
+            using (WebResponse webResponse = webRequest.GetResponse())
             {
                 if (HandleResponse != null)
                 {
-                    return HandleResponse(responseStream);
+                    return HandleResponse(webResponse);
                 }
 
-                return await GetAS4ResponseAsync(responseStream);
+                return await GetAS4ResponseAsync(webResponse as HttpWebResponse);
             }
         }
 
@@ -124,11 +124,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 return HandleResponse(webException.Response);
             }
 
-            return await GetAS4ResponseAsync(webException.Response);
+            return await GetAS4ResponseAsync(webException.Response as HttpWebResponse);
         }
 
-        private static async Task<AS4Message> GetAS4ResponseAsync(WebResponse response)
+        private static async Task<AS4Message> GetAS4ResponseAsync(HttpWebResponse response)
         {
+            if (response.StatusCode == HttpStatusCode.Accepted)
+            {
+                return new AS4Message();
+            }
+
             string contentType = response.ContentType;
             Stream responseStream = response.GetResponseStream();
 
