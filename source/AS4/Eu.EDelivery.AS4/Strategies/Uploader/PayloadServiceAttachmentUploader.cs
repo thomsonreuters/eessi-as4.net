@@ -74,6 +74,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
 
         private static async Task<UploadResult> DeserializeResponseAsUploadResult(HttpResponseMessage response)
         {
+            Logger.Debug("Deserialize response to 'UploadResult'...");
             string serializedContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return JsonConvert.DeserializeObject<UploadResult>(serializedContent);
         }
