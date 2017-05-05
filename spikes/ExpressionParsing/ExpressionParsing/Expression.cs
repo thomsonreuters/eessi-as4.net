@@ -28,13 +28,15 @@ namespace ExpressionParsing
 
             foreach (string token in Tokenize(expression))
             {
-                if (token.Equals(")"))
+                bool isClosingParenthesis = token.Equals(")");
+                if (isClosingParenthesis)
                 {
                     stack.Push(EvaluateEverythingInsideParenthesis(stack));
                 }
                 else
                 {
-                    stack.Push(token.Contains("=") ? EqualEvaluate(token) : token);
+                    bool isEqualityOperator = token.Contains("=");
+                    stack.Push(isEqualityOperator ? EqualEvaluate(token) : token);
                 }
             }
 
