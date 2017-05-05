@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
@@ -11,6 +12,7 @@ using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -27,15 +29,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public class GivenValidArguments : GivenCreateAS4ErrorStepFacts
         {
+            public IStep Step => new CreateAS4ErrorStep(new StubMessageBodyPersister(), () => new DatastoreContext(Options));
+
             [Fact]
             public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
             {
                 // Arrange
                 var internalMessage = new InternalMessage {Exception = null};
-                var step = new CreateAS4ErrorStep();
 
                 // Act
-                StepResult result = await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.Equal(internalMessage, result.InternalMessage);
@@ -48,10 +51,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Exception as4Exception = CreateFilledAS4Exception();
                 AS4Message as4Message = CreateFilledAS4Message();
                 var internalMessage = new InternalMessage {Exception = as4Exception, AS4Message = as4Message};
-                var step = new CreateAS4ErrorStep();
-
+                
                 // Act
-                StepResult result = await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 var error = result.InternalMessage.AS4Message.PrimarySignalMessage as Error;
@@ -67,10 +69,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Exception as4Exception = CreateFilledAS4Exception();
                 AS4Message as4Message = CreateFilledAS4Message();
                 var internalMessage = new InternalMessage {Exception = as4Exception, AS4Message = as4Message};
-                var step = new CreateAS4ErrorStep();
 
                 // Act
-                StepResult result = await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.Equal(as4Message.ReceivingPMode, result.InternalMessage.AS4Message.ReceivingPMode);
@@ -86,10 +87,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 as4Message.SigningId = new SigningId("header-id", "body-id");
 
                 var internalMessage = new InternalMessage {Exception = as4Exception, AS4Message = as4Message};
-                var step = new CreateAS4ErrorStep();
 
                 // Act
-                StepResult result = await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
                 Assert.Equal(as4Message.SigningId, result.InternalMessage.AS4Message.SigningId);

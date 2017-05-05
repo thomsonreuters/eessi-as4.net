@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -21,11 +22,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private readonly ILogger _logger;
         private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
+        private readonly Func<DatastoreContext> _createDatastore;
 
         /// <summary>
-        /// Initializes a new instance of the type <see cref="CreateAS4ErrorStep"/> class
+        /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
-        public CreateAS4ErrorStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
+        public CreateAS4ErrorStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister, Registry.Instance.CreateDatastoreContext)
         {
             _logger = LogManager.GetCurrentClassLogger();
         }
@@ -34,9 +36,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class
         /// </summary>
         /// <param name="as4MessageBodyPersister">The <see cref="IAS4MessageBodyPersister"/> that must be used to persist the MessageBody.</param>
-        public CreateAS4ErrorStep(IAS4MessageBodyPersister as4MessageBodyPersister)
+        /// <param name="createDatastoreContext">The context in which teh datastore context is set.</param>
+        public CreateAS4ErrorStep(IAS4MessageBodyPersister as4MessageBodyPersister, Func<DatastoreContext> createDatastoreContext)
         {
             _as4MessageBodyPersister = as4MessageBodyPersister;
+            _createDatastore = createDatastoreContext;
         }
 
         /// <summary>
@@ -45,6 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (ShouldCreateError(internalMessage) == false)
@@ -52,16 +57,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            var errorMessage = CreateAS4ErrorMessage(internalMessage);
+            AS4Message errorMessage = CreateAS4ErrorMessage(internalMessage);
 
             // Save the Error Message as well .... 
-            using (var db = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext db = _createDatastore())
             {
                 var service = new OutMessageService(new DatastoreRepository(db), _as4MessageBodyPersister);
 
                 // The service will determine the correct operation for each message-part.
                 await service.InsertAS4Message(errorMessage, Operation.NotApplicable, cancellationToken);
-
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
@@ -74,25 +78,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             var builder = new AS4MessageBuilder();
 
-            // Create an Error for every UserMessage that exists in the AS4Message
-            foreach (var userMessage in internalMessage.AS4Message.UserMessages)
-            {
-                var error = CreateError(internalMessage.Exception, userMessage.MessageId, internalMessage.AS4Message);
-
-                builder.WithSignalMessage(error);
-            }
+            CreateErrorForEveryUserMesageIn(internalMessage, error => builder.WithSignalMessage(error));
 
             if (internalMessage.AS4Message.ReceivingPMode != null)
             {
                 builder.WithReceivingPMode(internalMessage.AS4Message.ReceivingPMode);
             }
 
-            var errorMessage = builder.Build();
+            AS4Message errorMessage = builder.Build();
 
             errorMessage.SigningId = internalMessage.AS4Message.SigningId;
             errorMessage.SendingPMode = internalMessage.AS4Message.SendingPMode;
 
             return errorMessage;
+        }
+
+        private static void CreateErrorForEveryUserMesageIn(InternalMessage internalMessage, Action<Error> callback)
+        {
+            foreach (UserMessage userMessage in internalMessage.AS4Message.UserMessages)
+            {
+                Error error = CreateError(internalMessage.Exception, userMessage.MessageId, internalMessage.AS4Message);
+
+                callback(error);
+            }
         }
 
         private static bool ShouldCreateError(InternalMessage internalMessage)
