@@ -60,8 +60,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             _internalMessage = internalMessage;
 
-            
-
             await UploadAttachments(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
