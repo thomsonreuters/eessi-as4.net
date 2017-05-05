@@ -75,9 +75,9 @@
   <Deliver>
     <IsEnabled>true</IsEnabled>
      <PayloadReferenceMethod >
-      <Type>PAYLOAD-SERVICE</Type>
+      <Type>FILE</Type>
       <Parameters>
-          <Parameter name="location" value="http://localhost:3000/api/Payload/Upload/"/>
+          <Parameter name="location" value=".\messages\in\"/>
         </Parameters>
     </PayloadReferenceMethod>
     <DeliverMethod>
