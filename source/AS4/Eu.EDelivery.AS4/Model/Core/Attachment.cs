@@ -46,11 +46,16 @@ namespace Eu.EDelivery.AS4.Model.Core
             InitializeDefaults();
         }
 
+        public bool Matches(PartInfo partInfo)
+        {
+            return partInfo.Href.Equals($"cid:{Id}");
+        }
+
         public void ResetContentPosition()
         {
             if (Content != null)
             {
-                StreamPositionMover.MovePositionToStreamStart(Content);                
+                StreamPositionMover.MovePositionToStreamStart(Content);
             }
         }
 
