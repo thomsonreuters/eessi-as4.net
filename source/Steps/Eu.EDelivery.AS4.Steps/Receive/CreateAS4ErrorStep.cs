@@ -20,17 +20,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class CreateAS4ErrorStep : IStep
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
         private readonly Func<DatastoreContext> _createDatastore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
-        public CreateAS4ErrorStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister, Registry.Instance.CreateDatastoreContext)
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        public CreateAS4ErrorStep()
+            : this(Config.Instance.OutgoingAS4MessageBodyPersister, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class
@@ -74,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Message CreateAS4ErrorMessage(InternalMessage internalMessage)
         {
-            _logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
+            Logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
 
             var builder = new AS4MessageBuilder();
 

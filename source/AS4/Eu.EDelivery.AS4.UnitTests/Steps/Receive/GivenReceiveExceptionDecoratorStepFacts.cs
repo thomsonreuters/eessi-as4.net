@@ -14,6 +14,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
@@ -105,11 +106,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
         }
 
-        private static IStep GetCatchedCompositeSteps(IStep catchedStep = null)
+        private IStep GetCatchedCompositeSteps(IStep catchedStep = null)
         {
             return new CompositeStep(
                 new ReceiveExceptionStepDecorator(catchedStep ?? new SinkStep()),
-                new CreateAS4ErrorStep(),
+                new CreateAS4ErrorStep(new StubMessageBodyPersister(), () => new DatastoreContext(Options)),
                 new SendAS4ErrorStep());
         }
 
