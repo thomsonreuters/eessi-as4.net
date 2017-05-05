@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         private static void CleanUpDirectory(string directoryPath)
         {
             EnsureDirectory(directoryPath);
-            Directory.Delete(directoryPath, recursive: true);
+            Try(() => Directory.Delete(directoryPath, recursive: true));
         }
 
         /// <summary>
@@ -117,20 +117,20 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 if (predicateFile == null || predicateFile(file))
                 {
-                    TryDeleteFile(file);
+                    Try(() => File.Delete(file));
                 }
             }
         }
 
-        private static void TryDeleteFile(string file)
+        private static void Try(Action action)
         {
             try
             {
-                File.Delete(file);
+                action();
             }
-            catch
+            catch (Exception e)
             {
-                // ignored
+                Console.WriteLine(e);
             }
         }
 
