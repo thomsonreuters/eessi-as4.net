@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 
-        [Fact]
+        [Retry(MaxRetries = 3)]
         public async void ThenSendAsyncErrorSucceedsAsync()
         {
             // Before

@@ -124,13 +124,23 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         private static void Try(Action action)
         {
+            if (!TryOnce(action))
+            {
+                TryOnce(action);
+            }
+        }
+
+        private static bool TryOnce(Action action)
+        {
             try
             {
                 action();
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                return false;
             }
         }
 
