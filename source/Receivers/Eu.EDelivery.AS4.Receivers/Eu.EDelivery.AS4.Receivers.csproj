@@ -63,6 +63,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Specifications\DatastoreSpecification.cs" />
     <Compile Include="Specifications\ExpressionDatastoreSpecification.cs" />
+    <Compile Include="Specifications\Expressions\AndExpression.cs" />
+    <Compile Include="Specifications\Expressions\BooleanExpression.cs" />
+    <Compile Include="Specifications\Expressions\EqualExpression.cs" />
+    <Compile Include="Specifications\Expressions\NotSameExpression.cs" />
+    <Compile Include="Specifications\Expressions\SameExpression.cs" />
+    <Compile Include="Specifications\Expressions\OrExpression.cs" />
+    <Compile Include="Specifications\Expressions\Token.cs" />
     <Compile Include="Specifications\IDatastoreSpecification.cs" />
   </ItemGroup>
   <ItemGroup>

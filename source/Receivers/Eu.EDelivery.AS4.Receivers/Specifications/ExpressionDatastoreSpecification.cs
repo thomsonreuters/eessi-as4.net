@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Receivers.Specifications.Expressions;
 using Expression = System.Linq.Expressions.Expression<System.Func<Eu.EDelivery.AS4.Common.DatastoreContext,
             System.Collections.Generic.IEnumerable<Eu.EDelivery.AS4.Entities.Entity>>>;
 
@@ -31,7 +30,20 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
         /// <returns></returns>
         public Expression GetExpression()
         {
+            ThrowIfInvalidFilter(_arguments.Filter);
+
             return x => GetExpression(x);
+        }
+
+        private static void ThrowIfInvalidFilter(string filter)
+        {
+            bool expressionHasntEqualOpenAndClosingParenthesis =
+                filter.Count(c => c.Equals('(')) != filter.Count(c => c.Equals(')'));
+
+            if (expressionHasntEqualOpenAndClosingParenthesis)
+            {
+                throw new FormatException("Expression doesn't contain as much '(' as ')'");
+            }
         }
 
         private IEnumerable<Entity> GetExpression(DatastoreContext datastoreContext)
@@ -58,41 +70,32 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
 
         private bool Where<T>(T databaseSet)
         {
-            var stack = new Stack<string>();
+            var tokens = new Stack<Token>();
 
-            foreach (string token in Tokenize(_arguments.Filter))
+            foreach (Token token in Token.Tokenize(_arguments.Filter))
             {
-                bool isParenthesisClosed = token.Equals(")");
-                if (isParenthesisClosed)
+                if (token.IsClosedParenthesis)
                 {
-                    stack.Push(EvaluateEverythingInsideParenthesis(stack));
+                    tokens.Push(EvaluateEverythingInsideParenthesis(tokens));
                 }
                 else
                 {
-                    bool isEqualExpression = token.Contains("=");
-                    stack.Push(isEqualExpression ? EqualEvaluate(token, databaseSet) : token);
+                    tokens.Push(
+                       token.IsEqualExpression
+                           ? Token.CreateToken(EqualExpression.Equals(token.Expression, databaseSet))
+                           : token);
                 }
             }
 
-            bool.TryParse(LogicalEval(stack.ToArray()), out var outcome);
-            return outcome;
+            return LogicalEval(tokens.ToArray()).Evaluate;
         }
 
-        private static IEnumerable<string> Tokenize(string filter)
+        private static Token EvaluateEverythingInsideParenthesis(Stack<Token> stack)
         {
-            return
-                Regex.Split(filter, @"(AND|OR|\(|\))")
-                     .Select(t => t.Trim())
-                     .Where(t => !string.IsNullOrEmpty(t))
-                     .ToArray();
-        }
+            var everythingInParenthesis = new List<Token>();
+            Token nextToken = stack.Pop();
 
-        private static string EvaluateEverythingInsideParenthesis(Stack<string> stack)
-        {
-            var everythingInParenthesis = new List<string>();
-            string nextToken = stack.Pop();
-
-            while (!nextToken.Equals("("))
+            while (!nextToken.IsOpenParenthesis)
             {
                 everythingInParenthesis.Add(nextToken);
                 nextToken = stack.Pop();
@@ -101,11 +104,11 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
             return LogicalEval(everythingInParenthesis.ToArray());
         }
 
-        private static string LogicalEval(IEnumerable<string> expression)
+        private static Token LogicalEval(IEnumerable<Token> expression)
         {
-            var stack = new Stack<string>();
+            var stack = new Stack<Token>();
 
-            foreach (string token in expression)
+            foreach (Token token in expression)
             {
                 stack.Push(token);
 
@@ -118,64 +121,18 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
             return stack.Pop();
         }
 
-        private static string EvaluateBooleanExpression(Stack<string> stack)
+        private static Token EvaluateBooleanExpression(Stack<Token> stack)
         {
-            bool.TryParse(stack.Pop(), out var left);
-            bool.TryParse(stack.Pop(), out var right);
+            string leftValue = stack.Pop().Expression;
+            string operatorValue = stack.Pop().Expression;
+            string rightValue = stack.Pop().Expression;
 
-            return LogicalExpressions[stack.Pop()](left, right).ToString();
+            string expression = BooleanExpression
+                .For(operatorValue)
+                .Evaluate(leftValue, rightValue)
+                .ToString();
+
+            return Token.CreateToken(expression);
         }
-
-        private static readonly Dictionary<string, Func<bool, bool, bool>> LogicalExpressions =
-            new Dictionary<string, Func<bool, bool, bool>>
-            {
-                ["AND"] = (a, b) => a && b,
-                ["OR"] = (a, b) => a || b
-            };
-
-        private static string EqualEvaluate<T>(string expression, T databaseSet)
-        {
-            string separator = expression.Contains("!=") ? "!=" : "=";
-            string[] entries =
-                expression.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries)
-                          .Select(e => e.Trim())
-                          .ToArray();
-
-            string left = entries[0];
-            string right = entries[1];
-
-            return EqualExpressions[separator](left, right, databaseSet).ToString();
-        }
-
-        private static readonly Dictionary<string, Func<string, string, object, bool>> EqualExpressions =
-            new Dictionary<string, Func<string, string, object, bool>>
-            {
-                ["!="] = (columnName, columnValue, databaseSet) => !IsEqual(columnName, columnValue, databaseSet),
-                ["="] = (columnName, columnValue, databaseSet) => IsEqual(columnName, columnValue, databaseSet)
-            };
-
-        private static bool IsEqual<T>(string columnName, string columnValue, T databaseSet)
-        {
-            PropertyInfo filterPropertyInfo = databaseSet.GetType().GetProperty(columnName);
-
-            object propertyValue = filterPropertyInfo.GetValue(databaseSet);
-            object configuredValue = ParseConfiguredValue(propertyValue, columnValue);
-
-            return propertyValue.Equals(configuredValue);
-        }
-
-        private static object ParseConfiguredValue(object propertyValue, string columnValue)
-        {
-            return Conversions.FirstOrDefault(c => c.Key(propertyValue)).Value(propertyValue, columnValue);
-        }
-
-        private static readonly Dictionary<Func<object, bool>, Func<object, string, object>> Conversions =
-            new Dictionary<Func<object, bool>, Func<object, string, object>>
-            {
-                [p => p.GetType().IsEnum] = (a, b) => Enum.Parse(a.GetType(), b),
-                [p => p is int] = (a, b) => Convert.ToInt32(b),
-                [p => p is string] = (a, b) => b,
-                [p => true] = (a, b) => default(object)
-            };
     }
 }
