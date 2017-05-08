@@ -444,6 +444,7 @@
     <Compile Include="Streaming\GivenStreamPositionMoverFacts.cs" />
     <Compile Include="Streaming\VirtualStreamFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenDeliverMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPModeToPullRequestTransformerFacts.cs" />
@@ -501,6 +502,7 @@
   <ItemGroup>
     <None Include="Resources\as4_encrypted_message" />
     <None Include="Resources\certificate-as4.pfx" />
+    <None Include="Resources\as4_single_payload.as4" />
     <None Include="Resources\holodeck-partya-certificate.pfx" />
     <None Include="Resources\partyC.p12" />
     <None Include="Resources\UserMessage.xml" />

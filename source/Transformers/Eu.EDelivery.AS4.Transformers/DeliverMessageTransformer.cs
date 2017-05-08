@@ -145,7 +145,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)
         {
-            deliverMessage.CollaborationInfo.AgreementRef.PModeId = as4Message.SendingPMode.Id ?? string.Empty;
+            deliverMessage.CollaborationInfo.AgreementRef.PModeId = as4Message.SendingPMode?.Id ?? string.Empty;
         }
 
         private static void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)
@@ -155,7 +155,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 Payload partInfo = deliverMessage.Payloads.FirstOrDefault(p => p.Id.Contains(attachment.Id));
                 if (partInfo != null)
                 {
-                    partInfo.Location = attachment.Location;
+                    partInfo.Location = attachment.Location ?? string.Empty;
                 }
             }
         }
