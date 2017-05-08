@@ -6,15 +6,15 @@ using SimpleHttpMock;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17_Receive_Single_Payload_with_HTTP_Deliver
 {
-    public class StubHttpDeliverTarget : IDisposable
+    public class SpyHttpDeliverTarget : IDisposable
     {
         private readonly ManualResetEvent _waitHandle;
         private MockedHttpServer _httpServer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StubHttpDeliverTarget"/> class.
+        /// Initializes a new instance of the <see cref="SpyHttpDeliverTarget"/> class.
         /// </summary>
-        public StubHttpDeliverTarget()
+        public SpyHttpDeliverTarget()
         {
             _waitHandle = new ManualResetEvent(initialState: false);
         }
@@ -34,10 +34,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
         /// </summary>
         /// <param name="location">The HTTP Location.</param>
         /// <returns></returns>
-        public static StubHttpDeliverTarget AtLocation(string location)
+        public static SpyHttpDeliverTarget AtLocation(string location)
         {
             var builder = new MockedHttpServerBuilder();
-            var target = new StubHttpDeliverTarget();
+            var target = new SpyHttpDeliverTarget();
 
             builder.WhenPost(location).RespondContent(
                 httpStatusCode: HttpStatusCode.OK,

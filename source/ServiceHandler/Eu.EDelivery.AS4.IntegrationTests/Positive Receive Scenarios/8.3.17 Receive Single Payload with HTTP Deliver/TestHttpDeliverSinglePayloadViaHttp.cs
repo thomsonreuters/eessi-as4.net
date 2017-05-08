@@ -11,16 +11,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
         {
             // Before
             CleanupFiles();
-            AS4Component.Start();
 
-            const string location = "http://localhost:5000/";
-            using (StubHttpDeliverTarget deliverTarget = StubHttpDeliverTarget.AtLocation(location))
+            const string location = "http://localhost:4001/";
+            using (SpyHttpDeliverTarget deliverTarget = SpyHttpDeliverTarget.AtLocation(location))
             {
                 // Arrange
                 CopyPModeToHolodeckA("8.3.17-pmode.xml");
+                CopyMessageToHolodeckA("8.3.17-sample.mmd");
 
                 // Act
-                CopyMessageToHolodeckA("8.3.17-sample.mmd");
+                AS4Component.Start();
 
                 // Assert
                 Assert.True(deliverTarget.IsCalled, "Receive Single Payload Deliver HTTP Integration Test failed");

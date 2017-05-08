@@ -16,18 +16,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
     /// </summary>
     public class GivenPullRequestReceiverFacts
     {
-        public class Configure : IDisposable
+        public class Configure
         {
-            private readonly ManualResetEvent _waitHandle;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Configure"/> class.
-            /// </summary>
-            public Configure()
-            {
-                _waitHandle = new ManualResetEvent(initialState: false);
-            }
-
             [Fact]
             public void FailsWithMissingIntervalAttributes()
             {
@@ -39,8 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 receiver.Configure(new[] {invalidReceiverSetting});
 
                 // Assert
-                receiver.StartReceiving(OnMessageReceived, CancellationToken.None);
-                Assert.False(_waitHandle.WaitOne(timeout: TimeSpan.FromSeconds(5)));
+                AssertOnMessageReceived(receiver);
             }
 
             [Fact]
@@ -54,24 +43,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 receiver.Configure(new[] {receiverSetting});
 
                 // Assert
-                receiver.StartReceiving(OnMessageReceived, CancellationToken.None);
-                Assert.False(_waitHandle.WaitOne(timeout: TimeSpan.FromSeconds(5)));
+                AssertOnMessageReceived(receiver);
             }
 
-            private Task<InternalMessage> OnMessageReceived(
-                ReceivedMessage receivedMessage,
-                CancellationToken cancellation)
+            private static void AssertOnMessageReceived(IReceiver receiver)
             {
-                _waitHandle.Set();
-                return Task.FromResult(new InternalMessage());
-            }
+                var waitHandle = new ManualResetEvent(initialState: false);
 
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
-            public void Dispose()
-            {
-                _waitHandle?.Dispose();
+                receiver.StartReceiving(
+                    (message, token) =>
+                    {
+                        waitHandle.Set();
+                        return Task.FromResult(new InternalMessage());
+                    }, CancellationToken.None);
+
+                Assert.False(waitHandle.WaitOne(TimeSpan.FromMilliseconds(500)));
             }
         }
 
