@@ -8,7 +8,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 
-namespace Eu.EDelivery.AS4.Transformers
+namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 {
     [ExcludeFromCodeCoverage]
     public class InteropTestingSubmitReceiveMessageTransformer : ITransformer

@@ -10,7 +10,7 @@ using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
-namespace Eu.EDelivery.AS4.Transformers
+namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 {
     [ExcludeFromCodeCoverage]
     public class InteropTestingDeliverMessageTransformer : DeliverMessageTransformer

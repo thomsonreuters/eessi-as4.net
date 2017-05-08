@@ -3,11 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
-using Eu.EDelivery.AS4.Model.Common;
 
-namespace Eu.EDelivery.AS4.Transformers
+namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 {
     [ExcludeFromCodeCoverage]
     public class ConformanceTestingDeliverMessageTransformer : DeliverMessageTransformer

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Serialization
@@ -37,6 +38,11 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public ISerializer Get(string contentType)
         {
+            if (string.IsNullOrWhiteSpace(contentType))
+            {
+                throw new ArgumentException(@"No content-type specified", nameof(contentType));
+            }
+
             foreach (string key in _serializers.Keys)
             {
                 if (KeyMatchesContentType(contentType, key))

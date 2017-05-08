@@ -445,10 +445,12 @@
     <Compile Include="Streaming\VirtualStreamFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenDeliverMessageTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenExceptionToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPModeToPullRequestTransformerFacts.cs" />
     <Compile Include="Transformers\GivenReceptionAwarenessTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenSignalToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />

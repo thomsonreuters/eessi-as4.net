@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -16,6 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     /// <summary>
     /// Testing <see cref="CreateNotifyMessageStep" />
     /// </summary>
+    [Obsolete("Replaced by GivenSignalToNotifyMessageTransformerFacts")]
     public class GivenCreateNotifyMessageStepFacts
     {
         private readonly CreateNotifyMessageStep _step;

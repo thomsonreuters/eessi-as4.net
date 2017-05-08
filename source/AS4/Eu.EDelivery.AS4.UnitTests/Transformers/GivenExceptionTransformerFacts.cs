@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -19,6 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// <summary>
     /// Testing <see cref="ExceptionTransformer" />
     /// </summary>
+    [Obsolete("ExceptionTransformer is obsolete")]
     public class GivenExceptionTransformerFacts
     {
         public GivenExceptionTransformerFacts()

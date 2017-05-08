@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
@@ -13,6 +14,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// <summary>
     /// Describes how an ebMS SignalMessage is created into a <see cref="NotifyMessage"/>
     /// </summary>
+    [Obsolete("Has been replaced by a Transformer")]
     public class CreateNotifyMessageStep : IStep
     {
         private readonly ILogger _logger;
