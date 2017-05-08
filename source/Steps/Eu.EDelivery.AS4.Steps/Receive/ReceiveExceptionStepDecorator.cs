@@ -128,8 +128,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private void InitializeFields(InternalMessage internalMessage)
         {
-            if (internalMessage.AS4Message?.SecurityHeader.IsSigned == true
-                || internalMessage.AS4Message?.SecurityHeader.IsEncrypted == true)
+            if (internalMessage.AS4Message?.SecurityHeader.IsSigned == true ||
+                internalMessage.AS4Message?.SecurityHeader.IsEncrypted == true)
             {
                 internalMessage.AS4Message.SecurityHeader = new SecurityHeader();
             }
