@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     public class GivenDeliverMessageTransformerFacts
     {
         [Fact]
-        public async Task FailsToTransform_IfPayloadLocationIsMissing()
+        public async Task SucceedsToTransform_IfStreamIsSinglePayloadMessage()
         {
             // Arrange
             var sut = new DeliverMessageTransformer();
