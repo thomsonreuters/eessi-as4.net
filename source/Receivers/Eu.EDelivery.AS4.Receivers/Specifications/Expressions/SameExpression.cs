@@ -23,23 +23,32 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
             PropertyInfo filterPropertyInfo = databaseSet.GetType().GetProperty(columnName);
 
             object propertyValue = filterPropertyInfo.GetValue(databaseSet);
-            object configuredValue = ParseConfiguredValue(propertyValue, columnValue);
+            object configuredValue = Conversion.Convert(propertyValue, columnValue);
 
             return propertyValue.Equals(configuredValue);
         }
+    }
 
-        private static object ParseConfiguredValue(object propertyValue, string columnValue)
-        {
-            return Conversions.FirstOrDefault(c => c.Key(propertyValue)).Value(propertyValue, columnValue);
-        }
-
+    public static class Conversion
+    {
         private static readonly Dictionary<Func<object, bool>, Func<object, string, object>> Conversions =
             new Dictionary<Func<object, bool>, Func<object, string, object>>
             {
                 [p => p.GetType().IsEnum] = (a, b) => Enum.Parse(a.GetType(), b),
-                [p => p is int] = (a, b) => Convert.ToInt32(b),
+                [p => p is int] = (a, b) => System.Convert.ToInt32(b),
                 [p => p is string] = (a, b) => b,
                 [p => true] = (a, b) => default(object)
             };
+
+        /// <summary>
+        /// The convert.
+        /// </summary>
+        /// <param name="property">The property.</param>
+        /// <param name="value">The value.</param>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        public static object Convert(object property, string value)
+        {
+            return Conversions.FirstOrDefault(c => c.Key(property)).Value(property, value);
+        }
     }
 }

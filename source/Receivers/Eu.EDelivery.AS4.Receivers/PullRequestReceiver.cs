@@ -70,6 +70,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public override void StartReceiving(
             Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
             CancellationToken cancellationToken)
@@ -88,6 +89,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="intervalPullRequest"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         protected override async Task<Interval> OnRequestReceived(PModePullRequest intervalPullRequest)
         {
             InternalMessage resultedMessage = await _messageCallback(intervalPullRequest).ConfigureAwait(false);

@@ -252,7 +252,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public string Value { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Setting"/> class.
+        /// Prevents a default instance of the <see cref="Setting"/> class from being created. 
         /// </summary>
         private Setting() {}
 

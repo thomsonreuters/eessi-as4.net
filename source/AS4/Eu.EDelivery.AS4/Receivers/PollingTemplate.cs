@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Receivers
             return messagesToPoll
                 .Where(m => m != null)
                 .Select(message => 
-                    Task.Run(() => MessageReceived(message, messageCallback, cancellationToken))
+                    Task.Run(() => MessageReceived(message, messageCallback, cancellationToken), cancellationToken)
                         .ContinueWith(LogInnerExceptions, TaskContinuationOptions.OnlyOnFaulted));
         }
 

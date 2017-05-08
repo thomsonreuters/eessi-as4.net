@@ -346,6 +346,7 @@
     <Compile Include="Receivers\StubXmlAttribute.cs" />
     <Compile Include="Repositories\SaboteurMessageBodyRetriever.cs" />
     <Compile Include="Repositories\StubMessageBodyPersister.cs" />
+    <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

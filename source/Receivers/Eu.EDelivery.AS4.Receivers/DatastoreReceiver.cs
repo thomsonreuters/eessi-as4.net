@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Specifications;
+using Eu.EDelivery.AS4.Receivers.Specifications.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
@@ -21,12 +23,13 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
-        private IDatastoreSpecification _specification;
+        private readonly Func<DatastoreContext> _storeExpression;
 
-        private Func<DatastoreContext> _storeExpression;
+        private IDatastoreSpecification _specification;
         private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
         private string _updateValue;
         private IDictionary<string, string> _properties;
+        private IDictionary<string, string> _updates;
 
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
@@ -36,28 +39,17 @@ namespace Eu.EDelivery.AS4.Receivers
         public DatastoreReceiver()
         {
             _specification = new ExpressionDatastoreSpecification();
+            _storeExpression = () => new DatastoreContext(Config.Instance);
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
-        /// Create a Data Store Out Message Receiver with a given Data Store Context Delegate
+        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class. 
         /// </summary>
-        /// <param name="storeExpression">
-        /// </param>
-        /// <param name="findExpression">
-        /// </param>
-        /// <param name="updateValue">
-        /// </param>
-        public DatastoreReceiver(
-            Func<DatastoreContext> storeExpression,
-            Func<DatastoreContext, IEnumerable<Entity>> findExpression,
-            string updateValue)
+        /// <param name="storeExpression"></param>
+        public DatastoreReceiver(Func<DatastoreContext> storeExpression)
         {
             _storeExpression = storeExpression;
-            _findExpression = findExpression;
-
             _specification = new ExpressionDatastoreSpecification();
-            _updateValue = updateValue;
         }
 
         #region Configuration
@@ -101,7 +93,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
-            Configure(settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
+            Configure(
+                settings.GroupBy(s => s.Key, StringComparer.OrdinalIgnoreCase)
+                        .ToDictionary(s => s.Key, s => s.First().Value, StringComparer.OrdinalIgnoreCase));
+
+            _updates = RetrieveUpdates(settings);
         }
 
         /// <summary>
@@ -127,9 +123,16 @@ namespace Eu.EDelivery.AS4.Receivers
 
             _specification.Configure(args);
             _findExpression = _specification.GetExpression().Compile();
-            _storeExpression = () => new DatastoreContext(Config.Instance);
+            
 
             properties.TryGetValue(SettingKeys.UpdateValue, out _updateValue);
+        }
+
+        private static IDictionary<string, string> RetrieveUpdates(IEnumerable<Setting> settings)
+        {
+           return settings
+                .Where(s => s.Key.Equals("Update"))
+                .ToDictionary(s => s["field"].Value, s => s.Value);
         }
 
         #endregion
@@ -226,7 +229,15 @@ namespace Eu.EDelivery.AS4.Receivers
             // Make sure that all message-entities are locked before continue to process them.
             foreach (Entity entity in entities)
             {
-                entity.Lock(_updateValue);
+                foreach (KeyValuePair<string, string> update in _updates)
+                {
+                    PropertyInfo property = entity.GetType().GetProperty(update.Key);
+
+                    object propertyValue = property.GetValue(entity);
+                    object updateValue = Conversion.Convert(propertyValue, update.Value);
+
+                    property.SetValue(entity, updateValue);
+                }
             }
 
             context.SaveChanges();
