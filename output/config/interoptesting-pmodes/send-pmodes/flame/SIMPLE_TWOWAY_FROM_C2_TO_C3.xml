@@ -6,7 +6,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://fmstest.flame.co.za:8083/as4-c3</Url>
+      <Url>http://edelflame.westeurope.cloudapp.azure.com:8083/as4-c3</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>

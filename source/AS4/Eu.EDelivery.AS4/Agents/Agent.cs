@@ -180,6 +180,8 @@ namespace Eu.EDelivery.AS4.Agents
 
             if (internalMessage.Exception != null)
             {
+                // TODO: when Transforming a received message fails, we should log this in
+                // an exception table.
                 return internalMessage;
             }
 
