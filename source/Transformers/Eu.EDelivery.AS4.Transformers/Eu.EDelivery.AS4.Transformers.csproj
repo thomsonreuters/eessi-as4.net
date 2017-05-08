@@ -75,7 +75,6 @@
     <Compile Include="ConformanceTestTransformers\ConformanceTestingNotifyMessageTransformer.cs" />
     <Compile Include="DeliverMessageTransformer.cs" />
     <Compile Include="ExceptionToNotifyMessageTransformer.cs" />
-    <Compile Include="ExceptionTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingDeliverMessageTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingExceptionNotifyMessageTransformer.cs" />
     <Compile Include="InteropTestTransformers\InteropTestingNotifyMessageTransformer.cs" />
