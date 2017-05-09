@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,12 +10,11 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
     public class SubmitAgentFacts : ComponentTestTemplate
     {
+        // It would be nice if this could be extracted from the configuration.
+        private const string HttpSubmitAgentUrl = "http://localhost:7070/msh/";
 
         private readonly AS4Component _as4Msh = new AS4Component();
         private readonly HttpClient _httpClient = new HttpClient();
-
-        // It would be nice if this could be extracted from the configuration.
-        private static readonly string HttpSubmitAgentUrl = "http://localhost:7070/msh/";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubmitAgentFacts"/> class.
@@ -32,18 +30,22 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             [Fact]
             public async void ThenAgentRespondsWithHttpAccepted()
             {
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, GetValidSubmitMessage());
+                // Arrange
+                HttpRequestMessage request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, GetValidSubmitMessage());
 
-                using (var response = await _httpClient.SendAsync(request))
+                // Act
+                using (HttpResponseMessage response = await _httpClient.SendAsync(request))
                 {
+                    // Assert
                     Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
-                    Assert.True(String.IsNullOrWhiteSpace(response.Content.Headers.ContentType?.ToString()));
+                    Assert.True(string.IsNullOrWhiteSpace(response.Content.Headers.ContentType?.ToString()));
                 }
             }
 
             [Fact]
             public async void ThenAgentRespondsWithErrorWhenSubmitFails()
             {
+                // Arrange
                 const string submitMessageFile = @".\samples\messages\01-sample-message.xml";
 
                 Assert.True(File.Exists(submitMessageFile), "The SubmitMessage could not be found.");
@@ -52,12 +54,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 await Task.Delay(1000);
                 File.Delete(@".\database\messages.db");
 
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, File.ReadAllText(submitMessageFile));
-
-                using (var response = await _httpClient.SendAsync(request))
+                HttpRequestMessage request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, File.ReadAllText(submitMessageFile));
+                
+                // Act
+                using (HttpResponseMessage response = await _httpClient.SendAsync(request))
                 {
+                    // Assert
                     Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
-                    Assert.False(String.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
+                    Assert.False(string.IsNullOrWhiteSpace(await response.Content.ReadAsStringAsync()));
                 }
             }
 
@@ -80,10 +84,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             [Fact]
             public async void ThenAgentRespondsWithHttpBadRequest()
             {
-                var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, "");
+                // Arrange
+                HttpRequestMessage request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, string.Empty);
 
-                using (var response = await _httpClient.SendAsync(request))
+                // Act
+                using (HttpResponseMessage response = await _httpClient.SendAsync(request))
                 {
+                    // Assert
                     Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
                 }
             }
@@ -91,11 +98,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static HttpRequestMessage CreateRequestMessage(string url, HttpMethod method, string requestContent)
         {
-            var request = new HttpRequestMessage(method, url);
-
-            request.Content = new StringContent(requestContent);
-
-            return request;
+            return new HttpRequestMessage(method, url) {Content = new StringContent(requestContent)};
         }
 
         protected override void Disposing(bool isDisposing)

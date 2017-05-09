@@ -56,22 +56,20 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         [InlineData(100, 60)]
         [InlineData(500, 180)]
         [InlineData(1000, 500)]
-        //   [InlineData(5000, 1800)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
             // Arrange            
             TimeSpan maxExecutionTime = TimeSpan.FromSeconds(maxExecutionTimeInSeconds);
-
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+            Stopwatch sw = Stopwatch.StartNew();
 
             // Act
             Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
+            // Assert
             bool allMessagesDelivered =
                 Corner2.ExecuteWhenNumberOfReceiptsAreReceived(
-                    messageCount,
-                    () => { sw.Stop(); },
+                    numberOfReceipts: messageCount,
+                    action: sw.Stop,
                     timeout: maxExecutionTime);
 
             if (allMessagesDelivered == false)
@@ -81,7 +79,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             }
 
             Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
-
             _output.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
         }
     }

@@ -131,23 +131,23 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
         private static bool ExecuteWhenNumberOfFilesAreFoundInDirectory(string location, string searchPattern, int numberOfFiles, Action action, TimeSpan timeout)
         {
-            FileSystemWatcher fs = new FileSystemWatcher(location);
-            fs.IncludeSubdirectories = false;
+            var fileWatcher = new FileSystemWatcher(location)
+            {
+                IncludeSubdirectories = false,
+                EnableRaisingEvents = true
+            };
 
-            ManualResetEvent waiter = new ManualResetEvent(false);
-            bool allFilesFound = false;
+            var waiter = new ManualResetEvent(false);
+            var allFilesFound = false;
 
-            fs.EnableRaisingEvents = true;
-
-            object syncRoot = new object();
-
-            fs.Created += (o, args) =>
+            var syncRoot = new object();
+            fileWatcher.Created += (o, args) =>
             {
                 lock (syncRoot)
                 {
-                    if (Directory.GetFiles(location, searchPattern).Count() >= numberOfFiles)
+                    if (Directory.GetFiles(location, searchPattern).Length >= numberOfFiles)
                     {
-                        fs.EnableRaisingEvents = false;
+                        fileWatcher.EnableRaisingEvents = false;
                         allFilesFound = true;
                         action();
 
@@ -157,7 +157,6 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             };
 
             waiter.WaitOne(timeout);
-
             return allFilesFound;
         }
 
@@ -209,8 +208,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
                     var cornerInfo =
                         new ProcessStartInfo(
-                            Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
-                    cornerInfo.WorkingDirectory = cornerDirectory.FullName;
+                            Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"))
+                        {
+                            WorkingDirectory = cornerDirectory.FullName
+                        };
 
                     var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
                     Thread.Sleep(1000);
