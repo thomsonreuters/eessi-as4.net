@@ -285,7 +285,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         {
             FileInfo cornerSettings =
                 cornerDirectory.GetFiles("*.xml", SearchOption.AllDirectories)
-                               .FirstOrDefault(f => f.Name.Equals(cornerSettingsFileName));
+                               .FirstOrDefault(f => f.Name.Equals(cornerSettingsFileName, StringComparison.OrdinalIgnoreCase) && 
+                                                    f.DirectoryName?.IndexOf("performancetest-settings", StringComparison.OrdinalIgnoreCase) >-1);
 
             if (cornerSettings == null)
             {
@@ -357,8 +358,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                     return new DirectoryInfo(directoryPath);
                 };
 
-            DirectoryInfo volumeSendPModes = getPModeDirectory(@"volumetest-pmodes\send-pmodes"),
-                          volumeReceivePModes = getPModeDirectory(@"volumetest-pmodes\receive-pmodes");
+            DirectoryInfo volumeSendPModes = getPModeDirectory(@"performancetest-settings\send-pmodes"),
+                          volumeReceivePModes = getPModeDirectory(@"performancetest-settings\receive-pmodes");
 
             DirectoryInfo outputSendPModes = getPModeDirectory(@"send-pmodes"),
                           outputReceivePModes = getPModeDirectory(@"receive-pmodes");
