@@ -15,7 +15,7 @@ you should install this P-Mode on instance B.
         <Role>Sender</Role>
          <SecurityConfiguration>
             <Signing>
-                <KeystoreAlias>partya</KeystoreAlias>
+                <KeystoreAlias>accesspointa</KeystoreAlias>
             </Signing>
         </SecurityConfiguration>
     </Initiator>

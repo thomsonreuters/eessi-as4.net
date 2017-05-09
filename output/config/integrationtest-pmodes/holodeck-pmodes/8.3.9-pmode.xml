@@ -17,12 +17,12 @@ install this P-Mode on instance A.
         <Role>Sender</Role>
         <SecurityConfiguration>
             <Encryption>
-                <KeystoreAlias password="ExampleA">partya</KeystoreAlias>
+                <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
             </Encryption>
             <Signing>
-                <KeystoreAlias password="ExampleA">partya</KeystoreAlias>
+                <KeystoreAlias password="Pz4cZK4SULUwmraZa">accesspointa</KeystoreAlias>
                 <KeyReferenceMethod>IssuerSerial</KeyReferenceMethod>
-                <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha384</Algorithm>
+                <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha384</Algorithm>    
             </Signing>
         </SecurityConfiguration>
     </Initiator>
@@ -31,7 +31,7 @@ install this P-Mode on instance A.
         <Role>Receiver</Role>
         <SecurityConfiguration>
             <Encryption>
-                <KeystoreAlias password="ExampleA">partya</KeystoreAlias>
+                <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
             </Encryption>
         </SecurityConfiguration>
     </Responder>

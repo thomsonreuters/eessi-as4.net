@@ -39,7 +39,7 @@
     </SigningVerification>
     <Decryption>
       <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>PartyA</PrivateKeyFindValue>
+      <PrivateKeyFindValue>AccessPointB</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
     </Decryption>
   </Security>
