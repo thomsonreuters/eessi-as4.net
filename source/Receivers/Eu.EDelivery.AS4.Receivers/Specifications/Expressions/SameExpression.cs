@@ -36,7 +36,6 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
             {
                 [p => p.GetType().IsEnum] = (a, b) => Enum.Parse(a.GetType(), b),
                 [p => p is int] = (a, b) => System.Convert.ToInt32(b),
-                [p => p is string] = (a, b) => b,
                 [p => true] = (a, b) => default(object)
             };
 

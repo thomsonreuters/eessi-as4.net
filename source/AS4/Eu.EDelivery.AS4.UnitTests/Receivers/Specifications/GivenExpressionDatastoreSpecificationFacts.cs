@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         [Theory]
         [InlineData("Operation = ToBeDelivered AND MEP = Push")]
         [InlineData("(Operation = ToBeDelivered OR MEP = Push) AND EbmsMessageType = UserMessage")]
-        [InlineData("(Operation = ToBeDelivered OR (MEP = Push AND EbmsMessageType = UserMessage))")]
+        [InlineData("(Operation = ToBeDelivered OR (MEP = Push AND EbmsMessageType != Receipt))")]
         public void GetsExpectedInMessage_IfAndExpression(string filter)
         {
             // Arrange

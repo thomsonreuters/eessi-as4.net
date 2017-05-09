@@ -25,10 +25,10 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private readonly Func<DatastoreContext> _storeExpression;
         private readonly IDatastoreSpecification _specification;
+        private readonly IDictionary<string, string> _properties;
+        private readonly IDictionary<string, string> _updates;
 
         private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
-        private IDictionary<string, string> _properties;
-        private IDictionary<string, string> _updates;
 
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
@@ -46,6 +46,7 @@ namespace Eu.EDelivery.AS4.Receivers
             _storeExpression = storeExpression;
             _specification = new ExpressionDatastoreSpecification();
             _updates = new Dictionary<string, string>();
+            _properties = new Dictionary<string, string>();
         }
 
         #region Configuration
@@ -63,11 +64,6 @@ namespace Eu.EDelivery.AS4.Receivers
             get
             {
                 TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
-
-                if (_properties == null)
-                {
-                    return defaultInterval;
-                }
 
                 return _properties.ContainsKey(SettingKeys.PollingInterval)
                            ? GetPollingIntervalFromProperties()
@@ -93,7 +89,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 settings.GroupBy(s => s.Key, StringComparer.OrdinalIgnoreCase)
                         .ToDictionary(s => s.Key, s => s.First().Value, StringComparer.OrdinalIgnoreCase));
 
-            _updates = RetrieveUpdates(settings);
+           RetrieveUpdates(settings)?.ToList().ForEach(_updates.Add);
         }
 
         /// <summary>
@@ -102,8 +98,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="properties"></param>
         private void Configure(IDictionary<string, string> properties)
         {
-            _properties = properties;
-
+            properties.ToList().ForEach(_properties.Add);
             _specification.Configure(CreateDatastoreArgsFrom(_properties));
             _findExpression = _specification.GetExpression().Compile();
         }
@@ -144,11 +139,6 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void LogReceiverSpecs(bool startReceiving)
         {
-            if (_properties == null)
-            {
-                return;
-            }
-            
             string action = startReceiving ? "Start" : "Stop";
             Logger.Debug($"{action} Receiving on Datastore {_specification.FriendlyExpression}");
         }

@@ -62,7 +62,7 @@
     <Compile Include="HttpReceiver.cs" />
     <Compile Include="Pull\PModePullRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Specifications\DatastoreSpecification.cs" />
+    <Compile Include="Specifications\DatastoreSpecificationArgs.cs" />
     <Compile Include="Specifications\ExpressionDatastoreSpecification.cs" />
     <Compile Include="Specifications\Expressions\AndExpression.cs" />
     <Compile Include="Specifications\Expressions\BooleanExpression.cs" />
