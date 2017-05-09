@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        /// <exception cref="AS4Exception">Throws exception if the data store cannot be updated</exception>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
         {
             Logger.Info($"{internalMessage.Prefix} Update Datastore with AS4 received message");
@@ -52,7 +52,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 var service = new InMessageService(repository, _messageBodyPersister);
                
                 await service.InsertAS4Message(internalMessage.AS4Message, token);
-
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
             }
 

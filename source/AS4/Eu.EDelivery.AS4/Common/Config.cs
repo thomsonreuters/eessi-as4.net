@@ -23,10 +23,10 @@ namespace Eu.EDelivery.AS4.Common
         private static readonly IConfig Singleton = new Config();
         private readonly IDictionary<string, string> _configuration;
         private readonly ILogger _logger;
+
         private List<SettingsAgent> _agents;
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
-
         private Settings _settings;
 
         internal Config()
@@ -48,20 +48,21 @@ namespace Eu.EDelivery.AS4.Common
         public bool PayloadServiceInProcess { get; private set; }
 
         /// <summary>
-        /// The <see cref="IAS4MessageBodyPersister"/> that must be used for incoming messages.
+        /// Gets the <see cref="IAS4MessageBodyPersister"/> that must be used for incoming messages.
         /// </summary>
-        public IAS4MessageBodyPersister IncomingAS4MessageBodyPersister { get; } = new AS4MessageBodyFilePersister(@".\database\as4messages\in", SerializerProvider.Default);
+        public IAS4MessageBodyPersister IncomingAS4MessageBodyPersister { get; } =
+            new AS4MessageBodyFilePersister(@".\database\as4messages\in", SerializerProvider.Default);
 
         /// <summary>
-        /// The <see cref="IAS4MessageBodyPersister"/> that must be used for outgoing messages.
+        /// Gets the <see cref="IAS4MessageBodyPersister" /> that must be used for outgoing messages.
         /// </summary>
-        public IAS4MessageBodyPersister OutgoingAS4MessageBodyPersister { get; } = new AS4MessageBodyFilePersister(@".\database\as4messages\out", SerializerProvider.Default);
+        public IAS4MessageBodyPersister OutgoingAS4MessageBodyPersister { get; } =
+            new AS4MessageBodyFilePersister(@".\database\as4messages\out", SerializerProvider.Default);
 
         public bool IsInitialized { get; private set; }
 
         /// <summary>
         /// Initialize Configuration
-        /// <exception cref="AS4Exception">Thrown when Local Configuration doesn't get retrieved correctly</exception>
         /// </summary>
         public void Initialize()
         {
