@@ -2,13 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Services;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
 {
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
-        public StoreAS4MessageStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister) {}
+        public StoreAS4MessageStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.
@@ -78,14 +78,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
-                var repository = new DatastoreRepository(context);
+                var service = new OutMessageService(new DatastoreRepository(context), _as4MessageBodyPersister);
 
-                OutMessageBuilder builder = OutMessageBuilder.ForAS4Message(as4Message).WithEbmsMessageType(MessageType.UserMessage);
-                OutMessage message = builder.Build(token);
-
-                message.Operation = Operation.ToBeSent;
-
-                repository.InsertOutMessage(message, _as4MessageBodyPersister);
+                await service.InsertAS4Message(as4Message, Operation.ToBeSent, token);
 
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
             }

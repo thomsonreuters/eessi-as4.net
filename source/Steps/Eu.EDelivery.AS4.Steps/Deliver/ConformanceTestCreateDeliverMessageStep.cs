@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -20,6 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// Assemble a <see cref="AS4Message"/> as Deliver Message
     /// </summary>
     [ExcludeFromCodeCoverage]
+    [Obsolete]
     public class ConformanceTestCreateDeliverMessageStep : IStep
     {
         // TODO: this Step should be replaced by a Transformer.

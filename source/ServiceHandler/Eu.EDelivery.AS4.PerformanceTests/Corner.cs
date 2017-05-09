@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         public int FirstDeliveredMessageLength(string searchPattern = "*")
         {
             FileInfo firstMessage = GetDeliveredFiles(searchPattern).FirstOrDefault();
-            return firstMessage != null ? (int) firstMessage.Length : 0;
+            return firstMessage != null ? (int)firstMessage.Length : 0;
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <returns></returns>
         public int CountDeliveredMessages(string searchPattern = "*")
         {
-           return GetDeliveredFiles(searchPattern).Length;
+            return GetDeliveredFiles(searchPattern).Length;
         }
 
         private FileInfo[] GetDeliveredFiles(string searchPattern = "*")
@@ -91,15 +91,51 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             return GetMessageDirectory(subDirectory: "in").GetFiles(searchPattern);
         }
 
+        /// <summary>
+        /// Count the number of files that are present in the Receipts directory.
+        /// </summary>
+        /// <returns></returns>
+        public int CountReceivedReceipts()
+        {
+            return GetMessageDirectory(subDirectory: "receipts").GetFiles().Length;
+        }
+
+        /// <summary>
+        /// Executes an Action when the specified <paramref name="numberOfReceipts"/> are received.
+        /// </summary>
+        /// <param name="numberOfReceipts"></param>
+        /// <param name="action"></param>
+        /// <param name="timeout">The maximum allowed timeframe before the method returns</param>
+        /// <returns>True if the specified number of receipts is received; otherwise false.</returns>
+        public bool ExecuteWhenNumberOfReceiptsAreReceived(int numberOfReceipts, Action action, TimeSpan timeout)
+        {
+            string receiptDirectory = GetMessageDirectory(subDirectory: "receipts").FullName;
+
+            return ExecuteWhenNumberOfFilesAreFoundInDirectory(receiptDirectory, "*.xml", numberOfReceipts, action, timeout);
+        }
+
+        /// <summary>
+        /// Executes an Action when the specified <paramref name="numberOfMessages"/> are delivered.
+        /// </summary>
+        /// <param name="numberOfMessages"></param>
+        /// <param name="action"></param>
+        /// <param name="timeout">The maximum allowed timeframe before the method returns</param>
+        /// <param name="searchPattern"></param>
+        /// <returns>True if the specified number of messages are delivered; otherwise false.</returns>
         public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
         {
             string deliverDirectoryName = GetMessageDirectory(subDirectory: "in").FullName;
 
-            FileSystemWatcher fs = new FileSystemWatcher(deliverDirectoryName);
+            return ExecuteWhenNumberOfFilesAreFoundInDirectory(deliverDirectoryName, searchPattern, numberOfMessages, action, timeout);
+        }
+
+        private static bool ExecuteWhenNumberOfFilesAreFoundInDirectory(string location, string searchPattern, int numberOfFiles, Action action, TimeSpan timeout)
+        {
+            FileSystemWatcher fs = new FileSystemWatcher(location);
             fs.IncludeSubdirectories = false;
 
             ManualResetEvent waiter = new ManualResetEvent(false);
-            bool allMessagesDelivered = false;
+            bool allFilesFound = false;
 
             fs.EnableRaisingEvents = true;
 
@@ -109,10 +145,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 lock (syncRoot)
                 {
-                    if (Directory.GetFiles(deliverDirectoryName, searchPattern).Count() >= numberOfMessages)
+                    if (Directory.GetFiles(location, searchPattern).Count() >= numberOfFiles)
                     {
                         fs.EnableRaisingEvents = false;
-                        allMessagesDelivered = true;
+                        allFilesFound = true;
                         action();
 
                         waiter.Set();
@@ -122,7 +158,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
             waiter.WaitOne(timeout);
 
-            return allMessagesDelivered;
+            return allFilesFound;
         }
 
         /// <summary>
@@ -132,6 +168,9 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         {
             CleanUpMessageDirectory("in");
             CleanUpMessageDirectory("out");
+            CleanUpMessageDirectory("receipts");
+            CleanUpMessageDirectory("errors");
+            CleanUpMessageDirectory("exceptions");
         }
 
         private void CleanUpMessageDirectory(string subDirectory)
@@ -147,6 +186,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private DirectoryInfo GetMessageDirectory(string subDirectory)
         {
             string deliverPath = Path.Combine(_cornerDirectory.FullName, "messages", subDirectory);
+
+            if (!Directory.Exists(deliverPath))
+            {
+                Directory.CreateDirectory(deliverPath);
+            }
+
             return new DirectoryInfo(deliverPath);
         }
 
@@ -162,21 +207,23 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 {
                     DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
 
-                var cornerInfo =
-                    new ProcessStartInfo(
-                        Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
-                cornerInfo.WorkingDirectory = cornerDirectory.FullName;
+                    var cornerInfo =
+                        new ProcessStartInfo(
+                            Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
+                    cornerInfo.WorkingDirectory = cornerDirectory.FullName;
 
-                var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
-                Thread.Sleep(1000);
+                    var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
+                    Thread.Sleep(1000);
 
-                return corner;
-            });
+                    return corner;
+                });
         }
 
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
         {
             var outputDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+            Console.WriteLine($@"Corner {cornerPrefix} Directory set on {outputDirectory.FullName}");
             DirectoryInfo cornerDirectory = CreateCornerIn(outputDirectory, $"output-{cornerPrefix}");
 
             CopyDirectory(outputDirectory, cornerDirectory.FullName);
@@ -208,7 +255,19 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             foreach (FileInfo file in files)
             {
                 string temppath = Path.Combine(destDirName, file.Name);
+                TryCopyFile(file, temppath);
+            }
+        }
+
+        private static void TryCopyFile(FileInfo file, string temppath)
+        {
+            try
+            {
                 file.CopyTo(temppath, overwrite: true);
+            }
+            catch (IOException exception)
+            {
+                Console.WriteLine(exception.Message);
             }
         }
 
@@ -233,6 +292,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 throw new FileNotFoundException($"Could not find the settings file: {cornerSettingsFileName}");
             }
 
+            Console.WriteLine($@"Copy settings file: {cornerSettingsFileName}");
             string newSettingsFilePath = Path.Combine(cornerDirectory.FullName, "config", "settings.xml");
             File.Copy(cornerSettings.FullName, newSettingsFilePath, overwrite: true);
 
@@ -245,11 +305,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             var xmlDocument = new XmlDocument();
             xmlDocument.LoadXml(xml);
 
-            string mshConnectionString = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']").InnerText;
+            XmlNode connectionStringNode = xmlDocument.SelectSingleNode("//*[local-name()='ConnectionString']");
+            if (connectionStringNode == null)
+            {
+                throw new XmlException($"No '<ConnectionString/>' node found in settings file: {newSettingsFilePath}");
+            }
+
+            string mshConnectionString = connectionStringNode.InnerText;
 
             // Modify the connectionstring so that we initially connect to the master - database.
             // Otherwise, the connection will fail if the database doesn't exist yet.
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(mshConnectionString);
+            var builder = new SqlConnectionStringBuilder(mshConnectionString);
             string databaseName = builder.InitialCatalog;
             builder.InitialCatalog = "master";
 
@@ -259,8 +325,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             {
                 sqlConnection.Open();
 
-                var dropDatabaseCommand = new SqlCommand($"DROP DATABASE IF EXISTS {sqlConnection.Database}", sqlConnection);
-                TryExecuteCommand(dropDatabaseCommand);
+                TryExecuteCommand(new SqlCommand($"DROP DATABASE IF EXISTS {databaseName}", sqlConnection));
             }
         }
 
@@ -268,6 +333,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         {
             try
             {
+                Console.WriteLine(dropDatabaseCommand.CommandText);
                 dropDatabaseCommand.ExecuteNonQuery();
             }
             catch (SqlException exception)
@@ -279,7 +345,17 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         private static void IncludeCornerPModesIn(FileSystemInfo cornerDirectory)
         {
             Func<string, DirectoryInfo> getPModeDirectory =
-                subFolder => new DirectoryInfo(Path.Combine(cornerDirectory.FullName, "config", subFolder));
+                subFolder =>
+                {
+                    string directoryPath = Path.Combine(cornerDirectory.FullName, "config", subFolder);
+
+                    if (!Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+
+                    return new DirectoryInfo(directoryPath);
+                };
 
             DirectoryInfo volumeSendPModes = getPModeDirectory(@"volumetest-pmodes\send-pmodes"),
                           volumeReceivePModes = getPModeDirectory(@"volumetest-pmodes\receive-pmodes");
@@ -287,7 +363,10 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             DirectoryInfo outputSendPModes = getPModeDirectory(@"send-pmodes"),
                           outputReceivePModes = getPModeDirectory(@"receive-pmodes");
 
+            Console.WriteLine($@"Copy '{volumeSendPModes.FullName}' to '{outputSendPModes.FullName}'");
             CopyFiles(volumeSendPModes, outputSendPModes.FullName);
+
+            Console.WriteLine($@"Copy '{volumeReceivePModes.FullName}' to '{outputReceivePModes.FullName}'");
             CopyFiles(volumeReceivePModes, outputReceivePModes.FullName);
         }
 

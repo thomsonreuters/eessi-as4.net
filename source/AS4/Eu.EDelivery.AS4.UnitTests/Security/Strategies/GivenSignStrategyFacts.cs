@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
 {
@@ -23,7 +24,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
     {       
         public class GivenValidArguments : GivenSignStrategyFacts
         {
-           
+            [Fact]
+            public void ThenSignStrategySignsCorrectlyAS4Message()
+            {
+                // Arrange
+                ISigningStrategy signingStrategy = CreateSignStrategyForSigning();
+
+                // Act
+                signingStrategy.SignSignature();
+
+                // Assert
+                XmlElement securityElement = CreateSecurityElement();
+                signingStrategy.AppendSignature(securityElement);
+                AssertSecurityElement(securityElement);
+            }
+
             private ISigningStrategy CreateSignStrategyForSigning()
             {
                 var signingId = new SigningId("header-id", "body-id");
@@ -32,6 +47,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 XmlDocument xmlDocument = SerializeAS4Message(as4Message);
 
                 return CreateDefaultSignStrategy(signingId, xmlDocument);
+            }
+
+            protected XmlDocument SerializeAS4Message(AS4Message as4Message)
+            {
+                var memoryStream = new MemoryStream();
+                var provider = new SerializerProvider();
+                ISerializer serializer = provider.Get(Constants.ContentTypes.Soap);
+                serializer.Serialize(as4Message, memoryStream, CancellationToken.None);
+
+                return LoadEnvelopeToDocument(memoryStream);
+            }
+
+            private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
+            {
+                envelopeStream.Position = 0;
+                var envelopeXmlDocument = new XmlDocument();
+                var readerSettings = new XmlReaderSettings { CloseInput = false };
+
+                using (XmlReader reader = XmlReader.Create(envelopeStream, readerSettings))
+                {
+                    envelopeXmlDocument.Load(reader);
+                }
+
+                return envelopeXmlDocument;
             }
 
             private static SigningStrategy CreateDefaultSignStrategy(SigningId signingId, XmlDocument xmlDocument)
@@ -46,20 +85,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 return signStrategy;
             }
 
-            [Fact]
-            public void ThenSignStrategySignsCorrectlyAS4Message()
+            private static XmlElement CreateSecurityElement()
             {
-                // Arrange
-                ISigningStrategy signingStrategy = CreateSignStrategyForSigning();
+                var xmlSecurityHeader = new XmlDocument();
+                XmlElement securityElement = xmlSecurityHeader.CreateElement(
+                    "Security",
+                    Constants.Namespaces.WssSecuritySecExt);
 
-                // Act
-                signingStrategy.SignSignature();
-
-                // Assert
-                XmlElement securityElement = CreateSecurityElement();
-                signingStrategy.AppendSignature(securityElement);
-
-                AssertSecurityElement(securityElement);
+                return securityElement;
             }
 
             private static void AssertSecurityElement(XmlNode securityElement)
@@ -77,10 +110,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 ISigningStrategy signingStrategy = CreateSignStrategyForVerifing();
-                VerifyConfig options = CreateVerifyConfig();
 
                 // Act
-                bool isValid = signingStrategy.VerifySignature(options);
+                bool isValid = signingStrategy.VerifySignature(EmptyVerifyConfig());
 
                 // Assert
                 Assert.True(isValid);
@@ -100,12 +132,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             private static XmlDocument CreateXmlDocument()
             {
                 var xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(Properties.Resources.as4_soap_signed_message);
+                xmlDocument.LoadXml(as4_soap_signed_message);
 
                 return xmlDocument;
             }
 
-            private static SecurityTokenReference CreateSecurityTokenReference(XmlDocument xmlDocument)
+            private static SecurityTokenReference CreateSecurityTokenReference(XmlNode xmlDocument)
             {
                 SecurityTokenReference reference = new BinarySecurityTokenReference();
                 XmlNode securityTokenElement =
@@ -123,14 +155,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 var xmlDocument = new XmlDocument();
-                xmlDocument.LoadXml(Properties.Resources.as4_soap_untrusted_signed_message);
+                xmlDocument.LoadXml(as4_soap_untrusted_signed_message);
 
                 SigningStrategy signStrategy = ConfigureDefaultSignStrategy(xmlDocument);
 
-                VerifyConfig options = CreateVerifyConfig();
-
                 // Act / Assert
-                var as4Exception = Assert.Throws<AS4Exception>(() => signStrategy.VerifySignature(options));
+                var as4Exception = Assert.Throws<AS4Exception>(
+                    () => signStrategy.VerifySignature(EmptyVerifyConfig()));
+
                 Assert.Equal(ErrorCode.Ebms0101, as4Exception.ErrorCode);
             }
 
@@ -143,41 +175,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             }
         }
 
-        protected XmlDocument SerializeAS4Message(AS4Message as4Message)
-        {
-            var memoryStream = new MemoryStream();
-            var provider = new SerializerProvider();
-            ISerializer serializer = provider.Get(Constants.ContentTypes.Soap);
-            serializer.Serialize(as4Message, memoryStream, CancellationToken.None);
-
-            return LoadEnvelopeToDocument(memoryStream);
-        }
-
-        private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
-        {
-            envelopeStream.Position = 0;
-            var envelopeXmlDocument = new XmlDocument();
-            var readerSettings = new XmlReaderSettings { CloseInput = false };
-
-            using (XmlReader reader = XmlReader.Create(envelopeStream, readerSettings))
-            {
-                envelopeXmlDocument.Load(reader);
-            }
-
-            return envelopeXmlDocument;
-        }
-
-        protected XmlElement CreateSecurityElement()
-        {
-            var xmlSecurityHeader = new XmlDocument();
-            XmlElement securityElement = xmlSecurityHeader.CreateElement(
-                "Security",
-                Constants.Namespaces.WssSecuritySecExt);
-
-            return securityElement;
-        }
-
-        protected VerifyConfig CreateVerifyConfig()
+        protected VerifyConfig EmptyVerifyConfig()
         {
             return new VerifyConfig {Attachments = new List<Attachment>()};
         }

@@ -8,7 +8,8 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Steps.Services;
+using Eu.EDelivery.AS4.Services;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -40,28 +41,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var inExceptionService = new InExceptionService(new DatastoreRepository(context));
 
                 try
                 {
-                    AS4Exception exception = GetPossibleThrownAS4Exception(internalMessage);
-
-                    if (exception == null)
-                    {
-                        return await _step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
-                    }
-
-                    _originalAS4Message = internalMessage.AS4Message;
-
-                    var result = await HandleImplicitError(internalMessage.AS4Message, inExceptionService).ConfigureAwait(false);
-
-                    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-
-                    return result;
+                    return await ExecuteNormalStepFlow(internalMessage, context, inExceptionService, cancellationToken);
                 }
                 catch (AS4Exception exception)
                 {
@@ -70,7 +59,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         // We were unable to process the received signal-message.  
                         // Make sure the InternalMessage contains an empty AS4Message so that
                         // no AS4 Message is written to the response stream.
-
                         internalMessage.Exception = exception;
                         internalMessage.AS4Message = new AS4MessageBuilder().Build();
 
@@ -79,7 +67,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                     InitializeFields(internalMessage);
 
-                    var result = await HandleInException(exception, internalMessage.AS4Message, inExceptionService).ConfigureAwait(false);
+                    StepResult result =
+                        await HandleInException(exception, internalMessage.AS4Message, inExceptionService)
+                            .ConfigureAwait(false);
                     await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
                     return result;
@@ -89,9 +79,32 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     _logger.Error($"An unexpected error occured: {exception.Message}");
                     _logger.Trace(exception.StackTrace);
                     AssignResponseHttpCode(internalMessage);
+
                     return await ReturnStepResult(internalMessage.AS4Message);
                 }
             }
+        }
+
+        private async Task<StepResult> ExecuteNormalStepFlow(
+            InternalMessage internalMessage,
+            DbContext context,
+            IInExceptionService inExceptionService,
+            CancellationToken cancellationToken)
+        {
+            AS4Exception exception = GetPossibleThrownAS4Exception(internalMessage);
+
+            if (exception == null)
+            {
+                return await _step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
+            }
+
+            _originalAS4Message = internalMessage.AS4Message;
+
+            StepResult result =
+                await HandleImplicitError(internalMessage.AS4Message, inExceptionService).ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+
+            return result;
         }
 
         private static AS4Exception GetPossibleThrownAS4Exception(InternalMessage internalMessage)
@@ -100,7 +113,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return error?.Exception;
         }
 
-        private async Task<StepResult> HandleImplicitError(AS4Message as4Message, InExceptionService inExceptionService)
+        private async Task<StepResult> HandleImplicitError(
+            AS4Message as4Message,
+            IInExceptionService inExceptionService)
         {
             var errorMessage = as4Message.PrimarySignalMessage as Error;
             if (errorMessage?.Exception != null)
@@ -122,7 +137,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             _originalAS4Message = internalMessage.AS4Message;
         }
 
-        private async Task<StepResult> HandleInException(AS4Exception exception, AS4Message as4Message, InExceptionService inExceptionService)
+        private async Task<StepResult> HandleInException(
+            AS4Exception exception,
+            AS4Message as4Message,
+            IInExceptionService inExceptionService)
         {
             inExceptionService.InsertAS4Exception(exception, as4Message);
 
@@ -139,7 +157,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             var internalMessage = new InternalMessage(as4Message);
             return await StepResult.SuccessAsync(internalMessage);
         }
-
 
         private static void AssignResponseHttpCode(InternalMessage internalMessage)
         {

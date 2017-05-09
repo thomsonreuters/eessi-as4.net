@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    new DatastoreRepository(context).InsertOutMessage(outMessage, StubMessageBodyPersister.Default);
+                    new DatastoreRepository(context).InsertOutMessage(outMessage);
 
                     await context.SaveChangesAsync();
                 }

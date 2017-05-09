@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
@@ -102,20 +103,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateMessageStatus(_originalAS4Message, Operation.Undetermined, OutStatus.Exception);
-
-                AS4Exception resultedException =
-                    AS4ExceptionBuilder.WithDescription("Failed to send AS4Message")
-                                       .WithInnerException(exception)
-                                       .Build();
-
-                return StepResult.Failed(resultedException);
+                UpdateMessageStatus(_originalAS4Message, Operation.Undetermined, OutStatus.Exception);               
             }
 
             AS4Exception as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
-            internalMessage.AS4Message?.SignalMessages?.Clear();
 
-            return StepResult.Failed(as4Exception, internalMessage);
+            // Insert the exception in the OutException table.
+            using (var context = _createDatastore())
+            {
+                var service = new OutExceptionService(context);
+                service.InsertAS4Exception(as4Exception, _originalAS4Message);
+
+                context.SaveChanges();
+            }
+
+            return StepResult.Failed(as4Exception, internalMessage).AndStopExecution();
         }
 
         private HttpWebRequest CreateWebRequest(AS4Message as4Message)
@@ -177,7 +179,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     ISerializer serializer = _provider.Get(as4Message.ContentType);
 
-                    serializer.Serialize(as4Message, requestStream, cancellationToken);
+                    await serializer.SerializeAsync(as4Message, requestStream, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (WebException exception)

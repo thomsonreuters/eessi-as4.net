@@ -281,7 +281,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
                 return ResourceManager.GetString("notify_error_path", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
@@ -291,7 +291,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
                 return System.Text.Encoding.UTF8.GetString((byte[])(obj));
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;PMode xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns=&quot;eu:edelivery:as4:pmode&quot;&gt;
@@ -338,6 +338,25 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         internal static string submit_output_path {
             get {
                 return ResourceManager.GetString("submit_output_path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;Collaboration&gt;
+        ///    &lt;AgreementRef&gt;
+        ///      &lt;PModeId&gt;8.1.15-pmode&lt;/PModeId&gt;
+        ///      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
+        ///    &lt;/AgreementRef&gt;
+        ///    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
+        ///    &lt;Action&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test&lt;/Action&gt;
+        ///    &lt;Service&gt;
+        ///      &lt;Value&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/se [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string submitmessage_8_1_15_xml {
+            get {
+                return ResourceManager.GetString("submitmessage_8_1_15_xml", resourceCulture);
             }
         }
         

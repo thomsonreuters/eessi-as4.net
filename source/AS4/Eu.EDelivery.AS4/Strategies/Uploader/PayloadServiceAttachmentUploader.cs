@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             }
             catch (Exception exception)
             {
-                Logger.Error(exception.Message);
+                Logger.Error(exception);
                 throw new AS4Exception(exception.Message);
             }
         }

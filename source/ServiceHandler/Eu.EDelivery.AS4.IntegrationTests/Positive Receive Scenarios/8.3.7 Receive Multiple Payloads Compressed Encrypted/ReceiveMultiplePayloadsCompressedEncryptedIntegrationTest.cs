@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
             this._holodeck = new Holodeck();
         }
 
-        [Fact]
+        [Retry(maxRetries: 2)]
         public void ThenReceiveMultiplePayloadsSignedSucceeds()
         {
             // Before
@@ -43,17 +43,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
 
             // Assert
             bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path);
-            if (areFilesFound) Console.WriteLine(@"Receive Multiple Payloads Compressed and Encrypted Integration Test succeeded!");
-            else Retry();
-        }
-
-        private void Retry()
-        {
-            var startDir = new DirectoryInfo(AS4FullInputPath);
-            FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
-
-            ValidatePolledFiles(files);
+            if (areFilesFound)
+            {
+                Console.WriteLine(@"Receive Multiple Payloads Compressed and Encrypted Integration Test succeeded!");
+            }
+            
+            Assert.True(areFilesFound, "Receive Multiple Payloads Compressed Encrypted failed!");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
@@ -62,22 +57,29 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._7_
             AssertPayloads(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
             AssertXmlFiles(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
 
-            this._holodeck.AssertReceiptOnHolodeckA();
+            _holodeck.AssertReceiptOnHolodeckA();
         }
 
-        private void AssertPayloads(IEnumerable<FileInfo> files)
+        private static void AssertPayloads(IEnumerable<FileInfo> files)
         {
             var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
 
             foreach (FileInfo receivedPayload in files)
+            {
                 if (receivedPayload != null)
+                {
                     Assert.Equal(sendPayload.Length, receivedPayload.Length);
+                }
+            }
         }
 
-        private void AssertXmlFiles(IEnumerable<FileInfo> files)
+        private static void AssertXmlFiles(IEnumerable<FileInfo> files)
         {
             int count = files.Count();
-            if (count == 0) return;
+            if (count == 0)
+            {
+                return;
+            }
 
             Assert.NotEmpty(files);
             Console.WriteLine($@"There're {count} incoming Xml Documents found");

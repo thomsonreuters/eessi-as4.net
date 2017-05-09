@@ -33,15 +33,14 @@ namespace Eu.EDelivery.AS4.Validators
         {
             ValidationResult validationResult = TryValidateDeliverMessage(model);
 
-            if (validationResult?.IsValid == false)
-                throw ThrowInvalidDeliverMessage(model, validationResult);
+            if (validationResult?.IsValid == false) throw ThrowInvalidDeliverMessage(model, validationResult);
         }
 
         private ValidationResult TryValidateDeliverMessage(DeliverMessage model)
         {
             try
             {
-                return base.Validate(model);
+                return this.Validate(model);
             }
             catch (Exception)
             {
@@ -55,10 +54,10 @@ namespace Eu.EDelivery.AS4.Validators
             {
                 Logger.Error($"Deliver Message Validation Error: {e.PropertyName} = {e.ErrorMessage}");
             }
-            
+
             string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
             Logger.Error(description);
-            
+
             return AS4ExceptionBuilder.WithDescription(description).Build();
         }
 
@@ -71,12 +70,10 @@ namespace Eu.EDelivery.AS4.Validators
         private void RulesForPartyInfo()
         {
             RuleFor(i => i.PartyInfo.FromParty.PartyIds).NotNull();
-            RuleForEach(i => i.PartyInfo.FromParty.PartyIds)
-                .Must(i => i.Id != null && i.Type != null);
+            RuleForEach(i => i.PartyInfo.FromParty.PartyIds).Must(i => i.Id != null && i.Type != null);
 
             RuleFor(i => i.PartyInfo.ToParty.PartyIds).NotNull();
-            RuleForEach(i => i.PartyInfo.ToParty.PartyIds)
-                .Must(i => i.Id != null && i.Type != null);
+            RuleForEach(i => i.PartyInfo.ToParty.PartyIds).Must(i => i.Id != null && i.Type != null);
         }
 
         private void RulesForCollaborationInfo()
@@ -94,8 +91,7 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForPayloads()
         {
-            RuleForEach(p => p.Payloads)
-                .Must(RuleForPayload);
+            RuleForEach(p => p.Payloads).Must(RuleForPayload);
         }
 
         private static bool RuleForPayload(Payload payload)
@@ -115,7 +111,7 @@ namespace Eu.EDelivery.AS4.Validators
                 return true;
             }
 
-            return i.Schemas.All(s => !String.IsNullOrEmpty(s.Location));            
+            return i.Schemas.All(s => !string.IsNullOrEmpty(s.Location));
         }
     }
 }

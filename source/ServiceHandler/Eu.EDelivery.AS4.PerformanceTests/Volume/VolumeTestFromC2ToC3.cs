@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         /// <summary>
         /// Initializes a new instance of the <see cref="VolumeTestFromC2ToC3"/> class.
         /// </summary>
+        /// <param name="output">The console output for the test run.</param>
         public VolumeTestFromC2ToC3(ITestOutputHelper output)
         {
             _output = output;
@@ -51,12 +52,15 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             }
         }
 
-        [Fact]
-        public void MeasureSendingHundredMessages()
+        [Theory]
+        [InlineData(100, 60)]
+        [InlineData(500, 180)]
+        [InlineData(1000, 500)]
+        //   [InlineData(5000, 1800)]
+        public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
-            // Arrange
-            const int messageCount = 100;
-            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(90);
+            // Arrange            
+            TimeSpan maxExecutionTime = TimeSpan.FromSeconds(maxExecutionTimeInSeconds);
 
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -65,15 +69,20 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
             Corner2.PlaceMessages(messageCount, SIMPLE_ONEWAY_TO_C3);
 
             bool allMessagesDelivered =
-                Corner3.ExecuteWhenNumberOfMessagesAreDelivered(
+                Corner2.ExecuteWhenNumberOfReceiptsAreReceived(
                     messageCount,
                     () => { sw.Stop(); },
-                    timeout: maxExecutionTime,
-                    searchPattern: "*.xml");
+                    timeout: maxExecutionTime);
+
+            if (allMessagesDelivered == false)
+            {
+                _output.WriteLine($"Number of messages delivered at C3: {Corner3.CountDeliveredMessages("*.xml")}");
+                _output.WriteLine($"Number of receipts received at C2: {Corner2.CountReceivedReceipts()}");
+            }
 
             Assert.True(allMessagesDelivered, $"Not all messages were delivered in the specified timeframe ({maxExecutionTime:g})");
 
-            _output.WriteLine($"Processing {messageCount} messages took {sw.Elapsed.TotalSeconds} seconds");
-        }       
+            _output.WriteLine($"It took {sw.Elapsed:g} to submit and deliver {messageCount} messages.");
+        }
     }
 }

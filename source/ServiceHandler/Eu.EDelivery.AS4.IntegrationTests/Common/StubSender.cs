@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -14,19 +15,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// </summary>
     public class StubSender
     {
-        private readonly ISerializer _serializer;
-
-        public StubSender()
-        {
-            var soapSerializer = new SoapEnvelopeSerializer();
-            _serializer = new MimeMessageSerializer(soapSerializer);
-        }
-
-        public StubSender(ISerializer serializer)
-        {
-            _serializer = serializer;
-        }
-
         public string Url { get; set; } = $"http://localhost:8081/msh/";
 
         public Func<WebResponse, AS4Message> HandleResponse { get; set; }
@@ -118,14 +106,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         private async Task<AS4Message> HandleWebResponse(HttpWebRequest webRequest)
         {
-            using (WebResponse responseStream = webRequest.GetResponse())
+            using (WebResponse webResponse = webRequest.GetResponse())
             {
                 if (HandleResponse != null)
                 {
-                    return HandleResponse(responseStream);
+                    return HandleResponse(webResponse);
                 }
 
-                return await GetAS4ResponseAsync(responseStream);
+                return await GetAS4ResponseAsync(webResponse as HttpWebResponse);
             }
         }
 
@@ -136,11 +124,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                 return HandleResponse(webException.Response);
             }
 
-            return await GetAS4ResponseAsync(webException.Response);
+            return await GetAS4ResponseAsync(webException.Response as HttpWebResponse);
         }
 
-        private static async Task<AS4Message> GetAS4ResponseAsync(WebResponse response)
+        private static async Task<AS4Message> GetAS4ResponseAsync(HttpWebResponse response)
         {
+            if (response.StatusCode == HttpStatusCode.Accepted)
+            {
+                return new AS4Message();
+            }
+
             string contentType = response.ContentType;
             Stream responseStream = response.GetResponseStream();
 

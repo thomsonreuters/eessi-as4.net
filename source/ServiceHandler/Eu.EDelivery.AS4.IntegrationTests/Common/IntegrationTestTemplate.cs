@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         private static void CleanUpDirectory(string directoryPath)
         {
             EnsureDirectory(directoryPath);
-            Directory.Delete(directoryPath, recursive: true);
+            Try(() => Directory.Delete(directoryPath, recursive: true));
         }
 
         /// <summary>
@@ -106,6 +106,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="predicateFile">The predicate File.</param>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         protected void CleanUpFiles(string directory, Func<string, bool> predicateFile = null)
         {
             EnsureDirectory(directory);
@@ -116,20 +117,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 if (predicateFile == null || predicateFile(file))
                 {
-                    TryDeleteFile(file);
+                    Try(() => File.Delete(file));
                 }
             }
         }
 
-        private static void TryDeleteFile(string file)
+        private static void Try(Action action)
+        {
+            if (!TryOnce(action))
+            {
+                Console.WriteLine(@"Retrying...");
+                TryOnce(action);
+            }
+        }
+
+        private static bool TryOnce(Action action)
         {
             try
             {
-                File.Delete(file);
+                action();
+                return true;
             }
-            catch
+            catch (Exception e)
             {
-                // ignored
+                Console.WriteLine(e);
+                return false;
             }
         }
 
@@ -159,7 +171,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             File.Copy(
                 sourceFileName: $".{Properties.Resources.holodeck_test_pmodes}\\{fileName}",
-                destFileName: $"{directory}\\{fileName}");
+                destFileName: $"{directory}\\{fileName}",
+                overwrite: true);
         }
 
         /// <summary>

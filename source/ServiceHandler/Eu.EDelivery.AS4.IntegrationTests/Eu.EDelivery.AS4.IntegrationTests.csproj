@@ -68,17 +68,35 @@
       <HintPath>..\..\packages\Microsoft.Extensions.Primitives.1.1.0\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Owin, Version=2.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Owin.2.0.2\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.HttpListener, Version=2.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Owin.Host.HttpListener.2.0.2\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Hosting, Version=2.0.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Owin.Hosting.2.0.2\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NLog.4.3.5\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
     <Reference Include="Remotion.Linq, Version=2.1.0.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Remotion.Linq.2.1.1\lib\net45\Remotion.Linq.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="SimpleHttpMock, Version=1.1.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SimpleHttpMock.1.1.5\lib\net461\SimpleHttpMock.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.AppContext, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -131,6 +149,10 @@
       <HintPath>..\..\packages\System.Net.Http.4.3.0\lib\net46\System.Net.Http.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Net.Sockets, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Net.Sockets.4.3.0\lib\net46\System.Net.Sockets.dll</HintPath>
       <Private>True</Private>
@@ -160,6 +182,12 @@
       <HintPath>..\..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.Owin, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Owin.5.2.3\lib\net45\System.Web.Http.Owin.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -180,6 +208,9 @@
     </Reference>
     <Reference Include="xunit.execution.desktop, Version=2.2.0.3545, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\xunit.extensibility.execution.2.2.0\lib\net452\xunit.execution.desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="XunitRetry, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XunitRetry.2.0.0\lib\net451\XunitRetry.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +244,8 @@
     <Compile Include="Positive Receive Scenarios\8.3.13 Receive Single Payload Return Async Signed NRR Receipt\ReceiveSinglePayloadReturnAsyncSignedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.14 Receive Test Message\ReceiveTestMessageIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.15 Receive Duplicate Message\ReceiveDuplicateMessageIntegrationTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Single Payload with HTTP Deliver\SpyHttpDeliverTarget.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Single Payload with HTTP Deliver\TestHttpDeliverSinglePayloadViaHttp.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.5 Receive Multiple Payloads Encrypted\ReceiveMultiplePayloadsEncryptedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.7 Receive Multiple Payloads Compressed Encrypted\ReceiveMultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.8 Receive Multiple Payloads Compressed Signed Encrypted\ReceiveMultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
@@ -227,6 +260,7 @@
     <Compile Include="Positive Send Scenarios\8.1.11 Send Single Payload with Message Ids\SinglePayloadMessageIdsIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.13 Receive Async Error\ReceiveAsyncSignedErrorIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.14 Send Pull Request result in User Message\SendPullRequestResultInUserMessageTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.15 Send Single Payload with HTTP Submit\SendSinglePayloadHttpSubmitTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.2. Send Multiple Payloads with FILE Submit\MultiplePayloadIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.3. Send Multiple Payloads Compressed\MultiplePayloadsCompressedIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.4. Send Multiple Payloads Signed\MultiplePayloadsSignedIntegrationTest.cs" />
@@ -255,7 +289,9 @@
     <Content Include="Resources\as4-soap-wrong-signed-callback-message.txt" />
     <Content Include="Resources\as4-soap-wrong-signed-message.txt" />
     <Content Include="Resources\as4-soap-wrong-encrypted-message.txt" />
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Resources\as4message_external_payloads.txt" />
     <None Include="Resources\as4message_missing_mime_property.txt" />
     <None Include="Resources\as4message_incorect_compressed.txt" />

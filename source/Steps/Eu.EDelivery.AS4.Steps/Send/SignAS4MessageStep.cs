@@ -77,6 +77,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
+                if (exception.InnerException != null)
+                {
+                    Logger.Error(exception.InnerException.Message);
+                }
+                Logger.Debug(exception.StackTrace);
                 throw ThrowCommonSigningException(message.AS4Message, exception.Message, exception);
             }
         }
@@ -87,7 +92,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (!certificate.HasPrivateKey)
             {
-                throw ThrowCommonSigningException(message.AS4Message, $"{message.Prefix} Certificate hasn't a private key");
+                throw ThrowCommonSigningException(
+                    message.AS4Message,
+                    $"{message.Prefix} Certificate hasn't a private key");
             }
 
             ISigningStrategy signingStrategy = CreateSignStrategy(message.AS4Message, certificate, cancellationToken);

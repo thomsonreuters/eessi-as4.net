@@ -22,7 +22,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpSender"/> class.
         /// </summary>
-        public HttpSender() : this(new ReliableHttpClient()) {}
+        public HttpSender() : this(new ReliableHttpClient())
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpSender"/> class.
@@ -51,7 +52,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         {
             Logger.Info($"Send Deliver {deliverMessage.MessageInfo.MessageId} to {_destinationUri}");
 
-            HttpWebRequest request = CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage);
+            HttpWebRequest request = await CreateHttpPostRequest(deliverMessage.ContentType, deliverMessage.DeliverMessage).ConfigureAwait(false);
             HttpWebResponse response = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             response?.Close();
@@ -65,20 +66,20 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         {
             Logger.Info($"Send Notification {notifyMessage.MessageInfo.MessageId} to {_destinationUri}");
 
-            HttpWebRequest request = CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
+            HttpWebRequest request = await CreateHttpPostRequest(notifyMessage.ContentType, notifyMessage.NotifyMessage);
             HttpWebResponse httpPostResponse = await SendHttpPostRequest(request).ConfigureAwait(false);
 
             httpPostResponse?.Close();
         }
 
-        private HttpWebRequest CreateHttpPostRequest(string contentType, byte[] contents)
+        private async Task<HttpWebRequest> CreateHttpPostRequest(string contentType, byte[] contents)
         {
             // TODO: verify if destinationUri is a valid http endpoint.
             HttpWebRequest request = _httpClient.Request(_destinationUri, contentType);
 
-            using (Stream requestStream = request.GetRequestStream())
+            using (Stream requestStream = await request.GetRequestStreamAsync())
             {
-                requestStream.Write(contents, 0, contents.Length);
+                await requestStream.WriteAsync(contents, 0, contents.Length).ConfigureAwait(false);
             }
 
             return request;
