@@ -16,7 +16,7 @@
   <xs:complexType name="StatusInfo">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Status" type="Status" />
-      <xs:any minOccurs="0" maxOccurs="unbounded" />
+      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="Status">
