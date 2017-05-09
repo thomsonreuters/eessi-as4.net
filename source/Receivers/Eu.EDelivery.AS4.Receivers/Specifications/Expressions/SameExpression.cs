@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         }
     }
 
-    public static class Conversion
+    internal static class Conversion
     {
         private static readonly Dictionary<Func<object, bool>, Func<object, string, object>> Conversions =
             new Dictionary<Func<object, bool>, Func<object, string, object>>
