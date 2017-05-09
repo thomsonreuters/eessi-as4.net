@@ -24,7 +24,7 @@
         <Setting key="Table">OutMessages</Setting>
         <Setting key="Field">Operation</Setting>
         <Setting key="Value">ToBeSent</Setting>
-        <Setting key="Update">Sending</Setting>
+        <Setting key="Update" field="Operation">Sending</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -41,7 +41,7 @@
         <Setting key="Table">InMessages</Setting>
         <Setting key="Field">Operation</Setting>
         <Setting key="Value">ToBeDelivered</Setting>
-        <Setting key="Update">Delivering</Setting>
+        <Setting key="Update" field="Operation">Delivering</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -55,7 +55,7 @@
         <Setting key="Table">InMessages</Setting>
         <Setting key="Field">Operation</Setting>
         <Setting key="Value">ToBeNotified</Setting>
-        <Setting key="Update">Notifying</Setting>
+        <Setting key="Update" field="Operation">Notifying</Setting>
 	<Setting key="PollingInterval">2000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -70,7 +70,7 @@
         <Setting key="Table">OutMessages</Setting>
         <Setting key="Field">Operation</Setting>
         <Setting key="Value">ToBeNotified</Setting>
-        <Setting key="Update">Notifying</Setting>
+        <Setting key="Update" field="Operation">Notifying</Setting>
 	<Setting key="PollingInterval">2000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -85,7 +85,7 @@
         <Setting key="Table">InExceptions</Setting>
         <Setting key="Field">Operation</Setting>
         <Setting key="Value">ToBeNotified</Setting>
-        <Setting key="Update">Notifying</Setting>
+        <Setting key="Update" field="Operation">Notifying</Setting>
 	<Setting key="PollingInterval">3000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -100,7 +100,7 @@
         <Setting key="Table">OutExceptions</Setting>
         <Setting key="Field">Operation</Setting>
         <Setting key="Value">ToBeNotified</Setting>
-        <Setting key="Update">Notifying</Setting>
+        <Setting key="Update" field="Operation">Notifying</Setting>
 	<Setting key="PollingInterval">3000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -115,7 +115,7 @@
         <Setting key="Table">ReceptionAwareness</Setting>
         <Setting key="Field">Status</Setting>
         <Setting key="Value">Pending</Setting>
-        <Setting key="Update">Busy</Setting>
+        <Setting key="Update" field="Status">Busy</Setting>
 	      <Setting key="PollingInterval">5000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ReceptionAwarenessTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
