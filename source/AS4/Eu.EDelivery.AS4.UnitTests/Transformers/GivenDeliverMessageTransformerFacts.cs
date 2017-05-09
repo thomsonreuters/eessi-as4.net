@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             return new ReceivedMessageEntityMessage(messageEntity)
             {
                 ContentType = contentType,
-                RequestStream = new MemoryStream(as4_single_payload)
+                RequestStream = new MemoryStream(Properties.Resources.as4_single_payload)
             };
         }
 		
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
         
         [Fact]
-        public async void ThenExecuteStepSucceedsWithValidAgreementRefAsync()
+        public async void TransformSucceedsWithValidAgreementRefAsync()
         {
             // Act
             InternalMessage result = await ExecuteTransformerWithDefaultReceivedMessage();
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task ThenExecuteStepSucceedsWithValidFromPartyAsync()
+        public async Task TransformSucceedsWithValidFromPartyAsync()
         {
             // Act
             InternalMessage result = await ExecuteTransformerWithDefaultReceivedMessage();
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task ThenExecuteStepSucceedsWithValidMessageInfoAsync()
+        public async Task TransformSucceedsWithValidMessageInfoAsync()
         {
             // Act
             InternalMessage result = await ExecuteTransformerWithDefaultReceivedMessage();
@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task ThenExecuteStepSucceedsWithValidMessagePropertiesAsync()
+        public async Task TransformSucceedsWithValidMessagePropertiesAsync()
         {
             // Act
             InternalMessage result = await ExecuteTransformerWithDefaultReceivedMessage();
@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task ThenExecuteStepSucceedsWithValidServiceAsync()
+        public async Task TransformSucceedsWithValidServiceAsync()
         {
             // Act
             InternalMessage result = await ExecuteTransformerWithDefaultReceivedMessage();
@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
-        public async Task ThenExecuteStepSucceedsWithvalidToPartyAsync()
+        public async Task TransformSucceedsWithvalidToPartyAsync()
         {
             // Act
             InternalMessage result = await ExecuteTransformerWithDefaultReceivedMessage();
