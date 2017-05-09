@@ -71,7 +71,6 @@ namespace Eu.EDelivery.AS4.Services
         public async Task InsertAS4Message(AS4Message as4Message, CancellationToken cancellationToken)
         {
             // TODO: should we start the transaction here.
-
             string location = await _messageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
 
             IDictionary<string, bool> duplicateUserMessages =
