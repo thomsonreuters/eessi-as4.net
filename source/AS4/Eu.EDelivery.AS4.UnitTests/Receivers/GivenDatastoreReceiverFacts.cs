@@ -36,6 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             IReceiver receiver =
                 DataStoreReceiverWith(
                     SettingsToPollOnOutMessages(
+                        filter: "Operation = ToBeDelivered",
                         updates: new[] {"Operation", "Status"},
                         values: new[] {"Sending", "Sent"}));
 
@@ -43,62 +44,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             StartReceiver(receiver);
 
             // Assert
-            AssertOutMessage(
+            AssertOutMessageIf(
                 m => m.Operation == Operation.Sending,
                 message =>
                 {
                     Assert.Equal(Operation.Sending, message.Operation);
                     Assert.Equal(OutStatus.Sent, message.Status);
                 });
-        }
-
-        private static void StartReceiver(IReceiver receiver)
-        {
-            var waitHandle = new ManualResetEvent(initialState: false);
-            var cancellationSource = new CancellationTokenSource();
-
-            receiver.StartReceiving(
-                (m, c) =>
-                {
-                    waitHandle.Set();
-                    cancellationSource.Cancel();
-                    return Task.FromResult(new InternalMessage());
-                },
-                cancellationSource.Token);
-
-            Assert.True(waitHandle.WaitOne(TimeSpan.FromSeconds(5)));
-        }
-
-        private static IEnumerable<Setting> SettingsToPollOnOutMessages(
-            IReadOnlyList<string> updates,
-            IReadOnlyList<string> values)
-        {
-            var settings = new List<Setting>
-            {
-                new Setting("Table", "OutMessages"),
-                new Setting("Field", "Operation = ToBeDelivered"),
-            };
-
-            for (var index = 0; index < updates.Count; index++)
-            {
-                string update = updates[index];
-                string value = values[index];
-                settings.Add(
-                    new Setting("Update", value)
-                    {
-                        Attributes = new XmlAttribute[] {new StubXmlAttribute("field", update)}
-                    });
-            }
-
-            return settings;
-        }
-
-        private IReceiver DataStoreReceiverWith(IEnumerable<Setting> settings)
-        {
-            var receiver = new DatastoreReceiver(() => new DatastoreContext(Options));
-            receiver.Configure(settings);
-
-            return receiver;
         }
 
         private void InsertOutMessageInDatastoreWith(Operation operation, OutStatus status)
@@ -118,7 +70,55 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             }
         }
 
-        private void AssertOutMessage(Func<OutMessage, bool> where, Action<OutMessage> assertion)
+        private IReceiver DataStoreReceiverWith(IEnumerable<Setting> settings)
+        {
+            var receiver = new DatastoreReceiver(() => new DatastoreContext(Options));
+            receiver.Configure(settings);
+
+            return receiver;
+        }
+
+        private static IEnumerable<Setting> SettingsToPollOnOutMessages(
+            string filter,
+            IReadOnlyList<string> updates,
+            IReadOnlyList<string> values)
+        {
+            var settings = new List<Setting>
+            {
+                new Setting("Table", "OutMessages"),
+                new Setting("Field", filter),
+            };
+
+            for (var index = 0; index < updates.Count; index++)
+            {
+                string update = updates[index];
+                var attributes = new XmlAttribute[] {new StubXmlAttribute("field", update)};
+                string value = values[index];
+
+                settings.Add(new Setting("Update", value) {Attributes = attributes});
+            }
+
+            return settings;
+        }
+
+        private static void StartReceiver(IReceiver receiver)
+        {
+            var waitHandle = new ManualResetEvent(initialState: false);
+            var cancellationSource = new CancellationTokenSource();
+
+            receiver.StartReceiving(
+                (m, c) =>
+                {
+                    waitHandle.Set();
+                    cancellationSource.Cancel();
+                    return Task.FromResult(new InternalMessage());
+                },
+                cancellationSource.Token);
+
+            Assert.True(waitHandle.WaitOne(TimeSpan.FromSeconds(5)));
+        }
+
+        private void AssertOutMessageIf(Func<OutMessage, bool> where, Action<OutMessage> assertion)
         {
             using (var context = new DatastoreContext(Options))
             {
