@@ -29,10 +29,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
         }
 
-        /// <summary>
-        /// The status is set to exception if delivery fails.
-        /// </summary>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         [Fact]
         public async Task StatusIsSetToException_IfDeliveryFails()
         {
@@ -41,17 +37,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             string deliverLocation = DeliverLocationOf(as4Message);
             CleanDirectoryAt(deliverLocation);
-            Action toBeDisposed = WriteBlockingFileTo(deliverLocation);
 
-            // Act
-            await InsertToBeDeliveredMessage(as4Message);
+            using (WriteBlockingFileTo(deliverLocation))
+            {
+                // Act
+                await InsertToBeDeliveredMessage(as4Message);
 
-            // Assert
-            InMessage actualMessage = GetToBeDeliveredMessage(as4Message);
-            Assert.Equal(InStatus.Exception, actualMessage.Status);
-
-            // Teardown
-            toBeDisposed();
+                // Assert
+                InMessage actualMessage = GetToBeDeliveredMessage(as4Message);
+                Assert.Equal(InStatus.Exception, actualMessage.Status);
+            }
         }
 
         private static async Task<AS4Message> CreateSinglePayloadMessage()
@@ -71,14 +66,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
         }
 
-        private static Action WriteBlockingFileTo(string deliverLocation)
+        private static IDisposable WriteBlockingFileTo(string deliverLocation)
         {
             var fileStream = new FileStream(deliverLocation, FileMode.CreateNew);
             var streamWriter = new StreamWriter(fileStream);
 
             streamWriter.Write("<blocking content>");
 
-            return () => streamWriter.Dispose();
+            return streamWriter;
         }
 
         private static string DeliverLocationOf(AS4Message as4Message)
