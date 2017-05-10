@@ -34,25 +34,25 @@ If (Test-Path .\users.sqlite ) {
 }
 Remove-Item .\Microsoft.VisualStudio.Quality*.*
 Remove-Item .\Moq.*
-Remove-Item .\*UnitTests.*
+Remove-Item .\*Tests.*
 
-Move-Item -Path .\Assets\*.* .\Staging\Assets\
-Move-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
-Move-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe.config .\Staging\
-Move-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
-Move-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
+Copy-Item -Path .\Assets\*.* .\Staging\Assets\
+Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe .\Staging\
+Copy-Item -Path .\Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe.config .\Staging\
+Copy-Item -Path .\Eu.EDelivery.AS4.Fe.exe .\Staging\bin\
+Copy-Item -Path .\Eu.EDelivery.AS4.PayloadService.exe .\Staging\bin\
 
 If (Test-Path .\Eu.EDelivery.AS4.dll.config) {
 	Move-Item -Path .\Eu.EDelivery.AS4.dll.config .\Staging\bin\
 }
 
-Move-Item -Path .\*.dll -Destination .\Staging\bin
-Move-Item -Path .\x86\*.* -Destination .\Staging\x86\
-Move-Item -Path .\x64\*.* -Destination .\Staging\x64\
-Move-Item -Path .\appsettings.inprocess.json .\Staging\bin\
-Move-Item -Path .\appsettings.json .\Staging\bin\
-Move-Item -Path .\config\settings.xml .\Staging\config\
-Move-Item -Path .\messages\attachments\*.* .\Staging\messages\attachments\
-Move-Item -Path .\samples\certificates\*.* .\Staging\samples\certificates\
-Move-Item -Path .\samples\messages\*.* .\Staging\samples\messages\
-Move-Item -Path .\samples\pmodes\*.* .\Staging\samples\pmodes\
+Copy-Item -Path .\*.dll -Destination .\Staging\bin
+Copy-Item -Path .\x86\*.* -Destination .\Staging\x86\
+Copy-Item -Path .\x64\*.* -Destination .\Staging\x64\
+Copy-Item -Path .\appsettings.inprocess.json .\Staging\bin\
+Copy-Item -Path .\appsettings.json .\Staging\bin\
+Copy-Item -Path .\config\settings.xml .\Staging\config\
+Copy-Item -Path .\messages\attachments\*.* .\Staging\messages\attachments\
+Copy-Item -Path .\samples\certificates\*.* .\Staging\samples\certificates\
+Copy-Item -Path .\samples\messages\*.* .\Staging\samples\messages\
+Copy-Item -Path .\samples\pmodes\*.* .\Staging\samples\pmodes\
