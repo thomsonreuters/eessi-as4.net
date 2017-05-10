@@ -379,7 +379,6 @@
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />
     <Compile Include="Steps\GivenStepResultFacts.cs" />
-    <Compile Include="Steps\Notify\GivenCreateNotifyMessageStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyOutUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyInUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyUpdateInExceptionDatastoreStepFacts.cs" />
@@ -389,7 +388,6 @@
     <Compile Include="Steps\Receive\GivenCreateAS4ErrorStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecryptAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenReceiveExceptionDecoratorStepFacts.cs" />
-    <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenDeliverUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
@@ -445,10 +443,11 @@
     <Compile Include="Streaming\VirtualStreamFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenDeliverMessageTransformerFacts.cs" />
-    <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenExceptionToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPModeToPullRequestTransformerFacts.cs" />
     <Compile Include="Transformers\GivenReceptionAwarenessTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenSignalToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />

@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class ReceivedMessageEntityMessage : ReceivedMessage
     {
-        public MessageEntity MessageEntity { get; set; }
+        public MessageEntity MessageEntity { get; }
 
         public ReceivedMessageEntityMessage(MessageEntity messageEntity)
         {

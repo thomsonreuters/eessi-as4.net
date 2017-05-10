@@ -5,7 +5,16 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public class Receipt : SignalMessage
     {
+        /// <summary>
+        /// The UserMessage for which this is a receipt.
+        /// </summary>
+        /// <remarks>This property should only be populated when the NonRepudiationInformation is not filled out.</remarks>
         public UserMessage UserMessage { get; set; }
+
+        /// <summary>
+        /// NonRepudiation information of the UserMessage for which this is a receipt.
+        /// </summary>
+        /// <remarks>This property is only populated when the UserMessage property is not filled out.</remarks>
         public NonRepudiationInformation NonRepudiationInformation { get; set; }
 
         public Receipt() {}

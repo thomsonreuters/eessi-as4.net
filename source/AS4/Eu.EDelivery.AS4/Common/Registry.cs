@@ -39,8 +39,6 @@ namespace Eu.EDelivery.AS4.Common
 
         public IAttachmentUploaderProvider AttachmentUploader { get; private set; }
 
-        public IAS4MessageBodyPersister AS4MessageBodyPersister { get; set; }
-
         public AS4MessageBodyRetrieverProvider MessageBodyRetrieverProvider { get; private set; }
         
 
