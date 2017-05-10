@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class AS4MessageTransformer : ITransformer
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ISerializerProvider _provider;
 
         /// <summary>
@@ -27,8 +27,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// </summary>
         public AS4MessageTransformer()
         {
-            this._provider = Registry.Instance.SerializerProvider;
-            this._logger = LogManager.GetCurrentClassLogger();
+            _provider = Registry.Instance.SerializerProvider;
         }
 
         /// <summary>
@@ -38,9 +37,11 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="provider"></param>
         public AS4MessageTransformer(ISerializerProvider provider)
         {
-            if (provider == null) throw new ArgumentNullException(nameof(provider));
-            this._provider = provider;
-            this._logger = LogManager.GetCurrentClassLogger();
+            if (provider == null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+            _provider = provider;            
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
-            this._logger.Debug("Transform AS4 Message to Internal Message");
+            Logger.Debug("Transform AS4 Message to Internal Message");
             AS4Message as4Message = await TryTransformMessage(message, cancellationToken);
 
             return new InternalMessage(as4Message);
@@ -89,7 +90,7 @@ namespace Eu.EDelivery.AS4.Transformers
         private async Task<AS4Message> TransformMessage(ReceivedMessage receivedMessage,
             CancellationToken cancellationToken)
         {
-            ISerializer serializer = this._provider.Get(receivedMessage.ContentType);
+            ISerializer serializer = _provider.Get(receivedMessage.ContentType);
             AS4Message as4Message = await serializer
                 .DeserializeAsync(receivedMessage.RequestStream, receivedMessage.ContentType, cancellationToken);
 
@@ -111,9 +112,9 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        private AS4Exception ThrowAS4TransformException(string description)
+        private static AS4Exception ThrowAS4TransformException(string description)
         {
-            this._logger.Error(description);
+            Logger.Error(description);
 
             throw AS4ExceptionBuilder
                 .WithDescription(description)

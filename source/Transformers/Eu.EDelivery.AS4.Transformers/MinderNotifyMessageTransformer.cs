@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -15,50 +12,48 @@ using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
-namespace Eu.EDelivery.AS4.Steps.Notify
+namespace Eu.EDelivery.AS4.Transformers
 {
     [ExcludeFromCodeCoverage]
-    public abstract class MinderCreateNotifyMessageStep : IStep
+    public abstract class MinderNotifyMessageTransformer : ITransformer
     {
-        // TODO: this step should be replaced by a Transformer
-
-        private readonly ILogger _logger;
-
         protected abstract string MinderUriPrefix { get; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConformanceTestCreateNotifyMessageStep"/> class
-        /// </summary>
-        protected MinderCreateNotifyMessageStep()
-        {
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
+        protected Logger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Start create notify message step
+        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
         /// </summary>
-        /// <param name="internalMessage"></param>        
-        /// <param name="cancellationToken"></param>
+        /// <param name="message">Given message to transform.</param>
+        /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
-            UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
-            SignalMessage signalMessage = internalMessage.AS4Message.PrimarySignalMessage;
+            var as4Transformer = new AS4MessageTransformer();
+            var internalMessage = await as4Transformer.TransformAsync(message, cancellationToken);
+
+            internalMessage.NotifyMessage = await CreateNotifyMessageEnvelope(internalMessage.AS4Message);
+
+            return internalMessage;
+        }
+
+        internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
+        {
+            UserMessage userMessage = as4Message.PrimaryUserMessage;
+            SignalMessage signalMessage = as4Message.PrimarySignalMessage;
 
             if (signalMessage != null)
             {
-                this._logger.Info($"Minder Create Notify Message as {signalMessage.GetType().Name}");
+                Logger.Info($"Minder Create Notify Message as {signalMessage.GetType().Name}");
             }
             else
             {
-                this._logger.Warn($"{internalMessage.Prefix} AS4Message does not contain a primary SignalMessage");
+                Logger.Warn($"{as4Message.PrimaryUserMessage?.MessageId} AS4Message does not contain a primary SignalMessage");
             }
 
             var notifyEnvelope = await CreateMinderNotifyMessageEnvelope(userMessage, signalMessage).ConfigureAwait(false);
 
-            internalMessage.NotifyMessage = notifyEnvelope;
-
-            return await StepResult.SuccessAsync(internalMessage);
+            return notifyEnvelope;
         }
 
         private async Task<NotifyMessageEnvelope> CreateMinderNotifyMessageEnvelope(UserMessage userMessage, SignalMessage signalMessage)
@@ -70,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
             if (userMessage == null)
             {
-                this._logger.Warn("The related usermessage for the received signalmessage could not be found");
+                Logger.Warn("The related usermessage for the received signalmessage could not be found");
                 userMessage = new UserMessage();
             }
 
@@ -156,11 +151,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private void AssignToPartyIdentification(UserMessage userMessage)
         {
-            //            userMessage.Sender = new Party($"{MinderUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
-
             userMessage.Receiver.PartyIds.First().Id = "minder";
             userMessage.Receiver.Role = $"{MinderUriPrefix}/testdriver";
         }
-
     }
 }

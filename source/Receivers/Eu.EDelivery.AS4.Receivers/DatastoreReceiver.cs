@@ -228,6 +228,8 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             // Make sure that all message-entities are locked before continue to process them.
+            // TODO: check if we can do this using batching (EF batching; see EntityFramework-plus)
+            // https://github.com/zzzprojects/EntityFramework-Plus
             foreach (Entity entity in entities)
             {
                 entity.Lock(_updateValue);

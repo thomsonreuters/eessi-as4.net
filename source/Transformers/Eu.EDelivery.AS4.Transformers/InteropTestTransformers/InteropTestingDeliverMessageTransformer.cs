@@ -1,18 +1,21 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
-using Eu.EDelivery.AS4.Model.Common;
+using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
+using Party = Eu.EDelivery.AS4.Model.Core.Party;
+using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
-namespace Eu.EDelivery.AS4.Transformers
+namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 {
     [ExcludeFromCodeCoverage]
-    public class ConformanceTestingDeliverMessageTransformer : DeliverMessageTransformer
+    public class InteropTestingDeliverMessageTransformer : DeliverMessageTransformer
     {
-        private const string ConformanceUriPrefix = "http://www.esens.eu/as4/conformancetest";
+        private const string InteropUriPrefix = "http://www.esens.eu/as4/interoptest";
 
         protected override DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
         {
@@ -54,18 +57,23 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             UserMessage userMessage = as4Message.PrimaryUserMessage;
 
-            UserMessage deliverMessage = new UserMessage(userMessage.MessageId);
-            deliverMessage.RefToMessageId = userMessage.RefToMessageId;
-            deliverMessage.Timestamp = userMessage.Timestamp;
+            UserMessage deliverMessage = new UserMessage(userMessage.MessageId)
+            {
+                RefToMessageId = userMessage.RefToMessageId,
+                Timestamp = userMessage.Timestamp,
+                CollaborationInfo =
+                {
+                    Action = "Deliver",
+                    Service = {Value = InteropUriPrefix},
+                    ConversationId = userMessage.CollaborationInfo.ConversationId
+                },
+                Sender = new Party($"{InteropUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
+                Receiver = new Party($"{InteropUriPrefix}/testdriver", new PartyId("minder"))
+            };
 
-            deliverMessage.CollaborationInfo.Action = "Deliver";
-            deliverMessage.CollaborationInfo.Service.Value = ConformanceUriPrefix;
-            deliverMessage.CollaborationInfo.ConversationId = userMessage.CollaborationInfo.ConversationId;
 
             // Party Information: sender is the receiver of the AS4Message that has been received.
             //                    receiver is minder.
-            deliverMessage.Sender = new Model.Core.Party($"{ConformanceUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault());
-            deliverMessage.Receiver = new Model.Core.Party($"{ConformanceUriPrefix}/testdriver", new Model.Core.PartyId("minder"));
 
             // Set the PayloadInfo.
             foreach (var pi in userMessage.PayloadInfo)
@@ -73,7 +81,7 @@ namespace Eu.EDelivery.AS4.Transformers
                 deliverMessage.PayloadInfo.Add(pi);
             }
 
-            deliverMessage.MessageProperties.Add(new Model.Core.MessageProperty("MessageId", userMessage.MessageId));
+            deliverMessage.MessageProperties.Add(new MessageProperty("MessageId", userMessage.MessageId));
             AddMessageProperty(deliverMessage, "RefToMessageId", userMessage.RefToMessageId);
             AddMessageProperty(deliverMessage, "ConversationId", userMessage.CollaborationInfo.ConversationId);
 
@@ -100,10 +108,10 @@ namespace Eu.EDelivery.AS4.Transformers
                 return;
             }
 
-            AddMessageProperty(message, new Model.Core.MessageProperty(propertyName, propertyValue));
+            AddMessageProperty(message, new MessageProperty(propertyName, propertyValue));
         }
 
-        private static void AddMessageProperty(UserMessage message, Model.Core.MessageProperty property)
+        private static void AddMessageProperty(UserMessage message, MessageProperty property)
         {
             if (property == null)
             {
@@ -111,5 +119,6 @@ namespace Eu.EDelivery.AS4.Transformers
             }
             message.MessageProperties.Add(property);
         }
+
     }
 }

@@ -192,17 +192,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\InExceptionStepDecorator.cs" />
-    <Compile Include="Deliver\CreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
-    <Compile Include="Deliver\ConformanceTestCreateDeliverMessageStep.cs" />
-    <Compile Include="Deliver\InteropTestCreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />
     <Compile Include="Deliver\ZipAttachmentsStep.cs" />
-    <Compile Include="Notify\CreateNotifyMessageStep.cs" />
-    <Compile Include="Notify\ConformanceTestCreateNotifyMessageStep.cs" />
-    <Compile Include="Notify\InteropTestCreateNotifyMessageStep.cs" />
-    <Compile Include="Notify\MinderCreateNotifyMessageStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateInExceptionDatastoreStep.cs" />
     <Compile Include="Notify\NotifyUpdateOutMessageDatastoreStep.cs" />

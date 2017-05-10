@@ -9,7 +9,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
-namespace Eu.EDelivery.AS4.Transformers
+namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 {
     [ExcludeFromCodeCoverage]
     public class ConformanceTestingSubmitReceiveMessageTransformer : ITransformer
