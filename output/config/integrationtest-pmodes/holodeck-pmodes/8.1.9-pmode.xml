@@ -15,7 +15,7 @@ you should install this P-Mode on instance B.
         <Role>Sender</Role>
          <SecurityConfiguration>
             <Encryption>
-                <KeystoreAlias password="ExampleA">partya</KeystoreAlias>
+                <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
             </Encryption>
             <Signing>
                 <KeystoreAlias>partya</KeystoreAlias>
@@ -27,7 +27,7 @@ you should install this P-Mode on instance B.
         <Role>Receiver</Role>
         <SecurityConfiguration>
             <Encryption>
-                <KeystoreAlias password="ExampleA">partya</KeystoreAlias>
+                <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
             </Encryption>
             <Signing>
                 <KeystoreAlias>partya</KeystoreAlias>

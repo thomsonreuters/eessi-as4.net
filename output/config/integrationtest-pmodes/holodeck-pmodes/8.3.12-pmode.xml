@@ -17,7 +17,7 @@ install this P-Mode on instance A.
         <Role>Sender</Role>
         <SecurityConfiguration>
             <Signing>
-                <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
+                <KeystoreAlias password="Pz4cZK4SULUwmraZa">accesspointa</KeystoreAlias>
                 <KeyReferenceMethod>KeyIdentifier</KeyReferenceMethod>
                 <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha384</Algorithm>
             </Signing>
