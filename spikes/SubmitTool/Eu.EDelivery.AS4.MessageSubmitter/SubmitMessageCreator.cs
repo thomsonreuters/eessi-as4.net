@@ -62,37 +62,43 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
 
         private static void SubmitMessags(IEnumerable<SubmitMessage> submitMessages, string location)
         {
-            if (location.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-            {
-                SubmitViaHttp(submitMessages, location);
-            }
-            else
-            {
-                SubmitToFilesystem(submitMessages, location);
-            }                        
+            SubmitToFilesystem(submitMessages, location);
+
+            // Commented out since we're not going to support this right now in this tool.
+            // Submitting via HTTP means that our payloads should be referred via http aswell.
+
+            ////if (location.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            ////{
+            ////    SubmitViaHttp(submitMessages, location);
+            ////}
+            ////else
+            ////{
+            ////    SubmitToFilesystem(submitMessages, location);
+            ////}                        
+
         }
 
-        private static readonly HttpClient _client = new HttpClient();
+        ////private static readonly HttpClient _client = new HttpClient();
 
-        private static async void SubmitViaHttp(IEnumerable<SubmitMessage> submitMessages, string location)
-        {
-            var sendTasks = new List<Task<HttpResponseMessage>>();
+        ////private static async void SubmitViaHttp(IEnumerable<SubmitMessage> submitMessages, string location)
+        ////{
+        ////    var sendTasks = new List<Task<HttpResponseMessage>>();
 
-            foreach (var submitMessage in submitMessages)
-            {
-                var request = new HttpRequestMessage(HttpMethod.Post, location);
-                request.Content = new StringContent(AS4XmlSerializer.ToString(submitMessage));
+        ////    foreach (var submitMessage in submitMessages)
+        ////    {
+        ////        var request = new HttpRequestMessage(HttpMethod.Post, location);
+        ////        request.Content = new StringContent(AS4XmlSerializer.ToString(submitMessage));
 
-                sendTasks.Add(_client.SendAsync(request));
-            }
+        ////        sendTasks.Add(_client.SendAsync(request));
+        ////    }
 
-            var httpResults = await Task.WhenAll(sendTasks);
+        ////    var httpResults = await Task.WhenAll(sendTasks);
 
-            if (httpResults.Any(r => r.StatusCode != HttpStatusCode.Accepted))
-            {
-                MessageBox.Show("Not all submit-messages have been accepted.");
-            }
-        }
+        ////    if (httpResults.Any(r => r.StatusCode != HttpStatusCode.Accepted))
+        ////    {
+        ////        MessageBox.Show("Not all submit-messages have been accepted.");
+        ////    }
+        ////}
 
         private static void SubmitToFilesystem(IEnumerable<SubmitMessage> submitMessages, string location)
         {
