@@ -14,15 +14,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
     public class AS4Component : IDisposable
     {
         private readonly Process _as4ComponentProcess;
-        private readonly DirectoryInfo _location;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4Component"/> class.
         /// </summary>
-        private AS4Component(Process as4Process, DirectoryInfo location)
+        /// <param name="as4Process">The as 4 Process.</param>
+        private AS4Component(Process as4Process)
         {
             _as4ComponentProcess = as4Process;
-            _location = location;
         }
 
         /// <summary>
@@ -47,6 +46,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// <summary>
         /// Start AS4 Component
         /// </summary>
+        /// <param name="location">The location.</param>
         public static AS4Component Start(string location)
         {
             const string appFileName = "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe";
@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 throw new InvalidOperationException("No AS4 MSH found in the specified location.");
             }
 
-            DirectoryInfo workingDirectory = new DirectoryInfo(location);
+            var workingDirectory = new DirectoryInfo(location);
 
             CleanupWorkingDirectory(workingDirectory);
 
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 WorkingDirectory = workingDirectory.FullName
             };
 
-            return new AS4Component(Process.Start(mshInfo), workingDirectory);
+            return new AS4Component(Process.Start(mshInfo));
         }
 
         private static void CleanupWorkingDirectory(DirectoryInfo workingFolder)
@@ -81,28 +81,30 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
         private static void DeleteAllFilesAndFolders(DirectoryInfo directory)
         {
-            var subFolders = directory.GetDirectories();
+            DirectoryInfo[] subFolders = directory.GetDirectories();
 
             if (subFolders.Any())
             {
-                foreach (var subdirectory in subFolders)
+                foreach (DirectoryInfo subdirectory in subFolders)
                 {
                     DeleteAllFilesAndFolders(subdirectory);
                     subdirectory.Delete();
                 }
             }
 
-            var files = directory.GetFiles("*.*");
-
-            foreach (var file in files)
+            foreach (FileInfo file in directory.GetFiles("*.*"))
             {
                 file.Delete();
             }
         }
 
+        /// <summary>
+        /// Gets the <see cref="IConfig"/> implementation for the given <see cref="AS4Component"/>.
+        /// </summary>
+        /// <returns></returns>
         public IConfig GetConfiguration()
         {
-            var config = Config.Instance;
+            Config config = Config.Instance;
 
             if (config.IsInitialized == false)
             {

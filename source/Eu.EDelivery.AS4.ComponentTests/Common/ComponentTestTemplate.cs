@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         protected void OverrideSettings(string settingsFile)
         {
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);
-            File.Copy(settingsFile, @".\config\settings.xml", true);
+            File.Copy($@".\config\componenttest-settings\{settingsFile}", @".\config\settings.xml", true);
             _restoreSettings = true;
         }
 

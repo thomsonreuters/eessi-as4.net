@@ -13,7 +13,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
     public class SubmitAgentFacts : ComponentTestTemplate
     {
-
         private readonly AS4Component _as4Msh;
         private readonly HttpClient _httpClient = new HttpClient();
 
@@ -25,7 +24,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         /// </summary>
         public SubmitAgentFacts()
         {
-            OverrideSettings(@".\config\componenttest-settings\submitagent_http_settings.xml");
+            OverrideSettings("submitagent_http_settings.xml");
             _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
         }
 
