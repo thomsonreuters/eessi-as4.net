@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
             InitializeComponent();
 
             this.DataContext = _viewModel;
-            
+
             PayloadListView.ItemsSource = _viewModel.PayloadInformation;
         }
 
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
             SubmitMessageCreator.CreateSubmitMessages(_viewModel);
             MessageBox.Show($"{_viewModel.NumberOfSubmitMessages} submitmessages created in {_viewModel.SubmitLocation}");
         }
-        
+
         private void PopulateSendingPModeCombobox()
         {
             if (_sendPModeWatcher != null)
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
             _sendPModeWatcher = new PModeWatcher<SendingProcessingMode>(SendingPModeLocationTextBox.Text);
             _sendPModeWatcher.Start();
 
-            PModeCombobox.ItemsSource = _sendPModeWatcher.GetPModes().Select(p => p.Id).ToArray();
+            PModeCombobox.ItemsSource = _sendPModeWatcher.GetPModes().Select(p => p.Id).OrderBy(id => id).ToArray();
         }
 
         private void BrowsePModeLocationButton_Click(object sender, RoutedEventArgs e)
