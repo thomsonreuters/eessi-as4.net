@@ -84,8 +84,8 @@
   </xs:simpleType>
   <xs:complexType name="PullConfiguration">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Protocol" type="tns:Protocol" />
       <xs:element minOccurs="0" maxOccurs="1" name="Mpc" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Protocol" type="tns:Protocol" />
       <xs:element minOccurs="0" maxOccurs="1" name="TlsConfiguration" type="tns:TlsConfiguration" />
     </xs:sequence>
   </xs:complexType>
