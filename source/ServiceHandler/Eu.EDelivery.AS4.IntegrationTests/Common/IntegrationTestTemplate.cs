@@ -35,8 +35,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Console.WriteLine(Environment.NewLine);
 
             CopyDirectory(@".\config\integrationtest-settings", @".\config\");
-            CopyDirectory(@".\config\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
-            CopyDirectory(@".\config\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
+            CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
+            CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
             CleanUpFiles(Path.GetFullPath(@".\database"));
