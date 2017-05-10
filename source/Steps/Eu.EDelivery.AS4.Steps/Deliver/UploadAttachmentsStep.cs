@@ -73,6 +73,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private static void UpdateAttachmentLocations(InternalMessage message)
         {
+            if (message.DeliverMessage == null)
+            {
+                return;
+            }
+
             var deserializedMessage = AS4XmlSerializer.FromStream<DeliverMessage>(new MemoryStream(message.DeliverMessage.DeliverMessage));
 
             foreach (Attachment attachment in message.AS4Message.Attachments)
