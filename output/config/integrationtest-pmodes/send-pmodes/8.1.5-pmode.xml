@@ -51,7 +51,7 @@
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
       <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-      <PublicKeyFindValue>PartyA</PublicKeyFindValue>
+      <PublicKeyFindValue>AccessPointB</PublicKeyFindValue>
     </Encryption>
   </Security>
   <MessagePackaging>

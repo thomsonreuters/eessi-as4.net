@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.Model.Deliver
 
         public string ContentType { get; private set; }
 
-        public byte[] DeliverMessage { get; private set; }
+        public byte[] DeliverMessage { get; set; }
 
         public DeliverMessageEnvelope(MessageInfo messageInfo, byte[] deliverMessage, string contentType)
         {

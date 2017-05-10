@@ -12,48 +12,26 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._9_
     /// </summary>
     public class ReceiveMultiplePayloadsSignedEncryptedIntegrationTest : IntegrationTestTemplate
     {
-        private const string HolodeckMessageFilename = "\\8.3.9-sample.mmd";
-        private readonly string _holodeckMessagesPath;
-        private readonly string _destFileName;
-        private readonly Holodeck _holodeck;
-
-        public ReceiveMultiplePayloadsSignedEncryptedIntegrationTest()
-        {
-            this._holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            this._destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
-            this._holodeck = new Holodeck();
-        }
-
         [Fact]
         public void ThenReceiveMultiplePayloadsSignedSucceeds()
         {
             // Before
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            this.AS4Component.Start();
-            base.CleanUpFiles(AS4FullInputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            AS4Component.Start();
+            CleanUpFiles(AS4FullInputPath);
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             // Arrange
-            base.CopyPModeToHolodeckA("8.3.9-pmode.xml");
+            CopyPModeToHolodeckA("8.3.9-pmode.xml");
 
             // Act
-            File.Copy(this._holodeckMessagesPath, this._destFileName);
+            CopyMessageToHolodeckA("8.3.9-sample.mmd");
 
             // Assert
-            bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path);
-            if (areFilesFound) Console.WriteLine(@"Receive Multiple Payloads Encrypted Integration Test succeeded!");
-            else Retry();
-        }
-
-        private void Retry()
-        {
-            var startDir = new DirectoryInfo(AS4FullInputPath);
-            FileInfo[] files = startDir.GetFiles("*.jpg", SearchOption.AllDirectories);
-            Console.WriteLine($@"Polling failed, retry to check for the files. {files.Length} Files are found");
-
-            ValidatePolledFiles(files);
+            bool areFilesFound = PollingAt(Properties.Resources.holodeck_A_input_path);
+            Assert.True(areFilesFound, "Receive Multiple Payloads Encrypted Integration Test failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
@@ -62,22 +40,31 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._9_
             AssertPayloads(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
             AssertXmlFiles(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
 
-            this._holodeck.AssertReceiptOnHolodeckA();
+            var holodeck = new Holodeck();
+            holodeck.AssertReceiptOnHolodeckA();
         }
 
-        private void AssertPayloads(IEnumerable<FileInfo> files)
+        private static void AssertPayloads(IEnumerable<FileInfo> files)
         {
             var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
 
             foreach (FileInfo receivedPayload in files)
+            {
                 if (receivedPayload != null)
+                {
                     Assert.Equal(sendPayload.Length, receivedPayload.Length);
+                }
+            }
         }
 
-        private void AssertXmlFiles(IEnumerable<FileInfo> files)
+        private static void AssertXmlFiles(IEnumerable<FileInfo> files)
         {
             int count = files.Count();
-            if (count == 0) return;
+
+            if (count == 0)
+            {
+                return;
+            }
 
             Assert.Equal(2, count);
             Console.WriteLine($@"There're {count} incoming Xml Documents found");

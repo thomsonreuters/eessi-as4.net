@@ -13,43 +13,32 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._1_
     /// </summary>
     public class ReceiveMessageWithNotLinkedPModeIntegrationTest : IntegrationTestTemplate
     {
-        private const string HolodeckMessageFilename = "\\8.4.1-sample.mmd";
-        private readonly string _holodeckMessagesPath;
-        private readonly string _destFileName;
-        private readonly Holodeck _holodeck;
-
-        public ReceiveMessageWithNotLinkedPModeIntegrationTest()
-        {
-            this._destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
-            this._holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            this._holodeck = new Holodeck();
-        }
-
         [Fact]
         public void ThenSendingSinglePayloadSucceeds()
         {
             // Before
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            this.AS4Component.Start();
-            base.CleanUpFiles(AS4FullInputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            AS4Component.Start();
+            CleanUpFiles(AS4FullInputPath);
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             // Arrange
-            base.CopyPModeToHolodeckA("8.4.1-pmode.xml");
+            CopyPModeToHolodeckA("8.4.1-pmode.xml");
 
             // Act
-            File.Copy(this._holodeckMessagesPath, this._destFileName);
+            CopyMessageToHolodeckA("8.4.1-sample.mmd");
 
             // Assert
-            bool areFilesFound = base.PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml");
-            if (areFilesFound) Console.WriteLine(@"Receive Message with not linked PMode Integration Test succeeded!");
+            bool areFilesFound = PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml");
+            Assert.True(areFilesFound, "Receive Message with not linked PMode Integration Test failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
-            this._holodeck.AssertErrorOnHolodeckA(ErrorCode.Ebms0001);
+            var holodeck = new Holodeck();
+            holodeck.AssertErrorOnHolodeckA(ErrorCode.Ebms0001);
         }
     }
 }
