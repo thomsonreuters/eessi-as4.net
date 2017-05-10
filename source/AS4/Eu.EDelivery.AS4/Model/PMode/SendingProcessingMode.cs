@@ -19,6 +19,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [DebuggerDisplay("{" + nameof(Id) + "}")]
     public class SendingProcessingMode : IPMode
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SendingProcessingMode"/> class.
+        /// </summary>
         public SendingProcessingMode()
         {
             AllowOverride = false;
@@ -33,15 +36,25 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public bool AllowOverride { get; set; }
+
         public MessageExchangePattern Mep { get; set; }
+
         public MessageExchangePatternBinding MepBinding { get; set; }
+
         public PushConfiguration PushConfiguration { get; set; }
+
         public PullConfiguration PullConfiguration { get; set; }
+
         public SendReliability Reliability { get; set; }
+
         public SendHandling ReceiptHandling { get; set; }
+
         public SendHandling ErrorHandling { get; set; }
+
         public SendHandling ExceptionHandling { get; set; }
+
         public Security Security { get; set; }
+
         public SendMessagePackaging MessagePackaging { get; set; }
 
         [Info("The id of the sending pmode")]
@@ -51,6 +64,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class PModeParty
     {
         public List<PartyId> PartyIds { get; set; }
+
         public string Role { get; set; }
     }
 
@@ -63,6 +77,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public Signing Signing { get; set; }
+
         public Encryption Encryption { get; set; }
     }
 
@@ -81,8 +96,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public bool IsEnabled { get; set; }
+
         public string Algorithm { get; set; }
+
         public X509FindType PublicKeyFindType { get; set; }
+
         public string PublicKeyFindValue { get; set; }
 
         public KeyEncryption KeyTransport { get; set; }
@@ -92,7 +110,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool AlgorithmSpecified => !String.IsNullOrWhiteSpace(Algorithm);
+        public bool AlgorithmSpecified => !string.IsNullOrWhiteSpace(Algorithm);
 
         [XmlIgnore]
         [JsonIgnore]
@@ -102,7 +120,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool PublicKeyFindValueSpecified => !String.IsNullOrWhiteSpace(PublicKeyFindValue);
+        public bool PublicKeyFindValueSpecified => !string.IsNullOrWhiteSpace(PublicKeyFindValue);
 
         [XmlIgnore]
         [JsonIgnore]
@@ -127,7 +145,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public string TransportAlgorithm { get; set; }
+
         public string DigestAlgorithm { get; set; }
+
         public string MgfAlgorithm { get; set; }
 
         #region Properties that control serialization
@@ -135,17 +155,17 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool TransportAlgorithmSpecified => !String.IsNullOrWhiteSpace(TransportAlgorithm);
+        public bool TransportAlgorithmSpecified => !string.IsNullOrWhiteSpace(TransportAlgorithm);
 
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool DigestAlgorithmSpecified => !String.IsNullOrWhiteSpace(DigestAlgorithm);
+        public bool DigestAlgorithmSpecified => !string.IsNullOrWhiteSpace(DigestAlgorithm);
 
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool MgfAlgorithmSpecified => !String.IsNullOrWhiteSpace(MgfAlgorithm);
+        public bool MgfAlgorithmSpecified => !string.IsNullOrWhiteSpace(MgfAlgorithm);
 
         #endregion
     }
@@ -158,10 +178,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public bool IsEnabled { get; set; }
+
         public X509ReferenceType KeyReferenceMethod { get; set; }
+
         public X509FindType PrivateKeyFindType { get; set; }
+
         public string PrivateKeyFindValue { get; set; }
+
         public string Algorithm { get; set; }
+
         public string HashFunction { get; set; }
 
         #region Properties that control serialization
@@ -169,7 +194,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool PrivateKeyFindValueSpecified => !String.IsNullOrWhiteSpace(PrivateKeyFindValue);
+        public bool PrivateKeyFindValueSpecified => !string.IsNullOrWhiteSpace(PrivateKeyFindValue);
 
         [XmlIgnore]
         [JsonIgnore]
@@ -184,12 +209,12 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool AlgorithmSpecified => !String.IsNullOrWhiteSpace(Algorithm);
+        public bool AlgorithmSpecified => !string.IsNullOrWhiteSpace(Algorithm);
 
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
-        public bool HashFunctionSpecified => !String.IsNullOrWhiteSpace(HashFunction);
+        public bool HashFunctionSpecified => !string.IsNullOrWhiteSpace(HashFunction);
 
         #endregion
     }
@@ -203,6 +228,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public bool NotifyMessageProducer { get; set; }
+
         public Method NotifyMethod { get; set; }
     }
 
@@ -229,6 +255,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public bool IsEnabled { get; set; }
+
         public int RetryCount { get; set; }
 
         public string RetryInterval
@@ -241,6 +268,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public interface ISendConfiguration
     {
         Protocol Protocol { get; set; }
+
         TlsConfiguration TlsConfiguration { get; set; }
     }
 
@@ -254,8 +282,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Mpc = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
         }
 
-        public Protocol Protocol { get; set; }
         public string Mpc { get; set; }
+
+        public Protocol Protocol { get; set; }
+
         public TlsConfiguration TlsConfiguration { get; set; }
     }
 
@@ -269,6 +299,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public Protocol Protocol { get; set; }
+
         public TlsConfiguration TlsConfiguration { get; set; }
     }
 
@@ -281,7 +312,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public string Url { get; set; }
+
         public bool UseChunking { get; set; }
+
         public bool UseHttpCompression { get; set; }
     }
 
@@ -294,13 +327,16 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public bool IsEnabled { get; set; }
+
         public TlsVersion TlsVersion { get; set; }
+
         public ClientCertificateReference ClientCertificateReference { get; set; }
     }
 
     public class ClientCertificateReference
     {
         public X509FindType ClientCertificateFindType { get; set; }
+
         public string ClientCertificateFindValue { get; set; }
     }
 
@@ -314,8 +350,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
 
         public string Mpc { get; set; }
+
         public bool UseAS4Compression { get; set; }
+
         public bool IsMultiHop { get; set; }
+
         public bool IncludePModeId { get; set; }
     }
 

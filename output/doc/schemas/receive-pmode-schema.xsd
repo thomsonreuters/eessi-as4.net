@@ -41,7 +41,6 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="UseNNRFormat" type="xs:boolean" />
       <xs:element minOccurs="1" maxOccurs="1" name="ReplyPattern" type="tns:ReplyPattern" />
-      <xs:element minOccurs="0" maxOccurs="1" name="CallbackUrl" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
@@ -55,7 +54,6 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="UseSoapFault" type="xs:boolean" />
       <xs:element minOccurs="1" maxOccurs="1" name="ReplyPattern" type="tns:ReplyPattern" />
-      <xs:element minOccurs="0" maxOccurs="1" name="CallbackUrl" type="xs:string" />
       <xs:element minOccurs="1" maxOccurs="1" name="ResponseHttpCode" type="xs:int" />
       <xs:element minOccurs="0" maxOccurs="1" name="SendingPMode" type="xs:string" />
     </xs:sequence>
@@ -103,8 +101,8 @@
   <xs:complexType name="Decryption">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Encryption" type="tns:Limit" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindValue" type="xs:string" />
-      <xs:element minOccurs="1" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="X509FindType">
@@ -158,10 +156,10 @@
   </xs:complexType>
   <xs:complexType name="CollaborationInfo">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="AgreementReference" type="tns:AgreementReference" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ConversationId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AgreementReference" type="tns:AgreementReference" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="AgreementReference">
@@ -173,7 +171,7 @@
   </xs:complexType>
   <xs:complexType name="Service">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
