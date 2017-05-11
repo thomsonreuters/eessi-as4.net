@@ -1,84 +1,110 @@
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 
-namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
+namespace Eu.EDelivery.AS4.Steps.Deliver
 {
     [ExcludeFromCodeCoverage]
-    public class InteropTestingDeliverMessageTransformer : DeliverMessageTransformer
+    public class InteropConformanceTestCreateDeliverMessageStep : IConfigStep
     {
-        private const string InteropUriPrefix = "http://www.esens.eu/as4/interoptest";
+        private string _uriPrefix;
 
-        protected override DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
+        /// <summary>
+        /// Configure the step with a given Property Dictionary
+        /// </summary>
+        /// <param name="properties"></param>
+        public void Configure(IDictionary<string, string> properties)
         {
-            var deliverMessage = CreateMinderDeliverMessage(as4Message);
+            _uriPrefix = properties.ReadMandatoryProperty("Uri");
+        }
+
+        /// <summary>
+        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// </summary>
+        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        {
+            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(internalMessage.AS4Message);
+            return StepResult.SuccessAsync(internalMessage);
+        }
+
+        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
+        {
+            UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
             // The Minder Deliver Message should be an AS4-Message.
             var builder = new AS4MessageBuilder();
-
             builder.WithUserMessage(deliverMessage);
 
-            foreach (var att in as4Message.Attachments)
+            foreach (Attachment attachment in as4Message.Attachments)
             {
-                builder.WithAttachment(att);
+                builder.WithAttachment(attachment);
             }
 
-            var msg = builder.Build();
-
-            var serializer = Common.Registry.Instance.SerializerProvider.Get(msg.ContentType);
-
-            byte[] content;
-
-            using (var memoryStream = new MemoryStream())
-            {
-                serializer.Serialize(msg, memoryStream, CancellationToken.None);
-                content = memoryStream.ToArray();
-            }
+            AS4Message msg = builder.Build();
+            byte[] content = SerializeAS4Message(msg);
 
             return new DeliverMessageEnvelope(
-                new MessageInfo()
+                messageInfo: new MessageInfo
                 {
                     MessageId = deliverMessage.MessageId,
                     RefToMessageId = deliverMessage.RefToMessageId
                 },
-                content,
-                msg.ContentType);
+                deliverMessage: content,
+                contentType: msg.ContentType);
         }
 
-        private static UserMessage CreateMinderDeliverMessage(AS4Message as4Message)
+        private static byte[] SerializeAS4Message(AS4Message msg)
+        {
+            ISerializer serializer = AS4.Common.Registry.Instance.SerializerProvider.Get(msg.ContentType);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                serializer.Serialize(msg, memoryStream, CancellationToken.None);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private UserMessage CreateMinderDeliverMessage(AS4Message as4Message)
         {
             UserMessage userMessage = as4Message.PrimaryUserMessage;
 
-            UserMessage deliverMessage = new UserMessage(userMessage.MessageId)
+            var deliverMessage = new UserMessage(userMessage.MessageId)
             {
                 RefToMessageId = userMessage.RefToMessageId,
                 Timestamp = userMessage.Timestamp,
                 CollaborationInfo =
                 {
                     Action = "Deliver",
-                    Service = {Value = InteropUriPrefix},
+                    Service = {Value = _uriPrefix},
                     ConversationId = userMessage.CollaborationInfo.ConversationId
                 },
-                Sender = new Party($"{InteropUriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
-                Receiver = new Party($"{InteropUriPrefix}/testdriver", new PartyId("minder"))
+                Sender = new Party($"{_uriPrefix}/sut", userMessage.Receiver.PartyIds.FirstOrDefault()),
+                Receiver = new Party($"{_uriPrefix}/testdriver", new PartyId("minder"))
             };
-
 
             // Party Information: sender is the receiver of the AS4Message that has been received.
             //                    receiver is minder.
 
             // Set the PayloadInfo.
-            foreach (var pi in userMessage.PayloadInfo)
+            foreach (PartInfo partInfo in userMessage.PayloadInfo)
             {
-                deliverMessage.PayloadInfo.Add(pi);
+                deliverMessage.PayloadInfo.Add(partInfo);
             }
 
             deliverMessage.MessageProperties.Add(new MessageProperty("MessageId", userMessage.MessageId));
@@ -117,8 +143,8 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             {
                 return;
             }
+
             message.MessageProperties.Add(property);
         }
-
     }
 }

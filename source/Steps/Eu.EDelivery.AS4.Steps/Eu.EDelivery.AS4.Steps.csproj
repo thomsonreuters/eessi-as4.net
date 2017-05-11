@@ -192,6 +192,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\InExceptionStepDecorator.cs" />
+    <Compile Include="Deliver\CreateDeliverMessageStep.cs" />
+    <Compile Include="Deliver\InteropConformanceTestCreateDeliverMessageStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
     <Compile Include="Deliver\SendDeliverMessageStep.cs" />
     <Compile Include="Deliver\UploadAttachmentsStep.cs" />

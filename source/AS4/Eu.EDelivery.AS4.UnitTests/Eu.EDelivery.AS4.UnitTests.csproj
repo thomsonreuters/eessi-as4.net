@@ -317,6 +317,7 @@
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\Core\PullRequestError.cs" />
+    <Compile Include="Model\FilledUserMessage.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
     <Compile Include="Model\GivenCollaborationInfoFacts.cs" />
@@ -375,6 +376,7 @@
     <Compile Include="Servicehandler\GivenKernelFacts.cs" />
     <Compile Include="Steps\Common\GivenInExceptionDecoratorStep.cs" />
     <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
+    <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />
