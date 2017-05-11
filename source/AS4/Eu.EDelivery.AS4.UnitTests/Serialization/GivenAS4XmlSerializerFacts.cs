@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
@@ -13,6 +15,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     /// </summary>
     public class GivenAS4XmlSerializerfacts
     {
+        public class ToXmlString
+        {
+            [Fact]
+            public async Task AsyncSerializeToValidXml()
+            {
+                // Arrange
+                var deliverMessage = new DeliverMessage();
+
+                // Act
+                string actualXml = await AS4XmlSerializer.ToStringAsync(deliverMessage);
+
+                // Assert
+                const string expectedXml = 
+                    "<?xml version=\"1.0\" encoding=\"utf-16\"?>"
+                        + "<DeliverMessage xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+                            + "<MessageInfo /><PartyInfo /><CollaborationInfo><AgreementRef /><Service /></CollaborationInfo><Payloads />"
+                        + "</DeliverMessage>";
+
+                Assert.Equal(expectedXml, actualXml);
+            }
+        }
+
         public class Serialize
         {
             [Fact]
@@ -29,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
             }
 
-            private SendingProcessingMode DeserializeExpectedPMode(Stream actualPModeStream)
+            private static SendingProcessingMode DeserializeExpectedPMode(Stream actualPModeStream)
             {
                 using (var memoryStream = new MemoryStream())
                 {

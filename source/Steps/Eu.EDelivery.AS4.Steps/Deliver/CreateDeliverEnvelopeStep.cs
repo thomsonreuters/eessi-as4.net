@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     /// <summary>
     /// <see cref="IStep" /> implementation to create a <see cref="DeliverMessage" />.
     /// </summary>
-    public class CreateDeliverMessageStep : IStep
+    public class CreateDeliverEnvelopeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IValidator<DeliverMessage> _validator = new DeliverMessageValidator();
@@ -27,20 +27,20 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <param name="internalMessage">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(internalMessage.AS4Message);
+            internalMessage.DeliverMessage = await CreateDeliverMessageEnvelope(internalMessage.AS4Message);
 
-            return StepResult.SuccessAsync(internalMessage);
+            return StepResult.Success(internalMessage);
         }
 
-        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
+        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(AS4Message as4Message)
         {
             DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, as4Message);
 
             ValidateDeliverMessage(deliverMessage);
 
-            string serialized = AS4XmlSerializer.ToString(deliverMessage);
+            string serialized = await AS4XmlSerializer.ToStringAsync(deliverMessage);
 
             return new DeliverMessageEnvelope(
                 deliverMessage.MessageInfo,

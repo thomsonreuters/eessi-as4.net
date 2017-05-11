@@ -18,7 +18,7 @@ using Service = Eu.EDelivery.AS4.Model.Common.Service;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
     /// <summary>
-    /// Testing <see cref="CreateDeliverMessageStep"/>
+    /// Testing <see cref="CreateDeliverEnvelopeStep"/>
     /// </summary>
     public class GivenCreateDeliverMessageStepFacts
     {
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private static async Task<DeliverMessageEnvelope> ExecuteStepWith(AS4Message as4Message)
         {
-            var sut = new CreateDeliverMessageStep();
+            var sut = new CreateDeliverEnvelopeStep();
             StepResult result = await sut.ExecuteAsync(new InternalMessage(as4Message), CancellationToken.None);
 
             return result.InternalMessage.DeliverMessage;

@@ -18,7 +18,7 @@ using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 namespace Eu.EDelivery.AS4.Steps.Deliver
 {
     [ExcludeFromCodeCoverage]
-    public class InteropConformanceTestCreateDeliverMessageStep : IConfigStep
+    public class MinderTestCreateDeliverEnvelopeStep : IConfigStep
     {
         private string _uriPrefix;
 
