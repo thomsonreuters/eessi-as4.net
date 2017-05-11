@@ -38,7 +38,7 @@
   <ErrorHandling>
     <NotifyMessageProducer>true</NotifyMessageProducer>
     <NotifyMethod>
-      <Type>HTTP</Type>
+      <Type>FILE</Type>
       <Parameters>
         <Parameter name="location" value=".\messages\errors\" />
       </Parameters>
