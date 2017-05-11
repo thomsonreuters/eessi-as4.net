@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Eu.EDelivery.AS4.MessageSubmitter"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
-    
+
     <Window.Resources>
         <Style TargetType="Label">
             <Setter Property="Margin" Value="8"></Setter>
@@ -34,12 +34,12 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        
-        <Label Grid.Column="0" Grid.Row="0">Sending PMode location:</Label>
+
+        <!--<Label Grid.Column="0" Grid.Row="0">Sending PMode location:</Label>
         <DockPanel Grid.Column="1" Grid.Row="0" LastChildFill="True">
             <Button DockPanel.Dock="Right" x:Name="BrowsePModeLocationButton" Padding="6,0,6,0" Click="BrowsePModeLocationButton_Click">...</Button>
             <TextBox  x:Name="SendingPModeLocationTextBox" Height="25" IsReadOnly="True" ></TextBox>
-        </DockPanel>
+        </DockPanel>-->
         <TabControl Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
             <TabItem Header="Compose submitmessage">
                 <Grid>
@@ -50,19 +50,25 @@
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
                         <RowDefinition Height="*"></RowDefinition>
                         <RowDefinition Height="Auto"></RowDefinition>
                     </Grid.RowDefinitions>
 
-                    <Label Grid.Column="0" Grid.Row="0">Sending P-Mode:</Label>
-                    <ComboBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding SendingProcessingModeName}" IsEditable="True" x:Name="PModeCombobox"></ComboBox>
+                    <Label Grid.Row="0" Grid.Column="0">Sending PMode location:</Label>
+                    <DockPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="True">
+                        <Button DockPanel.Dock="Right" x:Name="BrowsePModeLocationButton" Padding="6,0,6,0" Click="BrowsePModeLocationButton_Click">...</Button>
+                        <TextBox  x:Name="SendingPModeLocationTextBox" Height="25" IsReadOnly="True" ></TextBox>
+                    </DockPanel>
 
-                    <Label Grid.Column="0" Grid.Row="1">Payloads:</Label>
-                    <ListView Grid.Column="1" Grid.Row="1" BorderThickness="0" x:Name="PayloadListView" >
+                    <Label Grid.Row="1" Grid.Column="0">Sending P-Mode:</Label>
+                    <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding SendingProcessingModeName}" IsEditable="True" x:Name="PModeCombobox"></ComboBox>
+
+                    <Label Grid.Row="2" Grid.Column="0">Payloads:</Label>
+                    <ListView Grid.Row="2" Grid.Column="1" BorderThickness="1" x:Name="PayloadListView" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"></Setter>
                             </Style>
                         </ListView.ItemContainerStyle>
                         <ListView.ItemTemplate>
@@ -82,20 +88,20 @@
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
-                        
+
                     </ListView>
-                    <DockPanel Grid.Row="1" Grid.Column="2" LastChildFill="False" >
+                    <DockPanel Grid.Row="2" Grid.Column="2"  LastChildFill="False" >
                         <Button DockPanel.Dock="Top" x:Name="AddPayloadButton" Padding="10,0,10,0" MaxHeight="25"  Click="AddPayloadButton_Click">Add</Button>
                     </DockPanel>
 
-                    <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                    <DockPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
                         <TextBlock VerticalAlignment="Center">Submit</TextBlock>
                         <TextBox Width="30" Text="{Binding NumberOfSubmitMessages, Mode=TwoWay}"></TextBox>
                         <TextBlock VerticalAlignment="Center">message(s) in</TextBlock>
                         <TextBox x:Name="SubmitLocationTextBox" HorizontalAlignment="Stretch" Text="{Binding SubmitLocation, Mode=TwoWay}"></TextBox>
                     </DockPanel>
-                    <Button Grid.Row="2" Grid.Column="2" Click="Button_Click">OK</Button>
-                    
+                    <Button Grid.Row="3" Grid.Column="2" Click="Button_Click">OK</Button>
+
                 </Grid>
             </TabItem>
         </TabControl>
