@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_SIMPLE_ONEWAY_FROM_AS4.NET-C2_TO_RSSBUS-C3</Id>
+  <Id>ACT_SIMPLE_ONEWAY_VOLUME_FROM_AS4.NET-C2_TO_RSSBUS-C3</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
@@ -29,9 +29,9 @@
   <ReceiptHandling>
     <NotifyMessageProducer>true</NotifyMessageProducer>
     <NotifyMethod>
-      <Type>HTTP</Type>
+      <Type>FILE</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner1" />
+        <Parameter name="location" value=".\messages\receipts\" />
       </Parameters>
     </NotifyMethod>
   </ReceiptHandling>
@@ -40,7 +40,7 @@
     <NotifyMethod>
       <Type>HTTP</Type>
       <Parameters>
-        <Parameter name="location" value="http://193.140.74.199:15001/corner1" />
+        <Parameter name="location" value=".\messages\errors\" />
       </Parameters>
     </NotifyMethod>
   </ErrorHandling>
@@ -70,11 +70,11 @@
   <MessagePackaging>
     <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>true</IncludePModeId>
+    <IncludePModeId>false</IncludePModeId>
     <CollaborationInfo>
-      <Action>ACT_SIMPLE_ONEWAY</Action>
+      <Action>ACT_SIMPLE_ONEWAY_VOLUME</Action>
       <Service>
-        <Value>SRV_SIMPLE_ONEWAY</Value>
+        <Value>SRV_SIMPLE_ONEWAY_VOLUME</Value>
       </Service>
     </CollaborationInfo>
     <PartyInfo>

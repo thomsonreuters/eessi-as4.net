@@ -6,7 +6,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://13.93.127.140:8180/domibus/services/msh</Url>
+      <Url>http://13.81.124.142:8080/domibus/services/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
