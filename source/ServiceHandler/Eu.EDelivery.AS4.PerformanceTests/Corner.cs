@@ -16,17 +16,16 @@ namespace Eu.EDelivery.AS4.PerformanceTests
     /// </summary>
     public class Corner : IDisposable
     {
-        private readonly Process _cornerProcess;
         private readonly DirectoryInfo _cornerDirectory;
+
+        private Process _cornerProcess;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Corner"/> class.
         /// </summary>
         /// <param name="cornerDirectory"></param>
-        /// <param name="cornerProcess"></param>
-        private Corner(DirectoryInfo cornerDirectory, Process cornerProcess)
+        private Corner(DirectoryInfo cornerDirectory)
         {
-            _cornerProcess = cornerProcess;
             _cornerDirectory = cornerDirectory;
         }
 
@@ -206,17 +205,31 @@ namespace Eu.EDelivery.AS4.PerformanceTests
                 () =>
                 {
                     DirectoryInfo cornerDirectory = SetupCornerFixture(prefix);
+                    var corner = new Corner(cornerDirectory);
 
-                    var cornerInfo =
-                        new ProcessStartInfo(
-                            Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"));
-                    cornerInfo.WorkingDirectory = cornerDirectory.FullName;
-
-                    var corner = new Corner(cornerDirectory, Process.Start(cornerInfo));
                     Thread.Sleep(1000);
-
                     return corner;
                 });
+        }
+
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        public void Start()
+        {
+            _cornerProcess = CreateCornerProcessAt(_cornerDirectory);
+        }
+
+        private static Process CreateCornerProcessAt(FileSystemInfo cornerDirectory)
+        {
+            var cornerInfo =
+                new ProcessStartInfo(
+                    Path.Combine(cornerDirectory.FullName, "Eu.EDelivery.AS4.ServiceHandler.ConsoleHost.exe"))
+                {
+                    WorkingDirectory = cornerDirectory.FullName
+                };
+
+            return Process.Start(cornerInfo);
         }
 
         private static DirectoryInfo SetupCornerFixture(string cornerPrefix)
@@ -283,10 +296,14 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
         private static void IncludeCornerSettingsIn(DirectoryInfo cornerDirectory, string cornerSettingsFileName)
         {
-            FileInfo cornerSettings =
-                cornerDirectory.GetFiles("*.xml", SearchOption.AllDirectories)
-                               .FirstOrDefault(f => f.Name.Equals(cornerSettingsFileName, StringComparison.OrdinalIgnoreCase) && 
-                                                    f.DirectoryName?.IndexOf("performancetest-settings", StringComparison.OrdinalIgnoreCase) >-1);
+            Func<FileInfo, bool> matchesSettingsFile =
+                f =>
+                    f.Name.Equals(cornerSettingsFileName, StringComparison.OrdinalIgnoreCase)
+                    && f.DirectoryName?.IndexOf("performancetest-settings", StringComparison.OrdinalIgnoreCase) > -1;
+
+            FileInfo cornerSettings = cornerDirectory
+                .GetFiles("*.xml", SearchOption.AllDirectories)
+                .FirstOrDefault(matchesSettingsFile);
 
             if (cornerSettings == null)
             {
@@ -369,6 +386,14 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
             Console.WriteLine($@"Copy '{volumeReceivePModes.FullName}' to '{outputReceivePModes.FullName}'");
             CopyFiles(volumeReceivePModes, outputReceivePModes.FullName);
+        }
+
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
+        public void Stop()
+        {
+            Dispose();
         }
 
         /// <summary>

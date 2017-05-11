@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Eu.EDelivery.AS4.PerformanceTests.Fixture;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -15,10 +16,11 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
         private readonly ITestOutputHelper _output;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="VolumeTestFromC2ToC3"/> class.
+        /// Initializes a new instance of the <see cref="VolumeTestFromC2ToC3" /> class.
         /// </summary>
         /// <param name="output">The console output for the test run.</param>
-        public VolumeTestFromC2ToC3(ITestOutputHelper output)
+        /// <param name="fixture">The fixture.</param>
+        public VolumeTestFromC2ToC3(ITestOutputHelper output, CornersFixture fixture) : base(fixture)
         {
             _output = output;
         }
@@ -54,15 +56,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests.Volume
 
         [Theory]
         [InlineData(100, 60)]
-        //[InlineData(500, 180)]
-        //[InlineData(1000, 500)]
-        //   [InlineData(5000, 1800)]
         public void MeasureSubmitAndDeliverMessages(int messageCount, int maxExecutionTimeInSeconds)
         {
             // Arrange            
             TimeSpan maxExecutionTime = TimeSpan.FromSeconds(maxExecutionTimeInSeconds);
 
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
             sw.Start();
 
             // Act
