@@ -6,7 +6,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://172.126.121.169:4082/pub/Receive.rsb</Url>
+      <Url>http://66.57.37.138:4082/pub/Receive.rsb</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>
