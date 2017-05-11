@@ -1,0 +1,107 @@
+﻿<Window x:Class="Eu.EDelivery.AS4.MessageSubmitter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Eu.EDelivery.AS4.MessageSubmitter"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    
+    <Window.Resources>
+        <Style TargetType="Label">
+            <Setter Property="Margin" Value="8"></Setter>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="8"></Setter>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="8"></Setter>
+        </Style>
+        <Style TargetType="ListView">
+            <Setter Property="Margin" Value="8"></Setter>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="8"></Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Label Grid.Column="0" Grid.Row="0">Sending PMode location:</Label>
+        <DockPanel Grid.Column="1" Grid.Row="0" LastChildFill="True">
+            <Button DockPanel.Dock="Right" x:Name="BrowsePModeLocationButton" Padding="6,0,6,0" Click="BrowsePModeLocationButton_Click">...</Button>
+            <TextBox  x:Name="SendingPModeLocationTextBox" Height="25" IsReadOnly="True" ></TextBox>
+        </DockPanel>
+        <TabControl Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
+            <TabItem Header="Compose submitmessage">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="Auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Column="0" Grid.Row="0">Sending P-Mode:</Label>
+                    <ComboBox Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Text="{Binding SendingProcessingModeName}" IsEditable="True" x:Name="PModeCombobox"></ComboBox>
+
+                    <Label Grid.Column="0" Grid.Row="1">Payloads:</Label>
+                    <ListView Grid.Column="1" Grid.Row="1" BorderThickness="0" x:Name="PayloadListView" >
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"></Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"></RowDefinition>
+                                    </Grid.RowDefinitions>
+
+                                    <Label Grid.Column="0" Padding="0">File:</Label>
+                                    <local:BrowseFileControl Grid.Column="1" SelectedFileName="{Binding FileName, Mode=TwoWay }"></local:BrowseFileControl>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        
+                    </ListView>
+                    <DockPanel Grid.Row="1" Grid.Column="2" LastChildFill="False" >
+                        <Button DockPanel.Dock="Top" x:Name="AddPayloadButton" Padding="10,0,10,0" MaxHeight="25"  Click="AddPayloadButton_Click">Add</Button>
+                    </DockPanel>
+
+                    <DockPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+                        <TextBlock VerticalAlignment="Center">Submit</TextBlock>
+                        <TextBox Width="30" Text="{Binding NumberOfSubmitMessages, Mode=TwoWay}"></TextBox>
+                        <TextBlock VerticalAlignment="Center">message(s) in</TextBlock>
+                        <TextBox x:Name="SubmitLocationTextBox" HorizontalAlignment="Stretch" Text="{Binding SubmitLocation, Mode=TwoWay}"></TextBox>
+                    </DockPanel>
+                    <Button Grid.Row="2" Grid.Column="2" Click="Button_Click">OK</Button>
+                    
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
+
+
+

@@ -67,7 +67,7 @@
   <MessagePackaging>
     <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
-    <IncludePModeId>true</IncludePModeId>
+    <IncludePModeId>false</IncludePModeId>
     <CollaborationInfo>
       <Action>ACT_SIMPLE_ONEWAY_SIZE</Action>
       <Service>
