@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Corner.cs" />
+    <Compile Include="Fixture\CornersFixture.cs" />
     <Compile Include="LargeMessages\LargeMessage.cs" />
     <Compile Include="LargeMessages\LargeMessagesTestFromC2ToC3.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
