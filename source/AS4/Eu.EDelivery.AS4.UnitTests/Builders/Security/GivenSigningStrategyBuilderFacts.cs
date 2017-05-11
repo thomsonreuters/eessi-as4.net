@@ -177,15 +177,5 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 Assert.Throws<AS4Exception>(() => _builder = new SigningStrategyBuilder(xmlDocument));
             }
         }
-
-        protected Stream GetEnvelopeStream()
-        {
-            var memoryStream = new MemoryStream();
-            var soapEnvelopeBuilder = new SoapEnvelopeBuilder();
-            XmlDocument xmlDocument = soapEnvelopeBuilder.Build();
-            xmlDocument.Save(memoryStream);
-
-            return memoryStream;
-        }
     }
 }

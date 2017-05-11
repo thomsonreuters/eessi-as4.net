@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps
 {
@@ -25,6 +26,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
         {
             IsCalled = true;
             return StepResult.SuccessAsync(internalMessage);
+        }
+
+        [Fact]
+        public async Task TestSpyStep()
+        {
+            // Arrange
+            var step = new SpyStep();
+
+            // Act
+            await step.ExecuteAsync(internalMessage: null, cancellationToken: CancellationToken.None);
+
+            // Assert
+            Assert.True(step.IsCalled);
         }
     }
 }

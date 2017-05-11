@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Xunit;
 using System.Reflection;
+using Moq;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 {
@@ -35,32 +36,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         [Fact]
         public void GetsEmptyAS4MessageForEmptyHttpContentType()
         {
-            var response = CreateWebResponse(string.Empty);
+            // Arrange
+            HttpWebResponse response = CreateWebResponseWithContentType(string.Empty);
 
-            Assert.Equal(string.Empty, response.ContentType);
-
+            // Act
             InternalMessage result = CreateAS4ResponseWith(webResponse: response).ResultedMessage;
 
+            // Assert
             Assert.True(result.AS4Message.IsEmpty);
         }
 
-        private static HttpWebResponse CreateWebResponse(string contentType)
+        [Fact]
+        public void TestEmptyResponse()
         {
-            // It is not possible to create a HttpWebResponse instance directly; therefore reflection is being used.
-            var response = Activator.CreateInstance<HttpWebResponse>();
+            // Arrange
+            string expectedContentType = string.Empty;
 
-            FieldInfo fi = typeof(HttpWebResponse).GetField("m_HttpResponseHeaders", BindingFlags.NonPublic | BindingFlags.Instance);
+            // Act
+            HttpWebResponse actualResponse = CreateWebResponseWithContentType(expectedContentType);
 
-            if (fi == null)
-            {
-                throw new MissingFieldException("The m_HttpResponseHeaders field could not be retrieved from the HttpWebResponse class.");
-            }
+            // Assert
+            Assert.Equal(expectedContentType, actualResponse.ContentType);
+        }
 
-            fi.SetValue(response, new WebHeaderCollection(), BindingFlags.NonPublic, null, null);
+        private static HttpWebResponse CreateWebResponseWithContentType(string contentType)
+        {
+            var stubResponse = new Mock<HttpWebResponse>();
+            stubResponse.Setup(r => r.ContentType).Returns(contentType);
 
-            response.Headers.Add("Content-Type", contentType);
-
-            return response;
+            return stubResponse.Object;
         }
 
         private static AS4Response CreateAS4ResponseWith(HttpWebResponse webResponse = null, InternalMessage messageRequest = null)
