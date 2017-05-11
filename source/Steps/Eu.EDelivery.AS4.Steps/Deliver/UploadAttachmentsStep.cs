@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using NLog;
 
@@ -30,7 +25,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private InternalMessage _internalMessage;
 
         /// <summary>
-        /// Iniitializes a new instance of the <see cref="UploadAttachmentsStep"/> class
+        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
         /// </summary>
         public UploadAttachmentsStep()
         {
@@ -39,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class
+        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
         /// Create a <see cref="IStep"/> implementation
         /// for uploading the AS4 Attachments to a configured location
         /// </summary>
@@ -66,31 +61,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             _internalMessage = internalMessage;
 
             await UploadAttachments(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
-            UpdateAttachmentLocations(internalMessage);
 
             return await StepResult.SuccessAsync(internalMessage);
-        }
-
-        private static void UpdateAttachmentLocations(InternalMessage message)
-        {
-            if (message.DeliverMessage == null)
-            {
-                return;
-            }
-
-            var deserializedMessage = AS4XmlSerializer.FromStream<DeliverMessage>(new MemoryStream(message.DeliverMessage.DeliverMessage));
-
-            foreach (Attachment attachment in message.AS4Message.Attachments)
-            {
-                Payload partInfo = deserializedMessage.Payloads.FirstOrDefault(p => p.Id.Contains(attachment.Id));
-                if (partInfo != null)
-                {
-                    partInfo.Location = attachment.Location ?? string.Empty;
-                }
-            }
-
-            string xml = AS4XmlSerializer.ToString(deserializedMessage);
-            message.DeliverMessage.DeliverMessage = Encoding.UTF8.GetBytes(xml);
         }
 
         private async Task UploadAttachments(IEnumerable<Attachment> attachments)
@@ -131,7 +103,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return payloadReferenceMethod;
         }
 
-        private void PreConditionsPayloadReferenceMethod(ReceivingProcessingMode pmode, Method payloadReferenceMethod)
+        private void PreConditionsPayloadReferenceMethod(IPMode pmode, Method payloadReferenceMethod)
         {
             if (payloadReferenceMethod.Type == null)
             {
