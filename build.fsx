@@ -1,10 +1,6 @@
 #r "tools/FAKE/FakeLib.dll"
-#r "System.Management.Automation"
 
 open System
-open System.IO
-open System.Diagnostics
-open System.Management.Automation
 open Fake
 open Fake.Testing
 open Fake.DotCover
