@@ -1,6 +1,10 @@
 #r "tools/FAKE/FakeLib.dll"
+#r "System.Management.Automation"
 
 open System
+open System.IO
+open System.Diagnostics
+open System.Management.Automation
 open Fake
 open Fake.Testing
 open Fake.DotCover
@@ -119,9 +123,15 @@ Target "Inspect" (fun _ ->
 /// </summary>
 Target "Release" (fun _ ->
     DeleteDir "./output/Staging"
-    Shell.Exec("powershell.exe", "-File ../scripts/add-probing.ps1", "./output/") |> ignore
-    Shell.Exec("powershell.exe", "-File ../scripts/stagingscript.ps1", "./output/") |> ignore
-    Shell.Exec("powershell.exe", "-File GenerateXsd.ps1", "./scripts/") |> ignore
+
+    let runPowerShell script workingDir = 
+        Shell.Exec("powershell.exe", script, workingDir) |> ignore
+    
+    let outputDir = "./output"
+    runPowerShell "Set-ExecutionPolicy ByPass -Scope Process" outputDir
+    runPowerShell "-File ../scripts/add-probing.ps1" outputDir
+    runPowerShell "-File ../scripts/stagingscript.ps1" outputDir
+    runPowerShell "-File ./GenerateXsd.ps1" "./scripts/"
 
     !! "./output/Staging/**/*.*"
         -- "*.zip"
