@@ -260,13 +260,23 @@ namespace Eu.EDelivery.AS4.Repositories
             return AS4XmlSerializer.FromString<SendingProcessingMode>(pmodeString);
         }
 
-        public Dictionary<string, string> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds)
+        /// <summary>
+        /// Retrieves the SendingProcessingMode strings that were used to sent the Messages with the specified ebmsMessageIds.
+        /// </summary>
+        /// <param name="ebmsMessageIds"></param>
+        /// <returns></returns>
+        public IEnumerable<(string ebmsMessageId, string sendingPMode)> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds)
         {
             ebmsMessageIds = ebmsMessageIds.Distinct();
 
-            return _dbContext.OutMessages
-                                .Where(m => ebmsMessageIds.Contains(m.EbmsMessageId)).Select(m => new { m.EbmsMessageId, m.PMode })
-                                .ToDictionary(k => k.EbmsMessageId, e => e.PMode);
+            var result = _dbContext.OutMessages
+                                   .Where(m => ebmsMessageIds.Contains(m.EbmsMessageId))
+                                   .Select(m => new { MessageId = m.EbmsMessageId, PMode = m.PMode });
+
+            foreach (var record in result)
+            {
+                yield return (ebmsMessageId: record.MessageId, sendingPMode: record.PMode);
+            }
         }
 
         #endregion
@@ -500,7 +510,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId);
 
-        Dictionary<string, string> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds);
+        IEnumerable<(string ebmsMessageId, string sendingPMode)> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds);
 
         void InsertReceptionAwareness(ReceptionAwareness receptionAwareness);
         void UpdateReceptionAwareness(string messageId, Action<ReceptionAwareness> updateAction);

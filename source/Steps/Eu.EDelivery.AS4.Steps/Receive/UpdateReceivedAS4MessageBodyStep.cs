@@ -1,12 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
 
@@ -44,14 +40,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 var service = new InMessageService(repository);
 
-                await service.UpdateAS4MessageForDelivery(internalMessage.AS4Message, Config.Instance.IncomingAS4MessageBodyPersister, cancellationToken);
+                await service.UpdateAS4MessageForDelivery(internalMessage.AS4Message, _messageBodyPersister, cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
 
             return StepResult.Success(internalMessage);
-        }
-
-        
+        }        
     }
 }
