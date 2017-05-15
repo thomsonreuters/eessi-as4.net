@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
 using Moq;
@@ -34,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             IEnumerable<string> expectedMessageIds = new[] { "known-messsage-id", "unknown-message-id" };
             Mock<IDatastoreRepository> mockedRepository = CreateMockedRepositoryThatHas(expectedMessageIds.ElementAt(0));
 
-            var sut = new InMessageService(mockedRepository.Object, CreateMockedAS4MessageBodyPersister().Object);
+            var sut = new InMessageService(mockedRepository.Object);
 
             // Act
             IDictionary<string, bool> actualDuplicates = actAction(expectedMessageIds, sut);
@@ -42,14 +40,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             // Assert
             Assert.True(actualDuplicates.ElementAt(0).Value);
             Assert.False(actualDuplicates.ElementAt(1).Value);
-        }
-
-        private static Mock<IAS4MessageBodyPersister> CreateMockedAS4MessageBodyPersister()
-        {
-            var inMessageBodyPersister = new Mock<IAS4MessageBodyPersister>();
-            inMessageBodyPersister.Setup(m => m.SaveAS4MessageAsync(It.IsAny<AS4Message>(), It.IsAny<CancellationToken>())).ReturnsAsync(string.Empty);
-
-            return inMessageBodyPersister;
         }
 
         private static Mock<IDatastoreRepository> CreateMockedRepositoryThatHas(string expectedMessageId)

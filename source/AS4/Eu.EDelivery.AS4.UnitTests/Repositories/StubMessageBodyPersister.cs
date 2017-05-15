@@ -13,5 +13,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         {
             return Task.FromResult(string.Empty);
         }
+
+        public Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

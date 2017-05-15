@@ -146,8 +146,8 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             Error errorMessage = CreateError();
             AS4Message as4Message = CreateAS4Message(errorMessage, repository);
 
-            var inMessageService = new InMessageService(repository, _inMessageBodyPersister);
-            await inMessageService.InsertAS4Message(as4Message, cancellationToken).ConfigureAwait(false);
+            var inMessageService = new InMessageService(repository);
+            await inMessageService.InsertAS4Message(as4Message, _inMessageBodyPersister, cancellationToken).ConfigureAwait(false);
         }
 
         private Error CreateError()

@@ -19,19 +19,19 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     /// <summary>
-    /// Testing the <see cref="ReceiveUpdateDatastoreStep" />
+    /// Testing the <see cref="SaveReceivedMessageStep" />
     /// </summary>
-    public class GivenReceiveUpdateDatastoreFacts : GivenDatastoreStepFacts
+    public class GivenSaveReceivedMessageDatastoreFacts : GivenDatastoreStepFacts
     {
         private readonly string _userMessageId;
 
-        public GivenReceiveUpdateDatastoreFacts()
+        public GivenSaveReceivedMessageDatastoreFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext, StubMessageBodyPersister.Default);
+            Step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyPersister.Default);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// <summary>
         /// Testing the Step with valid arguments
         /// </summary>
-        public class GivenValidArguments : GivenReceiveUpdateDatastoreFacts
+        public class GivenValidArguments : GivenSaveReceivedMessageDatastoreFacts
         {
             private static void AddTestableDataToUserMessage(UserMessage userMessage)
             {
@@ -95,26 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
             }
-
-            [Fact]
-            public async Task ThenExecuteStepSucceedsWithDeliveringAsync()
-            {
-                // Arrange
-                UserMessage userMessage = CreateUserMessage();
-                InternalMessage internalMessage = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
-
-                var pmode = new ReceivingProcessingMode();
-                pmode.Reliability.DuplicateElimination.IsEnabled = false;
-                pmode.Deliver.IsEnabled = true;
-                internalMessage.AS4Message.ReceivingPMode = pmode;
-
-                // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.ToBeDelivered);
-            }
-
+            
             [Fact]
             public async Task ThenExecuteStepUpdatesDuplicateReceiptMessageAsync()
             {
@@ -225,4 +206,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return new UserMessage(_userMessageId) { RefToMessageId = _userMessageId };
         }
     }
+
+    ////public class GivenReceiveUpdateDataStoreFacts
+    ////{
+    ////    [Fact]
+    ////    public async Task ThenExecuteStepSucceedsWithDeliveringAsync()
+    ////    {
+    ////        // Arrange
+    ////        UserMessage userMessage = CreateUserMessage();
+    ////        InternalMessage internalMessage = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
+
+    ////        var pmode = new ReceivingProcessingMode();
+    ////        pmode.Reliability.DuplicateElimination.IsEnabled = false;
+    ////        pmode.Deliver.IsEnabled = true;
+    ////        internalMessage.AS4Message.ReceivingPMode = pmode;
+
+    ////        // Act
+    ////        await Step.ExecuteAsync(internalMessage, CancellationToken.None);
+
+    ////        // Assert
+    ////        await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.ToBeDelivered);
+    ////    }
+
+    ////    /// <summary>
+    ////    /// Create a <see cref="UserMessage" /> based on the configured Id's.
+    ////    /// </summary>
+    ////    /// <returns></returns>
+    ////    protected UserMessage CreateUserMessage()
+    ////    {
+    ////        return new UserMessage(_userMessageId) { RefToMessageId = _userMessageId };
+    ////    }
+    ////}
 }

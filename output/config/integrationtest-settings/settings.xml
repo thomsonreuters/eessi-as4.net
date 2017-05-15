@@ -32,11 +32,12 @@
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <Steps decorator="Eu.EDelivery.AS4.Steps.Receive.ReceiveExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <Step type="Eu.EDelivery.AS4.Steps.Receive.DeterminePModesStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.SaveReceivedMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+		    <Step type="Eu.EDelivery.AS4.Steps.Receive.DeterminePModesStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Receive.VerifySignatureAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Receive.DecompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-        <Step type="Eu.EDelivery.AS4.Steps.Receive.ReceiveUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+        <Step type="Eu.EDelivery.AS4.Steps.Receive.UpdateReceivedAS4MessageBodyStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Receive.CreateAS4ReceiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Receive.StoreAS4ReceiptStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />

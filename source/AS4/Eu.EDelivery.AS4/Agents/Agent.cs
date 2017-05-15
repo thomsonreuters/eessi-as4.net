@@ -1,9 +1,8 @@
-﻿#define METRICS
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
@@ -170,13 +169,13 @@ namespace Eu.EDelivery.AS4.Agents
         {
             Logger.Debug($"{AgentConfig.Name} received and starts handling message.");
 
-
-#if METRICS
-            var sw = new Stopwatch();
-            sw.Start();
-#endif
-
             InternalMessage internalMessage = await TryTransformAsync(message, cancellationToken).ConfigureAwait(false);
+
+            if (internalMessage == null)
+            {
+                Logger.Error("Could not transform the received message.");
+                return null;
+            }
 
             if (internalMessage.Exception != null)
             {
@@ -191,10 +190,6 @@ namespace Eu.EDelivery.AS4.Agents
 
             LogIfStepResultFailed(result, message);
 
-#if METRICS
-            sw.Stop();
-            Trace.WriteLine($"{AgentConfig.Name}: processing message took {sw.ElapsedMilliseconds} msecs");
-#endif
             return result.InternalMessage;
         }
 
@@ -209,6 +204,11 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 Logger.Error(exception.Message);
                 return new InternalMessage(exception);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception.Message);
+                return null;
             }
         }
 
