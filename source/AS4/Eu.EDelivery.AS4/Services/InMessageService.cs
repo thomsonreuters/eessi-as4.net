@@ -90,25 +90,15 @@ namespace Eu.EDelivery.AS4.Services
 
                 IDictionary<string, bool> duplicateSignalMessages = this.DetermineDuplicateSignalMessageIds(relatedUserMessageIds);
 
-                // We need to retrieve the (Sending) PModes that have been used to send the user-messages for which we've 
-                // received those signal-messages.
-
-                // Without EF, this could be performed much faster using a direct SQL Update statement which links the 
-                // out- & inmessage table.            
-                var sendingPModeLookup = RetrieveSendingPModeInformation(relatedUserMessageIds);
-
                 foreach (SignalMessage signalMessage in as4Message.SignalMessages)
                 {
                     signalMessage.IsDuplicated = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
 
-                    SendingPModeInformation sendingPModeInfo;
-                    sendingPModeLookup.TryGetValue(signalMessage.RefToMessageId, out sendingPModeInfo);
-
-                    AttemptToInsertSignalMessage(signalMessage, as4Message, sendingPModeInfo, location, cancellationToken);
+                    AttemptToInsertSignalMessage(signalMessage, as4Message, location, cancellationToken);
                 }
             }
         }
-        
+
         #region UserMessage related
 
         private static bool IsUserMessageTest(UserMessage userMessage)
@@ -167,48 +157,7 @@ namespace Eu.EDelivery.AS4.Services
         #endregion
 
         #region SignalMessage related
-
-        private sealed class SendingPModeInformation
-        {
-
-            public SendingPModeInformation(string sendingPModeString)
-            {
-                this.SendingPModeString = sendingPModeString;
-            }
-
-            public string SendingPModeString { get; }
-
-            private SendingProcessingMode _sendingPMode;
-
-            public SendingProcessingMode SendingPMode
-            {
-                get
-                {
-                    if (_sendingPMode == null)
-                    {
-                        _sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(SendingPModeString);
-                    }
-                    return _sendingPMode;
-                }
-            }
-        }
-
-        private Dictionary<string, SendingPModeInformation> RetrieveSendingPModeInformation(IEnumerable<string> relatedUserMessageIds)
-        {
-            var sendingPModes = _repository.RetrieveSendingPModeStringForOutMessages(relatedUserMessageIds);
-
-            var sendingPModeLookup = new Dictionary<string, SendingPModeInformation>();
-
-            foreach (var item in sendingPModes)
-            {
-                if (sendingPModeLookup.ContainsKey(item.ebmsMessageId) == false)
-                {
-                    sendingPModeLookup.Add(item.ebmsMessageId, new SendingPModeInformation(item.sendingPMode));
-                }
-            }
-            return sendingPModeLookup;
-        }
-        
+       
         private static bool IsSignalMessageDuplicate(MessageUnit signalMessage, IDictionary<string, bool> duplicateSignalMessages)
         {
             duplicateSignalMessages.TryGetValue(signalMessage.RefToMessageId, out var isDuplicate);
@@ -221,17 +170,17 @@ namespace Eu.EDelivery.AS4.Services
             return isDuplicate;
         }
 
-        private void AttemptToInsertSignalMessage(SignalMessage signalMessage, AS4Message as4Message, SendingPModeInformation sendingPMode, string location, CancellationToken token)
+        private void AttemptToInsertSignalMessage(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
         {
             try
             {
                 if (signalMessage is Receipt)
                 {
-                    this.InsertReceipt(signalMessage, as4Message, sendingPMode, location, token);
+                    this.InsertReceipt(signalMessage, as4Message, location, token);
                 }
                 else if (signalMessage is Error)
                 {
-                    this.InsertError(signalMessage, as4Message, sendingPMode, location, token);
+                    this.InsertError(signalMessage, as4Message, location, token);
                 }
             }
             catch (Exception exception)
@@ -240,17 +189,17 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, SendingPModeInformation sendingPMode, string location, CancellationToken token)
+        private void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
         {
             Logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
-            InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, sendingPMode, location, token);
+            InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, location, token);
 
             _repository.InsertInMessage(inMessage);
 
             UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
         }
 
-        private void InsertError(SignalMessage signalMessage, AS4Message as4Message, SendingPModeInformation sendingPMode, string location, CancellationToken cancellationToken)
+        private void InsertError(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
         {
             Logger.Info($"Update Message: {signalMessage.MessageId} as Error");
 
@@ -267,7 +216,7 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
 
-            InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, sendingPMode, location, cancellationToken);
+            InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, location, cancellationToken);
 
             _repository.InsertInMessage(inMessage);
 
@@ -275,14 +224,14 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         private static InMessage CreateReceiptInMessage(
-            SignalMessage signalMessage, AS4Message as4Message, SendingPModeInformation sendingPMode, string location, CancellationToken cancellationToken)
+            SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
         {
             InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, as4Message)
-                                                  .WithPModeString(sendingPMode.SendingPModeString)
+                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
 
-            if (ReceiptDoesNotNeedToBeNotified(sendingPMode.SendingPMode) || signalMessage.IsDuplicated)
+            if (ReceiptDoesNotNeedToBeNotified(as4Message.SendingPMode) || signalMessage.IsDuplicated)
             {
                 return inMessage;
             }
@@ -298,14 +247,14 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         private static InMessage CreateErrorInMessage(
-            SignalMessage signalMessage, AS4Message as4Message, SendingPModeInformation sendingPMode, string location, CancellationToken cancellationToken)
+            SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
         {
             InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, as4Message)
-                                                  .WithPModeString(sendingPMode.SendingPModeString)
+                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
 
-            if (ErrorDontNeedToBeNotified(sendingPMode.SendingPMode) || signalMessage.IsDuplicated)
+            if (ErrorDontNeedToBeNotified(as4Message.SendingPMode) || signalMessage.IsDuplicated)
             {
                 return inMessage;
             }

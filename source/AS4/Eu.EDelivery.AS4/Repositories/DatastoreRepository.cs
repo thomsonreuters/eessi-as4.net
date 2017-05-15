@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Microsoft.Extensions.Caching.Memory;
@@ -255,7 +257,14 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId)
         {
-            string pmodeString = _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(ebmsMessageId)).Select(m => m.PMode).FirstOrDefault();
+            var sendPModes = _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(ebmsMessageId)).Select(m => m.PMode);
+
+            if (sendPModes.Any() == false)
+            {
+                throw AS4ExceptionBuilder.WithDescription($"Could not retrieve OutMessage with ID {ebmsMessageId}").Build();
+            }
+
+            string pmodeString = sendPModes.First();
 
             return AS4XmlSerializer.FromString<SendingProcessingMode>(pmodeString);
         }
