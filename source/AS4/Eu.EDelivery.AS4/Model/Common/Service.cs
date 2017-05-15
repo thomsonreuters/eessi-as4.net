@@ -5,6 +5,7 @@ namespace Eu.EDelivery.AS4.Model.Common
     public class Service : IEquatable<Service>
     {
         public string Value { get; set; }
+
         public string Type { get; set; }
 
         /// <summary>
@@ -16,12 +17,18 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(Service other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
 
-            return
-                string.Equals(this.Value, other.Value, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.Type, other.Type, StringComparison.OrdinalIgnoreCase);
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase) && 
+                   string.Equals(Type, other.Type, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -33,10 +40,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-
-            return obj.GetType() == GetType() && Equals((Service) obj);
+            return Equals(obj as Service);
         }
 
         /// <summary>
@@ -49,8 +53,8 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                return ((this.Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Value) : 0) * 397)
-                       ^ (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
+                return ((Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0) * 397)
+                       ^ (Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Type) : 0);
             }
         }
     }

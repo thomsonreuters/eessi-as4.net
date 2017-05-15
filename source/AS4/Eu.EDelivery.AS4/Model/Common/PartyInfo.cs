@@ -5,6 +5,7 @@ namespace Eu.EDelivery.AS4.Model.Common
     public class PartyInfo : IEquatable<PartyInfo>
     {
         public Party FromParty { get; set; }
+
         public Party ToParty { get; set; }
 
         /// <summary>
@@ -16,10 +17,17 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(PartyInfo other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
 
-            return Equals(this.FromParty, other.FromParty) && Equals(this.ToParty, other.ToParty);
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return Equals(FromParty, other.FromParty) && Equals(ToParty, other.ToParty);
         }
 
         /// <summary>
@@ -31,10 +39,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-
-            return obj.GetType() == GetType() && Equals((PartyInfo) obj);
+            return Equals(obj as PartyInfo);
         }
 
         /// <summary>
@@ -47,7 +52,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                return ((this.FromParty?.GetHashCode() ?? 0) * 397) ^ (this.ToParty?.GetHashCode() ?? 0);
+                return ((FromParty?.GetHashCode() ?? 0) * 397) ^ (ToParty?.GetHashCode() ?? 0);
             }
         }
     }

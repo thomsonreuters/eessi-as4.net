@@ -4,19 +4,16 @@ namespace Eu.EDelivery.AS4.Model.Common
 {
     public class PartyId : IEquatable<PartyId>
     {
-        public string Id { get; set; }
-        public string Type { get; set; }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="PartyId"/> class. 
+        /// Initializes a new instance of the <see cref="PartyId" /> class.
         /// Xml Serializer needs a parameter less constructor
         /// </summary>
-        public PartyId() { }
+        public PartyId() {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PartyId"/> class. 
-        /// Create a <see cref="PartyId"/> Model
-        /// with a given <paramref name="id"/> and <paramref name="type"/>
+        /// Initializes a new instance of the <see cref="PartyId" /> class.
+        /// Create a <see cref="PartyId" /> Model
+        /// with a given <paramref name="id" /> and <paramref name="type" />
         /// </summary>
         /// <param name="id">
         /// </param>
@@ -24,9 +21,13 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// </param>
         public PartyId(string id, string type)
         {
-            this.Id = id;
-            this.Type = type;
+            Id = id;
+            Type = type;
         }
+
+        public string Id { get; set; }
+
+        public string Type { get; set; }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -37,12 +38,18 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(PartyId other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
 
-            return
-                string.Equals(this.Id, other.Id, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(this.Type ?? string.Empty, other.Type ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Id, other.Id, StringComparison.OrdinalIgnoreCase) && 
+                   string.Equals(Type ?? string.Empty, other.Type ?? string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -54,17 +61,7 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-
-            var other = obj as PartyId;
-
-            if (other == null)
-            {
-                return false;
-            }
-
-            return Equals(other);
+            return Equals(obj as PartyId);
         }
 
         /// <summary>
@@ -77,8 +74,8 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                return ((this.Id != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Id) : 0) * 397)
-                       ^ (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
+                return ((Id != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Id) : 0) * 397)
+                       ^ (Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Type) : 0);
             }
         }
     }

@@ -441,6 +441,7 @@
     <Compile Include="Strategies\Uploader\GivenPayloadServiceAttachmentUploaderFacts.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploader.cs" />
     <Compile Include="Strategies\Uploader\StubAttachmentUploaderProvider.cs" />
+    <Compile Include="Streaming\GivenNonClosableStreamFacts.cs" />
     <Compile Include="Streaming\GivenStreamPositionMoverFacts.cs" />
     <Compile Include="Streaming\VirtualStreamFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
@@ -453,6 +454,7 @@
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
+    <Compile Include="Validators\GivenReceivingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
   </ItemGroup>
   <ItemGroup>
