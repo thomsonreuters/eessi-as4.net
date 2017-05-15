@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web;
-using System.Windows;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.MessageSubmitter
 {
@@ -40,7 +35,17 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
             for (int i = 0; i < submitInfo.NumberOfSubmitMessages; i++)
             {
                 var submitMessage = new SubmitMessage { MessageInfo = { MessageId = Guid.NewGuid().ToString() } };
-                submitMessage.Collaboration.AgreementRef.PModeId = submitInfo.SendingProcessingModeName;
+                submitMessage.Collaboration.AgreementRef.PModeId = submitInfo.SendingPMode.Id;
+
+                var originalSenderProperty = new MessageProperty("originalSender",
+                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Type,
+                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Id);
+
+                var finalRecipientProperty = new MessageProperty("finalRecipient",
+                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Type,
+                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Id);
+
+                submitMessage.MessageProperties = new[] {originalSenderProperty, finalRecipientProperty};
 
                 var payloads = new List<Payload>();
 
