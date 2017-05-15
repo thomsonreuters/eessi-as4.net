@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -109,48 +108,7 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
         }
-
-        private Dictionary<string, SendingPModeInformation> RetrieveSendingPModeInformation(IEnumerable<string> relatedUserMessageIds)
-        {
-            var sendingPModes = _repository.RetrieveSendingPModeStringForOutMessages(relatedUserMessageIds);
-
-            var sendingPModeLookup = new Dictionary<string, SendingPModeInformation>();
-
-            foreach (var item in sendingPModes)
-            {
-                if (sendingPModeLookup.ContainsKey(item.ebmsMessageId) == false)
-                {
-                    sendingPModeLookup.Add(item.ebmsMessageId, new SendingPModeInformation(item.sendingPMode));
-                }
-            }
-            return sendingPModeLookup;
-        }
-
-        private sealed class SendingPModeInformation
-        {
-
-            public SendingPModeInformation(string sendingPModeString)
-            {
-                this.SendingPModeString = sendingPModeString;
-            }
-
-            public string SendingPModeString { get; }
-
-            private SendingProcessingMode _sendingPMode;
-
-            public SendingProcessingMode SendingPMode
-            {
-                get
-                {
-                    if (_sendingPMode == null)
-                    {
-                        _sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(SendingPModeString);
-                    }
-                    return _sendingPMode;
-                }
-            }
-        }
-
+        
         #region UserMessage related
 
         private static bool IsUserMessageTest(UserMessage userMessage)
@@ -210,6 +168,47 @@ namespace Eu.EDelivery.AS4.Services
 
         #region SignalMessage related
 
+        private sealed class SendingPModeInformation
+        {
+
+            public SendingPModeInformation(string sendingPModeString)
+            {
+                this.SendingPModeString = sendingPModeString;
+            }
+
+            public string SendingPModeString { get; }
+
+            private SendingProcessingMode _sendingPMode;
+
+            public SendingProcessingMode SendingPMode
+            {
+                get
+                {
+                    if (_sendingPMode == null)
+                    {
+                        _sendingPMode = AS4XmlSerializer.FromString<SendingProcessingMode>(SendingPModeString);
+                    }
+                    return _sendingPMode;
+                }
+            }
+        }
+
+        private Dictionary<string, SendingPModeInformation> RetrieveSendingPModeInformation(IEnumerable<string> relatedUserMessageIds)
+        {
+            var sendingPModes = _repository.RetrieveSendingPModeStringForOutMessages(relatedUserMessageIds);
+
+            var sendingPModeLookup = new Dictionary<string, SendingPModeInformation>();
+
+            foreach (var item in sendingPModes)
+            {
+                if (sendingPModeLookup.ContainsKey(item.ebmsMessageId) == false)
+                {
+                    sendingPModeLookup.Add(item.ebmsMessageId, new SendingPModeInformation(item.sendingPMode));
+                }
+            }
+            return sendingPModeLookup;
+        }
+        
         private static bool IsSignalMessageDuplicate(MessageUnit signalMessage, IDictionary<string, bool> duplicateSignalMessages)
         {
             duplicateSignalMessages.TryGetValue(signalMessage.RefToMessageId, out var isDuplicate);
@@ -380,26 +379,5 @@ namespace Eu.EDelivery.AS4.Services
                 .WithReceivingPMode(message.ReceivingPMode)
                 .Build();
         }
-    }
-
-    public interface IInMessageService
-    {
-        Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken);
-
-        Task UpdateAS4MessageForDelivery(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Search for duplicate <see cref="UserMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
-        /// </summary>
-        /// <param name="searchedMessageIds">'EbmsMessageIds' to search for duplicates.</param>
-        /// <returns></returns>
-        IDictionary<string, bool> DetermineDuplicateUserMessageIds(IEnumerable<string> searchedMessageIds);
-
-        /// <summary>
-        /// Search for duplicate <see cref="SignalMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.
-        /// </summary>
-        /// <param name="searchedMessageIds">'RefToEbmsMessageIds' to search for duplicates.</param>
-        /// <returns></returns>
-        IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds);
     }
 }
