@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
@@ -59,8 +60,19 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             _internalMessage = internalMessage;
             _logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
 
+            internalMessage.AS4Message.SendingPMode = RetrieveSendingPMode(internalMessage);
+
             await TrySendNotifyMessage(internalMessage.NotifyMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
+        }
+
+        private static SendingProcessingMode RetrieveSendingPMode(InternalMessage internalMessage)
+        {
+            using (var context = Registry.Instance.CreateDatastoreContext())
+            {
+                var repo = new DatastoreRepository(context);
+                return repo.RetrieveSendingPModeForOutMessage(internalMessage.AS4Message.PrimarySignalMessage.RefToMessageId);
+            }
         }
 
         private async Task TrySendNotifyMessage(NotifyMessageEnvelope notifyMessage)
