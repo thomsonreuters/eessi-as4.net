@@ -157,7 +157,7 @@ namespace Eu.EDelivery.AS4.Services
         #endregion
 
         #region SignalMessage related
-       
+
         private static bool IsSignalMessageDuplicate(MessageUnit signalMessage, IDictionary<string, bool> duplicateSignalMessages)
         {
             duplicateSignalMessages.TryGetValue(signalMessage.RefToMessageId, out var isDuplicate);
@@ -195,8 +195,6 @@ namespace Eu.EDelivery.AS4.Services
             InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, location, token);
 
             _repository.InsertInMessage(inMessage);
-
-            UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
         }
 
         private void InsertError(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
@@ -219,8 +217,6 @@ namespace Eu.EDelivery.AS4.Services
             InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, location, cancellationToken);
 
             _repository.InsertInMessage(inMessage);
-
-            UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
         }
 
         private static InMessage CreateReceiptInMessage(
@@ -231,19 +227,12 @@ namespace Eu.EDelivery.AS4.Services
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
 
-            if (ReceiptDoesNotNeedToBeNotified(as4Message.SendingPMode) || signalMessage.IsDuplicated)
-            {
-                return inMessage;
-            }
-
-            AddOperationNotified(inMessage);
-
             return inMessage;
         }
 
-        private static bool ReceiptDoesNotNeedToBeNotified(SendingProcessingMode sendingPMode)
+        private static bool ReceiptMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return !sendingPMode.ReceiptHandling.NotifyMessageProducer;
+            return sendingPMode.ReceiptHandling.NotifyMessageProducer;
         }
 
         private static InMessage CreateErrorInMessage(
@@ -254,24 +243,12 @@ namespace Eu.EDelivery.AS4.Services
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
 
-            if (ErrorDontNeedToBeNotified(as4Message.SendingPMode) || signalMessage.IsDuplicated)
-            {
-                return inMessage;
-            }
-
-            AddOperationNotified(inMessage);
-
             return inMessage;
         }
 
-        private static bool ErrorDontNeedToBeNotified(SendingProcessingMode sendingPMode)
+        private static bool ErrorMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return !sendingPMode.ErrorHandling.NotifyMessageProducer;
-        }
-
-        private static void AddOperationNotified(MessageEntity inMessage)
-        {
-            inMessage.Operation = Operation.ToBeNotified;
+            return sendingPMode.ErrorHandling.NotifyMessageProducer;
         }
 
         private void UpdateRefUserMessageStatus(MessageUnit signalMessage, OutStatus status)
@@ -296,7 +273,10 @@ namespace Eu.EDelivery.AS4.Services
                 throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
             }
 
-            await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
+            if (as4Message.UserMessages.Any())
+            {
+                await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
+            }
 
             foreach (var userMessage in as4Message.UserMessages)
             {
@@ -309,6 +289,27 @@ namespace Eu.EDelivery.AS4.Services
                         }
                     }
                 );
+            }
+
+            foreach (var signalMessage in as4Message.SignalMessages)
+            {
+                if (signalMessage is Receipt)
+                {
+                    if (ReceiptMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
+                    {
+                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
+                    }
+                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
+                }
+                else if (signalMessage is Error)
+                {
+                    if (ErrorMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
+                    {
+                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
+                    }
+                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
+                }
+
             }
         }
 
