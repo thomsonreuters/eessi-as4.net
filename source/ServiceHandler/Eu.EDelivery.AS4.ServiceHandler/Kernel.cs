@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
     /// <summary>
     /// Start point for AS4 Connection
     /// Wrapper for the Channels
-    /// </summary>  
+    /// </summary>
     public sealed class Kernel : IDisposable
     {
         private readonly IEnumerable<IAgent> _agents;

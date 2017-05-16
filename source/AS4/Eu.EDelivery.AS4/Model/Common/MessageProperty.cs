@@ -4,6 +4,10 @@ namespace Eu.EDelivery.AS4.Model.Common
 {
     public class MessageProperty : IEquatable<MessageProperty>
     {
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Value { get; set; }
+
         public MessageProperty() : this(string.Empty, string.Empty, string.Empty)
         {
             // Default constructor is necessary for serialization.
@@ -11,16 +15,10 @@ namespace Eu.EDelivery.AS4.Model.Common
 
         public MessageProperty(string name, string type, string value)
         {
-            Name = name;
-            Type = type;
-            Value = value;
+            this.Name = name;
+            this.Type = type;
+            this.Value = value;
         }
-
-        public string Name { get; set; }
-
-        public string Type { get; set; }
-
-        public string Value { get; set; }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -31,19 +29,13 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(MessageProperty other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(Type, other.Type, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
+            return
+                string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.Type, other.Type, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.Value, other.Value, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -55,7 +47,10 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-           return Equals(obj as MessageProperty);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+
+            return obj.GetType() == GetType() && Equals((MessageProperty)obj);
         }
 
         /// <summary>
@@ -68,11 +63,11 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                int hashCode = Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Name) : 0;
-
-                hashCode = (hashCode * 397) ^ (Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Type) : 0);
-                hashCode = (hashCode * 397) ^ (Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0);
-
+                int hashCode = this.Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name) : 0;
+                hashCode = (hashCode * 397) ^
+                           (this.Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Type) : 0);
+                hashCode = (hashCode * 397) ^
+                           (this.Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Value) : 0);
                 return hashCode;
             }
         }

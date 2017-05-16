@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     
         protected DbContextOptions<DatastoreContext> Options { get; }
 
-        protected Func<DatastoreContext> GetDataStoreContext { get; private set; }
+        protected Func<DatastoreContext> InMemoryDatastore { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GivenDatastoreFacts"/> class. 
@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public GivenDatastoreFacts()
         {
             Options = CreateNewContextOptions();
-            GetDataStoreContext = () => new DatastoreContext(Options);
+            InMemoryDatastore = () => new DatastoreContext(Options);
             Registry.Instance.CreateDatastoreContext = () => new DatastoreContext(Options);
 
             DatastoreRepository.ResetCaches();
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public void Dispose()
         {
             DatastoreRepository.DisposeCaches();
-            GetDataStoreContext = null;
+            InMemoryDatastore = null;
             Registry.Instance.CreateDatastoreContext = null;
         }
     }
