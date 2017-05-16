@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void InsertOutMessage(OutMessage outMessage)
             {
-                using (DatastoreContext context = GetDataStoreContext())
+                using (DatastoreContext context = InMemoryDatastore())
                 {
                     context.OutMessages.Add(outMessage);
                     context.SaveChanges();
@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)
             {
-                using (DatastoreContext context = GetDataStoreContext())
+                using (DatastoreContext context = InMemoryDatastore())
                 {
                     OutMessage outMessage = context.OutMessages
                         .FirstOrDefault(e => e.EbmsMessageId.Equals(messageId));

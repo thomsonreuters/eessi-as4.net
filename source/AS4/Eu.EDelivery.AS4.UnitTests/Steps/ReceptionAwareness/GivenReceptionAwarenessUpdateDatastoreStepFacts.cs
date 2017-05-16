@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
             private void AssertInMessage(string messageId)
             {
-                using (DatastoreContext context = GetDataStoreContext())
+                using (DatastoreContext context = InMemoryDatastore())
                 {
                     InMessage inMessage = context.InMessages.FirstOrDefault(m => m.EbmsRefToMessageId.Equals(messageId));
 
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
             private void AssertReceptionAwareness(string messageId, Action<EntityReceptionAwareness> condition)
             {
-                using (DatastoreContext context = GetDataStoreContext())
+                using (DatastoreContext context = InMemoryDatastore())
                 {
                     EntityReceptionAwareness awareness =
                         context.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
         protected void InsertReceptionAwareness(EntityReceptionAwareness receptionAwareness)
         {
-            using (DatastoreContext context = GetDataStoreContext())
+            using (DatastoreContext context = InMemoryDatastore())
             {
                 context.ReceptionAwareness.Add(receptionAwareness);
                 context.SaveChanges();
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
         protected void InsertOutMessage(string messageId)
         {
-            using (DatastoreContext context = GetDataStoreContext())
+            using (DatastoreContext context = InMemoryDatastore())
             {
                 var pmode = new SendingProcessingMode();
                 string pmodeString = AS4XmlSerializer.ToString(pmode);
