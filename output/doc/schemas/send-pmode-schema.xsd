@@ -131,8 +131,8 @@
   <xs:complexType name="Signing">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
-      <xs:element minOccurs="0" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="1" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindValue" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="HashFunction" type="xs:string" />
@@ -149,7 +149,7 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="1" maxOccurs="1" name="PublicKeyFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindValue" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="KeyTransport" type="tns:KeyEncryption" />
     </xs:sequence>
@@ -159,6 +159,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="TransportAlgorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="DigestAlgorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="MgfAlgorithm" type="xs:string" />
+      <xs:element minOccurs="1" maxOccurs="1" name="KeySize" type="xs:int" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="SendMessagePackaging">
