@@ -25,8 +25,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             base.AssignPropertiesTo(message);
 
-            message.SendingPMode = GetPMode<SendingProcessingMode>();
-            message.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+            if (MessageEntity is InMessage)
+            {
+                message.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+            }
+            else if (MessageEntity is OutMessage)
+            {
+                message.SendingPMode = GetPMode<SendingProcessingMode>();
+            }
         }
 
         public T GetPMode<T>() where T : class
