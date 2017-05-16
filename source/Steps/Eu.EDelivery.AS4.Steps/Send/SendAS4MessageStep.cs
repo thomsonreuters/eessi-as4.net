@@ -27,12 +27,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// </summary>
     public class SendAS4MessageStep : IStep
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
+        private readonly ISerializerProvider _provider;
         private readonly ICertificateRepository _repository;
         private readonly IAS4ResponseHandler _responseHandler;
         private readonly Func<DatastoreContext> _createDatastore;
         private readonly IHttpClient _httpClient;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private AS4Message _originalAS4Message;
 
@@ -60,6 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             _createDatastore = createDatastore;
             _httpClient = client;
 
+            _provider = Registry.Instance.SerializerProvider;
             _responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
             _repository = Registry.Instance.CertificateRepository;
         }
@@ -161,35 +162,29 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                await SerializeHttpRequest(request, internalMessage, cancellationToken);
+                var as4Message = internalMessage.AS4Message;
+
+                Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(as4Message).Protocol.Url}");
+
+                long messageSize = as4Message.DetermineMessageSize(_provider);
+                const int threshold = 209_715_200;
+
+                if (messageSize > threshold)
+                {
+                    request.AllowWriteStreamBuffering = false;
+                    request.ContentLength = messageSize;
+                }
+
+                using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
+                {
+                    ISerializer serializer = _provider.Get(as4Message.ContentType);
+
+                    await serializer.SerializeAsync(as4Message, requestStream, cancellationToken).ConfigureAwait(false);
+                }
             }
             catch (WebException exception)
             {
                 throw CreateFailedSendAS4Exception(internalMessage, exception);
-            }
-        }
-
-        private static async Task SerializeHttpRequest(HttpWebRequest request, InternalMessage internalMessage, CancellationToken cancellationToken)
-        {
-            AS4Message as4Message = internalMessage.AS4Message;
-
-            Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(as4Message).Protocol.Url}");
-
-            ISerializerProvider provider = Registry.Instance.SerializerProvider;
-            long messageSize = as4Message.DetermineMessageSize(provider);
-            const int threshold = 209_715_200;
-
-            if (messageSize > threshold)
-            {
-                request.AllowWriteStreamBuffering = false;
-                request.ContentLength = messageSize;
-            }
-
-            using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
-            {
-                ISerializer serializer = provider.Get(as4Message.ContentType);
-
-                await serializer.SerializeAsync(as4Message, requestStream, cancellationToken).ConfigureAwait(false);
             }
         }
 

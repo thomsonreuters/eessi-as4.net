@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
+﻿using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -31,26 +30,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             [Fact]
             public void IsTrueIfStopExecutiongIsntCalled()
             {
+                // Arrange
+                AS4Message as4Message = new AS4MessageBuilder().Build();
+
                 // Act
-                StepResult actualStepResult = StepResult.Success(AnonymousMessage());
+                StepResult actualStepResult = StepResult.Success(new InternalMessage(as4Message));
 
                 // Assert
                 Assert.True(actualStepResult.CanProceed);
-            }
-
-            [Fact]
-            public async Task CannotProceedExecution_IfCalledAsync()
-            {
-                // Act
-                StepResult result = await StepResult.Success(AnonymousMessage()).AndStopExecutionAsync();
-
-                // Assert
-                Assert.False(result.CanProceed);
-            }
-
-            private static InternalMessage AnonymousMessage()
-            {
-                return new InternalMessage(new AS4MessageBuilder().Build());
             }
         }
     }

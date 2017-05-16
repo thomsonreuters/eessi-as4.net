@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 InternalMessage actualMessage = actualResult.InternalMessage;
 
                 Assert.Equal(expectedMessage, actualMessage);
-                Assert.False(actualResult.CanProceed);
+                Assert.Empty(actualMessage.AS4Message.SignalMessages);
             }
 
             private static IAS4Response CreateAS4ResponseWithStatus(HttpStatusCode statusCode)

@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 InternalMessage resultedMessage = response.OriginalRequest;
                 resultedMessage.AS4Message.SignalMessages.Clear();
 
-                return await StepResult.Success(resultedMessage).AndStopExecutionAsync();
+                return await StepResult.SuccessAsync(resultedMessage);
             }
 
             return await _nextHandler.HandleResponse(response);
