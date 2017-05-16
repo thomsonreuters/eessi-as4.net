@@ -4,24 +4,23 @@ namespace Eu.EDelivery.AS4.Model.Common
 {
     public class PayloadProperty : IEquatable<PayloadProperty>
     {
+        public string Name { get; set; }
+        public string Value { get; set; }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="PayloadProperty" /> class
+        /// Initializes a new instance of the <see cref="PayloadProperty"/> class
         /// </summary>
         public PayloadProperty() {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PayloadProperty" /> class
-        /// with a given <paramref name="name" />
+        /// Initializes a new instance of the <see cref="PayloadProperty"/> class
+        /// with a given <paramref name="name"/>
         /// </summary>
         /// <param name="name"></param>
         public PayloadProperty(string name)
         {
-            Name = name;
+            this.Name = name;
         }
-
-        public string Name { get; set; }
-
-        public string Value { get; set; }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -32,18 +31,12 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(PayloadProperty other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
+            return
+                string.Equals(this.Name, other.Name, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.Value, other.Value, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -55,7 +48,10 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-           return Equals((PayloadProperty) obj);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+
+            return obj.GetType() == GetType() && Equals((PayloadProperty) obj);
         }
 
         /// <summary>
@@ -68,8 +64,8 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                return ((Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Name) : 0) * 397)
-                       ^ (Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0);
+                return ((this.Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Name) : 0)*397)
+                       ^ (this.Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Value) : 0);
             }
         }
     }

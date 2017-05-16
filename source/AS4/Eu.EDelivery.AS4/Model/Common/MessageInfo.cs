@@ -4,16 +4,20 @@ namespace Eu.EDelivery.AS4.Model.Common
 {
     public class MessageInfo : IEquatable<MessageInfo>
     {
+        public string MessageId { get; set; }
+        public string RefToMessageId { get; set; }
+        public string Mpc { get; set; }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageInfo" /> class.
+        /// Initializes a new instance of the <see cref="MessageInfo"/> class. 
         /// Xml Serializer needs empty constructor
         /// </summary>
         public MessageInfo() {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessageInfo" /> class.
-        /// Create a <see cref="MessageInfo" /> Model
-        /// with a given <paramref name="messageId" /> and <paramref name="mpc" />
+        /// Initializes a new instance of the <see cref="MessageInfo"/> class. 
+        /// Create a <see cref="MessageInfo"/> Model
+        /// with a given <paramref name="messageId"/> and <paramref name="mpc"/>
         /// </summary>
         /// <param name="messageId">
         /// </param>
@@ -21,15 +25,9 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// </param>
         public MessageInfo(string messageId, string mpc)
         {
-            MessageId = messageId;
-            Mpc = mpc;
+            this.MessageId = messageId;
+            this.Mpc = mpc;
         }
-
-        public string MessageId { get; set; }
-
-        public string RefToMessageId { get; set; }
-
-        public string Mpc { get; set; }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -40,19 +38,12 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(MessageInfo other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(MessageId, other.MessageId, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(RefToMessageId, other.RefToMessageId, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(Mpc, other.Mpc, StringComparison.OrdinalIgnoreCase);
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return
+                string.Equals(this.MessageId, other.MessageId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.RefToMessageId, other.RefToMessageId, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.Mpc, other.Mpc, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -64,7 +55,9 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            return Equals(obj as MessageInfo);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj.GetType() == GetType() && Equals((MessageInfo) obj);
         }
 
         /// <summary>
@@ -77,12 +70,13 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                int hashCode = MessageId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(MessageId) : 0;
-
+                int hashCode = this.MessageId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.MessageId) : 0;
                 hashCode = (hashCode * 397)
-                           ^ (RefToMessageId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(RefToMessageId) : 0);
-                hashCode = (hashCode * 397) ^ (Mpc != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Mpc) : 0);
-
+                           ^ (this.RefToMessageId != null
+                                  ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.RefToMessageId)
+                                  : 0);
+                hashCode = (hashCode * 397)
+                           ^ (this.Mpc != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Mpc) : 0);
                 return hashCode;
             }
         }

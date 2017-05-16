@@ -4,21 +4,26 @@ namespace Eu.EDelivery.AS4.Model.Common
 {
     public class CollaborationInfo : IEquatable<CollaborationInfo>
     {
+        public string Action { get; set; }
+        public string ConversationId { get; set; }
+        public Agreement AgreementRef { get; set; }
+        public Service Service { get; set; }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="CollaborationInfo" /> class.
-        /// Create a basic <see cref="CollaborationInfo" /> Model
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class. 
+        /// Create a basic <see cref="CollaborationInfo"/> Model
         /// </summary>
         public CollaborationInfo()
         {
-            AgreementRef = new Agreement();
-            Service = new Service();
+            this.AgreementRef = new Agreement();
+            this.Service = new Service();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CollaborationInfo" /> class.
-        /// Create a <see cref="CollaborationInfo" /> Model
-        /// with a given <paramref name="conversationId" />
-        /// and <paramref name="agreement" />
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class. 
+        /// Create a <see cref="CollaborationInfo"/> Model
+        /// with a given <paramref name="conversationId"/> 
+        /// and <paramref name="agreement"/>
         /// </summary>
         /// <param name="conversationId">
         /// </param>
@@ -26,14 +31,14 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// </param>
         public CollaborationInfo(string conversationId, Agreement agreement)
         {
-            ConversationId = conversationId;
-            AgreementRef = agreement;
+            this.ConversationId = conversationId;
+            this.AgreementRef = agreement;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CollaborationInfo" /> class.
-        /// Create a <see cref="CollaborationInfo" /> Model
-        /// with a given <paramref name="conversationId" />, <paramref name="agreement" /> and <paramref name="service" />
+        /// Initializes a new instance of the <see cref="CollaborationInfo"/> class. 
+        /// Create a <see cref="CollaborationInfo"/> Model
+        /// with a given <paramref name="conversationId"/>, <paramref name="agreement"/> and <paramref name="service"/>
         /// </summary>
         /// <param name="conversationId">
         /// </param>
@@ -43,18 +48,10 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// </param>
         public CollaborationInfo(string conversationId, Agreement agreement, Service service)
         {
-            ConversationId = conversationId;
-            AgreementRef = agreement;
-            Service = service;
+            this.ConversationId = conversationId;
+            this.AgreementRef = agreement;
+            this.Service = service;
         }
-
-        public string Action { get; set; }
-
-        public string ConversationId { get; set; }
-
-        public Agreement AgreementRef { get; set; }
-
-        public Service Service { get; set; }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
@@ -65,19 +62,12 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(CollaborationInfo other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Action, other.Action, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(ConversationId, other.ConversationId, StringComparison.OrdinalIgnoreCase)
-                   && Equals(AgreementRef, other.AgreementRef) && Equals(Service, other.Service);
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return
+                string.Equals(this.Action, other.Action, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.ConversationId, other.ConversationId, StringComparison.OrdinalIgnoreCase) &&
+                Equals(this.AgreementRef, other.AgreementRef) && Equals(this.Service, other.Service);
         }
 
         /// <summary>
@@ -89,7 +79,9 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            return Equals(obj as CollaborationInfo);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj.GetType() == GetType() && Equals((CollaborationInfo) obj);
         }
 
         /// <summary>
@@ -102,13 +94,13 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                int hashCode = Action != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Action) : 0;
-
+                int hashCode = this.Action != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Action) : 0;
                 hashCode = (hashCode * 397)
-                           ^ (ConversationId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(ConversationId) : 0);
-                hashCode = (hashCode * 397) ^ (AgreementRef?.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (Service?.GetHashCode() ?? 0);
-
+                           ^ (this.ConversationId != null
+                                  ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.ConversationId)
+                               : 0);
+                hashCode = (hashCode * 397) ^ (this.AgreementRef?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (this.Service?.GetHashCode() ?? 0);
                 return hashCode;
             }
         }

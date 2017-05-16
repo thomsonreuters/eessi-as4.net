@@ -1,4 +1,5 @@
 ﻿using System;
+using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -13,13 +14,15 @@ namespace Eu.EDelivery.AS4.Validators
     /// </summary>
     public class ReceivingProcessingModeValidator : AbstractValidator<ReceivingProcessingMode>, IValidator<ReceivingProcessingMode>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceivingProcessingModeValidator" /> class
+        /// Initializes a new instance of the type <see cref="ReceivingProcessingModeValidator"/> class
         /// </summary>
         public ReceivingProcessingModeValidator()
         {
+            this._logger = LogManager.GetCurrentClassLogger();
+
             RuleFor(pmode => pmode.Id).NotNull();
 
             RulesForReceiptHandling();
@@ -62,20 +65,18 @@ namespace Eu.EDelivery.AS4.Validators
             ValidationResult validationResult = base.Validate(model);
 
             if (!validationResult.IsValid)
-            {
                 throw ThrowHandleInvalidPModeException(model, validationResult);
-            }
         }
 
-        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
+        private AS4Exception ThrowHandleInvalidPModeException(ReceivingProcessingMode pmode, ValidationResult result)
         {
-            foreach (ValidationFailure error in result.Errors)
+            foreach (var e in result.Errors)
             {
-                Logger.Error($"Receiving PMode Validation Error: {error.PropertyName} = {error.ErrorMessage}");
+                _logger.Error($"Receiving PMode Validation Error: {e.PropertyName} = {e.ErrorMessage}");
             }
 
             string description = $"Receiving PMode {pmode.Id} was invalid, see logging";
-            Logger.Error(description);
+            this._logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)

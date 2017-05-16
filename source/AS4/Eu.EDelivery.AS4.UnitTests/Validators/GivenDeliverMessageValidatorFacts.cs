@@ -142,17 +142,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             {
                 MessageInfo = CreateValidMessageInfo(),
                 CollaborationInfo = CreateValidCollaborationInfo(),
-                PartyInfo = CreateValidPartyInfo(),
-                Payloads = new[] {new Payload("payload-id", "payload-location", "mime-type")}
+                PartyInfo = CreateValidPartyInfo()
             };
         }
 
-        private static MessageInfo CreateValidMessageInfo()
+        private MessageInfo CreateValidMessageInfo()
         {
             return new MessageInfo {MessageId = Guid.NewGuid().ToString(), Mpc = Guid.NewGuid().ToString()};
         }
 
-        private static CollaborationInfo CreateValidCollaborationInfo()
+        private CollaborationInfo CreateValidCollaborationInfo()
         {
             return new CollaborationInfo
             {
