@@ -261,7 +261,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (sendPModes.Any() == false)
             {
-                throw AS4ExceptionBuilder.WithDescription($"Could not retrieve OutMessage with ID {ebmsMessageId}").Build();
+                return null;
             }
 
             string pmodeString = sendPModes.First();
