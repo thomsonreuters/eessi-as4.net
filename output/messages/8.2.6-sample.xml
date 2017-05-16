@@ -28,7 +28,7 @@
     <Payload>
       <Id>earth2</Id>
       <MimeType>image/jpeg</MimeType>
-      <Location>file:///.\messages\attachments\earth(2).jpg</Location>
+      <Location>file:///C:\Dev\codit.visualstudio.com\AS4.NET\output\messages\attachments\earth(2).jpg</Location>
       <PayloadProperties>
         <PayloadProperty>
           <Name>Test</Name>
