@@ -264,7 +264,7 @@ namespace Eu.EDelivery.AS4.Services
 
         #endregion SignalMessage related
 
-        public async Task UpdateAS4MessageForDelivery(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
         {
             var inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
 
