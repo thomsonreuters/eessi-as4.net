@@ -5,9 +5,7 @@ namespace Eu.EDelivery.AS4.Model.Common
     public class Agreement : IEquatable<Agreement>
     {
         public string Value { get; set; }
-
         public string RefType { get; set; }
-
         public string PModeId { get; set; }
 
         /// <summary>
@@ -19,19 +17,12 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(Agreement other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(RefType, other.RefType, StringComparison.OrdinalIgnoreCase)
-                   && string.Equals(PModeId, other.PModeId, StringComparison.OrdinalIgnoreCase);
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return
+                string.Equals(this.Value, other.Value, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.RefType, other.RefType, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(this.PModeId, other.PModeId, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -43,7 +34,9 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            return Equals(obj as Agreement);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj.GetType() == GetType() && Equals((Agreement) obj);
         }
 
         /// <summary>
@@ -56,13 +49,11 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                int hashCode = Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0;
-
+                int hashCode = this.Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Value) : 0;
                 hashCode = (hashCode * 397)
-                           ^ (RefType != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(RefType) : 0);
+                           ^ (this.RefType != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.RefType) : 0);
                 hashCode = (hashCode * 397)
-                           ^ (PModeId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(PModeId) : 0);
-
+                           ^ (this.PModeId != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.PModeId) : 0);
                 return hashCode;
             }
         }

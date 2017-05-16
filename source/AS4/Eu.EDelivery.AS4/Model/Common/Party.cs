@@ -5,7 +5,6 @@ namespace Eu.EDelivery.AS4.Model.Common
     public class Party : IEquatable<Party>
     {
         public string Role { get; set; }
-
         public PartyId[] PartyIds { get; set; }
 
         /// <summary>
@@ -17,18 +16,12 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(Party other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Role, other.Role, StringComparison.OrdinalIgnoreCase)
-                   && Equals(PartyIds, other.PartyIds);
+            return 
+                string.Equals(this.Role, other.Role, StringComparison.OrdinalIgnoreCase) && 
+                Equals(this.PartyIds, other.PartyIds);
         }
 
         /// <summary>
@@ -40,7 +33,10 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            return Equals(obj as Party);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+
+            return obj.GetType() == GetType() && Equals((Party) obj);
         }
 
         /// <summary>
@@ -53,8 +49,8 @@ namespace Eu.EDelivery.AS4.Model.Common
         {
             unchecked
             {
-                return ((Role != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Role) : 0) * 397)
-                       ^ (PartyIds?.GetHashCode() ?? 0);
+                return ((this.Role != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(this.Role) : 0) * 397)
+                       ^ (this.PartyIds?.GetHashCode() ?? 0);
             }
         }
     }
