@@ -26,3 +26,9 @@ Get-ChildItem ../output/Staging/Documentation/Schemas -Filter '*.xsd' | % {
 
         $content.Save($_.FullName)
     }
+
+Copy-Item -Path ../output/Staging/Documentation/Schemas/submitmessage-schema.xsd -Destination ../output/doc/schemas/submitmessage-schema.xsd -Force
+Copy-Item -Path ../output/Staging/Documentation/Schemas/delivermessage-schema.xsd -Destination ../output/doc/schemas/delivermessage-schema.xsd -Force
+Copy-Item -Path ../output/Staging/Documentation/Schemas/notifymessage-schema.xsd -Destination ../output/doc/schemas/notifymessage-schema.xsd -Force
+Copy-Item -Path ../output/Staging/Documentation/Schemas/send-pmode-schema.xsd -Destination ../output/doc/schemas/send-pmode-schema.xsd -Force
+Copy-Item -Path ../output/Staging/Documentation/Schemas/receive-pmode-schema.xsd -Destination ../output/doc/schemas/receive-pmode-schema.xsd -Force
