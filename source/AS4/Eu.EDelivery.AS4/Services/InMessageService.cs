@@ -98,6 +98,60 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
+
+        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        {
+            var inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
+
+            if (inMessage == null)
+            {
+                throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
+            }
+
+            if (as4Message.UserMessages.Any())
+            {
+                await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
+            }
+
+            foreach (var userMessage in as4Message.UserMessages)
+            {
+                _repository.UpdateInMessage(userMessage.MessageId, message =>
+                {
+                    message.PMode = as4Message.GetReceivingPModeString();
+                    if (UserMessageNeedsToBeDelivered(as4Message.ReceivingPMode, userMessage))
+                    {
+                        message.Operation = Operation.ToBeDelivered;
+                    }
+                }
+                );
+            }
+
+            // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
+            // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queueu).
+
+            foreach (var signalMessage in as4Message.SignalMessages)
+            {
+                if (signalMessage is Receipt)
+                {
+                    if (ReceiptMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
+                    {
+                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
+                    }
+                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
+                }
+                else if (signalMessage is Error)
+                {
+                    if (ErrorMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
+                    {
+                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
+                    }
+                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
+                }
+
+            }
+        }
+
+
         #region UserMessage related
 
         private static bool IsUserMessageTest(UserMessage userMessage)
@@ -262,58 +316,6 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         #endregion SignalMessage related
-
-        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
-        {
-            var inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
-
-            if (inMessage == null)
-            {
-                throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
-            }
-
-            if (as4Message.UserMessages.Any())
-            {
-                await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
-            }
-
-            foreach (var userMessage in as4Message.UserMessages)
-            {
-                _repository.UpdateInMessage(userMessage.MessageId, message =>
-                    {
-                        message.PMode = as4Message.GetReceivingPModeString();
-                        if (UserMessageNeedsToBeDelivered(as4Message.ReceivingPMode, userMessage))
-                        {
-                            message.Operation = Operation.ToBeDelivered;
-                        }
-                    }
-                );
-            }
-
-            // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
-            // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queueu).
-
-            foreach (var signalMessage in as4Message.SignalMessages)
-            {
-                if (signalMessage is Receipt)
-                {
-                    if (ReceiptMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
-                    {
-                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
-                    }
-                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Ack);
-                }
-                else if (signalMessage is Error)
-                {
-                    if (ErrorMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
-                    {
-                        _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
-                    }
-                    UpdateRefUserMessageStatus(signalMessage, OutStatus.Nack);
-                }
-
-            }
-        }
 
         private static bool UserMessageNeedsToBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {

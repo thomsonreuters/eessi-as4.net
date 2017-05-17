@@ -3,6 +3,8 @@
   xmlns="eu:edelivery:as4">
   <!-- Format of the message ID -->
   <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
+  <FeInProcess>false</FeInProcess>
+  <PayloadServiceInProcess>false</PayloadServiceInProcess>
   <!-- Specify the storage of the messages -->
   <!-- Available Providers: Microsoft SQL Server, SQLite, Npgsql (PostgreSQL), Microsoft SQL Server Compact Edition, IBM Data Servers, InMemory (for Testing), Devart (MySQL, Oracle, PostgreSQL, SQLite, DB2, SQL Server, and more) -->
   <Database>
