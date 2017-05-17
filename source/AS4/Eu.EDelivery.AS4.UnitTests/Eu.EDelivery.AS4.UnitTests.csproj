@@ -394,6 +394,7 @@
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSendAS4ReceiptStepFacts.cs" />
+    <Compile Include="Steps\Receive\GivenUpdateReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeAgreementRefRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeIdRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModePartyInfoRuleFacts.cs" />
@@ -408,7 +409,7 @@
     <Compile Include="Steps\Receive\GivenDeterminePModesStepFacts.cs" />
     <Compile Include="Steps\Send\GivenCreateAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenEncryptAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\Receive\GivenReceiveUpdateDatastoreFacts.cs" />
+    <Compile Include="Steps\Receive\GivenSaveReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Send\GivenSendAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSetReceptionAwarenessStepFacts.cs" />
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />

@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
             }
-            
+
             [Fact]
             public async Task ThenExecuteStepUpdatesDuplicateReceiptMessageAsync()
             {
@@ -147,53 +147,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 Assert.NotNull(result);
-            }
-
-            [Fact]
-            public async Task ThenExecuteStepUpdatesAsErrorAsync()
-            {
-                // Arrange
-                SignalMessage errorMessage = CreateError();
-
-                InternalMessage internalMessage =
-                    new InternalMessageBuilder(errorMessage.RefToMessageId).WithSignalMessage(errorMessage).Build();
-                internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
-                internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
-
-                // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                await AssertOutMessages(errorMessage, OutStatus.Nack);
-                await AssertInMessage(errorMessage);
-            }
-
-            [Fact]
-            public async Task ThenExecuteStepUpdatesAsReceiptAsync()
-            {
-                // Arrange
-                SignalMessage receiptMessage = CreateReceipt();
-                InternalMessage internalMessage = CreateInternalMessageWith(receiptMessage);
-
-                receiptMessage.RefToMessageId = internalMessage.AS4Message.PrimaryUserMessage.MessageId;
-
-                // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                await AssertOutMessages(receiptMessage, OutStatus.Ack);
-                await AssertInMessage(receiptMessage);
-            }
-
-            private static InternalMessage CreateInternalMessageWith(SignalMessage receiptMessage)
-            {
-                InternalMessage internalMessage = new InternalMessageBuilder(receiptMessage.RefToMessageId)
-                                .WithSignalMessage(receiptMessage).Build();
-
-                internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
-                internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
-
-                return internalMessage;
             }
         }
 

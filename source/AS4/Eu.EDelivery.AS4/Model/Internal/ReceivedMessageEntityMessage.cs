@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceivedMessageEntityMessage(MessageEntity messageEntity)
         {
-            this.MessageEntity = messageEntity;
+            MessageEntity = messageEntity;
         }
 
         /// <summary>
@@ -28,9 +28,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
             if (MessageEntity is InMessage)
             {
                 message.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+                message.SendingPMode = null;
             }
             else if (MessageEntity is OutMessage)
             {
+                message.ReceivingPMode = null;
                 message.SendingPMode = GetPMode<SendingProcessingMode>();
             }
         }

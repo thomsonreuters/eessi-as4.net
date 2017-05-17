@@ -290,6 +290,9 @@ namespace Eu.EDelivery.AS4.Services
                 );
             }
 
+            // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
+            // instead of relying on the SendingPMode that is available in the AS4Message object (which is set by another Step in the queueu).
+
             foreach (var signalMessage in as4Message.SignalMessages)
             {
                 if (signalMessage is Receipt)
