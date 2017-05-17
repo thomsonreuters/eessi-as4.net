@@ -27,10 +27,10 @@ namespace Eu.EDelivery.AS4.Receivers
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private static bool _useLogging;
+        private static string _hostname;
 
         private HttpListener _listener;
         private int _maxConcurrentConnections;
-        private string _hostname;
 
         /// <summary>
         /// Data Class that contains the required keys to correctly configure the <see cref="HttpReceiver"/>.
@@ -259,7 +259,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     Directory.CreateDirectory(logDir);
                 }
 
-                string newReceivedMessageFile = Path.Combine(logDir, $"{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
+                string newReceivedMessageFile = Path.Combine(logDir, $"{_hostname}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
                 using (var destinationStream = new FileStream(newReceivedMessageFile, FileMode.Create))
                 {
                     await message.RequestStream.CopyToAsync(destinationStream);
