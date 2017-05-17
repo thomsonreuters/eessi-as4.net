@@ -206,35 +206,4 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return new UserMessage(_userMessageId) { RefToMessageId = _userMessageId };
         }
     }
-
-    ////public class GivenReceiveUpdateDataStoreFacts
-    ////{
-    ////    [Fact]
-    ////    public async Task ThenExecuteStepSucceedsWithDeliveringAsync()
-    ////    {
-    ////        // Arrange
-    ////        UserMessage userMessage = CreateUserMessage();
-    ////        InternalMessage internalMessage = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
-
-    ////        var pmode = new ReceivingProcessingMode();
-    ////        pmode.Reliability.DuplicateElimination.IsEnabled = false;
-    ////        pmode.Deliver.IsEnabled = true;
-    ////        internalMessage.AS4Message.ReceivingPMode = pmode;
-
-    ////        // Act
-    ////        await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-    ////        // Assert
-    ////        await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.ToBeDelivered);
-    ////    }
-
-    ////    /// <summary>
-    ////    /// Create a <see cref="UserMessage" /> based on the configured Id's.
-    ////    /// </summary>
-    ////    /// <returns></returns>
-    ////    protected UserMessage CreateUserMessage()
-    ////    {
-    ////        return new UserMessage(_userMessageId) { RefToMessageId = _userMessageId };
-    ////    }
-    ////}
 }
