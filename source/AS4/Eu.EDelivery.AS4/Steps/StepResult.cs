@@ -39,15 +39,6 @@ namespace Eu.EDelivery.AS4.Steps
         }
 
         /// <summary>
-        /// Promote the <see cref="StepResult"/> to stop the execution.
-        /// </summary>
-        /// <returns></returns>
-        public Task<StepResult> AndStopExecutionAsync()
-        {
-            return Task.FromResult(AndStopExecution());
-        }
-
-        /// <summary>
         /// Return a Failed <see cref="StepResult" />.
         /// </summary>
         /// <param name="exception">Included <see cref="AS4Exception" /></param>
