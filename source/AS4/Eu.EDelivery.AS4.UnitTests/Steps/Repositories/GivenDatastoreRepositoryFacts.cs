@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Arrange
                 InsertOutMessage(sharedId, Operation.NotApplicable);
 
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     var repository = new DatastoreRepository(context);
 
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 var outMessage = new OutMessage { EbmsMessageId = sharedId };
 
                 // Act
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     new DatastoreRepository(context).InsertOutMessage(outMessage);
 
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 InsertOutMessage(sharedId, Operation.ToBeSent);
 
                 // Act
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     new DatastoreRepository(context).UpdateOutMessage(
                        sharedId,
@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 var inException = new InException { EbmsRefToMessageId = sharedId };
 
                 // Act
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     new DatastoreRepository(context).InsertInException(inException);
 
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void AssertInException(string messageId, Action<InException> assertAction)
             {
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     InException inException =
                         context.InExceptions.FirstOrDefault(m => m.EbmsRefToMessageId.Equals(messageId));
@@ -139,7 +139,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 var outException = new OutException { EbmsRefToMessageId = sharedId };
 
                 // Act
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     new DatastoreRepository(context).InsertOutException(outException);
 
@@ -181,7 +181,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 const string expectedId = "message-id";
                 insertion(expectedId);
 
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     var repository = new DatastoreRepository(context);
                     var expectedMessageIds = new[] { expectedId };
@@ -201,7 +201,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 // Arrange
                 InsertInMessage(sharedId);
 
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     var repository = new DatastoreRepository(context);
 
@@ -232,7 +232,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 InsertInMessage(sharedId, Operation.ToBeDelivered);
 
                 // Act
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     new DatastoreRepository(context).UpdateInMessage(
                         sharedId,
@@ -247,7 +247,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void InsertInMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
             {
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     context.InMessages.Add(new InMessage() { EbmsMessageId = ebmsMessageId, Operation = operation });
                     context.SaveChanges();
@@ -256,7 +256,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
             private void InsertRefInMessage(string refToEbmsMessageId)
             {
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDatastoreContext())
                 {
                     context.InMessages.Add(new InMessage { EbmsRefToMessageId = refToEbmsMessageId });
                     context.SaveChanges();

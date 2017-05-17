@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequestError()).Build();
-            var step = new SendAS4MessageStep(InMemoryDatastore, StubHttpClient.ThatReturns(as4Message));
+            var step = new SendAS4MessageStep(GetDatastoreContext, StubHttpClient.ThatReturns(as4Message));
 
             InternalMessage dummyMessage = CreateAnonymousPullRequest();
 
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             stubMessage.AS4Message.ContentType = contentType;
             InsertToBeSentUserMessage(stubMessage);
 
-            var step = new SendAS4MessageStep(InMemoryDatastore, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));
+            var step = new SendAS4MessageStep(GetDatastoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));
 
             // Act
             await step.ExecuteAsync(stubMessage, CancellationToken.None);
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task SendReturnsEmptyResponseForEmptyRequest()
         {
             // Arrange
-            var step = new SendAS4MessageStep(InMemoryDatastore, StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
+            var step = new SendAS4MessageStep(GetDatastoreContext, StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
             InternalMessage dummyMessage = CreateAnonymousPullRequest();
 
             // Act
