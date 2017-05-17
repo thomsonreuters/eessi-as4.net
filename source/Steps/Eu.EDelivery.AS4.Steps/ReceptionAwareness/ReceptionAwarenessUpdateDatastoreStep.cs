@@ -144,42 +144,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             ReceptionAwarenessService service = new ReceptionAwarenessService(repository);
             await service.DeadletterOutMessageAsync(messageId, _inMessageBodyPersister, cancellationToken);
         }
-
-        private Error CreateError()
-        {
-            AS4Exception as4Exception = CreateAS4Exception();
-            string messageId = _receptionAwareness.InternalMessageId;
-
-            return new ErrorBuilder()
-                .WithRefToEbmsMessageId(messageId)
-                .WithAS4Exception(as4Exception)
-                .Build();
-        }
-
-        private AS4Exception CreateAS4Exception()
-        {
-            string messageId = _receptionAwareness.InternalMessageId;
-
-            return AS4ExceptionBuilder
-                .WithDescription($"[{messageId}] Missing Receipt")
-                .WithMessageIds(_receptionAwareness.InternalMessageId)
-                .WithErrorCode(ErrorCode.Ebms0301)
-                .Build();
-        }
-
-        private AS4Message CreateAS4Message(SignalMessage errorMessage, IDatastoreRepository repository)
-        {
-            string messageId = _receptionAwareness.InternalMessageId;
-
-            var pmode = repository.RetrieveSendingPModeForOutMessage(messageId);
-
-            var builder = new AS4MessageBuilder()
-                .WithSendingPMode(pmode)
-                .WithSignalMessage(errorMessage);
-
-            return builder.Build();
-        }
-
+              
         private void UpdateReceptionAwareness(Action<Entities.ReceptionAwareness> updateAction, IDatastoreRepository repository)
         {
             string messageId = _receptionAwareness.InternalMessageId;
