@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertInException(string messageId, Action<InException> assertAction)
             {
-                using (var context = GetDatastoreContext())
+                using (var context = GetDataStoreContext())
                 {
                     InException inException = context.InExceptions
                         .FirstOrDefault(e => e.EbmsRefToMessageId.Equals(messageId));
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                using (var context = GetDatastoreContext())
+                using (var context = GetDataStoreContext())
                 {
                     InMessage inMessage = CreateDefaultInMessage(sharedId);
                     context.InMessages.Add(inMessage);
@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void InsertInMessage(InMessage inMessage)
             {
-                using (DatastoreContext context = GetDatastoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     context.InMessages.Add(inMessage);
                     context.SaveChanges();
@@ -137,7 +137,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             private void AssertInMessage(string messageId, Action<InMessage> assertAction)
             {
-                using (DatastoreContext context = GetDatastoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     InMessage inMessage = context.InMessages
                         .FirstOrDefault(e => e.EbmsMessageId.Equals(messageId));

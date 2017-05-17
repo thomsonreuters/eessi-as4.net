@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private void AssertInException(string messageId, Action<InException> condition)
             {
-                using (DatastoreContext context = GetDatastoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     InException inException =
                         context.InExceptions.FirstOrDefault(e => e.EbmsRefToMessageId.Equals(messageId));

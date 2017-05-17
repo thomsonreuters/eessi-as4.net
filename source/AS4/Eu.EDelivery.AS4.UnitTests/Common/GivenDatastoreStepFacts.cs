@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
         private void SeedDataStore(DbContextOptions<DatastoreContext> options)
         {
-            using (var context = GetDatastoreContext())
+            using (var context = GetDataStoreContext())
             {
                 var receipt = new OutMessage { EbmsMessageId = CreateReceipt().MessageId };
                 var error = new OutMessage { EbmsMessageId = CreateError().MessageId };
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             MessageUnit signalMessage,
             OutStatus status)
         {
-            using (var context = GetDatastoreContext())
+            using (var context = GetDataStoreContext())
             {
                 OutMessage outMessage = await context.OutMessages
                     .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(signalMessage.RefToMessageId));
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         protected async Task AssertInMessage(MessageUnit signalMessage)
         {
-            using (var context = GetDatastoreContext())
+            using (var context = GetDataStoreContext())
             {
                 InMessage inMessage = await context.InMessages
                     .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(signalMessage.MessageId));

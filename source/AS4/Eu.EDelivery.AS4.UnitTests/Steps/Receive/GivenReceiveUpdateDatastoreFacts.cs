@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new ReceiveUpdateDatastoreStep(GetDatastoreContext, StubMessageBodyPersister.Default);
+            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext, StubMessageBodyPersister.Default);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private async Task InsertDuplicateUserMessage(MessageUnit userMessage)
             {
-                using (DatastoreContext context = GetDatastoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     var inMessage = new InMessage { EbmsMessageId = userMessage.MessageId };
                     context.InMessages.Add(inMessage);
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private async Task AssertUserInMessageAsync(MessageUnit userMessage, Func<InMessage, bool> condition = null)
             {
-                using (DatastoreContext context = GetDatastoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     InMessage inMessage = await context.InMessages
                         .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(userMessage.MessageId));

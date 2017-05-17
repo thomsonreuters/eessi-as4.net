@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             private void AssertOutException(ExceptionEntity previousOutException)
             {
-                using (DatastoreContext context = GetDatastoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     OutException outException =
                         context.OutExceptions.FirstOrDefault(
@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         protected void InsertOutException(OutException outException)
         {
-            using (DatastoreContext context = GetDatastoreContext())
+            using (DatastoreContext context = GetDataStoreContext())
             {
                 context.OutExceptions.Add(outException);
                 context.SaveChanges();
