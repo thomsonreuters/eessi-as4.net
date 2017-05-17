@@ -75,7 +75,6 @@ namespace Eu.EDelivery.AS4.Services
             IDictionary<string, bool> duplicateUserMessages =
                 this.DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
 
-
             foreach (UserMessage userMessage in as4Message.UserMessages)
             {
                 userMessage.IsTest = IsUserMessageTest(userMessage);

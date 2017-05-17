@@ -138,16 +138,11 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private async Task UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
         {
             string messageId = _receptionAwareness.InternalMessageId;
-            _logger.Info($"[{messageId}] ebMS message is unanswered");
-
+           
             UpdateReceptionAwareness(awareness => awareness.Status = ReceptionStatus.Completed, repository);
-            repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
 
-            Error errorMessage = CreateError();
-            AS4Message as4Message = CreateAS4Message(errorMessage, repository);
-
-            var inMessageService = new InMessageService(repository);
-            await inMessageService.InsertAS4Message(as4Message, _inMessageBodyPersister, cancellationToken).ConfigureAwait(false);
+            ReceptionAwarenessService service = new ReceptionAwarenessService(repository);
+            await service.DeadletterOutMessageAsync(messageId, _inMessageBodyPersister, cancellationToken);
         }
 
         private Error CreateError()
