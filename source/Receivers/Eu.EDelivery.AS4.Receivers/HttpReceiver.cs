@@ -30,8 +30,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private HttpListener _listener;
         private int _maxConcurrentConnections;
-
-        private Func<string> Host { get; set; }
+        private string _hostname;
 
         /// <summary>
         /// Data Class that contains the required keys to correctly configure the <see cref="HttpReceiver"/>.
@@ -51,8 +50,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             Dictionary<string, string> properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
-            string hostUrl = properties.ReadMandatoryProperty(SettingKeys.Url);
-            Host = () => hostUrl;
+            _hostname = properties.ReadMandatoryProperty(SettingKeys.Url);
 
             string concurrentRequestValue = properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, defaultValue: "10");
             int.TryParse(concurrentRequestValue, out _maxConcurrentConnections);
@@ -67,14 +65,13 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
             _listener = new HttpListener();
 
             try
             {
-                _listener.Prefixes.Add(Host());
+                _listener.Prefixes.Add(_hostname);
                 StartListener(_listener);
 
                 AcceptConnections(_listener, messageCallback, cancellationToken);
@@ -89,7 +86,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-                Logger.Debug($"Start receiving on '{Host()}'...");
+                Logger.Debug($"Start receiving on '{_hostname}'...");
                 listener.Start();
             }
             catch (HttpListenerException exception)
@@ -133,7 +130,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     catch (HttpListenerException)
                     {
-                        Logger.Trace($"Http Listener on {Host()} stopped receiving requests.");
+                        Logger.Trace($"Http Listener on {_hostname} stopped receiving requests.");
                     }
                     catch (ObjectDisposedException)
                     {
@@ -597,10 +594,9 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <summary>
         /// Stop the <see cref="IReceiver"/> instance from receiving.
         /// </summary>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public void StopReceiving()
         {
-            Logger.Debug($"Stop listening on {Host()}");
+            Logger.Debug($"Stop listening on {_hostname}");
 
             _listener?.Close();
         }
