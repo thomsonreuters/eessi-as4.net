@@ -30,13 +30,57 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
+        public async Task DeliverAttachmentsOnly_IfBelongToUserMessage()
+        {
+            // Arrange
+            AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
+            as4Message.AddAttachment(DummyAttachment());
+
+            string deliverLocation = AttachmentDeliverLocation();
+            CleanDirectoryAt(deliverLocation);
+
+            // Act
+            await InsertToBeDeliveredMessage(as4Message);
+
+            // Assert
+            AssertOnDeliveredAttachments(deliverLocation, files => Assert.True(files.Length == 1, "files.Length == 1"));
+        }
+
+        private static Attachment DummyAttachment()
+        {
+            string uri = Path.Combine(Environment.CurrentDirectory, "messages", "attachments", "earth.jpg");
+            var stream = new FileStream(uri, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            return new Attachment("yet-another-attachment")
+            {
+                ContentType = "image/jpeg",
+                Content = stream,
+                Location = uri
+            };
+        }
+
+        private static string AttachmentDeliverLocation()
+        {
+            return Path.Combine(Environment.CurrentDirectory, @"messages\in");
+        }
+
+        private static void AssertOnDeliveredAttachments(string location, Action<FileInfo[]> assertion)
+        {
+            // Wait till the AS4 Component has updated the record
+            Thread.Sleep(TimeSpan.FromSeconds(6));
+
+            FileInfo[] files = new DirectoryInfo(location).GetFiles("*.jpg");
+            assertion(files);
+        }
+
+        [Fact]
         public async Task StatusIsSetToException_IfDeliveryFails()
         {
             // Arrange
-            AS4Message as4Message = await CreateSinglePayloadMessage();
+            AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
 
             string deliverLocation = DeliverLocationOf(as4Message);
-            CleanDirectoryAt(deliverLocation);
+            CleanDirectoryAt(Path.GetDirectoryName(deliverLocation));
 
             using (WriteBlockingFileTo(deliverLocation))
             {
@@ -49,18 +93,18 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
         }
 
-        private static async Task<AS4Message> CreateSinglePayloadMessage()
+        private static async Task<AS4Message> CreateAS4MessageFrom(byte[] deliveragentMessage)
         {
             var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
-            return await serializer.DeserializeAsync(new MemoryStream(deliveragent_message), ContentType, CancellationToken.None);
+            return await serializer.DeserializeAsync(
+                       new MemoryStream(deliveragentMessage),
+                       ContentType,
+                       CancellationToken.None);
         }
 
         private static void CleanDirectoryAt(string location)
         {
-            string directoryName = Path.GetDirectoryName(location);
-            Assert.NotNull(directoryName);
-
-            foreach (FileInfo file in new DirectoryInfo(directoryName).EnumerateFiles())
+            foreach (FileInfo file in new DirectoryInfo(location).EnumerateFiles())
             {
                 file.Delete();
             }
@@ -91,7 +135,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private InMessage GetToBeDeliveredMessage(AS4Message as4Message)
         {
-            // Wait till the AS4 Component had updated the record
+            // Wait till the AS4 Component has updated the record
             Thread.Sleep(TimeSpan.FromSeconds(5));
 
             var spy = new DatabaseSpy(_as4Msh.GetConfiguration());
@@ -100,15 +144,17 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static async Task<InMessage> CreateInMessageFrom(AS4Message as4Message)
         {
-           return new InMessage
+            return new InMessage
             {
                 ContentType = as4Message.ContentType,
                 EbmsMessageId = as4Message.GetPrimaryMessageId(),
                 EbmsMessageType = MessageType.UserMessage,
                 MEP = MessageExchangePattern.Push,
                 MessageLocation =
-                    await Config.Instance.IncomingAS4MessageBodyPersister.SaveAS4MessageAsync(as4Message, CancellationToken.None),
-                PMode = deliveragent_pmode, 
+                    await Config.Instance.IncomingAS4MessageBodyPersister.SaveAS4MessageAsync(
+                        as4Message,
+                        CancellationToken.None),
+                PMode = deliveragent_pmode,
                 Operation = Operation.ToBeDelivered
             };
         }
