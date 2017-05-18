@@ -51,6 +51,11 @@ namespace Eu.EDelivery.AS4.Model.Core
             return partInfo.Href.Equals($"cid:{Id}");
         }
 
+        public bool Matches(System.Security.Cryptography.Xml.Reference reference)
+        {
+            return reference.Uri.Equals($"cid:{Id}");
+        }
+
         public void ResetContentPosition()
         {
             if (Content != null)
