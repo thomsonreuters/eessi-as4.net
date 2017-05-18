@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             _encryptedDatas.Clear();
 
-            byte[] encryptionKey = GenerateSymmetricKey(_keyEncryptionConfig.KeySize);
+            byte[] encryptionKey = GenerateSymmetricKey(_dataEncryptionConfig.AlgorithmKeySize);
             AS4EncryptedKey as4EncryptedKey = GetEncryptedKey(encryptionKey, _certificate, _keyEncryptionConfig);
 
             using (SymmetricAlgorithm encryptionAlgorithm =
