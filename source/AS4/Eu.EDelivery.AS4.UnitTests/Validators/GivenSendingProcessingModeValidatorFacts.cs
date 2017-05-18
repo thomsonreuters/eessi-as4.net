@@ -20,6 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             // Arrange
             IValidator<SendingProcessingMode> sut = new SendingProcessingModeValidator();
             SendingProcessingMode pmode = new ValidStubSendingPModeFactory().Create();
+            pmode.Security.Encryption.IsEnabled = true;
             pmode.Security.Encryption.KeyTransport.KeySize = keysize;
 
             // Act
@@ -33,15 +34,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         public void InvalidSendingPMode_IfInvalidKeySize()
         {
             // Arrange
-            var sut = new SendingProcessingModeValidator();
+            IValidator<SendingProcessingMode> sut = new SendingProcessingModeValidator();
             SendingProcessingMode pmode = new ValidStubSendingPModeFactory().Create();
+            pmode.Security.Encryption.IsEnabled = true;
             pmode.Security.Encryption.KeyTransport.KeySize = 200;
 
            // Act
             sut.Validate(pmode);
 
             // Assert
-            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize != 0);
+            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize == 256);
         }
     }
 }
