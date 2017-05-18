@@ -29,7 +29,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
                                 PrivateKeyFindType = X509FindType.FindBySubjectName,
                                 Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
                                 HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256"
-                            }
+                            },
+                        Encryption = new Encryption
+                        {
+                            PublicKeyFindValue = "Ignored"
+                        }
                     }
             };
         }
