@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             sut.Validate(pmode);
 
             // Assert
-            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize == 256);
+            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize == KeyEncryption.Default.KeySize);
         }
     }
 }

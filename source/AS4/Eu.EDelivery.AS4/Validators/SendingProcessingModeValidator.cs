@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.Validators
                 return;
             }
 
-            var keysizes = new[] {128, 192, 256};
+            var keysizes = new[] { 128, 192, 256 };
             int actualKeySize = model.Security.Encryption.KeyTransport.KeySize;
 
             if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption?.KeyTransport != null)
