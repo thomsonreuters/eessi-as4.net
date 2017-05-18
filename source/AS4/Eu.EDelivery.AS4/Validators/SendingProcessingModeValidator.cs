@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Validators
         {
             PreConditions(model);
 
-            ValidationResult validationResult = this.Validate(model);
+            ValidationResult validationResult = base.Validate(model);
 
             if (!validationResult.IsValid)
             {
