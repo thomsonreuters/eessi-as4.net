@@ -26,9 +26,8 @@ namespace Eu.EDelivery.AS4.Receivers
     public sealed class HttpReceiver : IReceiver, IDisposable
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private static bool _useLogging;
-        private static string _hostname;
 
+        private HttpRequestMeta _requestMeta;
         private HttpListener _listener;
         private int _maxConcurrentConnections;
 
@@ -43,6 +42,37 @@ namespace Eu.EDelivery.AS4.Receivers
         }
 
         /// <summary>
+        /// Meta info about the <see cref="HttpListenerRequest"/>.
+        /// </summary>
+        private class HttpRequestMeta
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="HttpRequestMeta" /> class.
+            /// </summary>
+            /// <param name="hostname">The hostname.</param>
+            /// <param name="useLogging">if set to <c>true</c> [use logging].</param>
+            public HttpRequestMeta(string hostname, bool useLogging)
+            {
+                Hostname = hostname;
+                UseLogging = useLogging;
+            }
+
+            /// <summary>
+            /// Gets  the hostname.
+            /// </summary>
+            /// <value>The hostname.</value>
+            public string Hostname { get; }
+
+            /// <summary>
+            /// Gets a value indicating whether [use logging].
+            /// </summary>
+            /// <value>
+            ///   <c>true</c> if [use logging]; otherwise, <c>false</c>.
+            /// </value>
+            public bool UseLogging { get; }
+        }
+
+        /// <summary>
         /// Configure the receiver with a given settings dictionary.
         /// </summary>
         /// <param name="settings"></param>
@@ -50,13 +80,19 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             Dictionary<string, string> properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
-            _hostname = properties.ReadMandatoryProperty(SettingKeys.Url);
-
-            string concurrentRequestValue = properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, defaultValue: "10");
-            int.TryParse(concurrentRequestValue, out _maxConcurrentConnections);
+            const int defaultConcurrentRequests = 10;
+            string concurrentRequestValue = properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, defaultConcurrentRequests.ToString());
+            if (!int.TryParse(concurrentRequestValue, out _maxConcurrentConnections))
+            {
+                Logger.Warn($"Invalid '{SettingKeys.ConcurrentRequests}' was given: {concurrentRequestValue}, will fall back to '{defaultConcurrentRequests}'");
+                _maxConcurrentConnections = defaultConcurrentRequests;
+            }
 
             string useLoggingValue = properties.ReadOptionalProperty(SettingKeys.UseLogging, defaultValue: false.ToString());
-            bool.TryParse(useLoggingValue, out _useLogging);
+            bool.TryParse(useLoggingValue, out var useLogging);
+
+            string hostname = properties.ReadMandatoryProperty(SettingKeys.Url);
+            _requestMeta = new HttpRequestMeta(hostname, useLogging);
         }
 
         /// <summary>
@@ -71,7 +107,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             try
             {
-                _listener.Prefixes.Add(_hostname);
+                _listener.Prefixes.Add(_requestMeta.Hostname);
                 StartListener(_listener);
 
                 AcceptConnections(_listener, messageCallback, cancellationToken);
@@ -86,7 +122,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-                Logger.Debug($"Start receiving on '{_hostname}'...");
+                Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
                 listener.Start();
             }
             catch (HttpListenerException exception)
@@ -130,7 +166,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
                     catch (HttpListenerException)
                     {
-                        Logger.Trace($"Http Listener on {_hostname} stopped receiving requests.");
+                        Logger.Trace($"Http Listener on {_requestMeta.Hostname} stopped receiving requests.");
                     }
                     catch (ObjectDisposedException)
                     {
@@ -143,13 +179,13 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private static async Task ProcessRequestAsync(HttpListenerContext context, Function messageCallback)
+        private async Task ProcessRequestAsync(HttpListenerContext context, Function messageCallback)
         {
             Logger.Info($"Received {context.Request.HttpMethod} request at {context.Request.RawUrl}");
 
             RequestHandler handler = RequestHandler.GetHandler(context.Request);
             HttpListenerContentResult handleResult =
-                await handler.ExecuteAsync(context.Request, messageCallback).ConfigureAwait(false);
+                await handler.ExecuteAsync((_requestMeta, context.Request), messageCallback).ConfigureAwait(false);
 
             await handleResult.ExecuteResultAsync(context.Response).ConfigureAwait(false);
 
@@ -189,15 +225,16 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <param name="request"></param>
             /// <param name="processor"></param>
             /// <returns></returns>
-            public async Task<HttpListenerContentResult> ExecuteAsync(HttpListenerRequest request, Function processor)
+            /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+            public async Task<HttpListenerContentResult> ExecuteAsync((HttpRequestMeta settings, HttpListenerRequest value) request, Function processor)
             {
                 InternalMessage processorResult = null;
 
                 try
                 {
-                    if (processor != null && request.HttpMethod == "POST")
+                    if (processor != null && request.value.HttpMethod == "POST")
                     {
-                        ReceivedMessage receivedMessage = await CreatesReceivedMessage(request).ConfigureAwait(false);
+                        ReceivedMessage receivedMessage = await CreateReceivedMessage(request).ConfigureAwait(false);
                         try
                         {
                             processorResult =
@@ -209,7 +246,7 @@ namespace Eu.EDelivery.AS4.Receivers
                         }
                     }
 
-                    return ExecuteCore(request, processorResult);
+                    return ExecuteCore(request.value, processorResult);
                 }
                 finally
                 {
@@ -217,26 +254,28 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
             }
 
-            private static async Task<ReceivedMessage> CreatesReceivedMessage(HttpListenerRequest request)
+            private static async Task<ReceivedMessage> CreateReceivedMessage((HttpRequestMeta settings, HttpListenerRequest value) request)
             {
-                if (_useLogging)
+                HttpListenerRequest requestValue = request.value;
+
+                if (request.settings.UseLogging)
                 {
-                    VirtualStream.MemoryFlag flag = request.ContentLength64 > VirtualStream.ThresholdMax
+                    VirtualStream.MemoryFlag flag = requestValue.ContentLength64 > VirtualStream.ThresholdMax
                         ? VirtualStream.MemoryFlag.OnlyToDisk
                         : VirtualStream.MemoryFlag.AutoOverFlowToDisk;
 
-                    ReceivedMessage message = await RequestAsVirtualStreamMessage(request, flag);
-                    await LogReceivedMessageMessage(message);
+                    ReceivedMessage message = await RequestAsVirtualStreamMessage(requestValue, flag);
+                    await LogReceivedMessageMessage(message, request.settings.Hostname);
 
                     return message;
                 }
 
-                if (request.ContentLength64 > VirtualStream.ThresholdMax)
+                if (requestValue.ContentLength64 > VirtualStream.ThresholdMax)
                 {
-                    return await RequestAsVirtualStreamMessage(request, VirtualStream.MemoryFlag.OnlyToDisk);
+                    return await RequestAsVirtualStreamMessage(requestValue, VirtualStream.MemoryFlag.OnlyToDisk);
                 }
 
-                return new ReceivedMessage(request.InputStream, request.ContentType);
+                return new ReceivedMessage(requestValue.InputStream, requestValue.ContentType);
             }
 
             private static async Task<ReceivedMessage> RequestAsVirtualStreamMessage(
@@ -250,7 +289,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 return new ReceivedMessage(destinationStream, request.ContentType);
             }
 
-            private static async Task LogReceivedMessageMessage(ReceivedMessage message)
+            private static async Task LogReceivedMessageMessage(ReceivedMessage message, string hostname)
             {
                 const string logDir = @".\logs\receivedmessages\";
 
@@ -259,7 +298,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     Directory.CreateDirectory(logDir);
                 }
 
-                string newReceivedMessageFile = Path.Combine(logDir, $"{_hostname}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
+                string newReceivedMessageFile = Path.Combine(logDir, $"{hostname}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
                 using (var destinationStream = new FileStream(newReceivedMessageFile, FileMode.Create))
                 {
                     await message.RequestStream.CopyToAsync(destinationStream).ConfigureAwait(false);
@@ -596,7 +635,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         public void StopReceiving()
         {
-            Logger.Debug($"Stop listening on {_hostname}");
+            Logger.Debug($"Stop listening on {_requestMeta.Hostname}");
 
             _listener?.Close();
         }
