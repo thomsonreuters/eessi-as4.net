@@ -38,16 +38,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 Assert.True(actualStepResult.CanProceed);
             }
 
-            [Fact]
-            public async Task CannotProceedExecution_IfCalledAsync()
-            {
-                // Act
-                StepResult result = await StepResult.Success(AnonymousMessage()).AndStopExecutionAsync();
-
-                // Assert
-                Assert.False(result.CanProceed);
-            }
-
             private static InternalMessage AnonymousMessage()
             {
                 return new InternalMessage(new AS4MessageBuilder().Build());

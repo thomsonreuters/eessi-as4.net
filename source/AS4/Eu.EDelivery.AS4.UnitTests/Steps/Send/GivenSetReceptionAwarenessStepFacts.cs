@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         public GivenSetReceptionAwarenessStepFacts()
         {
-            Repository = new DatastoreRepository(InMemoryDatastore());
+            Repository = new DatastoreRepository(GetDataStoreContext());
         }
 
         public class GivenValidArguments : GivenSetReceptionAwarenessStepFacts
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             private void AssertReceptionAwareness(string messageId, Action<EntityReceptionAwareness> condition)
             {
-                using (DatastoreContext context = InMemoryDatastore())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
                     EntityReceptionAwareness receptionAwareness =
                         context.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
