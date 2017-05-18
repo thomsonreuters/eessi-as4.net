@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
-        {
+        {                        
             SubmitMessageCreator.CreateSubmitMessages(_viewModel);
             MessageBox.Show($"{_viewModel.NumberOfSubmitMessages} submitmessages created in {_viewModel.SubmitLocation}");
         }
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
             _sendPModeWatcher = new PModeWatcher<SendingProcessingMode>(SendingPModeLocationTextBox.Text);
             _sendPModeWatcher.Start();
 
-            PModeCombobox.ItemsSource = _sendPModeWatcher.GetPModes().Select(p => p.Id).OrderBy(id => id).ToArray();
+            PModeCombobox.ItemsSource = _sendPModeWatcher.GetPModes().OrderBy(p => p.Id); 
         }
 
         private void BrowsePModeLocationButton_Click(object sender, RoutedEventArgs e)

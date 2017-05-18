@@ -29,20 +29,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         /// </summary>
         protected override IStep Step { get; }
 
-        [Fact]
-        public async Task ThenExecuteStepUpdateAsSentAsync()
-        {
-            // Arrange
-            SignalMessage signalMessage = CreateReceipt();
-            InternalMessage internalMessage = CreateReferencedInternalMessageWith(signalMessage);
-
-            // Act
-            await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-            // Assert
-            await AssertOutMessages(signalMessage, OutStatus.Ack);
-        }
-
         private InternalMessage CreateReferencedInternalMessageWith(SignalMessage signalMessage)
         {
             return
@@ -63,39 +49,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Assert
             Assert.NotNull(result);
-        }
-
-        [Fact]
-        public async Task ThenExecuteStepUpdatesAsErrorAsync()
-        {
-            // Arrange
-            SignalMessage errorMessage = CreateError();
-
-            InternalMessage internalMessage = CreateInternalMessageWith(errorMessage);
-
-            // Act
-            await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-            // Assert
-            await AssertOutMessages(errorMessage, OutStatus.Nack);
-            await AssertInMessage(errorMessage);
-        }
-
-        [Fact]
-        public async Task ThenExecuteStepUpdatesAsReceiptAsync()
-        {
-            // Arrange
-            SignalMessage receiptMessage = CreateReceipt();
-            InternalMessage internalMessage = CreateInternalMessageWith(receiptMessage);
-
-            receiptMessage.RefToMessageId = internalMessage.AS4Message.PrimaryUserMessage.MessageId;
-
-            // Act
-            await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-            // Assert
-            await AssertOutMessages(receiptMessage, OutStatus.Ack);
-            await AssertInMessage(receiptMessage);
         }
 
         private static InternalMessage CreateInternalMessageWith(SignalMessage signalMessage)

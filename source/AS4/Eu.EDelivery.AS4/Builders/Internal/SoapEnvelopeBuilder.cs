@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
-using System.Xml.XPath;
 using Eu.EDelivery.AS4.Xml;
 
 namespace Eu.EDelivery.AS4.Builders.Internal
@@ -44,13 +43,13 @@ namespace Eu.EDelivery.AS4.Builders.Internal
 
         private void InitializeBuilder()
         {
-            this._document = new XmlDocument() {PreserveWhitespace = true};
+            _document = new XmlDocument() { PreserveWhitespace = true };
 
-            this._envelopeElement = CreateElement(SoapNamespace.Soap, "Envelope");
-            this._bodyElement = CreateElement(SoapNamespace.Soap, "Body");
-            this._headerElement = CreateElement(SoapNamespace.Soap, "Header");
+            _envelopeElement = CreateElement(SoapNamespace.Soap, "Envelope");
+            _bodyElement = CreateElement(SoapNamespace.Soap, "Body");
+            _headerElement = CreateElement(SoapNamespace.Soap, "Header");
 
-            this._document.AppendChild(this._envelopeElement);
+            _document.AppendChild(_envelopeElement);
         }
 
         /// <summary>
@@ -62,21 +61,23 @@ namespace Eu.EDelivery.AS4.Builders.Internal
             if (messagingHeader == null)
                 throw new ArgumentNullException(nameof(messagingHeader));
 
-            if (this._headerElement == null)
-                this._headerElement = CreateElement(SoapNamespace.Soap, "Header");
+            if (_headerElement == null)
+            {
+                _headerElement = CreateElement(SoapNamespace.Soap, "Header");
+            }
 
             XmlDocument xmlDocument = SerializeMessagingHeaderToXmlDocument(messagingHeader);
-            XmlNode messagingNode = this._document.ImportNode(xmlDocument.DocumentElement, deep: true);
+            XmlNode messagingNode = _document.ImportNode(xmlDocument.DocumentElement, deep: true);
 
-            this._headerElement.AppendChild(messagingNode);
-            this._envelopeElement.AppendChild(this._headerElement);
+            _headerElement.AppendChild(messagingNode);
+            _envelopeElement.AppendChild(_headerElement);
 
             return this;
         }
 
         private static XmlDocument SerializeMessagingHeaderToXmlDocument(Xml.Messaging messagingHeader)
         {
-            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
+            var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
 
             using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
             {
@@ -91,7 +92,9 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         {
             var namespaces = new XmlSerializerNamespaces();
             foreach (KeyValuePair<SoapNamespace, string> prefix in Prefixes)
+            {
                 namespaces.Add(prefix.Value, Namespaces[prefix.Key]);
+            }
 
             return namespaces;
         }
@@ -103,14 +106,18 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         public SoapEnvelopeBuilder SetSecurityHeader(XmlNode securityHeader)
         {
             if (securityHeader == null)
+            {
                 throw new ArgumentNullException(nameof(securityHeader));
+            }
 
-            if (this._headerElement == null)
-                this._headerElement = CreateElement(SoapNamespace.Soap, "Header");
+            if (_headerElement == null)
+            {
+                _headerElement = CreateElement(SoapNamespace.Soap, "Header");
+            }
 
-            securityHeader = this._document.ImportNode(securityHeader, deep: true);
+            securityHeader = _document.ImportNode(securityHeader, deep: true);
 
-            this._headerElement.AppendChild(securityHeader);
+            _headerElement.AppendChild(securityHeader);
             return this;
         }
 
@@ -121,7 +128,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// <returns></returns>
         public SoapEnvelopeBuilder SetRoutingInput(RoutingInput routingInput)
         {
-            var xmlDocument = new XmlDocument() {PreserveWhitespace = true};
+            var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
 
             using (XmlWriter writer = xmlDocument.CreateNavigator().AppendChild())
             {
@@ -129,12 +136,12 @@ namespace Eu.EDelivery.AS4.Builders.Internal
                 serializer.Serialize(writer, routingInput, GetXmlNamespaces());
             }
 
-            XmlNode routingInputNode = this._document.ImportNode(xmlDocument.DocumentElement, deep: true);
-            this._headerElement.AppendChild(routingInputNode);
+            XmlNode routingInputNode = _document.ImportNode(xmlDocument.DocumentElement, deep: true);
+            _headerElement.AppendChild(routingInputNode);
 
             return this;
         }
-        
+
         /// <summary>
         /// Set the BodyId for the <Body/> Element
         /// </summary>
@@ -142,13 +149,15 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// </param>
         public SoapEnvelopeBuilder SetMessagingBody(string bodySecurityId)
         {
-            if (this._bodyElement == null)
-                this._bodyElement = CreateElement(SoapNamespace.Soap, "Body");
+            if (_bodyElement == null)
+            {
+                _bodyElement = CreateElement(SoapNamespace.Soap, "Body");
+            }
 
-            this._bodyElement.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, bodySecurityId);
-            XmlNode xmlNode = this._document.ImportNode(this._bodyElement, deep: true);
+            _bodyElement.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, bodySecurityId);
+            XmlNode xmlNode = _document.ImportNode(_bodyElement, deep: true);
 
-            this._envelopeElement.AppendChild(xmlNode);
+            _envelopeElement.AppendChild(xmlNode);
             return this;
         }
 
@@ -159,14 +168,14 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// <returns></returns>
         public SoapEnvelopeBuilder SetToHeader(To to)
         {
-            XmlNode toNode = this._document.CreateElement("wsa", "To", Constants.Namespaces.Addressing);
+            XmlNode toNode = _document.CreateElement("wsa", "To", Constants.Namespaces.Addressing);
             toNode.InnerText = Constants.Namespaces.ICloud;
 
-            XmlAttribute roleAttribute = this._document.CreateAttribute(Prefixes[SoapNamespace.Soap], "role", Namespaces[SoapNamespace.Soap]);
+            XmlAttribute roleAttribute = _document.CreateAttribute(Prefixes[SoapNamespace.Soap], "role", Namespaces[SoapNamespace.Soap]);
             roleAttribute.Value = to.Role;
             toNode.Attributes.Append(roleAttribute);
 
-            this._headerElement.AppendChild(toNode);
+            _headerElement.AppendChild(toNode);
             return this;
         }
 
@@ -177,16 +186,16 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// <returns></returns>
         public SoapEnvelopeBuilder SetActionHeader(string action)
         {
-            XmlNode actionNode = this._document.CreateElement("wsa", "Action", Constants.Namespaces.Addressing);
+            XmlNode actionNode = _document.CreateElement("wsa", "Action", Constants.Namespaces.Addressing);
             actionNode.InnerText = action;
 
-            this._headerElement.AppendChild(actionNode);
+            _headerElement.AppendChild(actionNode);
             return this;
         }
 
         private XmlElement CreateElement(SoapNamespace soapNamespace, string elementName)
         {
-            return this._document.CreateElement(Prefixes[soapNamespace], elementName, Namespaces[soapNamespace]);
+            return _document.CreateElement(Prefixes[soapNamespace], elementName, Namespaces[soapNamespace]);
         }
 
         /// <summary>
@@ -195,7 +204,7 @@ namespace Eu.EDelivery.AS4.Builders.Internal
         /// <returns></returns>
         public XmlDocument Build()
         {
-            return this._document;
+            return _document;
         }
     }
 

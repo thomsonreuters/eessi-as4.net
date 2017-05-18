@@ -33,6 +33,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
             }
         }
 
+        public void InsertOutMessage(OutMessage message)
+        {
+            using (var context = new DatastoreContext(_configuration))
+            {
+                context.OutMessages.Add(message);
+
+                context.SaveChanges();
+            }
+        }
+
         /// <summary>
         /// Gets the <see cref="InException"/> instances for a given <paramref name="expression"/>.
         /// </summary>

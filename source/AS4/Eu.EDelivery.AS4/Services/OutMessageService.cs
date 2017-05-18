@@ -49,7 +49,6 @@ namespace Eu.EDelivery.AS4.Services
             }            
         }
        
-
         private static OutMessage CreateOutMessageForMessageUnit(MessageUnit messageUnit, AS4Message as4Message, string location, Operation operation)
         {
             OutMessage outMessage = OutMessageBuilder.ForAS4Message(messageUnit, as4Message)
@@ -97,6 +96,6 @@ namespace Eu.EDelivery.AS4.Services
 
     public interface IOutMessageService
     {
-        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);
+        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);        
     }
 }

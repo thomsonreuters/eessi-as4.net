@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
@@ -76,6 +77,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 _logger.Info($"{_internalMessage.Prefix} Start Uploading Attachment...");
                 await UploadAttachment(attachment).ConfigureAwait(false);
+
+                StreamPositionMover.MovePositionToStreamStart(attachment.Content);
             }
             catch (Exception exception)
             {

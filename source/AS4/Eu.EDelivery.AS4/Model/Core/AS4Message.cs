@@ -43,7 +43,32 @@ namespace Eu.EDelivery.AS4.Model.Core
         // PModes
         public SendingProcessingMode SendingPMode { get; set; }
 
-        public ReceivingProcessingMode ReceivingPMode { get; set; }
+        private ReceivingProcessingMode _receivingPMode;
+
+        public ReceivingProcessingMode ReceivingPMode
+        {
+            get { return _receivingPMode; }
+            set
+            {
+                if (_receivingPMode != value)
+                {
+                    _receivingPMode = value;
+                    _receivingPModeString = null;
+                }
+            }
+        }
+
+        private string _receivingPModeString;
+
+        public string GetReceivingPModeString()
+        {
+            if (String.IsNullOrWhiteSpace(_receivingPModeString))
+            {
+                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
+            }
+            return _receivingPModeString;
+            ;
+        }
 
         // AS4 Message
         public ICollection<UserMessage> UserMessages { get; internal set; }

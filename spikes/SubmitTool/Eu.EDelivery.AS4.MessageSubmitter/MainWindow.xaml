@@ -62,7 +62,7 @@
                     </DockPanel>
 
                     <Label Grid.Row="1" Grid.Column="0">Sending P-Mode:</Label>
-                    <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding SendingProcessingModeName}" IsEditable="True" x:Name="PModeCombobox"></ComboBox>
+                    <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" DisplayMemberPath="Id" SelectedValue="{Binding SendingPMode}" IsEditable="True" x:Name="PModeCombobox"></ComboBox>
 
                     <Label Grid.Row="2" Grid.Column="0">Payloads:</Label>
                     <ListView Grid.Row="2" Grid.Column="1" BorderThickness="1" x:Name="PayloadListView" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >

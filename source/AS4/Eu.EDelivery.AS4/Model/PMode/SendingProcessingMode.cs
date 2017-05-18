@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     /// </summary>
     [XmlType(Namespace = "eu:edelivery:as4:pmode")]
     [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
-    [DebuggerDisplay("{" + nameof(Id) + "}")]
+    [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class SendingProcessingMode : IPMode
     {
         /// <summary>

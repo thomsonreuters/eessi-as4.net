@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
@@ -62,8 +63,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             var as4Message = new AS4Message
             {
-                ReceivingPMode = new ReceivingProcessingMode {Deliver = {PayloadReferenceMethod = new Method {Type = "FILE"}}},
-                Attachments = new[] {new Attachment("attachment-id")}
+                ReceivingPMode = new ReceivingProcessingMode { Deliver = { PayloadReferenceMethod = new Method { Type = "FILE" } } },
+                Attachments = new[] { new Attachment("attachment-id") { Content = Stream.Null } }
             };
 
             return new InternalMessage(as4Message);
