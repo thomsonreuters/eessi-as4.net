@@ -230,6 +230,11 @@ namespace Eu.EDelivery.AS4.Serialization
 
             AddBodyPartsAsAttachmentsToMessage(bodyParts, message);
 
+            if (message.IsUserMessage)
+            {
+                VerifyTheAttachmentsWithTheReferencedPartInfos(message);
+            }
+
             return message;
         }
 
@@ -292,6 +297,22 @@ namespace Eu.EDelivery.AS4.Serialization
                             .FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
 
             return (partInfo != null, partInfo);
+        }
+
+        private static void VerifyTheAttachmentsWithTheReferencedPartInfos(AS4Message message)
+        {
+            int attachmentCount = message.Attachments?.Count ?? 0;
+            int partInfoCount = message.PrimaryUserMessage.PayloadInfo?.Count ?? 0;
+
+            if (attachmentCount != partInfoCount)
+            {
+                throw AS4ExceptionBuilder
+                    .WithDescription("Attachment count doesn't match the Part Info inside the User Message")
+                    .WithErrorCode(ErrorCode.Ebms0004)
+                    .WithErrorAlias(ErrorAlias.InvalidHeader)
+                    .WithMessageIds(message.MessageIds)
+                    .Build();
+            }
         }
     }
 }
