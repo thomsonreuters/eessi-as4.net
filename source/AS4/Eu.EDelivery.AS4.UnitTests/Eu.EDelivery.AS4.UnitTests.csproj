@@ -454,6 +454,7 @@
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
+    <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
   </ItemGroup>
   <ItemGroup>

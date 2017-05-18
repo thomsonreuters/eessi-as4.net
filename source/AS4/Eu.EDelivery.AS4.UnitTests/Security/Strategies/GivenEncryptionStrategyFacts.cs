@@ -9,6 +9,8 @@ using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
@@ -83,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
         public class GivenInvalidArgumentsForDecryptMessage : GivenEncryptionStrategyFacts
         {
             [Fact]
-            public async void ThenDecryptThrowsAnAS4Exception()
+            public async Task ThenDecryptThrowsAnAS4Exception()
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
@@ -91,7 +93,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                     EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument).Build();
 
                 // Act&Assert
-                Assert.ThrowsAny<Exception>( () => encryptionStrategy.DecryptMessage());
+                Assert.ThrowsAny<Exception>(() => encryptionStrategy.DecryptMessage());
+            }
+
+            [Fact]
+            public async Task FailsToDecrypt_IfInvalidKeySize()
+            {
+                // Arrange
+                AS4Message as4Message = await GetEncryptedMessageAsync();
+                KeyEncryption keyTransport = as4Message.SendingPMode.Security.Encryption.KeyTransport;
+                keyTransport.KeySize = -1;
+
+                EncryptionStrategy sut = EncryptionStrategyFor(as4Message, keyTransport);
+
+                // Act / Assert
+                Assert.ThrowsAny<Exception>(() => sut.EncryptMessage());
+            }
+
+            private static EncryptionStrategy EncryptionStrategyFor(AS4Message as4Message, KeyEncryption keyTransport)
+            {
+                var keyEncryptConfig = new KeyEncryptionConfiguration(tokenReference: null, keyEncryption: keyTransport);
+
+                return EncryptionStrategyBuilder
+                    .Create(as4Message.EnvelopeDocument)
+                    .WithKeyEncryptionConfiguration(keyEncryptConfig)
+                    .Build();
             }
         }
 

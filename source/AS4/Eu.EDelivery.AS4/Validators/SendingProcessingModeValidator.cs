@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
@@ -14,12 +15,10 @@ namespace Eu.EDelivery.AS4.Validators
     /// </summary>
     public class SendingProcessingModeValidator : AbstractValidator<SendingProcessingMode>, IValidator<SendingProcessingMode>
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         public SendingProcessingModeValidator()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-
             RuleFor(pmode => pmode.Id).NotEmpty();
 
             RulesForPullConfiguration();
@@ -98,21 +97,55 @@ namespace Eu.EDelivery.AS4.Validators
         /// <param name="model"></param>
         void IValidator<SendingProcessingMode>.Validate(SendingProcessingMode model)
         {
+            PreConditions(model);
+
             ValidationResult validationResult = base.Validate(model);
 
             if (!validationResult.IsValid)
+            {
                 throw ThrowHandleInvalidPModeException(model, validationResult);
+            }
         }
 
-        private AS4Exception ThrowHandleInvalidPModeException(SendingProcessingMode pmode, ValidationResult result)
+        private static void PreConditions(SendingProcessingMode model)
         {
-            foreach (var e in result.Errors)
+            try
             {
-                _logger.Error($"Sending PMode Validation Error: {e.PropertyName} = {e.ErrorMessage}");
+                ValidateKeySize(model);
+            }
+            catch (Exception exception)
+            {
+                Logger.Debug(exception);
+            }
+        }
+
+        private static void ValidateKeySize(SendingProcessingMode model)
+        {
+            if (model.Security?.Encryption?.IsEnabled == false || model.Security?.Encryption?.KeyTransport == null)
+            {
+                return;
+            }
+
+            var keysizes = new[] {128, 192, 256};
+            int actualKeySize = model.Security.Encryption.KeyTransport.KeySize;
+
+            if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption?.KeyTransport != null)
+            {
+                const int defaultKeySize = 256;
+                Logger.Warn($"Invalid Encryption 'Key Size': {actualKeySize}, {defaultKeySize} is taken as default");
+                model.Security.Encryption.KeyTransport.KeySize = defaultKeySize;
+            }
+        }
+
+        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
+        {
+            foreach (ValidationFailure e in result.Errors)
+            {
+                Logger.Error($"Sending PMode Validation Error: {e.PropertyName} = {e.ErrorMessage}");
             }
 
             string description = $"Sending PMode {pmode.Id} was invalid, see logging";
-            this._logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)

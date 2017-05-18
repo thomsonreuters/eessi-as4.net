@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     /// </summary>
     public class GivenSendingProcessingModeFacts
     {
-        private SendingProcessingMode _pmode;
+        private static readonly SendingProcessingMode DefaultEmptyPMode = new SendingProcessingMode();
 
         /// <summary>
         /// Testing the PMode Model for its defaults
@@ -16,171 +16,129 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         public class GivenDefaultSendingProcessingMode : GivenSendingProcessingModeFacts
         {
             [Fact]
+            public void KeySizeIsDefault_IfNotDefined()
+            {
+                // Assert
+                Assert.Equal(256, DefaultEmptyPMode.Security.Encryption.KeyTransport.KeySize);
+            }
+
+            [Fact]
             public void ThenEncryptionIsFalse()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.Security);
-                Assert.NotNull(_pmode.Security.Encryption);
-                Assert.False(_pmode.Security.Encryption.IsEnabled);
+                Assert.False(DefaultEmptyPMode.Security.Encryption.IsEnabled);
             }
 
             [Fact]
             public void ThenErrorHandlingIsFalse()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.ErrorHandling);
-                Assert.NotNull(_pmode.ErrorHandling.NotifyMethod);
-                Assert.False(_pmode.ErrorHandling.NotifyMessageProducer);
+                Assert.False(DefaultEmptyPMode.ErrorHandling.NotifyMessageProducer);
             }
 
             [Fact]
             public void ThenExceptionHandlingIsFalse()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.ExceptionHandling);
-                Assert.NotNull(_pmode.ExceptionHandling.NotifyMethod);
-                Assert.False(_pmode.ExceptionHandling.NotifyMessageProducer);
+                Assert.NotNull(DefaultEmptyPMode.ExceptionHandling);
+                Assert.NotNull(DefaultEmptyPMode.ExceptionHandling.NotifyMethod);
+                Assert.False(DefaultEmptyPMode.ExceptionHandling.NotifyMessageProducer);
             }
 
             [Fact]
             public void ThenMessagePackagingIsDefault()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.True(_pmode.MessagePackaging.UseAS4Compression);
-                Assert.False(_pmode.MessagePackaging.IsMultiHop);
-                Assert.False(_pmode.MessagePackaging.IncludePModeId);
+                Assert.True(DefaultEmptyPMode.MessagePackaging.UseAS4Compression);
+                Assert.False(DefaultEmptyPMode.MessagePackaging.IsMultiHop);
+                Assert.False(DefaultEmptyPMode.MessagePackaging.IncludePModeId);
             }
 
             [Fact]
             public void ThenOverrideIsFalse()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.False(_pmode.AllowOverride);
+                Assert.False(DefaultEmptyPMode.AllowOverride);
             }
 
             [Fact]
             public void ThenProtocolIsDefault()
             {
-                // Act
-                _pmode = new SendingProcessingMode {PushConfiguration = new PushConfiguration()};
-
                 // Assert
-                Assert.False(_pmode.PushConfiguration.Protocol.UseChunking);
-                Assert.False(_pmode.PushConfiguration.Protocol.UseHttpCompression);
+                Assert.False(DefaultEmptyPMode.PushConfiguration.Protocol.UseChunking);
+                Assert.False(DefaultEmptyPMode.PushConfiguration.Protocol.UseHttpCompression);
             }
 
             [Fact]
             public void ThenProtocolIsNotNull()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.PushConfiguration);
+                Assert.NotNull(DefaultEmptyPMode.PushConfiguration);
             }
 
             [Fact]
             public void ThenPullConfigurationIsNotNull()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.PullConfiguration);
+                Assert.NotNull(DefaultEmptyPMode.PullConfiguration);
             }
 
             [Fact]
             public void ThenPushConfigurationIsDefault()
             {
-                // Act
-                _pmode = new SendingProcessingMode {PushConfiguration = new PushConfiguration()};
-
                 // Assert
-                Assert.False(_pmode.PushConfiguration.TlsConfiguration.IsEnabled);
-                Assert.Equal(TlsVersion.Tls12, _pmode.PushConfiguration.TlsConfiguration.TlsVersion);
+                Assert.False(DefaultEmptyPMode.PushConfiguration.TlsConfiguration.IsEnabled);
+                Assert.Equal(TlsVersion.Tls12, DefaultEmptyPMode.PushConfiguration.TlsConfiguration.TlsVersion);
             }
 
             [Fact]
             public void ThenReceiptHandlingIsFalse()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.ReceiptHandling);
-                Assert.NotNull(_pmode.ReceiptHandling.NotifyMethod);
-                Assert.False(_pmode.ReceiptHandling.NotifyMessageProducer);
+                Assert.NotNull(DefaultEmptyPMode.ReceiptHandling);
+                Assert.NotNull(DefaultEmptyPMode.ReceiptHandling.NotifyMethod);
+                Assert.False(DefaultEmptyPMode.ReceiptHandling.NotifyMessageProducer);
             }
 
             [Fact]
             public void ThenReceiptionAwerenessIsDefault()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.False(_pmode.Reliability.ReceptionAwareness.IsEnabled);
-                Assert.Equal(5, _pmode.Reliability.ReceptionAwareness.RetryCount);
-                Assert.Equal("00:01:00", _pmode.Reliability.ReceptionAwareness.RetryInterval);
+                Assert.False(DefaultEmptyPMode.Reliability.ReceptionAwareness.IsEnabled);
+                Assert.Equal(5, DefaultEmptyPMode.Reliability.ReceptionAwareness.RetryCount);
+                Assert.Equal("00:01:00", DefaultEmptyPMode.Reliability.ReceptionAwareness.RetryInterval);
             }
 
             [Fact]
             public void ThenReceiptionAwerenessIsNotNull()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.ReceiptHandling);
-                Assert.NotNull(_pmode.ReceiptHandling.NotifyMethod);
+                Assert.NotNull(DefaultEmptyPMode.ReceiptHandling);
+                Assert.NotNull(DefaultEmptyPMode.ReceiptHandling.NotifyMethod);
             }
 
             [Fact]
             public void ThenReliabilityIsNotNull()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.Reliability);
-                Assert.NotNull(_pmode.Reliability.ReceptionAwareness);
+                Assert.NotNull(DefaultEmptyPMode.Reliability);
+                Assert.NotNull(DefaultEmptyPMode.Reliability.ReceptionAwareness);
             }
 
             [Fact]
             public void ThenSigningIsFalse()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.Security);
-                Assert.NotNull(_pmode.Security.Signing);
-                Assert.False(_pmode.Security.Signing.IsEnabled);
+                Assert.NotNull(DefaultEmptyPMode.Security);
+                Assert.NotNull(DefaultEmptyPMode.Security.Signing);
+                Assert.False(DefaultEmptyPMode.Security.Signing.IsEnabled);
             }
 
             [Fact]
             public void ThenTlsConfigurationIsNotNull()
             {
-                // Act
-                _pmode = new SendingProcessingMode();
-
                 // Assert
-                Assert.NotNull(_pmode.PushConfiguration.TlsConfiguration);
+                Assert.NotNull(DefaultEmptyPMode.PushConfiguration.TlsConfiguration);
             }
         }
     }
