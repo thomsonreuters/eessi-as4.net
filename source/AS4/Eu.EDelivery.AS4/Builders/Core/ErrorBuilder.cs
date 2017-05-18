@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// </summary>
         public ErrorBuilder()
         {
-            this._errorMessage = new Error();
+            _errorMessage = new Error();
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// </param>
         public ErrorBuilder(string messageId)
         {
-            this._errorMessage = new Error(messageId);
+            _errorMessage = new Error(messageId);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public ErrorBuilder WithRefToEbmsMessageId(string messageId)
         {
-            this._errorMessage.RefToMessageId = messageId;
+            _errorMessage.RefToMessageId = messageId;
 
             return this;
         }
@@ -52,8 +52,8 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public ErrorBuilder WithAS4Exception(AS4Exception exception)
         {
-            this._errorMessage.Exception = exception;
-            this._errorMessage.Errors = CreateErrorDetails(exception);
+            _errorMessage.Exception = exception;
+            _errorMessage.Errors = CreateErrorDetails(exception);
 
             return this;
         }
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return this;
         }
 
-        private IList<ErrorDetail> CreateErrorDetails(AS4Exception exception)
+        private static IList<ErrorDetail> CreateErrorDetails(AS4Exception exception)
         {
             var errorDetails = new List<ErrorDetail>();
             foreach (string messageId in exception.MessageIds)
@@ -81,13 +81,13 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return errorDetails;
         }
 
-        private ErrorDetail CreateErrorDetail(AS4Exception exception)
+        private static ErrorDetail CreateErrorDetail(AS4Exception exception)
         {
             return new ErrorDetail
             {
                 Detail = exception.Message,
                 Severity = Severity.FAILURE,
-                ErrorCode = $"EBMS:{(int) exception.ErrorCode:0000}",
+                ErrorCode = $"EBMS:{(int)exception.ErrorCode:0000}",
                 Category = ErrorCodeUtils.GetCategory(exception.ErrorCode),
                 ShortDescription = ErrorCodeUtils.GetShortDescription(exception.ErrorCode)
             };
@@ -99,17 +99,19 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public Error Build()
         {
-            if (!string.IsNullOrEmpty(this._errorMessage.MessageId))
-                this._errorMessage.Exception?.AddMessageId(this._errorMessage.MessageId);
+            if (!string.IsNullOrEmpty(_errorMessage.MessageId))
+            {
+                _errorMessage.Exception?.AddMessageId(_errorMessage.MessageId);
+            }
 
-            this._errorMessage.Timestamp = DateTimeOffset.UtcNow;
-            return this._errorMessage;
+            _errorMessage.Timestamp = DateTimeOffset.UtcNow;
+            return _errorMessage;
         }
 
         public Error BuildWithOriginalAS4Exception()
         {
-            this._errorMessage.Timestamp = DateTimeOffset.UtcNow;
-            return this._errorMessage;
+            _errorMessage.Timestamp = DateTimeOffset.UtcNow;
+            return _errorMessage;
         }
     }
 }
