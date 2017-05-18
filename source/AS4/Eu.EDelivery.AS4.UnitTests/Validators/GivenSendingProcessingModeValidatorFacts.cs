@@ -12,38 +12,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
     public class GivenSendingProcessingModeValidatorFacts
     {
         [Theory]
-        [InlineData(128)]
-        [InlineData(192)]
-        [InlineData(256)]
-        public void ValidSendingPMode_IfKeySizeIs(int keysize)
+        [InlineData(128, 128)]
+        [InlineData(192, 192)]
+        [InlineData(256, 256)]
+        [InlineData(200, 256)]
+        public void ValidSendingPMode_IfKeySizeIs(int beforeKeySize, int afterKeySize)
         {
             // Arrange
             IValidator<SendingProcessingMode> sut = new SendingProcessingModeValidator();
             SendingProcessingMode pmode = new ValidStubSendingPModeFactory().Create();
             pmode.Security.Encryption.IsEnabled = true;
-            pmode.Security.Encryption.KeyTransport.KeySize = keysize;
+            pmode.Security.Encryption.KeyTransport.KeySize = beforeKeySize;
 
             // Act
             sut.Validate(pmode);
 
             // Assert
-            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize != 0);
-        }
-
-        [Fact]
-        public void InvalidSendingPMode_IfInvalidKeySize()
-        {
-            // Arrange
-            IValidator<SendingProcessingMode> sut = new SendingProcessingModeValidator();
-            SendingProcessingMode pmode = new ValidStubSendingPModeFactory().Create();
-            pmode.Security.Encryption.IsEnabled = true;
-            pmode.Security.Encryption.KeyTransport.KeySize = 200;
-
-           // Act
-            sut.Validate(pmode);
-
-            // Assert
-            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize == 256);
+            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize == afterKeySize);
         }
     }
 }

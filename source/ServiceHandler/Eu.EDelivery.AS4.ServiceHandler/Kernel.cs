@@ -25,7 +25,14 @@ namespace Eu.EDelivery.AS4.ServiceHandler
         /// Initializes a new instance of the <see cref="Kernel"/> class. 
         /// </summary>
         /// <param name="agents"></param>
-        public Kernel(IEnumerable<IAgent> agents)
+        public Kernel(IEnumerable<IAgent> agents) : this(agents, Config.Instance) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Kernel" /> class.
+        /// </summary>
+        /// <param name="agents">The agents.</param>
+        /// <param name="config">The configuration.</param>
+        public Kernel(IEnumerable<IAgent> agents, IConfig config)
         {
             if (agents == null)
             {
@@ -33,16 +40,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             }
 
             _agents = agents;
-            _config = Config.Instance;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Kernel" /> class.
-        /// </summary>
-        /// <param name="agents">The agents.</param>
-        /// <param name="config">The configuration.</param>
-        public Kernel(IEnumerable<IAgent> agents, IConfig config) : this(agents)
-        {
             _config = config;
         }
 
