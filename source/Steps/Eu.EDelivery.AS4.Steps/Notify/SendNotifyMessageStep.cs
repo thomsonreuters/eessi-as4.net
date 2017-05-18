@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -7,6 +8,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
@@ -18,17 +20,17 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     public class SendNotifyMessageStep : IStep
     {
         private readonly INotifySenderProvider _provider;
-        private readonly ILogger _logger;
+        private readonly Func<DatastoreContext> _dataContextRetriever;
+
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private InternalMessage _internalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class
         /// </summary>
-        public SendNotifyMessageStep()
+        public SendNotifyMessageStep() : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext)
         {
-            _provider = Registry.Instance.NotifySenderProvider;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -40,10 +42,10 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="provider">
         /// The provider.
         /// </param>
-        public SendNotifyMessageStep(INotifySenderProvider provider)
+        public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> dataContextRetriever)
         {
             _provider = provider;
-            _logger = LogManager.GetCurrentClassLogger();
+            _dataContextRetriever = dataContextRetriever;
         }
 
         /// <summary>
@@ -57,10 +59,24 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             _internalMessage = internalMessage;
-            _logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
+            Logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
+
+            if (internalMessage.AS4Message.SendingPMode == null)
+            {
+                internalMessage.AS4Message.SendingPMode = RetrieveSendingPMode(internalMessage);
+            }
 
             await TrySendNotifyMessage(internalMessage.NotifyMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
+        }
+
+        private SendingProcessingMode RetrieveSendingPMode(InternalMessage internalMessage)
+        {
+            using (var context = _dataContextRetriever())
+            {
+                var repo = new DatastoreRepository(context);
+                return repo.RetrieveSendingPModeForOutMessage(internalMessage.AS4Message.PrimarySignalMessage.RefToMessageId);
+            }
         }
 
         private async Task TrySendNotifyMessage(NotifyMessageEnvelope notifyMessage)
@@ -104,7 +120,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private AS4Exception ThrowAS4SendException(string description, Exception exception = null)
         {
-            _logger.Error(description);
+            Logger.Error(description);
 
             AS4ExceptionBuilder builder = AS4ExceptionBuilder
                 .WithDescription(description)

@@ -15,6 +15,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         public ComponentTestTemplate()
         {
             CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
+            CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
         }
 
         protected void OverrideSettings(string settingsFile)

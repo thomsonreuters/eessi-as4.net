@@ -1,6 +1,5 @@
-﻿using System.Security.Cryptography.Xml;
+﻿using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.References;
-using Eu.EDelivery.AS4.Security.Strategies;
 
 namespace Eu.EDelivery.AS4.Security.Encryption
 {
@@ -9,23 +8,48 @@ namespace Eu.EDelivery.AS4.Security.Encryption
     /// </summary>
     public class KeyEncryptionConfiguration
     {
-        public string EncryptionMethod { get; private set; } 
-        public string DigestMethod { get; private set; } 
-        public string Mgf { get; private set; } 
-        
-        public SecurityTokenReference SecurityTokenReference { get; set; } 
-
-        public KeyEncryptionConfiguration(SecurityTokenReference tokenReference, string encryptionMethod, string digestMethod, string mgf)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyEncryptionConfiguration" /> class.
+        /// </summary>
+        /// <param name="tokenReference">The token reference.</param>
+        /// <param name="keyEncryption">The key encryption.</param>
+        public KeyEncryptionConfiguration(SecurityTokenReference tokenReference, KeyEncryption keyEncryption)
         {
-            if (tokenReference == null)
-            {
-                tokenReference = new BinarySecurityTokenReference();
-            }
-
-            this.SecurityTokenReference = tokenReference;
-            this.EncryptionMethod = encryptionMethod;
-            this.DigestMethod = digestMethod;
-            this.Mgf = mgf;
+            SecurityTokenReference = tokenReference ?? new BinarySecurityTokenReference();
+            EncryptionMethod = keyEncryption.TransportAlgorithm;
+            DigestMethod = keyEncryption.DigestAlgorithm;
+            Mgf = keyEncryption.MgfAlgorithm;
+            KeySize = keyEncryption.KeySize;
         }
+
+        /// <summary>
+        /// Gets the encryption method.
+        /// </summary>
+        /// <value>The encryption method.</value>
+        public string EncryptionMethod { get; private set; }
+
+        /// <summary>
+        /// Gets the digest method.
+        /// </summary>
+        /// <value>The digest method.</value>
+        public string DigestMethod { get; private set; }
+
+        /// <summary>
+        /// Gets the MGF.
+        /// </summary>
+        /// <value>The MGF.</value>
+        public string Mgf { get; private set; }
+
+        /// <summary>
+        /// Gets the size of the key.
+        /// </summary>
+        /// <value>The size of the key.</value>
+        public int KeySize { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the security token reference.
+        /// </summary>
+        /// <value>The security token reference.</value>
+        public SecurityTokenReference SecurityTokenReference { get; set; }
     }
 }

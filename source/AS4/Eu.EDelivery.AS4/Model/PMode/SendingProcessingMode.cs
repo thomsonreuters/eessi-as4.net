@@ -16,11 +16,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
     /// </summary>
     [XmlType(Namespace = "eu:edelivery:as4:pmode")]
     [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
-    [DebuggerDisplay("{" + nameof(Id) + "}")]
+    [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class SendingProcessingMode : IPMode
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendingProcessingMode"/> class.
+        /// Initializes a new instance of the <see cref="SendingProcessingMode" /> class.
         /// </summary>
         public SendingProcessingMode()
         {
@@ -139,10 +139,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public KeyEncryption()
         {
+            KeySize = 256;
             TransportAlgorithm = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
             DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
             MgfAlgorithm = null;
         }
+
+        public int KeySize { get; set; }
 
         public string TransportAlgorithm { get; set; }
 
@@ -151,6 +154,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public string MgfAlgorithm { get; set; }
 
         #region Properties that control serialization
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool KeySizeSpecified => KeySize > 0;
 
         [XmlIgnore]
         [JsonIgnore]

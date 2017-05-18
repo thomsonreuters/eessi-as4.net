@@ -29,9 +29,9 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private static string SubstringWithoutFileUri(string location)
         {
-            if (location.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
+            if (location.StartsWith("file:///", StringComparison.OrdinalIgnoreCase))
             {
-                return location.Substring("file://".Length);
+                return location.Substring("file:///".Length);
             }
 
             return location;

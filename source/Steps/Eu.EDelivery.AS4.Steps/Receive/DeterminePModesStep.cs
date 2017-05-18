@@ -85,16 +85,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
+                var pmode = repository.RetrieveSendingPModeForOutMessage(_as4Message.PrimarySignalMessage.RefToMessageId);
 
-                string refToMessageId = _as4Message.PrimarySignalMessage.RefToMessageId;
-                OutMessage outMessage = repository.GetOutMessageById(refToMessageId);
-
-                if (outMessage == null)
+                if (pmode == null)
                 {
-                    throw ThrowAS4Exception($"Unable to retrieve Sending PMode from Datastore with Id: {refToMessageId}");
+                    throw ThrowAS4Exception($"Unable to retrieve Sending PMode from Datastore with Id: {_as4Message.PrimarySignalMessage.RefToMessageId}");
                 }
-
-                var pmode = AS4XmlSerializer.FromString<SendPMode>(outMessage.PMode);
+                
                 _logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
 
                 return pmode;

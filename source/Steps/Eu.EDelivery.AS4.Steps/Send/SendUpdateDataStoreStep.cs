@@ -9,7 +9,7 @@ using Eu.EDelivery.AS4.Services;
 namespace Eu.EDelivery.AS4.Steps.Send
 {
     /// <summary>
-    /// Describes how the Messages.Out and Messages.In data stores get updated
+    /// Updates the DataStore with the response that was received synchronously after sending an AS4Message.
     /// </summary>
     public class SendUpdateDataStoreStep : IStep
     {
@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep" /> class
         /// </summary>
-        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.IncomingAS4MessageBodyPersister) {}
+        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.IncomingAS4MessageBodyPersister) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class.
@@ -39,17 +39,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
-        {           
+        {
             using (DatastoreContext context = _createDatastoreContext())
             {
-                var inMessageService = new InMessageService(new DatastoreRepository(context), _messageBodyPersister);
+                var inMessageService = new InMessageService(new DatastoreRepository(context));
 
-                await inMessageService.InsertAS4Message(internalMessage.AS4Message, cancellationToken);
+                await inMessageService.InsertAS4Message(internalMessage.AS4Message, _messageBodyPersister, cancellationToken).ConfigureAwait(false);
 
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return await StepResult.SuccessAsync(internalMessage);
-        }       
+        }
     }
 }

@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Factories
             return result;
         }
 
-        private CollaborationInfo ResolveCollaborationInfo(SendingProcessingMode pmode)
+        private static CollaborationInfo ResolveCollaborationInfo(SendingProcessingMode pmode)
         {
             return new CollaborationInfo()
             {

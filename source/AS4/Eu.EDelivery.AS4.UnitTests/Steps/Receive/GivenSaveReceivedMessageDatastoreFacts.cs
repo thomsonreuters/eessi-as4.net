@@ -19,19 +19,19 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
     /// <summary>
-    /// Testing the <see cref="ReceiveUpdateDatastoreStep" />
+    /// Testing the <see cref="SaveReceivedMessageStep" />
     /// </summary>
-    public class GivenReceiveUpdateDatastoreFacts : GivenDatastoreStepFacts
+    public class GivenSaveReceivedMessageDatastoreFacts : GivenDatastoreStepFacts
     {
         private readonly string _userMessageId;
 
-        public GivenReceiveUpdateDatastoreFacts()
+        public GivenSaveReceivedMessageDatastoreFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new ReceiveUpdateDatastoreStep(GetDataStoreContext, StubMessageBodyPersister.Default);
+            Step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyPersister.Default);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// <summary>
         /// Testing the Step with valid arguments
         /// </summary>
-        public class GivenValidArguments : GivenReceiveUpdateDatastoreFacts
+        public class GivenValidArguments : GivenSaveReceivedMessageDatastoreFacts
         {
             private static void AddTestableDataToUserMessage(UserMessage userMessage)
             {
@@ -97,25 +97,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
 
             [Fact]
-            public async Task ThenExecuteStepSucceedsWithDeliveringAsync()
-            {
-                // Arrange
-                UserMessage userMessage = CreateUserMessage();
-                InternalMessage internalMessage = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
-
-                var pmode = new ReceivingProcessingMode();
-                pmode.Reliability.DuplicateElimination.IsEnabled = false;
-                pmode.Deliver.IsEnabled = true;
-                internalMessage.AS4Message.ReceivingPMode = pmode;
-
-                // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.ToBeDelivered);
-            }
-
-            [Fact]
             public async Task ThenExecuteStepUpdatesDuplicateReceiptMessageAsync()
             {
                 // Arrange
@@ -166,53 +147,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 Assert.NotNull(result);
-            }
-
-            [Fact]
-            public async Task ThenExecuteStepUpdatesAsErrorAsync()
-            {
-                // Arrange
-                SignalMessage errorMessage = CreateError();
-
-                InternalMessage internalMessage =
-                    new InternalMessageBuilder(errorMessage.RefToMessageId).WithSignalMessage(errorMessage).Build();
-                internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
-                internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
-
-                // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                await AssertOutMessages(errorMessage, OutStatus.Nack);
-                await AssertInMessage(errorMessage);
-            }
-
-            [Fact]
-            public async Task ThenExecuteStepUpdatesAsReceiptAsync()
-            {
-                // Arrange
-                SignalMessage receiptMessage = CreateReceipt();
-                InternalMessage internalMessage = CreateInternalMessageWith(receiptMessage);
-
-                receiptMessage.RefToMessageId = internalMessage.AS4Message.PrimaryUserMessage.MessageId;
-
-                // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                await AssertOutMessages(receiptMessage, OutStatus.Ack);
-                await AssertInMessage(receiptMessage);
-            }
-
-            private static InternalMessage CreateInternalMessageWith(SignalMessage receiptMessage)
-            {
-                InternalMessage internalMessage = new InternalMessageBuilder(receiptMessage.RefToMessageId)
-                                .WithSignalMessage(receiptMessage).Build();
-
-                internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
-                internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
-
-                return internalMessage;
             }
         }
 

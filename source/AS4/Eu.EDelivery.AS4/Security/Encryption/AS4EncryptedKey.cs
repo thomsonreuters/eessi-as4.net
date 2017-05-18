@@ -243,7 +243,10 @@ namespace Eu.EDelivery.AS4.Security.Encryption
 
             if (encryptionMethodNode != null)
             {
-                AppendDigestMethod(encryptionMethodNode, _digestAlgorithm);
+                if (!String.IsNullOrWhiteSpace(_digestAlgorithm))
+                {
+                    AppendDigestMethod(encryptionMethodNode, _digestAlgorithm);
+                }
 
                 if (_mgfAlgorithm != null)
                 {

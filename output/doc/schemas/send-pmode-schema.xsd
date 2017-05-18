@@ -156,6 +156,7 @@
   </xs:complexType>
   <xs:complexType name="KeyEncryption">
     <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="KeySize" type="xs:int" />
       <xs:element minOccurs="0" maxOccurs="1" name="TransportAlgorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="DigestAlgorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="MgfAlgorithm" type="xs:string" />

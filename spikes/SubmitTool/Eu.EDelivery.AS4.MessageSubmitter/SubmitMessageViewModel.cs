@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Eu.EDelivery.AS4.Model.PMode;
 
 namespace Eu.EDelivery.AS4.MessageSubmitter
 {
@@ -12,8 +13,9 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
              PayloadInformation = new ObservableCollection<PayloadInfoViewModel>();
             NumberOfSubmitMessages = 1;
         }
+        
+        public SendingProcessingMode SendingPMode { get; set; }
 
-        public string SendingProcessingModeName { get; set; }
         public ObservableCollection<PayloadInfoViewModel> PayloadInformation { get; }
 
         public int NumberOfSubmitMessages { get; set; }

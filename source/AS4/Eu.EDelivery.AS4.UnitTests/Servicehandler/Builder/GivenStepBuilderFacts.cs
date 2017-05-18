@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                         new Step { Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName },
                         new Step { Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName },
                         new Step { Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName },
-                        new Step { Type = typeof(ReceiveUpdateDatastoreStep).AssemblyQualifiedName},
+                        new Step { Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
                         new Step { Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName },
                         new Step { Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
                         new Step { Type = typeof(SignAS4MessageStep).AssemblyQualifiedName },
