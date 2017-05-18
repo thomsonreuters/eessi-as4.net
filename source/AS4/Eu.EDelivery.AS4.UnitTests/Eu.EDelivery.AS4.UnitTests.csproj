@@ -273,11 +273,12 @@
   <ItemGroup>
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
+    <Compile Include="Agents\SpyAgent.cs" />
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
-    <Compile Include="Steps\StubStep.cs" />
-    <Compile Include="Transformers\StubTransformer.cs" />
+    <Compile Include="Steps\DummyStep.cs" />
+    <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenAS4MessageBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />

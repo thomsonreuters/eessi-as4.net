@@ -11,12 +11,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     {
         public static Transformer TransformerConfig { get; } = new Transformer
         {
-            Type = typeof(StubTransformer).AssemblyQualifiedName
+            Type = typeof(DummyTransformer).AssemblyQualifiedName
         };
 
         public static AS4.Model.Internal.Steps ExpectedSteps { get; } = new AS4.Model.Internal.Steps
         {
-            Step = new[] {new Step {Type = typeof(StubStep).AssemblyQualifiedName}}
+            Step = new[] {new Step {Type = typeof(DummyStep).AssemblyQualifiedName}}
         };
 
         /// <summary>

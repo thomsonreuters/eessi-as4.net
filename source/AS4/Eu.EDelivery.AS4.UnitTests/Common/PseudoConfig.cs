@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
     public class PseudoConfig : IConfig
     {
+        public static PseudoConfig Default => new PseudoConfig();
+
         /// <summary>
         /// Initialize Configuration
         /// </summary>
@@ -17,9 +20,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether if the Configuration is IsInitialized
+        /// Gets a value indicating whether if the Configuration is IsInitialized
         /// </summary>
-        public bool IsInitialized { get; protected set; }
+        public virtual bool IsInitialized { get; } = false;
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations
@@ -79,6 +82,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public virtual IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
         {
             throw new System.NotImplementedException();
+        }
+    }
+
+    public class PseudeConfigFacts : PseudoConfig
+    {
+        [Fact]
+        public void FailsToInitialize()
+        {
+            Assert.False(Default.IsInitialized);
+            Assert.ThrowsAny<Exception>(() => Initialize());
+        }
+
+        [Fact]
+        public void FailsToGetAgents()
+        {
+            Assert.ThrowsAny<Exception>(GetSettingsAgents);
+            Assert.ThrowsAny<Exception>(GetEnabledMinderTestAgents);
+        }
+
+        [Fact]
+        public void FailsToGetPModes()
+        {
+            Assert.ThrowsAny<Exception>(GetReceivingPModes);
+            Assert.ThrowsAny<Exception>(() => GetSendingPMode("ignored string"));
+            Assert.ThrowsAny<Exception>(() => ContainsSendingPMode("ignored string"));
+        }
+
+        [Fact]
+        public void FailsToGetSetting()
+        {
+            Assert.ThrowsAny<Exception>(() => GetSetting("ignored string"));
         }
     }
 }

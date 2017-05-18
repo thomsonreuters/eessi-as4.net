@@ -16,8 +16,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler
     /// </summary>
     public sealed class Kernel : IDisposable
     {
-        private readonly IEnumerable<IAgent> _agents;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly IEnumerable<IAgent> _agents;
+        private readonly IConfig _config;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Kernel"/> class. 
@@ -31,6 +33,17 @@ namespace Eu.EDelivery.AS4.ServiceHandler
             }
 
             _agents = agents;
+            _config = Config.Instance;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Kernel" /> class.
+        /// </summary>
+        /// <param name="agents">The agents.</param>
+        /// <param name="config">The configuration.</param>
+        public Kernel(IEnumerable<IAgent> agents, IConfig config) : this(agents)
+        {
+            _config = config;
         }
 
         /// <summary>
@@ -45,7 +58,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler
                 return;
             }
 
-            using (var context = new DatastoreContext(Config.Instance))
+            using (var context = new DatastoreContext(_config))
             {
                 try
                 {

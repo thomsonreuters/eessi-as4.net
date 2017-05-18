@@ -3,10 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps
 {
-    public class StubStep : IStep
+    public class DummyStep : IStep
     {
         /// <summary>
         /// Execute the step for a given <paramref name="internalMessage"/>.
@@ -17,6 +18,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        [Fact]
+        public async Task FailsToExecuteStep()
+        {
+            await Assert.ThrowsAnyAsync<Exception>(
+                () => new DummyStep().ExecuteAsync(internalMessage: null, cancellationToken: CancellationToken.None));
         }
     }
 }
