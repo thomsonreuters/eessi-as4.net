@@ -262,7 +262,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 string newReceivedMessageFile = Path.Combine(logDir, $"{_hostname}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
                 using (var destinationStream = new FileStream(newReceivedMessageFile, FileMode.Create))
                 {
-                    await message.RequestStream.CopyToAsync(destinationStream);
+                    await message.RequestStream.CopyToAsync(destinationStream).ConfigureAwait(false);
                 }
 
                 message.RequestStream.Position = 0;
