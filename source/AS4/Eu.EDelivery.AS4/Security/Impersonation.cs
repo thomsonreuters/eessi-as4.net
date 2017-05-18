@@ -24,13 +24,11 @@ namespace Eu.EDelivery.AS4.Security
         public static object Impersonate(string user, string password)
         {
             string domain = "";
-            // ReSharper disable once StringIndexOfIsCultureSpecific.1
-            if (user.IndexOf(@"\") > 0)
-            {
-                // ReSharper disable once StringIndexOfIsCultureSpecific.1
-                domain = user.Substring(0, user.IndexOf(@"\"));
-                // ReSharper disable once StringIndexOfIsCultureSpecific.1
-                user = user.Substring(user.IndexOf(@"\") + 1);
+            
+            if (user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase) > 0)
+            {            
+                domain = user.Substring(0, user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase));                
+                user = user.Substring(user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase) + 1);
             }
 
             IntPtr securityToken;
