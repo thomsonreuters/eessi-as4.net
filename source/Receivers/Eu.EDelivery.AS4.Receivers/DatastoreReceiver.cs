@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Specifications;
+using Eu.EDelivery.AS4.Receivers.Specifications.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
@@ -21,43 +23,164 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
-        private readonly DatastoreSpecification _specification;
+        private readonly IDictionary<string, string> _properties;
+        private readonly IDatastoreSpecification _specification;
+        private readonly Func<DatastoreContext> _storeExpression;
+        private readonly IDictionary<string, string> _updates;
 
-        private Func<DatastoreContext> _storeExpression;
         private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
-        private string _updateValue;
-        private IDictionary<string, string> _properties;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class
+        /// </summary>
+        public DatastoreReceiver() : this(() => new DatastoreContext(Config.Instance)) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class.
+        /// </summary>
+        /// <param name="storeExpression"></param>
+        public DatastoreReceiver(Func<DatastoreContext> storeExpression)
+        {
+            _storeExpression = storeExpression;
+            _specification = new ExpressionDatastoreSpecification();
+            _updates = new Dictionary<string, string>();
+            _properties = new Dictionary<string, string>();
+        }
 
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class
+        /// Start Receiving on the Data Store
         /// </summary>
-        public DatastoreReceiver()
+        /// <param name="messageCallback"></param>
+        /// <param name="cancellationToken"></param>
+        public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
         {
-            _specification = new DatastoreSpecification();
+            LogReceiverSpecs(true);
+            StartPolling(messageCallback, cancellationToken);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
-        /// Create a Data Store Out Message Receiver with a given Data Store Context Delegate
-        /// </summary>
-        /// <param name="storeExpression">
-        /// </param>
-        /// <param name="findExpression">
-        /// </param>
-        /// <param name="updateValue">
-        /// </param>
-        public DatastoreReceiver(
-            Func<DatastoreContext> storeExpression,
-            Func<DatastoreContext, IEnumerable<Entity>> findExpression,
-            string updateValue)
+        public void StopReceiving()
         {
-            _storeExpression = storeExpression;
-            _findExpression = findExpression;
+            LogReceiverSpecs(false);
+        }
 
-            _specification = new DatastoreSpecification();
-            _updateValue = updateValue;
+        private void LogReceiverSpecs(bool startReceiving)
+        {
+            string action = startReceiving ? "Start" : "Stop";
+            Logger.Debug($"{action} Receiving on Datastore {_specification.FriendlyExpression}");
+        }
+
+        private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
+        {
+            // Use a TransactionScope to get the highest TransactionIsolation level.
+            IEnumerable<Entity> entities = Enumerable.Empty<Entity>();
+
+            using (DatastoreContext context = _storeExpression())
+            {
+                IDbContextTransaction transaction = context.Database.BeginTransaction();
+
+                try
+                {
+                    entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
+                    transaction.Commit();
+                }
+                catch (Exception exception)
+                {
+                    LogExceptionAndInner(exception);
+                    transaction.Rollback();
+                }
+            }
+
+            return entities;
+        }
+
+        private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
+        {
+            IEnumerable<Entity> entities = _findExpression(context).ToList();
+            if (!entities.Any())
+            {
+                return entities;
+            }
+
+            if (!_updates.Any())
+            {
+                Logger.Warn(
+                    $"No UpdateValue configured for {_properties[SettingKeys.Filter]}. "
+                    + $"The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
+
+                return entities;
+            }
+
+            LockEntitiesBeforeContinueToProcessThem(entities);
+
+            context.SaveChanges();
+            return entities;
+        }
+
+        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
+        {
+            foreach (Entity entity in entities)
+            {
+                foreach (KeyValuePair<string, string> update in _updates)
+                {
+                    PropertyInfo property = entity.GetType().GetProperty(update.Key);
+
+                    object propertyValue = property.GetValue(entity);
+                    object updateValue = Conversion.Convert(propertyValue, update.Value);
+
+                    property.SetValue(entity, updateValue);
+                }
+            }
+        }
+
+        private async void ReceiveMessageEntity(
+            MessageEntity messageEntity,
+            Function messageCallback,
+            CancellationToken token)
+        {
+            Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
+
+            using (Stream stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
+            {
+                if (stream == null)
+                {
+                    Logger.Error($"MessageBody cannot be retrieved for Ebms Message Id: {messageEntity.EbmsMessageId}");
+                }
+                else
+                {
+                    ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
+                    await messageCallback(receivedMessage, token).ConfigureAwait(false);
+                }
+            }
+        }
+
+        private static ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
+        {
+            return new ReceivedMessageEntityMessage(messageEntity)
+            {
+                RequestStream = stream,
+                ContentType = messageEntity.ContentType
+            };
+        }
+
+        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
+        {
+            var message = new ReceivedEntityMessage(entity);
+            InternalMessage result = await messageCallback(message, token).ConfigureAwait(false);
+            result?.Dispose();
+        }
+
+        private void LogExceptionAndInner(Exception exception)
+        {
+            Logger.Error(exception.Message);
+            Logger.Trace(exception.StackTrace);
+
+            if (exception.InnerException != null)
+            {
+                Logger.Error(exception.InnerException.Message);
+                Logger.Trace(exception.InnerException.StackTrace);
+            }
         }
 
         #region Configuration
@@ -66,10 +189,8 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             public const string PollingInterval = "PollingInterval";
             public const string Table = "Table";
-            public const string Field = "Field";
-            public const string FilterValue = "Value";
+            public const string Filter = "Field";
             public const string TakeRows = "BatchSize";
-            public const string UpdateValue = "Update";
         }
 
         protected override TimeSpan PollingInterval
@@ -78,12 +199,9 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
 
-                if (_properties == null)
-                {
-                    return defaultInterval;
-                }
-
-                return _properties.ContainsKey(SettingKeys.PollingInterval) ? GetPollingIntervalFromProperties() : defaultInterval;
+                return _properties.ContainsKey(SettingKeys.PollingInterval)
+                           ? GetPollingIntervalFromProperties()
+                           : defaultInterval;
             }
         }
 
@@ -101,7 +219,11 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
-            Configure(settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
+            Configure(
+                settings.GroupBy(s => s.Key, StringComparer.OrdinalIgnoreCase)
+                        .ToDictionary(s => s.Key, s => s.First().Value, StringComparer.OrdinalIgnoreCase));
+
+            RetrieveUpdates(settings)?.ToList().ForEach(_updates.Add);
         }
 
         /// <summary>
@@ -110,53 +232,26 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="properties"></param>
         private void Configure(IDictionary<string, string> properties)
         {
-            _properties = properties;
-
-            var args = new DatastoreSpecificationArgs(_properties.ReadMandatoryProperty(SettingKeys.Table),
-                                                      _properties.ReadMandatoryProperty(SettingKeys.Field),
-                                                      _properties.ReadMandatoryProperty(SettingKeys.FilterValue),
-                                                      Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.TakeRows, "20")));
-
-            _specification.Configure(args);
+            properties.ToList().ForEach(_properties.Add);
+            _specification.Configure(CreateDatastoreArgsFrom(_properties));
             _findExpression = _specification.GetExpression().Compile();
-            _storeExpression = () => new DatastoreContext(Config.Instance);
+        }
 
-            properties.TryGetValue(SettingKeys.UpdateValue, out _updateValue);
+        private static DatastoreSpecificationArgs CreateDatastoreArgsFrom(IDictionary<string, string> properties)
+        {
+            string tableName = properties.ReadMandatoryProperty(SettingKeys.Table);
+            string filterColumn = properties.ReadMandatoryProperty(SettingKeys.Filter);
+            int take = Convert.ToInt32(properties.ReadOptionalProperty(SettingKeys.TakeRows, "20"));
+
+            return new DatastoreSpecificationArgs(tableName, filterColumn, take);
+        }
+
+        private static IDictionary<string, string> RetrieveUpdates(IEnumerable<Setting> settings)
+        {
+            return settings.Where(s => s.Key.Equals("Update")).ToDictionary(s => s["field"].Value, s => s.Value);
         }
 
         #endregion
-
-        /// <summary>
-        /// Start Receiving on the Data Store
-        /// </summary>
-        /// <param name="messageCallback"></param>
-        /// <param name="cancellationToken"></param>
-        public void StartReceiving(Function messageCallback, CancellationToken cancellationToken)
-        {
-            LogReceiverSpecs(startReceiving: true);
-            StartPolling(messageCallback, cancellationToken);
-        }
-
-        public void StopReceiving()
-        {
-            LogReceiverSpecs(startReceiving: false);
-        }
-
-        private void LogReceiverSpecs(bool startReceiving)
-        {
-            if (_properties == null)
-            {
-                return;
-            }
-
-            string table = _properties[SettingKeys.Table];
-            string field = _properties[SettingKeys.Field];
-            string value = _properties[SettingKeys.FilterValue];
-
-            string action = startReceiving ? "Start" : "Stop";
-
-            Logger.Debug($"{action} Receiving on Datastore FROM {table} WHERE {field} == {value}");
-        }
 
         /// <summary>
         /// Get the Out Messages from the Store with <see cref="Operation.ToBeSent" /> as Operation
@@ -178,65 +273,8 @@ namespace Eu.EDelivery.AS4.Receivers
                     $"Polling on table {_properties.ReadMandatoryProperty(SettingKeys.Table)} with interval {PollingInterval.TotalSeconds} seconds.");
                 logger.Error(exception.StackTrace);
 
-                return new Entity[] { };
+                return Enumerable.Empty<Entity>();
             }
-        }
-
-        private IEnumerable<Entity> GetMessagesEntitiesForConfiguredExpression()
-        {
-            // Use a TransactionScope to get the highest TransactionIsolation level.
-            IEnumerable<Entity> entities = Enumerable.Empty<Entity>();
-
-            using (DatastoreContext context = _storeExpression())
-            {
-                IDbContextTransaction transaction = context.Database.BeginTransaction();
-
-                try
-                {
-                    entities = FindAnyMessageEntitiesWithConfiguredExpression(context);
-                    transaction.Commit();
-                }
-                catch (Exception exception)
-                {
-                    Logger.Error(exception.Message);
-                    Logger.Trace(exception.StackTrace);
-                    if (exception.InnerException != null)
-                    {
-                        Logger.Error(exception.InnerException.Message);
-                        Logger.Trace(exception.InnerException.StackTrace);
-                    }
-
-                    transaction.Rollback();
-                }
-            }
-
-            return entities;
-        }
-
-        private IEnumerable<Entity> FindAnyMessageEntitiesWithConfiguredExpression(DatastoreContext context)
-        {
-            IEnumerable<Entity> entities = _findExpression(context).ToList();
-            if (!entities.Any())
-            {
-                return entities;
-            }
-
-            if (_updateValue == null)
-            {
-                Logger.Warn($"No UpdateValue configured for {_properties[SettingKeys.Field]}. The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
-                return entities;
-            }
-
-            // Make sure that all message-entities are locked before continue to process them.
-            // TODO: check if we can do this using batching (EF batching; see EntityFramework-plus)
-            // https://github.com/zzzprojects/EntityFramework-Plus
-            foreach (Entity entity in entities)
-            {
-                entity.Lock(_updateValue);
-            }
-
-            context.SaveChanges();
-            return entities;
         }
 
         /// <summary>
@@ -259,44 +297,11 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private async void ReceiveMessageEntity(MessageEntity messageEntity, Function messageCallback, CancellationToken token)
-        {
-            Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
-
-            using (Stream stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
-            {
-                if (stream == null)
-                {
-                    Logger.Error($"MessageBody cannot be retrieved for Ebms Message Id: {messageEntity.EbmsMessageId}");
-                }
-                else
-                {
-                    ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                    await messageCallback(receivedMessage, token).ConfigureAwait(false);
-                }
-            }
-        }
-
-        private static ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
-        {
-            return new ReceivedMessageEntityMessage(messageEntity: messageEntity)
-            {
-                RequestStream = stream,
-                ContentType = messageEntity.ContentType
-            };
-        }
-
-        private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
-        {
-            var message = new ReceivedEntityMessage(entity);
-            InternalMessage result = await messageCallback(message, token).ConfigureAwait(false);
-            result?.Dispose();
-        }
-
         protected override void HandleMessageException(Entity message, Exception exception)
         {
             Logger.Error(exception.Message);
             var aggregate = exception as AggregateException;
+
             if (aggregate == null)
             {
                 return;
@@ -304,13 +309,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
             foreach (Exception ex in aggregate.InnerExceptions)
             {
-                Logger.Error(ex.Message);
-                Logger.Trace(ex.StackTrace);
-                if (ex.InnerException != null)
-                {
-                    Logger.Error(ex.InnerException.Message);
-                    Logger.Trace(ex.StackTrace);
-                }
+                LogExceptionAndInner(ex);
             }
         }
 

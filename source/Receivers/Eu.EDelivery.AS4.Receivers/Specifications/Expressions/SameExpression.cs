@@ -24,19 +24,21 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 
             object propertyValue = filterPropertyInfo.GetValue(databaseSet);
             object configuredValue = Conversion.Convert(propertyValue, columnValue);
-
-            return propertyValue.Equals(configuredValue);
+            
+            return propertyValue?.Equals(configuredValue) == true || propertyValue == configuredValue;
         }
     }
 
     internal static class Conversion
     {
-        private static readonly Dictionary<Func<object, bool>, Func<object, string, object>> Conversions =
-            new Dictionary<Func<object, bool>, Func<object, string, object>>
+        private static readonly Dictionary<Func<object, string, bool>, Func<object, string, object>> Conversions =
+            new Dictionary<Func<object, string, bool>, Func<object, string, object>>
             {
-                [p => p.GetType().IsEnum] = (a, b) => Enum.Parse(a.GetType(), b),
-                [p => p is int] = (a, b) => System.Convert.ToInt32(b),
-                [p => true] = (a, b) => default(object)
+                [(a, b) => b.Equals("NULL")] = (a, b) => null,
+                [(a, b) => a?.GetType().IsEnum == true] = (a, b) => Enum.Parse(a.GetType(), b),
+                [(a, b) => a is int] = (a, b) => System.Convert.ToInt32(b),
+                [(a, b) => a is string] = (a, b) => b,
+                [(a, b) => true] = (a, b) => default(object)
             };
 
         /// <summary>
@@ -47,7 +49,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public static object Convert(object property, string value)
         {
-            return Conversions.FirstOrDefault(c => c.Key(property)).Value(property, value);
+            return Conversions.FirstOrDefault(c => c.Key(property, value)).Value(property, value);
         }
     }
 }

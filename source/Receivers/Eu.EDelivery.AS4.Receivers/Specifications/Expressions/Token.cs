@@ -7,6 +7,10 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
     internal sealed class Token
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Token"/> class.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
         private Token(string expression)
         {
             Expression = expression;
@@ -30,16 +34,16 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         /// <summary>
         /// Gets the value indicating if the <see cref="Token"/> is a a equal expression '='.
         /// </summary>
-        public bool IsEqualExpression => Expression.Contains("=");
+        public bool IsEqualExpression => Expression.Contains("=") || Expression.Contains(" IS ");
 
         /// <summary>
-        /// Gets the value indicating the outcome of the <see cref="Token"/> expression.
+        /// Gets a value indicating whether the outcome of the <see cref="Token"/> expression.
         /// </summary>
         public bool Evaluate
         {
             get
             {
-                bool.TryParse(Expression, out var outcome);
+                bool.TryParse(Expression, out bool outcome);
                 return outcome;
             }
         }
@@ -59,6 +63,11 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
                      .Select(CreateToken);
         }
 
+        /// <summary>
+        /// Creates the token.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns></returns>
         internal static Token CreateToken(string expression)
         {
             var token = new Token(expression);
@@ -70,9 +79,12 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         private static void Validate(Token token)
         {
             string expression = token.Expression;
-            bool expressionHasToTheRequiredEqualSigns = expression.Count(c => c.Equals('=')) != 1;
+            bool expressionHasToTheRequiredEqualExpression = expression.Count(c => c.Equals('=')) != 1
+                                                             && Regex.Matches(expression, " IS ").Count != 1;
 
-            if (expressionHasToTheRequiredEqualSigns && !new[] { "AND", "OR", "(", ")", "True", "False" }.Contains(expression))
+            bool tokenContainsExpectedValues = new[] {"AND", "OR", "(", ")", "True", "False"}.Contains(expression);
+
+            if (expressionHasToTheRequiredEqualExpression && !tokenContainsExpectedValues)
             {
                 throw new FormatException($"Expression has invalid token: {expression}");
             }

@@ -9,6 +9,10 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
 {
+    /// <summary>
+    /// Testing <see cref="ExpressionDatastoreSpecification"/>
+    /// </summary>
+    /// <seealso cref="GivenDatastoreFacts" />
     public class GivenExpressionDatastoreSpecificationFacts : GivenDatastoreFacts
     {
         [Theory]
@@ -25,6 +29,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         [InlineData("Operation = To BeDelivered")]
         [InlineData("Operation !!= ToBeDelivered")]
         [InlineData("Operation ToBeDelivered")]
+        [InlineData("Operation ISS NOT NULL")]
+        [InlineData("Operation ISS NULL")]
+        [InlineData("OperationISNULL")]
+        [InlineData("OperationIS NOTNULL")]
+        [InlineData("Operation IS = ToBeDelivered")]
         public void FailsToExpress_IfInvalidExpression(string filter)
         {
             // Arrange
@@ -39,6 +48,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         [InlineData("Operation = ToBeDelivered AND MEP = Push")]
         [InlineData("(Operation = ToBeDelivered OR MEP = Push) AND EbmsMessageType = UserMessage")]
         [InlineData("(Operation = ToBeDelivered OR (MEP = Push AND EbmsMessageType != Receipt))")]
+        [InlineData("Operation IS ToBeDelivered AND MEP = Push")]
+        [InlineData("Operation IS ToBeDelivered OR (MEP = Push AND EbmsMessageType IS NOT Receipt)")]
+        [InlineData("(Operation IS NOT Sending AND Operation IS ToBeDelivered)")]
+        [InlineData("Operation = ToBeDelivered AND EbmsMessageId IS NOT NULL")]
+        [InlineData("EbmsMessageId IS NOT NULL")]
         public void GetsExpectedInMessage_IfAndExpression(string filter)
         {
             // Arrange
@@ -63,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
 
         private static InMessage ExpectedMessage(Operation operation, MessageExchangePattern pattern)
         {
-            return new InMessage {Operation = operation, MEP = pattern};
+            return new InMessage {EbmsMessageId = "message-id", Operation = operation, MEP = pattern};
         }
 
         private IEnumerable<Entity> RunExpressionFor(IDatastoreSpecification specification, InMessage expectedMessage)

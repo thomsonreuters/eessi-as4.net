@@ -10,6 +10,8 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
             = new Dictionary<string, Func<IEqualExpression>>
             {
                 ["="] = () => new SameExpression(),
+                ["IS"] = () => new SameExpression(),
+                ["IS NOT"] = () => new NotSameExpression(),
                 ["!="] = () => new NotSameExpression()
             };
 
@@ -22,7 +24,10 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         /// <returns></returns>
         public static string Equals<T>(string expression, T databaseSet)
         {
-            string separator = expression.Contains("!=") ? "!=" : "=";
+            string separator = expression.Contains("=")
+                ? expression.Contains("!=") ? "!=" : "="
+                : expression.Contains(" IS NOT ") ? "IS NOT" : "IS";
+
             string[] entries =
                 expression.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries)
                           .Select(e => e.Trim())
