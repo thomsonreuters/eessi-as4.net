@@ -18,17 +18,19 @@ namespace Eu.EDelivery.AS4.Security
                 string lpszPassword,
                 int dwLogonType,
                 int dwLogonProvider,
-                out IntPtr phToken);            
+                out IntPtr phToken);
         }
 
         public static object Impersonate(string user, string password)
         {
             string domain = "";
-            
-            if (user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase) > 0)
-            {            
-                domain = user.Substring(0, user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase));                
-                user = user.Substring(user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase) + 1);
+
+            int domainSeparatorPosition = user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase);
+
+            if (domainSeparatorPosition > 0)
+            {
+                domain = user.Substring(0, domainSeparatorPosition);
+                user = user.Substring(domainSeparatorPosition + 1);
             }
 
             IntPtr securityToken;
