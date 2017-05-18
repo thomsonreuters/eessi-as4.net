@@ -18,13 +18,7 @@ namespace Eu.EDelivery.AS4.Security
                 string lpszPassword,
                 int dwLogonType,
                 int dwLogonProvider,
-                out IntPtr phToken);
-
-            [DllImport("advapi32.DLL")]
-            public static extern bool ImpersonateLoggedOnUser(IntPtr hToken); //handle to token for logged-on user 
-
-            [DllImport("advapi32.DLL")]
-            public static extern bool RevertToSelf();
+                out IntPtr phToken);            
         }
 
         public static object Impersonate(string user, string password)
