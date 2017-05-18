@@ -69,6 +69,11 @@ namespace Eu.EDelivery.AS4.Steps
             return new StepResult {InternalMessage = message};
         }
 
+        /// <summary>
+        /// Return a Successful <see cref="StepResult" />
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
         public static Task<StepResult> SuccessAsync(InternalMessage message)
         {
             return Task.FromResult(Success(message));

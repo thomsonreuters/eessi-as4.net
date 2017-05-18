@@ -39,17 +39,15 @@ namespace Eu.EDelivery.AS4.Common
 
         public IAttachmentUploaderProvider AttachmentUploader { get; private set; }
 
-        public IAS4MessageBodyPersister AS4MessageBodyPersister { get; set; }
-
         public AS4MessageBodyRetrieverProvider MessageBodyRetrieverProvider { get; private set; }
         
 
         private void RegisterPayloadStrategyProvider()
         {
             PayloadRetrieverProvider = new PayloadRetrieverProvider();
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("file://"), new FilePayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("ftp://"), new FtpPayloadRetriever());
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("http"), new HttpPayloadRetriever());
+            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("file://", StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
+            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
+            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("http", StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
         }
 
         private void RegisterDeliverSenderProvider()

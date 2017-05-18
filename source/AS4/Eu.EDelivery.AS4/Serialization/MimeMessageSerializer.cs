@@ -196,7 +196,6 @@ namespace Eu.EDelivery.AS4.Serialization
             chainedStream.Add(inputStream, leaveOpen: true);
 
             return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
-
         }
 
         private void PreConditions(Stream inputStream, string contentType)
@@ -239,7 +238,10 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 MimeMessage mimeMessage = new MimeParser(inputStream, persistent: true).ParseMessage(cancellationToken);
                 List<MimePart> bodyParts = mimeMessage.BodyParts.OfType<MimePart>().ToList();
-                if (bodyParts.Count <= 0) throw new AS4Exception("MIME Body Parts are empty");
+                if (bodyParts.Count <= 0)
+                {
+                    throw new AS4Exception("MIME Body Parts are empty");
+                }
 
                 return bodyParts;
             }
@@ -292,7 +294,10 @@ namespace Eu.EDelivery.AS4.Serialization
             PartInfo partInfo = message.PrimaryUserMessage?.PayloadInfo
                 .FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
 
-            if (partInfo != null) attachment.Properties = partInfo.Properties;
+            if (partInfo != null)
+            {
+                attachment.Properties = partInfo.Properties;
+            }
         }
     }
 }

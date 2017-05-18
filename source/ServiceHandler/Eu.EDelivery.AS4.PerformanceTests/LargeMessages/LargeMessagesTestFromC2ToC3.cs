@@ -1,4 +1,5 @@
 ﻿using System;
+using Eu.EDelivery.AS4.PerformanceTests.Fixture;
 using Xunit;
 using static Eu.EDelivery.AS4.PerformanceTests.Properties.Resources;
 
@@ -9,6 +10,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests.LargeMessages
     /// </summary>
     public class LargeMessagesTestFromC2ToC3 : PerformanceTestBridge
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LargeMessagesTestFromC2ToC3"/> class.
+        /// </summary>
+        /// <param name="fixture">The fixture.</param>
+        public LargeMessagesTestFromC2ToC3(CornersFixture fixture) : base(fixture) {}
+
         [Theory]
         [InlineData(64, Size.MB)]
         [InlineData(128, Size.MB)]

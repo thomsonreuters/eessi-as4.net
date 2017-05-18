@@ -10,11 +10,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class ReceivedMessageEntityMessage : ReceivedMessage
     {
-        public MessageEntity MessageEntity { get; set; }
+        public MessageEntity MessageEntity { get; }
 
         public ReceivedMessageEntityMessage(MessageEntity messageEntity)
         {
-            this.MessageEntity = messageEntity;
+            MessageEntity = messageEntity;
         }
 
         /// <summary>
@@ -25,8 +25,16 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             base.AssignPropertiesTo(message);
 
-            message.SendingPMode = GetPMode<SendingProcessingMode>();
-            message.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+            if (MessageEntity is InMessage)
+            {
+                message.ReceivingPMode = GetPMode<ReceivingProcessingMode>();
+                message.SendingPMode = null;
+            }
+            else if (MessageEntity is OutMessage)
+            {
+                message.ReceivingPMode = null;
+                message.SendingPMode = GetPMode<SendingProcessingMode>();
+            }
         }
 
         public T GetPMode<T>() where T : class

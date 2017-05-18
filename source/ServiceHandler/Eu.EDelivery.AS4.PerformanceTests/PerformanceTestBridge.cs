@@ -1,34 +1,33 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
+using Eu.EDelivery.AS4.PerformanceTests.Fixture;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.PerformanceTests
 {
     /// <summary>
     /// Bridge to add an extra abstraction layer for the AS4 Corner creation/destruction.
     /// </summary>
+    [Collection(CornersCollection.CollectionId)]
     public class PerformanceTestBridge : IDisposable
     {
         private readonly Stopwatch _stopWatch;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PerformanceTestBridge" /> class.
+        /// Initializes a new instance of the <see cref="PerformanceTestBridge"/> class.
         /// </summary>
-        public PerformanceTestBridge()
+        /// <param name="fixture">The fixture.</param>
+        public PerformanceTestBridge(CornersFixture fixture)
         {
-            Task<Corner> startCorner2 = Corner.StartNew("c2");
-            Task<Corner> startCorner3 = Corner.StartNew("c3");
-
-            Task.WhenAll(startCorner2, startCorner3).ContinueWith(
-                task =>
-                {
-                    Corner2 = startCorner2.Result;
-                    Corner3 = startCorner3.Result;
-                }).Wait();
+            Corner2 = fixture.Corner2;
+            Corner3 = fixture.Corner3;
 
             Corner2.CleanupMessages();
             Corner3.CleanupMessages();
+
+            Corner2.Start();
+            Corner3.Start();
 
             _stopWatch = Stopwatch.StartNew();
         }
@@ -36,12 +35,12 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <summary>
         /// Gets the facade for the AS4 Corner 2 instance.
         /// </summary>
-        protected Corner Corner2 { get; private set; }
+        protected Corner Corner2 { get; }
 
         /// <summary>
         /// Gets the facade for the AS4 Corner 3 instance.
         /// </summary>
-        protected Corner Corner3 { get; private set; }
+        protected Corner Corner3 { get; }
 
         /// <summary>
         /// Start polling for a single message on the delivered directory to assert using the <paramref name="assertion"/>
@@ -97,8 +96,8 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             _stopWatch.Stop();
             Console.WriteLine($@"Performance Test took: {_stopWatch.Elapsed:g} to run");
 
-            Corner2.Dispose();
-            Corner3.Dispose();
+            Corner2.Stop();
+            Corner3.Stop();
         }  
     }
 
@@ -118,10 +117,25 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             RetryInterval = TimeSpan.FromSeconds(retrySeconds);
         }
 
+        /// <summary>
+        /// Gets the retry interval.
+        /// </summary>
+        /// <value>
+        /// The retry interval.
+        /// </value>
         public TimeSpan RetryInterval { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether [in range].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [in range]; otherwise, <c>false</c>.
+        /// </value>
         public bool InRange => _currentRetry <= _retryCount;
 
+        /// <summary>
+        /// Increases this instance.
+        /// </summary>
         public void Increase() => ++_currentRetry;
     }
 }

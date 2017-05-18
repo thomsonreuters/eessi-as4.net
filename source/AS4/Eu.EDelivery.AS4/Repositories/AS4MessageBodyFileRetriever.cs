@@ -5,6 +5,11 @@ namespace Eu.EDelivery.AS4.Repositories
 {
     internal class AS4MessageBodyFileRetriever : IAS4MessageBodyRetriever
     {
+        /// <summary>
+        /// Loads a <see cref="Stream"/> at a given stored <paramref name="location"/>.
+        /// </summary>
+        /// <param name="location">The location on which the <see cref="Stream"/> is stored.</param>
+        /// <returns></returns>
         public Stream LoadAS4MessageStream(string location)
         {
             if (string.IsNullOrEmpty(location))
@@ -12,17 +17,24 @@ namespace Eu.EDelivery.AS4.Repositories
                 return null;
             }
 
-            if (location.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
-            {
-                location = location.Substring("file://".Length);
-            }
+            string absoluteLocation = SubstringWithoutFileUri(location);
 
-            if (!File.Exists(location))
+            if (!File.Exists(absoluteLocation))
             {
                 return null;
             }
 
-            return File.OpenRead(location);
+            return File.OpenRead(absoluteLocation);
+        }
+
+        private static string SubstringWithoutFileUri(string location)
+        {
+            if (location.StartsWith("file:///", StringComparison.OrdinalIgnoreCase))
+            {
+                return location.Substring("file:///".Length);
+            }
+
+            return location;
         }
     }
 

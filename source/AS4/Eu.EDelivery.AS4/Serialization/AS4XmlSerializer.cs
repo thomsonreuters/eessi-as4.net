@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Core;
@@ -28,6 +29,17 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             string xml = ToString(data);
             return new MemoryStream(Encoding.UTF8.GetBytes(xml));
+        }
+
+        /// <summary>
+        /// Serialize Model into Xml String
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+        public static async Task<string> ToStringAsync<T>(T data)
+        {
+            return await Task.Run(() => ToString(data));
         }
 
         /// <summary>

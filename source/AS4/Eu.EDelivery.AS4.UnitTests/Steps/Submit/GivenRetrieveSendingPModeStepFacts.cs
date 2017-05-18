@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -8,10 +7,8 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
-using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Moq;
 using Xunit;
 
@@ -22,8 +19,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
     /// </summary>
     public class GivenRetrieveSendingPModeStepFacts
     {
-        private Mock<IConfig> _mockedConfig;
+        private readonly Mock<IConfig> _mockedConfig;
         private readonly string _pmodeId;
+
         private RetrieveSendingPModeStep _step;
 
         public GivenRetrieveSendingPModeStepFacts()
@@ -38,12 +36,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         {
             Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
             return new SendingProcessingMode {Id = _pmodeId, PushConfiguration = new PushConfiguration()};
-        }
-
-        private static SendingProcessingMode GetStubRightProcessingMode()
-        {
-            Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
-            return new ValidStubSendingPModeFactory().Create();
         }
 
         private SubmitMessage GetStubSubmitMessage()

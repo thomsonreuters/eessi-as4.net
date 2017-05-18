@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
@@ -25,7 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private InternalMessage _internalMessage;
 
         /// <summary>
-        /// Iniitializes a new instance of the <see cref="UploadAttachmentsStep"/> class
+        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
         /// </summary>
         public UploadAttachmentsStep()
         {
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class
+        /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
         /// Create a <see cref="IStep"/> implementation
         /// for uploading the AS4 Attachments to a configured location
         /// </summary>
@@ -61,9 +62,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             _internalMessage = internalMessage;
 
             await UploadAttachments(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
+
             return await StepResult.SuccessAsync(internalMessage);
         }
-        
+
         private async Task UploadAttachments(IEnumerable<Attachment> attachments)
         {
             await Task.WhenAll(attachments.Select(TryUploadAttachment));
@@ -75,6 +77,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             {
                 _logger.Info($"{_internalMessage.Prefix} Start Uploading Attachment...");
                 await UploadAttachment(attachment).ConfigureAwait(false);
+
+                StreamPositionMover.MovePositionToStreamStart(attachment.Content);
             }
             catch (Exception exception)
             {
@@ -102,7 +106,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return payloadReferenceMethod;
         }
 
-        private void PreConditionsPayloadReferenceMethod(ReceivingProcessingMode pmode, Method payloadReferenceMethod)
+        private void PreConditionsPayloadReferenceMethod(IPMode pmode, Method payloadReferenceMethod)
         {
             if (payloadReferenceMethod.Type == null)
             {

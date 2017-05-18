@@ -3,7 +3,6 @@
   <xs:element name="PMode" type="tns:SendingProcessingMode" />
   <xs:complexType name="SendingProcessingMode">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
       <xs:element minOccurs="1" maxOccurs="1" name="AllowOverride" type="xs:boolean" />
       <xs:element minOccurs="1" maxOccurs="1" name="Mep" type="tns:MessageExchangePattern" />
       <xs:element minOccurs="1" maxOccurs="1" name="MepBinding" type="tns:MessageExchangePatternBinding" />
@@ -15,6 +14,7 @@
       <xs:element minOccurs="0" maxOccurs="1" name="ExceptionHandling" type="tns:SendHandling" />
       <xs:element minOccurs="0" maxOccurs="1" name="Security" type="tns:Security" />
       <xs:element minOccurs="0" maxOccurs="1" name="MessagePackaging" type="tns:SendMessagePackaging" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Id" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="MessageExchangePattern">
@@ -46,7 +46,7 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="1" maxOccurs="1" name="TlsVersion" type="tns:TlsVersion" />
-      <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateReference" type="tns:ClientCertificateReference" />
     </xs:sequence>
   </xs:complexType>
   <xs:simpleType name="TlsVersion">
@@ -57,9 +57,36 @@
       <xs:enumeration value="Tls12" />
     </xs:restriction>
   </xs:simpleType>
+  <xs:complexType name="ClientCertificateReference">
+    <xs:sequence>
+      <xs:element minOccurs="1" maxOccurs="1" name="ClientCertificateFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ClientCertificateFindValue" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="X509FindType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FindByThumbprint" />
+      <xs:enumeration value="FindBySubjectName" />
+      <xs:enumeration value="FindBySubjectDistinguishedName" />
+      <xs:enumeration value="FindByIssuerName" />
+      <xs:enumeration value="FindByIssuerDistinguishedName" />
+      <xs:enumeration value="FindBySerialNumber" />
+      <xs:enumeration value="FindByTimeValid" />
+      <xs:enumeration value="FindByTimeNotYetValid" />
+      <xs:enumeration value="FindByTimeExpired" />
+      <xs:enumeration value="FindByTemplateName" />
+      <xs:enumeration value="FindByApplicationPolicy" />
+      <xs:enumeration value="FindByCertificatePolicy" />
+      <xs:enumeration value="FindByExtension" />
+      <xs:enumeration value="FindByKeyUsage" />
+      <xs:enumeration value="FindBySubjectKeyIdentifier" />
+    </xs:restriction>
+  </xs:simpleType>
   <xs:complexType name="PullConfiguration">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="SubChannel" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Mpc" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Protocol" type="tns:Protocol" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TlsConfiguration" type="tns:TlsConfiguration" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="SendReliability">
@@ -104,32 +131,13 @@
   <xs:complexType name="Signing">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
+      <xs:element minOccurs="0" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="PrivateKeyFindValue" type="xs:string" />
-      <xs:element minOccurs="1" maxOccurs="1" name="PrivateKeyFindType" type="tns:X509FindType" />
-      <xs:element minOccurs="1" maxOccurs="1" name="KeyReferenceMethod" type="tns:X509ReferenceType" />
       <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="HashFunction" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
-  <xs:simpleType name="X509FindType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="FindByThumbprint" />
-      <xs:enumeration value="FindBySubjectName" />
-      <xs:enumeration value="FindBySubjectDistinguishedName" />
-      <xs:enumeration value="FindByIssuerName" />
-      <xs:enumeration value="FindByIssuerDistinguishedName" />
-      <xs:enumeration value="FindBySerialNumber" />
-      <xs:enumeration value="FindByTimeValid" />
-      <xs:enumeration value="FindByTimeNotYetValid" />
-      <xs:enumeration value="FindByTimeExpired" />
-      <xs:enumeration value="FindByTemplateName" />
-      <xs:enumeration value="FindByApplicationPolicy" />
-      <xs:enumeration value="FindByCertificatePolicy" />
-      <xs:enumeration value="FindByExtension" />
-      <xs:enumeration value="FindByKeyUsage" />
-      <xs:enumeration value="FindBySubjectKeyIdentifier" />
-    </xs:restriction>
-  </xs:simpleType>
   <xs:simpleType name="X509ReferenceType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="BSTReference" />
@@ -141,9 +149,17 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
-      <xs:element minOccurs="1" maxOccurs="1" name="PublicKeyFindType" type="tns:X509FindType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindValue" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="KeyTransport" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="KeyTransport" type="tns:KeyEncryption" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="KeyEncryption">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="KeySize" type="xs:int" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TransportAlgorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="DigestAlgorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="MgfAlgorithm" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="SendMessagePackaging">
@@ -190,10 +206,10 @@
   </xs:complexType>
   <xs:complexType name="CollaborationInfo">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="AgreementReference" type="tns:AgreementReference" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="ConversationId" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AgreementReference" type="tns:AgreementReference" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="AgreementReference">
@@ -205,7 +221,7 @@
   </xs:complexType>
   <xs:complexType name="Service">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
     </xs:sequence>
   </xs:complexType>

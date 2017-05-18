@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
@@ -16,13 +15,12 @@ namespace Eu.EDelivery.AS4.Model.Submit
         public CollaborationInfo Collaboration { get; set; }
         public MessageProperty[] MessageProperties { get; set; }
         public Payload[] Payloads { get; set; }
-
+        
         [XmlIgnore]
         public SendingProcessingMode PMode { get; set; }
 
         [XmlIgnore]
         public bool IsEmpty => String.IsNullOrWhiteSpace(Collaboration?.AgreementRef.PModeId);
-
 
         public bool HasPayloads => Payloads?.Length != 0;
 
@@ -31,7 +29,7 @@ namespace Eu.EDelivery.AS4.Model.Submit
         /// Create Submit Message
         /// </summary>
         public SubmitMessage()
-        {
+        {            
             MessageInfo = new MessageInfo();
             Collaboration = new CollaborationInfo();
             Payloads = new Payload[] { };

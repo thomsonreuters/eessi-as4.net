@@ -1,11 +1,14 @@
-﻿using System.IO;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Transformers;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
-using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -15,38 +18,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     public class GivenDeliverMessageTransformerFacts
     {
         [Fact]
-        public async Task SucceedsToTransform_IfStreamIsSinglePayloadMessage()
+        public async Task TransformerRemoveUnnecessaryUserMessages_IfMessageIsntReferenced()
         {
             // Arrange
+            const string expectedId = "usermessage-id";
+
+            AS4Message as4Message = new AS4MessageBuilder()
+                 .WithUserMessage(new FilledUserMessage(expectedId))
+                 .WithUserMessage(new FilledUserMessage())
+                 .Build();
+
+            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
             var sut = new DeliverMessageTransformer();
-            ReceivedMessageEntityMessage message = SinglePayloadMessage();
 
             // Act
-            InternalMessage actualMessage = await sut.TransformAsync(message, CancellationToken.None);
+            InternalMessage actualMessage = await sut.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
-            string expectedMessageId = message.MessageEntity.EbmsMessageId;
-            string actualMessageId = actualMessage.DeliverMessage.MessageInfo.MessageId;
-
-            Assert.Equal(expectedMessageId, actualMessageId);
+            Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count);
+            UserMessage actualUserMessage = actualMessage.AS4Message.PrimaryUserMessage;
+            Assert.Equal(expectedId, actualUserMessage.MessageId);
         }
 
-        private static ReceivedMessageEntityMessage SinglePayloadMessage()
+        private static ReceivedMessageEntityMessage CreateReceivedMessage(Action<InMessage> updateInMessage, AS4Message as4Message)
         {
-            const string contentType =
-                "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
+            var inMessage = new InMessage();
+            updateInMessage(inMessage);
 
-            var messageEntity = new InMessage
+            return new ReceivedMessageEntityMessage(inMessage)
             {
-                ContentType = contentType,
-                EbmsMessageId = "fd85bf2e-2366-408b-b187-010ad63d0070@10.124.29.152",
-                EbmsMessageType = MessageType.UserMessage
-            };
-
-            return new ReceivedMessageEntityMessage(messageEntity)
-            {
-                ContentType = contentType,
-                RequestStream = new MemoryStream(as4_single_payload)
+                RequestStream = as4Message.ToStream(),
+                ContentType = Constants.ContentTypes.Soap
             };
         }
     }

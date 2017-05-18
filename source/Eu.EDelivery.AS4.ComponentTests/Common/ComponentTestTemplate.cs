@@ -14,13 +14,14 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         /// </summary>
         public ComponentTestTemplate()
         {
-            CopyDirectory(@".\config\componenttest-pmodes\send-pmodes", @".\config\send-pmodes");
+            CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
+            CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
         }
 
         protected void OverrideSettings(string settingsFile)
         {
             File.Copy(@".\config\settings.xml", @".\config\settings_original.xml", true);
-            File.Copy(settingsFile, @".\config\settings.xml", true);
+            File.Copy($@".\config\componenttest-settings\{settingsFile}", @".\config\settings.xml", true);
             _restoreSettings = true;
         }
 

@@ -317,6 +317,7 @@
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\Core\PullRequestError.cs" />
+    <Compile Include="Model\FilledUserMessage.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
     <Compile Include="Model\GivenCollaborationInfoFacts.cs" />
@@ -379,11 +380,11 @@
     <Compile Include="Servicehandler\GivenKernelFacts.cs" />
     <Compile Include="Steps\Common\GivenInExceptionDecoratorStep.cs" />
     <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
+    <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenZipAttachmentsStepFacts.cs" />
     <Compile Include="Steps\GivenStepResultFacts.cs" />
-    <Compile Include="Steps\Notify\GivenCreateNotifyMessageStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyOutUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyInUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyUpdateInExceptionDatastoreStepFacts.cs" />
@@ -393,11 +394,11 @@
     <Compile Include="Steps\Receive\GivenCreateAS4ErrorStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecryptAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenReceiveExceptionDecoratorStepFacts.cs" />
-    <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenDeliverUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenSendAS4ReceiptStepFacts.cs" />
+    <Compile Include="Steps\Receive\GivenUpdateReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeAgreementRefRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeIdRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModePartyInfoRuleFacts.cs" />
@@ -412,7 +413,7 @@
     <Compile Include="Steps\Receive\GivenDeterminePModesStepFacts.cs" />
     <Compile Include="Steps\Send\GivenCreateAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenEncryptAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\Receive\GivenReceiveUpdateDatastoreFacts.cs" />
+    <Compile Include="Steps\Receive\GivenSaveReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Send\GivenSendAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSetReceptionAwarenessStepFacts.cs" />
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />
@@ -449,13 +450,15 @@
     <Compile Include="Streaming\VirtualStreamFacts.cs" />
     <Compile Include="Transformers\GivenAS4MessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenDeliverMessageTransformerFacts.cs" />
-    <Compile Include="Transformers\GivenExceptionTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenExceptionToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPayloadTransformerFacts.cs" />
     <Compile Include="Transformers\GivenPModeToPullRequestTransformerFacts.cs" />
     <Compile Include="Transformers\GivenReceptionAwarenessTransformerFacts.cs" />
+    <Compile Include="Transformers\GivenSignalToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
+    <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
   </ItemGroup>
   <ItemGroup>

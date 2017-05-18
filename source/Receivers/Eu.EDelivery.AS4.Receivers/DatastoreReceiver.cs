@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers.Specifications;
-using Eu.EDelivery.AS4.Receivers.Specifications.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
@@ -23,30 +21,43 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
-        private readonly Func<DatastoreContext> _storeExpression;
-        private readonly IDatastoreSpecification _specification;
-        private readonly IDictionary<string, string> _properties;
-        private readonly IDictionary<string, string> _updates;
+        private readonly DatastoreSpecification _specification;
 
+        private Func<DatastoreContext> _storeExpression;
         private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
+        private string _updateValue;
+        private IDictionary<string, string> _properties;
 
         protected override ILogger Logger { get; } = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class
         /// </summary>
-        public DatastoreReceiver() : this(() => new DatastoreContext(Config.Instance)) {}
+        public DatastoreReceiver()
+        {
+            _specification = new DatastoreSpecification();
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class. 
+        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
+        /// Create a Data Store Out Message Receiver with a given Data Store Context Delegate
         /// </summary>
-        /// <param name="storeExpression"></param>
-        public DatastoreReceiver(Func<DatastoreContext> storeExpression)
+        /// <param name="storeExpression">
+        /// </param>
+        /// <param name="findExpression">
+        /// </param>
+        /// <param name="updateValue">
+        /// </param>
+        public DatastoreReceiver(
+            Func<DatastoreContext> storeExpression,
+            Func<DatastoreContext, IEnumerable<Entity>> findExpression,
+            string updateValue)
         {
             _storeExpression = storeExpression;
-            _specification = new ExpressionDatastoreSpecification();
-            _updates = new Dictionary<string, string>();
-            _properties = new Dictionary<string, string>();
+            _findExpression = findExpression;
+
+            _specification = new DatastoreSpecification();
+            _updateValue = updateValue;
         }
 
         #region Configuration
@@ -55,8 +66,10 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             public const string PollingInterval = "PollingInterval";
             public const string Table = "Table";
-            public const string Filter = "Field";
+            public const string Field = "Field";
+            public const string FilterValue = "Value";
             public const string TakeRows = "BatchSize";
+            public const string UpdateValue = "Update";
         }
 
         protected override TimeSpan PollingInterval
@@ -65,9 +78,12 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
 
-                return _properties.ContainsKey(SettingKeys.PollingInterval)
-                           ? GetPollingIntervalFromProperties()
-                           : defaultInterval;
+                if (_properties == null)
+                {
+                    return defaultInterval;
+                }
+
+                return _properties.ContainsKey(SettingKeys.PollingInterval) ? GetPollingIntervalFromProperties() : defaultInterval;
             }
         }
 
@@ -85,11 +101,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
-            Configure(
-                settings.GroupBy(s => s.Key, StringComparer.OrdinalIgnoreCase)
-                        .ToDictionary(s => s.Key, s => s.First().Value, StringComparer.OrdinalIgnoreCase));
-
-           RetrieveUpdates(settings)?.ToList().ForEach(_updates.Add);
+            Configure(settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -98,25 +110,18 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="properties"></param>
         private void Configure(IDictionary<string, string> properties)
         {
-            properties.ToList().ForEach(_properties.Add);
-            _specification.Configure(CreateDatastoreArgsFrom(_properties));
+            _properties = properties;
+
+            var args = new DatastoreSpecificationArgs(_properties.ReadMandatoryProperty(SettingKeys.Table),
+                                                      _properties.ReadMandatoryProperty(SettingKeys.Field),
+                                                      _properties.ReadMandatoryProperty(SettingKeys.FilterValue),
+                                                      Convert.ToInt32(_properties.ReadOptionalProperty(SettingKeys.TakeRows, "20")));
+
+            _specification.Configure(args);
             _findExpression = _specification.GetExpression().Compile();
-        }
+            _storeExpression = () => new DatastoreContext(Config.Instance);
 
-        private static DatastoreSpecificationArgs CreateDatastoreArgsFrom(IDictionary<string, string> properties)
-        {
-            string tableName = properties.ReadMandatoryProperty(SettingKeys.Table);
-            string filterColumn = properties.ReadMandatoryProperty(SettingKeys.Filter);
-            int take = Convert.ToInt32(properties.ReadOptionalProperty(SettingKeys.TakeRows, "20"));
-
-            return new DatastoreSpecificationArgs(tableName, filterColumn, take);
-        }
-
-        private static IDictionary<string, string> RetrieveUpdates(IEnumerable<Setting> settings)
-        {
-           return settings
-                .Where(s => s.Key.Equals("Update"))
-                .ToDictionary(s => s["field"].Value, s => s.Value);
+            properties.TryGetValue(SettingKeys.UpdateValue, out _updateValue);
         }
 
         #endregion
@@ -139,8 +144,18 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private void LogReceiverSpecs(bool startReceiving)
         {
+            if (_properties == null)
+            {
+                return;
+            }
+
+            string table = _properties[SettingKeys.Table];
+            string field = _properties[SettingKeys.Field];
+            string value = _properties[SettingKeys.FilterValue];
+
             string action = startReceiving ? "Start" : "Stop";
-            Logger.Debug($"{action} Receiving on Datastore {_specification.FriendlyExpression}");
+
+            Logger.Debug($"{action} Receiving on Datastore FROM {table} WHERE {field} == {value}");
         }
 
         /// <summary>
@@ -163,7 +178,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     $"Polling on table {_properties.ReadMandatoryProperty(SettingKeys.Table)} with interval {PollingInterval.TotalSeconds} seconds.");
                 logger.Error(exception.StackTrace);
 
-                return Enumerable.Empty<Entity>();
+                return new Entity[] { };
             }
         }
 
@@ -183,7 +198,14 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
                 catch (Exception exception)
                 {
-                    LogExceptionAndInner(exception);
+                    Logger.Error(exception.Message);
+                    Logger.Trace(exception.StackTrace);
+                    if (exception.InnerException != null)
+                    {
+                        Logger.Error(exception.InnerException.Message);
+                        Logger.Trace(exception.InnerException.StackTrace);
+                    }
+
                     transaction.Rollback();
                 }
             }
@@ -199,32 +221,22 @@ namespace Eu.EDelivery.AS4.Receivers
                 return entities;
             }
 
-            if (!_updates.Any())
+            if (_updateValue == null)
             {
-                Logger.Warn($"No UpdateValue configured for {_properties[SettingKeys.Filter]}. The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
+                Logger.Warn($"No UpdateValue configured for {_properties[SettingKeys.Field]}. The entities retrieved from {_properties[SettingKeys.Table]} are not being locked.");
                 return entities;
             }
 
-            LockEntitiesBeforeContinueToProcessThem(entities);
+            // Make sure that all message-entities are locked before continue to process them.
+            // TODO: check if we can do this using batching (EF batching; see EntityFramework-plus)
+            // https://github.com/zzzprojects/EntityFramework-Plus
+            foreach (Entity entity in entities)
+            {
+                entity.Lock(_updateValue);
+            }
 
             context.SaveChanges();
             return entities;
-        }
-
-        private void LockEntitiesBeforeContinueToProcessThem(IEnumerable<Entity> entities)
-        {
-            foreach (Entity entity in entities)
-            {
-                foreach (KeyValuePair<string, string> update in _updates)
-                {
-                    PropertyInfo property = entity.GetType().GetProperty(update.Key);
-
-                    object propertyValue = property.GetValue(entity);
-                    object updateValue = Conversion.Convert(propertyValue, update.Value);
-
-                    property.SetValue(entity, updateValue);
-                }
-            }
         }
 
         /// <summary>
@@ -285,7 +297,6 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             Logger.Error(exception.Message);
             var aggregate = exception as AggregateException;
-
             if (aggregate == null)
             {
                 return;
@@ -293,19 +304,13 @@ namespace Eu.EDelivery.AS4.Receivers
 
             foreach (Exception ex in aggregate.InnerExceptions)
             {
-                LogExceptionAndInner(ex);
-            }
-        }
-
-        private void LogExceptionAndInner(Exception exception)
-        {
-            Logger.Error(exception.Message);
-            Logger.Trace(exception.StackTrace);
-
-            if (exception.InnerException != null)
-            {
-                Logger.Error(exception.InnerException.Message);
-                Logger.Trace(exception.InnerException.StackTrace);
+                Logger.Error(ex.Message);
+                Logger.Trace(ex.StackTrace);
+                if (ex.InnerException != null)
+                {
+                    Logger.Error(ex.InnerException.Message);
+                    Logger.Trace(ex.StackTrace);
+                }
             }
         }
 

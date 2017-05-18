@@ -17,30 +17,32 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._14
 
         public ReceiveTestMessageIntegrationTest()
         {
-            this._holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            this._destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
-            this._holodeck = new Holodeck();
+            _holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
+            _destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
+            _holodeck = new Holodeck();
         }
 
         [Retry(MaxRetries = 3)]
         public void ThenReceiveTestMessageSucceeds()
         {
             // Before
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            this.AS4Component.Start();
-            base.CleanUpFiles(AS4FullInputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            base.CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            AS4Component.Start();
+            CleanUpFiles(AS4FullInputPath);
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             // Arrange
-            base.CopyPModeToHolodeckA("8.3.14-pmode.xml");
+            CopyPModeToHolodeckA("8.3.14-pmode.xml");
 
             // Act
-            File.Copy(this._holodeckMessagesPath, this._destFileName);
+            File.Copy(_holodeckMessagesPath, _destFileName);
 
             // Assert
-            Assert.True(PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml", retryCount: 5000), "Receive Test Message Integration Test failed");
+            Assert.True(
+                PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml", 5000),
+                "Receive Test Message Integration Test failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

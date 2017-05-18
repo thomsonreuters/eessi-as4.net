@@ -31,9 +31,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         /// <param name="config">The config.</param>
         public AgentProvider(IConfig config)
         {
-           _config = config;
-           _logger = LogManager.GetCurrentClassLogger();
-           _agents = new Collection<IAgent>();
+            _config = config;
+            _logger = LogManager.GetCurrentClassLogger();
+            _agents = new Collection<IAgent>();
 
             TryAddCustomAgentsToProvider();
         }
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             var receiver = new HttpReceiver();
 
-            receiver.Configure(new[] {new Setting("Url", url)});
+            receiver.Configure(new[] { new Setting("Url", url) });
 
             return new Agent(
                 new AgentConfig("Minder Submit/Receive Agent"),
@@ -141,18 +141,19 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 Step =
                     new[]
                     {
+                        new Step {Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(ReceiveUpdateDatastoreStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(UpdateReceivedAS4MessageBodyStep).AssemblyQualifiedName},
                         new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SendAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {UnDecorated = true, Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
                         new Step {UnDecorated = true, Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(SendAS4ErrorStep).AssemblyQualifiedName} 
+                        new Step {UnDecorated = true, Type = typeof(SendAS4ErrorStep).AssemblyQualifiedName}
                     }
             };
         }

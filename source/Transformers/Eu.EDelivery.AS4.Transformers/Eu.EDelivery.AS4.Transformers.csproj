@@ -42,6 +42,7 @@
     <Reference Include="FluentValidation">
       <HintPath>..\..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore, Version=1.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60" />
     <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
       <Private>True</Private>
@@ -67,13 +68,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AS4MessageToNotifyMessageMapper.cs" />
     <Compile Include="AS4MessageTransformer.cs" />
-    <Compile Include="ConformanceTestingDeliverMessageTransformer.cs" />
+    <Compile Include="ConformanceTestTransformers\ConformanceTestingExceptionNotifyMessageTransformer.cs" />
+    <Compile Include="ConformanceTestTransformers\ConformanceTestingNotifyMessageTransformer.cs" />
     <Compile Include="DeliverMessageTransformer.cs" />
-    <Compile Include="ExceptionTransformer.cs" />
-    <Compile Include="InteropTestingDeliverMessageTransformer.cs" />
-    <Compile Include="InteropTestingSubmitReceiveMessageTransformer.cs" />
-    <Compile Include="ConformanceTestingSubmitReceiveMessageTransformer.cs" />
+    <Compile Include="ExceptionToNotifyMessageTransformer.cs" />
+    <Compile Include="InteropTestTransformers\InteropTestingExceptionNotifyMessageTransformer.cs" />
+    <Compile Include="InteropTestTransformers\InteropTestingNotifyMessageTransformer.cs" />
+    <Compile Include="InteropTestTransformers\InteropTestingSubmitReceiveMessageTransformer.cs" />
+    <Compile Include="ConformanceTestTransformers\ConformanceTestingSubmitReceiveMessageTransformer.cs" />
+    <Compile Include="MinderNotifyMessageTransformer.cs" />
+    <Compile Include="SignalMessageToNotifyMessageTransformer.cs" />
     <Compile Include="PayloadTransformer.cs" />
     <Compile Include="PModeToPullRequestTransformer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

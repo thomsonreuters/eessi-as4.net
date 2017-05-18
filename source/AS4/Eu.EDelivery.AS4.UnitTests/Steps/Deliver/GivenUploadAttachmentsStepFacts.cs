@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
@@ -19,19 +20,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
     /// </summary>
     public class GivenUploadAttachmentsStepFacts
     {
-        private readonly Mock<IAttachmentUploaderProvider> _mockedProvider;
-
-        private UploadAttachmentsStep _step;
-
-        public GivenUploadAttachmentsStepFacts()
-        {
-            _mockedProvider = new Mock<IAttachmentUploaderProvider>();
-            var mockedUploader = new Mock<IAttachmentUploader>();
-            _mockedProvider.Setup(p => p.Get(It.IsAny<string>())).Returns(mockedUploader.Object);
-
-            _step = new UploadAttachmentsStep(_mockedProvider.Object);
-        }
-
         public class GivenValidArguments : GivenUploadAttachmentsStepFacts
         {
             [Fact]
@@ -45,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 var step = new UploadAttachmentsStep(stubProvider);
 
                 // Act
-                StepResult result = await step.ExecuteAsync(new InternalMessage(CreateAS4MessageWithAttachment()), CancellationToken.None);
+                StepResult result = await step.ExecuteAsync(CreateAS4MessageWithAttachment(), CancellationToken.None);
 
                 // Assert
                 Attachment firstAttachment = result.InternalMessage.AS4Message.Attachments.First();
@@ -55,32 +43,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         public class GivenInvalidArguments : GivenUploadAttachmentsStepFacts
         {
-            private void SetupFailedAttachmentUploader()
-            {
-                _mockedProvider.Setup(u => u.Get(It.IsAny<string>())).Throws(new AS4Exception("Failed to get Uploader"));
-                _step = new UploadAttachmentsStep(_mockedProvider.Object);
-            }
-
             [Fact]
             public async Task ThenExecuteStepFailsWithFailedAttachmentUploaderAsync()
             {
                 // Arrange
-                SetupFailedAttachmentUploader();
-                AS4Message as4Message = CreateAS4MessageWithAttachment();
-                var internalMessage = new InternalMessage(as4Message);
+                var saboteurProvider = new Mock<IAttachmentUploaderProvider>();
+                saboteurProvider.Setup(p => p.Get(It.IsAny<string>()))
+                                .Throws(new AS4Exception("Failed to get Uploader"));
+
+                var step = new UploadAttachmentsStep(saboteurProvider.Object);
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(() => _step.ExecuteAsync(internalMessage, CancellationToken.None));
+                await Assert.ThrowsAsync<AS4Exception>(
+                    () => step.ExecuteAsync(CreateAS4MessageWithAttachment(), CancellationToken.None));
             }
         }
 
-        protected AS4Message CreateAS4MessageWithAttachment()
+        protected InternalMessage CreateAS4MessageWithAttachment()
         {
-            return new AS4Message
+            var as4Message = new AS4Message
             {
-                ReceivingPMode = new ReceivingProcessingMode {Deliver = {PayloadReferenceMethod = new Method {Type = "FILE"}}},
-                Attachments = new[] {new Attachment("attachment-id")}
+                ReceivingPMode = new ReceivingProcessingMode { Deliver = { PayloadReferenceMethod = new Method { Type = "FILE" } } },
+                Attachments = new[] { new Attachment("attachment-id") { Content = Stream.Null } }
             };
+
+            return new InternalMessage(as4Message);
         }
     }
 }
