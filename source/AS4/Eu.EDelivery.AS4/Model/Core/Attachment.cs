@@ -46,16 +46,29 @@ namespace Eu.EDelivery.AS4.Model.Core
             InitializeDefaults();
         }
 
+        /// <summary>
+        /// Verifies if this is the Attachment that is referenced by the given <paramref name="partInfo"/>
+        /// </summary>
+        /// <param name="partInfo"></param>
+        /// <returns></returns>
         public bool Matches(PartInfo partInfo)
         {
             return partInfo.Href.Equals($"cid:{Id}");
         }
 
+        /// <summary>
+        /// Verifies if this is the Attachment that is referenced by the given cryptography <paramref name="reference"/>
+        /// </summary>
+        /// <param name="reference"></param>
+        /// <returns></returns>
         public bool Matches(System.Security.Cryptography.Xml.Reference reference)
         {
             return reference.Uri.Equals($"cid:{Id}");
         }
 
+        /// <summary>
+        /// Makes sure that the Attachment Content is positioned at the start of the content.
+        /// </summary>
         public void ResetContentPosition()
         {
             if (Content != null)
