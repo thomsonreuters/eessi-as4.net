@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,6 +18,7 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
+using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.UnitTests.Serialization
@@ -64,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     // Act
                     AS4Message message = await _serializer
                         .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
-                    
+
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
                     Assert.Equal(ServiceNamespace, userMessage.CollaborationInfo.Service.Value);
@@ -81,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     // Act
                     AS4Message message = await _serializer
                         .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
-                    
+
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
                     Assert.NotNull(message);
@@ -98,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     // Act
                     AS4Message message = await _serializer
                         .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
-                    
+
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
                     string receiverId = userMessage.Receiver.PartyIds.First().Id;
@@ -115,7 +117,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     // Act
                     AS4Message message = await _serializer
                         .DeserializeAsync(memoryStream, Constants.ContentTypes.Soap, CancellationToken.None);
-                    
+
                     // Assert
                     UserMessage userMessage = message.UserMessages.First();
                     Assert.Equal("org:eu:europa:as4:example", userMessage.Sender.PartyIds.First().Id);
@@ -315,7 +317,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 return new AS4MessageBuilder()
                     .WithSendingPMode(pmode)
-                    .WithUserMessage(new UserMessage {Sender = sender, Receiver = receiver})
+                    .WithUserMessage(new UserMessage { Sender = sender, Receiver = receiver })
                     .Build();
             }
 
@@ -324,8 +326,63 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 return new SendingProcessingMode
                 {
                     Id = "multihop-pmode",
-                    MessagePackaging = {IsMultiHop = true}
+                    MessagePackaging = { IsMultiHop = true }
                 };
+            }
+        }
+
+        public class GivenReceiptSerializationSucceeds : GivenSoapEnvelopeSerializerFacts
+        {
+            [Fact]
+            public void ThenNonRepudiationInfoElementBelongsToCorrectNamespace()
+            {
+                var receipt = CreateReceiptWithNonRepudiationInfo();
+
+                var as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+
+                XmlDocument document = AS4XmlSerializer.ToDocument(as4Message, CancellationToken.None);
+
+                var node = document.SelectSingleNode(@"//*[local-name()='NonRepudiationInformation']");
+
+                Assert.NotNull(node);
+                Assert.Equal(Constants.Namespaces.EbmsXmlSignals, node.NamespaceURI);
+            }
+
+            [Fact]
+            public void ThenRelatedUserMessageElementBelongsToCorrectNamespace()
+            {
+                var receipt = CreateReceiptWithRelatedUserMessageInfo();
+
+                var as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+
+                XmlDocument document = AS4XmlSerializer.ToDocument(as4Message, CancellationToken.None);
+
+                var node = document.SelectSingleNode(@"//*[local-name()='UserMessage']");
+
+                Assert.NotNull(node);
+                Assert.Equal(Constants.Namespaces.EbmsXmlSignals, node.NamespaceURI);
+            }
+
+            private static Receipt CreateReceiptWithNonRepudiationInfo()
+            {
+                var nnri = new ArrayList { new System.Security.Cryptography.Xml.Reference() };
+
+                var receipt = new Receipt
+                {
+                    NonRepudiationInformation = new NonRepudiationInformationBuilder().WithSignedReferences(nnri).Build()
+                };
+
+                return receipt;
+            }
+
+            private static Receipt CreateReceiptWithRelatedUserMessageInfo()
+            {
+                var receipt = new Receipt
+                {
+                    UserMessage = new UserMessage("some-usermessage-id")
+                };
+
+                return receipt;
             }
         }
     }

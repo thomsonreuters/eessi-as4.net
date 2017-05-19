@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             var routingInput = new RoutingInput
             {
-                UserMessage = AS4Mapper.Map<RoutingInputUserMessage>(as4Message.PrimarySignalMessage.RelatedUserMessage)
+                UserMessage = AS4Mapper.Map<RoutingInputUserMessage>(as4Message.PrimarySignalMessage.RelatedUserMessageForMultihop)
             };
 
             builder.SetRoutingInput(routingInput);
