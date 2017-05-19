@@ -7,9 +7,9 @@
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>
   <PullConfiguration>
-    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC</Mpc>
+    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/UKGATEWAY</Mpc>
     <Protocol>
-      <Url>http://TODO</Url>
+      <Url>https://eessidev09.eessi.be/EESSI/BusinessMessaging/v0.0/Inbox/Service.svc</Url>
     </Protocol>
     <TlsConfiguration>
       <IsEnabled>true</IsEnabled>

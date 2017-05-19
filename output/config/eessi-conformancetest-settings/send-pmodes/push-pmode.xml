@@ -8,7 +8,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://TODO</Url>
+      <Url>https://eessidev09.eessi.be/EESSI/BusinessMessaging/v0.0/Outbox/Service.svc</Url>
     </Protocol>
     <TlsConfiguration>
       <IsEnabled>true</IsEnabled>
