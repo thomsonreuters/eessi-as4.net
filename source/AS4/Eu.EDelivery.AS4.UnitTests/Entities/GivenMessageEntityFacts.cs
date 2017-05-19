@@ -1,5 +1,5 @@
-﻿using System.IO;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             public void MessageBodyReturnsNullStream_IfNoMessageLocationIsSpecified()
             {
                 // Arrange
-                var sut = new StubMessageEntity {MessageLocation = null};
+                StubMessageEntity sut = CreateMessageEntity(messageLocation: null);
 
                 // Act
                 using (Stream actualStream = sut.RetrieveMessageBody(retrieverProvider: null))
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             public void MessageEntityCatchesInvalidMessageBodyRetrieval()
             {
                 // Arrange
-                var sut = new StubMessageEntity {MessageLocation = "ignored"};
+                StubMessageEntity sut = CreateMessageEntity(messageLocation: "ignored");
                 var stubProvider = new AS4MessageBodyRetrieverProvider();
                 stubProvider.Accept(condition: s => true, retriever: new SaboteurMessageBodyRetriever());
 
@@ -74,8 +74,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                     Assert.Null(actualStream);
                 }
             }
+
+            private static StubMessageEntity CreateMessageEntity(string messageLocation)
+            {
+                return new StubMessageEntity {MessageLocation = messageLocation};
+            }
         }
 
+        [ExcludeFromCodeCoverage]
         private class StubMessageEntity : MessageEntity
         {
             public override string StatusString { get; set; }

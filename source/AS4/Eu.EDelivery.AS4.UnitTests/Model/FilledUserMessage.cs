@@ -9,7 +9,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// Initializes a new instance of the <see cref="FilledUserMessage" /> class.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
-        public FilledUserMessage(string messageId = "message-id")
+        /// <param name="attachmentId">The attachment identifier.</param>
+        public FilledUserMessage(string messageId = "message-id", string attachmentId = "attachment-uri")
         {
             Mpc = "mpc";
             MessageId = messageId;
@@ -17,6 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             Receiver = CreateParty("Receiver", "org:eu:europa:as4:example");
             Sender = CreateParty("Sender", "org:holodeckb2b:example:company:A");
             MessageProperties = CreateMessageProperties();
+            PayloadInfo = new List<PartInfo> {new PartInfo(href: $"cid:{attachmentId}")};
         }
 
         private static CollaborationInfo CreateCollaborationInfo()

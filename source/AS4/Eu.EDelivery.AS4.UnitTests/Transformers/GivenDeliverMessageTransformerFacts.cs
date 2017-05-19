@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -32,6 +34,43 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         }
 
         [Fact]
+        public async Task FailsToTransform_IfInvalidMessageEntityHasGiven()
+        {
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(
+                () => new DeliverMessageTransformer().TransformAsync(message: null, cancellationToken: CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task TransformRemovesUnnecessaryAttachments()
+        {
+            // Arrange
+            const string expectedId = "usermessage-id";
+            const string expectedUri = "expected-attachment-uri";
+            AS4Message as4Message = new AS4MessageBuilder()
+                .WithUserMessage(new FilledUserMessage(expectedId, expectedUri))
+                .WithAttachment(FilledAttachment(expectedUri))
+                .WithAttachment(FilledAttachment())
+                .WithAttachment(FilledAttachment())
+                .Build();
+
+            // Act
+            InternalMessage actualMessage = await ExerciseTransform(expectedId, as4Message);
+
+            // Assert
+            Assert.Equal(1, actualMessage.AS4Message.Attachments.Count);
+        }
+
+        private static Attachment FilledAttachment(string attachmentId = "attachment-id")
+        {
+            return new Attachment(attachmentId)
+            {
+                Content = new MemoryStream(Encoding.UTF8.GetBytes("serialize me!")),
+                ContentType = "text/plain"
+            };
+        }
+
+        [Fact]
         public async Task TransformerRemoveUnnecessaryUserMessages_IfMessageIsntReferenced()
         {
             // Arrange
@@ -42,16 +81,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                  .WithUserMessage(new FilledUserMessage())
                  .Build();
 
-            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
-            var sut = new DeliverMessageTransformer();
-
             // Act
-            InternalMessage actualMessage = await sut.TransformAsync(receivedMessage, CancellationToken.None);
+            InternalMessage actualMessage = await ExerciseTransform(expectedId, as4Message);
 
             // Assert
             Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count);
             UserMessage actualUserMessage = actualMessage.AS4Message.PrimaryUserMessage;
             Assert.Equal(expectedId, actualUserMessage.MessageId);
+        }
+
+        private static async Task<InternalMessage> ExerciseTransform(string expectedId, AS4Message as4Message)
+        {
+            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
+            var sut = new DeliverMessageTransformer();
+
+            return await sut.TransformAsync(receivedMessage, CancellationToken.None);
         }
 
         private static ReceivedMessageEntityMessage CreateReceivedMessage(Action<InMessage> updateInMessage, AS4Message as4Message)
@@ -62,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             return new ReceivedMessageEntityMessage(inMessage)
             {
                 RequestStream = as4Message.ToStream(),
-                ContentType = Constants.ContentTypes.Soap
+                ContentType = as4Message.ContentType
             };
         }
     }

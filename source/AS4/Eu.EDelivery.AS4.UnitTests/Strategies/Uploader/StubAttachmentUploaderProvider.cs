@@ -1,5 +1,7 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Moq;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
 {
@@ -34,6 +36,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
         public IAttachmentUploader Get(string type)
         {
             return _configedUploader;
+        }
+    }
+
+    public class StubAttachmentUploaderProviderFacts
+    {
+        [Fact]
+        public void ReturnsSameInstance_EvenWhenAcceptedOtherwise()
+        {
+            // Arrange
+            var expectedUploader = Mock.Of<IAttachmentUploader>();
+            var sut = new StubAttachmentUploaderProvider(expectedUploader);
+            sut.Accept(s => true, new StubAttachmentUploader(downloadUrl: null));
+
+            // Act
+            IAttachmentUploader actualUploader = sut.Get(type: null);
+
+            // Assert
+            Assert.Equal(expectedUploader, actualUploader);
         }
     }
 }
