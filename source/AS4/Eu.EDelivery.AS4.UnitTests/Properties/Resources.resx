@@ -384,4 +384,7 @@
   <data name="as4_single_payload" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4_single_payload.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="as4_multihop_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-multihop-message.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>
