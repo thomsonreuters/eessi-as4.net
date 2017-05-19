@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
+using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
@@ -18,67 +19,98 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
     /// </summary>
     public class GivenDatastoreReceiverFacts : GivenDatastoreFacts
     {
-        private readonly DatastoreReceiver _receiver;
-        private SendingProcessingMode _pmode;
-
-        public GivenDatastoreReceiverFacts()
+        [Fact]
+        public void CatchesInvalidDatastoreCreation()
         {
-            _receiver = new DatastoreReceiver(
-                () => new DatastoreContext(Options),
-                x => x.OutMessages.Where(m => m.Operation == Operation.ToBeSent),
-                Operation.Sending.ToString());
+            // Arrange
+            var receiver = new DatastoreReceiver(
+                () => { throw new SaboteurException("Sabotage datastore creation"); });
 
-            SeedDataStoreWithOutMessage();
+            receiver.Configure(DummySettings());
+
+            // Act / Assert
+            StartReceiver(receiver, isCalled: false);
         }
 
-        private void SeedDataStoreWithOutMessage()
+        private static IEnumerable<Setting> DummySettings()
         {
-            // Insert the seed data that is expected by all test methods
-            using (var context = new DatastoreContext(Options))
+            const string ignored = "ignored";
+            return CreateSettings(ignored, ignored, ignored, ignored);
+        }
+
+        [Fact]
+        public void ReceivesOutMessage()
+        {
+            // Arrange
+            Stream expectedStream = Stream.Null;
+            const string expectedType = Constants.ContentTypes.Soap;
+
+            ArrangeOutMessageInDatastore(Operation.ToBeDelivered, expectedStream, expectedType);
+
+            var receiver = new DatastoreReceiver(GetDataStoreContext);
+            receiver.Configure(CreateSettings("OutMessages", "Operation", "ToBeDelivered", "Delivering"));
+
+            // Act
+            ReceivedMessage actualMessage = StartReceiver(receiver);
+
+            // Assert
+            Assert.Equal(expectedStream, actualMessage.RequestStream);
+            Assert.Equal(expectedType, actualMessage.ContentType);
+        }
+
+        private void ArrangeOutMessageInDatastore(Operation operation, Stream stream, string contentType)
+        {
+            var stubRetriever = new StubMessageBodyRetriever(() => stream);
+            Registry.Instance.MessageBodyRetrieverProvider.Accept(s => s.Contains("test://"), stubRetriever);
+
+            using (DatastoreContext context = GetDataStoreContext())
             {
-                context.OutMessages.Add(CreateStubOutMessage());
+                context.OutMessages.Add(
+                    new OutMessage
+                    {
+                        EbmsMessageId = "message-id",
+                        Operation = operation,
+                        MessageLocation = "test://",
+                        ContentType = contentType
+                    });
+
                 context.SaveChanges();
             }
         }
 
-        private OutMessage CreateStubOutMessage()
+        private static ReceivedMessage StartReceiver(IReceiver receiver, bool isCalled = true)
         {
-            _pmode = new SendingProcessingMode();
-            return new OutMessage
-            {
-                EbmsMessageId = "message-id",
-                Operation = Operation.ToBeSent,
-                PMode = AS4XmlSerializer.ToString(_pmode),
-                MessageBody = new byte[0]
-            };
+            var tokenSource = new CancellationTokenSource();
+            var waitHandle = new ManualResetEvent(false);
+            ReceivedMessage receivedMessage = null;
+
+            Task.Run(() => receiver.StartReceiving(
+                (message, token) =>
+                {
+                    waitHandle.Set();
+                    tokenSource.Cancel();
+
+                    receivedMessage = message;
+
+                    return Task.FromResult(new InternalMessage());
+                },
+                tokenSource.Token), tokenSource.Token);
+
+            Assert.Equal(isCalled, waitHandle.WaitOne(TimeSpan.FromSeconds(1)));
+
+            tokenSource.Cancel();
+            receiver.StopReceiving();
+
+            return receivedMessage;
         }
 
-        /// <summary>
-        /// Testing if the receiver succeeds
-        /// </summary>
-        public class GivenOutDatastoreReceiverSucceeds : GivenDatastoreReceiverFacts
+        private static IEnumerable<Setting> CreateSettings(string table, string field, string value, string update)
         {
-            [Fact]
-            public void ThenConfigureSucceeds()
+            return new[]
             {
-                // Arrange
-                IEnumerable<Setting> properties = CreateDefaultDatastoreReceiverSettings();
-
-                // Act
-                _receiver.Configure(properties);
-
-                // Assert
-                Assert.Same(properties, properties);
-            }
-
-            private static IEnumerable<Setting> CreateDefaultDatastoreReceiverSettings()
-            {
-                return new[]
-                {
-                    new Setting("Table", "OutMessages"), new Setting("Field", "Operation"),
-                    new Setting("Value", "ToBeSend"), new Setting("Update", "Sending")
-                };
-            }
+                new Setting("Table", table), new Setting("Field", field), new Setting("Value", value),
+                new Setting("Update", update), new Setting("PollingInterval", "1000")
+            };
         }
     }
 }

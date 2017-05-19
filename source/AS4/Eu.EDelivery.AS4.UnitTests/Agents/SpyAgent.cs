@@ -27,6 +27,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         public bool IsDisposed { get; private set; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is stopped.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is stopped; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsStopped { get; private set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this instance has started.
         /// </summary>
         /// <value>
@@ -50,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         /// </summary>
         public void Stop()
         {
-            throw new System.NotImplementedException();
+            IsStopped = true;
         }
 
         /// <summary>
@@ -85,6 +93,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             // Assert
             Assert.True(sut.HasStarted);
+        }
+
+        [Fact]
+        public void SpyOnStopping()
+        {
+            // Arrange
+            var sut = new SpyAgent();
+
+            // Act
+            sut.Stop();
+
+            // Assert
+            Assert.True(sut.IsStopped);
+        }
+
+        [Fact]
+        public void SpyHasDefault()
+        {
+            Assert.Null(new SpyAgent().AgentConfig);
         }
     }
 }

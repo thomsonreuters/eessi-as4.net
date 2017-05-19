@@ -22,8 +22,8 @@ namespace Eu.EDelivery.AS4.Receivers
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
         private readonly DatastoreSpecification _specification;
+        private readonly Func<DatastoreContext> _storeExpression;
 
-        private Func<DatastoreContext> _storeExpression;
         private Func<DatastoreContext, IEnumerable<Entity>> _findExpression;
         private string _updateValue;
         private IDictionary<string, string> _properties;
@@ -33,31 +33,16 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class
         /// </summary>
-        public DatastoreReceiver()
-        {
-            _specification = new DatastoreSpecification();
-        }
+        public DatastoreReceiver() : this(() => new DatastoreContext(Config.Instance)) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreReceiver"/> class.
-        /// Create a Data Store Out Message Receiver with a given Data Store Context Delegate
+        /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class.
         /// </summary>
-        /// <param name="storeExpression">
-        /// </param>
-        /// <param name="findExpression">
-        /// </param>
-        /// <param name="updateValue">
-        /// </param>
-        public DatastoreReceiver(
-            Func<DatastoreContext> storeExpression,
-            Func<DatastoreContext, IEnumerable<Entity>> findExpression,
-            string updateValue)
+        /// <param name="createDatastore">The create datastore.</param>
+        public DatastoreReceiver(Func<DatastoreContext> createDatastore)
         {
-            _storeExpression = storeExpression;
-            _findExpression = findExpression;
-
             _specification = new DatastoreSpecification();
-            _updateValue = updateValue;
+            _storeExpression = createDatastore;
         }
 
         #region Configuration
@@ -78,12 +63,9 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
 
-                if (_properties == null)
-                {
-                    return defaultInterval;
-                }
-
-                return _properties.ContainsKey(SettingKeys.PollingInterval) ? GetPollingIntervalFromProperties() : defaultInterval;
+                return _properties?.ContainsKey(SettingKeys.PollingInterval) == true
+                           ? GetPollingIntervalFromProperties()
+                           : defaultInterval;
             }
         }
 
@@ -119,7 +101,6 @@ namespace Eu.EDelivery.AS4.Receivers
 
             _specification.Configure(args);
             _findExpression = _specification.GetExpression().Compile();
-            _storeExpression = () => new DatastoreContext(Config.Instance);
 
             properties.TryGetValue(SettingKeys.UpdateValue, out _updateValue);
         }
@@ -137,6 +118,9 @@ namespace Eu.EDelivery.AS4.Receivers
             StartPolling(messageCallback, cancellationToken);
         }
 
+        /// <summary>
+        /// Stop the <see cref="T:Eu.EDelivery.AS4.Receivers.IReceiver" /> instance from receiving.
+        /// </summary>
         public void StopReceiving()
         {
             LogReceiverSpecs(startReceiving: false);

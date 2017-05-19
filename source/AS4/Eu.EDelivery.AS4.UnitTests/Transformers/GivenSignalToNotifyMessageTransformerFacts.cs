@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Security.Cryptography.Xml;
 using System.Text;
@@ -109,15 +108,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         /// <returns></returns>
         private static string Canonicalize(XmlNode input)
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
+            Assert.NotNull(input);
 
-            XmlDocument doc = new XmlDocument();
+            var doc = new XmlDocument();
             doc.LoadXml(input.OuterXml);
 
-            XmlDsigC14NTransform t = new XmlDsigC14NTransform();
+            var t = new XmlDsigC14NTransform();
             t.LoadInput(doc);
 
             var stream = (Stream)t.GetOutput(typeof(Stream));

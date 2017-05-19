@@ -18,6 +18,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     public class GivenDeliverMessageTransformerFacts
     {
         [Fact]
+        public async Task FailsToTransform_IfNoUserMessageCanBeFound()
+        {
+            // Arrange
+            var sut = new DeliverMessageTransformer();
+            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(
+                updateInMessage: m => m.EbmsMessageId = "ignored id",
+                as4Message: new AS4Message());
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(
+                () => sut.TransformAsync(receivedMessage, CancellationToken.None));
+        }
+
+        [Fact]
         public async Task TransformerRemoveUnnecessaryUserMessages_IfMessageIsntReferenced()
         {
             // Arrange
