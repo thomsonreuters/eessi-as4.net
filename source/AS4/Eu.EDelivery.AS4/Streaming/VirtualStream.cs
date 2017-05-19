@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Streaming
             {
                 int bufferSize = (expectedSize > ThresholdSize.FiftyMegabytes) ? 204_800 : DefaultBufferSize;
 
-                return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, CreatePersistentStream(bufferSize));
+                return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.OnlyToDisk, CreatePersistentStream(bufferSize));
             }
 
             return new VirtualStream(DefaultBufferSize, thresholdSize, MemoryFlag.AutoOverFlowToDisk, new MemoryStream(DefaultBufferSize));

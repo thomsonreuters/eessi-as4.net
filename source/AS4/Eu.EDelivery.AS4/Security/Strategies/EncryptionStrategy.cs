@@ -439,7 +439,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return decryptedStream;
         }
 
-        private VirtualStream CreateVirtualStreamOf(Stream innerStream)
+        private static VirtualStream CreateVirtualStreamOf(Stream innerStream)
         {
             return VirtualStream.CreateVirtualStream(
                     expectedSize: innerStream.CanSeek ? innerStream.Length : VirtualStream.ThresholdMax);
