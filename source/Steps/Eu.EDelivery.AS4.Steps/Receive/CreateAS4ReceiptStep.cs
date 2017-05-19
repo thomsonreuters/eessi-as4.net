@@ -99,25 +99,29 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private void AdaptReceiptMessage(Receipt receipt)
         {
-            if (this._receivePMode?.ReceiptHandling.UseNNRFormat == true)
+            if (_receivePMode?.ReceiptHandling.UseNNRFormat == true)
             {
-                this._logger.Debug(
-                    $"{this._internalMessage.Prefix} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
+                _logger.Debug(
+                    $"{_internalMessage.Prefix} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
                 receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
             }
-
+            else
+            {
+                receipt.UserMessage = _originalAS4Message.PrimaryUserMessage;
+            }
+            
             // If the receipt should not contain NonRepudiationInformation, or the 
             // Receipt is a Receipt on a MultihopMessage, then we'll need the original
             // UserMessage.
             if (_sendPMode.MessagePackaging.IsMultiHop)
             {
-                receipt.RelatedUserMessage = this._originalAS4Message.PrimaryUserMessage;
+                receipt.RelatedUserMessageForMultihop = _originalAS4Message.PrimaryUserMessage;
             }
         }
 
         private NonRepudiationInformation CreateNonRepudiationInformation()
         {
-            ArrayList references = this._originalAS4Message.SecurityHeader.GetReferences();
+            ArrayList references = _originalAS4Message.SecurityHeader.GetReferences();
 
             return new NonRepudiationInformationBuilder()
                 .WithSignedReferences(references).Build();
