@@ -7,7 +7,7 @@ using Eu.EDelivery.AS4.Receivers;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
 {
-    public class StubReceiver : IReceiver
+    public class DummyReceiver : IReceiver
     {
         /// <summary>
         /// Configure the receiver with a given settings dictionary.

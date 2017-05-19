@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             yield return new SettingsAgent
             {
-                Receiver = new Receiver {Type = typeof(StubReceiver).AssemblyQualifiedName},
+                Receiver = new Receiver {Type = typeof(DummyReceiver).AssemblyQualifiedName},
                 Transformer = TransformerConfig,
                 Steps = ExpectedSteps
             };
