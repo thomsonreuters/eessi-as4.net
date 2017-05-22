@@ -14,8 +14,8 @@
       <IsEnabled>true</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
       <ClientCertificateReference>
-        <ClientCertificateFindType>InstitutionBE.westeurope.cloudapp.azure.com_TLS_int</ClientCertificateFindType>
-        <ClientCertificateFindValue>FindByFriendlyName</ClientCertificateFindValue>
+		<ClientCertificateFindValue>1a00000173b2da572a2755f2e3000000000173</ClientCertificateFindValue>
+        <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
       </ClientCertificateReference>
     </TlsConfiguration>
   </PushConfiguration>
@@ -23,8 +23,8 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>InstitutionBE.westeurope.cloudapp.azure.com_ebMS_sig</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindByFriendlyName</PrivateKeyFindType>
+       <PrivateKeyFindValue>1a00000174eb3567453664bc9f000000000174</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
