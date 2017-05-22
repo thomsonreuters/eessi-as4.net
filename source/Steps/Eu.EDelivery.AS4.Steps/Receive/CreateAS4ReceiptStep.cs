@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         public CreateAS4ReceiptStep()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -43,15 +43,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             InitializeFields(internalMessage);
             TryCreateAS4ReceiptMessage(internalMessage);
 
-            return await StepResult.SuccessAsync(this._internalMessage);
+            return await StepResult.SuccessAsync(_internalMessage);
         }
 
         private void InitializeFields(InternalMessage internalMessage)
         {
-            this._internalMessage = internalMessage;
-            this._originalAS4Message = internalMessage.AS4Message;
-            this._receivePMode = this._originalAS4Message.ReceivingPMode;
-            this._sendPMode = this._originalAS4Message.SendingPMode;
+            _internalMessage = internalMessage;
+            _originalAS4Message = internalMessage.AS4Message;
+            _receivePMode = _originalAS4Message.ReceivingPMode;
+            _sendPMode = _originalAS4Message.SendingPMode;
         }
 
         private void TryCreateAS4ReceiptMessage(InternalMessage internalMessage)
@@ -61,19 +61,19 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 AS4Message receiptMessage = CreateReceiptAS4Message();
 
                 AssignPModesToReceiptAS4Message(receiptMessage);
-                this._internalMessage = new InternalMessage(receiptMessage);
+                _internalMessage = new InternalMessage(receiptMessage);
             }
             catch (AS4Exception exception)
             {
-                this._internalMessage = internalMessage;
+                _internalMessage = internalMessage;
                 throw ThrowCommonAS4Exception(exception);
             }
         }
 
         private void AssignPModesToReceiptAS4Message(AS4Message receiptMessage)
         {
-            receiptMessage.ReceivingPMode = this._receivePMode;
-            receiptMessage.SendingPMode = this._sendPMode;
+            receiptMessage.ReceivingPMode = _receivePMode;
+            receiptMessage.SendingPMode = _sendPMode;
         }
 
         private AS4Message CreateReceiptAS4Message()
@@ -132,9 +132,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return AS4ExceptionBuilder
                 .WithDescription("An error occured while receiving a message.")
                 .WithExistingAS4Exception(exception)
-                .WithPModeString(this._internalMessage.ReceivingPModeString)
-                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
-                .WithReceivingPMode(this._internalMessage.AS4Message.ReceivingPMode)
+                .WithPModeString(_internalMessage.ReceivingPModeString)
+                .WithMessageIds(_internalMessage.AS4Message.MessageIds)
+                .WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode)
                 .Build();
         }
     }
