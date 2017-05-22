@@ -116,8 +116,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         // TODO:
         // - Create a test that verifies if the Status for a received receipt/error is set to
-        // - ToBeNotified when the receipt is valid
-        // - Exception when the receipt is invalid (also, an InException should be created)
+        // --> ToBeNotified when the receipt is valid
+        // --> Exception when the receipt is invalid (also, an InException should be created)
 
         // - Create a test that verifies if the Status for a received UserMessage is set to
         // - Exception when the UserMessage is not valid (an InException should be present).
