@@ -59,6 +59,24 @@ namespace Eu.EDelivery.AS4.Common
         public IAS4MessageBodyPersister OutgoingAS4MessageBodyPersister { get; } =
             new AS4MessageBodyFilePersister(@".\database\as4messages\out", SerializerProvider.Default);
 
+        /// <summary>
+        /// Gets a <see cref="IAS4MessageBodyPersister" />.
+        /// </summary>
+        /// <value>a <see cref="IAS4MessageBodyPersister" />.</value>
+        public IAS4MessageBodyPersister AS4MessageBodyPersister { get; } = new AS4MessageBodyFilePersister(SerializerProvider.Default);
+
+        /// <summary>
+        /// Gets the in message store location.
+        /// </summary>
+        /// <value>The in message store location.</value>
+        public string InMessageStoreLocation => _settings.Database.InMessageStoreLocation;
+
+        /// <summary>
+        /// Gets the out message store location.
+        /// </summary>
+        /// <value>The out message store location.</value>
+        public string OutMessageStoreLocation => _settings.Database.OutMessageStoreLocation;
+
         public bool IsInitialized { get; private set; }
 
         /// <summary>
@@ -207,7 +225,8 @@ namespace Eu.EDelivery.AS4.Common
 
             string fullPath = Path.GetFullPath(path);
 
-            if (Path.IsPathRooted(path) == false || File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false)
+            if (Path.IsPathRooted(path) == false || 
+                (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
             {
                 path = Path.Combine(".", path);
             }

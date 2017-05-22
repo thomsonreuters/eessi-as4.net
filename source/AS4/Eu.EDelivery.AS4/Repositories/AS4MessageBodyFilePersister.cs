@@ -18,15 +18,52 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="storeLocation">The store Location.</param>
         /// <param name="provider">The provider.</param>
-        public AS4MessageBodyFilePersister(string storeLocation, ISerializerProvider provider)
+        public AS4MessageBodyFilePersister(string storeLocation, ISerializerProvider provider) : this(provider)
         {
             _storeLocation = storeLocation;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AS4MessageBodyFilePersister" /> class.
+        /// </summary>
+        /// <param name="provider">The provider.</param>
+        public AS4MessageBodyFilePersister(ISerializerProvider provider)
+        {
             _provider = provider;
 
             if (Directory.Exists(_storeLocation) == false)
             {
                 Directory.CreateDirectory(_storeLocation);
             }
+        }
+
+        /// <summary>
+        /// Saves a given <see cref="AS4Message" /> to a given location.
+        /// </summary>
+        /// <param name="storeLocation">The store location.</param>
+        /// <param name="message">The message to save.</param>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns>
+        /// Location where the <paramref name="message" /> is saved.
+        /// </returns>
+        public async Task<string> SaveAS4MessageAsync(
+            string storeLocation,
+            AS4Message message,
+            CancellationToken cancellation)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            string fileName = AssembleUniqueMessageLocation(storeLocation, message);
+
+            if (!File.Exists(fileName))
+            {
+                await SaveMessageToFile(message, fileName, cancellation);
+            }
+
+            return $"file:///{fileName}";
         }
 
         /// <summary>
@@ -42,7 +79,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 throw new ArgumentNullException(nameof(message));
             }
 
-            string fileName = AssembleStoreLocationWith(message);
+            string fileName = AssembleUniqueMessageLocation(_storeLocation, message);
 
             if (!File.Exists(fileName))
             {
@@ -82,7 +119,7 @@ namespace Eu.EDelivery.AS4.Repositories
             await SaveMessageToFile(message, location, cancellationToken);
         }
 
-        private string AssembleStoreLocationWith(AS4Message message)
+        private static string AssembleUniqueMessageLocation(string storeLocation, AS4Message message)
         {
             string messageId = message.GetPrimaryMessageId();
 
@@ -91,7 +128,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 throw new AS4Exception("The AS4Message to store has no Primary Message Id");
             }
 
-            return Path.Combine(_storeLocation, $"{messageId}.as4");
+            return Path.Combine(storeLocation, $"{messageId}.as4");
         }
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
@@ -122,5 +159,19 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Saves a given <see cref="AS4Message" /> to a given location.
+        /// </summary>
+        /// <param name="storeLocation">The store location.</param>
+        /// <param name="message">The message to save.</param>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns>
+        /// Location where the <paramref name="message" /> is saved.
+        /// </returns>
+        Task<string> SaveAS4MessageAsync(
+            string storeLocation,
+            AS4Message message,
+            CancellationToken cancellation);
     }
 }
