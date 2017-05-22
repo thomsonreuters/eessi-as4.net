@@ -1,9 +1,12 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
@@ -11,6 +14,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model.Core;
 using Moq;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 {
@@ -106,6 +110,46 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert
                 Assert.True(spyHandler.IsCalled);
+            }
+
+            [Fact]
+            public async Task HandlerStopsExecution_IfResponseIsWarning()
+            {
+                // Arrange
+                IAS4Response stubAS4Response = await CreatePullRequestWarning();
+                var sut = new PullRequestResponseHandler(CreateAnonymousNextHandler());
+
+                // Act
+                StepResult actualResult = await sut.HandleResponse(stubAS4Response);
+
+                // Assert
+                Assert.False(actualResult.CanProceed);
+            }
+
+            private static async Task<IAS4Response> CreatePullRequestWarning()
+            {
+                var stubAS4Response = new Mock<IAS4Response>();
+
+                InternalMessage pullRequest = new InternalMessageBuilder().WithSignalMessage(new PullRequest()).Build();
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
+
+                AS4Message deserializedMessage = await DeserializePullRequestWarning();
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage(deserializedMessage));
+
+                return stubAS4Response.Object;
+            }
+
+            private static async Task<AS4Message> DeserializePullRequestWarning()
+            {
+                AS4Message deserializedMessage;
+
+                using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(as4_pullrequest_warning)))
+                {
+                    var serializer = new SoapEnvelopeSerializer();
+                    deserializedMessage = await serializer.DeserializeAsync(stream, Constants.ContentTypes.Soap, CancellationToken.None);
+                }
+
+                return deserializedMessage;
             }
 
             [Fact]
