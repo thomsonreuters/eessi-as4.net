@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>c3-receipt-pmode</Id>
+  <Id>c2-receive-pmode</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Security>
@@ -24,7 +24,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>UK:UK001</Id>
+            <Id>UK:UK010</Id>
             <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
           </PartyId>
         </PartyIds>
@@ -33,7 +33,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>UK:UK010</Id>
+            <Id>UK:UK001</Id>
             <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
           </PartyId>
         </PartyIds>
