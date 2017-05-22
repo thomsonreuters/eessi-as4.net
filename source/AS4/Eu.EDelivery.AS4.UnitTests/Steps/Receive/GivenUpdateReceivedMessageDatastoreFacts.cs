@@ -137,13 +137,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         private static OutMessage CreateOutMessage(string messageId)
         {
-            OutMessage message = new OutMessage();
-
-            message.EbmsMessageId = messageId;
-            message.Status = OutStatus.Sent;
-            message.Operation = Operation.NotApplicable;
-            message.EbmsMessageType = MessageType.UserMessage;
-            message.PMode = AS4XmlSerializer.ToString(GetSendingPMode());
+            OutMessage message = new OutMessage
+            {
+                EbmsMessageId = messageId,
+                Status = OutStatus.Sent,
+                Operation = Operation.NotApplicable,
+                EbmsMessageType = MessageType.UserMessage,
+                PMode = AS4XmlSerializer.ToString(GetSendingPMode())
+            };
 
             return message;
         }
@@ -152,7 +153,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var pmode = new SendingProcessingMode();
 
-            pmode.Id = "receive_agent_facts_pmode";
+            pmode.Id = "receive_step_facts_pmode";
 
             pmode.ReceiptHandling.NotifyMessageProducer = true;
 

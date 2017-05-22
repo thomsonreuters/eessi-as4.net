@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 _logger.Info($"{_internalMessage.Prefix} Start Uploading Attachment...");
                 await UploadAttachment(attachment).ConfigureAwait(false);
 
-                StreamPositionMover.MovePositionToStreamStart(attachment.Content);
+                attachment.ResetContentPosition();
             }
             catch (Exception exception)
             {
