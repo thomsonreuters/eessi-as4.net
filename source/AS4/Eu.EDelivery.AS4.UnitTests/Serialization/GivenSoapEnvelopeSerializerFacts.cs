@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Resources;
 using Eu.EDelivery.AS4.Xml;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
@@ -172,6 +173,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         public class GivenMultiHopSoapEnvelopeSerializerSucceeds
         {
+            [Fact]
+            public async Task DeserializeMultihopSignalMessage()
+            {
+                // Arrange
+                const string contentType = "multipart/related; boundary=\"=-M/sMGEhQK8RBNg/21Nf7Ig==\";\ttype=\"application/soap+xml\"";
+                string messageString = Encoding.UTF8.GetString(as4_multihop_message).Replace((char)0x1F, ' ');
+                byte[] messageContent = Encoding.UTF8.GetBytes(messageString);
+                using (var messageStream = new MemoryStream(messageContent))
+                {
+                    var serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+
+                    // Act
+                    AS4Message actualMessage = await serializer.DeserializeAsync(messageStream, contentType, CancellationToken.None);
+
+                    // Assert
+                    Assert.True(actualMessage.IsSignalMessage);
+                }
+            }
+
             [Fact]
             public void MultihopUserMessageCreatedWhenSpecifiedInPMode()
             {
