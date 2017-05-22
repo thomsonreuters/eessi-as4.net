@@ -19,7 +19,6 @@ namespace Eu.EDelivery.AS4.Security.Encryption
             EncryptionMethod = keyEncryption.TransportAlgorithm;
             DigestMethod = keyEncryption.DigestAlgorithm;
             Mgf = keyEncryption.MgfAlgorithm;
-            KeySize = keyEncryption.KeySize;
         }
 
         /// <summary>
@@ -39,12 +38,6 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// </summary>
         /// <value>The MGF.</value>
         public string Mgf { get; private set; }
-
-        /// <summary>
-        /// Gets the size of the key.
-        /// </summary>
-        /// <value>The size of the key.</value>
-        public int KeySize { get; private set; }
 
         /// <summary>
         /// Gets or sets the security token reference.

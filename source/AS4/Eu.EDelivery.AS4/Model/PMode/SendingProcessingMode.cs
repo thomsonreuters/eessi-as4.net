@@ -93,11 +93,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
             IsEnabled = false;
             Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             KeyTransport = new KeyEncryption();
+            AlgorithmKeySize = 256;
         }
 
         public bool IsEnabled { get; set; }
 
         public string Algorithm { get; set; }
+
+        public int AlgorithmKeySize { get; set; }
 
         public X509FindType PublicKeyFindType { get; set; }
 
@@ -111,6 +114,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonIgnore]
         [ScriptIgnore]
         public bool AlgorithmSpecified => !string.IsNullOrWhiteSpace(Algorithm);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool AlgorithmKeySizeSpecified => AlgorithmKeySize > 0;
 
         [XmlIgnore]
         [JsonIgnore]
@@ -139,13 +147,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public KeyEncryption()
         {
-            KeySize = 256;
             TransportAlgorithm = EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf;
             DigestAlgorithm = EncryptionStrategy.XmlEncSHA1Url;
             MgfAlgorithm = null;
         }
-
-        public int KeySize { get; set; }
 
         public string TransportAlgorithm { get; set; }
 
@@ -154,11 +159,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public string MgfAlgorithm { get; set; }
 
         #region Properties that control serialization
-
-        [XmlIgnore]
-        [JsonIgnore]
-        [ScriptIgnore]
-        public bool KeySizeSpecified => KeySize > 0;
 
         [XmlIgnore]
         [JsonIgnore]

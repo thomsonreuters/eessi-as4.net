@@ -58,12 +58,22 @@ namespace Eu.EDelivery.AS4.Builders.Security
             return new EncryptionStrategyBuilder(soapEnvelope);
         }
 
+        /// <summary>
+        /// With the key encryption configuration.
+        /// </summary>
+        /// <param name="keyEncryptionConfig">The key encryption configuration.</param>
+        /// <returns></returns>
         public EncryptionStrategyBuilder WithKeyEncryptionConfiguration(KeyEncryptionConfiguration keyEncryptionConfig)
         {
             _keyConfiguration = keyEncryptionConfig;
             return this;
         }
 
+        /// <summary>
+        /// With the data encryption configuration.
+        /// </summary>
+        /// <param name="dataEncryptionConfig">The data encryption configuration.</param>
+        /// <returns></returns>
         public EncryptionStrategyBuilder WithDataEncryptionConfiguration(
             DataEncryptionConfiguration dataEncryptionConfig)
         {
@@ -71,6 +81,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
             return this;
         }
 
+        /// <summary>
+        /// Withes the certificate.
+        /// </summary>
+        /// <param name="certificate">The certificate.</param>
+        /// <returns></returns>
         public EncryptionStrategyBuilder WithCertificate(X509Certificate2 certificate)
         {
             _certificate = certificate;

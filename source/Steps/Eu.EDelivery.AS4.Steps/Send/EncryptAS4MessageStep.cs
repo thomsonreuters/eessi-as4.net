@@ -82,7 +82,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(as4Message);
 
-            builder.WithDataEncryptionConfiguration(new DataEncryptionConfiguration(encryption.Algorithm));
+            builder.WithDataEncryptionConfiguration(
+                new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize));
+
             builder.WithKeyEncryptionConfiguration(
                 new KeyEncryptionConfiguration(tokenReference: null, keyEncryption: encryption.KeyTransport));
 

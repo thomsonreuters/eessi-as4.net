@@ -16,20 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class VerifySignatureAS4MessageStep : IStep
     {
-        private readonly ILogger _logger;
-
-        private InternalMessage _internalMessage;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="VerifySignatureAS4MessageStep"/> class.
-        /// Create a new Verify Signature AS4 Message Step,
-        /// which will verify the Signature in the AS4 Message (if present)
-        /// </summary>
-        public VerifySignatureAS4MessageStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
-
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        
         /// <summary>
         /// Start verifying the Signature of the <see cref="AS4Message"/>
         /// </summary>
@@ -39,104 +27,109 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="AS4Exception">Throws exception when the signature cannot be verified</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            _internalMessage = internalMessage;
+            PreConditions(internalMessage);
 
-            PreConditions();
-            if (MessageDoesNotNeedToBeVerified())
+            if (MessageDoesNotNeedToBeVerified(internalMessage.AS4Message))
             {
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            return await TryVerifyingSignature();
+            return await TryVerifyingSignature(internalMessage);
         }
 
-        private void PreConditions()
+        private static void PreConditions(InternalMessage internalMessage)
         {
-            AS4Message as4Message = _internalMessage.AS4Message;
-            ReceivingProcessingMode pmode = as4Message.ReceivingPMode;
+
+            ReceivingProcessingMode pmode = internalMessage.AS4Message.ReceivingPMode;
             SigningVerification verification = pmode?.Security.SigningVerification;
 
-            bool isMessageFailsTheRequiredSigning = verification?.Signature == Limit.Required && !as4Message.IsSigned;
-            bool isMessageFailedTheUnallowedSigning = verification?.Signature == Limit.NotAllowed && as4Message.IsSigned;
+            bool isMessageFailsTheRequiredSigning = verification?.Signature == Limit.Required && !internalMessage.AS4Message.IsSigned;
+            bool isMessageFailedTheUnallowedSigning = verification?.Signature == Limit.NotAllowed && internalMessage.AS4Message.IsSigned;
 
             if (isMessageFailsTheRequiredSigning)
             {
                 string description = $"Receiving PMode {pmode.Id} requires a Signed AS4 Message and the message is not";
-                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103);
+                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, internalMessage);
             }
 
             if (!isMessageFailedTheUnallowedSigning) return;
             {
                 string description = $"Receiving PMode {pmode.Id} doesn't allow a signed AS4 Message and the message is";
-                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103);
+                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, internalMessage);
             }
         }
 
-        private bool MessageDoesNotNeedToBeVerified()
+        private static bool MessageDoesNotNeedToBeVerified(AS4Message as4Message)
         {
-            return !_internalMessage.AS4Message.IsSigned ||
-                    _internalMessage.AS4Message.ReceivingPMode?.Security
-                       .SigningVerification.Signature == Limit.Ignored;
+            return !as4Message.IsSigned ||
+                    as4Message.ReceivingPMode?.Security.SigningVerification.Signature == Limit.Ignored;
         }
 
-        private async Task<StepResult> TryVerifyingSignature()
+        private static async Task<StepResult> TryVerifyingSignature(InternalMessage internalMessage)
         {
             try
             {
-                return await VerifySignature().ConfigureAwait(false);
+                return await VerifySignature(internalMessage).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
-                _logger.Error(exception.Message);
-                throw ThrowVerifySignatureAS4Exception(exception.Message, ErrorCode.Ebms0101, exception);
+                Logger.Error(exception.Message);
+                Logger.Error(exception.StackTrace);
+
+                if (exception.InnerException != null)
+                {
+                    Logger.Error(exception.InnerException.Message);
+                    Logger.Error(exception.InnerException.StackTrace);
+                }
+
+                throw ThrowVerifySignatureAS4Exception(exception.Message, ErrorCode.Ebms0101, internalMessage, exception);
             }
         }
 
-        private async Task<StepResult> VerifySignature()
+        private static async Task<StepResult> VerifySignature(InternalMessage internalMessage)
         {
-            if (!IsValidSignature())
+            if (!IsValidSignature(internalMessage.AS4Message))
             {
-                throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101);
+                throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101, internalMessage);
             }
 
-            _logger.Info($"{_internalMessage.Prefix} AS4 Message has a valid Signature present");
+            Logger.Info($"{internalMessage.Prefix} AS4 Message has a valid Signature present");
 
-            foreach (Attachment attachment in _internalMessage.AS4Message.Attachments)
+            foreach (Attachment attachment in internalMessage.AS4Message.Attachments)
             {
                 attachment.ResetContentPosition();
             }
 
-            return await StepResult.SuccessAsync(_internalMessage);
+            return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private bool IsValidSignature()
+        private static bool IsValidSignature(AS4Message as4Message)
         {
-            AS4Message as4Message = _internalMessage.AS4Message;
-            VerifyConfig options = CreateVerifyOptionsForAS4Message();
+            VerifyConfig options = CreateVerifyOptionsForAS4Message(as4Message);
 
             return as4Message.SecurityHeader.Verify(options);
         }
 
-        private VerifyConfig CreateVerifyOptionsForAS4Message()
+        private static VerifyConfig CreateVerifyOptionsForAS4Message(AS4Message as4Message)
         {
             return new VerifyConfig
             {
-                Attachments = _internalMessage.AS4Message.Attachments
+                Attachments = as4Message.Attachments
             };
         }
 
-        private AS4Exception ThrowVerifySignatureAS4Exception(
-            string description, ErrorCode errorCode, Exception innerException = null)
+        private static AS4Exception ThrowVerifySignatureAS4Exception(
+            string description, ErrorCode errorCode, InternalMessage internalMessage, Exception innerException = null)
         {
-            description = _internalMessage.Prefix + description;
-            _logger.Error(description);
+            description = internalMessage.Prefix + description;
+            Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(_internalMessage.AS4Message.MessageIds)
+                .WithMessageIds(internalMessage.AS4Message.MessageIds)
                 .WithErrorCode(errorCode)
                 .WithInnerException(innerException)
-                .WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode)
+                .WithReceivingPMode(internalMessage.AS4Message.ReceivingPMode)
                 .Build();
         }
     }
