@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
     }
 
     /// <summary>
-    /// Class to Provide <see cref="IPModeRule"/> implementations
+    /// Class to Provide <see cref="IPModeRule" /> implementations
     /// </summary>
     internal class PModeRuleVisitor : IPModeRuleVisitor
     {
@@ -22,34 +22,33 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
         private readonly ICollection<IPModeRule> _rules;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PModeRuleVisitor"/> class. 
-        /// Create a new Visitor for the <see cref="PModeParticipant"/>
+        /// Initializes a new instance of the <see cref="PModeRuleVisitor" /> class.
+        /// Create a new Visitor for the <see cref="PModeParticipant" />
         /// </summary>
         public PModeRuleVisitor()
         {
-            this._logger = LogManager.GetCurrentClassLogger();
-            this._rules = new Collection<IPModeRule>
+            _logger = LogManager.GetCurrentClassLogger();
+            _rules = new Collection<IPModeRule>
             {
                 new PModeIdRule(),
                 new PModePartyInfoRule(),
                 new PModeUndefinedPartyInfoRule(),
                 new PModeAgreementRefRule(),
-                new PModeServiceActionRule(),
+                new PModeServiceActionRule()
             };
         }
 
         /// <summary>
-        /// Visits the <see cref="PModeParticipant"/>:
+        /// Visits the <see cref="PModeParticipant" />:
         /// apply Rules on the Participant
         /// </summary>
         /// <param name="participant"></param>
         public void Visit(PModeParticipant participant)
         {
-            foreach (IPModeRule rule in this._rules)
+            foreach (IPModeRule rule in _rules)
             {
                 int points = rule.DeterminePoints(participant.PMode, participant.UserMessage);
-                this._logger.Debug(
-                    $"PMode {participant.PMode.Id}: {points} Points determined for the {rule.GetType().Name}");
+                _logger.Trace($"PMode {participant.PMode.Id}: {points} Points determined for the {rule.GetType().Name}");
 
                 participant.Points += points;
             }
