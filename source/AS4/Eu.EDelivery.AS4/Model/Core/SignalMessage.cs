@@ -1,6 +1,4 @@
-﻿using System;
-using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Xml;
+﻿using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -21,6 +19,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// In MultiHop scenario's, we'll need to make use of this.
         /// </summary>
         [XmlIgnore]
-        public UserMessage RelatedUserMessage { get; set; }
+        public UserMessage RelatedUserMessageForMultihop { get; set; }
     }
 }

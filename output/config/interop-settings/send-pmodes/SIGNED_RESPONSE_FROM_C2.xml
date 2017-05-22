@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>SIGNED_RESPONSE_FROM_C2</Id>
+  <AllowOverride>false</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <Security>
+    <Signing>
+      <IsEnabled>true</IsEnabled>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </Signing>
+  </Security>
+</PMode>

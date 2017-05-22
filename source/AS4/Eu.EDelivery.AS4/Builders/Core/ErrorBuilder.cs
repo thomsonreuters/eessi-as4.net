@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         {
             if (message.SendingPMode.MessagePackaging.IsMultiHop)
             {
-                _errorMessage.RelatedUserMessage = message.PrimaryUserMessage;
+                _errorMessage.RelatedUserMessageForMultihop = message.PrimaryUserMessage;
             }
 
             return this;
