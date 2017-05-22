@@ -301,13 +301,14 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void VerifyTheAttachmentsWithTheReferencedPartInfos(AS4Message message)
         {
-            int attachmentCount = message.Attachments?.Count ?? 0;
-            int partInfoCount = message.PrimaryUserMessage.PayloadInfo?.Count ?? 0;
+            bool noAttachmentCanBeFounForEachPartInfo =
+                message.PrimaryUserMessage.PayloadInfo?.Count(
+                    p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null) > 0;
 
-            if (attachmentCount != partInfoCount)
+            if (noAttachmentCanBeFounForEachPartInfo)
             {
                 throw AS4ExceptionBuilder
-                    .WithDescription("Attachment count doesn't match the Part Info inside the User Message")
+                    .WithDescription("No Attachment can be found for each UserMessage PartInfo")
                     .WithErrorCode(ErrorCode.Ebms0004)
                     .WithErrorAlias(ErrorAlias.InvalidHeader)
                     .WithMessageIds(message.MessageIds)
