@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -84,6 +85,8 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private string AssembleStoreLocationWith(AS4Message message)
         {
+
+#if DEBUG
             string messageId = message.GetPrimaryMessageId();
 
             if (string.IsNullOrWhiteSpace(messageId))
@@ -91,7 +94,12 @@ namespace Eu.EDelivery.AS4.Repositories
                 throw new AS4Exception("The AS4Message to store has no Primary Message Id");
             }
 
-            return Path.Combine(_storeLocation, $"{messageId}.as4");
+            string fileName = FilenameSanitizer.EnsureValidFilename(messageId);
+#else
+            string fileName = Guid.NewGuid();
+#endif
+
+            return Path.Combine(_storeLocation, $"{fileName}.as4");
         }
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
