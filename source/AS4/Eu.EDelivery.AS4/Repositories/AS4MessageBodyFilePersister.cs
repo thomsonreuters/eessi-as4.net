@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             string fileName = FilenameSanitizer.EnsureValidFilename(messageId);
 #else
-            string fileName = Guid.NewGuid();
+            string fileName = Guid.NewGuid().ToString();
 #endif
 
             return Path.Combine(_storeLocation, $"{fileName}.as4");
