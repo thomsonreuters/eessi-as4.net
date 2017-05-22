@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
@@ -188,7 +187,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             StepResult result = await step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
 
-            LogIfStepResultFailed(result, message);
+            LogIfStepResultFailed(result);
 
             return result.InternalMessage;
         }
@@ -227,11 +226,12 @@ namespace Eu.EDelivery.AS4.Agents
             throw new InvalidOperationException("There is no StepConfiguration provided.");
         }
 
-        private void LogIfStepResultFailed(StepResult result, ReceivedMessage message)
+        private void LogIfStepResultFailed(StepResult result)
         {
             if (result.Exception != null)
             {
                 Logger.Warn($"Executing {AgentConfig.Name} Step failed: {result.Exception.Message}");
+                Logger.Trace(result.Exception.StackTrace);
 
                 if (result.Exception.InnerException != null)
                 {

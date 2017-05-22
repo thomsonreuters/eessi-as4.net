@@ -38,11 +38,11 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
                 submitMessage.Collaboration.AgreementRef.PModeId = submitInfo.SendingPMode.Id;
 
                 var originalSenderProperty = new MessageProperty("originalSender",
-                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Type,
+                                                                 null,
                                                                  submitInfo.SendingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Id);
 
                 var finalRecipientProperty = new MessageProperty("finalRecipient",
-                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Type,
+                                                                 null,
                                                                  submitInfo.SendingPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Id);
 
                 submitMessage.MessageProperties = new[] {originalSenderProperty, finalRecipientProperty};

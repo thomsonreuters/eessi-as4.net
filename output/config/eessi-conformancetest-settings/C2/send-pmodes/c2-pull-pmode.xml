@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>pull-pmode</Id>
+  <Id>c2-pull-pmode</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>
   <PullConfiguration>
@@ -15,8 +15,8 @@
       <IsEnabled>true</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
       <ClientCertificateReference>
-        <ClientCertificateFindType>InstitutionUK.westeurope.cloudapp.azure.com_TLS_int</ClientCertificateFindType>
-        <ClientCertificateFindValue>FindByFriendlyName</ClientCertificateFindValue>
+        <ClientCertificateFindValue>1a00000173b2da572a2755f2e3000000000173</ClientCertificateFindValue>
+        <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
       </ClientCertificateReference>
     </TlsConfiguration>
   </PullConfiguration>
@@ -24,8 +24,8 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>InstitutionUK.westeurope.cloudapp.azure.com_ebMS_sig</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindByFriendlyName</PrivateKeyFindType>
+      <PrivateKeyFindValue>1a00000174eb3567453664bc9f000000000174</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
@@ -49,7 +49,8 @@
           </PartyId>
         </PartyIds>
         <Role>urn:eu:europa:ec:dgempl:eessi:ir:institution</Role>
-      </PartyInfo>
+	  </ToParty>
+    </PartyInfo>
       <CollaborationInfo>
         <Action>Send</Action>
         <Service>
