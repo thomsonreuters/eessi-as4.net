@@ -58,4 +58,13 @@
         </Service>
       </CollaborationInfo>
     </MessagePackaging>
+    <ReceiptHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\receipts\" />
+      </Parameters>
+    </NotifyMethod>
+  </ReceiptHandling>
   </PMode>
