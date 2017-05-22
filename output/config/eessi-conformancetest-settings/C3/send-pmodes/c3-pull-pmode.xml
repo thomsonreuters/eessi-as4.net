@@ -7,7 +7,7 @@
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>
   <PullConfiguration>
-    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/UKGATEWAY</Mpc>
+    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/UK:UK010</Mpc>
     <Protocol>
       <Url>https://eessidev09.eessi.be/EESSI/BusinessMessaging/v0.0/Inbox/Service.svc</Url>
     </Protocol>
