@@ -15,8 +15,8 @@
       <IsEnabled>true</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
       <ClientCertificateReference>
-        <ClientCertificateFindType>TODO</ClientCertificateFindType>
-        <ClientCertificateFindValue>FindBySubjectName</ClientCertificateFindValue>
+        <ClientCertificateFindType>InstitutionUK.westeurope.cloudapp.azure.com_TLS_int</ClientCertificateFindType>
+        <ClientCertificateFindValue>FindByFriendlyName</ClientCertificateFindValue>
       </ClientCertificateReference>
     </TlsConfiguration>
   </PullConfiguration>
@@ -24,8 +24,8 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>TODO</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <PrivateKeyFindValue>InstitutionUK.westeurope.cloudapp.azure.com_TLS_int</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindByFriendlyName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
@@ -35,7 +35,7 @@
       <FromParty>
         <PartyIds>
           <PartyId>
-            <Id>UK:UK010</Id>
+            <Id>UK:UK001</Id>
             <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
           </PartyId>
         </PartyIds>
@@ -44,7 +44,7 @@
       <ToParty>
         <PartyIds>
           <PartyId>
-            <Id>UK:UK001</Id>
+            <Id>UK:UK010</Id>
             <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
           </PartyId>
         </PartyIds>
