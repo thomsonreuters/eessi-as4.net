@@ -1,6 +1,7 @@
 ﻿using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
+using SimpleHttpMock;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Validators
@@ -22,13 +23,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             IValidator<SendingProcessingMode> sut = new SendingProcessingModeValidator();
             SendingProcessingMode pmode = new ValidStubSendingPModeFactory().Create();
             pmode.Security.Encryption.IsEnabled = true;
-            pmode.Security.Encryption.KeyTransport.KeySize = beforeKeySize;
+            pmode.Security.Encryption.AlgorithmKeySize = beforeKeySize;
 
             // Act
             sut.Validate(pmode);
 
             // Assert
-            Assert.True(pmode.Security.Encryption.KeyTransport.KeySize == afterKeySize);
+            Assert.True(pmode.Security.Encryption.AlgorithmKeySize == afterKeySize);
         }
     }
 }
