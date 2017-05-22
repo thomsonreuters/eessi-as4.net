@@ -5,12 +5,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
@@ -89,10 +87,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 if (pmode == null)
                 {
-                    throw ThrowAS4Exception($"Unable to retrieve Sending PMode from Datastore with Id: {_as4Message.PrimarySignalMessage.RefToMessageId}");
+                    throw ThrowAS4Exception($"Unable to retrieve Sending PMode from Datastore for OutMessage with Id: {_as4Message.PrimarySignalMessage.RefToMessageId}");
                 }
                 
-                _logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
+                _logger.Info($"Sending PMode {pmode.Id} retrieved from Datastore");
 
                 return pmode;
             }
@@ -104,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             LetParticipantsAcceptVisitor(participants);
 
             PModeParticipant winningParticipant = participants.Where(p => p.Points >= 10).Max();
-            PostConditionsWiningParticipant(participants, winningParticipant);
+            PostConditionsWinningParticipant(participants, winningParticipant);
 
             _logger.Info($"Using Receiving PMode {winningParticipant.PMode.Id} with {winningParticipant.Points} Points");
             return winningParticipant.PMode;
@@ -134,7 +132,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             _logger.Debug($"Receiving PMode: {participant.PMode.Id} has {participant.Points} Points");
         }
 
-        private void PostConditionsWiningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
+        private void PostConditionsWinningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             if (winningParticipant == null)
             {

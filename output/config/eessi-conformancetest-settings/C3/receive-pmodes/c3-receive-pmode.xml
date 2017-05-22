@@ -3,6 +3,11 @@
   <Id>c3-receive-pmode</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
+    <ReceiptHandling>
+    <UseNNRFormat>true</UseNNRFormat>
+    <ReplyPattern>Callback</ReplyPattern>
+    <SendingPMode>c3-push-pmode</SendingPMode>
+  </ReceiptHandling>
   <Security>
     <SigningVerification>
       <Signature>Allowed</Signature>
