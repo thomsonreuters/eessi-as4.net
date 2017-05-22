@@ -61,13 +61,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public string Id { get; set; }
     }
 
-    public class PModeParty
-    {
-        public List<PartyId> PartyIds { get; set; }
-
-        public string Role { get; set; }
-    }
-
     public class Security
     {
         public Security()

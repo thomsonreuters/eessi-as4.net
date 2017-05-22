@@ -277,7 +277,7 @@
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />
     <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
-    <Compile Include="Receivers\DummyReceiver.cs" />
+    <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
     <Compile Include="Steps\DummyStep.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />

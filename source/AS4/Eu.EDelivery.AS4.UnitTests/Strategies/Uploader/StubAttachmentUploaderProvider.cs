@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             // Arrange
             var expectedUploader = Mock.Of<IAttachmentUploader>();
             var sut = new StubAttachmentUploaderProvider(expectedUploader);
-            sut.Accept(s => true, new StubAttachmentUploader(downloadUrl: null));
+            sut.Accept(condition: null, uploader: new StubAttachmentUploader(downloadUrl: null));
 
             // Act
             IAttachmentUploader actualUploader = sut.Get(type: null);

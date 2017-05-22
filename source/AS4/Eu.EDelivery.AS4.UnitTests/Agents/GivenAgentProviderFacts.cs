@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             Assert.Equal(SingleAgentConfig.ExpectedSteps, GetsActualSteps(singleAgent));
             Assert.Equal(SingleAgentConfig.TransformerConfig, GetsActualTransformer(singleAgent));
-            Assert.IsType<DummyReceiver>(GetsActualReceiver(singleAgent));
+            Assert.IsType<StubReceiver>(GetsActualReceiver(singleAgent));
         }
 
         private static AS4.Model.Internal.Steps GetsActualSteps(IAgent agent)

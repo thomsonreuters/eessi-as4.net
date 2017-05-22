@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
+using Eu.EDelivery.AS4.Steps;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 {
@@ -30,26 +35,58 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             _mockedProvider = new Mock<INotifySenderProvider>();
             _mockedProvider.Setup(p => p.GetNotifySender(It.IsAny<string>())).Returns(_mockedSender.Object);
 
-            _step = new SendNotifyMessageStep(_mockedProvider.Object, () => new DatastoreContext(Options));
+            _step = new SendNotifyMessageStep(_mockedProvider.Object, GetDataStoreContext);
         }
 
         public class GivenValidArguments : GivenSendNotifyMessageStepFacts
         {
-            private static SendingProcessingMode CreateDefaultSendingPMode()
+            [Fact]
+            public async Task SendPModeGetsAssignedFromDatastore_IfNotPresent()
             {
-                return new SendingProcessingMode {ReceiptHandling = {NotifyMethod = new Method()}};
+                // Arrange
+                const string expectedId = "message-id";
+                var expectedPMode = new SendingProcessingMode {Id = "pmode-id"};
+                InsertOutMessageWithPMode(expectedId, expectedPMode);
+
+                AS4Message receiptMessage = CreateReceiptThatReference(expectedId);
+                receiptMessage.SendingPMode = null;
+
+                var message = new InternalMessage(receiptMessage) {NotifyMessage = CreateDeliveredNotifyMessage()};
+
+                // Act
+                StepResult result = await _step.ExecuteAsync(message, CancellationToken.None);
+
+                // Assert
+                SendingProcessingMode actualPMode = result.InternalMessage.AS4Message.SendingPMode;
+                Assert.Equal(expectedPMode.Id, actualPMode.Id);
+            }
+
+            private static AS4Message CreateReceiptThatReference(string expectedId)
+            {
+                return new AS4MessageBuilder().WithSignalMessage(new Receipt {RefToMessageId = expectedId}).Build();
+            }
+
+            private void InsertOutMessageWithPMode(string expectedId, SendingProcessingMode pmode)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    context.OutMessages.Add(
+                        new OutMessage {EbmsMessageId = expectedId, PMode = AS4XmlSerializer.ToString(pmode)});
+                    context.SaveChanges();
+                }
             }
 
             [Fact]
             public async Task ThenExecuteStepSucceedsWithSendingPModeAsync()
             {
                 // Arrange
-                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
+                NotifyMessageEnvelope notifyMessage = CreateDeliveredNotifyMessage();
                 var internalMessage = new InternalMessage(notifyMessage)
                 {
-                    AS4Message = {
-                                    SendingPMode = CreateDefaultSendingPMode()
-                                 }
+                    AS4Message =
+                    {
+                        SendingPMode = new SendingProcessingMode {ReceiptHandling = {NotifyMethod = new Method()}}
+                    }
                 };
 
                 // Act
@@ -57,6 +94,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
                 // Assert
                 _mockedSender.Verify(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>()), Times.AtLeastOnce);
+            }
+
+            private static NotifyMessageEnvelope CreateDeliveredNotifyMessage()
+            {
+                return new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
             }
 
             [Fact]
@@ -106,7 +148,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             private void SetupFailedNotifySender()
             {
                 _mockedSender.Setup(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>())).Throws<Exception>();
-                _step = new SendNotifyMessageStep(_mockedProvider.Object, () => new DatastoreContext(Options));
+                _step = new SendNotifyMessageStep(_mockedProvider.Object, GetDataStoreContext);
             }
         }
     }

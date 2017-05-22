@@ -4,10 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
 {
-    public class DummyReceiver : IReceiver
+    public class StubReceiver : IReceiver
     {
         /// <summary>
         /// Configure the receiver with a given settings dictionary.
@@ -32,6 +33,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         public void StopReceiving()
         {
             throw new NotImplementedException();
+        }
+
+        [Fact]
+        public void FailsToUseInstance()
+        {
+            // Arrange
+            var sut = new StubReceiver();
+
+            // Act
+            sut.Configure(null);
+
+            // Act / Assert
+            Assert.ThrowsAny<Exception>(() => sut.StopReceiving());
+            Assert.ThrowsAny<Exception>(() => sut.StartReceiving(null, CancellationToken.None));
         }
     }
 }

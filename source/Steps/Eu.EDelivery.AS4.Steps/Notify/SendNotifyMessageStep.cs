@@ -29,19 +29,17 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <summary>
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class
         /// </summary>
-        public SendNotifyMessageStep() : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext)
-        {
-        }
+        public SendNotifyMessageStep()
+            : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class. 
-        /// Create a <see cref="IStep"/> implementation
-        /// to send a <see cref="NotifyMessage"/> 
+        /// Initializes a new instance of the <see cref="SendNotifyMessageStep" /> class.
+        /// Create a <see cref="IStep" /> implementation
+        /// to send a <see cref="NotifyMessage" />
         /// to the consuming business application
         /// </summary>
-        /// <param name="provider">
-        /// The provider.
-        /// </param>
+        /// <param name="provider">The provider.</param>
+        /// <param name="dataContextRetriever">The data context retriever.</param>
         public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> dataContextRetriever)
         {
             _provider = provider;
@@ -72,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private SendingProcessingMode RetrieveSendingPMode(InternalMessage internalMessage)
         {
-            using (var context = _dataContextRetriever())
+            using (DatastoreContext context = _dataContextRetriever())
             {
                 var repo = new DatastoreRepository(context);
                 return repo.RetrieveSendingPModeForOutMessage(internalMessage.AS4Message.PrimarySignalMessage.RefToMessageId);
