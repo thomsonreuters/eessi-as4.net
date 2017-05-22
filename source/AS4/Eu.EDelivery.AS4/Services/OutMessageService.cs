@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -16,6 +17,7 @@ namespace Eu.EDelivery.AS4.Services
     {        
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyPersister _messageBodyPersister;
+        private readonly IConfig _configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService"/> class. 
@@ -25,23 +27,40 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="repository"></param>
         /// <param name="as4MessageBodyPersister">The <see cref="IAS4MessageBodyPersister"/> that must be used to persist the AS4 Message Body.</param>
         public OutMessageService(IDatastoreRepository repository, IAS4MessageBodyPersister as4MessageBodyPersister)
+            : this(Config.Instance, repository, as4MessageBodyPersister) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OutMessageService" /> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="respository">The respository.</param>
+        /// <param name="as4MessageBodyPersister">The as4 message body persister.</param>
+        public OutMessageService(IConfig config, IDatastoreRepository respository, IAS4MessageBodyPersister as4MessageBodyPersister)
         {
-            _repository = repository;
-            _messageBodyPersister = as4MessageBodyPersister;            
+            _configuration = config;
+            _repository = respository;
+            _messageBodyPersister = as4MessageBodyPersister;
         }
 
+        /// <summary>
+        /// Inserts a s4 message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public async Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken)
         {
-            string messageBodyLocation = await _messageBodyPersister.SaveAS4MessageAsync(message, cancellationToken);
+            string messageBodyLocation = await _messageBodyPersister.SaveAS4MessageAsync(_configuration.OutStore, message, cancellationToken);
             
-            foreach (var userMessage in message.UserMessages)
+            foreach (UserMessage userMessage in message.UserMessages)
             {
                 OutMessage outMessage = CreateOutMessageForMessageUnit(userMessage, message, messageBodyLocation, operation);
 
                 _repository.InsertOutMessage(outMessage);
             }
 
-            foreach (var signalMessage in message.SignalMessages)
+            foreach (SignalMessage signalMessage in message.SignalMessages)
             {
                 OutMessage outMessage = CreateOutMessageForMessageUnit(signalMessage, message, messageBodyLocation, operation);
 

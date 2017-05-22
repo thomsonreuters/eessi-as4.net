@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
@@ -26,13 +23,12 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class.
         /// </summary>
-        public ReceptionAwarenessUpdateDatastoreStep() : this(Config.Instance.IncomingAS4MessageBodyPersister)
-        {
-        }
+        public ReceptionAwarenessUpdateDatastoreStep() : this(Config.Instance.AS4MessageBodyPersister) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep" /> class
         /// </summary>
+        /// <param name="inMessageBodyPersister">The in message body persister.</param>
         public ReceptionAwarenessUpdateDatastoreStep(IAS4MessageBodyPersister inMessageBodyPersister)
         {
             _logger = LogManager.GetCurrentClassLogger();

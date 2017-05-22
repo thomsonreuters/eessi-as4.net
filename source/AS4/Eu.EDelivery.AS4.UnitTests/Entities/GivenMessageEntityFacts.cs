@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -52,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 var sut = new StubMessageEntity {MessageLocation = null};
 
                 // Act
-                using (Stream actualStream = sut.RetrieveMessageBody(retrieverProvider: null))
+                using (Stream actualStream = sut.RetrieveMessageBody(persisterProvider: null))
                 {
                     // Assert
                     Assert.Null(actualStream);
@@ -64,8 +63,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             {
                 // Arrange
                 var sut = new StubMessageEntity {MessageLocation = "ignored"};
-                var stubProvider = new AS4MessageBodyRetrieverProvider();
-                stubProvider.Accept(condition: s => true, retriever: new SaboteurMessageBodyRetriever());
+                var stubProvider = new AS4MessageBodyPersisterProvider();
+                stubProvider.Accept(condition: s => true, persister: new SaboteurMessageBodyRetriever());
 
                 // Act
                 using (Stream actualStream = sut.RetrieveMessageBody(stubProvider))

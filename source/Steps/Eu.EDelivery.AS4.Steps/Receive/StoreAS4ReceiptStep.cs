@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -20,13 +21,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class.
         /// </summary>
-        public StoreAS4ReceiptStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
-        {
-        }
+        public StoreAS4ReceiptStep() : this(Config.Instance.AS4MessageBodyPersister) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class
+        /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep" /> class
         /// </summary>
+        /// <param name="messageBodyPersister">The message body persister.</param>
         public StoreAS4ReceiptStep(IAS4MessageBodyPersister messageBodyPersister)
         {
             _logger = LogManager.GetCurrentClassLogger();
@@ -39,6 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
             if (internalMessage.AS4Message.IsEmpty)
@@ -46,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await StepResult.SuccessAsync(internalMessage);
             }
 
-            using (var context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 

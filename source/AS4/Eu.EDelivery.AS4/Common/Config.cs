@@ -48,18 +48,6 @@ namespace Eu.EDelivery.AS4.Common
         public bool PayloadServiceInProcess { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="IAS4MessageBodyPersister"/> that must be used for incoming messages.
-        /// </summary>
-        public IAS4MessageBodyPersister IncomingAS4MessageBodyPersister { get; } =
-            new AS4MessageBodyFilePersister(@".\database\as4messages\in", SerializerProvider.Default);
-
-        /// <summary>
-        /// Gets the <see cref="IAS4MessageBodyPersister" /> that must be used for outgoing messages.
-        /// </summary>
-        public IAS4MessageBodyPersister OutgoingAS4MessageBodyPersister { get; } =
-            new AS4MessageBodyFilePersister(@".\database\as4messages\out", SerializerProvider.Default);
-
-        /// <summary>
         /// Gets a <see cref="IAS4MessageBodyPersister" />.
         /// </summary>
         /// <value>a <see cref="IAS4MessageBodyPersister" />.</value>
@@ -69,13 +57,13 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
-        public string InMessageStoreLocation => _settings.Database.InMessageStoreLocation;
+        public string InStore => _settings?.Database?.InMessageStoreLocation;
 
         /// <summary>
         /// Gets the out message store location.
         /// </summary>
         /// <value>The out message store location.</value>
-        public string OutMessageStoreLocation => _settings.Database.OutMessageStoreLocation;
+        public string OutStore => _settings?.Database?.OutMessageStoreLocation;
 
         public bool IsInitialized { get; private set; }
 

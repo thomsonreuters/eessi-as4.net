@@ -6,22 +6,22 @@ using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
-    public class AS4MessageBodyRetrieverProvider
+    public class AS4MessageBodyPersisterProvider
     {
         private readonly ICollection<AS4MessageRepositoryEntry> _repositories =
             new Collection<AS4MessageRepositoryEntry>();
 
         /// <summary>
-        /// Accept a <see cref="IAS4MessageBodyRetriever" /> implementation based on a given <paramref name="condition" />.
+        /// Accept a <see cref="IAS4MessageBodyPersister" /> implementation based on a given <paramref name="condition" />.
         /// </summary>
-        /// <param name="condition">The condition when to use the <see cref="IAS4MessageBodyRetriever" />.</param>
-        /// <param name="retriever">
+        /// <param name="condition">The condition when to use the <see cref="IAS4MessageBodyPersister" />.</param>
+        /// <param name="persister">
         /// <see cref="IAS4MessageBodyRetriever" /> implementation used for a given
         /// <paramref name="condition" />.
         /// </param>
-        public void Accept(Func<string, bool> condition, IAS4MessageBodyRetriever retriever)
+        public void Accept(Func<string, bool> condition, IAS4MessageBodyPersister persister)
         {
-            _repositories.Add(new AS4MessageRepositoryEntry(condition, retriever));
+            _repositories.Add(new AS4MessageRepositoryEntry(condition, persister));
         }
 
         /// <summary>
@@ -29,7 +29,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="key">Key to identify the accepted <see cref="IAS4MessageBodyRetriever" /> implementation.</param>
         /// <returns></returns>
-        public IAS4MessageBodyRetriever Get(string key)
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        public IAS4MessageBodyPersister Get(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
             {
@@ -53,7 +54,7 @@ namespace Eu.EDelivery.AS4.Repositories
             /// </summary>
             /// <param name="condition">The condition.</param>
             /// <param name="store">The store.</param>
-            public AS4MessageRepositoryEntry(Func<string, bool> condition, IAS4MessageBodyRetriever store)
+            public AS4MessageRepositoryEntry(Func<string, bool> condition, IAS4MessageBodyPersister store)
             {
                 Condition = condition;
                 Store = store;
@@ -61,7 +62,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             public Func<string, bool> Condition { get; }
 
-            public IAS4MessageBodyRetriever Store { get; }
+            public IAS4MessageBodyPersister Store { get; }
         }
     }
 }

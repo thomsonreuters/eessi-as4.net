@@ -121,12 +121,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
-        public string InMessageStoreLocation => string.Empty;
+        public string InStore => string.Empty;
 
         /// <summary>
         /// Gets the out message store location.
         /// </summary>
         /// <value>The out message store location.</value>
-        public string OutMessageStoreLocation => string.Empty;
+        public string OutStore => string.Empty;
     }
 }

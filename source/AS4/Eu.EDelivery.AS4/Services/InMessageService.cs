@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Services
         public async Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
         {
             // TODO: should we start the transaction here.
-            string location = await as4MessageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
+            string location = await as4MessageBodyPersister.SaveAS4MessageAsync(_configuration.InStore, as4Message, cancellationToken);
 
             InsertUserMessages(as4Message, location, cancellationToken);
             InsertSignalMessages(as4Message, location, cancellationToken);

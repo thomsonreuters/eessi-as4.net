@@ -24,13 +24,13 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
-        string InMessageStoreLocation { get; }
+        string InStore { get; }
 
         /// <summary>
         /// Gets the out message store location.
         /// </summary>
         /// <value>The out message store location.</value>
-        string OutMessageStoreLocation { get; }
+        string OutStore { get; }
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations

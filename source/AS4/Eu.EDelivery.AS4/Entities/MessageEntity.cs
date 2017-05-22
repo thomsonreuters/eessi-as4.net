@@ -111,12 +111,12 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Retrieves the Message body as a stream.
         /// </summary>
-        /// <param name="retrieverProvider">
+        /// <param name="persisterProvider">
         /// The AS4MessageBodyRetrieverProvider which is responsible for providing the correct
         /// IAS4MessageRepository that loads the AS4Message body.
         /// </param>
         /// <returns>A Stream which contains the MessageBody</returns>
-        public Stream RetrieveMessageBody(AS4MessageBodyRetrieverProvider retrieverProvider)
+        public Stream RetrieveMessageBody(AS4MessageBodyPersisterProvider persisterProvider)
         {
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
@@ -124,12 +124,12 @@ namespace Eu.EDelivery.AS4.Entities
                 return null;
             }
 
-            IAS4MessageBodyRetriever repository = retrieverProvider.Get(MessageLocation);
+            IAS4MessageBodyPersister repository = persisterProvider.Get(MessageLocation);
 
             return TryLoadMessageStream(repository);
         }
 
-        private Stream TryLoadMessageStream(IAS4MessageBodyRetriever repository)
+        private Stream TryLoadMessageStream(IAS4MessageBodyPersister repository)
         {
             try
             {

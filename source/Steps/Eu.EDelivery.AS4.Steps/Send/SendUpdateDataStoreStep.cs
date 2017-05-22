@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep" /> class
         /// </summary>
-        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.IncomingAS4MessageBodyPersister) { }
+        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.AS4MessageBodyPersister) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class.

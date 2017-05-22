@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep" /> class
         /// </summary>
-        public SaveReceivedMessageStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.IncomingAS4MessageBodyPersister) { }
+        public SaveReceivedMessageStep() : this(Registry.Instance.CreateDatastoreContext, Config.Instance.AS4MessageBodyPersister) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SaveReceivedMessageStep"/> class.

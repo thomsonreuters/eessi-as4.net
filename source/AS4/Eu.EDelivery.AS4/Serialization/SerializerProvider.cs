@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.Serialization
     {
         private readonly IDictionary<string, ISerializer> _serializers;
 
-        public static ISerializerProvider Default = new SerializerProvider();
+        public static ISerializerProvider Default => new SerializerProvider();
 
         internal SerializerProvider()
         {

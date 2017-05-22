@@ -1,19 +1,23 @@
-﻿using System.Threading;
+﻿using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
     internal class StubMessageBodyPersister : IAS4MessageBodyPersister
     {
-        internal static StubMessageBodyPersister Default = new StubMessageBodyPersister();
+        internal static StubMessageBodyPersister Default => new StubMessageBodyPersister();
 
-        public Task<string> SaveAS4MessageAsync(AS4Message message, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(string.Empty);
-        }
-
+        /// <summary>
+        /// Updates an existing AS4 Message body.
+        /// </summary>
+        /// <param name="location">The location where the existing AS4Message body can be found.</param>
+        /// <param name="message">The message that should overwrite the existing messagebody.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
@@ -28,9 +32,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
-        public async Task<string> SaveAS4MessageAsync(string storeLocation, AS4Message message, CancellationToken cancellation)
+        public Task<string> SaveAS4MessageAsync(string storeLocation, AS4Message message, CancellationToken cancellation)
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult(string.Empty);
+        }
+
+        /// <summary>
+        /// Loads a <see cref="Stream"/> at a given stored <paramref name="location"/>.
+        /// </summary>
+        /// <param name="location">The location on which the <see cref="Stream"/> is stored.</param>
+        /// <returns></returns>
+        public Stream LoadAS4MessageStream(string location)
+        {
+            return Stream.Null;
+        }
+
+        [Fact]
+        public void UpdatesComplete()
+        {
+            Assert.True(Default.UpdateAS4MessageAsync(null, null, CancellationToken.None).IsCompleted);
+        }
+
+        [Fact]
+        public void SaveComplete()
+        {
+            Assert.True(Default.SaveAS4MessageAsync(null, null, CancellationToken.None).IsCompleted);
+        }
+
+        [Fact]
+        public void LoadsEmpty()
+        {
+            Assert.Equal(Stream.Null, Default.LoadAS4MessageStream(null));
         }
     }
 }
