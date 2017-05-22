@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
+  <Collaboration>
+    <AgreementRef>
+      <PModeId>c2-send-push</PModeId>
+    </AgreementRef>
+  <Payloads>
+    <Payload>
+      <Id>DefaultSED</Id>
+      <MimeType>application/xml</MimeType>
+      <Location>file:///.\messages\attachments\defaultSED.xml</Location>
+      <PayloadProperties>
+        <PayloadProperty>
+          <Name>PartType</Name>
+          <Value>SED</Value>
+        </PayloadProperty>
+      </PayloadProperties>
+    </Payload>
+  </Payloads>
+</SubmitMessage>

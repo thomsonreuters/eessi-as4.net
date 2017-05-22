@@ -24,7 +24,7 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>InstitutionUK.westeurope.cloudapp.azure.com_TLS_int</PrivateKeyFindValue>
+      <PrivateKeyFindValue>InstitutionUK.westeurope.cloudapp.azure.com_ebMS_sig</PrivateKeyFindValue>
       <PrivateKeyFindType>FindByFriendlyName</PrivateKeyFindType>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
