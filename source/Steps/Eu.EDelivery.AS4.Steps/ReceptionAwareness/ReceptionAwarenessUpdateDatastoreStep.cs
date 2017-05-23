@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class.
         /// </summary>
-        public ReceptionAwarenessUpdateDatastoreStep() : this(Config.Instance.AS4MessageBodyPersister) {}
+        public ReceptionAwarenessUpdateDatastoreStep() : this(Registry.Instance.MessageBodyPersisterProvider) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep" /> class

@@ -8,8 +8,6 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
@@ -48,12 +46,6 @@ namespace Eu.EDelivery.AS4.Common
         public bool PayloadServiceInProcess { get; private set; }
 
         /// <summary>
-        /// Gets a <see cref="IAS4MessageBodyPersister" />.
-        /// </summary>
-        /// <value>a <see cref="IAS4MessageBodyPersister" />.</value>
-        public IAS4MessageBodyPersister AS4MessageBodyPersister { get; } = new AS4MessageBodyFilePersister(SerializerProvider.Default);
-
-        /// <summary>
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
@@ -65,6 +57,9 @@ namespace Eu.EDelivery.AS4.Common
         /// <value>The out message store location.</value>
         public string OutStore => _settings?.Database?.OutMessageStoreLocation;
 
+        /// <summary>
+        /// Gets a value indicating whether if the Configuration is initialized
+        /// </summary>
         public bool IsInitialized { get; private set; }
 
         /// <summary>

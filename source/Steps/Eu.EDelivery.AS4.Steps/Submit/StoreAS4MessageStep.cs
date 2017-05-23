@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
-        public StoreAS4MessageStep() : this(Config.Instance.AS4MessageBodyPersister) { }
+        public StoreAS4MessageStep() : this(Registry.Instance.MessageBodyPersisterProvider) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.

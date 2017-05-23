@@ -6,6 +6,8 @@
   <Database>
     <Provider>SqlServer</Provider>
     <ConnectionString>Server=.;Database=c2messages;Trusted_Connection=True;</ConnectionString>
+    <InMessageStoreLocation>file:///.\database\as4messages\in</InMessageStoreLocation>
+    <OutMessageStoreLocation>file:///.\database\as4messages\out</OutMessageStoreLocation>
   </Database>
   <CertificateStore>
     <StoreName>My</StoreName>

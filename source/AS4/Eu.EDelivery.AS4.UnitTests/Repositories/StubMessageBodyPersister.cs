@@ -14,9 +14,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <summary>
         /// Updates an existing AS4 Message body.
         /// </summary>
-        /// <param name="location">The location where the existing AS4Message body can be found.</param>
+        /// <param name="location">The location.</param>
         /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
         {
@@ -26,23 +26,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <summary>
         /// Saves a given <see cref="AS4Message" /> to a given location.
         /// </summary>
-        /// <param name="storeLocation">The store location.</param>
+        /// <param name="location">The location.</param>
         /// <param name="message">The message to save.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
-        public Task<string> SaveAS4MessageAsync(string storeLocation, AS4Message message, CancellationToken cancellation)
+        public Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
         {
             return Task.FromResult(string.Empty);
         }
 
         /// <summary>
-        /// Loads a <see cref="Stream"/> at a given stored <paramref name="location"/>.
+        /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
-        /// <param name="location">The location on which the <see cref="Stream"/> is stored.</param>
+        /// <param name="location">The location.</param>
         /// <returns></returns>
-        public Stream LoadAS4MessageStream(string location)
+        public Stream LoadMessageBody(string location)
         {
             return Stream.Null;
         }
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         [Fact]
         public void LoadsEmpty()
         {
-            Assert.Equal(Stream.Null, Default.LoadAS4MessageStream(null));
+            Assert.Equal(Stream.Null, Default.LoadMessageBody(null));
         }
     }
 }

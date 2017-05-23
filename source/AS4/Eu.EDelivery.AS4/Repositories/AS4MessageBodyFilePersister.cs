@@ -24,16 +24,35 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <summary>
         /// Saves a given <see cref="AS4Message" /> to a given location.
         /// </summary>
-        /// <param name="storeLocation">The store location.</param>
+        /// <param name="location">The location.</param>
         /// <param name="message">The message to save.</param>
         /// <param name="cancellation">The cancellation.</param>
         /// <returns>
         /// Location where the <paramref name="message" /> is saved.
         /// </returns>
+        /// <exception cref="ArgumentNullException">message</exception>
         public async Task<string> SaveAS4MessageAsync(
-            string storeLocation,
+            string location,
             AS4Message message,
             CancellationToken cancellation)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            string storeLocation = EnsureStoreLocation(location);
+            string fileName = AssembleUniqueMessageLocation(storeLocation, message);
+
+            if (!File.Exists(fileName))
+            {
+                await SaveMessageToFile(message, fileName, cancellation);
+            }
+
+            return $"file:///{fileName}";
+        }
+
+        private static string EnsureStoreLocation(string storeLocation)
         {
             string location = SubstringWithoutFileUri(storeLocation);
 
@@ -42,19 +61,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 Directory.CreateDirectory(location);
             }
 
-            if (message == null)
-            {
-                throw new ArgumentNullException(nameof(message));
-            }
-
-            string fileName = AssembleUniqueMessageLocation(location, message);
-
-            if (!File.Exists(fileName))
-            {
-                await SaveMessageToFile(message, fileName, cancellation);
-            }
-
-            return $"file:///{fileName}";
+            return location;
         }
 
         private static string AssembleUniqueMessageLocation(string storeLocation, AS4Message message)
@@ -70,67 +77,60 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Updates an existing AS4 Message body.
+        /// Updates a s4 message asynchronous.
         /// </summary>
-        /// <param name="location">The location where the existing AS4Message body can be found.</param>
-        /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
-        public async Task UpdateAS4MessageAsync(
-            string location,
-            AS4Message message,
-            CancellationToken cancellationToken)
+        /// <exception cref="ArgumentNullException">message</exception>
+        /// <exception cref="FileNotFoundException">The messagebody that must be updated could not be found.</exception>
+        public async Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
         {
             if (message == null)
             {
                 throw new ArgumentNullException(nameof(message));
             }
 
-            // TODO: this is a quickfix.  If we should support multiple implementations of the IAS4MessageBodyPersister
-            // then the InMessageService should be reponsible for retrieving the correct implementation that should
-            // be used to overwrite.
-            if (location.StartsWith("file:///"))
+            string fileLocation = SubstringWithoutFileUri(location);
+
+            if (File.Exists(fileLocation))
             {
-                location = location.Substring(8);
+                await SaveMessageToFile(message, fileLocation, cancellation);
             }
 
-            if (File.Exists(location) == false)
-            {
-                throw new FileNotFoundException("The messagebody that must be updated could not be found.");
-            }
-
-            await SaveMessageToFile(message, location, cancellationToken);
+            throw new FileNotFoundException("The messagebody that must be updated could not be found.");
         }
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
         {
-            using (FileStream fs = File.Create(fileName))
+            using (FileStream content = File.Create(fileName))
             {
                 ISerializer serializer = _provider.Get(message.ContentType);
-                await serializer.SerializeAsync(message, fs, cancellationToken);
+                await serializer.SerializeAsync(message, content, cancellationToken);
             }
         }
 
         /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
-        /// <param name="location">The location on which the <see cref="Stream" /> is stored.</param>
+        /// <param name="location">The location.</param>
         /// <returns></returns>
-        public Stream LoadAS4MessageStream(string location)
+        public Stream LoadMessageBody(string location)
         {
-            if (string.IsNullOrEmpty(location))
+            string fileLocation = SubstringWithoutFileUri(location);
+
+            if (string.IsNullOrEmpty(fileLocation))
             {
                 return null;
             }
 
-            string absoluteLocation = SubstringWithoutFileUri(location);
-
-            if (!File.Exists(absoluteLocation))
+            if (File.Exists(fileLocation))
             {
-                return null;
+                return File.OpenRead(fileLocation);
             }
 
-            return File.OpenRead(absoluteLocation);
+            return null;
         }
 
         private static string SubstringWithoutFileUri(string location)
@@ -142,28 +142,5 @@ namespace Eu.EDelivery.AS4.Repositories
 
             return location;
         }
-    }
-
-    public interface IAS4MessageBodyPersister : IAS4MessageBodyRetriever
-    {
-        /// <summary>
-        /// Saves a given <see cref="AS4Message" /> to a given location.
-        /// </summary>
-        /// <param name="storeLocation">The store location.</param>
-        /// <param name="message">The message to save.</param>
-        /// <param name="cancellation">The cancellation.</param>
-        /// <returns>
-        /// Location where the <paramref name="message" /> is saved.
-        /// </returns>
-        Task<string> SaveAS4MessageAsync(string storeLocation, AS4Message message, CancellationToken cancellation);
-
-        /// <summary>
-        /// Updates an existing AS4 Message body.
-        /// </summary>
-        /// <param name="location">The location where the existing AS4Message body can be found.</param>
-        /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken);
     }
 }

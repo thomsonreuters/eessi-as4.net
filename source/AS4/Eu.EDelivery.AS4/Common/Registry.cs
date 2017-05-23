@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Common
             MessageBodyPersisterProvider = new AS4MessageBodyPersisterProvider();
             MessageBodyPersisterProvider.Accept(
                 condition: l => l.StartsWith("file://", StringComparison.OrdinalIgnoreCase),
-                persister: new AS4MessageBodyFilePersister(Serialization.SerializerProvider.Default));
+                persister: () => new AS4MessageBodyFilePersister(Serialization.SerializerProvider.Default));
         }
     }
 }

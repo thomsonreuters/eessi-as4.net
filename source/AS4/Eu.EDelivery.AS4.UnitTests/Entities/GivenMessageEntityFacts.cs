@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 // Arrange
                 var sut = new StubMessageEntity {MessageLocation = "ignored"};
                 var stubProvider = new AS4MessageBodyPersisterProvider();
-                stubProvider.Accept(condition: s => true, persister: new SaboteurMessageBodyRetriever());
+                stubProvider.Accept(condition: s => true, persister: () => new SaboteurMessageBodyRetriever());
 
                 // Act
                 using (Stream actualStream = sut.RetrieveMessageBody(stubProvider))

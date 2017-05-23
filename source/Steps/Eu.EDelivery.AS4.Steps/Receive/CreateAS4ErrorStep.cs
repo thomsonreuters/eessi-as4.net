@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
         public CreateAS4ErrorStep()
-            : this(Config.Instance.AS4MessageBodyPersister, Registry.Instance.CreateDatastoreContext) {}
+            : this(Registry.Instance.MessageBodyPersisterProvider, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class

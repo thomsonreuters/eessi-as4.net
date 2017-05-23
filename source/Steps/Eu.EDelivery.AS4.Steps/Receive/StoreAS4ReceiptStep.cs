@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class.
         /// </summary>
-        public StoreAS4ReceiptStep() : this(Config.Instance.AS4MessageBodyPersister) {}
+        public StoreAS4ReceiptStep() : this(Registry.Instance.MessageBodyPersisterProvider) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep" /> class

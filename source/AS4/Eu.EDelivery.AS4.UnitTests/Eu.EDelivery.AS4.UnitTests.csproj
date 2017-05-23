@@ -340,10 +340,10 @@
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
     <Compile Include="Receivers\GivenIntervalRequestFacts.cs" />
-    <Compile Include="Repositories\GivenAS4MessageBodyFileRetrieverFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubXmlAttribute.cs" />
+    <Compile Include="Repositories\GivenAS4MessageStoreProviderFacts.cs" />
     <Compile Include="Repositories\SaboteurMessageBodyRetriever.cs" />
     <Compile Include="Repositories\StubMessageBodyPersister.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
