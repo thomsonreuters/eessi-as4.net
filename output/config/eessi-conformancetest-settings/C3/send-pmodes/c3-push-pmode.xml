@@ -30,6 +30,7 @@
     </Signing>
   </Security>
   <MessagePackaging>
+    <IsMultiHop>true</IsMultiHop>
     <CollaborationInfo>
       <Service>
         <Type>urn:eu:europa:ec:dgempl:eessi</Type>
