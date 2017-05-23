@@ -65,14 +65,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 _as4Message.SendingPMode = GetPModeFromDatastore();
             }
             else
-            {
+            {                
                 _as4Message.ReceivingPMode = GetPModeFromSettings();
-            }
-
-            if (_as4Message.SendingPMode?.Id == null)
-            {
                 _as4Message.SendingPMode = GetReferencedSendingPMode();
             }
+
+            ////if (_as4Message.SendingPMode?.Id == null)
+            ////{
+                
+            ////}
 
             internalMessage.AS4Message = _as4Message;
             return await StepResult.SuccessAsync(internalMessage);
