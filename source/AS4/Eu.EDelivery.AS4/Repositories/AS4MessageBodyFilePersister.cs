@@ -94,12 +94,13 @@ namespace Eu.EDelivery.AS4.Repositories
 
             string fileLocation = SubstringWithoutFileUri(location);
 
-            if (File.Exists(fileLocation))
+            if (!File.Exists(fileLocation))
             {
-                await SaveMessageToFile(message, fileLocation, cancellation);
+                throw new FileNotFoundException(
+                    $"The messagebody that must be updated could not be found at: {fileLocation}.");
             }
 
-            throw new FileNotFoundException("The messagebody that must be updated could not be found.");
+            await SaveMessageToFile(message, fileLocation, cancellation);
         }
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
