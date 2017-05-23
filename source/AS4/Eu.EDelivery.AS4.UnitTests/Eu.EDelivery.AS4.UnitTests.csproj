@@ -520,6 +520,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\as4-encrypted-envelope.xml" />
+    <Content Include="Resources\as4-pullrequest-warning.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
