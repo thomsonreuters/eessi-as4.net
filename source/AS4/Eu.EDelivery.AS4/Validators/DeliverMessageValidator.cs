@@ -1,64 +1,24 @@
-﻿using System;
-using System.Linq;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
+﻿using System.Linq;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Deliver;
 using FluentValidation;
-using FluentValidation.Results;
-using NLog;
 
 namespace Eu.EDelivery.AS4.Validators
 {
     /// <summary>
     /// Validator to validate the state of a <see cref="DeliverMessage"/>
     /// </summary>
-    public class DeliverMessageValidator : AbstractValidator<DeliverMessage>, IValidator<DeliverMessage>
+    public class DeliverMessageValidator : AbstractValidator<DeliverMessage>
     {
-        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeliverMessageValidator"/> class.
+        /// </summary>
         public DeliverMessageValidator()
         {
             RulesForMessageInfo();
             RulesForPartyInfo();
             RulesForCollaborationInfo();
             RulesForPayloads();
-        }
-
-        /// <summary>
-        /// Validate the given <paramref name="model"/>
-        /// </summary>
-        /// <param name="model"></param>
-        void IValidator<DeliverMessage>.Validate(DeliverMessage model)
-        {
-            ValidationResult validationResult = TryValidateDeliverMessage(model);
-
-            if (validationResult?.IsValid == false) throw ThrowInvalidDeliverMessage(model, validationResult);
-        }
-
-        private ValidationResult TryValidateDeliverMessage(DeliverMessage model)
-        {
-            try
-            {
-                return this.Validate(model);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        private static AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage, ValidationResult result)
-        {
-            foreach (var e in result.Errors)
-            {
-                Logger.Error($"Deliver Message Validation Error: {e.PropertyName} = {e.ErrorMessage}");
-            }
-
-            string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
-            Logger.Error(description);
-
-            return AS4ExceptionBuilder.WithDescription(description).Build();
         }
 
         private void RulesForMessageInfo()
@@ -84,7 +44,7 @@ namespace Eu.EDelivery.AS4.Validators
             RuleFor(i => i.CollaborationInfo.ConversationId).NotNull();
         }
 
-        private string RuleForService(DeliverMessage deliverMessage)
+        private static string RuleForService(DeliverMessage deliverMessage)
         {
             return deliverMessage.CollaborationInfo.Service?.Value;
         }

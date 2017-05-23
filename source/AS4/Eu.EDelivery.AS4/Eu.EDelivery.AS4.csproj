@@ -538,7 +538,6 @@
     <Compile Include="Utilities\FilenameSanitizer.cs" />
     <Compile Include="Streaming\VirtualStream.cs" />
     <Compile Include="Validators\DeliverMessageValidator.cs" />
-    <Compile Include="Validators\IValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
     <Compile Include="Validators\ReceivingProcessingModeValidator.cs" />
     <Compile Include="Validators\SendingProcessingModeValidator.cs" />
