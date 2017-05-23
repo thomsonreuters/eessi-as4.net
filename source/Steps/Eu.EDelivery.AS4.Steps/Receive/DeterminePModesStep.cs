@@ -21,8 +21,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class DeterminePModesStep : IStep
     {
-        private readonly IConfig _config;
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly IConfig _config;        
         private readonly IPModeRuleVisitor _visitor;
 
         private AS4Message _as4Message;
@@ -65,15 +66,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 _as4Message.SendingPMode = GetPModeFromDatastore();
             }
             else
-            {                
+            {
                 _as4Message.ReceivingPMode = GetPModeFromSettings();
                 _as4Message.SendingPMode = GetReferencedSendingPMode();
             }
-
-            ////if (_as4Message.SendingPMode?.Id == null)
-            ////{
-                
-            ////}
 
             internalMessage.AS4Message = _as4Message;
             return await StepResult.SuccessAsync(internalMessage);
@@ -90,8 +86,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     throw ThrowAS4Exception($"Unable to retrieve Sending PMode from Datastore for OutMessage with Id: {_as4Message.PrimarySignalMessage.RefToMessageId}");
                 }
-                
-                _logger.Info($"Sending PMode {pmode.Id} retrieved from Datastore");
+
+                Logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
 
                 return pmode;
             }
@@ -105,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             PModeParticipant winningParticipant = participants.Where(p => p.Points >= 10).Max();
             PostConditionsWinningParticipant(participants, winningParticipant);
 
-            _logger.Info($"Using Receiving PMode {winningParticipant.PMode.Id} with {winningParticipant.Points} Points");
+            Logger.Info($"Using Receiving PMode {winningParticipant.PMode.Id} with {winningParticipant.Points} Points");
             return winningParticipant.PMode;
         }
 
@@ -130,7 +126,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private void LetParticipantAcceptVisitor(PModeParticipant participant)
         {
             participant.Accept(_visitor);
-            _logger.Debug($"Receiving PMode: {participant.PMode.Id} has {participant.Points} Points");
+            Logger.Debug($"Receiving PMode: {participant.PMode.Id} has {participant.Points} Points");
         }
 
         private void PostConditionsWinningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
@@ -155,15 +151,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private AS4Exception ThrowToManyPModeFoundException()
         {
             const string description = "More than one matching PMode was found";
-            _logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder.WithDescription(description).WithMessageIds(_as4Message.MessageIds).Build();
         }
 
         private SendPMode GetReferencedSendingPMode()
         {
+            if (string.IsNullOrWhiteSpace(_as4Message.ReceivingPMode.ReceiptHandling.SendingPMode))
+            {
+                Logger.Warn("No SendingPMode defined in ReceiptHandling of Received PMode.");
+                return null;
+            }
+
             string pmodeId = _as4Message.ReceivingPMode.ReceiptHandling.SendingPMode;
-            _logger.Info("Receipt Sending PMode Id: " + pmodeId);
+
+            Logger.Info("Receipt Sending PMode Id: " + pmodeId);
+
             return TryGetSendingPMode(pmodeId);
         }
 
@@ -181,7 +185,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private AS4Exception ThrowAS4Exception(string description)
         {
-            _logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder.WithDescription(description).WithErrorCode(ErrorCode.Ebms0001).WithMessageIds(_as4Message.MessageIds).Build();
         }

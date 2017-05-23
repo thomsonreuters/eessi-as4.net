@@ -21,6 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class CreateAS4ErrorStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
         private readonly Func<DatastoreContext> _createDatastore;
 
