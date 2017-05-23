@@ -27,6 +27,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
         private void AddPayloadButton_Click(object sender, RoutedEventArgs e)
         {
             _viewModel.PayloadInformation.Add(new PayloadInfoViewModel());
+        
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -61,7 +62,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
                 if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     SendingPModeLocationTextBox.Text = dlg.SelectedPath;
-                    PopulateSendingPModeCombobox();
+                    PopulateSendingPModeCombobox();                    
                 }
             }
         }

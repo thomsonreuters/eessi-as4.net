@@ -19,7 +19,16 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="name"></param>
         public PayloadProperty(string name)
         {
-            this.Name = name;
+            Name = name;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PayloadProperty"/> class.
+        /// </summary>
+        public PayloadProperty(string name, string value)
+        {
+            Name = name;
+            Value = value;
         }
 
         /// <summary>
