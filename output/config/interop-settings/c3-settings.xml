@@ -10,8 +10,6 @@
   <Database>
     <Provider>SqlServer</Provider>
     <ConnectionString>Data Source=.\SQL2016;Initial Catalog=as4c3-messages;Integrated Security=SSPI</ConnectionString>
-    <InMessageStoreLocation>file:///.\database\as4messages\in</InMessageStoreLocation>
-    <OutMessageStoreLocation>file:///.\database\as4messages\out</OutMessageStoreLocation>
     <!--<ConnectionString>Data Source=.;Initial Catalog=testas4;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</ConnectionString>-->
   </Database>
   <!-- Certificate Store on the Local Machine -->

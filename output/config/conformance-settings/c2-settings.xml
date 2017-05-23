@@ -10,8 +10,6 @@
   <Database>
     <Provider>Sqlite</Provider>
     <ConnectionString>Filename=database\messages.db</ConnectionString>
-    <InMessageStoreLocation>file:///.\database\as4messages\in</InMessageStoreLocation>
-    <OutMessageStoreLocation>file:///.\database\as4messages\out</OutMessageStoreLocation>
     <!--<ConnectionString>Data Source=.;Initial Catalog=testas4;Integrated Security=True;Connect Timeout=15;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False</ConnectionString>-->
   </Database>
   <!-- Certificate Store on the Local Machine -->

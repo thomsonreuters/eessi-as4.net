@@ -5,8 +5,6 @@
   <Database>
     <Provider>Sqlite</Provider>
     <ConnectionString>Filename=database\messages.db</ConnectionString>
-    <InMessageStoreLocation>file:///.\database\as4messages\in</InMessageStoreLocation>
-    <OutMessageStoreLocation>file:///.\database\as4messages\out</OutMessageStoreLocation>
   </Database>
   <CertificateStore>
     <StoreName>My</StoreName>

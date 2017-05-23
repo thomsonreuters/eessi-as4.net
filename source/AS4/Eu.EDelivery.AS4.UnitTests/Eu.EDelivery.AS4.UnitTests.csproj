@@ -282,6 +282,7 @@
     <Compile Include="Builders\Entities\GivenOutMessageBuilderFacts.cs" />
     <Compile Include="Builders\Security\GivenSigningStrategyBuilderFacts.cs" />
     <Compile Include="Builders\Internal\GivenSoapEnvelopeBuilderFacts.cs" />
+    <Compile Include="Common\GivenConfigFacts.cs" />
     <Compile Include="Common\GivenDataStoreFacts.cs" />
     <Compile Include="Common\GivenDatastoreStepFacts.cs" />
     <Compile Include="Common\GivenRegistryFacts.cs" />
