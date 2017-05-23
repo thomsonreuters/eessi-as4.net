@@ -26,29 +26,6 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Fors the specified key.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns></returns>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public IAS4MessageBodyPersister For(string key)
-        {
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                throw new ArgumentNullException(nameof(key));
-            }
-
-            AS4MessageRepositoryEntry result = _repositories.FirstOrDefault(s => s.Condition(key));
-
-            if (result == null)
-            {
-                throw new AS4Exception($"No registered IAS4MessageRepository found for {key}");
-            }
-
-            return result.CreatePersister();
-        }
-
-        /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
         /// <param name="location">The location.</param>
@@ -82,6 +59,23 @@ namespace Eu.EDelivery.AS4.Repositories
         public async Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
         {
             await For(location).UpdateAS4MessageAsync(location, message, cancellationToken);
+        }
+
+        private IAS4MessageBodyPersister For(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            AS4MessageRepositoryEntry result = _repositories.FirstOrDefault(s => s.Condition(key));
+
+            if (result == null)
+            {
+                throw new AS4Exception($"No registered IAS4MessageRepository found for {key}");
+            }
+
+            return result.CreatePersister();
         }
 
         private sealed class AS4MessageRepositoryEntry
