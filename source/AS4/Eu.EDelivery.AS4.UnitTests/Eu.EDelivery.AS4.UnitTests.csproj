@@ -317,6 +317,7 @@
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\Core\PullRequestError.cs" />
+    <Compile Include="Model\FilledNRRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
