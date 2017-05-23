@@ -258,6 +258,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;wsa:To s12:role=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh&quot; xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/icloud&lt;/wsa:To&gt;&lt;wsa:Action xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt&lt;/wsa:Action&gt;&lt;RoutingInput xmlns:wsu=&quot;http [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string multihopreceipt {
+            get {
+                return ResourceManager.GetString("multihopreceipt", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot;&gt;
         ///  &lt;soapenv:Header&gt;
         ///    &lt;eb3:Messaging soapenv:mustUnderstand=&quot;true&quot;&gt;

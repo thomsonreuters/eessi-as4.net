@@ -228,7 +228,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.True(result.InternalMessage.AS4Message.IsSignalMessage);
 
                 XmlDocument doc = AS4XmlSerializer.ToDocument(result.InternalMessage.AS4Message, CancellationToken.None);
-
+               
                 // Following elements should be present:
                 // - To element in the wsa namespace
                 // - Action element in the wsa namespace
@@ -241,16 +241,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 AssertIfSenderAndReceiverAreReversed(as4Message, doc);
             }
 
-            private static void AssertUserMessageMessagingElement(AS4Message as4Message, XmlNode doc)
+            [Fact]
+            public async Task CanDeserializeAndReSerializeMultihopReceipt()
             {
-                AssertMessagingElement(doc);
+                using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(multihopreceipt)))
+                {
+                    var multihopReceipt = await SerializerProvider.Default.Get(Constants.ContentTypes.Soap).DeserializeAsync(stream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    
+                    Assert.NotNull(multihopReceipt);
+                    Assert.NotNull(multihopReceipt.PrimarySignalMessage);
+                    Assert.NotNull(multihopReceipt.PrimarySignalMessage.MultiHopRouting);
 
-                string actualRefToMessageId = DeserializeMessagingHeader(doc).SignalMessage.First().MessageInfo.RefToMessageId;
-                string expectedUserMessageId = as4Message.PrimaryUserMessage.MessageId;
+                    // Serialize the Deserialized receipt again, and make sure the RoutingInput element is present and correct.
+                    XmlDocument doc = AS4XmlSerializer.ToDocument(multihopReceipt, CancellationToken.None);
 
-                Assert.Equal(expectedUserMessageId, actualRefToMessageId);
+                    var routingInput = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
+
+                    Assert.NotNull(routingInput);                   
+                }
             }
-
+            
             [Fact]
             public void ErrorMessageForMultihopUserMessageIsMultihop()
             {
@@ -280,6 +290,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 AssertMessagingElement(document);
                 AssertIfSenderAndReceiverAreReversed(expectedAS4Message, document);
+            }
+
+            private static void AssertUserMessageMessagingElement(AS4Message as4Message, XmlNode doc)
+            {
+                AssertMessagingElement(doc);
+
+                string actualRefToMessageId = DeserializeMessagingHeader(doc).SignalMessage.First().MessageInfo.RefToMessageId;
+                string expectedUserMessageId = as4Message.PrimaryUserMessage.MessageId;
+
+                Assert.Equal(expectedUserMessageId, actualRefToMessageId);
             }
 
             private static void AssertToElement(XmlNode doc)

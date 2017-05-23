@@ -1,4 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Xml;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -13,12 +15,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             return string.Empty;
         }
-
+        
         /// <summary>
-        /// Contains the UserMessage for which this is a signalmessage.
-        /// In MultiHop scenario's, we'll need to make use of this.
+        /// RoutingInformation that is necessary for MultiHop messaging.
         /// </summary>
-        [XmlIgnore]
-        public UserMessage RelatedUserMessageForMultihop { get; set; }
+        public RoutingInputUserMessage MultiHopRouting { get; set; }
     }
 }
