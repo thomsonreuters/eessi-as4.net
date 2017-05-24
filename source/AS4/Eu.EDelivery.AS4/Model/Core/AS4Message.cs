@@ -67,7 +67,6 @@ namespace Eu.EDelivery.AS4.Model.Core
                 _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
             }
             return _receivingPModeString;
-            ;
         }
 
         // AS4 Message

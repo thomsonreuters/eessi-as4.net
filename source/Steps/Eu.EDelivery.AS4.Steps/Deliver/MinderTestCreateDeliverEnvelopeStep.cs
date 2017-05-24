@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -51,9 +52,13 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             var builder = new AS4MessageBuilder();
             builder.WithUserMessage(deliverMessage);
 
-            foreach (Attachment attachment in as4Message.Attachments)
+            if (deliverMessage.CollaborationInfo.Action.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) == false &&
+                deliverMessage.CollaborationInfo.Service?.Value?.Equals("SRV_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) == false)
             {
-                builder.WithAttachment(attachment);
+                foreach (Attachment attachment in as4Message.Attachments)
+                {
+                    builder.WithAttachment(attachment);
+                }
             }
 
             AS4Message msg = builder.Build();

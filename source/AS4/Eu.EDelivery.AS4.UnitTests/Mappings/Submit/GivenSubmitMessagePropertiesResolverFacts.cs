@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 SendingProcessingMode pmode = CreateaPopulatedSendingPMode();
                 MessageProperty pmodeProperty = CreatePopulatedMessageProperty();
-                pmode.MessagePackaging.MessageProperties = new List<MessageProperty> {pmodeProperty};
+                pmode.MessagePackaging.MessageProperties = new List<MessageProperty> { pmodeProperty };
                 submitMessage.PMode = pmode;
 
                 // Act
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
             private static MessageProperty CreatePopulatedMessageProperty()
             {
-                return new MessageProperty("pmode-name", "pmode-type", "pmode-value");
+                return new MessageProperty("pmode-name", "pmode-value");
             }
 
             [Fact]
