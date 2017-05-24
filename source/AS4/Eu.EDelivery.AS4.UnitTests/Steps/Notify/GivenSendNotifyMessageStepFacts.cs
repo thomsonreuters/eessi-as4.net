@@ -44,7 +44,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             NotifyMessageEnvelope notifyMessage = EmptyNotifyMessageEnvelope(Status.Delivered);
             var internalMessage = new InternalMessage(notifyMessage)
             {
-                AS4Message = new AS4Message {SendingPMode = CreateDefaultSendingPMode()}
+                AS4Message = new AS4Message(),
+                SendingPMode = CreateDefaultSendingPMode()
             };
 
             var spySender = new SpySender();
@@ -70,11 +71,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             var internalMessage = new InternalMessage(notifyMessage)
             {
-                AS4Message =
-                    new AS4Message
-                    {
-                        SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}}
-                    }
+                AS4Message = new AS4Message(),
+                SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}}
             };
 
             var spySender = new SpySender();

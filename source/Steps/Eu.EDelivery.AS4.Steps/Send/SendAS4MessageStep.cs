@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly Func<DatastoreContext> _createDatastore;
         private readonly IHttpClient _httpClient;
 
-        private AS4Message _originalAS4Message;
+        private InternalMessage _originalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            _originalAS4Message = internalMessage.AS4Message;
+            _originalMessage = internalMessage;
 
             return await TrySendAS4MessageAsync(internalMessage, cancellationToken).ConfigureAwait(false);
         }
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (internalMessage.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateMessageStatus(_originalAS4Message, Operation.Undetermined, OutStatus.Exception);               
+                UpdateMessageStatus(_originalMessage.AS4Message, Operation.Undetermined, OutStatus.Exception);               
             }
 
             AS4Exception as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             using (var context = _createDatastore())
             {
                 var service = new OutExceptionService(context);
-                service.InsertAS4Exception(as4Exception, _originalAS4Message);
+                service.InsertAS4Exception(as4Exception, _originalMessage);
 
                 context.SaveChanges();
             }
@@ -204,7 +204,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
             // we've sent the message, so update the status to sent.
-            UpdateMessageStatus(_originalAS4Message, Operation.Sent, OutStatus.Sent);
+            UpdateMessageStatus(_originalMessage.AS4Message, Operation.Sent, OutStatus.Sent);
 
             (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request);
 

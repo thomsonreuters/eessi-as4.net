@@ -93,7 +93,23 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         // Messages
-        public AS4Message AS4Message { get; set; }
+        public AS4Message AS4Message
+        {
+            get
+            {
+                return _as4Message;
+            }
+            set
+            {
+                _as4Message = value;
+
+                // TODO: find better approach
+                if (_sendingPMode != null)
+                {
+                    _as4Message.IsMultiHop = SendingPMode.MessagePackaging?.IsMultiHop ?? false;
+                }
+            }
+        }
 
         public SubmitMessage SubmitMessage { get; set; }
 
@@ -106,7 +122,23 @@ namespace Eu.EDelivery.AS4.Model.Internal
         // Exposed Info
         public AS4Exception Exception { get; set; }
 
-        public SendingProcessingMode SendingPMode { get; set; }
+        public SendingProcessingMode SendingPMode
+        {
+            get
+            {
+                return _sendingPMode;
+            }
+            set
+            {
+                _sendingPMode = value;
+
+                // TODO: find better approach
+                if (_as4Message != null)
+                {
+                    _as4Message.IsMultiHop = _sendingPMode?.MessagePackaging?.IsMultiHop ?? false;
+                }
+            }
+        }
 
         private ReceivingProcessingMode _receivingPMode;
 
@@ -124,6 +156,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         private string _receivingPModeString;
+        private SendingProcessingMode _sendingPMode;
+        private AS4Message _as4Message;
 
         public string GetReceivingPModeString()
         {

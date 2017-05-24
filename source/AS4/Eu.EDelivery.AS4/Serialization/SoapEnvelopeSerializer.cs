@@ -13,7 +13,6 @@ using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Singletons;
@@ -94,7 +93,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
             }
 
-            if (IsMultiHop(message.SendingPMode))
+            if (message.IsMultiHop)
             {
                 messagingHeader.role = Constants.Namespaces.EbmsNextMsh;
                 messagingHeader.mustUnderstand1 = true;
@@ -102,11 +101,6 @@ namespace Eu.EDelivery.AS4.Serialization
             }
 
             return messagingHeader;
-        }
-
-        private static bool IsMultiHop(SendingProcessingMode pmode)
-        {
-            return pmode?.MessagePackaging.IsMultiHop == true;
         }
 
         private static XmlNode GetSecurityHeader(AS4Message message)

@@ -150,17 +150,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             InternalMessage internalMessage = CreateDefaultInternalMessage();
             AS4Message as4Message = internalMessage.AS4Message;
 
-            ISigningStrategy signingStrategy = CreateSignStrategy(as4Message);
+            ISigningStrategy signingStrategy = CreateSignStrategy(internalMessage);
             as4Message.SecurityHeader.Sign(signingStrategy);
 
             return internalMessage;
         }
 
-        private static ISigningStrategy CreateSignStrategy(AS4Message as4Message)
+        private static ISigningStrategy CreateSignStrategy(InternalMessage message)
         {
+            AS4Message as4Message = message.AS4Message;
             X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message, CancellationToken.None)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(message, CancellationToken.None)
                 .WithSecurityTokenReference(X509ReferenceType.BSTReference)
                 .WithSignatureAlgorithm(Algorithm)
                 .WithCertificate(certificate)

@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
@@ -35,20 +34,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         public string ContentType { get; set; }
 
         public XmlDocument EnvelopeDocument { get; set; }
-
-        // PModes
-        public SendingProcessingMode SendingPMode { get; set; }
-
-        private string _receivingPModeString;
-
-        public string GetReceivingPModeString()
-        {
-            if (String.IsNullOrWhiteSpace(_receivingPModeString))
-            {
-                _receivingPModeString = AS4XmlSerializer.ToString(string.Empty);
-            }
-            return _receivingPModeString;
-        }
 
         // AS4 Message
         public ICollection<UserMessage> UserMessages { get; internal set; }
@@ -83,6 +68,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
 
         public bool IsPulling => PrimarySignalMessage is PullRequest;
+
+        public bool IsMultiHop { get; internal set; }
 
         public string GetPrimaryMessageId()
         {

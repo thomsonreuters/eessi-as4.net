@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Serialization
 {
@@ -61,19 +62,19 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         /// <summary>
-        /// Serialize a <see cref="AS4Message"/> to a <see cref="XmlDocument"/>
+        /// To the document.
         /// </summary>
-        /// <param name="as4Message"></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="message">The message.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public static XmlDocument ToDocument(AS4Message as4Message, CancellationToken cancellationToken)
+        public static XmlDocument ToDocument(InternalMessage message, CancellationToken cancellationToken)
         {
             using (var memoryStream = new MemoryStream())
             {
                 var provider = SerializerProvider.Default;
 
                 ISerializer serializer = provider.Get(Constants.ContentTypes.Soap);
-                serializer.Serialize(as4Message, memoryStream, cancellationToken);
+                serializer.Serialize(message.AS4Message, memoryStream, cancellationToken);
 
                 return LoadEnvelopeToDocument(memoryStream);
             }

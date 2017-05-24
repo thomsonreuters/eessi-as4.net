@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(sharedId);
                 ResetStep();
                 InternalMessage internalMessage = base.CreateDefaultInternalMessage();
-                internalMessage.AS4Message.SendingPMode.ExceptionHandling.NotifyMessageProducer = false;
+                internalMessage.SendingPMode.ExceptionHandling.NotifyMessageProducer = false;
                 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -152,11 +152,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected InternalMessage CreateDefaultInternalMessage()
         {
-            AS4MessageBuilder builder =
-                new AS4MessageBuilder().WithSendingPMode(
-                    new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = true}});
-
-            return new InternalMessage(builder.Build());
+            return new InternalMessage(new AS4MessageBuilder().Build())
+            {
+                SendingPMode = new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = true}}
+            };
         }
     }
 }

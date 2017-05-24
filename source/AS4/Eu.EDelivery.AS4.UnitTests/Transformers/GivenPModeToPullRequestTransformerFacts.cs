@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Assert
             var actualSignalMessage = message.AS4Message.PrimarySignalMessage as PullRequest;
             Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
-            Assert.Equal(expectedSendingPMode.Id, message.AS4Message.SendingPMode.Id);
+            Assert.Equal(expectedSendingPMode.Id, message.SendingPMode.Id);
         }
 
         private static SendingProcessingMode CreateAnonymousSendingPModeWith(string expectedMpc)

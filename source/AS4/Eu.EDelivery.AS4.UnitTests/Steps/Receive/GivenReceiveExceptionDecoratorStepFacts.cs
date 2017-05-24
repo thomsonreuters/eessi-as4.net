@@ -130,7 +130,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 UserMessages = new[] {new UserMessage("message-id")}
             };
-            return new InternalMessage(as4Message) {ReceivingPMode = GetStubReceivingPMode()};
+            return new InternalMessage(as4Message)
+            {
+                ReceivingPMode = GetStubReceivingPMode(),
+                SendingPMode = new SendingProcessingMode()
+            };
         }
 
         private AS4Exception CreateAS4Exception(string messageId = "ignored-string")

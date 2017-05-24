@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
                 Assert.Equal(MessageType.UserMessage, outMessage.EbmsMessageType);
-                Assert.Equal(AS4XmlSerializer.ToString(as4Message.SendingPMode), outMessage.PMode);
+                Assert.Equal(AS4XmlSerializer.ToString(ExpectedPMode()), outMessage.PMode);
             }
 
             [Fact]
@@ -49,9 +49,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Assert.Equal(messageId, outMessage.EbmsMessageId);
             }
 
-            private static OutMessage BuildForUserMessage(AS4Message as4Message)
+            private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForInternalMessage(as4Message.PrimaryUserMessage, new InternalMessage(as4Message))
+                return OutMessageBuilder.ForInternalMessage(as4Message.PrimaryUserMessage, new InternalMessage(as4Message) {SendingPMode = ExpectedPMode()})
                                                          .Build(CancellationToken.None);
             }
 
@@ -92,12 +92,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
         }
 
+        protected SendingProcessingMode ExpectedPMode()
+        {
+            return new SendingProcessingMode {Id = "pmode-id"};
+        }
+
         protected AS4Message CreateAS4MessageWithUserMessage(string messageId)
         {
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
-                SendingPMode = new SendingProcessingMode { Id = "pmode-id" },
                 UserMessages = new List<UserMessage>() { new UserMessage(messageId) }
             };
         }
@@ -107,7 +111,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
-                SendingPMode = new SendingProcessingMode { Id = "pmode-id" },
                 SignalMessages = new List<SignalMessage>() { new Receipt { MessageId = messageId } }
             };
         }
@@ -117,7 +120,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
-                SendingPMode = new SendingProcessingMode { Id = "pmode-id" },
                 SignalMessages = new List<SignalMessage>() { new Error { MessageId = messageId } }
             };
         }

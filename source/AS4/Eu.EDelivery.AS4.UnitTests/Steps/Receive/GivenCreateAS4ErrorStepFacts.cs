@@ -48,9 +48,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
             {
                 // Arrange
-                AS4Exception as4Exception = CreateFilledAS4Exception();
-                AS4Message as4Message = CreateFilledAS4Message();
-                var internalMessage = new InternalMessage {Exception = as4Exception, AS4Message = as4Message};
+                var internalMessage = new InternalMessage
+                {
+                    Exception = CreateFilledAS4Exception(),
+                    AS4Message = CreateFilledAS4Message(),
+                    SendingPMode = new SendingProcessingMode(),
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
                 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -66,9 +70,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithPModesAsync()
             {
                 // Arrange
-                AS4Exception as4Exception = CreateFilledAS4Exception();
-                AS4Message as4Message = CreateFilledAS4Message();
-                var internalMessage = new InternalMessage {Exception = as4Exception, AS4Message = as4Message};
+                var internalMessage = new InternalMessage
+                {
+                    Exception = CreateFilledAS4Exception(),
+                    AS4Message = CreateFilledAS4Message(),
+                    SendingPMode = new SendingProcessingMode(),
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -82,11 +90,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithSigningIdAsync()
             {
                 // Arrange
-                AS4Exception as4Exception = CreateFilledAS4Exception();
                 AS4Message as4Message = CreateFilledAS4Message();
                 as4Message.SigningId = new SigningId("header-id", "body-id");
 
-                var internalMessage = new InternalMessage {Exception = as4Exception, AS4Message = as4Message};
+                var internalMessage = new InternalMessage
+                {
+                    Exception = CreateFilledAS4Exception(),
+                    AS4Message = as4Message,
+                    SendingPMode = new SendingProcessingMode(),
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -108,8 +121,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 return
                     new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id"))
-                                           .WithReceivingPMode(new ReceivingProcessingMode())
-                                           .WithSendingPMode(new SendingProcessingMode())
                                            .Build();
             }
         }

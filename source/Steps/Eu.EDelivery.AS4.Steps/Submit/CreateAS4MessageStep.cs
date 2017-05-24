@@ -64,7 +64,6 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             Logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
 
             return new AS4MessageBuilder()
-                .WithSendingPMode(internalMessage.SubmitMessage.PMode)
                 .WithUserMessage(userMessage)
                 .Build();
         }

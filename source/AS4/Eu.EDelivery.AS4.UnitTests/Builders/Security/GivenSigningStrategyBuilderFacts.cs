@@ -10,6 +10,7 @@ using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
@@ -56,11 +57,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             [Fact]
             public void ThenBuilderMakesValidEmptySignStrategy()
             {
-                // Arrange
-                _builder = new SigningStrategyBuilder(new AS4Message(), CancellationToken.None);
-
                 // Act
-                ISigningStrategy signingStrategy = _builder.Build();
+                ISigningStrategy signingStrategy = CreateBuilder().Build();
 
                 // Assert
                 Assert.NotNull(signingStrategy);
@@ -70,13 +68,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             public void ThenBuilderMakesValidSignStrategyWithAttachmentReference()
             {
                 // Arrange
-                _builder = new SigningStrategyBuilder(new AS4Message(), CancellationToken.None);
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes("Dummy Content"));
                 var attachment = new Attachment("earth") {Content = stream};
                 string hashFunction = Constants.HashFunctions.First();
 
                 // Act
-                ISigningStrategy signingStrategy = _builder.WithAttachment(attachment, hashFunction).Build();
+                ISigningStrategy signingStrategy = CreateBuilder().WithAttachment(attachment, hashFunction).Build();
 
                 // Assert
                 IEnumerable<CryptoReference> references = signingStrategy.GetSignedReferences().Cast<CryptoReference>();
@@ -87,12 +84,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             public void ThenBuilderMakesValidSignStrategyWithCertificate()
             {
                 // Arrange
-                _builder = new SigningStrategyBuilder(new AS4Message(), CancellationToken.None);
                 X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
                 // Act
                 ISigningStrategy signingStrategy =
-                    _builder.WithSecurityTokenReference(X509ReferenceType.BSTReference)
+                    CreateBuilder().WithSecurityTokenReference(X509ReferenceType.BSTReference)
                             .WithCertificate(certificate)
                             .Build();
 
@@ -104,12 +100,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             [Fact]
             public void ThenBuilderMakesValidSignStrategyWithSecurityTokenReference()
             {
-                // Arrange
-                _builder = new SigningStrategyBuilder(new AS4Message(), CancellationToken.None);
-
                 // Act
                 ISigningStrategy signingStrategy =
-                    _builder.WithSecurityTokenReference(X509ReferenceType.BSTReference).Build();
+                    CreateBuilder().WithSecurityTokenReference(X509ReferenceType.BSTReference).Build();
 
                 // Assert
                 Assert.NotNull(signingStrategy);
@@ -121,11 +114,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             public void ThenBuilderMakesValidSignStrategyWithSignatureAlgorithm()
             {
                 // Arrange
-                _builder = new SigningStrategyBuilder(new AS4Message(), CancellationToken.None);
                 string algorithmNamespace = Constants.Algoritms.First();
 
                 // Act
-                ISigningStrategy signingStrategy = _builder.WithSignatureAlgorithm(algorithmNamespace).Build();
+                ISigningStrategy signingStrategy = CreateBuilder().WithSignatureAlgorithm(algorithmNamespace).Build();
 
                 // Assert
                 Assert.NotNull(signingStrategy);
@@ -138,12 +130,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             public void ThenBuilerMakesValidSignStrategyWithSigningId()
             {
                 // Arrange
-                _builder = new SigningStrategyBuilder(new AS4Message(), CancellationToken.None);
                 var signingId = new SigningId("header-id", "body-id");
                 string hashFunction = Constants.HashFunctions.First();
 
                 // Act
-                ISigningStrategy signingStrategy = _builder.WithSigningId(signingId, hashFunction).Build();
+                ISigningStrategy signingStrategy = CreateBuilder().WithSigningId(signingId, hashFunction).Build();
 
                 // Assert
                 IEnumerable<CryptoReference> references = signingStrategy.GetSignedReferences().Cast<CryptoReference>();
@@ -176,6 +167,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 // Act / Assert
                 Assert.Throws<AS4Exception>(() => _builder = new SigningStrategyBuilder(xmlDocument));
             }
+        }
+
+        protected SigningStrategyBuilder CreateBuilder()
+        {
+            return new SigningStrategyBuilder(new InternalMessage(new AS4Message()), CancellationToken.None);
         }
     }
 }

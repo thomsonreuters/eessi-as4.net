@@ -117,7 +117,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return AS4ExceptionBuilder
                 .WithDescription("An error occured while receiving a message.")
                 .WithExistingAS4Exception(exception)
-                .WithPModeString(as4Message.GetReceivingPModeString())
+                .WithPModeString(internalMessage.GetReceivingPModeString())
                 .WithMessageIds(as4Message.MessageIds)
                 .WithReceivingPMode(internalMessage.ReceivingPMode)
                 .Build();

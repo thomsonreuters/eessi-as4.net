@@ -199,7 +199,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 InternalMessage message = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 // Act
-                XmlDocument doc = AS4XmlSerializer.ToDocument(message.AS4Message, CancellationToken.None);
+                XmlDocument doc = AS4XmlSerializer.ToDocument(message, CancellationToken.None);
 
                 // Assert
                 var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
@@ -222,7 +222,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // The result should contain a signalmessage, which is a receipt.
                 Assert.True(result.InternalMessage.AS4Message.IsSignalMessage);
 
-                XmlDocument doc = AS4XmlSerializer.ToDocument(result.InternalMessage.AS4Message, CancellationToken.None);
+                XmlDocument doc = AS4XmlSerializer.ToDocument(result.InternalMessage, CancellationToken.None);
                
                 // Following elements should be present:
                 // - To element in the wsa namespace
@@ -248,7 +248,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Assert.NotNull(multihopReceipt.PrimarySignalMessage.MultiHopRouting);
 
                     // Serialize the Deserialized receipt again, and make sure the RoutingInput element is present and correct.
-                    XmlDocument doc = AS4XmlSerializer.ToDocument(multihopReceipt, CancellationToken.None);
+                    XmlDocument doc = ExerciseToDocument(multihopReceipt);
 
                     var routingInput = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
 
@@ -260,20 +260,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public void ErrorMessageForMultihopUserMessageIsMultihop()
             {
                 // Arrange
-                InternalMessage expectedMessage = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                InternalMessage originalMessage = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 Error error = new ErrorBuilder()
-                    .WithOriginalMessage(expectedMessage)
-                    .WithRefToEbmsMessageId(expectedMessage.AS4Message.PrimaryUserMessage.MessageId)
+                    .WithOriginalMessage(originalMessage)
+                    .WithRefToEbmsMessageId(originalMessage.AS4Message.PrimaryUserMessage.MessageId)
                     .Build();
 
                 AS4Message errorMessage = new AS4MessageBuilder()
                     .WithSignalMessage(error)
-                    .WithSendingPMode(CreateMultihopPMode())
                     .Build();
 
+                var message = new InternalMessage(errorMessage) {SendingPMode = CreateMultihopPMode()};
+
                 // Act
-                XmlDocument document = AS4XmlSerializer.ToDocument(errorMessage, CancellationToken.None);
+                XmlDocument document = AS4XmlSerializer.ToDocument(message, CancellationToken.None);
 
                 // Following elements should be present:
                 // - To element in the wsa namespace
@@ -284,7 +285,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 AssertUserMessageElement(document);
 
                 AssertMessagingElement(document);
-                AssertIfSenderAndReceiverAreReversed(expectedMessage.AS4Message, document);
+                AssertIfSenderAndReceiverAreReversed(originalMessage.AS4Message, document);
             }
 
             private static void AssertUserMessageMessagingElement(AS4Message as4Message, XmlNode doc)
@@ -376,7 +377,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 var as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
 
-                XmlDocument document = AS4XmlSerializer.ToDocument(as4Message, CancellationToken.None);
+                XmlDocument document = ExerciseToDocument(as4Message);
 
                 var node = document.SelectSingleNode(@"//*[local-name()='NonRepudiationInformation']");
 
@@ -391,7 +392,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 var as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
 
-                XmlDocument document = AS4XmlSerializer.ToDocument(as4Message, CancellationToken.None);
+                XmlDocument document = ExerciseToDocument(as4Message);
 
                 var node = document.SelectSingleNode(@"//*[local-name()='UserMessage']");
 
@@ -420,6 +421,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                 return receipt;
             }
+        }
+
+        private static XmlDocument ExerciseToDocument(AS4Message message)
+        {
+            return AS4XmlSerializer.ToDocument(new InternalMessage(message), CancellationToken.None);
         }
     }
 }

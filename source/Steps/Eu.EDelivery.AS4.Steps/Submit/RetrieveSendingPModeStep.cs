@@ -53,6 +53,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             try
             {
                 message.SubmitMessage.PMode = RetrieveSendPMode(message);
+                message.SendingPMode = message.SubmitMessage.PMode;
+
                 return await StepResult.SuccessAsync(message);
             }
             catch (Exception exception)

@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             AS4Message message = internalMessage.AS4Message;
             Model.PMode.Signing signing = internalMessage.SendingPMode.Security.Signing;
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(message, cancellationToken)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(internalMessage, cancellationToken)
                 .WithSecurityTokenReference(signing.KeyReferenceMethod)
                 .WithSignatureAlgorithm(signing.Algorithm)
                 .WithCertificate(certificate)

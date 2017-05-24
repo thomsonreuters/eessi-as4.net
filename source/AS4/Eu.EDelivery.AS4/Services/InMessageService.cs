@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Services
                 {
                     signalMessage.IsDuplicated = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
 
-                    AttemptToInsertSignalMessage(signalMessage, as4Message, location, cancellationToken);
+                    AttemptToInsertSignalMessage(signalMessage, message, location, cancellationToken);
                 }
             }
         }
@@ -192,7 +192,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             try
             {
-                InMessage inMessage = CreateUserInMessage(userMessage, message.AS4Message, location, cancellationToken);
+                InMessage inMessage = CreateUserInMessage(userMessage, message, location, cancellationToken);
                 _repository.InsertInMessage(inMessage);
             }
             catch (Exception ex)
@@ -202,10 +202,10 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         private static InMessage CreateUserInMessage(
-             UserMessage userMessage, AS4Message as4Message, string messageLocation, CancellationToken cancellationToken)
+             UserMessage userMessage, InternalMessage message, string messageLocation, CancellationToken cancellationToken)
         {
-            InMessage inMessage = InMessageBuilder.ForUserMessage(userMessage, as4Message)
-                                                  .WithPModeString(as4Message.GetReceivingPModeString())
+            InMessage inMessage = InMessageBuilder.ForUserMessage(userMessage, message.AS4Message)
+                                                  .WithPModeString(message.GetReceivingPModeString())
                                                   .Build(cancellationToken);
 
             inMessage.MessageLocation = messageLocation;
@@ -230,34 +230,34 @@ namespace Eu.EDelivery.AS4.Services
             return isDuplicate;
         }
 
-        private void AttemptToInsertSignalMessage(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
+        private void AttemptToInsertSignalMessage(SignalMessage signalMessage, InternalMessage message, string location, CancellationToken token)
         {
             try
             {
                 if (signalMessage is Receipt)
                 {
-                    this.InsertReceipt(signalMessage, as4Message, location, token);
+                    this.InsertReceipt(signalMessage, message, location, token);
                 }
                 else if (signalMessage is Error)
                 {
-                    this.InsertError(signalMessage, as4Message, location, token);
+                    this.InsertError(signalMessage, message, location, token);
                 }
             }
             catch (Exception exception)
             {
-                ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", as4Message, exception);
+                ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", message, exception);
             }
         }
 
-        private void InsertReceipt(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken token)
+        private void InsertReceipt(SignalMessage signalMessage, InternalMessage message, string location, CancellationToken token)
         {
             Logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
-            InMessage inMessage = CreateReceiptInMessage(signalMessage, as4Message, location, token);
+            InMessage inMessage = CreateReceiptInMessage(signalMessage, message, location, token);
 
             _repository.InsertInMessage(inMessage);
         }
 
-        private void InsertError(SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
+        private void InsertError(SignalMessage signalMessage, InternalMessage message, string location, CancellationToken cancellationToken)
         {
             Logger.Info($"Update Message: {signalMessage.MessageId} as Error");
 
@@ -276,16 +276,16 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
 
-            InMessage inMessage = CreateErrorInMessage(signalMessage, as4Message, location, cancellationToken);
+            InMessage inMessage = CreateErrorInMessage(signalMessage, message, location, cancellationToken);
 
             _repository.InsertInMessage(inMessage);
         }
 
         private static InMessage CreateReceiptInMessage(
-            SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
+            SignalMessage signalMessage, InternalMessage message, string location, CancellationToken cancellationToken)
         {
-            InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, as4Message)
-                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
+            InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, message.AS4Message)
+                                                  .WithPModeString(AS4XmlSerializer.ToString(message.SendingPMode))
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
 
@@ -298,10 +298,10 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         private static InMessage CreateErrorInMessage(
-            SignalMessage signalMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
+            SignalMessage signalMessage, InternalMessage message, string location, CancellationToken cancellationToken)
         {
-            InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, as4Message)
-                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
+            InMessage inMessage = InMessageBuilder.ForSignalMessage(signalMessage, message.AS4Message)
+                                                  .WithPModeString(AS4XmlSerializer.ToString(message.SendingPMode))
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
 

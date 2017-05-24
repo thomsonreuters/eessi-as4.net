@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.Services
             var pmode = _repository.RetrieveSendingPModeForOutMessage(messageId);
             Error errorMessage = CreateError(messageId);
 
-            AS4Message as4Message = CreateAS4Message(errorMessage, pmode);
+            AS4Message as4Message = CreateAS4Message(errorMessage);
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
             // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.Services
             string location = await messageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
 
             InMessage inMessage = InMessageBuilder.ForSignalMessage(errorMessage, as4Message)
-                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
+                                                  .WithPModeString(AS4XmlSerializer.ToString(pmode))
                                                   .Build(cancellationToken);
             inMessage.MessageLocation = location;
 
@@ -73,10 +74,9 @@ namespace Eu.EDelivery.AS4.Services
                 .Build();
         }
 
-        private static AS4Message CreateAS4Message(SignalMessage errorMessage, SendingProcessingMode pmode)
+        private static AS4Message CreateAS4Message(SignalMessage errorMessage)
         {
             var builder = new AS4MessageBuilder()
-                .WithSendingPMode(pmode)
                 .WithSignalMessage(errorMessage);
 
             return builder.Build();

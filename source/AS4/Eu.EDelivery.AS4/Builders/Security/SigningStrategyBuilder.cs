@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
@@ -40,16 +41,12 @@ namespace Eu.EDelivery.AS4.Builders.Security
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SigningStrategyBuilder" /> class.
-        /// Create new <see cref="SigningStrategyBuilder" />
-        /// with given <paramref name="as4Message" />
         /// </summary>
-        /// <param name="as4Message">
-        /// </param>
-        /// <param name="cancellationToken">
-        /// </param>
-        public SigningStrategyBuilder(AS4Message as4Message, CancellationToken cancellationToken)
+        /// <param name="message">The message.</param>
+        /// <param name="cancellation">The cancellation.</param>
+        public SigningStrategyBuilder(InternalMessage message, CancellationToken cancellation)
         {
-            _envelopeDocument = AS4XmlSerializer.ToDocument(as4Message, cancellationToken);
+            _envelopeDocument = AS4XmlSerializer.ToDocument(message, cancellation);
         }
 
         /// <summary>

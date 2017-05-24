@@ -130,9 +130,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             var builder = new AS4MessageBuilder();
 
-            assignToBuilder(builder.WithSendingPMode(CreateValidSendingPMode()));
+            assignToBuilder(builder);
 
-            return new InternalMessage(builder.Build());
+            return new InternalMessage(builder.Build()) {SendingPMode = CreateValidSendingPMode()};
         }
 
         private static SendingProcessingMode CreateValidSendingPMode()

@@ -3,7 +3,7 @@ using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using NLog;
@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Services
 {
     public interface IOutExceptionService
     {
-        void InsertAS4Exception(AS4Exception as4Exception, AS4Message as4Message);
+        void InsertAS4Exception(AS4Exception as4Exception, InternalMessage message);
     }
 
     public class OutExceptionService : IOutExceptionService
@@ -20,6 +20,7 @@ namespace Eu.EDelivery.AS4.Services
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly DatastoreContext _context;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="OutExceptionService"/> class.
         /// </summary>
@@ -28,15 +29,15 @@ namespace Eu.EDelivery.AS4.Services
             _context = context;
         }
 
-        public void InsertAS4Exception(AS4Exception as4Exception, AS4Message as4Message)
+        public void InsertAS4Exception(AS4Exception as4Exception, InternalMessage message)
         {
             var repository = new DatastoreRepository(_context);
 
-            foreach (string id in as4Message.MessageIds)
+            foreach (string id in message.AS4Message.MessageIds)
             {
                 try
                 {
-                    OutException outException = CreateOutException(as4Exception, id, as4Message);
+                    OutException outException = CreateOutException(as4Exception, id, message);
                     repository.InsertOutException(outException);
                 }
                 catch (Exception exception)
@@ -44,14 +45,14 @@ namespace Eu.EDelivery.AS4.Services
                     Logger.Error("Cannot Update Datastore with InException");
                     Logger.Debug($"Cannot update Datastore: {exception.Message}");
                 }
-            }            
+            }
         }
 
-        private static OutException CreateOutException(AS4Exception as4Exception, string messageId, AS4Message as4Message)
+        private static OutException CreateOutException(AS4Exception as4Exception, string messageId, InternalMessage message)
         {
             OutExceptionBuilder builder = OutExceptionBuilder.ForAS4Exception(as4Exception).WithEbmsMessageId(messageId);
 
-            if (NeedsOutExceptionBeNotified(as4Message.SendingPMode))
+            if (NeedsOutExceptionBeNotified(message.SendingPMode))
             {
                 builder.WithOperation(Operation.ToBeNotified);
             }

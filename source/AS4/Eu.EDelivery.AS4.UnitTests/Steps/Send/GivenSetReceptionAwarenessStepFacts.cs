@@ -72,10 +72,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 var pmode = new SendingProcessingMode {Reliability = {ReceptionAwareness = receptionAwareness}};
                 var userMessage = new UserMessage(messageId);
-                var as4Message = new AS4Message {SendingPMode = pmode};
+                var as4Message = new AS4Message();
                 as4Message.UserMessages.Add(userMessage);
 
-                return new InternalMessage(as4Message);
+                return new InternalMessage(as4Message) {SendingPMode = pmode};
             }
         }
 
