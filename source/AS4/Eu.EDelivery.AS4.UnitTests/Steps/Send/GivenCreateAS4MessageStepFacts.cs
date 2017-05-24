@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public class GivenValidArguments : GivenCreateAS4MessageStepFacts
         {
             [Fact]
-            public async void ThenStepCreatesAS4Message()
+            public async Task ThenStepCreatesAS4Message()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithMessageInfo()
+            public async Task ThenStepCreatesAS4MessageWithMessageInfo()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithGeneratedMessageId()
+            public async Task ThenStepCreatesAS4MessageWithGeneratedMessageId()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithAgreement()
+            public async Task ThenStepCreatesAS4MessageWithAgreement()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithService()
+            public async Task ThenStepCreatesAS4MessageWithService()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithAction()
+            public async Task ThenStepCreatesAS4MessageWithAction()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -144,7 +144,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithSenderParty()
+            public async Task ThenStepCreatesAS4MessageWithSenderParty()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -161,7 +161,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithReceiverParty()
+            public async Task ThenStepCreatesAS4MessageWithReceiverParty()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
@@ -178,7 +178,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
 
             [Fact]
-            public async void ThenStepCreatesAS4MessageWithSubmitMessageProperties()
+            public async Task ThenStepCreatesAS4MessageWithSubmitMessageProperties()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
