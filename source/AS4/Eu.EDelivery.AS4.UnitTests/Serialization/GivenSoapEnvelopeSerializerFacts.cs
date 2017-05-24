@@ -152,6 +152,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
 
             [Fact]
+            public async Task AS4MultiHopReceipt_ValidatesWithXsdSchema()
+            {
+                using (var messageStream = new MemoryStream(as4_multihop_message))
+                {
+                    // Arrange
+                    AS4Message receiptMessage = await new MimeMessageSerializer(_serializer).DeserializeAsync(
+                        inputStream: messageStream,
+                        contentType: "multipart/related; boundary=\"=-M/sMGEhQK8RBNg/21Nf7Ig==\";\ttype=\"application/soap+xml\"",
+                        cancellationToken: CancellationToken.None);
+
+                    // Act / Assert
+                    await TestValidEbmsMessageEnvelopeFrom(receiptMessage); 
+                }
+            }
+
+            [Fact]
             public async Task AS4Error_ValidatesWithXsdSchema()
             {
                 // Arrange
