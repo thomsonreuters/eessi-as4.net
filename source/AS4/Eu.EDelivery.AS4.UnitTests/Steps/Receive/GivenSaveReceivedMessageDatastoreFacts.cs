@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
-                internalMessage.AS4Message.ReceivingPMode = pmode;
+                internalMessage.ReceivingPMode = pmode;
 
                 // Act
                 await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
-                internalMessage.AS4Message.ReceivingPMode = pmode;
+                internalMessage.ReceivingPMode = pmode;
 
                 // Act
                 await Step.ExecuteAsync(internalMessage, CancellationToken.None);

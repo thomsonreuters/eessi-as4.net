@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private void PreConditions(InternalMessage internalMessage)
         {
             AS4Message as4Message = internalMessage.AS4Message;
-            ReceivingProcessingMode pmode = as4Message.ReceivingPMode;
+            ReceivingProcessingMode pmode = internalMessage.ReceivingPMode;
             Decryption decryption = pmode.Security.Decryption;
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private bool IsEncryptedIgnored(InternalMessage internalMessage)
         {
-            ReceivingProcessingMode pmode = internalMessage.AS4Message.ReceivingPMode;
+            ReceivingProcessingMode pmode = internalMessage.ReceivingPMode;
             bool isIgnored = pmode.Security.Decryption.Encryption == Limit.Ignored;
 
             if (isIgnored)
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private X509Certificate2 GetCertificate(InternalMessage internalMessage)
         {
-            Decryption decryption = internalMessage.AS4Message.ReceivingPMode.Security.Decryption;
+            Decryption decryption = internalMessage.ReceivingPMode.Security.Decryption;
 
             var certificate = _certificateRepository.GetCertificate(decryption.PrivateKeyFindType, decryption.PrivateKeyFindValue);
 
@@ -143,20 +143,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return certificate;
         }
 
-        private AS4Exception ThrowCommonAS4Exception(InternalMessage internalMessage,
-            string description, ErrorCode errorCode, Exception exception = null)
+        private AS4Exception ThrowCommonAS4Exception(
+            InternalMessage internalMessage,
+            string description,
+            ErrorCode errorCode,
+            Exception exception = null)
         {
             AS4Message as4Message = internalMessage.AS4Message;
             description = internalMessage.Prefix + description;
             _logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(exception)
-                .WithMessageIds(as4Message.MessageIds)
-                .WithErrorCode(errorCode)
-                .WithReceivingPMode(as4Message.ReceivingPMode)
-                .Build();
+            return
+                AS4ExceptionBuilder.WithDescription(description)
+                                   .WithInnerException(exception)
+                                   .WithMessageIds(as4Message.MessageIds)
+                                   .WithErrorCode(errorCode)
+                                   .WithReceivingPMode(internalMessage.ReceivingPMode)
+                                   .Build();
         }
     }
 }

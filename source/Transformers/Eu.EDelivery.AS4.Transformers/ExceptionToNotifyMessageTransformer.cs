@@ -42,9 +42,12 @@ namespace Eu.EDelivery.AS4.Transformers
 
             AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, cancellationToken);
 
-            var internalMessage = new InternalMessage(as4Message);
-
-            internalMessage.NotifyMessage = CreateNotifyMessageEnvelope(as4Message);
+            var internalMessage = new InternalMessage(as4Message)
+            {
+                SendingPMode = GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
+                ReceivingPMode = GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode),
+                NotifyMessage = CreateNotifyMessageEnvelope(as4Message)
+            };
 
             Logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
 
@@ -68,9 +71,6 @@ namespace Eu.EDelivery.AS4.Transformers
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
             AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(error).Build();
-
-            as4Message.SendingPMode = GetPMode<SendingProcessingMode>(exceptionEntity.PMode);
-            as4Message.ReceivingPMode = GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode);
             as4Message.EnvelopeDocument = await GetEnvelopeDocument(as4Message, cancellationTokken);
 
             return as4Message;

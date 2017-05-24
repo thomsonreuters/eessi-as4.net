@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 var inMessageService = new InMessageService(new DatastoreRepository(context));
 
-                await inMessageService.InsertAS4Message(internalMessage.AS4Message, _messageBodyPersister, cancellationToken).ConfigureAwait(false);
+                await inMessageService.InsertAS4Message(internalMessage, _messageBodyPersister, cancellationToken).ConfigureAwait(false);
 
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }

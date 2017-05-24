@@ -47,40 +47,40 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
         {
-            await TryStoreOutMessagesAsync(internalMessage.AS4Message, token).ConfigureAwait(false);
+            await TryStoreOutMessagesAsync(internalMessage, token).ConfigureAwait(false);
 
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private async Task TryStoreOutMessagesAsync(AS4Message as4Message, CancellationToken token)
+        private async Task TryStoreOutMessagesAsync(InternalMessage message, CancellationToken token)
         {
             try
             {
-                await StoreOutMessagesAsync(as4Message, token).ConfigureAwait(false);
+                await StoreOutMessagesAsync(message, token).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
-                throw ThrowAS4ExceptionWithInnerException(as4Message, exception);
+                throw ThrowAS4ExceptionWithInnerException(message, exception);
             }
         }
 
-        private static AS4Exception ThrowAS4ExceptionWithInnerException(AS4Message message, Exception exception)
+        private static AS4Exception ThrowAS4ExceptionWithInnerException(InternalMessage message, Exception exception)
         {
             return AS4ExceptionBuilder
                 .WithDescription("Unable to store AS4 Messages")
                 .WithInnerException(exception)
                 .WithSendingPMode(message.SendingPMode)
-                .WithMessageIds(message.MessageIds)
+                .WithMessageIds(message.AS4Message.MessageIds)
                 .Build();
         }
 
-        private async Task StoreOutMessagesAsync(AS4Message as4Message, CancellationToken token)
+        private async Task StoreOutMessagesAsync(InternalMessage message, CancellationToken token)
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var service = new OutMessageService(new DatastoreRepository(context), _as4MessageBodyPersister);
 
-                await service.InsertAS4Message(as4Message, Operation.ToBeSent, token);
+                await service.InsertAS4Message(message, Operation.ToBeSent, token);
 
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
             }

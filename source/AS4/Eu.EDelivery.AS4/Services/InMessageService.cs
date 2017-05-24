@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
@@ -67,8 +68,12 @@ namespace Eu.EDelivery.AS4.Services
                 .ToDictionary(k => k.Key, v => v.Value);
         }
 
-        public async Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        public async Task InsertAS4Message(
+            InternalMessage message,
+            IAS4MessageBodyPersister as4MessageBodyPersister,
+            CancellationToken cancellationToken)
         {
+            AS4Message as4Message = message.AS4Message;
             // TODO: should we start the transaction here.
             string location = await as4MessageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
 
@@ -80,7 +85,7 @@ namespace Eu.EDelivery.AS4.Services
                 userMessage.IsTest = IsUserMessageTest(userMessage);
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
 
-                AttemptToInsertUserMessage(userMessage, as4Message, location, cancellationToken);
+                AttemptToInsertUserMessage(userMessage, message, location, cancellationToken);
             }
 
             if (as4Message.SignalMessages.Any())
@@ -98,9 +103,12 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-
-        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        public async Task UpdateAS4MessageForDeliveryAndNotification(
+            InternalMessage internalMessage,
+            IAS4MessageBodyPersister as4MessageBodyPersister,
+            CancellationToken cancellationToken)
         {
+            AS4Message as4Message = internalMessage.AS4Message;
             var inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
 
             if (inMessage == null)
@@ -117,8 +125,8 @@ namespace Eu.EDelivery.AS4.Services
             {
                 _repository.UpdateInMessage(userMessage.MessageId, message =>
                 {
-                    message.PMode = as4Message.GetReceivingPModeString();
-                    if (UserMessageNeedsToBeDelivered(as4Message.ReceivingPMode, userMessage))
+                    message.PMode = internalMessage.GetReceivingPModeString();
+                    if (UserMessageNeedsToBeDelivered(internalMessage.ReceivingPMode, userMessage))
                     {
                         message.Operation = Operation.ToBeDelivered;
                     }
@@ -133,7 +141,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (signalMessage is Receipt)
                 {
-                    if (ReceiptMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
+                    if (ReceiptMustBeNotified(internalMessage.SendingPMode) && signalMessage.IsDuplicated == false)
                     {
                         _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
                     }
@@ -141,7 +149,7 @@ namespace Eu.EDelivery.AS4.Services
                 }
                 else if (signalMessage is Error)
                 {
-                    if (ErrorMustBeNotified(as4Message.SendingPMode) && signalMessage.IsDuplicated == false)
+                    if (ErrorMustBeNotified(internalMessage.SendingPMode) && signalMessage.IsDuplicated == false)
                     {
                         _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
                     }
@@ -150,7 +158,6 @@ namespace Eu.EDelivery.AS4.Services
 
             }
         }
-
 
         #region UserMessage related
 
@@ -181,16 +188,16 @@ namespace Eu.EDelivery.AS4.Services
             return isDuplicate;
         }
 
-        private void AttemptToInsertUserMessage(UserMessage userMessage, AS4Message as4Message, string location, CancellationToken cancellationToken)
+        private void AttemptToInsertUserMessage(UserMessage userMessage, InternalMessage message, string location, CancellationToken cancellationToken)
         {
             try
             {
-                InMessage inMessage = CreateUserInMessage(userMessage, as4Message, location, cancellationToken);
+                InMessage inMessage = CreateUserInMessage(userMessage, message.AS4Message, location, cancellationToken);
                 _repository.InsertInMessage(inMessage);
             }
             catch (Exception ex)
             {
-                ThrowAS4Exception($"Unable to update UserMessage {userMessage.MessageId}", as4Message, ex);
+                ThrowAS4Exception($"Unable to update UserMessage {userMessage.MessageId}", message, ex);
             }
         }
 
@@ -324,13 +331,13 @@ namespace Eu.EDelivery.AS4.Services
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
 
-        private static void ThrowAS4Exception(string description, AS4Message message, Exception exception)
+        private static void ThrowAS4Exception(string description, InternalMessage message, Exception exception)
         {
             Logger.Error(description);
 
             throw AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(message.MessageIds)
+                .WithMessageIds(message.AS4Message.MessageIds)
                 .WithInnerException(exception)
                 .WithReceivingPMode(message.ReceivingPMode)
                 .Build();

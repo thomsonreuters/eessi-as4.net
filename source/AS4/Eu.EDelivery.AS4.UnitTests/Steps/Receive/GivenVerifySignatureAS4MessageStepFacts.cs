@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var receivingPMode = new ReceivingProcessingMode();
             receivingPMode.Security.SigningVerification.Signature = Limit.Allowed;
-            _internalMessage.AS4Message.ReceivingPMode = receivingPMode;
+            _internalMessage.ReceivingPMode = receivingPMode;
         }
     }
 }

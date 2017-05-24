@@ -59,6 +59,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
             NotifyMessage = null;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InternalMessage"/> class.
+        /// </summary>
+        /// <param name="deliverMessage">The deliver message.</param>
         public InternalMessage(DeliverMessageEnvelope deliverMessage)
         {
             SubmitMessage = null;
@@ -67,6 +71,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
             NotifyMessage = null;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InternalMessage"/> class.
+        /// </summary>
+        /// <param name="notifyMessage">The notify message.</param>
         public InternalMessage(NotifyMessageEnvelope notifyMessage)
         {
             SubmitMessage = null;
@@ -75,6 +83,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
             NotifyMessage = notifyMessage;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InternalMessage"/> class.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
         public InternalMessage(AS4Exception exception)
         {
             Exception = exception;
@@ -94,9 +106,35 @@ namespace Eu.EDelivery.AS4.Model.Internal
         // Exposed Info
         public AS4Exception Exception { get; set; }
 
-        public SendingProcessingMode SendPMode { get; set; }
+        public SendingProcessingMode SendingPMode { get; set; }
 
-        public ReceivingProcessingMode ReceivePMode { get; set; }
+        private ReceivingProcessingMode _receivingPMode;
+
+        public ReceivingProcessingMode ReceivingPMode
+        {
+            get { return _receivingPMode; }
+            set
+            {
+                if (_receivingPMode != value)
+                {
+                    _receivingPMode = value;
+                    _receivingPModeString = null;
+                }
+            }
+        }
+
+        private string _receivingPModeString;
+
+        public string GetReceivingPModeString()
+        {
+            if (string.IsNullOrWhiteSpace(_receivingPModeString))
+            {
+                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
+            }
+
+            return _receivingPModeString;
+        }
+
 
         public string Prefix
         {

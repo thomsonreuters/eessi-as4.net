@@ -74,8 +74,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.Equal(as4Message.ReceivingPMode, result.InternalMessage.AS4Message.ReceivingPMode);
-                Assert.Equal(as4Message.SendingPMode, result.InternalMessage.AS4Message.SendingPMode);
+                Assert.Equal(internalMessage.ReceivingPMode, result.InternalMessage.ReceivingPMode);
+                Assert.Equal(internalMessage.SendingPMode, result.InternalMessage.SendingPMode);
             }
 
             [Fact]

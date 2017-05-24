@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 InternalMessage internalMessage = CreateDefaultInternalMessage();
-                internalMessage.AS4Message.ReceivingPMode.ReceiptHandling.ReplyPattern = ReplyPattern.Callback;
+                internalMessage.ReceivingPMode.ReceiptHandling.ReplyPattern = ReplyPattern.Callback;
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);

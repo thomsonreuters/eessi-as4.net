@@ -56,8 +56,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             InternalMessage internalMessage = new InternalMessageBuilder(signalMessage.RefToMessageId)
                            .WithSignalMessage(signalMessage).Build();
 
-            internalMessage.AS4Message.SendingPMode = new SendingProcessingMode();
-            internalMessage.AS4Message.ReceivingPMode = new ReceivingProcessingMode();
+            internalMessage.SendingPMode = new SendingProcessingMode();
+            internalMessage.ReceivingPMode = new ReceivingProcessingMode();
 
             return internalMessage;
         }

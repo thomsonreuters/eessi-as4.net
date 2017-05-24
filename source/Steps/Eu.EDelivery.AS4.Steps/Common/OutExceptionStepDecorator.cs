@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
             OutExceptionBuilder builder = OutExceptionBuilder.ForAS4Exception(exception);
             builder.WithEbmsMessageId(messageId);
 
-            if (NeedsOutExceptionBeNotified(internalMessage.AS4Message?.SendingPMode))
+            if (NeedsOutExceptionBeNotified(internalMessage?.SendingPMode))
             {
                 builder.WithOperation(Operation.ToBeNotified);
             }

@@ -17,11 +17,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             MessageEntity = messageEntity;
         }
 
-        /// <summary>
-        /// Assign custom properties to the <see cref="ReceivedMessage"/>
-        /// </summary>
-        /// <param name="message"></param>
-        public override void AssignPropertiesTo(AS4Message message)
+        public override void AssignPropertiesTo(InternalMessage message)
         {
             base.AssignPropertiesTo(message);
 

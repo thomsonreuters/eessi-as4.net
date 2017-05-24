@@ -56,12 +56,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             Logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
 
-            if (internalMessage.AS4Message?.SendingPMode == null)
+            if (internalMessage?.SendingPMode == null)
             {
                 SendingProcessingMode pmode = RetrieveSendingPMode(internalMessage);
                 if (pmode != null)
                 {
-                    internalMessage.AS4Message = new AS4MessageBuilder().WithSendingPMode(pmode).Build();
+                    internalMessage.AS4Message = new AS4MessageBuilder().Build();
+                    internalMessage.SendingPMode = pmode;
                 }
             }
 
@@ -95,8 +96,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static Method GetNotifyMethod(InternalMessage internalMessage)
         {
             NotifyMessageEnvelope notifyMessage = internalMessage.NotifyMessage;
-            SendingProcessingMode sendPMode = internalMessage.AS4Message.SendingPMode;
-            ReceivingProcessingMode receivePMode = internalMessage.AS4Message.ReceivingPMode;
+            SendingProcessingMode sendPMode = internalMessage.SendingPMode;
+            ReceivingProcessingMode receivePMode = internalMessage.ReceivingPMode;
 
             switch (notifyMessage.StatusCode)
             {
@@ -137,13 +138,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private static void AddPModeToBuilder(InternalMessage message, AS4ExceptionBuilder builder)
         {
-            if (IsNotifyMessageFormedBySending(message.AS4Message?.SendingPMode))
+            if (IsNotifyMessageFormedBySending(message?.SendingPMode))
             {
-                builder.WithSendingPMode(message.AS4Message?.SendingPMode);
+                builder.WithSendingPMode(message?.SendingPMode);
             }
             else
             {
-                builder.WithReceivingPMode(message.AS4Message?.ReceivingPMode);
+                builder.WithReceivingPMode(message?.ReceivingPMode);
             }
         }
 

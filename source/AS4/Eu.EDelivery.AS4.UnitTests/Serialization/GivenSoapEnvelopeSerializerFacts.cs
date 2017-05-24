@@ -196,10 +196,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public void MultihopUserMessageCreatedWhenSpecifiedInPMode()
             {
                 // Arrange
-                AS4Message as4Message = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                InternalMessage message = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 // Act
-                XmlDocument doc = AS4XmlSerializer.ToDocument(as4Message, CancellationToken.None);
+                XmlDocument doc = AS4XmlSerializer.ToDocument(message.AS4Message, CancellationToken.None);
 
                 // Assert
                 var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
@@ -212,12 +212,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             [Fact]
             public async void ReceiptMessageForMultihopUserMessageIsMultihop()
             {
-                AS4Message as4Message = CreateAS4MessageWithPMode(CreateMultihopPMode());
-
-                var message = new InternalMessage
-                {
-                    AS4Message = as4Message
-                };
+                InternalMessage message = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 // Create a receipt for this message.
                 // Use the CreateReceiptStep, since there is no other way.
@@ -236,9 +231,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 AssertToElement(doc);
                 AssertActionElement(doc);
                 AssertUserMessageElement(doc);
-                AssertUserMessageMessagingElement(as4Message, doc);
+                AssertUserMessageMessagingElement(message.AS4Message, doc);
 
-                AssertIfSenderAndReceiverAreReversed(as4Message, doc);
+                AssertIfSenderAndReceiverAreReversed(message.AS4Message, doc);
             }
 
             [Fact]
@@ -265,11 +260,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public void ErrorMessageForMultihopUserMessageIsMultihop()
             {
                 // Arrange
-                AS4Message expectedAS4Message = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                InternalMessage expectedMessage = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 Error error = new ErrorBuilder()
-                    .WithOriginalAS4Message(expectedAS4Message)
-                    .WithRefToEbmsMessageId(expectedAS4Message.PrimaryUserMessage.MessageId)
+                    .WithOriginalMessage(expectedMessage)
+                    .WithRefToEbmsMessageId(expectedMessage.AS4Message.PrimaryUserMessage.MessageId)
                     .Build();
 
                 AS4Message errorMessage = new AS4MessageBuilder()
@@ -289,7 +284,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 AssertUserMessageElement(document);
 
                 AssertMessagingElement(document);
-                AssertIfSenderAndReceiverAreReversed(expectedAS4Message, document);
+                AssertIfSenderAndReceiverAreReversed(expectedMessage.AS4Message, document);
             }
 
             private static void AssertUserMessageMessagingElement(AS4Message as4Message, XmlNode doc)
@@ -350,15 +345,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.Equal(expectedUserMessage.Receiver.PartyIds.First().Id, actualUserMessage.PartyInfo.From.PartyId.First().Value);
             }
 
-            private static AS4Message CreateAS4MessageWithPMode(SendingProcessingMode pmode)
+            private static InternalMessage CreateAS4MessageWithPMode(SendingProcessingMode pmode)
             {
                 var sender = new Party("sender", new PartyId("senderId"));
                 var receiver = new Party("rcv", new PartyId("receiverId"));
 
-                return new AS4MessageBuilder()
-                    .WithSendingPMode(pmode)
+                AS4Message as4Message = new AS4MessageBuilder()
                     .WithUserMessage(new UserMessage { Sender = sender, Receiver = receiver })
                     .Build();
+
+                return new InternalMessage {AS4Message = as4Message, SendingPMode = CreateMultihopPMode()};
             }
 
             private static SendingProcessingMode CreateMultihopPMode()

@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 .WithDescription(description)
                 .WithInnerException(exception)
                 .WithMessageIds(internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
+                .WithSendingPMode(internalMessage.SendingPMode)
                 .Build();
         }
     }

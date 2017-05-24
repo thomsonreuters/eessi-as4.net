@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                HttpWebRequest request = CreateWebRequest(internalMessage.AS4Message);
+                HttpWebRequest request = CreateWebRequest(internalMessage);
                 await TryHandleHttpRequestAsync(request, internalMessage, cancellationToken).ConfigureAwait(false);
 
                 return await TryHandleHttpResponseAsync(request, internalMessage, cancellationToken).ConfigureAwait(false);
@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         protected virtual StepResult HandleSendAS4Exception(InternalMessage internalMessage, Exception exception)
         {
-            if (internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
+            if (internalMessage.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
                 UpdateMessageStatus(_originalAS4Message, Operation.Undetermined, OutStatus.Exception);               
@@ -119,9 +119,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return StepResult.Failed(as4Exception, internalMessage).AndStopExecution();
         }
 
-        private HttpWebRequest CreateWebRequest(AS4Message as4Message)
+        private HttpWebRequest CreateWebRequest(InternalMessage message)
         {
-            ISendConfiguration sendConfiguration = GetSendConfigurationFrom(as4Message);
+            AS4Message as4Message = message.AS4Message;
+            ISendConfiguration sendConfiguration = GetSendConfigurationFrom(message);
 
             HttpWebRequest request = _httpClient.Request(sendConfiguration.Protocol.Url, as4Message.ContentType);
 
@@ -173,7 +174,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             AS4Message as4Message = internalMessage.AS4Message;
 
-            Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(as4Message).Protocol.Url}");
+            Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(internalMessage).Protocol.Url}");
 
             ISerializerProvider provider = Registry.Instance.SerializerProvider;
             long messageSize = as4Message.DetermineMessageSize(provider);
@@ -199,7 +200,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             CancellationToken cancellationToken)
         {
             Logger.Debug(
-                $"AS4 Message received from: {GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url}");
+                $"AS4 Message received from: {GetSendConfigurationFrom(internalMessage).Protocol.Url}");
 
             // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
             // we've sent the message, so update the status to sent.
@@ -247,7 +248,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         protected AS4Exception CreateFailedSendAS4Exception(InternalMessage internalMessage, Exception exception)
         {
-            string protocolUrl = GetSendConfigurationFrom(internalMessage.AS4Message).Protocol.Url;
+            string protocolUrl = GetSendConfigurationFrom(internalMessage).Protocol.Url;
             string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
 
             Logger.Error(description);
@@ -262,16 +263,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .WithErrorCode(ErrorCode.Ebms0005)
                 .WithErrorAlias(ErrorAlias.ConnectionFailure)
                 .WithMessageIds(internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
+                .WithSendingPMode(internalMessage.SendingPMode)
                 .WithInnerException(exception)
                 .Build();
         }
 
-        private static ISendConfiguration GetSendConfigurationFrom(AS4Message as4Message)
+        private static ISendConfiguration GetSendConfigurationFrom(InternalMessage message)
         {
-            return as4Message.IsPulling
-                       ? (ISendConfiguration)as4Message.SendingPMode?.PullConfiguration
-                       : as4Message.SendingPMode?.PushConfiguration;
+            return message.AS4Message.IsPulling
+                       ? (ISendConfiguration)message.SendingPMode?.PullConfiguration
+                       : message.SendingPMode?.PushConfiguration;
         }
     }
 }

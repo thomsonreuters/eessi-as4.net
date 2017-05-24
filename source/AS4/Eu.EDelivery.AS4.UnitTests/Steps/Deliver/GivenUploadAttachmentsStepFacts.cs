@@ -63,11 +63,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             var as4Message = new AS4Message
             {
-                ReceivingPMode = new ReceivingProcessingMode { Deliver = { PayloadReferenceMethod = new Method { Type = "FILE" } } },
-                Attachments = new[] { new Attachment("attachment-id") { Content = Stream.Null } }
+                Attachments = new[] {new Attachment("attachment-id") {Content = Stream.Null}}
             };
 
-            return new InternalMessage(as4Message);
+            return new InternalMessage(as4Message)
+            {
+                ReceivingPMode =
+                    new ReceivingProcessingMode {Deliver = {PayloadReferenceMethod = new Method {Type = "FILE"}}}
+            };
         }
     }
 }

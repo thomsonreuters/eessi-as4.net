@@ -29,14 +29,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            internalMessage.DeliverMessage = await CreateDeliverMessageEnvelope(internalMessage.AS4Message);
+            internalMessage.DeliverMessage = await CreateDeliverMessageEnvelope(internalMessage);
 
             return StepResult.Success(internalMessage);
         }
 
-        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(AS4Message as4Message)
+        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(InternalMessage internalMessage)
         {
-            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, as4Message);
+            AS4Message as4Message = internalMessage.AS4Message;
+            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, internalMessage);
 
             ValidateDeliverMessage(deliverMessage);
 
@@ -48,18 +49,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 "application/xml");
         }
 
-        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, AS4Message as4Message)
+        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, InternalMessage message)
         {
             var deliverMessage = AS4Mapper.Map<DeliverMessage>(userMessage);
-            AssignSendingPModeId(as4Message, deliverMessage);
-            AssignAttachmentLocations(as4Message, deliverMessage);
+            AssignSendingPModeId(message, deliverMessage);
+            AssignAttachmentLocations(message.AS4Message, deliverMessage);
 
             return deliverMessage;
         }
 
-        private static void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)
+        private static void AssignSendingPModeId(InternalMessage message, DeliverMessage deliverMessage)
         {
-            deliverMessage.CollaborationInfo.AgreementRef.PModeId = as4Message.SendingPMode?.Id ?? string.Empty;
+            deliverMessage.CollaborationInfo.AgreementRef.PModeId = message.SendingPMode?.Id ?? string.Empty;
         }
 
         private static void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)

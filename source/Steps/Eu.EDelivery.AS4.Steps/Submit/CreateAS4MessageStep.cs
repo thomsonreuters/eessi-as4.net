@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithSendingPMode(internalMessage.AS4Message?.SendingPMode)
+                .WithSendingPMode(internalMessage?.SendingPMode)
                 .WithMessageIds(generatedMessageId)
                 .WithInnerException(innerException)
                 .Build();

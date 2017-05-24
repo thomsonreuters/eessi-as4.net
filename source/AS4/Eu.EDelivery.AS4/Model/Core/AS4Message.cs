@@ -9,7 +9,6 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -30,9 +29,6 @@ namespace Eu.EDelivery.AS4.Model.Core
             Attachments = new List<Attachment>();
             SignalMessages = new List<SignalMessage>();
             UserMessages = new List<UserMessage>();
-
-            SendingPMode = new SendingProcessingMode();
-            ReceivingPMode = new ReceivingProcessingMode();
         }
 
         // Standard Properties
@@ -43,28 +39,13 @@ namespace Eu.EDelivery.AS4.Model.Core
         // PModes
         public SendingProcessingMode SendingPMode { get; set; }
 
-        private ReceivingProcessingMode _receivingPMode;
-
-        public ReceivingProcessingMode ReceivingPMode
-        {
-            get { return _receivingPMode; }
-            set
-            {
-                if (_receivingPMode != value)
-                {
-                    _receivingPMode = value;
-                    _receivingPModeString = null;
-                }
-            }
-        }
-
         private string _receivingPModeString;
 
         public string GetReceivingPModeString()
         {
             if (String.IsNullOrWhiteSpace(_receivingPModeString))
             {
-                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
+                _receivingPModeString = AS4XmlSerializer.ToString(string.Empty);
             }
             return _receivingPModeString;
         }

@@ -293,7 +293,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             Assert.NotNull(expectedPMode);
             Assert.NotNull(result);
-            Assert.Equal(expectedPMode, result.InternalMessage.AS4Message.ReceivingPMode);
+            Assert.Equal(expectedPMode, result.InternalMessage.ReceivingPMode);
         }
 
         private static void DifferntiatePartyInfo(PMode pmode)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -50,7 +51,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await ReturnSameInternalMessage(internalMessage).ConfigureAwait(false);
             }
 
-            await TryDecompressAttachments(internalMessage.AS4Message).ConfigureAwait(false);
+            await TryDecompressAttachments(internalMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -60,17 +61,18 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private async Task TryDecompressAttachments(AS4Message as4Message)
+        private async Task TryDecompressAttachments(InternalMessage message)
         {
             try
             {
+                AS4Message as4Message = message.AS4Message;
                 await DecompressAttachments(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), as4Message.Attachments).ConfigureAwait(false);
                 _logger.Info(
                     $"{_internalMessage.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
             }
             catch (Exception exception)
             {
-                throw ThrowAS4CannotDecompressException(as4Message, exception);
+                throw ThrowAS4CannotDecompressException(exception, message);
             }
         }
 
@@ -157,8 +159,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return messagePayloadInfo.Find(i => attachment.Matches(i)).Properties["MimeType"];
         }
 
-        private static AS4Exception ThrowAS4CannotDecompressException(AS4Message as4Message, Exception exception)
+        private static AS4Exception ThrowAS4CannotDecompressException(Exception exception, InternalMessage message)
         {
+            AS4Message as4Message = message.AS4Message;
             string description = $"Cannot decompress the message: {exception.Message}";
             LogManager.GetCurrentClassLogger().Error(description);
 
@@ -167,7 +170,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 .WithMessageIds(as4Message.MessageIds)
                 .WithErrorCode(ErrorCode.Ebms0303)
                 .WithInnerException(exception)
-                .WithReceivingPMode(as4Message.ReceivingPMode)
+                .WithReceivingPMode(message.ReceivingPMode)
                 .Build();
         }
     }

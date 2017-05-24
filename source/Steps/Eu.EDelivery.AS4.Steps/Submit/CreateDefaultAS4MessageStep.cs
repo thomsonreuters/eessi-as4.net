@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
             internalMessage.AS4Message.UserMessages.Add(userMessage);
-            internalMessage.AS4Message.SendingPMode = pmode;
+            internalMessage.SendingPMode = pmode;
             AddPartInfos(internalMessage.AS4Message);
         }
 

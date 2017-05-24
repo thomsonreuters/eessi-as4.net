@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            if (!internalMessage.AS4Message.SendingPMode.MessagePackaging.UseAS4Compression)
+            if (!internalMessage.SendingPMode.MessagePackaging.UseAS4Compression)
             {
                 return await ReturnSameInternalMessage(internalMessage);
             }
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
-            Logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Compression is disabled");
+            Logger.Debug($"Sending PMode {internalMessage.SendingPMode.Id} Compression is disabled");
             return await StepResult.SuccessAsync(internalMessage);
         }
 
@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .WithDescription(description)
                 .WithInnerException(innerException)
                 .WithMessageIds(_internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(_internalMessage.AS4Message.SendingPMode)
+                .WithSendingPMode(_internalMessage.SendingPMode)
                 .Build();
         }
     }

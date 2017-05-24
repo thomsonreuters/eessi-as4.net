@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             if (!IsReceptionAwarenessEnabled(internalMessage))
             {
-                string pmodeId = internalMessage.AS4Message.SendingPMode.Id;
+                string pmodeId = internalMessage.SendingPMode.Id;
                 return await ReturnSameResult(internalMessage, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
             }
 
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static bool IsReceptionAwarenessEnabled(InternalMessage internalMessage)
         {
-            return internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled;
+            return internalMessage.SendingPMode.Reliability.ReceptionAwareness.IsEnabled;
         }
 
         private static async Task<StepResult> ReturnSameResult(InternalMessage internalMessage, string description)
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 UpdateCurrentRetryCountFor(existingReceptionAwarenessEntities);
 
                 // For every MessageId for which no ReceptionAwareness entity exists, create one.
-                InsertReceptionAwarenessForMessagesWithout(as4Message, repository, existingReceptionAwarenessEntities);
+                InsertReceptionAwarenessForMessagesWithout(internalMessage, repository, existingReceptionAwarenessEntities);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
@@ -81,16 +81,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
 
         private static void InsertReceptionAwarenessForMessagesWithout(
-            AS4Message as4Message,
+            InternalMessage message,
             IDatastoreRepository repository,
             IEnumerable<Entities.ReceptionAwareness> existingReceptionAwarenessEntities)
         {
+            AS4Message as4Message = message.AS4Message;
             IEnumerable<string> existingIds = existingReceptionAwarenessEntities.Select(r => r.InternalMessageId);
             IEnumerable<string> messageIdsWithoutReceptionAwareness = as4Message.MessageIds.Where(id => existingIds.Contains(id) == false);
 
             foreach (string messageId in messageIdsWithoutReceptionAwareness)
             {
-                Entities.ReceptionAwareness receptionAwareness = CreateReceptionAwareness(messageId, as4Message.SendingPMode);
+                Entities.ReceptionAwareness receptionAwareness = CreateReceptionAwareness(messageId, message.SendingPMode);
                 repository.InsertReceptionAwareness(receptionAwareness);
             }
         }

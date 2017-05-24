@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.NotNull(result.InternalMessage.AS4Message.ReceivingPMode);
+                Assert.NotNull(result.InternalMessage.ReceivingPMode);
             }
 
             [Theory]
@@ -84,8 +84,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Arrange
                 InternalMessage internalMessage = DummyMessage();
-                internalMessage.AS4Message.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
-                internalMessage.AS4Message.ReceivingPMode.ErrorHandling.SendingPMode = "";
+                internalMessage.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
+                internalMessage.ReceivingPMode.ErrorHandling.SendingPMode = "";
 
                 var stubStep = new SaboteurStep(CreateAS4Exception());
                 IStep sut = GetCatchedCompositeSteps(stubStep);
@@ -128,10 +128,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             var as4Message = new AS4Message
             {
-                ReceivingPMode = GetStubReceivingPMode(),
                 UserMessages = new[] {new UserMessage("message-id")}
             };
-            return new InternalMessage(as4Message);
+            return new InternalMessage(as4Message) {ReceivingPMode = GetStubReceivingPMode()};
         }
 
         private AS4Exception CreateAS4Exception(string messageId = "ignored-string")

@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private async Task SendDeliverMessage(DeliverMessageEnvelope deliverMessage)
         {
-            Method deliverMethod = _internalMessage.AS4Message?.ReceivingPMode.Deliver.DeliverMethod;
+            Method deliverMethod = _internalMessage?.ReceivingPMode.Deliver.DeliverMethod;
 
             IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 .WithMessageIds(_internalMessage.AS4Message?.MessageIds ?? new string[0])
                 .WithErrorAlias(ErrorAlias.ConnectionFailure)
                 .WithInnerException(innerException)
-                .WithReceivingPMode(_internalMessage.AS4Message?.ReceivingPMode)
+                .WithReceivingPMode(_internalMessage?.ReceivingPMode)
                 .Build();
         }
     }

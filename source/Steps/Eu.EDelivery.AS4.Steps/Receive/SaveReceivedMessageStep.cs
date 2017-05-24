@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 var repository = new DatastoreRepository(context);
                 var service = new InMessageService(repository);
 
-                await service.InsertAS4Message(internalMessage.AS4Message, _messageBodyPersister, token).ConfigureAwait(false);
+                await service.InsertAS4Message(internalMessage, _messageBodyPersister, token).ConfigureAwait(false);
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
             }
 

@@ -39,7 +39,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         {
             // Arrange
             InternalMessage internalMessage = EmptyDeliverMessageEnvelope();
-            internalMessage.AS4Message = new AS4Message { ReceivingPMode = CreateDefaultReceivingPMode() };
+            internalMessage.AS4Message = new AS4Message();
+            internalMessage.ReceivingPMode = CreateDefaultReceivingPMode();
 
             var spySender = Mock.Of<IDeliverSender>();
             IStep sut = CreateSendDeliverStepWithSender(spySender);

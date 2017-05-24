@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             PreConditions(internalMessage);
 
-            if (MessageDoesNotNeedToBeVerified(internalMessage.AS4Message))
+            if (MessageDoesNotNeedToBeVerified(internalMessage))
             {
                 return await StepResult.SuccessAsync(internalMessage);
             }
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static void PreConditions(InternalMessage internalMessage)
         {
 
-            ReceivingProcessingMode pmode = internalMessage.AS4Message.ReceivingPMode;
+            ReceivingProcessingMode pmode = internalMessage.ReceivingPMode;
             SigningVerification verification = pmode?.Security.SigningVerification;
 
             bool isMessageFailsTheRequiredSigning = verification?.Signature == Limit.Required && !internalMessage.AS4Message.IsSigned;
@@ -59,10 +59,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static bool MessageDoesNotNeedToBeVerified(AS4Message as4Message)
+        private static bool MessageDoesNotNeedToBeVerified(InternalMessage message)
         {
+            AS4Message as4Message = message.AS4Message;
+
             return !as4Message.IsSigned ||
-                    as4Message.ReceivingPMode?.Security.SigningVerification.Signature == Limit.Ignored;
+                    message.ReceivingPMode?.Security.SigningVerification.Signature == Limit.Ignored;
         }
 
         private static async Task<StepResult> TryVerifyingSignature(InternalMessage internalMessage)
@@ -129,7 +131,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 .WithMessageIds(internalMessage.AS4Message.MessageIds)
                 .WithErrorCode(errorCode)
                 .WithInnerException(innerException)
-                .WithReceivingPMode(internalMessage.AS4Message.ReceivingPMode)
+                .WithReceivingPMode(internalMessage.ReceivingPMode)
                 .Build();
         }
     }

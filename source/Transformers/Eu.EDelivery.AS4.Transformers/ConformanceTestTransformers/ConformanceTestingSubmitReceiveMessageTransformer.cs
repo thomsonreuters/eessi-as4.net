@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 
                 TransformUserMessage(as4Message.PrimaryUserMessage, properties);
 
-                AssignPMode(as4Message);
+                AssignPMode(internalMessage);
 
                 // This is an ugly hack, but we need something to use in our ConditionalStep in order to know whether or not we should submit or receive.
                 // This needs to be reviewed later.  It is very possible that we can get rid of the SubmitMessage - property in the InternalMessage, which
@@ -43,11 +43,12 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             return new InternalMessage(as4Message);
         }
 
-        private static void AssignPMode(AS4Message as4Message)
+        private static void AssignPMode(InternalMessage message)
         {
+            AS4Message as4Message = message.AS4Message;
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
             var pmode = Config.Instance.GetSendingPMode(as4Message.PrimaryUserMessage.CollaborationInfo.Action);
-            as4Message.SendingPMode = pmode;
+            message.SendingPMode = pmode;
         }
 
         private static void TransformUserMessage(UserMessage userMessage, IList<MessageProperty> properties)

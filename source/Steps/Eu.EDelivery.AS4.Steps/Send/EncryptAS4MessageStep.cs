@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            if (!internalMessage.AS4Message.SendingPMode.Security.Encryption.IsEnabled)
+            if (!internalMessage.SendingPMode.Security.Encryption.IsEnabled)
             {
                 return await ReturnSameInternalMessage(internalMessage);
             }
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private IEncryptionStrategy CreateEncryptStrategy(InternalMessage internalMessage)
         {
             AS4Message as4Message = internalMessage.AS4Message;
-            Encryption encryption = as4Message.SendingPMode.Security.Encryption;
+            Encryption encryption = internalMessage.SendingPMode.Security.Encryption;
 
             X509Certificate2 certificate = RetrieveCertificate(internalMessage);
 
@@ -96,14 +96,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private X509Certificate2 RetrieveCertificate(InternalMessage internalMessage)
         {
-            Encryption encryption = internalMessage.AS4Message.SendingPMode.Security.Encryption;
+            Encryption encryption = internalMessage.SendingPMode.Security.Encryption;
 
             return _certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
         }
 
         private static Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
         {
-            Logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Encryption is disabled");
+            Logger.Debug($"Sending PMode {internalMessage.SendingPMode.Id} Encryption is disabled");
             return StepResult.SuccessAsync(internalMessage);
         }
 
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .WithDescription(description)
                 .WithInnerException(innerException)
                 .WithMessageIds(internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
+                .WithSendingPMode(internalMessage.SendingPMode)
                 .Build();
         }
     }

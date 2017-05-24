@@ -122,9 +122,6 @@ namespace Eu.EDelivery.AS4.Builders.Core
             BuildingSignalMessages(message);
             BuildingAttachments(message);
 
-            message.SendingPMode = this._sendPMode;
-            message.ReceivingPMode = this._receivePMode;
-
             return message;
         }
 

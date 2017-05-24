@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
@@ -61,11 +62,11 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return this;
         }
 
-        public ErrorBuilder WithOriginalAS4Message(AS4Message message)
+        public ErrorBuilder WithOriginalMessage(InternalMessage message)
         {
             if (message.SendingPMode.MessagePackaging.IsMultiHop)
-            {                
-                _errorMessage.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>( message.PrimaryUserMessage);
+            {
+                _errorMessage.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(message.AS4Message.PrimaryUserMessage);
             }
 
             return this;

@@ -27,13 +27,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
                 // Act
                 InMessage inMessage = InMessageBuilder.ForSignalMessage(receipt, as4Message)
-                                                        .WithPModeString(AS4XmlSerializer.ToString(as4Message.ReceivingPMode))
+                                                        .WithPModeString(AS4XmlSerializer.ToString(new ReceivingProcessingMode()))
                                                         .Build(CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(inMessage);
                 Assert.Equal(as4Message.ContentType, inMessage.ContentType);
-                Assert.Equal(AS4XmlSerializer.ToString(as4Message.ReceivingPMode), inMessage.PMode);
+                Assert.Equal(AS4XmlSerializer.ToString(new ReceivingProcessingMode()), inMessage.PMode);
                 Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
             }
         }
@@ -73,7 +73,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
-                SendingPMode = new SendingProcessingMode(),
                 Attachments = new List<Attachment>()
             };
         }

@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 var service = new InMessageService(repository);
 
-                await service.UpdateAS4MessageForDeliveryAndNotification(internalMessage.AS4Message, _messageBodyPersister, cancellationToken);
+                await service.UpdateAS4MessageForDeliveryAndNotification(internalMessage, _messageBodyPersister, cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
             }

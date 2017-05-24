@@ -160,7 +160,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static void AssignResponseHttpCode(InternalMessage internalMessage)
         {
-            ReceivingProcessingMode receivingPMode = internalMessage.AS4Message.ReceivingPMode;
+            ReceivingProcessingMode receivingPMode = internalMessage.ReceivingPMode;
             receivingPMode = receivingPMode ?? new ReceivingProcessingMode();
             receivingPMode.ErrorHandling.ResponseHttpCode = 500;
         }

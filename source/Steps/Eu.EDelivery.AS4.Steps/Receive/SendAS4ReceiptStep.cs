@@ -38,21 +38,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await ReturnSameStepResult(internalMessage);
             }
 
-            return  IsReplyPatternCallback(internalMessage.AS4Message)
+            return  IsReplyPatternCallback(internalMessage)
                 ? await CreateEmptySoapResult(internalMessage)
                 : await ReturnSameStepResult(internalMessage);
         }
 
-        private static bool IsReplyPatternCallback(AS4Message as4Message)
+        private static bool IsReplyPatternCallback(InternalMessage message)
         {
-            return as4Message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
+            return message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
         private async Task<StepResult> CreateEmptySoapResult(InternalMessage internalMessage)
         {
             _logger.Info($"{internalMessage.Prefix} Empty SOAP Envelope will be send to requested party");
 
-            AS4Message emptyAS4Message = CreateEmptyAS4Message(internalMessage.AS4Message.ReceivingPMode);
+            AS4Message emptyAS4Message = CreateEmptyAS4Message(internalMessage.ReceivingPMode);
             var emptyInternalMessage = new InternalMessage(emptyAS4Message);
             return await StepResult.SuccessAsync(emptyInternalMessage);
         }

@@ -58,17 +58,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             AS4Message errorMessage = CreateAS4ErrorMessage(internalMessage);
 
+            var message = new InternalMessage(errorMessage)
+            {
+                SendingPMode = internalMessage.SendingPMode,
+                ReceivingPMode = internalMessage.ReceivingPMode
+            };
+
             // Save the Error Message as well .... 
             using (DatastoreContext db = _createDatastore())
             {
                 var service = new OutMessageService(new DatastoreRepository(db), _as4MessageBodyPersister);
 
                 // The service will determine the correct operation for each message-part.
-                await service.InsertAS4Message(errorMessage, Operation.NotApplicable, cancellationToken);
+                await service.InsertAS4Message(message, Operation.NotApplicable, cancellationToken);
                 await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
-
-            return await StepResult.SuccessAsync(new InternalMessage(errorMessage));
+            
+            return await StepResult.SuccessAsync(message);
         }
 
         private static AS4Message CreateAS4ErrorMessage(InternalMessage internalMessage)
@@ -79,15 +85,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             CreateErrorForEveryUserMessageIn(internalMessage, error => builder.WithSignalMessage(error));
 
-            if (internalMessage.AS4Message.ReceivingPMode != null)
+            if (internalMessage.ReceivingPMode != null)
             {
-                builder.WithReceivingPMode(internalMessage.AS4Message.ReceivingPMode);
+                builder.WithReceivingPMode(internalMessage.ReceivingPMode);
             }
 
             AS4Message errorMessage = builder.Build();
 
             errorMessage.SigningId = internalMessage.AS4Message.SigningId;
-            errorMessage.SendingPMode = internalMessage.AS4Message.SendingPMode;
 
             return errorMessage;
         }
@@ -96,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             foreach (UserMessage userMessage in internalMessage.AS4Message.UserMessages)
             {
-                Error error = CreateError(internalMessage.Exception, userMessage.MessageId, internalMessage.AS4Message);
+                Error error = CreateError(internalMessage.Exception, userMessage.MessageId, internalMessage);
 
                 callback(error);
             }
@@ -107,11 +112,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return internalMessage.Exception != null && (internalMessage.AS4Message?.UserMessages?.Any() ?? false);
         }
 
-        private static Error CreateError(AS4Exception exception, string userMessageId, AS4Message originalAS4Message)
+        private static Error CreateError(AS4Exception exception, string userMessageId, InternalMessage originalAS4Message)
         {
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(userMessageId)
-                .WithOriginalAS4Message(originalAS4Message)
+                .WithOriginalMessage(originalAS4Message)
                 .WithAS4Exception(exception)
                 .Build();
         }

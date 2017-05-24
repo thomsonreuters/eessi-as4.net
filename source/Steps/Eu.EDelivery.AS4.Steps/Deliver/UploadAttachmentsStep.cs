@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private Method GetPayloadReferenceMethod()
         {
-            ReceivingProcessingMode pmode = _internalMessage.AS4Message.ReceivingPMode;
+            ReceivingProcessingMode pmode = _internalMessage.ReceivingPMode;
             Method payloadReferenceMethod = pmode.Deliver.PayloadReferenceMethod;
             PreConditionsPayloadReferenceMethod(pmode, payloadReferenceMethod);
 
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             AS4ExceptionBuilder builder = AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(exception)
-                .WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode);
+                .WithReceivingPMode(_internalMessage.ReceivingPMode);
 
             if (_internalMessage.DeliverMessage != null)
             {

@@ -391,9 +391,9 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 private static HttpStatusCode DetermineHttpCodeFrom(InternalMessage processorResult)
                 {
-                    if (processorResult.AS4Message?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
+                    if (processorResult?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
                     {
-                        int errorHttpCode = processorResult.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
+                        int errorHttpCode = processorResult.ReceivingPMode.ErrorHandling.ResponseHttpCode;
 
                         if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                         {

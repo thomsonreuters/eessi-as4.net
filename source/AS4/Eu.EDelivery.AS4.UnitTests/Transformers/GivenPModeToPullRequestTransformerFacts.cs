@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 yield return new object[] {new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
 
                 var message = new Mock<ReceivedMessage>();
-                message.Setup(m => m.AssignPropertiesTo(It.IsAny<AS4Message>())).Throws<Exception>();
+                message.Setup(m => m.AssignPropertiesTo(It.IsAny<InternalMessage>())).Throws<Exception>();
                 yield return new object[] {message.Object};
             }
         }
