@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Validators
 
             if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption != null)
             {
-                const int defaultKeySize = 256;
+                const int defaultKeySize = 128;
                 Logger.Warn($"Invalid Encryption 'Key Size': {actualKeySize}, {defaultKeySize} is taken as default");
                 model.Security.Encryption.AlgorithmKeySize = defaultKeySize;
             }
