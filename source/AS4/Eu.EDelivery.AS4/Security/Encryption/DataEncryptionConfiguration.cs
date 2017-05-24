@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Security.Encryption
             string encryptionMethod,
             string encryptionType = "http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only",
             string transformAlgorithm = AttachmentCiphertextTransform.Url,
-            int algorithmKeySize = 256)
+            int algorithmKeySize = 128)
         {
             EncryptionMethod = encryptionMethod;
             EncryptionType = encryptionType;
