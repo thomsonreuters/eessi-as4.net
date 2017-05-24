@@ -85,10 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
             }
 
-            // If the Receipt is a Receipt on a MultihopMessage, then we'll need the original
-            // UserMessage.
-
-            // I think this check is wrong: we should check the Messaging Header of the received AS4Message, and not look in the PMode.
+            // If the Receipt is a Receipt on a MultihopMessage, then we'll need to add some routing-info.
             if (receivedAS4Message.IsMultiHopMessage)
             {
                 Logger.Debug("The received UserMessage has been sent via MultiHop.  Send Receipt as MultiHop as well.");
