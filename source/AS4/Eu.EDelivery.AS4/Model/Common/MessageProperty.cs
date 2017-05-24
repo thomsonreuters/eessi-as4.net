@@ -4,7 +4,8 @@ namespace Eu.EDelivery.AS4.Model.Common
 {
     public class MessageProperty : IEquatable<MessageProperty>
     {
-        public string Name { get; set; }        
+        public string Name { get; set; }
+
         public string Value { get; set; }
 
         public MessageProperty() : this(string.Empty, string.Empty)
@@ -14,7 +15,7 @@ namespace Eu.EDelivery.AS4.Model.Common
 
         public MessageProperty(string name, string value)
         {
-            Name = name;            
+            Name = name;
             Value = value;
         }
 
@@ -27,11 +28,18 @@ namespace Eu.EDelivery.AS4.Model.Common
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(MessageProperty other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
 
             return
-                string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase) &&                
+                string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -61,9 +69,7 @@ namespace Eu.EDelivery.AS4.Model.Common
             unchecked
             {
                 int hashCode = Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Name) : 0;
-                
-                hashCode = (hashCode * 397) ^
-                           (Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0);
+                hashCode = (hashCode * 397) ^ (Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0);
                 return hashCode;
             }
         }

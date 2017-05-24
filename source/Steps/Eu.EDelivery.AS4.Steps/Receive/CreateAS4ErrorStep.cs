@@ -21,14 +21,14 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class CreateAS4ErrorStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IAS4MessageBodyStore _messageBodyStore;
         private readonly Func<DatastoreContext> _createDatastore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
-        public CreateAS4ErrorStep()
-            : this(Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) {}
+        public CreateAS4ErrorStep() : this(Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class
@@ -40,6 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             _messageBodyStore = messageBodyStore;
             _createDatastore = createDatastoreContext;
         }
+
 
         /// <summary>
         /// Start creating <see cref="Error"/>
@@ -108,12 +109,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static Error CreateError(AS4Exception exception, string userMessageId, AS4Message originalAS4Message)
         {
-            return new ErrorBuilder()
-                .WithRefToEbmsMessageId(userMessageId)
-                .WithOriginalAS4Message(originalAS4Message)
-                .WithAS4Exception(exception)
-                .Build();
+            return
+                new ErrorBuilder().WithRefToEbmsMessageId(userMessageId)
+                                  .WithOriginalAS4Message(originalAS4Message)
+                                  .WithAS4Exception(exception)
+                                  .Build();
         }
-
     }
 }
