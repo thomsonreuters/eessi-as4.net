@@ -40,11 +40,23 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(internalMessage.AS4Message);
+            bool includeAttachments = true;
+
+            var collaborationInfo = internalMessage.AS4Message.ReceivingPMode.MessagePackaging?.CollaborationInfo;
+
+            if (collaborationInfo != null &&
+                (collaborationInfo.Action?.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false) &&
+                (collaborationInfo.Service?.Value?.Equals("SRV_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false))
+            {
+                includeAttachments = false;
+            }
+
+            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(internalMessage.AS4Message, includeAttachments);
+
             return StepResult.SuccessAsync(internalMessage);
         }
 
-        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
+        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message, bool includeAttachments)
         {
             UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
@@ -52,8 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             var builder = new AS4MessageBuilder();
             builder.WithUserMessage(deliverMessage);
 
-            if (deliverMessage.CollaborationInfo.Action.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) == false &&
-                deliverMessage.CollaborationInfo.Service?.Value?.Equals("SRV_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) == false)
+            if (includeAttachments)
             {
                 foreach (Attachment attachment in as4Message.Attachments)
                 {
