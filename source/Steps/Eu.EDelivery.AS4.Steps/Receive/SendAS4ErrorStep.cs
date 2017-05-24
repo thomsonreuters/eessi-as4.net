@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {        
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            if (internalMessage.AS4Message.IsEmpty)
+            if (internalMessage.AS4Message?.IsEmpty == true)
             {
                 return await ReturnSameStepResult(internalMessage);
             }
@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static bool IsReplyPatternCallback(AS4Message as4Message)
         {
-            return as4Message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
+            return as4Message?.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
         private static async Task<StepResult> CreateEmptySoapResult(InternalMessage internalMessage)

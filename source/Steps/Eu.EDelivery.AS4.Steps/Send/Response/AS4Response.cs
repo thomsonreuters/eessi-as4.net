@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 ResultedMessage = await TryDeserializeHttpResponse(webResponse, cancellation).ConfigureAwait(false)
             };
 
-            response.ResultedMessage.AS4Message.SendingPMode = response.OriginalRequest?.AS4Message.SendingPMode;
+            response.ResultedMessage.AS4Message.SendingPMode = response.OriginalRequest?.AS4Message?.SendingPMode;
 
             return response;
         }

@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
             bool isOriginatedFromPullRequest = (response.ResultedMessage.AS4Message.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
-            bool isRequestBeingSendAPullRequest = response.OriginalRequest.AS4Message.IsPulling;
+            bool isRequestBeingSendAPullRequest = response.OriginalRequest.AS4Message?.IsPulling == true;
 
             if (isOriginatedFromPullRequest && isRequestBeingSendAPullRequest)
             {

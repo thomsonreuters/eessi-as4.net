@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
@@ -42,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                var internalMessage = new InternalMessage();
+                var internalMessage = new InternalMessage(new AS4Message());
 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -75,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                var internalMessage = new InternalMessage();
+                var internalMessage = new InternalMessage(new AS4Message());
 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -104,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
                     await context.SaveChangesAsync();
                 }
-                var internalMessage = new InternalMessage();
+                var internalMessage = new InternalMessage(new AS4Message());
 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);

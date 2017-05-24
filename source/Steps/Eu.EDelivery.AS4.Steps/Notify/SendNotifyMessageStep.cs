@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -19,29 +20,25 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     /// </summary>
     public class SendNotifyMessageStep : IStep
     {
-        private readonly INotifySenderProvider _provider;
-        private readonly Func<DatastoreContext> _dataContextRetriever;
-
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private InternalMessage _internalMessage;
+        private readonly INotifySenderProvider _provider;
+        private readonly Func<DatastoreContext> _dataContextRetriever;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class
         /// </summary>
-        public SendNotifyMessageStep() : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext)
-        {
-        }
+        public SendNotifyMessageStep()
+            : this(Registry.Instance.NotifySenderProvider, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class. 
-        /// Create a <see cref="IStep"/> implementation
-        /// to send a <see cref="NotifyMessage"/> 
+        /// Initializes a new instance of the <see cref="SendNotifyMessageStep" /> class.
+        /// Create a <see cref="IStep" /> implementation
+        /// to send a <see cref="NotifyMessage" />
         /// to the consuming business application
         /// </summary>
-        /// <param name="provider">
-        /// The provider.
-        /// </param>
+        /// <param name="provider">The provider.</param>
+        /// <param name="dataContextRetriever">The data context retriever.</param>
         public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> dataContextRetriever)
         {
             _provider = provider;
@@ -55,60 +52,64 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="internalMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="AS4Exception">Throws exception when Notify Message is send incorrectly</exception>
         public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
         {
-            _internalMessage = internalMessage;
             Logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
 
-            if (internalMessage.AS4Message.SendingPMode == null)
+            if (internalMessage.AS4Message?.SendingPMode == null)
             {
-                internalMessage.AS4Message.SendingPMode = RetrieveSendingPMode(internalMessage);
+                SendingProcessingMode pmode = RetrieveSendingPMode(internalMessage);
+                if (pmode != null)
+                {
+                    internalMessage.AS4Message = new AS4MessageBuilder().WithSendingPMode(pmode).Build();
+                }
             }
 
-            await TrySendNotifyMessage(internalMessage.NotifyMessage).ConfigureAwait(false);
+            await TrySendNotifyMessage(internalMessage).ConfigureAwait(false);
             return await StepResult.SuccessAsync(internalMessage);
         }
 
         private SendingProcessingMode RetrieveSendingPMode(InternalMessage internalMessage)
         {
-            using (var context = _dataContextRetriever())
+            using (DatastoreContext context = _dataContextRetriever())
             {
                 var repo = new DatastoreRepository(context);
-                return repo.RetrieveSendingPModeForOutMessage(internalMessage.AS4Message.PrimarySignalMessage.RefToMessageId);
+                return repo.RetrieveSendingPModeForOutMessage(internalMessage.AS4Message?.PrimarySignalMessage.RefToMessageId);
             }
         }
 
-        private async Task TrySendNotifyMessage(NotifyMessageEnvelope notifyMessage)
+        private async Task TrySendNotifyMessage(InternalMessage message)
         {
             try
             {
-                Method notifyMethod = GetNotifyMethod(notifyMessage);
+                NotifyMessageEnvelope notifyMessage = message.NotifyMessage;
+                Method notifyMethod = GetNotifyMethod(message);
                 await SendNotifyMessage(notifyMessage, notifyMethod).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
-                throw ThrowAS4SendException("Notify Message was not send correctly", exception);
+                throw ThrowAS4SendException(exception, message);
             }
         }
 
-        private Method GetNotifyMethod(NotifyMessageEnvelope notifyMessage)
+        private static Method GetNotifyMethod(InternalMessage internalMessage)
         {
-            SendingProcessingMode sendPMode = _internalMessage.AS4Message.SendingPMode;
-            ReceivingProcessingMode receivePMode = _internalMessage.AS4Message.ReceivingPMode;
+            NotifyMessageEnvelope notifyMessage = internalMessage.NotifyMessage;
+            SendingProcessingMode sendPMode = internalMessage.AS4Message.SendingPMode;
+            ReceivingProcessingMode receivePMode = internalMessage.AS4Message.ReceivingPMode;
 
             switch (notifyMessage.StatusCode)
             {
                 case Status.Delivered: return sendPMode.ReceiptHandling.NotifyMethod;
                 case Status.Error: return sendPMode.ErrorHandling.NotifyMethod;
-                case Status.Exception: return DetermineMethod(sendPMode?.ExceptionHandling, receivePMode?.ExceptionHandling);
+                case Status.Exception: return DetermineMethod(sendPMode, sendPMode?.ExceptionHandling, receivePMode?.ExceptionHandling);
                 default: throw new ArgumentOutOfRangeException($"Notify method not defined for status {notifyMessage.StatusCode}");
             }
         }
 
-        private Method DetermineMethod(SendHandling sendHandling, Receivehandling receivehandling)
+        private static Method DetermineMethod(IPMode sendPMode, SendHandling sendHandling, Receivehandling receivehandling)
         {
-            return IsNotifyMessageFormedBySending() ? sendHandling?.NotifyMethod : receivehandling?.NotifyMethod;
+            return IsNotifyMessageFormedBySending(sendPMode) ? sendHandling?.NotifyMethod : receivehandling?.NotifyMethod;
         }
 
         private async Task SendNotifyMessage(NotifyMessageEnvelope notifyMessage, Method notifyMethod)
@@ -118,36 +119,37 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             await sender.SendAsync(notifyMessage).ConfigureAwait(false);
         }
 
-        private AS4Exception ThrowAS4SendException(string description, Exception exception = null)
+        private static AS4Exception ThrowAS4SendException(Exception innerException, InternalMessage message)
         {
+            const string description = "Notify Message was not send correctly";
             Logger.Error(description);
 
             AS4ExceptionBuilder builder = AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithInnerException(exception)
-                .WithMessageIds(_internalMessage.NotifyMessage.MessageInfo.MessageId)
+                .WithInnerException(innerException)
+                .WithMessageIds(message.NotifyMessage.MessageInfo.MessageId)
                 .WithErrorAlias(ErrorAlias.ConnectionFailure);
 
-            AddPModeToBuilder(builder);
+            AddPModeToBuilder(message, builder);
 
             return builder.Build();
         }
 
-        private void AddPModeToBuilder(AS4ExceptionBuilder builder)
+        private static void AddPModeToBuilder(InternalMessage message, AS4ExceptionBuilder builder)
         {
-            if (IsNotifyMessageFormedBySending())
+            if (IsNotifyMessageFormedBySending(message.AS4Message?.SendingPMode))
             {
-                builder.WithSendingPMode(_internalMessage.AS4Message.SendingPMode);
+                builder.WithSendingPMode(message.AS4Message?.SendingPMode);
             }
             else
             {
-                builder.WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode);
+                builder.WithReceivingPMode(message.AS4Message?.ReceivingPMode);
             }
         }
 
-        public bool IsNotifyMessageFormedBySending()
+        private static bool IsNotifyMessageFormedBySending(IPMode pmode)
         {
-            return _internalMessage.AS4Message.SendingPMode?.Id != null;
+            return pmode?.Id != null;
         }
     }
 }

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Microsoft.EntityFrameworkCore;
+using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Moq;
 using Xunit;
 
@@ -20,94 +20,84 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     /// </summary>
     public class GivenSendNotifyMessageStepFacts : GivenDatastoreFacts
     {
-        private readonly Mock<INotifySenderProvider> _mockedProvider;
-        private readonly Mock<INotifySender> _mockedSender;
-        private SendNotifyMessageStep _step;
-
-        public GivenSendNotifyMessageStepFacts()
+        [Fact]
+        public async Task ThenExecuteStepFailsWithConnectionFailureAsync()
         {
-            _mockedSender = new Mock<INotifySender>();
-            _mockedProvider = new Mock<INotifySenderProvider>();
-            _mockedProvider.Setup(p => p.GetNotifySender(It.IsAny<string>())).Returns(_mockedSender.Object);
+            // Arrange
+            IStep sut = CreateSendNotifyStepWithSender(new SaboteurSender());
 
-            _step = new SendNotifyMessageStep(_mockedProvider.Object, () => new DatastoreContext(Options));
+            var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
+            var internalMessage = new InternalMessage(notifyMessage);
+
+            // Act / Assert
+            AS4Exception exception =
+                await Assert.ThrowsAsync<AS4Exception>(
+                    () => sut.ExecuteAsync(internalMessage, CancellationToken.None));
+
+            Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
         }
 
-        public class GivenValidArguments : GivenSendNotifyMessageStepFacts
+        [Fact]
+        public async Task ThenExecuteStepSucceedsWithSendingPModeAsync()
         {
-            private static SendingProcessingMode CreateDefaultSendingPMode()
+            // Arrange
+            NotifyMessageEnvelope notifyMessage = EmptyNotifyMessageEnvelope(Status.Delivered);
+            var internalMessage = new InternalMessage(notifyMessage)
             {
-                return new SendingProcessingMode {ReceiptHandling = {NotifyMethod = new Method()}};
-            }
+                AS4Message = new AS4Message {SendingPMode = CreateDefaultSendingPMode()}
+            };
 
-            [Fact]
-            public async Task ThenExecuteStepSucceedsWithSendingPModeAsync()
+            var spySender = new SpySender();
+            IStep sut = CreateSendNotifyStepWithSender(spySender);
+
+            // Act
+            await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+
+            // Assert
+            Assert.True(spySender.IsNotified);
+        }
+
+        private static SendingProcessingMode CreateDefaultSendingPMode()
+        {
+            return new SendingProcessingMode {ReceiptHandling = {NotifyMethod = new Method()}};
+        }
+
+        [Fact]
+        public async Task ThenExecuteStepWithReceivingPModeAsync()
+        {
+            // Arrange
+            NotifyMessageEnvelope notifyMessage = EmptyNotifyMessageEnvelope(Status.Error);
+
+            var internalMessage = new InternalMessage(notifyMessage)
             {
-                // Arrange
-                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
-                var internalMessage = new InternalMessage(notifyMessage)
-                {
-                    AS4Message = {
-                                    SendingPMode = CreateDefaultSendingPMode()
-                                 }
-                };
-
-                // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                _mockedSender.Verify(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>()), Times.AtLeastOnce);
-            }
-
-            [Fact]
-            public async Task ThenExecuteStepWithReceivingPModeAsync()
-            {
-                // Arrange
-                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Error, null, string.Empty);
-
-                var internalMessage = new InternalMessage(notifyMessage)
-                {
-                    AS4Message =
+                AS4Message =
+                    new AS4Message
                     {
                         SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}}
                     }
-                };
+            };
 
-                // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+            var spySender = new SpySender();
+            IStep sut = CreateSendNotifyStepWithSender(spySender);
 
-                // Assert
-                _mockedSender.Verify(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>()));
-            }
+            // Act
+            await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+
+            // Assert
+            Assert.True(spySender.IsNotified);
         }
 
-        public class GivenInvalidArguments : GivenSendNotifyMessageStepFacts
+        private IStep CreateSendNotifyStepWithSender(INotifySender sender)
         {
-            [Fact]
-            public async Task ThenExecuteStepFailsWithConnectionFailureAsync()
-            {
-                // Arrange
-                SetupFailedNotifySender();
-                var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
-                var internalMessage = new InternalMessage(notifyMessage);
+            var stubProvider = new Mock<INotifySenderProvider>();
+            stubProvider.Setup(p => p.GetNotifySender(It.IsAny<string>())).Returns(sender);
 
-                // Act / Assert
-                await AssertFailedNotifySender(internalMessage);
-            }
+            return new SendNotifyMessageStep(stubProvider.Object, GetDataStoreContext);
+        }
 
-            private async Task AssertFailedNotifySender(InternalMessage internalMessage)
-            {
-                AS4Exception exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
-                Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
-            }
-
-            private void SetupFailedNotifySender()
-            {
-                _mockedSender.Setup(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>())).Throws<Exception>();
-                _step = new SendNotifyMessageStep(_mockedProvider.Object, () => new DatastoreContext(Options));
-            }
+        private static NotifyMessageEnvelope EmptyNotifyMessageEnvelope(Status status)
+        {
+            return new NotifyMessageEnvelope(new MessageInfo(), status, null, string.Empty);
         }
     }
 }

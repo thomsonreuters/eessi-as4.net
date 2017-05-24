@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
@@ -89,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 ResetStep();
                 OutMessage outMessage = CreateDefaultOutMessage(sharedId);
                 InsertOutMessage(outMessage);
-                var internalMessage = new InternalMessage();
+                var internalMessage = new InternalMessage(new AS4Message());
                 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -151,16 +152,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected InternalMessage CreateDefaultInternalMessage()
         {
-            return new InternalMessage
-            {
-                AS4Message =
-                {
-                    SendingPMode = new SendingProcessingMode
-                    {
-                        ExceptionHandling = {NotifyMessageProducer = true}
-                    }
-                }
-            };
+            AS4MessageBuilder builder =
+                new AS4MessageBuilder().WithSendingPMode(
+                    new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = true}});
+
+            return new InternalMessage(builder.Build());
         }
     }
 }

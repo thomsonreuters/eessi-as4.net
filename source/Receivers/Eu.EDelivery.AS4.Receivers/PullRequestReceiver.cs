@@ -88,13 +88,14 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="intervalPullRequest"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         protected override async Task<Interval> OnRequestReceived(PModePullRequest intervalPullRequest)
         {
             InternalMessage resultedMessage = await _messageCallback(intervalPullRequest).ConfigureAwait(false);
 
             try
             {
-                bool isUserMessage = resultedMessage.AS4Message.IsUserMessage;
+                bool isUserMessage = resultedMessage.AS4Message?.IsUserMessage == true;
                 Interval intervalResult = isUserMessage ? Interval.Reset : Interval.Increase;
                 Logger.Debug(
                     $"'Pull Request' resulted in a '{(isUserMessage ? "User Message" : "Error")}' so the next interval will be '{intervalResult}'");

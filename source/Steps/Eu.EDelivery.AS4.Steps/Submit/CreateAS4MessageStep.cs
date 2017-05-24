@@ -17,18 +17,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// </summary>
     public class CreateAS4MessageStep : IStep
     {
-        private readonly ILogger _logger;
-        private readonly AS4MessageBuilder _builder;
-        private InternalMessage _internalMessage;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class
-        /// </summary>
-        public CreateAS4MessageStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-            _builder = new AS4MessageBuilder();
-        }
+        private InternalMessage _internalMessage;
 
         /// <summary>
         /// Start Mapping from a <see cref="SubmitMessage"/> 
@@ -43,47 +34,46 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             try
             {
                 _internalMessage = internalMessage;
-                _internalMessage.AS4Message = CreateAS4Message();
+                _internalMessage.AS4Message = CreateAS4Message(internalMessage);
 
                 return await StepResult.SuccessAsync(internalMessage);
             }
             catch (Exception exception)
             {
-                throw ThrowNewAS4Exception(exception);
+                throw ThrowNewAS4Exception(exception, internalMessage);
             }
         }
 
-        private AS4Exception ThrowNewAS4Exception(Exception innerException)
+        private static AS4Exception ThrowNewAS4Exception(Exception innerException, InternalMessage internalMessage)
         {
             string generatedMessageId = IdentifierFactory.Instance.Create();
             string description = $"[generated: {generatedMessageId}] Unable to Create AS4 Message from Submit Message";
-            _logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithSendingPMode(_internalMessage.AS4Message.SendingPMode)
+                .WithSendingPMode(internalMessage.AS4Message?.SendingPMode)
                 .WithMessageIds(generatedMessageId)
                 .WithInnerException(innerException)
                 .Build();
         }
 
-        private AS4Message CreateAS4Message()
+        private static AS4Message CreateAS4Message(InternalMessage internalMessage)
         {
-            UserMessage userMessage = CreateUserMessage();
-            _logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
+            UserMessage userMessage = CreateUserMessage(internalMessage);
+            Logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
 
-            return _builder
-                .BreakDown()
-                .WithSendingPMode(_internalMessage.SubmitMessage.PMode)
+            return new AS4MessageBuilder()
+                .WithSendingPMode(internalMessage.SubmitMessage.PMode)
                 .WithUserMessage(userMessage)
                 .Build();
         }
 
-        private UserMessage CreateUserMessage()
+        private static UserMessage CreateUserMessage(InternalMessage internalMessage)
         {
-            _logger.Debug("Map Submit Message to UserMessage");
+            Logger.Debug("Map Submit Message to UserMessage");
             
-            return AS4Mapper.Map<UserMessage>(_internalMessage.SubmitMessage);
+            return AS4Mapper.Map<UserMessage>(internalMessage.SubmitMessage);
         }
     }
 }

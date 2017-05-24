@@ -102,9 +102,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             get
             {
-                string corePrefix = AS4Message.PrimaryUserMessage?.MessageId ?? AS4Message.PrimarySignalMessage?.MessageId;
+                string corePrefix = AS4Message?.PrimaryUserMessage?.MessageId ?? AS4Message?.PrimarySignalMessage?.MessageId;
 
-                string extensionPrefix = SubmitMessage.MessageInfo.MessageId
+                string extensionPrefix = SubmitMessage?.MessageInfo.MessageId
                                          ?? DeliverMessage?.MessageInfo.MessageId ?? NotifyMessage?.MessageInfo.MessageId;
 
                 return $"[{corePrefix ?? extensionPrefix}]";

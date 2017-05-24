@@ -27,10 +27,10 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            if (response.StatusCode == HttpStatusCode.Accepted && response.ResultedMessage?.AS4Message.IsEmpty == true)
+            if (response.StatusCode == HttpStatusCode.Accepted && response.ResultedMessage?.AS4Message?.IsEmpty == true)
             {
                 InternalMessage resultedMessage = response.OriginalRequest;
-                resultedMessage.AS4Message.SignalMessages.Clear();
+                resultedMessage.AS4Message?.SignalMessages.Clear();
 
                 return StepResult.Success(resultedMessage).AndStopExecution();
             }

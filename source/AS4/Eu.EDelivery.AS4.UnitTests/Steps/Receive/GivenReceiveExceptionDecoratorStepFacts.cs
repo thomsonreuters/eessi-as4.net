@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 IStep sut = GetCatchedCompositeSteps();
-                var internalMessage = new InternalMessage();
+                var internalMessage = new InternalMessage(new AS4Message());
 
                 // Act
                 StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);

@@ -16,10 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// with a given <paramref name="method" />
         /// </summary>
         /// <param name="method"></param>
-        public void Configure(AS4.Model.PMode.Method method)
-        {
-            throw new NotImplementedException();
-        }
+        public void Configure(AS4.Model.PMode.Method method) {}
 
         /// <summary>
         /// Start sending the <see cref="DeliverMessage" />

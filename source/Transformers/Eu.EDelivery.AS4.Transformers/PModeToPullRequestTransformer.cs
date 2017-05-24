@@ -37,26 +37,25 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static Task<InternalMessage> TryCreatePullRequest(ReceivedMessage receivedMessage)
         {
-            var transformedMessage = new InternalMessage();
-
             try
             {
-                receivedMessage.AssignPropertiesTo(transformedMessage.AS4Message);
+                AS4Message as4Message = new AS4MessageBuilder().Build();
+                receivedMessage.AssignPropertiesTo(as4Message);
 
                 SendingProcessingMode pmode = DeserializeValidPMode(receivedMessage);
-                transformedMessage.AS4Message.SendingPMode = pmode;
-                transformedMessage.AS4Message.SignalMessages.Add(new PullRequest(pmode.PullConfiguration.Mpc));
+                as4Message.SendingPMode = pmode;
+                as4Message.SignalMessages.Add(new PullRequest(pmode.PullConfiguration.Mpc));
+
+                return Task.FromResult(new InternalMessage(as4Message));
             }
             catch (AS4Exception exception)
             {
-                transformedMessage.Exception = exception;
+                return Task.FromResult(new InternalMessage(exception));
             }
             catch (Exception exception)
             {
-                transformedMessage.Exception = CreateAS4Exception(exception.Message);
+                return Task.FromResult(new InternalMessage(CreateAS4Exception(exception.Message)));
             }
-
-            return Task.FromResult(transformedMessage);
         }
 
         private static SendingProcessingMode DeserializeValidPMode(ReceivedMessage receivedMessage)

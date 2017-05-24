@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage());
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage(new AS4Message()));
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(new InternalMessage());
 
                 return stubAS4Response.Object;

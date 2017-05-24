@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static AS4Exception GetPossibleThrownAS4Exception(InternalMessage internalMessage)
         {
-            var error = internalMessage.AS4Message.PrimarySignalMessage as Error;
+            var error = internalMessage.AS4Message?.PrimarySignalMessage as Error;
             return error?.Exception;
         }
 

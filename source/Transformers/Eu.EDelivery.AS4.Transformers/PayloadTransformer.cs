@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
@@ -12,16 +13,8 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class PayloadTransformer : ITransformer
     {
-        private readonly ILogger _logger;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PayloadTransformer"/> class.
-        /// </summary>
-        public PayloadTransformer()
-        {
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
-
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        
         /// <summary>
         /// Tranform the Payload(s)
         /// </summary>
@@ -30,13 +23,11 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
-            var internalMessage = new InternalMessage();
-
             Attachment attachment = CreateAttachmentFromReceivedMessage(message);
-            internalMessage.AS4Message.AddAttachment(attachment);
+            AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
-            this._logger.Info("Transform the given Payload to a AS4 Attachment");
-            return await Task.FromResult(internalMessage);
+            Logger.Info("Transform the given Payload to a AS4 Attachment");
+            return await Task.FromResult(new InternalMessage(as4Message));
         }
 
         private static Attachment CreateAttachmentFromReceivedMessage(ReceivedMessage receivedMessage)
