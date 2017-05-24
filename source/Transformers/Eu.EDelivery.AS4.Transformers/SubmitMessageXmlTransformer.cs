@@ -80,25 +80,18 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void ValidateSubmitMessage(SubmitMessage submitMessage)
         {
-            ValidationResult result = _validator.Validate(submitMessage);
-
-            if (result.IsValid)
-            {
-                Logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid");
-            }
-            else
-            {
-                throw ThrowInvalidSubmitMessageException(submitMessage, result);
-            }
+            _validator.Validate(submitMessage)
+                      .Result(
+                          happyPath: result => Logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid"),
+                          unhappyPath: result =>
+                          {
+                              result.LogErrors(Logger);
+                              throw ThrowInvalidSubmitMessageException(submitMessage);
+                          });
         }
 
-        private static AS4Exception ThrowInvalidSubmitMessageException(SubmitMessage submitMessage, ValidationResult result)
+        private static AS4Exception ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
         {
-            foreach (ValidationFailure e in result.Errors)
-            {
-                Logger.Error($"Submit Message Validation Error: {e.PropertyName} = {e.ErrorMessage}");
-            }
-
             string description = $"Submit Message {submitMessage.MessageInfo.MessageId} was invalid, see logging";
             Logger.Error(description);
 

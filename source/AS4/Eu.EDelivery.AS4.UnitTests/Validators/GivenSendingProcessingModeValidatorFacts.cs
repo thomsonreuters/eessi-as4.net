@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             // Arrange
             var sut = new SendingProcessingModeValidator();
 
-            SendingProcessingMode pmode = new ValidStubSendingPModeFactory().Create();
+            SendingProcessingMode pmode = new ValidSendingPModeFactory().Create();
             pmode.Security.Encryption.IsEnabled = true;
             pmode.Security.Encryption.AlgorithmKeySize = beforeKeySize;
 

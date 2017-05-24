@@ -542,6 +542,7 @@
     <Compile Include="Validators\ReceivingProcessingModeValidator.cs" />
     <Compile Include="Validators\SendingProcessingModeValidator.cs" />
     <Compile Include="Validators\SubmitMessageValidator.cs" />
+    <Compile Include="Validators\ValidationResultExtension.cs" />
     <Compile Include="Watchers\PModeWatcher.cs" />
     <Compile Include="Xml\Generated.cs" />
     <Compile Include="Xml\MessagePartNRInformation.cs" />

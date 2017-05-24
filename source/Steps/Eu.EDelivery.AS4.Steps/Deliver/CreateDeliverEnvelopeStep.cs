@@ -80,28 +80,23 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage)
         {
-            ValidationResult result = _validator.Validate(deliverMessage);
+            _validator.Validate(deliverMessage).Result(
+                happyPath: result =>
+                {
+                    string messageId = deliverMessage.MessageInfo.MessageId;
+                    string message = $"Deliver Message {messageId} was valid";
 
-            if (result.IsValid)
-            {
-                string messageId = deliverMessage.MessageInfo.MessageId;
-                string message = $"Deliver Message {messageId} was valid";
-
-                Logger.Debug(message);
-            }
-            else
-            {
-                throw ThrowInvalidDeliverMessage(deliverMessage, result);
-            }
+                    Logger.Debug(message);
+                },
+                unhappyPath: result =>
+                {
+                    result.LogErrors(Logger);
+                    throw ThrowInvalidDeliverMessage(deliverMessage);
+                });
         }
 
-        private static AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage, ValidationResult result)
+        private static AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage)
         {
-            foreach (ValidationFailure error in result.Errors)
-            {
-                Logger.Error($"Deliver Message Validation Error: {error.PropertyName} = {error.ErrorMessage}");
-            }
-
             string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
             Logger.Error(description);
 

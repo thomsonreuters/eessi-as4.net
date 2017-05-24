@@ -331,7 +331,7 @@
     <Compile Include="Model\Internal\GivenSettingsFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenCollaborationInfoFacts.cs" />
-    <Compile Include="Model\PMode\ValidStubSendingPModeFactory.cs" />
+    <Compile Include="Model\PMode\ValidSendingPModeFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -456,6 +456,7 @@
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
+    <Compile Include="Validators\GivenValidationResultFacts.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">

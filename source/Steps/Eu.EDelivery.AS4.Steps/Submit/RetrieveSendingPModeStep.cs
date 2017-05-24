@@ -93,25 +93,17 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private void ValidatePMode(SendingProcessingMode pmode)
         {
-            ValidationResult result = _validator.Validate(pmode);
-
-            if (result.IsValid)
-            {
-                Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message");
-            }
-            else
-            {
-                throw ThrowHandleInvalidPModeException(pmode, result);
-            }
+            _validator.Validate(pmode).Result(
+                happyPath: result => Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message"),
+                unhappyPath: result =>
+                {
+                    result.LogErrors(Logger);
+                    throw ThrowHandleInvalidPModeException(pmode);
+                });
         }
 
-        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
+        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode)
         {
-            foreach (ValidationFailure e in result.Errors)
-            {
-                Logger.Error($"Sending PMode Validation Error: {e.PropertyName} = {e.ErrorMessage}");
-            }
-
             string description = $"Sending PMode {pmode.Id} was invalid, see logging";
             Logger.Error(description);
 
