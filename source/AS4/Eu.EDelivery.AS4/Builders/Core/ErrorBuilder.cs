@@ -63,9 +63,9 @@ namespace Eu.EDelivery.AS4.Builders.Core
 
         public ErrorBuilder WithOriginalAS4Message(AS4Message message)
         {
-            if (message.SendingPMode.MessagePackaging.IsMultiHop)
-            {                
-                _errorMessage.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>( message.PrimaryUserMessage);
+            if (message.IsMultiHopMessage)
+            {
+                _errorMessage.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(message.PrimaryUserMessage);
             }
 
             return this;

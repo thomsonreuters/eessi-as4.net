@@ -196,8 +196,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public void MultihopUserMessageCreatedWhenSpecifiedInPMode()
             {
                 // Arrange
-                AS4Message as4Message = CreateAS4MessageWithPMode(CreateMultihopPMode());
-
+                AS4Message as4Message = CreateAS4Message();
+                as4Message.SendingPMode = CreateMultihopPMode();
                 // Act
                 XmlDocument doc = AS4XmlSerializer.ToDocument(as4Message, CancellationToken.None);
 
@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             [Fact]
             public async void ReceiptMessageForMultihopUserMessageIsMultihop()
             {
-                AS4Message as4Message = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                AS4Message as4Message = await CreateReceivedAS4Message();
 
                 var message = new InternalMessage
                 {
@@ -228,7 +228,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.True(result.InternalMessage.AS4Message.IsSignalMessage);
 
                 XmlDocument doc = AS4XmlSerializer.ToDocument(result.InternalMessage.AS4Message, CancellationToken.None);
-               
+
                 // Following elements should be present:
                 // - To element in the wsa namespace
                 // - Action element in the wsa namespace
@@ -247,7 +247,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(multihopreceipt)))
                 {
                     var multihopReceipt = await SerializerProvider.Default.Get(Constants.ContentTypes.Soap).DeserializeAsync(stream, Constants.ContentTypes.Soap, CancellationToken.None);
-                    
+
                     Assert.NotNull(multihopReceipt);
                     Assert.NotNull(multihopReceipt.PrimarySignalMessage);
                     Assert.NotNull(multihopReceipt.PrimarySignalMessage.MultiHopRouting);
@@ -257,15 +257,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                     var routingInput = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
 
-                    Assert.NotNull(routingInput);                   
+                    Assert.NotNull(routingInput);
                 }
             }
-            
+
             [Fact]
-            public void ErrorMessageForMultihopUserMessageIsMultihop()
+            public async Task ErrorMessageForMultihopUserMessageIsMultihop()
             {
                 // Arrange
-                AS4Message expectedAS4Message = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                AS4Message expectedAS4Message = await CreateReceivedAS4Message();
 
                 Error error = new ErrorBuilder()
                     .WithOriginalAS4Message(expectedAS4Message)
@@ -350,13 +350,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.Equal(expectedUserMessage.Receiver.PartyIds.First().Id, actualUserMessage.PartyInfo.From.PartyId.First().Value);
             }
 
-            private static AS4Message CreateAS4MessageWithPMode(SendingProcessingMode pmode)
+            private static AS4Message CreateAS4Message()
             {
                 var sender = new Party("sender", new PartyId("senderId"));
                 var receiver = new Party("rcv", new PartyId("receiverId"));
 
                 return new AS4MessageBuilder()
-                    .WithSendingPMode(pmode)
                     .WithUserMessage(new UserMessage { Sender = sender, Receiver = receiver })
                     .Build();
             }
@@ -368,6 +367,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     Id = "multihop-pmode",
                     MessagePackaging = { IsMultiHop = true }
                 };
+            }
+
+            private static async Task<AS4Message> CreateReceivedAS4Message()
+            {
+                var message = CreateAS4Message();
+                message.SendingPMode = CreateMultihopPMode();
+
+                var serializer = SerializerProvider.Default.Get(message.ContentType);
+
+                // Serialize and deserialize the AS4 Message to simulate a received message.
+                using (var stream = new MemoryStream())
+                {
+                    serializer.Serialize(message, stream, CancellationToken.None);
+                    stream.Position = 0;
+                    return await serializer.DeserializeAsync(stream, message.ContentType, CancellationToken.None);
+                }
             }
         }
 
