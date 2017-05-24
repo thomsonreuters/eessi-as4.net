@@ -49,13 +49,13 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
-        public string InStore => _settings?.Database?.InMessageStoreLocation ?? @"file:///.\database\as4messages\in";
+        public string InMessageStoreLocation => _settings?.Database?.InMessageStoreLocation ?? @"file:///.\database\as4messages\in";
 
         /// <summary>
         /// Gets the out message store location.
         /// </summary>
         /// <value>The out message store location.</value>
-        public string OutStore => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out";
+        public string OutMessageStoreLocation => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out";
 
         /// <summary>
         /// Gets a value indicating whether if the Configuration is initialized

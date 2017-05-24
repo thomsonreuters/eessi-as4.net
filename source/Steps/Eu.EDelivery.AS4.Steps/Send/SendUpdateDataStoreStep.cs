@@ -14,22 +14,22 @@ namespace Eu.EDelivery.AS4.Steps.Send
     public class SendUpdateDataStoreStep : IStep
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;
-        private readonly IAS4MessageBodyPersister _messageBodyPersister;
+        private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep" /> class
         /// </summary>
-        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyPersisterProvider) { }
+        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class.
         /// </summary>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
-        /// <param name="messageBodyPersister"></param>
-        public SendUpdateDataStoreStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyPersister messageBodyPersister)
+        /// <param name="messageBodyStore"></param>
+        public SendUpdateDataStoreStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyStore messageBodyStore)
         {
             _createDatastoreContext = createDatastoreContext;
-            _messageBodyPersister = messageBodyPersister;
+            _messageBodyStore = messageBodyStore;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 var inMessageService = new InMessageService(new DatastoreRepository(context));
 
-                await inMessageService.InsertAS4Message(internalMessage.AS4Message, _messageBodyPersister, cancellationToken).ConfigureAwait(false);
+                await inMessageService.InsertAS4Message(internalMessage.AS4Message, _messageBodyStore, cancellationToken).ConfigureAwait(false);
 
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }

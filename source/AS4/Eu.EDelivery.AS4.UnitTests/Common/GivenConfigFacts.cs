@@ -10,8 +10,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             // Assert
             Assert.False(Config.Instance.IsInitialized);
-            Assert.NotEmpty(Config.Instance.InStore);
-            Assert.NotEmpty(Config.Instance.OutStore);
+            Assert.NotEmpty(Config.Instance.InMessageStoreLocation);
+            Assert.NotEmpty(Config.Instance.OutMessageStoreLocation);
         }
     }
 }

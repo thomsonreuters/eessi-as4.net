@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
                 if (ent != null)
                 {
-                    using (var stream = ent.RetrieveMessageBody(Registry.Instance.MessageBodyPersisterProvider))
+                    using (var stream = ent.RetrieveMessageBody(Registry.Instance.MessageBodyStore))
                     {
                         stream.Position = 0;
                         var s = Registry.Instance.SerializerProvider.Get(ent.ContentType);

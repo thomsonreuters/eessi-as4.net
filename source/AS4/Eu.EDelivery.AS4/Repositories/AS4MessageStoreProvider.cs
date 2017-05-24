@@ -10,7 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
-    public class AS4MessageBodyPersisterProvider : IAS4MessageBodyPersister
+    public class messageBodyStore : IAS4MessageBodyStore
     {
         private readonly ICollection<AS4MessageRepositoryEntry> _repositories =
             new Collection<AS4MessageRepositoryEntry>();
@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="condition">The condition.</param>
         /// <param name="persister">The persister.</param>
-        public void Accept(Func<string, bool> condition, Func<IAS4MessageBodyPersister> persister)
+        public void Accept(Func<string, bool> condition, Func<IAS4MessageBodyStore> persister)
         {
             _repositories.Add(new AS4MessageRepositoryEntry(condition, persister));
         }
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Repositories
             await For(location).UpdateAS4MessageAsync(location, message, cancellationToken);
         }
 
-        private IAS4MessageBodyPersister For(string key)
+        private IAS4MessageBodyStore For(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
             {
@@ -87,13 +87,13 @@ namespace Eu.EDelivery.AS4.Repositories
             /// <param name="persister">The persister.</param>
             public AS4MessageRepositoryEntry(
                 Func<string, bool> condition,
-                Func<IAS4MessageBodyPersister> persister)
+                Func<IAS4MessageBodyStore> persister)
             {
                 Condition = condition;
                 CreatePersister = persister;
             }
 
-            public Func<IAS4MessageBodyPersister> CreatePersister { get; }
+            public Func<IAS4MessageBodyStore> CreatePersister { get; }
 
             public Func<string, bool> Condition { get; }
         }

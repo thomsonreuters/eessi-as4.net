@@ -23,20 +23,20 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         // Right now, the MessageBody is the complete AS4Message; every OutMessage refers to that same messagebody which 
         // is not correct.
         // At this stage, there should be no AS4-message in my opinion, only UserMessages and SignalMessages.
-        private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
+        private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
-        public StoreAS4MessageStep() : this(Registry.Instance.MessageBodyPersisterProvider) { }
+        public StoreAS4MessageStep() : this(Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.
         /// </summary>
-        /// <param name="as4MessageBodyPersister">The as 4 Message Body Persister.</param>
-        public StoreAS4MessageStep(IAS4MessageBodyPersister as4MessageBodyPersister)
+        /// <param name="messageBodyStore">The as 4 Message Body Persister.</param>
+        public StoreAS4MessageStep(IAS4MessageBodyStore messageBodyStore)
         {
-            _as4MessageBodyPersister = as4MessageBodyPersister;
+            _messageBodyStore = messageBodyStore;
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
-                var service = new OutMessageService(new DatastoreRepository(context), _as4MessageBodyPersister);
+                var service = new OutMessageService(new DatastoreRepository(context), _messageBodyStore);
 
                 await service.InsertAS4Message(as4Message, Operation.ToBeSent, token);
 

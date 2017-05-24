@@ -11,24 +11,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class UpdateReceivedAS4MessageBodyStep : IStep
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;
-        private readonly IAS4MessageBodyPersister _messageBodyPersister;
+        private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep"/> class.
         /// </summary>
-        public UpdateReceivedAS4MessageBodyStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyPersisterProvider) { }
+        public UpdateReceivedAS4MessageBodyStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep" /> class.
         /// </summary>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
-        /// <param name="messageBodyPersister">The <see cref="IAS4MessageBodyPersister" /> that must be used to persist the messagebody content.</param>
+        /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore" /> that must be used to persist the messagebody content.</param>
         public UpdateReceivedAS4MessageBodyStep(
             Func<DatastoreContext> createDatastoreContext,
-            IAS4MessageBodyPersister messageBodyPersister)
+            IAS4MessageBodyStore messageBodyStore)
         {
             _createDatastoreContext = createDatastoreContext;
-            _messageBodyPersister = messageBodyPersister;
+            _messageBodyStore = messageBodyStore;
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 var service = new InMessageService(repository);
 
-                await service.UpdateAS4MessageForDeliveryAndNotification(internalMessage.AS4Message, _messageBodyPersister, cancellationToken);
+                await service.UpdateAS4MessageForDeliveryAndNotification(internalMessage.AS4Message, _messageBodyStore, cancellationToken);
 
                 await datastoreContext.SaveChangesAsync(cancellationToken);
             }

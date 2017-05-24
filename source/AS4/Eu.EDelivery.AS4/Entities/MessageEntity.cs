@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         /// <remarks>
         /// This property is not persisted to the Datastore.  It is used to persist the Message in another location by an
-        /// <see cref="IAS4MessageBodyPersister" />
+        /// <see cref="IAS4MessageBodyStore" />
         /// </remarks>
         [NotMapped]
         internal AS4Message Message { get; set; }
@@ -111,12 +111,12 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Retrieves the Message body as a stream.
         /// </summary>
-        /// <param name="persisterProvider">
+        /// <param name="storeProvider">
         /// The AS4MessageBodyRetrieverProvider which is responsible for providing the correct
         /// IAS4MessageRepository that loads the AS4Message body.
         /// </param>
         /// <returns>A Stream which contains the MessageBody</returns>
-        public Stream RetrieveMessageBody(IAS4MessageBodyPersister persisterProvider)
+        public Stream RetrieveMessageBody(IAS4MessageBodyStore storeProvider)
         {
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
@@ -124,14 +124,14 @@ namespace Eu.EDelivery.AS4.Entities
                 return null;
             }
 
-            return TryLoadMessageBody(persisterProvider);
+            return TryLoadMessageBody(storeProvider);
         }
 
-        private Stream TryLoadMessageBody(IAS4MessageBodyPersister persister)
+        private Stream TryLoadMessageBody(IAS4MessageBodyStore store)
         {
             try
             {
-                return persister.LoadMessageBody(MessageLocation);
+                return store.LoadMessageBody(MessageLocation);
             }
             catch (Exception exception)
             {

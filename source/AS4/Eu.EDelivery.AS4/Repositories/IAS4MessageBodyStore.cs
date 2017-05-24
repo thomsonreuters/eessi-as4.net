@@ -5,7 +5,7 @@ using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
-    public interface IAS4MessageBodyPersister
+    public interface IAS4MessageBodyStore
     {
         /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.

@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
-    internal class StubMessageBodyPersister : IAS4MessageBodyPersister
+    internal class StubMessageBodyStore : IAS4MessageBodyStore
     {
-        internal static StubMessageBodyPersister Default => new StubMessageBodyPersister();
+        internal static StubMessageBodyStore Default => new StubMessageBodyStore();
 
         /// <summary>
         /// Updates an existing AS4 Message body.

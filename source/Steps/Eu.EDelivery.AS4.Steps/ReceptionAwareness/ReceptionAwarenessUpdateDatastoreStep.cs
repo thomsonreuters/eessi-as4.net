@@ -16,23 +16,23 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     public class ReceptionAwarenessUpdateDatastoreStep : IStep
     {
         private readonly ILogger _logger;
-        private readonly IAS4MessageBodyPersister _inMessageBodyPersister;
+        private readonly IAS4MessageBodyStore _inMessageBodyStore;
 
         private Entities.ReceptionAwareness _receptionAwareness;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class.
         /// </summary>
-        public ReceptionAwarenessUpdateDatastoreStep() : this(Registry.Instance.MessageBodyPersisterProvider) {}
+        public ReceptionAwarenessUpdateDatastoreStep() : this(Registry.Instance.MessageBodyStore) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep" /> class
         /// </summary>
-        /// <param name="inMessageBodyPersister">The in message body persister.</param>
-        public ReceptionAwarenessUpdateDatastoreStep(IAS4MessageBodyPersister inMessageBodyPersister)
+        /// <param name="inMessageBodyStore">The in message body persister.</param>
+        public ReceptionAwarenessUpdateDatastoreStep(IAS4MessageBodyStore inMessageBodyStore)
         {
             _logger = LogManager.GetCurrentClassLogger();
-            _inMessageBodyPersister = inMessageBodyPersister;
+            _inMessageBodyStore = inMessageBodyStore;
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             UpdateReceptionAwareness(awareness => awareness.Status = ReceptionStatus.Completed, repository);
 
             ReceptionAwarenessService service = new ReceptionAwarenessService(repository);
-            await service.DeadletterOutMessageAsync(messageId, _inMessageBodyPersister, cancellationToken);
+            await service.DeadletterOutMessageAsync(messageId, _inMessageBodyStore, cancellationToken);
         }
               
         private void UpdateReceptionAwareness(Action<Entities.ReceptionAwareness> updateAction, IDatastoreRepository repository)

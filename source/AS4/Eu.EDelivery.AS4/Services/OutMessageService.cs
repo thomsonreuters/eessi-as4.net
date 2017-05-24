@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Services
     public class OutMessageService : IOutMessageService
     {        
         private readonly IDatastoreRepository _repository;
-        private readonly IAS4MessageBodyPersister _messageBodyPersister;
+        private readonly IAS4MessageBodyStore _messageBodyStore;
         private readonly IConfig _configuration;
 
         /// <summary>
@@ -25,21 +25,21 @@ namespace Eu.EDelivery.AS4.Services
         /// with a given Data store
         /// </summary>
         /// <param name="repository"></param>
-        /// <param name="as4MessageBodyPersister">The <see cref="IAS4MessageBodyPersister"/> that must be used to persist the AS4 Message Body.</param>
-        public OutMessageService(IDatastoreRepository repository, IAS4MessageBodyPersister as4MessageBodyPersister)
-            : this(Config.Instance, repository, as4MessageBodyPersister) {}
+        /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the AS4 Message Body.</param>
+        public OutMessageService(IDatastoreRepository repository, IAS4MessageBodyStore messageBodyStore)
+            : this(Config.Instance, repository, messageBodyStore) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService" /> class.
         /// </summary>
         /// <param name="config">The configuration.</param>
         /// <param name="respository">The respository.</param>
-        /// <param name="as4MessageBodyPersister">The as4 message body persister.</param>
-        public OutMessageService(IConfig config, IDatastoreRepository respository, IAS4MessageBodyPersister as4MessageBodyPersister)
+        /// <param name="messageBodyStore">The as4 message body persister.</param>
+        public OutMessageService(IConfig config, IDatastoreRepository respository, IAS4MessageBodyStore messageBodyStore)
         {
             _configuration = config;
             _repository = respository;
-            _messageBodyPersister = as4MessageBodyPersister;
+            _messageBodyStore = messageBodyStore;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public async Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken)
         {
-            string messageBodyLocation = await _messageBodyPersister.SaveAS4MessageAsync(_configuration.OutStore, message, cancellationToken);
+            string messageBodyLocation = await _messageBodyStore.SaveAS4MessageAsync(_configuration.OutMessageStoreLocation, message, cancellationToken);
             
             foreach (UserMessage userMessage in message.UserMessages)
             {

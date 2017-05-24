@@ -10,10 +10,10 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
     /// <summary>
-    /// <see cref="IAS4MessageBodyPersister" /> implementation to sabotage the loading of a <see cref="Stream" /> at a given
+    /// <see cref="IAS4MessageBodyStore" /> implementation to sabotage the loading of a <see cref="Stream" /> at a given
     /// location.
     /// </summary>
-    public class SaboteurMessageBodyRetriever : IAS4MessageBodyPersister
+    public class SaboteurMessageBodyRetriever : IAS4MessageBodyStore
     {
         /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.

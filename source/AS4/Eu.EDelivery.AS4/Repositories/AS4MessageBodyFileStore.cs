@@ -8,15 +8,15 @@ using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
-    internal class AS4MessageBodyFilePersister : IAS4MessageBodyPersister
+    internal class AS4MessageBodyFileStore : IAS4MessageBodyStore
     {
         private readonly ISerializerProvider _provider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AS4MessageBodyFilePersister" /> class.
+        /// Initializes a new instance of the <see cref="AS4MessageBodyFileStore" /> class.
         /// </summary>
         /// <param name="provider">The provider.</param>
-        public AS4MessageBodyFilePersister(ISerializerProvider provider)
+        public AS4MessageBodyFileStore(ISerializerProvider provider)
         {
             _provider = provider;
         }

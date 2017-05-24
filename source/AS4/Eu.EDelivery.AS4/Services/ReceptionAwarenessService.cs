@@ -42,10 +42,10 @@ namespace Eu.EDelivery.AS4.Services
         /// Deadletters the out message asynchronous.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
-        /// <param name="messageBodyPersister">The message body persister.</param>
+        /// <param name="messageBodyStore">The message body persister.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyPersister messageBodyPersister, CancellationToken cancellationToken)
+        public async Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken)
         {
             _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
             var pmode = _repository.RetrieveSendingPModeForOutMessage(messageId);
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Services
             // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
             // if he should be notified when a message cannot be sent.
             // (Maybe we should only create the InMessage when notification is enabled ?)
-            string location = await messageBodyPersister.SaveAS4MessageAsync(_configuration.InStore, as4Message, cancellationToken);
+            string location = await messageBodyStore.SaveAS4MessageAsync(_configuration.InMessageStoreLocation, as4Message, cancellationToken);
 
             InMessage inMessage = InMessageBuilder.ForSignalMessage(errorMessage, as4Message)
                                                   .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))

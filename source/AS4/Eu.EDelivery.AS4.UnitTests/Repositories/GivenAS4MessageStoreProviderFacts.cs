@@ -35,12 +35,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         private static async Task TestProviderWithAcceptedPersister(
-            Func<AS4MessageBodyPersisterProvider, Task> act,
-            Expression<Action<IAS4MessageBodyPersister>> assertion)
+            Func<messageBodyStore, Task> act,
+            Expression<Action<IAS4MessageBodyStore>> assertion)
         {
             // Arrange
-            var spyPersister = Mock.Of<IAS4MessageBodyPersister>();
-            var sut = new AS4MessageBodyPersisterProvider();
+            var spyPersister = Mock.Of<IAS4MessageBodyStore>();
+            var sut = new messageBodyStore();
             sut.Accept(location => true, () => spyPersister);
 
             // Act

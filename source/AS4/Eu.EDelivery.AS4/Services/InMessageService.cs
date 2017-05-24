@@ -78,16 +78,16 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Inserts a <see cref="AS4Message"/>.
+        /// Inserts an <see cref="AS4Message"/>.
         /// </summary>
         /// <param name="as4Message">The as4 message.</param>
-        /// <param name="as4MessageBodyPersister">The as4 message body persister.</param>
+        /// <param name="messageBodyStore">The message body store.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        public async Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken)
         {
             // TODO: should we start the transaction here.
-            string location = await as4MessageBodyPersister.SaveAS4MessageAsync(_configuration.InStore, as4Message, cancellationToken);
+            string location = await messageBodyStore.SaveAS4MessageAsync(_configuration.InMessageStoreLocation, as4Message, cancellationToken);
 
             InsertUserMessages(as4Message, location, cancellationToken);
             InsertSignalMessages(as4Message, location, cancellationToken);
@@ -124,14 +124,14 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Updates a <see cref="AS4Message"/> for delivery and notification.
+        /// Updates an <see cref="AS4Message"/> for delivery and notification.
         /// </summary>
         /// <param name="as4Message">The as4 message.</param>
-        /// <param name="as4MessageBodyPersister">The as4 message body persister.</param>
+        /// <param name="messageBodyStore">The as4 message body persister.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="InvalidDataException"></exception>
-        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken)
         {
             InMessage inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
 
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Services
 
             if (as4Message.UserMessages.Any())
             {
-                await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
+                await messageBodyStore.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
             }
 
             UpdateUserMessages(as4Message);
