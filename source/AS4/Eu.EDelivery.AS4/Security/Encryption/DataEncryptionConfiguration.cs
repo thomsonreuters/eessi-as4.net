@@ -8,14 +8,14 @@ namespace Eu.EDelivery.AS4.Security.Encryption
         /// Initializes a new instance of the <see cref="DataEncryptionConfiguration"/> class.
         /// </summary>
         /// <param name="encryptionMethod">The encryption method.</param>
+        /// <param name="algorithmKeySize">Size of the algorithm key.</param>
         /// <param name="encryptionType">Type of the encryption.</param>
         /// <param name="transformAlgorithm">The transform algorithm.</param>
-        /// <param name="algorithmKeySize">Size of the algorithm key.</param>
         public DataEncryptionConfiguration(
             string encryptionMethod,
+            int algorithmKeySize,
             string encryptionType = "http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only",
-            string transformAlgorithm = AttachmentCiphertextTransform.Url,
-            int algorithmKeySize = 128)
+            string transformAlgorithm = AttachmentCiphertextTransform.Url)
         {
             EncryptionMethod = encryptionMethod;
             EncryptionType = encryptionType;
