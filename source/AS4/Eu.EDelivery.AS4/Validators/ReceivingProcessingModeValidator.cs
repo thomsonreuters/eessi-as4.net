@@ -5,7 +5,7 @@ using FluentValidation;
 namespace Eu.EDelivery.AS4.Validators
 {
     /// <summary>
-    /// Validator to check the <see cref="ReceivingProcessingMode"/>
+    /// Validator to check the <see cref="ReceivingProcessingMode" />
     /// </summary>
     public class ReceivingProcessingModeValidator : AbstractValidator<ReceivingProcessingMode>
     {
@@ -24,27 +24,40 @@ namespace Eu.EDelivery.AS4.Validators
         private void RulesForReceiptHandling()
         {
             RuleFor(pmode => pmode.ReceiptHandling).NotNull();
-            RuleFor(pmode => pmode.ReceiptHandling.SendingPMode).NotNull();
+            RuleFor(pmode => pmode.ReceiptHandling.SendingPMode).NotNull().When(pmode => pmode.ReceiptHandling != null);
         }
 
         private void RulesForErrorHandling()
         {
             RuleFor(pmode => pmode.ErrorHandling).NotNull();
-            RuleFor(pmode => pmode.ErrorHandling.SendingPMode).NotNull();
+            RuleFor(pmode => pmode.ErrorHandling.SendingPMode).NotNull().When(pmode => pmode.ErrorHandling != null);
         }
 
         private void RulesForDeliver()
         {
-            Func<ReceivingProcessingMode, bool> isDeliverEnabled = pmode => pmode.Deliver.IsEnabled;
+            Func<ReceivingProcessingMode, bool> isDeliverEnabled = pmode => pmode.Deliver?.IsEnabled == true;
 
             RuleFor(pmode => pmode.Deliver.DeliverMethod).NotNull().When(isDeliverEnabled);
             RuleFor(pmode => pmode.Deliver.PayloadReferenceMethod).NotNull().When(isDeliverEnabled);
 
-            RuleFor(pmode => pmode.Deliver.DeliverMethod.Type).NotNull().When(isDeliverEnabled);
-            RuleFor(pmode => pmode.Deliver.DeliverMethod.Parameters).NotNull().SetCollectionValidator(new ParameterValidator()).When(isDeliverEnabled);
+            Func<ReceivingProcessingMode, bool> isDeliverMethodPresent = pmode => pmode.Deliver.DeliverMethod != null;
+            RuleFor(pmode => pmode.Deliver.DeliverMethod.Type)
+                .NotNull()
+                .When(pmode => isDeliverMethodPresent(pmode) && isDeliverEnabled(pmode));
+            RuleFor(pmode => pmode.Deliver.DeliverMethod.Parameters)
+                .NotNull()
+                .SetCollectionValidator(new ParameterValidator())
+                .When(pmode => isDeliverMethodPresent(pmode) && isDeliverEnabled(pmode));
 
-            RuleFor(pmode => pmode.Deliver.PayloadReferenceMethod.Type).NotNull().When(isDeliverEnabled);
-            RuleFor(pmode => pmode.Deliver.PayloadReferenceMethod.Parameters).NotNull().SetCollectionValidator(new ParameterValidator()).When(isDeliverEnabled);
+            Func<ReceivingProcessingMode, bool> isPayloadReferencePresent =
+                pmode => pmode.Deliver.PayloadReferenceMethod != null;
+            RuleFor(pmode => pmode.Deliver.PayloadReferenceMethod.Type)
+                .NotNull()
+                .When(pmode => isPayloadReferencePresent(pmode) && isDeliverEnabled(pmode));
+            RuleFor(pmode => pmode.Deliver.PayloadReferenceMethod.Parameters)
+                .NotNull()
+                .SetCollectionValidator(new ParameterValidator())
+                .When(pmode => isPayloadReferencePresent(pmode) && isDeliverEnabled(pmode));
         }
     }
 }
