@@ -25,7 +25,9 @@ namespace Eu.EDelivery.AS4.Builders.Security
         private KeyEncryptionConfiguration _keyConfiguration =
             new KeyEncryptionConfiguration(new BinarySecurityTokenReference(), KeyEncryption.Default);
 
-        private DataEncryptionConfiguration _dataConfiguration = new DataEncryptionConfiguration(Encryption.Default.Algorithm);
+        private DataEncryptionConfiguration _dataConfiguration = new DataEncryptionConfiguration(
+            Encryption.Default.Algorithm,
+            Encryption.Default.AlgorithmKeySize);
 
         private EncryptionStrategyBuilder(XmlDocument soapEnvelope)
         {
