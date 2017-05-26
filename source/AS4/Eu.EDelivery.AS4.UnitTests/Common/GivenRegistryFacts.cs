@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
@@ -18,18 +19,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         private IRegistry Registry { get; } = new Registry();
 
         [Fact]
-        public void ExpectedMessageBodyStores()
+        public async Task ExpectedMessageBodyStores()
         {
             // Arrange
             const string acceptedString = "find this string";
             var spyStore = Mock.Of<IAS4MessageBodyStore>();
-            Registry.MessageBodyStore.Accept(s => s.Equals(acceptedString), () => spyStore);
+            Registry.MessageBodyStore.Accept(s => s.Equals(acceptedString), spyStore);
 
             // Act
-            Registry.MessageBodyStore.LoadMessageBody(acceptedString);
+            await Registry.MessageBodyStore.LoadMessagesBody(acceptedString);
 
             // Assert
-            Mock.Get(spyStore).Verify(s => s.LoadMessageBody(It.IsAny<string>()), Times.Once);
+            Mock.Get(spyStore).Verify(s => s.LoadMessagesBody(It.IsAny<string>()), Times.Once);
         }
 
         [Theory]

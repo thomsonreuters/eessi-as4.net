@@ -14,8 +14,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         public async Task SpyPersisterGetsCalled_IfLoadsBody()
         {
             await TestProviderWithAcceptedPersister(
-                sut => Task.FromResult(sut.LoadMessageBody("ignored location")),
-                spy => spy.LoadMessageBody(It.IsAny<string>()));
+                sut => sut.LoadMessagesBody("ignored location"),
+                spy => spy.LoadMessagesBody(It.IsAny<string>()));
         }
 
         [Fact]
@@ -35,13 +35,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         private static async Task TestProviderWithAcceptedPersister(
-            Func<messageBodyStore, Task> act,
+            Func<MessageBodyStore, Task> act,
             Expression<Action<IAS4MessageBodyStore>> assertion)
         {
             // Arrange
             var spyPersister = Mock.Of<IAS4MessageBodyStore>();
-            var sut = new messageBodyStore();
-            sut.Accept(location => true, () => spyPersister);
+            var sut = new MessageBodyStore();
+            sut.Accept(location => true, spyPersister);
 
             // Act
             await act(sut);

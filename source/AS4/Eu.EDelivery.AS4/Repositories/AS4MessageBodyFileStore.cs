@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -66,6 +67,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         private static string AssembleUniqueMessageLocation(string storeLocation, AS4Message message)
         {
+#if DEBUG
             string messageId = message.GetPrimaryMessageId();
 
             if (string.IsNullOrWhiteSpace(messageId))
@@ -73,7 +75,12 @@ namespace Eu.EDelivery.AS4.Repositories
                 throw new AS4Exception("The AS4Message to store has no Primary Message Id");
             }
 
-            return Path.Combine(storeLocation, $"{messageId}.as4");
+            string fileName = FilenameSanitizer.EnsureValidFilename(messageId);
+#else
+            string fileName = Guid.NewGuid().ToString();
+#endif
+
+            return Path.Combine(storeLocation, $"{fileName}.as4");
         }
 
         /// <summary>
@@ -117,7 +124,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public Stream LoadMessageBody(string location)
+        public async Task<Stream> LoadMessagesBody(string location)
+        {
+            return await Task.Run(() => OpenFileStreamAtLocation(location));
+        }
+
+        public Stream OpenFileStreamAtLocation(string location)
         {
             string fileLocation = SubstringWithoutFileUri(location);
 

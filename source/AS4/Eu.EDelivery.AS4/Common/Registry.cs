@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.Common
 
         public IAttachmentUploaderProvider AttachmentUploader { get; private set; }
 
-        public messageBodyStore MessageBodyStore { get; private set; }
+        public MessageBodyStore MessageBodyStore { get; private set; }
         
 
         private void RegisterPayloadStrategyProvider()
@@ -78,10 +78,10 @@ namespace Eu.EDelivery.AS4.Common
 
         private void RegisterAS4MessageBodyRetrieverProvider()
         {
-            MessageBodyStore = new messageBodyStore();
+            MessageBodyStore = new MessageBodyStore();
             MessageBodyStore.Accept(
                 condition: l => l.StartsWith("file:///", StringComparison.OrdinalIgnoreCase),
-                persister: () => new AS4MessageBodyFileStore(Serialization.SerializerProvider.Default));
+                persister: new AS4MessageBodyFileStore(Serialization.SerializerProvider.Default));
         }
     }
 }

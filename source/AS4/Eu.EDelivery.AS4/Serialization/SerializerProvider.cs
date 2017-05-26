@@ -22,18 +22,14 @@ namespace Eu.EDelivery.AS4.Serialization
     /// </summary>
     public class SerializerProvider : ISerializerProvider
     {
+        private static readonly ISerializerProvider DefaultProvider = new SerializerProvider();
         private readonly IDictionary<string, ISerializer> _serializers;
 
         /// <summary>
         /// Gets the default.
         /// </summary><value>The default.
         /// </value>
-        public static ISerializerProvider Default { get; }
-
-        static SerializerProvider()
-        {
-            Default = new SerializerProvider();
-        }
+        public static ISerializerProvider Default => DefaultProvider;
 
         internal SerializerProvider()
         {

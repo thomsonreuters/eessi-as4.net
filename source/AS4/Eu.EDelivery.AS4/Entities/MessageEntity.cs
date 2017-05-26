@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
@@ -111,12 +112,12 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Retrieves the Message body as a stream.
         /// </summary>
-        /// <param name="storeProvider">
-        /// The AS4MessageBodyRetrieverProvider which is responsible for providing the correct
-        /// IAS4MessageRepository that loads the AS4Message body.
+        /// <param name="store">
+        /// The <see cref="MessageBodyStore" /> which is responsible for providing the correct
+        /// <see cref="IAS4MessageBodyStore" /> that loads the <see cref="AS4Message" /> body.
         /// </param>
         /// <returns>A Stream which contains the MessageBody</returns>
-        public Stream RetrieveMessageBody(IAS4MessageBodyStore storeProvider)
+        public async Task<Stream> RetrieveMessagesBody(IAS4MessageBodyStore store)
         {
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
@@ -124,14 +125,14 @@ namespace Eu.EDelivery.AS4.Entities
                 return null;
             }
 
-            return TryLoadMessageBody(storeProvider);
+            return await TryLoadMessageBody(store);
         }
 
-        private Stream TryLoadMessageBody(IAS4MessageBodyStore store)
+        private async Task<Stream> TryLoadMessageBody(IAS4MessageBodyStore store)
         {
             try
             {
-                return store.LoadMessageBody(MessageLocation);
+                return await store.LoadMessagesBody(MessageLocation);
             }
             catch (Exception exception)
             {

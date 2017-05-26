@@ -15,6 +15,6 @@ namespace Eu.EDelivery.AS4.Common
         IPayloadRetrieverProvider PayloadRetrieverProvider { get;  }        
         IAttachmentUploaderProvider AttachmentUploader { get;  }
 
-        messageBodyStore MessageBodyStore { get; }
+        MessageBodyStore MessageBodyStore { get; }
     }
 }

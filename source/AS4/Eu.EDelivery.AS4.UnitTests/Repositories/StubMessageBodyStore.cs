@@ -42,9 +42,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public Stream LoadMessageBody(string location)
+        public Task<Stream> LoadMessagesBody(string location)
         {
-            return Stream.Null;
+            return Task.FromResult(Stream.Null);
         }
 
         [Fact]
@@ -60,9 +60,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         [Fact]
-        public void LoadsEmpty()
+        public async Task LoadsEmpty()
         {
-            Assert.Equal(Stream.Null, Default.LoadMessageBody(null));
+            Assert.Equal(Stream.Null, await Default.LoadMessagesBody(null));
         }
     }
 }

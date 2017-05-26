@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        Stream LoadMessageBody(string location);
+        Task<Stream> LoadMessagesBody(string location);
 
         /// <summary>
         /// Saves a given <see cref="AS4Message" /> to a given location.

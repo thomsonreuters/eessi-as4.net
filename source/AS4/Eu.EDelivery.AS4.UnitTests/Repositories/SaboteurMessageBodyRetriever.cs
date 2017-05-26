@@ -16,12 +16,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     public class SaboteurMessageBodyRetriever : IAS4MessageBodyStore
     {
         /// <summary>
-        /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
+        /// Loads a <see cref="T:System.IO.Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
         /// <exception cref="SaboteurException">Sabotage the load of AS4 Messages</exception>
-        public Stream LoadMessageBody(string location)
+        public Task<Stream> LoadMessagesBody(string location)
         {
             throw new SaboteurException("Sabotage the load of AS4 Messages");
         }
@@ -55,9 +55,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         [Fact]
-        public void FailsToLoad()
+        public async Task FailsToLoad()
         {
-            Assert.ThrowsAny<Exception>(() => new SaboteurMessageBodyRetriever().LoadMessageBody(null));
+            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyRetriever().LoadMessagesBody(null));
         }
 
         [Fact]

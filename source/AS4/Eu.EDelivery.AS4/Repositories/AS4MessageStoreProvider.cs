@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -10,19 +9,19 @@ using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
-    public class messageBodyStore : IAS4MessageBodyStore
+    public class MessageBodyStore : IAS4MessageBodyStore
     {
-        private readonly ICollection<AS4MessageRepositoryEntry> _repositories =
-            new Collection<AS4MessageRepositoryEntry>();
+        private readonly IDictionary<Func<string, bool>, IAS4MessageBodyStore> _stores = 
+            new Dictionary<Func<string, bool>, IAS4MessageBodyStore>();
 
         /// <summary>
         /// Accepts the specified condition.
         /// </summary>
         /// <param name="condition">The condition.</param>
         /// <param name="persister">The persister.</param>
-        public void Accept(Func<string, bool> condition, Func<IAS4MessageBodyStore> persister)
+        public void Accept(Func<string, bool> condition, IAS4MessageBodyStore persister)
         {
-            _repositories.Add(new AS4MessageRepositoryEntry(condition, persister));
+            _stores[condition] = persister;
         }
 
         /// <summary>
@@ -30,9 +29,9 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public Stream LoadMessageBody(string location)
+        public async Task<Stream> LoadMessagesBody(string location)
         {
-            return For(location).LoadMessageBody(location);
+            return await For(location).LoadMessagesBody(location);
         }
 
         /// <summary>
@@ -68,14 +67,14 @@ namespace Eu.EDelivery.AS4.Repositories
                 throw new ArgumentNullException(nameof(key));
             }
 
-            AS4MessageRepositoryEntry result = _repositories.FirstOrDefault(s => s.Condition(key));
+            KeyValuePair<Func<string, bool>, IAS4MessageBodyStore> entry = _stores.FirstOrDefault(c => c.Key(key));
 
-            if (result == null)
+            if (entry.Value == null)
             {
-                throw new AS4Exception($"No registered IAS4MessageRepository found for {key}");
+                throw new AS4Exception($"No registered '{nameof(IAS4MessageBodyStore)}' found for {key}");
             }
 
-            return result.CreatePersister();
+            return entry.Value;
         }
 
         private sealed class AS4MessageRepositoryEntry
@@ -87,13 +86,13 @@ namespace Eu.EDelivery.AS4.Repositories
             /// <param name="persister">The persister.</param>
             public AS4MessageRepositoryEntry(
                 Func<string, bool> condition,
-                Func<IAS4MessageBodyStore> persister)
+                IAS4MessageBodyStore persister)
             {
                 Condition = condition;
-                CreatePersister = persister;
+                Store = persister;
             }
 
-            public Func<IAS4MessageBodyStore> CreatePersister { get; }
+            public IAS4MessageBodyStore Store { get; }
 
             public Func<string, bool> Condition { get; }
         }
