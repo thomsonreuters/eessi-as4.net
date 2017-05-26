@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
@@ -29,6 +30,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// </summary>
         public class GivenValidArgumentsInternalMessage : GivenInternalMessageFacts
         {
+            [Fact]
+            public void OverrideMessageWithAS4Message()
+            {
+                // Arrange
+                var expected = new InternalMessage(new AS4Message())
+                {
+                    ReceivingPMode = new ReceivingProcessingMode(),
+                    SendingPMode = new SendingProcessingMode()
+                };
+
+                // Act
+                InternalMessage actual = expected.CloneWith(new AS4Message {ContentType = "other"});
+
+                // Assert
+                Assert.NotEqual(expected.AS4Message, actual.AS4Message);
+                Assert.Equal(expected.SendingPMode, actual.SendingPMode);
+                Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
+            }
+
             [Fact]
             public async Task ThenAddAttachmentSucceeds()
             {
@@ -154,8 +174,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
             {
                 // Arrange
-                var submitMessage = new SubmitMessage();
-                var internalMessage = new InternalMessage(submitMessage) {AS4Message = new AS4Message()};
+                var internalMessage = new InternalMessage(new SubmitMessage()) {AS4Message = new AS4Message()};
 
                 // Act
                 await internalMessage.AddAttachments(async payload => await Task.FromResult(new MemoryStream()));

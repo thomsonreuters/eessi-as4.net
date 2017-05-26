@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="messageId">The message Id.</param>
         public InternalMessageBuilder(string messageId = null)
         {
-            _internalMessage = new InternalMessage {AS4Message = new AS4Message()};
+            _internalMessage = new InternalMessage(new AS4Message());
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
             _internalMessage.AS4Message.UserMessages.Add(userMessage);
         }

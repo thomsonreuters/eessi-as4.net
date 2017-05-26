@@ -61,7 +61,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 SendingProcessingMode pmode = RetrieveSendingPMode(internalMessage);
                 if (pmode != null)
                 {
-                    internalMessage.AS4Message = new AS4MessageBuilder().Build();
                     internalMessage.SendingPMode = pmode;
                 }
             }

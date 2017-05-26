@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 Logger.Error($"An AS4 Exception occured: {exception.Message}");
 
-                var internalMessage = new InternalMessage { Exception = exception };
+                var internalMessage = new InternalMessage(exception);
 
                 IStep step = CreateSteps();
 

@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 var compositeStep = new CompositeStep(CreateMockStepWith(stopExecutionResult).Object, spyStep);
 
                 // Act
-                StepResult actualResult = await compositeStep.ExecuteAsync(new InternalMessage(), CancellationToken.None);
+                StepResult actualResult = await compositeStep.ExecuteAsync(InternalMessage.Empty, CancellationToken.None);
 
                 // Assert  
                 Assert.False(spyStep.IsCalled);

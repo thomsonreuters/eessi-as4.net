@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     (message, token) =>
                     {
                         waitHandle.Set();
-                        return Task.FromResult(new InternalMessage());
+                        return Task.FromResult(InternalMessage.Empty);
                     }, CancellationToken.None);
 
                 Assert.False(waitHandle.WaitOne(TimeSpan.FromMilliseconds(500)));
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return Task.FromResult(new InternalMessage());
+                return Task.FromResult(InternalMessage.Empty);
             }
 
             /// <summary>

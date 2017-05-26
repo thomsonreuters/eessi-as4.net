@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             {
                 // Arrange
                 _step = new RetrievePayloadsStep(_provider);
-                var message = new InternalMessage(new AS4Message()) {SubmitMessage = new SubmitMessage()};
+                var message = new InternalMessage(new SubmitMessage()) {AS4Message = new AS4Message()};
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(message, CancellationToken.None);
@@ -89,10 +89,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
             private InternalMessage GetInternalMessage()
             {
-                return new InternalMessage {SubmitMessage = GetStubSubmitMessage(), AS4Message = new AS4Message()};
+                return new InternalMessage(GetStubSubmitMessage()) {AS4Message = new AS4Message()};
             }
 
-            private Attachment GetAttachment(StepResult result)
+            private static Attachment GetAttachment(StepResult result)
             {
                 Attachment attachment = null;
                 IEnumerator<Attachment> enumerator = result.InternalMessage.AS4Message.Attachments.GetEnumerator();

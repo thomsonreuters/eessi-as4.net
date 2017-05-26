@@ -60,7 +60,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         // Make sure the InternalMessage contains an empty AS4Message so that
                         // no AS4 Message is written to the response stream.
                         internalMessage.Exception = exception;
-                        internalMessage.AS4Message = new AS4MessageBuilder().Build();
 
                         return StepResult.Failed(exception, internalMessage);
                     }

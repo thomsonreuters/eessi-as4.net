@@ -24,10 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrievePayloadsStep" /> class
         /// </summary>
-        public RetrievePayloadsStep()
-        {
-            _provider = Registry.Instance.PayloadRetrieverProvider;
-        }
+        public RetrievePayloadsStep() : this(Registry.Instance.PayloadRetrieverProvider) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrievePayloadsStep" /> class

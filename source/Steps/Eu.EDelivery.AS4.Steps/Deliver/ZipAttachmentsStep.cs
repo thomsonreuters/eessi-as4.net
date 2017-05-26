@@ -39,9 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
                 Attachment zipAttachment = CreateZippedAttachment(zippedStream);
 
-                AS4Message message = OverwriteAttachmentEntries(internalMessage.AS4Message, zipAttachment);
-
-                internalMessage.AS4Message = message;
+                OverwriteAttachmentEntries(internalMessage.AS4Message, zipAttachment);
             }
 
             LogManager.GetCurrentClassLogger().Info($"{internalMessage.Prefix} Zip the Attachments to a single file");
@@ -101,12 +99,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             };
         }
 
-        private static AS4Message OverwriteAttachmentEntries(AS4Message message, Attachment zipAttachment)
+        private static void OverwriteAttachmentEntries(AS4Message message, Attachment zipAttachment)
         {
             message.Attachments.Clear();
             message.Attachments.Add(zipAttachment);
-
-            return message;
         }        
     }
 }

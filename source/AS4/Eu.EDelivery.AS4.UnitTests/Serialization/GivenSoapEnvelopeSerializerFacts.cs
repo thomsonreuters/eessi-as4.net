@@ -355,7 +355,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     .WithUserMessage(new UserMessage { Sender = sender, Receiver = receiver })
                     .Build();
 
-                return new InternalMessage {AS4Message = as4Message, SendingPMode = CreateMultihopPMode()};
+                return new InternalMessage(as4Message) {SendingPMode = CreateMultihopPMode()};
             }
 
             private static SendingProcessingMode CreateMultihopPMode()

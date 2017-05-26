@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage {Exception = null};
+                var internalMessage = new InternalMessage(exception: null);
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -48,10 +48,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage
+                var internalMessage = new InternalMessage(CreateFilledAS4Message())
                 {
                     Exception = CreateFilledAS4Exception(),
-                    AS4Message = CreateFilledAS4Message(),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -70,10 +69,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithPModesAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage
+                var internalMessage = new InternalMessage(CreateFilledAS4Message())
                 {
                     Exception = CreateFilledAS4Exception(),
-                    AS4Message = CreateFilledAS4Message(),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -93,10 +91,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message as4Message = CreateFilledAS4Message();
                 as4Message.SigningId = new SigningId("header-id", "body-id");
 
-                var internalMessage = new InternalMessage
+                var internalMessage = new InternalMessage(as4Message)
                 {
                     Exception = CreateFilledAS4Exception(),
-                    AS4Message = as4Message,
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };

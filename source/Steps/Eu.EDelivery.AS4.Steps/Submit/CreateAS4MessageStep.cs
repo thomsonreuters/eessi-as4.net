@@ -19,8 +19,6 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private InternalMessage _internalMessage;
-
         /// <summary>
         /// Start Mapping from a <see cref="SubmitMessage"/> 
         /// to an <see cref="AS4Message"/>
@@ -33,8 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         {
             try
             {
-                _internalMessage = internalMessage;
-                _internalMessage.AS4Message = CreateAS4Message(internalMessage);
+                internalMessage.AS4Message = CreateAS4Message(internalMessage);
 
                 return await StepResult.SuccessAsync(internalMessage);
             }

@@ -19,17 +19,12 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class InternalMessage : IMessage, IDisposable
     {
+        public static InternalMessage Empty => new InternalMessage();
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessage" /> class.
-        /// Create and Internal Message with empty internals
+        /// Prevents a default instance of the <see cref="InternalMessage"/> class from being created.
         /// </summary>
-        public InternalMessage()
-        {
-            AS4Message = null;
-            SubmitMessage = new SubmitMessage();
-            DeliverMessage = null;
-            NotifyMessage = null;
-        }
+        private InternalMessage() {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InternalMessage" /> class.
@@ -92,6 +87,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Exception = exception;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InternalMessage" /> class.
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        public InternalMessage(ReceptionAwareness awareness)
+        {
+            ReceptionAwareness = awareness;
+        }
+
         // Messages
         public AS4Message AS4Message
         {
@@ -99,6 +103,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             {
                 return _as4Message;
             }
+
             set
             {
                 _as4Message = value;
@@ -111,13 +116,13 @@ namespace Eu.EDelivery.AS4.Model.Internal
             }
         }
 
-        public SubmitMessage SubmitMessage { get; set; }
+        public SubmitMessage SubmitMessage { get; }
 
         public DeliverMessageEnvelope DeliverMessage { get; set; }
 
         public NotifyMessageEnvelope NotifyMessage { get; set; }
 
-        public ReceptionAwareness ReceptionAwareness { get; set; }
+        public ReceptionAwareness ReceptionAwareness { get; }
 
         // Exposed Info
         public AS4Exception Exception { get; set; }
@@ -159,17 +164,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
         private SendingProcessingMode _sendingPMode;
         private AS4Message _as4Message;
 
-        public string GetReceivingPModeString()
-        {
-            if (string.IsNullOrWhiteSpace(_receivingPModeString))
-            {
-                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
-            }
-
-            return _receivingPModeString;
-        }
-
-
+        /// <summary>
+        /// Gets the prefix.
+        /// </summary>
+        /// <value>The prefix.</value>
         public string Prefix
         {
             get
@@ -181,6 +179,34 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
                 return $"[{corePrefix ?? extensionPrefix}]";
             }
+        }
+
+        /// <summary>
+        /// Gets the receiving p mode string.
+        /// </summary>
+        /// <returns></returns>
+        public string GetReceivingPModeString()
+        {
+            if (string.IsNullOrWhiteSpace(_receivingPModeString))
+            {
+                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
+            }
+
+            return _receivingPModeString;
+        }
+
+        /// <summary>
+        /// Clones the message.
+        /// </summary>
+        /// <param name="as4Message">The as4 message.</param>
+        /// <returns></returns>
+        public InternalMessage CloneWith(AS4Message as4Message)
+        {
+            return new InternalMessage(as4Message)
+            {
+                SendingPMode = SendingPMode,
+                ReceivingPMode = ReceivingPMode
+            };
         }
 
         /// <summary>

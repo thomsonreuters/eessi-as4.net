@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 var stubAS4Response = new Mock<IAS4Response>();
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
                 stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage(new AS4Message()));
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new InternalMessage());
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(InternalMessage.Empty);
 
                 return stubAS4Response.Object;
             }
@@ -184,7 +184,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         private static AS4Response CreateAnonymousAS4Response()
         {
             return AS4Response.Create(
-                requestMessage: new InternalMessage(), 
+                requestMessage: InternalMessage.Empty, 
                 webResponse: new Mock<HttpWebResponse>().Object, 
                 cancellation: CancellationToken.None).Result;
         }

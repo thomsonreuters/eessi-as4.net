@@ -57,12 +57,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             AS4Message errorMessage = CreateAS4ErrorMessage(internalMessage);
-
-            var message = new InternalMessage(errorMessage)
-            {
-                SendingPMode = internalMessage.SendingPMode,
-                ReceivingPMode = internalMessage.ReceivingPMode
-            };
+            InternalMessage message = internalMessage.CloneWith(errorMessage);
 
             // Save the Error Message as well .... 
             using (DatastoreContext db = _createDatastore())

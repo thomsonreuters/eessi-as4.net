@@ -63,11 +63,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             as4Message = RemoveUnnecessaryAttachments(as4Message);
 
-            return new InternalMessage(as4Message)
-            {
-                ReceivingPMode = internalMessage.ReceivingPMode,
-                SendingPMode = internalMessage.SendingPMode
-            };
+            return internalMessage.CloneWith(as4Message);
         }
 
         private static AS4Message RemoveUnnecessaryMessages(AS4Message as4Message, string userMessageId)

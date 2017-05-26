@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         public void GetsRequestMessageFromAS4Response()
         {
             // Arranage
-            var expectedRequest = new InternalMessage();
+            InternalMessage expectedRequest = InternalMessage.Empty;
 
             // Act
             InternalMessage actualRequest = CreateAS4ResponseWith(messageRequest: expectedRequest).OriginalRequest;
