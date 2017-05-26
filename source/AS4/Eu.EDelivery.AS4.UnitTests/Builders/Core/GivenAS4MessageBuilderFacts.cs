@@ -79,13 +79,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 // Act
                 Assert.Throws<ArgumentNullException>(() => _builder.WithUserMessage(null));
             }
-
-            [Fact]
-            public void ThenBuildWithNullAsPModeFails()
-            {
-                // Act
-                Assert.Throws<ArgumentNullException>(() => _builder.WithSendingPMode(null));
-            }
         }
     }
 }

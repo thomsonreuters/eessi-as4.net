@@ -85,11 +85,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             CreateErrorForEveryUserMessageIn(internalMessage, error => builder.WithSignalMessage(error));
 
-            if (internalMessage.ReceivingPMode != null)
-            {
-                builder.WithReceivingPMode(internalMessage.ReceivingPMode);
-            }
-
             AS4Message errorMessage = builder.Build();
 
             errorMessage.SigningId = internalMessage.AS4Message.SigningId;

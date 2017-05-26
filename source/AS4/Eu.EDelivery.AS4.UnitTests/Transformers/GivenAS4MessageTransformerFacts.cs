@@ -116,9 +116,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             };
 
             AS4Message as4Message =
-                new AS4MessageBuilder().WithSendingPMode(new SendingProcessingMode())
-                                       .WithUserMessage(userMessage)
+                new AS4MessageBuilder().WithUserMessage(userMessage)
                                        .Build();
+
             as4Message.ContentType = Constants.ContentTypes.Soap;
 
             return as4Message;

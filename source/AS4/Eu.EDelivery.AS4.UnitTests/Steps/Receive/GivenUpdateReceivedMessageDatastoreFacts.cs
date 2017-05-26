@@ -85,9 +85,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private static AS4Message CreateReceiptAS4Message(string refToMessageId)
             {
-                var receipt = new Receipt() { RefToMessageId = refToMessageId };
+                var receipt = new Receipt {RefToMessageId = refToMessageId};
 
-                return new AS4MessageBuilder().WithSignalMessage(receipt).WithSendingPMode(GetSendingPMode()).Build();
+                return new AS4MessageBuilder().WithSignalMessage(receipt).Build();
             }
         }
 

@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private ReceivePMode GetPModeFromSettings(AS4Message as4Message)
         {
-            PModeParticipant[] participants = GetPModeParticipants(as4Message.PrimaryUserMessage);
+            List<PModeParticipant> participants = GetPModeParticipants(as4Message.PrimaryUserMessage);
             LetParticipantsAcceptVisitor(participants);
 
             PModeParticipant winningParticipant = participants.Where(p => p.Points >= 10).Max();
@@ -100,9 +100,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return winningParticipant.PMode;
         }
 
-        private PModeParticipant[] GetPModeParticipants(UserMessage primaryUser)
+        private List<PModeParticipant> GetPModeParticipants(UserMessage primaryUser)
         {
-            return _config.GetReceivingPModes().Select(pmode => CreateParticipant(pmode, primaryUser)).ToArray();
+            return _config.GetReceivingPModes().Select(pmode => CreateParticipant(pmode, primaryUser)).ToList();
         }
 
         private static PModeParticipant CreateParticipant(ReceivePMode pmode, UserMessage primaryUser)
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return new PModeParticipant(pmode, primaryUser);
         }
 
-        private void LetParticipantsAcceptVisitor(IEnumerable<PModeParticipant> participants)
+        private void LetParticipantsAcceptVisitor(List<PModeParticipant> participants)
         {
             foreach (PModeParticipant participant in participants)
             {
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Logger.Debug($"Receiving PMode: {participant.PMode.Id} has {participant.Points} Points");
         }
 
-        private static void PostConditionsWinningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant, AS4Message message)
+        private static void PostConditionsWinningParticipant(List<PModeParticipant> participants, PModeParticipant winningParticipant, AS4Message message)
         {
             if (winningParticipant == null)
             {
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static bool TheresMoreThanOneWinningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
+        private static bool TheresMoreThanOneWinningParticipant(List<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             return participants.Count(p => p.Points == winningParticipant.Points) > 1;
         }

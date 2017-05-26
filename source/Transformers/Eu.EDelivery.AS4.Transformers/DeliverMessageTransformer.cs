@@ -32,14 +32,14 @@ namespace Eu.EDelivery.AS4.Transformers
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
-            AS4Message as4Message = await RetrieveAS4Message(entityMessage, cancellationToken);
+            InternalMessage transformedMessage = await RetrieveAS4Message(entityMessage, cancellationToken);
 
-            if (as4Message.UserMessages.Count != 1)
+            if (transformedMessage.AS4Message.UserMessages.Count != 1)
             {
                 throw new InvalidOperationException("The AS4Message should contain only one UserMessage.");
             }
 
-            return new InternalMessage(as4Message);
+            return transformedMessage;
         }
 
         /// <summary>
@@ -49,12 +49,13 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="entityMessage"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private static async Task<AS4Message> RetrieveAS4Message(
+        private static async Task<InternalMessage> RetrieveAS4Message(
             ReceivedMessageEntityMessage entityMessage,
             CancellationToken cancellationToken)
         {
             var as4Transformer = new AS4MessageTransformer();
             InternalMessage internalMessage = await as4Transformer.TransformAsync(entityMessage, cancellationToken);
+
 
             AS4Message as4Message = RemoveUnnecessaryMessages(
                 internalMessage.AS4Message,
@@ -62,7 +63,11 @@ namespace Eu.EDelivery.AS4.Transformers
 
             as4Message = RemoveUnnecessaryAttachments(as4Message);
 
-            return as4Message;
+            return new InternalMessage(as4Message)
+            {
+                ReceivingPMode = internalMessage.ReceivingPMode,
+                SendingPMode = internalMessage.SendingPMode
+            };
         }
 
         private static AS4Message RemoveUnnecessaryMessages(AS4Message as4Message, string userMessageId)
