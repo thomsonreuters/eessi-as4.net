@@ -5,22 +5,25 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
+using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
     /// <summary>
     /// Testing <see cref="MessagingContext" />
     /// </summary>
-    public class GivenInternalMessageFacts
+    public class GivenMessagingContextFacts
     {
         private MessagingContext _messagingContext;
 
-        public GivenInternalMessageFacts()
+        public GivenMessagingContextFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
@@ -28,8 +31,51 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// <summary>
         /// Testing the Internal Message
         /// </summary>
-        public class GivenValidArgumentsInternalMessage : GivenInternalMessageFacts
+        public class GivenValidArguments : GivenMessagingContextFacts
         {
+            [Fact]
+            public void OverrideMessageWithNotifyMessage()
+            {
+                // Arrange
+                var filledNotify = new NotifyMessageEnvelope(new AS4.Model.Notify.MessageInfo(), Status.Delivered, new byte[0], "type");
+                var expected = new MessagingContext(filledNotify)
+                {
+                    SendingPMode = new SendingProcessingMode(),
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
+                var anonymousNotify = new NotifyMessageEnvelope(null, default(Status), null, null);
+
+                // Act
+                MessagingContext actual = expected.CloneWith(anonymousNotify);
+
+                // Assert
+                Assert.NotEqual(expected.NotifyMessage, actual.NotifyMessage);
+                Assert.Equal(expected.SendingPMode, actual.SendingPMode);
+                Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
+            }
+
+            [Fact]
+            public void OverrideMessageWithDeliverMessage()
+            {
+                // Arrange
+                var filledNotify = new DeliverMessageEnvelope(new MessageInfo(), new byte[0], "type");
+                var expected = new MessagingContext(filledNotify)
+                {
+                    SendingPMode = new SendingProcessingMode(),
+                    ReceivingPMode = new ReceivingProcessingMode()
+                };
+
+                var anonymousDeliver = new DeliverMessageEnvelope(null, null, null);
+
+                // Act
+                MessagingContext actual = expected.CloneWith(anonymousDeliver);
+
+                // Assert
+                Assert.NotEqual(expected.DeliverMessage, actual.DeliverMessage);
+                Assert.Equal(expected.SendingPMode, actual.SendingPMode);
+                Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
+            }
+
             [Fact]
             public void OverrideMessageWithAS4Message()
             {
@@ -47,22 +93,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.NotEqual(expected.AS4Message, actual.AS4Message);
                 Assert.Equal(expected.SendingPMode, actual.SendingPMode);
                 Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
-            }
-
-            [Fact]
-            public async Task ThenAddAttachmentSucceeds()
-            {
-                // Arrange
-                var memoryStream = new MemoryStream();
-                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
-                var internalMessage = new MessagingContext(submitMessage) {AS4Message = new AS4Message()};
-
-                // Act
-                await internalMessage.AddAttachments(async payload => await Task.FromResult(memoryStream));
-
-                // Assert
-                Assert.NotNull(internalMessage.AS4Message.Attachments);
-                Assert.Equal(memoryStream, internalMessage.AS4Message.Attachments.First().Content);
             }
 
             [Fact]
@@ -169,25 +199,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Assert
                 Assert.Equal($"[{userMessage.MessageId}]", prefix);
             }
-
-            [Fact]
-            public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
-            {
-                // Arrange
-                var internalMessage = new MessagingContext(new SubmitMessage()) {AS4Message = new AS4Message()};
-
-                // Act
-                await internalMessage.AddAttachments(async payload => await Task.FromResult(new MemoryStream()));
-
-                // Assert
-                Assert.False(internalMessage.AS4Message.HasAttachments);
-            }
         }
 
         /// <summary>
         /// Testing the Internal Message with invalid arguments
         /// </summary>
-        public class GivenInvalidArgumentsInternalMessage : GivenInternalMessageFacts
+        public class GivenInvalidArguments : GivenMessagingContextFacts
         {
             [Fact]
             public void ThenGettingMessageIdsFailsWitEmptyAS4Message()

@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
@@ -54,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     (message, token) =>
                     {
                         waitHandle.Set();
-                        return Task.FromResult(MessagingContext.Empty);
+                        return Task.FromResult((MessagingContext) new EmptyMessagingContext());
                     }, CancellationToken.None);
 
                 Assert.False(waitHandle.WaitOne(TimeSpan.FromMilliseconds(500)));
@@ -114,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return Task.FromResult(MessagingContext.Empty);
+                return Task.FromResult((MessagingContext) new EmptyMessagingContext());
             }
 
             /// <summary>

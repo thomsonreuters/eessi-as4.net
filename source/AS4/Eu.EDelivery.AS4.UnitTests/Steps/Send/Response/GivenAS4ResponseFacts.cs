@@ -1,11 +1,9 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Send.Response;
-using Xunit;
-using System.Reflection;
 using Moq;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 {
@@ -18,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         public void GetsRequestMessageFromAS4Response()
         {
             // Arranage
-            MessagingContext expectedRequest = MessagingContext.Empty;
+            var expectedRequest = new MessagingContext(as4Message: null);
 
             // Act
             MessagingContext actualRequest = CreateAS4ResponseWith(messageRequest: expectedRequest).OriginalRequest;

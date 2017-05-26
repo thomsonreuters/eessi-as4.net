@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             using (DatastoreContext context = _dataContextRetriever())
             {
                 var repo = new DatastoreRepository(context);
-                return repo.RetrieveSendingPModeForOutMessage(messagingContext.AS4Message?.PrimarySignalMessage.RefToMessageId);
+                return repo.RetrieveSendingPModeForOutMessage(messagingContext.NotifyMessage.MessageInfo.RefToMessageId);
             }
         }
 

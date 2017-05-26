@@ -2,6 +2,7 @@ using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Transformers;
 using Xunit;
 
@@ -37,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public async void ThenTransformSucceedsWithValidInExceptionForErrorPropertiesAsync()
         {
             // Arrange            
-            var receivedMessage = CreateReceivedExceptionMessage<InException>();
+            ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage<InException>();
             var transformer = new ExceptionToNotifyMessageTransformer();
 
             // Act
@@ -45,10 +46,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
-            var error = (Error)messagingContext.AS4Message.PrimarySignalMessage;
-            Assert.True(error.IsFormedByException);
-            Assert.False(string.IsNullOrWhiteSpace(((ExceptionEntity)receivedMessage.Entity).Exception));
-            Assert.Equal(((ExceptionEntity)receivedMessage.Entity).Exception, error.Exception.Message);
+            Assert.Equal(Status.Exception, messagingContext.NotifyMessage.StatusCode);
+            Assert.Equal(((InException) receivedMessage.Entity).EbmsRefToMessageId, messagingContext.NotifyMessage.MessageInfo.RefToMessageId);
         }
 
         private static ReceivedEntityMessage CreateReceivedExceptionMessage<T>() where T : ExceptionEntity, new()

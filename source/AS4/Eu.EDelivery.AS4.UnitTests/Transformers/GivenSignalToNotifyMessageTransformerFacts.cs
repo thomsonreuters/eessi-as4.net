@@ -27,7 +27,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             var result = await sut.TransformAsync(receivedSignal, CancellationToken.None);
 
-            Assert.NotNull(result.AS4Message);
             Assert.NotNull(result.NotifyMessage);
             Assert.Equal(receivedMessageEntity.EbmsMessageId, result.NotifyMessage.MessageInfo.MessageId);
             Assert.Equal(receivedMessageEntity.EbmsRefToMessageId, result.NotifyMessage.MessageInfo.RefToMessageId);
@@ -42,7 +41,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             var result = await sut.TransformAsync(receivedSignal, CancellationToken.None);
 
-            Assert.NotNull(result.AS4Message);
             Assert.NotNull(result.NotifyMessage);
 
             var notifyMessage =

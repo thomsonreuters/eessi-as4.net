@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Moq;
 using Xunit;
 
@@ -46,7 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 var compositeStep = new CompositeStep(CreateMockStepWith(stopExecutionResult).Object, spyStep);
 
                 // Act
-                StepResult actualResult = await compositeStep.ExecuteAsync(MessagingContext.Empty, CancellationToken.None);
+                StepResult actualResult = await compositeStep.ExecuteAsync(new EmptyMessagingContext(), CancellationToken.None);
 
                 // Assert  
                 Assert.False(spyStep.IsCalled);

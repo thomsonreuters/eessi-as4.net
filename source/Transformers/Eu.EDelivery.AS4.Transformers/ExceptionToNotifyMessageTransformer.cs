@@ -42,11 +42,10 @@ namespace Eu.EDelivery.AS4.Transformers
 
             AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, cancellationToken);
 
-            var internalMessage = new MessagingContext(as4Message)
+            var internalMessage = new MessagingContext(CreateNotifyMessageEnvelope(as4Message))
             {
                 SendingPMode = GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
                 ReceivingPMode = GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode),
-                NotifyMessage = CreateNotifyMessageEnvelope(as4Message)
             };
 
             Logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");

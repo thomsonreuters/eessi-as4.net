@@ -34,14 +34,7 @@ namespace Eu.EDelivery.AS4.Transformers
             // the one usermessage that should be delivered.
             AS4Message as4Message = await RetrieveAS4SignalMessage(entityMessage, cancellationToken);
 
-            var envelope = CreateNotifyMessageEnvelope(as4Message);
-
-            var internalMessage = new MessagingContext(as4Message)
-            {
-                NotifyMessage = envelope
-            };
-
-            return internalMessage;
+            return new MessagingContext(CreateNotifyMessageEnvelope(as4Message));
         }
 
         protected virtual NotifyMessageEnvelope CreateNotifyMessageEnvelope(AS4Message as4Message)

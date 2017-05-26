@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
@@ -116,12 +118,37 @@ namespace Eu.EDelivery.AS4.Model.Core
             ContentType = contentTypeString.Replace("Content-Type: ", string.Empty);
         }
 
+        /// <summary>
+        /// Closes the attachments.
+        /// </summary>
         public void CloseAttachments()
         {
             foreach (Attachment attachment in Attachments)
             {
                 attachment.Content.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Adds the attachments.
+        /// </summary>
+        /// <param name="payloads">The payloads.</param>
+        /// <param name="retrieval">The retrieval.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        public async Task AddAttachments(IReadOnlyList<Payload> payloads, Func<Payload, Task<Stream>> retrieval)
+        {
+            foreach (Payload payload in payloads)
+            {
+                Attachment attachment = CreateAttachmentFromPayload(payload);
+                attachment.Content = await retrieval(payload).ConfigureAwait(false);
+                AddAttachment(attachment);
+            }
+        }
+
+        private static Attachment CreateAttachmentFromPayload(Payload payload)
+        {
+            return new Attachment(payload.Id) { ContentType = payload.MimeType, Location = payload.Location };
         }
 
         #region Inner DetermineSizeStream class.

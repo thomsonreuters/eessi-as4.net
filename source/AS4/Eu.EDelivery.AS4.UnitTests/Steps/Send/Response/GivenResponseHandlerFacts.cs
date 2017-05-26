@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Model.Core;
 using Moq;
 using Xunit;
@@ -73,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 var stubAS4Response = new Mock<IAS4Response>();
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
                 stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(new AS4Message()));
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(MessagingContext.Empty);
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
 
                 return stubAS4Response.Object;
             }
@@ -184,7 +185,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         private static AS4Response CreateAnonymousAS4Response()
         {
             return AS4Response.Create(
-                requestMessage: MessagingContext.Empty, 
+                requestMessage: new EmptyMessagingContext(),
                 webResponse: new Mock<HttpWebResponse>().Object, 
                 cancellation: CancellationToken.None).Result;
         }

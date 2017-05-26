@@ -19,13 +19,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class MessagingContext : IMessage, IDisposable
     {
-        public static MessagingContext Empty => new MessagingContext();
-
-        /// <summary>
-        /// Prevents a default instance of the <see cref="MessagingContext"/> class from being created.
-        /// </summary>
-        private MessagingContext() {}
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext" /> class.
         /// Create an Internal Message with a given <see cref="Core.AS4Message" />
@@ -96,7 +89,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
             ReceptionAwareness = awareness;
         }
 
-        // Messages
         public AS4Message AS4Message
         {
             get
@@ -118,13 +110,12 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public SubmitMessage SubmitMessage { get; }
 
-        public DeliverMessageEnvelope DeliverMessage { get; set; }
+        public DeliverMessageEnvelope DeliverMessage { get; }
 
-        public NotifyMessageEnvelope NotifyMessage { get; set; }
+        public NotifyMessageEnvelope NotifyMessage { get; }
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
-        // Exposed Info
         public AS4Exception Exception { get; set; }
 
         public SendingProcessingMode SendingPMode
@@ -133,6 +124,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             {
                 return _sendingPMode;
             }
+
             set
             {
                 _sendingPMode = value;
@@ -149,7 +141,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceivingProcessingMode ReceivingPMode
         {
-            get { return _receivingPMode; }
+            get
+            {
+                return _receivingPMode;
+            }
+
             set
             {
                 if (_receivingPMode != value)
@@ -161,7 +157,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         private string _receivingPModeString;
+
         private SendingProcessingMode _sendingPMode;
+
         private AS4Message _as4Message;
 
         /// <summary>
@@ -210,26 +208,36 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Add Attachments to internal <see cref="Core.AS4Message" />
+        /// Clones the message.
         /// </summary>
-        /// <param name="retrieval">Delegate that takes Payload location (string) as argument</param>
-        public async Task AddAttachments(Func<Payload, Task<Stream>> retrieval)
+        /// <param name="deliverMessage">The anonymous deliver.</param>
+        /// <returns></returns>
+        public MessagingContext CloneWith(DeliverMessageEnvelope deliverMessage)
         {
-            foreach (Payload payload in SubmitMessage.Payloads)
+            return new MessagingContext(deliverMessage)
             {
-                Attachment attachment = CreateAttachmentFromPayload(payload);
-                attachment.Content = await retrieval(payload).ConfigureAwait(false);
-                AS4Message.AddAttachment(attachment);
-            }
+                SendingPMode = SendingPMode,
+                ReceivingPMode = ReceivingPMode
+            };
         }
 
-        private static Attachment CreateAttachmentFromPayload(Payload payload)
+        /// <summary>
+        /// Clones the message.
+        /// </summary>
+        /// <param name="notifyMessage">The notify message.</param>
+        /// <returns></returns>
+        public MessagingContext CloneWith(NotifyMessageEnvelope notifyMessage)
         {
-            return new Attachment(payload.Id) {ContentType = payload.MimeType, Location = payload.Location};
+            return new MessagingContext(notifyMessage)
+            {
+                SendingPMode = SendingPMode,
+                ReceivingPMode = ReceivingPMode
+            };
         }
 
-
-        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             AS4Message?.CloseAttachments();

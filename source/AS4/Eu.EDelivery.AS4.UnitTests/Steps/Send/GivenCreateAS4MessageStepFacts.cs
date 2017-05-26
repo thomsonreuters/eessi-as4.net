@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
@@ -9,8 +10,11 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
+using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Moq;
 using Xunit;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
 using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
@@ -33,18 +37,54 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public class GivenValidArguments : GivenCreateAS4MessageStepFacts
         {
             [Fact]
+            public async Task NoPayloadsToRetrieve()
+            {
+                // Arrange
+                SubmitMessage submit = SubmitWithTwoPayloads();
+                submit.PMode = DefaultSendPMode();
+                submit.Payloads = null;
+
+                var context = new MessagingContext(submit);
+
+                // Act
+                StepResult result = await ExerciseCreateAS4Message(context);
+
+                // Assert
+                AS4Message actual = result.MessagingContext.AS4Message;
+                Assert.False(actual.HasAttachments);
+            } 
+
+            [Fact]
+            public async Task AssignsAttachmentLocations()
+            {
+                // Arrange
+                SubmitMessage message = SubmitWithTwoPayloads();
+                message.PMode = DefaultSendPMode();
+
+                var context = new MessagingContext(message);
+
+                // Act
+                StepResult result = await ExerciseCreateAS4Message(context);
+
+                // Assert
+                AS4Message actual = result.MessagingContext.AS4Message;
+                Assert.True(actual.HasAttachments);
+                Assert.Equal(Stream.Null, actual.Attachments.First().Content);
+            }
+
+            [Fact]
             public async Task ThenStepCreatesAS4Message()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new MessagingContext(submitMessage);
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
+                var context = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(context);
 
                 // Assert
-                UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
+                UserMessage userMessage = result.MessagingContext.AS4Message.PrimaryUserMessage;
                 Assert.NotNull(userMessage);
             }
 
@@ -52,16 +92,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepCreatesAS4MessageWithMessageInfo()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
                 MessageInfo submitMessageInfo = submitMessage.MessageInfo;
-                UserMessage userMessage = internalMessage.AS4Message.PrimaryUserMessage;
+                UserMessage userMessage = result.MessagingContext.AS4Message.PrimaryUserMessage;
                 Assert.Equal(submitMessageInfo.MessageId, userMessage.MessageId);
                 Assert.Equal(submitMessageInfo.Mpc, userMessage.Mpc);
                 Assert.Equal(submitMessageInfo.RefToMessageId, userMessage.RefToMessageId);
@@ -71,31 +111,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepCreatesAS4MessageWithGeneratedMessageId()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
                 submitMessage.MessageInfo.MessageId = null;
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
-                Assert.NotEmpty(internalMessage.AS4Message.PrimaryUserMessage.MessageId);
+                Assert.NotEmpty(result.MessagingContext.AS4Message.PrimaryUserMessage.MessageId);
             }
 
             [Fact]
             public async Task ThenStepCreatesAS4MessageWithAgreement()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
-                AssertAgreementReference(submitMessage, internalMessage);
+                AssertAgreementReference(submitMessage, result.MessagingContext);
             }
 
             private static void AssertAgreementReference(SubmitMessage submitMessage, MessagingContext messagingContext)
@@ -113,16 +153,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepCreatesAS4MessageWithService()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
                 Service pmodService = submitMessage.PMode.MessagePackaging.CollaborationInfo.Service;
-                Service userMessageService = internalMessage.AS4Message.PrimaryUserMessage.CollaborationInfo.Service;
+                Service userMessageService = result.MessagingContext.AS4Message.PrimaryUserMessage.CollaborationInfo.Service;
                 Assert.Equal(pmodService, userMessageService);
             }
 
@@ -130,16 +170,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepCreatesAS4MessageWithAction()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
                 string pmodeAction = submitMessage.PMode.MessagePackaging.CollaborationInfo.Action;
-                string userMessageAction = internalMessage.AS4Message.PrimaryUserMessage.CollaborationInfo.Action;
+                string userMessageAction = result.MessagingContext.AS4Message.PrimaryUserMessage.CollaborationInfo.Action;
                 Assert.Equal(pmodeAction, userMessageAction);
             }
 
@@ -147,16 +187,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepCreatesAS4MessageWithSenderParty()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
                 Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.FromParty;
-                Party userMessageParty = internalMessage.AS4Message.PrimaryUserMessage.Sender;
+                Party userMessageParty = result.MessagingContext.AS4Message.PrimaryUserMessage.Sender;
                 Assert.Equal(pmodeParty, userMessageParty);
             }
 
@@ -164,16 +204,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepCreatesAS4MessageWithReceiverParty()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
                 Party pmodeParty = submitMessage.PMode.MessagePackaging.PartyInfo.ToParty;
-                Party userMessageParty = internalMessage.AS4Message.PrimaryUserMessage.Receiver;
+                Party userMessageParty = result.MessagingContext.AS4Message.PrimaryUserMessage.Receiver;
                 Assert.Equal(pmodeParty, userMessageParty);
             }
 
@@ -181,15 +221,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepCreatesAS4MessageWithSubmitMessageProperties()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
-                await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await ExerciseCreateAS4Message(internalMessage);
 
                 // Assert
-                AssertMessageProperty(submitMessage, internalMessage);
+                AssertMessageProperty(submitMessage, result.MessagingContext);
             }
 
             private static void AssertMessageProperty(SubmitMessage submitMessage, MessagingContext messagingContext)
@@ -209,15 +249,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenStepFailsToCreateAS4MessageWhenSubmitMessageTriesToOVerrideSenderPartyAsync()
             {
                 // Arrange
-                SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
+                SubmitMessage submitMessage = SubmitWithTwoPayloads();
                 submitMessage.PartyInfo = CreatePopulatedSubmitPartyInfo();
-                submitMessage.PMode = CreatePopulatedSendingPMode();
+                submitMessage.PMode = DefaultSendPMode();
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act / Assert
                 AS4Exception as4Exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None));
+                    await Assert.ThrowsAsync<AS4Exception>(() => ExerciseCreateAS4Message(internalMessage));
+
                 Assert.NotEmpty(as4Exception.MessageIds);
             }
 
@@ -227,14 +267,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        protected SubmitMessage CreatePopulatedSubmitMessage()
+        protected SubmitMessage SubmitWithTwoPayloads()
         {
             return AS4XmlSerializer.FromString<SubmitMessage>(Properties.Resources.submitmessage);
         }
 
-        protected SendingProcessingMode CreatePopulatedSendingPMode()
+        protected SendingProcessingMode DefaultSendPMode()
         {
             return AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
+        }
+
+        protected async Task<StepResult> ExerciseCreateAS4Message(MessagingContext context)
+        {
+            var stubProvider = new Mock<IPayloadRetrieverProvider>();
+            var stubRetriever = new Mock<IPayloadRetriever>();
+
+            stubRetriever.Setup(r => r.RetrievePayloadAsync(It.IsAny<string>())).ReturnsAsync(Stream.Null);
+            stubProvider.Setup(p => p.Get(It.IsAny<Payload>())).Returns(stubRetriever.Object);
+
+            var sut = new CreateAS4MessageStep(stubProvider.Object);
+
+            // Act
+            return await sut.ExecuteAsync(context, CancellationToken.None);
         }
     }
 }
