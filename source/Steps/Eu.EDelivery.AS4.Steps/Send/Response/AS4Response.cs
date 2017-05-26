@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// </summary>
         /// <param name="requestMessage">The resulted Message.</param>
         /// <param name="webResponse">The web Response.</param>
-        private AS4Response(InternalMessage requestMessage, HttpWebResponse webResponse)
+        private AS4Response(MessagingContext requestMessage, HttpWebResponse webResponse)
         {
             _httpWebResponse = webResponse;
 
@@ -39,12 +39,12 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <summary>
         /// Gets the Message from the AS4 response.
         /// </summary>
-        public InternalMessage ResultedMessage { get; private set; }
+        public MessagingContext ResultedMessage { get; private set; }
 
         /// <summary>
         /// Gets the Original Request from this response.
         /// </summary>
-        public InternalMessage OriginalRequest { get; }
+        public MessagingContext OriginalRequest { get; }
 
         /// <summary>
         /// Create a new <see cref="AS4Response"/> instance.
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <param name="webResponse"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        public static async Task<AS4Response> Create(InternalMessage requestMessage, HttpWebResponse webResponse, CancellationToken cancellation)
+        public static async Task<AS4Response> Create(MessagingContext requestMessage, HttpWebResponse webResponse, CancellationToken cancellation)
         {
             var response = new AS4Response(requestMessage, webResponse)
             {
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             return response;
         }
 
-        private static async Task<InternalMessage> TryDeserializeHttpResponse(WebResponse webResponse, CancellationToken cancellation)
+        private static async Task<MessagingContext> TryDeserializeHttpResponse(WebResponse webResponse, CancellationToken cancellation)
         {
             AS4Message deserializedResponse;
 
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 if (string.IsNullOrWhiteSpace(webResponse.ContentType))
                 {
                     Logger.Info("No ContentType set - returning an empty AS4 response.");
-                    return new InternalMessage(new AS4MessageBuilder().Build());
+                    return new MessagingContext(new AS4MessageBuilder().Build());
                 }
 
                 ISerializer serializer = Registry.Instance.SerializerProvider.Get(webResponse.ContentType);
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 deserializedResponse = new AS4MessageBuilder().Build();
             }
 
-            return new InternalMessage(deserializedResponse);
+            return new MessagingContext(deserializedResponse);
         }
     }
 
@@ -105,11 +105,11 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <summary>
         /// Gets the Message from the AS4 response.
         /// </summary>
-        InternalMessage ResultedMessage { get; }
+        MessagingContext ResultedMessage { get; }
 
         /// <summary>
         /// Gets the Original Request from this response.
         /// </summary>
-        InternalMessage OriginalRequest { get; }
+        MessagingContext OriginalRequest { get; }
     }
 }

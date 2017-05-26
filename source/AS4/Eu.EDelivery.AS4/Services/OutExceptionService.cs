@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Services
 {
     public interface IOutExceptionService
     {
-        void InsertAS4Exception(AS4Exception as4Exception, InternalMessage message);
+        void InsertAS4Exception(AS4Exception as4Exception, MessagingContext message);
     }
 
     public class OutExceptionService : IOutExceptionService
@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Services
             _context = context;
         }
 
-        public void InsertAS4Exception(AS4Exception as4Exception, InternalMessage message)
+        public void InsertAS4Exception(AS4Exception as4Exception, MessagingContext message)
         {
             var repository = new DatastoreRepository(_context);
 
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        private static OutException CreateOutException(AS4Exception as4Exception, string messageId, InternalMessage message)
+        private static OutException CreateOutException(AS4Exception as4Exception, string messageId, MessagingContext message)
         {
             OutExceptionBuilder builder = OutExceptionBuilder.ForAS4Exception(as4Exception).WithEbmsMessageId(messageId);
 

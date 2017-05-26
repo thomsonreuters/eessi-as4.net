@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         /// </summary>
         protected override IStep Step { get; }
 
-        private InternalMessage CreateReferencedInternalMessageWith(SignalMessage signalMessage)
+        private MessagingContext CreateReferencedInternalMessageWith(SignalMessage signalMessage)
         {
             return
                 new InternalMessageBuilder().WithUserMessage(new UserMessage(ReceiptMessageId))
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             AS4Message message = new AS4MessageBuilder().Build();
-            var internalMessage = new InternalMessage(message);
+            var internalMessage = new MessagingContext(message);
 
             // Act
             StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -51,15 +51,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Assert.NotNull(result);
         }
 
-        private static InternalMessage CreateInternalMessageWith(SignalMessage signalMessage)
+        private static MessagingContext CreateInternalMessageWith(SignalMessage signalMessage)
         {
-            InternalMessage internalMessage = new InternalMessageBuilder(signalMessage.RefToMessageId)
+            MessagingContext messagingContext = new InternalMessageBuilder(signalMessage.RefToMessageId)
                            .WithSignalMessage(signalMessage).Build();
 
-            internalMessage.SendingPMode = new SendingProcessingMode();
-            internalMessage.ReceivingPMode = new ReceivingProcessingMode();
+            messagingContext.SendingPMode = new SendingProcessingMode();
+            messagingContext.ReceivingPMode = new ReceivingProcessingMode();
 
-            return internalMessage;
+            return messagingContext;
         }
     }
 }

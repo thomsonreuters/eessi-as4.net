@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 StepResult stepResult = await _step.ExecuteAsync(CreateEncryptedAS4Message(), CancellationToken.None);
 
                 // Assert
-                Assert.True(stepResult.InternalMessage.AS4Message.IsEncrypted);
+                Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
             }
         }
 
@@ -74,13 +74,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        protected InternalMessage CreateEncryptedAS4Message()
+        protected MessagingContext CreateEncryptedAS4Message()
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));
             var attachment = new Attachment("attachment-id") {Content = attachmentStream};
             AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
-            var message = new InternalMessage(as4Message);
+            var message = new MessagingContext(as4Message);
             message.SendingPMode = new SendingProcessingMode();
             message.SendingPMode.Security.Encryption.IsEnabled = true;
             message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";

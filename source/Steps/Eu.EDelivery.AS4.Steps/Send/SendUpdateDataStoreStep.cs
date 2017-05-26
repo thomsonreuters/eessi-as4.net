@@ -35,21 +35,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Execute the Update DataStore Step
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             using (DatastoreContext context = _createDatastoreContext())
             {
                 var inMessageService = new InMessageService(new DatastoreRepository(context));
 
-                await inMessageService.InsertAS4Message(internalMessage, _messageBodyPersister, cancellationToken).ConfigureAwait(false);
+                await inMessageService.InsertAS4Message(messagingContext, _messageBodyPersister, cancellationToken).ConfigureAwait(false);
 
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
     }
 }

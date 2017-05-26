@@ -39,10 +39,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 ReceivedMessage receivedmessage = CreateMessageFrom(submitMessage);
 
                 // Act
-                InternalMessage internalMessage = await Transform(receivedmessage);
+                MessagingContext messagingContext = await Transform(receivedmessage);
 
                 // Assert
-                Assert.Null(internalMessage.SubmitMessage.PMode);
+                Assert.Null(messagingContext.SubmitMessage.PMode);
 
                 receivedmessage.RequestStream.Dispose();
             }
@@ -60,10 +60,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 ReceivedMessage receivedMessage = CreateMessageFrom(submitMessage);
 
                 // Act
-                InternalMessage internalMessage = await Transform(receivedMessage);
+                MessagingContext messagingContext = await Transform(receivedMessage);
 
                 // Assert
-                Assert.Equal(expectedPModeId, internalMessage.SubmitMessage.Collaboration.AgreementRef.PModeId);
+                Assert.Equal(expectedPModeId, messagingContext.SubmitMessage.Collaboration.AgreementRef.PModeId);
 
                 receivedMessage.RequestStream.Dispose();
             }
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             }
         }
 
-        protected async Task<InternalMessage> Transform(ReceivedMessage message)
+        protected async Task<MessagingContext> Transform(ReceivedMessage message)
         {
             return await new SubmitMessageXmlTransformer().TransformAsync(message, CancellationToken.None);
         }

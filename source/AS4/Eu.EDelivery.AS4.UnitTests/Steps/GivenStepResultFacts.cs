@@ -38,9 +38,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 Assert.True(actualStepResult.CanProceed);
             }
 
-            private static InternalMessage AnonymousMessage()
+            private static MessagingContext AnonymousMessage()
             {
-                return new InternalMessage(new AS4MessageBuilder().Build());
+                return new MessagingContext(new AS4MessageBuilder().Build());
             }
         }
     }

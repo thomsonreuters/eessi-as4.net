@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             public async void ThenTransmitMessageSucceeds()
             {
                 // Arrange
-                InternalMessage dummyMessage = CreateDummyMessage();
+                MessagingContext dummyMessage = CreateDummyMessage();
                 StepResult expectedStepResult = StepResult.Success(dummyMessage);
 
                 var compositeStep = new CompositeStep(CreateMockStepWith(expectedStepResult).Object);
@@ -32,37 +32,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 StepResult actualStepResult = await compositeStep.ExecuteAsync(dummyMessage, CancellationToken.None);
 
                 // Assert
-                Assert.Equal(expectedStepResult.InternalMessage, actualStepResult.InternalMessage);
+                Assert.Equal(expectedStepResult.MessagingContext, actualStepResult.MessagingContext);
             }
 
             [Fact]
             public async void ThenStepStopExecutionWithMarkedStepResult()
             {
                 // Arrange
-                InternalMessage expectedMessage = CreateDummyMessage();
+                MessagingContext expectedMessage = CreateDummyMessage();
                 StepResult stopExecutionResult = StepResult.Success(expectedMessage).AndStopExecution();
 
                 var spyStep = new SpyStep();
                 var compositeStep = new CompositeStep(CreateMockStepWith(stopExecutionResult).Object, spyStep);
 
                 // Act
-                StepResult actualResult = await compositeStep.ExecuteAsync(InternalMessage.Empty, CancellationToken.None);
+                StepResult actualResult = await compositeStep.ExecuteAsync(MessagingContext.Empty, CancellationToken.None);
 
                 // Assert  
                 Assert.False(spyStep.IsCalled);
-                Assert.Equal(expectedMessage, actualResult.InternalMessage);
+                Assert.Equal(expectedMessage, actualResult.MessagingContext);
             }
 
-            private static InternalMessage CreateDummyMessage()
+            private static MessagingContext CreateDummyMessage()
             {
-                return new InternalMessage(new AS4MessageBuilder().WithAttachment(new Attachment()).Build());
+                return new MessagingContext(new AS4MessageBuilder().WithAttachment(new Attachment()).Build());
             }
 
             private static Mock<IStep> CreateMockStepWith(StepResult stepResult)
             {
                 var mockStep = new Mock<IStep>();
 
-                mockStep.Setup(m => m.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
+                mockStep.Setup(m => m.ExecuteAsync(It.IsAny<MessagingContext>(), It.IsAny<CancellationToken>()))
                         .ReturnsAsync(stepResult);
 
                 return mockStep;

@@ -15,17 +15,17 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     public class OutMessageBuilder
     {
         private readonly MessageUnit _messageUnitUnit;
-        private readonly InternalMessage _internalMessage;
+        private readonly MessagingContext _messagingContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageBuilder" /> class.
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="message">The message.</param>
-        public OutMessageBuilder(MessageUnit messageUnit, InternalMessage message)
+        public OutMessageBuilder(MessageUnit messageUnit, MessagingContext message)
         {
             _messageUnitUnit = messageUnit;
-            _internalMessage = message;
+            _messagingContext = message;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public static OutMessageBuilder ForInternalMessage(MessageUnit messageUnit, InternalMessage message)
+        public static OutMessageBuilder ForInternalMessage(MessageUnit messageUnit, MessagingContext message)
         {
             return new OutMessageBuilder(messageUnit, message);
         }
@@ -52,8 +52,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             string messageId = _messageUnitUnit.MessageId;
 
             OutMessage outMessage = CreateDefaultOutMessage(messageId);
-            outMessage.ContentType = _internalMessage.AS4Message.ContentType;
-            outMessage.Message = _internalMessage.AS4Message;
+            outMessage.ContentType = _messagingContext.AS4Message.ContentType;
+            outMessage.Message = _messagingContext.AS4Message;
             outMessage.EbmsMessageType = DetermineSignalMessageType(_messageUnitUnit);
             outMessage.PMode = AS4XmlSerializer.ToString(GetSendingPMode(outMessage.EbmsMessageType));
             
@@ -67,8 +67,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
         private SendingProcessingMode GetSendingPMode(MessageType messageType)
         {
-            bool isSendPModeNotFound = _internalMessage.SendingPMode?.Id == null;
-            ReceivingProcessingMode receivePMode = _internalMessage.ReceivingPMode;
+            bool isSendPModeNotFound = _messagingContext.SendingPMode?.Id == null;
+            ReceivingProcessingMode receivePMode = _messagingContext.ReceivingPMode;
            
             if (isSendPModeNotFound && messageType == MessageType.Receipt && receivePMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback)
             {
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 return Config.Instance.GetSendingPMode(receivePMode.ErrorHandling.SendingPMode);
             }
 
-            return _internalMessage.SendingPMode;
+            return _messagingContext.SendingPMode;
         }
 
         private static MessageType DetermineSignalMessageType(MessageUnit messageUnit)
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             return new OutMessage
             {
                 EbmsMessageId = messageId,
-                ContentType = _internalMessage.AS4Message.ContentType,                
+                ContentType = _messagingContext.AS4Message.ContentType,                
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now

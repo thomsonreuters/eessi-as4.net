@@ -28,23 +28,23 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Start zipping <see cref="Attachment"/> Models
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {           
-            if (HasAS4MessageMultipleAttachments(internalMessage.AS4Message))
+            if (HasAS4MessageMultipleAttachments(messagingContext.AS4Message))
             {
-                Stream zippedStream = await ZipAttachmentsInAS4Message(internalMessage.AS4Message).ConfigureAwait(false);
+                Stream zippedStream = await ZipAttachmentsInAS4Message(messagingContext.AS4Message).ConfigureAwait(false);
 
                 Attachment zipAttachment = CreateZippedAttachment(zippedStream);
 
-                OverwriteAttachmentEntries(internalMessage.AS4Message, zipAttachment);
+                OverwriteAttachmentEntries(messagingContext.AS4Message, zipAttachment);
             }
 
-            LogManager.GetCurrentClassLogger().Info($"{internalMessage.Prefix} Zip the Attachments to a single file");
+            LogManager.GetCurrentClassLogger().Info($"{messagingContext.Prefix} Zip the Attachments to a single file");
 
-            return await StepResult.SuccessAsync(internalMessage).ConfigureAwait(false);
+            return await StepResult.SuccessAsync(messagingContext).ConfigureAwait(false);
         }
 
         private static bool HasAS4MessageMultipleAttachments(AS4Message as4Message)

@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private readonly ILogger _logger;
 
-        private InternalMessage _internalMessage;
+        private MessagingContext _messagingContext;
 
         /// <summary>
         /// Initializes a new instance of the type <see cref="DecompressAttachmentsStep"/> class
@@ -38,37 +38,37 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Decompress any Attachments
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Throws exception when AS4 Message cannot be decompressed</exception>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            _internalMessage = internalMessage;
+            _messagingContext = messagingContext;
 
-            if (!internalMessage.AS4Message.HasAttachments)
+            if (!messagingContext.AS4Message.HasAttachments)
             {
-                return await ReturnSameInternalMessage(internalMessage).ConfigureAwait(false);
+                return await ReturnSameInternalMessage(messagingContext).ConfigureAwait(false);
             }
 
-            await TryDecompressAttachments(internalMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(internalMessage);
+            await TryDecompressAttachments(messagingContext).ConfigureAwait(false);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
+        private async Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
         {
-            _logger.Debug($"{_internalMessage.Prefix} AS4Message hasn't got any Attachments");
-            return await StepResult.SuccessAsync(internalMessage);
+            _logger.Debug($"{_messagingContext.Prefix} AS4Message hasn't got any Attachments");
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task TryDecompressAttachments(InternalMessage message)
+        private async Task TryDecompressAttachments(MessagingContext message)
         {
             try
             {
                 AS4Message as4Message = message.AS4Message;
                 await DecompressAttachments(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), as4Message.Attachments).ConfigureAwait(false);
                 _logger.Info(
-                    $"{_internalMessage.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
+                    $"{_messagingContext.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
             }
             catch (Exception exception)
             {
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (isNotCompressed)
             {
-                _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} is not Compressed");
+                _logger.Debug($"{_messagingContext.Prefix} Attachment {attachment.Id} is not Compressed");
             }
 
             return isNotCompressed;
@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private async Task DecompressAttachment(Attachment attachment)
         {
-            _logger.Debug($"{_internalMessage.Prefix} Attachment {attachment.Id} will be Decompressed");
+            _logger.Debug($"{_messagingContext.Prefix} Attachment {attachment.Id} will be Decompressed");
 
             attachment.ResetContentPosition();
 
@@ -159,7 +159,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return messagePayloadInfo.Find(i => attachment.Matches(i)).Properties["MimeType"];
         }
 
-        private static AS4Exception ThrowAS4CannotDecompressException(Exception exception, InternalMessage message)
+        private static AS4Exception ThrowAS4CannotDecompressException(Exception exception, MessagingContext message)
         {
             AS4Message as4Message = message.AS4Message;
             string description = $"Cannot decompress the message: {exception.Message}";

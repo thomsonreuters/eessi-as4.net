@@ -42,14 +42,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedAS4MessageAsync();
-                var internalMessage = new InternalMessage(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+                var internalMessage = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
 
                 // Act
                 StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.True(stepResult.InternalMessage.AS4Message.IsEncrypted);
+                Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
             }
         }
 
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 {
                     SecurityHeader = new SecurityHeader(null, _mockedEncryptedStrategy.Object)
                 };
-                var internalMessage = new InternalMessage(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+                var internalMessage = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.NotAllowed;
 
                 // Act / Assert
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 var as4Message = new AS4Message();
-                var internalMessage = new InternalMessage(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+                var internalMessage = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.Required;
 
                 // Act

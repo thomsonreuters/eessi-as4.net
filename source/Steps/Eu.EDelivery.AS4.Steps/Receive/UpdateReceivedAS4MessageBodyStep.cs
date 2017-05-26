@@ -27,12 +27,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         }
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             using (var dbContext = _createDatastoreContext())
             {
@@ -40,12 +40,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 var service = new InMessageService(repository);
 
-                await service.UpdateAS4MessageForDeliveryAndNotification(internalMessage, _messageBodyPersister, cancellationToken);
+                await service.UpdateAS4MessageForDeliveryAndNotification(messagingContext, _messageBodyPersister, cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
             }
 
-            return StepResult.Success(internalMessage);
+            return StepResult.Success(messagingContext);
         }        
     }
 }

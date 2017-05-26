@@ -27,13 +27,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <summary>
         /// Start updating the InExceptions table for a given <see cref="NotifyMessage"/>
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            var notifyMessageEnv = internalMessage.NotifyMessage;
-            _logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
+            var notifyMessageEnv = messagingContext.NotifyMessage;
+            _logger.Info($"{messagingContext.Prefix} Update Notify Message {notifyMessageEnv.MessageInfo.MessageId}");
 
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static void UpdateDatastore(NotifyMessageEnvelope notifyMessage, DatastoreRepository repository)

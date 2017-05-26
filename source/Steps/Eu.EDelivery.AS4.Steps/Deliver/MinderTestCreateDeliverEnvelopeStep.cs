@@ -33,15 +33,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(internalMessage.AS4Message);
-            return StepResult.SuccessAsync(internalMessage);
+            messagingContext.DeliverMessage = CreateDeliverMessageEnvelope(messagingContext.AS4Message);
+            return StepResult.SuccessAsync(messagingContext);
         }
 
         private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)

@@ -35,20 +35,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage(exception: null);
+                var internalMessage = new MessagingContext(exception: null);
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.Equal(internalMessage, result.InternalMessage);
+                Assert.Equal(internalMessage, result.MessagingContext);
             }
 
             [Fact]
             public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage(CreateFilledAS4Message())
+                var internalMessage = new MessagingContext(CreateFilledAS4Message())
                 {
                     Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                var error = result.InternalMessage.AS4Message.PrimarySignalMessage as Error;
+                var error = result.MessagingContext.AS4Message.PrimarySignalMessage as Error;
                 Assert.NotNull(error);
                 Assert.Equal("message-id", error.Exception.MessageIds.FirstOrDefault());
                 Assert.Equal(ErrorCode.Ebms0001, error.Exception.ErrorCode);
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithPModesAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage(CreateFilledAS4Message())
+                var internalMessage = new MessagingContext(CreateFilledAS4Message())
                 {
                     Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
@@ -80,8 +80,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.Equal(internalMessage.ReceivingPMode, result.InternalMessage.ReceivingPMode);
-                Assert.Equal(internalMessage.SendingPMode, result.InternalMessage.SendingPMode);
+                Assert.Equal(internalMessage.ReceivingPMode, result.MessagingContext.ReceivingPMode);
+                Assert.Equal(internalMessage.SendingPMode, result.MessagingContext.SendingPMode);
             }
 
             [Fact]
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AS4Message as4Message = CreateFilledAS4Message();
                 as4Message.SigningId = new SigningId("header-id", "body-id");
 
-                var internalMessage = new InternalMessage(as4Message)
+                var internalMessage = new MessagingContext(as4Message)
                 {
                     Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.Equal(as4Message.SigningId, result.InternalMessage.AS4Message.SigningId);
+                Assert.Equal(as4Message.SigningId, result.MessagingContext.AS4Message.SigningId);
             }
 
             private static AS4Exception CreateFilledAS4Exception()

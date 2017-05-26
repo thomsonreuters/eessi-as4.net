@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
-        System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.InternalMessage>>;
+        System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.MessagingContext>>;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
@@ -289,7 +289,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)
         {
             var message = new ReceivedEntityMessage(entity);
-            InternalMessage result = await messageCallback(message, token).ConfigureAwait(false);
+            MessagingContext result = await messageCallback(message, token).ConfigureAwait(false);
             result?.Dispose();
         }
 

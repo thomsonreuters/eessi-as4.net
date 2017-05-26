@@ -41,11 +41,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new ExceptionToNotifyMessageTransformer();
 
             // Act
-            InternalMessage internalMessage =
+            MessagingContext messagingContext =
                 await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
-            var error = (Error)internalMessage.AS4Message.PrimarySignalMessage;
+            var error = (Error)messagingContext.AS4Message.PrimarySignalMessage;
             Assert.True(error.IsFormedByException);
             Assert.False(string.IsNullOrWhiteSpace(((ExceptionEntity)receivedMessage.Entity).Exception));
             Assert.Equal(((ExceptionEntity)receivedMessage.Entity).Exception, error.Exception.Message);

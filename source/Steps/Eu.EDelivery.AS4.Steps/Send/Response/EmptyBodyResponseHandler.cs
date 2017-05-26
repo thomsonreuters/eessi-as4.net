@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         {
             if (response.StatusCode == HttpStatusCode.Accepted && response.ResultedMessage?.AS4Message?.IsEmpty == true)
             {
-                InternalMessage resultedMessage = response.OriginalRequest;
+                MessagingContext resultedMessage = response.OriginalRequest;
                 resultedMessage.AS4Message?.SignalMessages.Clear();
 
                 return StepResult.Success(resultedMessage).AndStopExecution();

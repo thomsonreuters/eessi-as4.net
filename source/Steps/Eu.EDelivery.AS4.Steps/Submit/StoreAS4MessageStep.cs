@@ -42,17 +42,17 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Store the <see cref="AS4Message" /> as OutMessage inside the DataStore
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken token)
         {
-            await TryStoreOutMessagesAsync(internalMessage, token).ConfigureAwait(false);
+            await TryStoreOutMessagesAsync(messagingContext, token).ConfigureAwait(false);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task TryStoreOutMessagesAsync(InternalMessage message, CancellationToken token)
+        private async Task TryStoreOutMessagesAsync(MessagingContext message, CancellationToken token)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             }
         }
 
-        private static AS4Exception ThrowAS4ExceptionWithInnerException(InternalMessage message, Exception exception)
+        private static AS4Exception ThrowAS4ExceptionWithInnerException(MessagingContext message, Exception exception)
         {
             return AS4ExceptionBuilder
                 .WithDescription("Unable to store AS4 Messages")
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 .Build();
         }
 
-        private async Task StoreOutMessagesAsync(InternalMessage message, CancellationToken token)
+        private async Task StoreOutMessagesAsync(MessagingContext message, CancellationToken token)
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {

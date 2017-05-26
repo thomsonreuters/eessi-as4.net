@@ -49,36 +49,36 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// Start sending <see cref="NotifyMessage"/>
         /// to the consuming business application
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            Logger.Info($"{internalMessage.Prefix} Start sending Notify Message...");
+            Logger.Info($"{messagingContext.Prefix} Start sending Notify Message...");
 
-            if (internalMessage?.SendingPMode == null)
+            if (messagingContext?.SendingPMode == null)
             {
-                SendingProcessingMode pmode = RetrieveSendingPMode(internalMessage);
+                SendingProcessingMode pmode = RetrieveSendingPMode(messagingContext);
                 if (pmode != null)
                 {
-                    internalMessage.SendingPMode = pmode;
+                    messagingContext.SendingPMode = pmode;
                 }
             }
 
-            await TrySendNotifyMessage(internalMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(internalMessage);
+            await TrySendNotifyMessage(messagingContext).ConfigureAwait(false);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private SendingProcessingMode RetrieveSendingPMode(InternalMessage internalMessage)
+        private SendingProcessingMode RetrieveSendingPMode(MessagingContext messagingContext)
         {
             using (DatastoreContext context = _dataContextRetriever())
             {
                 var repo = new DatastoreRepository(context);
-                return repo.RetrieveSendingPModeForOutMessage(internalMessage.AS4Message?.PrimarySignalMessage.RefToMessageId);
+                return repo.RetrieveSendingPModeForOutMessage(messagingContext.AS4Message?.PrimarySignalMessage.RefToMessageId);
             }
         }
 
-        private async Task TrySendNotifyMessage(InternalMessage message)
+        private async Task TrySendNotifyMessage(MessagingContext message)
         {
             try
             {
@@ -92,11 +92,11 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private static Method GetNotifyMethod(InternalMessage internalMessage)
+        private static Method GetNotifyMethod(MessagingContext messagingContext)
         {
-            NotifyMessageEnvelope notifyMessage = internalMessage.NotifyMessage;
-            SendingProcessingMode sendPMode = internalMessage.SendingPMode;
-            ReceivingProcessingMode receivePMode = internalMessage.ReceivingPMode;
+            NotifyMessageEnvelope notifyMessage = messagingContext.NotifyMessage;
+            SendingProcessingMode sendPMode = messagingContext.SendingPMode;
+            ReceivingProcessingMode receivePMode = messagingContext.ReceivingPMode;
 
             switch (notifyMessage.StatusCode)
             {
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             await sender.SendAsync(notifyMessage).ConfigureAwait(false);
         }
 
-        private static AS4Exception ThrowAS4SendException(Exception innerException, InternalMessage message)
+        private static AS4Exception ThrowAS4SendException(Exception innerException, MessagingContext message)
         {
             const string description = "Notify Message was not send correctly";
             Logger.Error(description);
@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             return builder.Build();
         }
 
-        private static void AddPModeToBuilder(InternalMessage message, AS4ExceptionBuilder builder)
+        private static void AddPModeToBuilder(MessagingContext message, AS4ExceptionBuilder builder)
         {
             if (IsNotifyMessageFormedBySending(message?.SendingPMode))
             {

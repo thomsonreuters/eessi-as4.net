@@ -24,12 +24,12 @@ namespace Eu.EDelivery.AS4.Services
         IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds);
 
         Task UpdateAS4MessageForDeliveryAndNotification(
-            InternalMessage internalMessage,
+            MessagingContext messagingContext,
             IAS4MessageBodyPersister as4MessageBodyPersister,
             CancellationToken cancellationToken);
 
         Task InsertAS4Message(
-            InternalMessage message,
+            MessagingContext message,
             IAS4MessageBodyPersister as4MessageBodyPersister,
             CancellationToken cancellationToken);
     }

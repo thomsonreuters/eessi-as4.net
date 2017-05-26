@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new PModeToPullRequestTransformer();
 
             // Act
-            InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
             Assert.NotNull(message.Exception);
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new PModeToPullRequestTransformer();
 
             // Act
-            InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
             var actualSignalMessage = message.AS4Message.PrimarySignalMessage as PullRequest;
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 yield return new object[] {new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
 
                 var message = new Mock<ReceivedMessage>();
-                message.Setup(m => m.AssignPropertiesTo(It.IsAny<InternalMessage>())).Throws<Exception>();
+                message.Setup(m => m.AssignPropertiesTo(It.IsAny<MessagingContext>())).Throws<Exception>();
                 yield return new object[] {message.Object};
             }
         }

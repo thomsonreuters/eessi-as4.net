@@ -26,17 +26,17 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <summary>
         /// Start updating the Data store for the <see cref="NotifyMessage"/>
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AS4Exception">Throws exception when data store is unavailable</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            var notifyMessage = internalMessage.NotifyMessage;
-            _logger.Info($"{internalMessage.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
+            var notifyMessage = messagingContext.NotifyMessage;
+            _logger.Info($"{messagingContext.Prefix} Update Notify Message {notifyMessage.MessageInfo.MessageId}");
 
             await UpdateDatastoreAsync(notifyMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
             
         }
 

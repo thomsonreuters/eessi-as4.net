@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private readonly IDeliverSenderProvider _provider;
         private readonly ILogger _logger;
 
-        private InternalMessage _internalMessage;
+        private MessagingContext _messagingContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
@@ -47,17 +47,17 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// Start sending the AS4 Messages 
         /// to the consuming business application
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            _internalMessage = internalMessage;
-            _logger.Info($"{internalMessage.Prefix} Start sending the Deliver Message " +
+            _messagingContext = messagingContext;
+            _logger.Info($"{messagingContext.Prefix} Start sending the Deliver Message " +
                               "to the consuming Business Application");
 
-            await TrySendDeliverMessage(internalMessage.DeliverMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(internalMessage);
+            await TrySendDeliverMessage(messagingContext.DeliverMessage).ConfigureAwait(false);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private async Task TrySendDeliverMessage(DeliverMessageEnvelope deliverMessage)
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
             catch (Exception exception)
             {
-                string description = $"{_internalMessage.Prefix} Deliver Message was not send correctly";
+                string description = $"{_messagingContext.Prefix} Deliver Message was not send correctly";
                 _logger.Error(description);
                 throw ThrowSendDeliverAS4Exception(description, exception);
             }
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private async Task SendDeliverMessage(DeliverMessageEnvelope deliverMessage)
         {
-            Method deliverMethod = _internalMessage?.ReceivingPMode.Deliver.DeliverMethod;
+            Method deliverMethod = _messagingContext?.ReceivingPMode.Deliver.DeliverMethod;
 
             IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
@@ -87,10 +87,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(_internalMessage.AS4Message?.MessageIds ?? new string[0])
+                .WithMessageIds(_messagingContext.AS4Message?.MessageIds ?? new string[0])
                 .WithErrorAlias(ErrorAlias.ConnectionFailure)
                 .WithInnerException(innerException)
-                .WithReceivingPMode(_internalMessage?.ReceivingPMode)
+                .WithReceivingPMode(_messagingContext?.ReceivingPMode)
                 .Build();
         }
     }

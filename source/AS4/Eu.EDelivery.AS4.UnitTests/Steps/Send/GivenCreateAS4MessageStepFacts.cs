@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.MessageInfo.MessageId = null;
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -98,12 +98,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 AssertAgreementReference(submitMessage, internalMessage);
             }
 
-            private static void AssertAgreementReference(SubmitMessage submitMessage, InternalMessage internalMessage)
+            private static void AssertAgreementReference(SubmitMessage submitMessage, MessagingContext messagingContext)
             {
                 AgreementReference pmodeAgreementRef =
                     submitMessage.PMode.MessagePackaging.CollaborationInfo.AgreementReference;
                 AgreementReference userMessageAgreementRef =
-                    internalMessage.AS4Message.PrimaryUserMessage.CollaborationInfo.AgreementReference;
+                    messagingContext.AS4Message.PrimaryUserMessage.CollaborationInfo.AgreementReference;
 
                 Assert.Equal(pmodeAgreementRef.Value, userMessageAgreementRef.Value);
                 Assert.Equal(pmodeAgreementRef.Type, userMessageAgreementRef.Type);
@@ -115,7 +115,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -166,7 +166,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act
                 await new CreateAS4MessageStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -192,11 +192,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 AssertMessageProperty(submitMessage, internalMessage);
             }
 
-            private static void AssertMessageProperty(SubmitMessage submitMessage, InternalMessage internalMessage)
+            private static void AssertMessageProperty(SubmitMessage submitMessage, MessagingContext messagingContext)
             {
                 SubmitMessageProperty submitMessageProperty = submitMessage.MessageProperties.First();
                 UserMessageProperty userMessageMessageProperty =
-                    internalMessage.AS4Message.PrimaryUserMessage.MessageProperties.First();
+                    messagingContext.AS4Message.PrimaryUserMessage.MessageProperties.First();
 
                 Assert.Equal(submitMessageProperty.Value, userMessageMessageProperty.Value);
                 Assert.Equal(submitMessageProperty.Name, userMessageMessageProperty.Name);
@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
                 submitMessage.PartyInfo = CreatePopulatedSubmitPartyInfo();
                 submitMessage.PMode = CreatePopulatedSendingPMode();
-                var internalMessage = new InternalMessage(submitMessage);
+                var internalMessage = new MessagingContext(submitMessage);
 
                 // Act / Assert
                 AS4Exception as4Exception =

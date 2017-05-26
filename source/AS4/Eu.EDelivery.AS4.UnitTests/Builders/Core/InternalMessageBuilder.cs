@@ -8,11 +8,11 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 {
     /// <summary>
-    /// Internal Message Builder to create an <see cref="InternalMessage" />
+    /// Internal Message Builder to create an <see cref="MessagingContext" />
     /// </summary>
     public class InternalMessageBuilder
     {
-        private readonly InternalMessage _internalMessage;
+        private readonly MessagingContext _messagingContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InternalMessageBuilder"/> class.
@@ -20,18 +20,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="messageId">The message Id.</param>
         public InternalMessageBuilder(string messageId = null)
         {
-            _internalMessage = new InternalMessage(new AS4Message());
+            _messagingContext = new MessagingContext(new AS4Message());
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
-            _internalMessage.AS4Message.UserMessages.Add(userMessage);
+            _messagingContext.AS4Message.UserMessages.Add(userMessage);
         }
 
         /// <summary>
         /// Build to the Builder
         /// </summary>
         /// <returns></returns>
-        public InternalMessage Build()
+        public MessagingContext Build()
         {
-            return _internalMessage;
+            return _messagingContext;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithAgreementRef(AgreementReference agreementRef)
         {
-            UserMessage userMessage = _internalMessage.AS4Message.PrimaryUserMessage;
+            UserMessage userMessage = _messagingContext.AS4Message.PrimaryUserMessage;
             userMessage.CollaborationInfo.AgreementReference = agreementRef;
 
             return this;
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithPartys(Party fromParty, Party toParty)
         {
-            UserMessage userMessage = _internalMessage.AS4Message.UserMessages.First();
+            UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
             userMessage.Sender = fromParty;
             userMessage.Receiver = toParty;
 
@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithPModeId(string pmodeId)
         {
-            _internalMessage.AS4Message.UserMessages.First().CollaborationInfo.AgreementReference.PModeId = pmodeId;
+            _messagingContext.AS4Message.UserMessages.First().CollaborationInfo.AgreementReference.PModeId = pmodeId;
 
             return this;
         }
@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithServiceAction(string service, string action)
         {
-            UserMessage userMessage = _internalMessage.AS4Message.UserMessages.First();
+            UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
             userMessage.CollaborationInfo.Action = action;
             userMessage.CollaborationInfo.Service.Value = service;
 
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithSignalMessage(SignalMessage signalMessage)
         {
-            _internalMessage.AS4Message.SignalMessages = new List<SignalMessage> {signalMessage};
+            _messagingContext.AS4Message.SignalMessages = new List<SignalMessage> {signalMessage};
 
             return this;
         }
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithUserMessage(UserMessage userMessage)
         {
-            _internalMessage.AS4Message.UserMessages = new List<UserMessage> {userMessage};
+            _messagingContext.AS4Message.UserMessages = new List<UserMessage> {userMessage};
 
             return this;
         }

@@ -54,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     (message, token) =>
                     {
                         waitHandle.Set();
-                        return Task.FromResult(InternalMessage.Empty);
+                        return Task.FromResult(MessagingContext.Empty);
                     }, CancellationToken.None);
 
                 Assert.False(waitHandle.WaitOne(TimeSpan.FromMilliseconds(500)));
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 };
             }
 
-            private Task<InternalMessage> OnMessageReceived(
+            private Task<MessagingContext> OnMessageReceived(
                 ReceivedMessage receivedMessage,
                 CancellationToken cancellationToken)
             {
@@ -114,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return Task.FromResult(InternalMessage.Empty);
+                return Task.FromResult(MessagingContext.Empty);
             }
 
             /// <summary>

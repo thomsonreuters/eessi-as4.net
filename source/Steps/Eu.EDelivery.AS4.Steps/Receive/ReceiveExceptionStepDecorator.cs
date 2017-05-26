@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private readonly IStep _step;
         private readonly ILogger _logger;
 
-        private InternalMessage _originalMessage;
+        private MessagingContext _originalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceiveExceptionStepDecorator"/> class
@@ -38,11 +38,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Execute the given Step, so it can be catch
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
@@ -50,24 +50,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 try
                 {
-                    return await ExecuteNormalStepFlow(internalMessage, context, inExceptionService, cancellationToken);
+                    return await ExecuteNormalStepFlow(messagingContext, context, inExceptionService, cancellationToken);
                 }
                 catch (AS4Exception exception)
                 {
-                    if (internalMessage.AS4Message?.IsSignalMessage == true)
+                    if (messagingContext.AS4Message?.IsSignalMessage == true)
                     {
                         // We were unable to process the received signal-message.  
                         // Make sure the InternalMessage contains an empty AS4Message so that
                         // no AS4 Message is written to the response stream.
-                        internalMessage.Exception = exception;
+                        messagingContext.Exception = exception;
 
-                        return StepResult.Failed(exception, internalMessage);
+                        return StepResult.Failed(exception, messagingContext);
                     }
 
-                    InitializeFields(internalMessage);
+                    InitializeFields(messagingContext);
 
                     StepResult result =
-                        await HandleInException(exception, internalMessage.AS4Message, inExceptionService)
+                        await HandleInException(exception, messagingContext.AS4Message, inExceptionService)
                             .ConfigureAwait(false);
                     await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
@@ -77,41 +77,41 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 {
                     _logger.Error($"An unexpected error occured: {exception.Message}");
                     _logger.Trace(exception.StackTrace);
-                    AssignResponseHttpCode(internalMessage);
+                    AssignResponseHttpCode(messagingContext);
 
-                    return await ReturnStepResult(internalMessage);
+                    return await ReturnStepResult(messagingContext);
                 }
             }
         }
 
         private async Task<StepResult> ExecuteNormalStepFlow(
-            InternalMessage internalMessage,
+            MessagingContext messagingContext,
             DbContext context,
             IInExceptionService inExceptionService,
             CancellationToken cancellationToken)
         {
-            AS4Exception exception = GetPossibleThrownAS4Exception(internalMessage);
+            AS4Exception exception = GetPossibleThrownAS4Exception(messagingContext);
 
             if (exception == null)
             {
-                return await _step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
+                return await _step.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
             }
 
             StepResult result =
-                await HandleImplicitError(internalMessage, inExceptionService).ConfigureAwait(false);
+                await HandleImplicitError(messagingContext, inExceptionService).ConfigureAwait(false);
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
             return result;
         }
 
-        private static AS4Exception GetPossibleThrownAS4Exception(InternalMessage internalMessage)
+        private static AS4Exception GetPossibleThrownAS4Exception(MessagingContext messagingContext)
         {
-            var error = internalMessage.AS4Message?.PrimarySignalMessage as Error;
+            var error = messagingContext.AS4Message?.PrimarySignalMessage as Error;
             return error?.Exception;
         }
 
         private async Task<StepResult> HandleImplicitError(
-            InternalMessage message,
+            MessagingContext message,
             IInExceptionService inExceptionService)
         {
             var errorMessage = message.AS4Message.PrimarySignalMessage as Error;
@@ -123,15 +123,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await ReturnStepResult(message);
         }
 
-        private void InitializeFields(InternalMessage internalMessage)
+        private void InitializeFields(MessagingContext messagingContext)
         {
-            if (internalMessage.AS4Message?.SecurityHeader.IsSigned == true ||
-                internalMessage.AS4Message?.SecurityHeader.IsEncrypted == true)
+            if (messagingContext.AS4Message?.SecurityHeader.IsSigned == true ||
+                messagingContext.AS4Message?.SecurityHeader.IsEncrypted == true)
             {
-                internalMessage.AS4Message.SecurityHeader = new SecurityHeader();
+                messagingContext.AS4Message.SecurityHeader = new SecurityHeader();
             }
 
-            _originalMessage = internalMessage;
+            _originalMessage = messagingContext;
         }
 
         private async Task<StepResult> HandleInException(
@@ -142,22 +142,22 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             inExceptionService.InsertAS4Exception(exception, as4Message);
 
             StepResult stepResult = await ReturnStepResult(_originalMessage);
-            stepResult.InternalMessage.Exception = exception;
+            stepResult.MessagingContext.Exception = exception;
 
             return stepResult;
         }
 
-        private async Task<StepResult> ReturnStepResult(InternalMessage message)
+        private async Task<StepResult> ReturnStepResult(MessagingContext message)
         {
             _logger.Info("Handled AS4 Exception");
 
-            var internalMessage = new InternalMessage(message.AS4Message) {SendingPMode = message.SendingPMode, ReceivingPMode = message.ReceivingPMode};
+            var internalMessage = new MessagingContext(message.AS4Message) {SendingPMode = message.SendingPMode, ReceivingPMode = message.ReceivingPMode};
             return await StepResult.SuccessAsync(internalMessage);
         }
 
-        private static void AssignResponseHttpCode(InternalMessage internalMessage)
+        private static void AssignResponseHttpCode(MessagingContext messagingContext)
         {
-            ReceivingProcessingMode receivingPMode = internalMessage.ReceivingPMode;
+            ReceivingProcessingMode receivingPMode = messagingContext.ReceivingPMode;
             receivingPMode = receivingPMode ?? new ReceivingProcessingMode();
             receivingPMode.ErrorHandling.ResponseHttpCode = 500;
         }

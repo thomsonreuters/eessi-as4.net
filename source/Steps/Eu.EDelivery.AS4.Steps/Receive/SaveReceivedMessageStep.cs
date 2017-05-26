@@ -37,24 +37,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Start updating the Data store
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken token)
         {
-            Logger.Info($"{internalMessage.Prefix} Update Datastore with AS4 received message");
+            Logger.Info($"{messagingContext.Prefix} Update Datastore with AS4 received message");
 
             using (DatastoreContext context = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
                 var service = new InMessageService(repository);
 
-                await service.InsertAS4Message(internalMessage, _messageBodyPersister, token).ConfigureAwait(false);
+                await service.InsertAS4Message(messagingContext, _messageBodyPersister, token).ConfigureAwait(false);
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
             }
 
-            return StepResult.Success(internalMessage);
+            return StepResult.Success(messagingContext);
         }
     }
 }

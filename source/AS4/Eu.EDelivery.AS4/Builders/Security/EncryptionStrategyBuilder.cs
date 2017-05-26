@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
         /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="message"/>
         /// </summary>
         /// <param name="message"></param>
-        public static EncryptionStrategyBuilder Create(InternalMessage message)
+        public static EncryptionStrategyBuilder Create(MessagingContext message)
         {
             AS4Message as4Message = message.AS4Message;
 

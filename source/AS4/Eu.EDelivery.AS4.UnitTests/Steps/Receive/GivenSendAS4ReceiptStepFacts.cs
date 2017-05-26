@@ -32,13 +32,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithReceiptAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                MessagingContext messagingContext = CreateDefaultInternalMessage();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                SignalMessage signalMessage = result.InternalMessage.AS4Message.SignalMessages.FirstOrDefault();
+                SignalMessage signalMessage = result.MessagingContext.AS4Message.SignalMessages.FirstOrDefault();
 
                 Assert.NotNull(signalMessage);
                 Assert.IsType(typeof(Receipt), signalMessage);
@@ -48,24 +48,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithEmptySoapEnvelopeAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
-                internalMessage.ReceivingPMode.ReceiptHandling.ReplyPattern = ReplyPattern.Callback;
+                MessagingContext messagingContext = CreateDefaultInternalMessage();
+                messagingContext.ReceivingPMode.ReceiptHandling.ReplyPattern = ReplyPattern.Callback;
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.Empty(result.InternalMessage.AS4Message.UserMessages);
-                Assert.Empty(result.InternalMessage.AS4Message.SignalMessages);
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                Assert.Empty(result.MessagingContext.AS4Message.UserMessages);
+                Assert.Empty(result.MessagingContext.AS4Message.SignalMessages);
             }
 
-            private InternalMessage CreateDefaultInternalMessage()
+            private MessagingContext CreateDefaultInternalMessage()
             {
                 var receipt = new Receipt("message-id") {RefToMessageId = _sharedId};
                 AS4Message receiptMessage = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
 
-                return new InternalMessage(receiptMessage)
+                return new MessagingContext(receiptMessage)
                 {
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()

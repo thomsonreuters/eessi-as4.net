@@ -61,14 +61,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             {
                 // Arrange
                 _step = new RetrievePayloadsStep(_provider);
-                var message = new InternalMessage(new SubmitMessage()) {AS4Message = new AS4Message()};
+                var message = new MessagingContext(new SubmitMessage()) {AS4Message = new AS4Message()};
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(message, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.Equal(0, result.InternalMessage.AS4Message.Attachments.Count);
+                Assert.Equal(0, result.MessagingContext.AS4Message.Attachments.Count);
             }
 
             [Fact]
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             {
                 // Arrange
                 var step = new RetrievePayloadsStep(_provider);
-                InternalMessage message = GetInternalMessage();
+                MessagingContext message = GetInternalMessage();
 
                 // Act
                 StepResult result = await step.ExecuteAsync(message, CancellationToken.None);
@@ -87,15 +87,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
                 Assert.Equal(_memoryStream, attachment.Content);
             }
 
-            private InternalMessage GetInternalMessage()
+            private MessagingContext GetInternalMessage()
             {
-                return new InternalMessage(GetStubSubmitMessage()) {AS4Message = new AS4Message()};
+                return new MessagingContext(GetStubSubmitMessage()) {AS4Message = new AS4Message()};
             }
 
             private static Attachment GetAttachment(StepResult result)
             {
                 Attachment attachment = null;
-                IEnumerator<Attachment> enumerator = result.InternalMessage.AS4Message.Attachments.GetEnumerator();
+                IEnumerator<Attachment> enumerator = result.MessagingContext.AS4Message.Attachments.GetEnumerator();
 
                 while (enumerator.MoveNext()) attachment = enumerator.Current;
 

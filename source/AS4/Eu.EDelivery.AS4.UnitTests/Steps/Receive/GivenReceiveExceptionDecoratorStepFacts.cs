@@ -36,14 +36,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 IStep sut = GetCatchedCompositeSteps();
-                var internalMessage = new InternalMessage(new AS4Message());
+                var internalMessage = new MessagingContext(new AS4Message());
 
                 // Act
                 StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.Equal(internalMessage, result.InternalMessage);
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                Assert.Equal(internalMessage, result.MessagingContext);
             }
 
             [Fact]
@@ -57,8 +57,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await sut.ExecuteAsync(DummyMessage(), CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.NotNull(result.InternalMessage.ReceivingPMode);
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                Assert.NotNull(result.MessagingContext.ReceivingPMode);
             }
 
             [Theory]
@@ -83,21 +83,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // and they must exist, otherwise other exceptions will be thrown.
 
                 // Arrange
-                InternalMessage internalMessage = DummyMessage();
-                internalMessage.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
-                internalMessage.ReceivingPMode.ErrorHandling.SendingPMode = "";
+                MessagingContext messagingContext = DummyMessage();
+                messagingContext.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
+                messagingContext.ReceivingPMode.ErrorHandling.SendingPMode = "";
 
                 var stubStep = new SaboteurStep(CreateAS4Exception());
                 IStep sut = GetCatchedCompositeSteps(stubStep);
 
                 // Act
-                StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await sut.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert                
-                Assert.NotNull(result.InternalMessage.AS4Message);
+                Assert.NotNull(result.MessagingContext.AS4Message);
                 // TODO: could we assert more explicitly on somethting like AS4Message.Empty oid.
-                Assert.Empty(result.InternalMessage.AS4Message.UserMessages);
-                Assert.Empty(result.InternalMessage.AS4Message.SignalMessages);
+                Assert.Empty(result.MessagingContext.AS4Message.UserMessages);
+                Assert.Empty(result.MessagingContext.AS4Message.SignalMessages);
             }
 
             private void AssertInException(string messageId, Action<InException> condition)
@@ -124,13 +124,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false, SendingPMode = "pmode"}};
         }
 
-        protected InternalMessage DummyMessage()
+        protected MessagingContext DummyMessage()
         {
             var as4Message = new AS4Message
             {
                 UserMessages = new[] {new UserMessage("message-id")}
             };
-            return new InternalMessage(as4Message)
+            return new MessagingContext(as4Message)
             {
                 ReceivingPMode = GetStubReceivingPMode(),
                 SendingPMode = new SendingProcessingMode()

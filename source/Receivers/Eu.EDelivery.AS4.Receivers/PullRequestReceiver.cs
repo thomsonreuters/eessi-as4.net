@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly IConfig _configuration;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private Func<PModePullRequest, Task<InternalMessage>> _messageCallback;
+        private Func<PModePullRequest, Task<MessagingContext>> _messageCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequestReceiver" /> class.
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
         public override void StartReceiving(
-            Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
+            Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken cancellationToken)
         {
             _messageCallback = message =>
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         protected override async Task<Interval> OnRequestReceived(PModePullRequest intervalPullRequest)
         {
-            InternalMessage resultedMessage = await _messageCallback(intervalPullRequest).ConfigureAwait(false);
+            MessagingContext resultedMessage = await _messageCallback(intervalPullRequest).ConfigureAwait(false);
 
             try
             {

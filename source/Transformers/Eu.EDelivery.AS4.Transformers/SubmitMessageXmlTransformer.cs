@@ -32,19 +32,19 @@ namespace Eu.EDelivery.AS4.Transformers
 
         /// <summary>
         /// Transform a <see cref="SubmitMessage" />
-        /// to a <see cref="InternalMessage"/>
+        /// to a <see cref="MessagingContext"/>
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             _logger.Info($"Transforming ReceivedMessage to InternalMessage");
             
             var submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
             ValidateSubmitMessage(submitMessage);
 
-            var internalMessage = new InternalMessage(submitMessage);
+            var internalMessage = new MessagingContext(submitMessage);
             LogTransformedInformation();
 
             return await Task.FromResult(internalMessage);

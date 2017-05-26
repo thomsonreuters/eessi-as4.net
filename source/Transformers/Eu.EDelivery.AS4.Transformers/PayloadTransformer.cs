@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Transformers
 {
     /// <summary>
     /// <see cref="ITransformer"/> implementation to transform
-    /// incoming Payloads to a <see cref="InternalMessage"/>
+    /// incoming Payloads to a <see cref="MessagingContext"/>
     /// </summary>
     public class PayloadTransformer : ITransformer
     {
@@ -21,13 +21,13 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             Attachment attachment = CreateAttachmentFromReceivedMessage(message);
             AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
             Logger.Info("Transform the given Payload to a AS4 Attachment");
-            return await Task.FromResult(new InternalMessage(as4Message));
+            return await Task.FromResult(new MessagingContext(as4Message));
         }
 
         private static Attachment CreateAttachmentFromReceivedMessage(ReceivedMessage receivedMessage)

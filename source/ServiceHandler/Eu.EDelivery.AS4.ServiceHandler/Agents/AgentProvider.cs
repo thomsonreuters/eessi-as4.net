@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
         private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
         {
-            Func<InternalMessage, bool> isSubmitMessage =
+            Func<MessagingContext, bool> isSubmitMessage =
                 m =>
                     m.SubmitMessage.Collaboration?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false;
 

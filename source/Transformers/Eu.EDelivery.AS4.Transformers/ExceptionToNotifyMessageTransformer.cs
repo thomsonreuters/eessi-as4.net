@@ -30,19 +30,19 @@ namespace Eu.EDelivery.AS4.Transformers
         }
 
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
+        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             ReceivedEntityMessage messageEntity = RetrieveEntityMessage(message);
             ExceptionEntity exceptionEntity = RetrieveExceptionEntity(messageEntity);
 
             AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, cancellationToken);
 
-            var internalMessage = new InternalMessage(as4Message)
+            var internalMessage = new MessagingContext(as4Message)
             {
                 SendingPMode = GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
                 ReceivingPMode = GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode),

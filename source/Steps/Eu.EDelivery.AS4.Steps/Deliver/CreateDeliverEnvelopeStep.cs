@@ -22,22 +22,22 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private readonly IValidator<DeliverMessage> _validator = new DeliverMessageValidator();
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage" />.
+        /// Execute the step for a given <paramref name="messagingContext" />.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            internalMessage.DeliverMessage = await CreateDeliverMessageEnvelope(internalMessage);
+            messagingContext.DeliverMessage = await CreateDeliverMessageEnvelope(messagingContext);
 
-            return StepResult.Success(internalMessage);
+            return StepResult.Success(messagingContext);
         }
 
-        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(InternalMessage internalMessage)
+        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(MessagingContext messagingContext)
         {
-            AS4Message as4Message = internalMessage.AS4Message;
-            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, internalMessage);
+            AS4Message as4Message = messagingContext.AS4Message;
+            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, messagingContext);
 
             ValidateDeliverMessage(deliverMessage);
 
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 "application/xml");
         }
 
-        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, InternalMessage message)
+        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, MessagingContext message)
         {
             var deliverMessage = AS4Mapper.Map<DeliverMessage>(userMessage);
             AssignSendingPModeId(message, deliverMessage);
@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             return deliverMessage;
         }
 
-        private static void AssignSendingPModeId(InternalMessage message, DeliverMessage deliverMessage)
+        private static void AssignSendingPModeId(MessagingContext message, DeliverMessage deliverMessage)
         {
             deliverMessage.CollaborationInfo.AgreementRef.PModeId = message.SendingPMode?.Id ?? string.Empty;
         }

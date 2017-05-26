@@ -196,7 +196,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public void MultihopUserMessageCreatedWhenSpecifiedInPMode()
             {
                 // Arrange
-                InternalMessage message = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                MessagingContext message = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 // Act
                 XmlDocument doc = AS4XmlSerializer.ToDocument(message, CancellationToken.None);
@@ -212,7 +212,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             [Fact]
             public async void ReceiptMessageForMultihopUserMessageIsMultihop()
             {
-                InternalMessage message = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                MessagingContext message = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 // Create a receipt for this message.
                 // Use the CreateReceiptStep, since there is no other way.
@@ -220,9 +220,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 StepResult result = await step.ExecuteAsync(message, CancellationToken.None);
 
                 // The result should contain a signalmessage, which is a receipt.
-                Assert.True(result.InternalMessage.AS4Message.IsSignalMessage);
+                Assert.True(result.MessagingContext.AS4Message.IsSignalMessage);
 
-                XmlDocument doc = AS4XmlSerializer.ToDocument(result.InternalMessage, CancellationToken.None);
+                XmlDocument doc = AS4XmlSerializer.ToDocument(result.MessagingContext, CancellationToken.None);
                
                 // Following elements should be present:
                 // - To element in the wsa namespace
@@ -260,7 +260,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public void ErrorMessageForMultihopUserMessageIsMultihop()
             {
                 // Arrange
-                InternalMessage originalMessage = CreateAS4MessageWithPMode(CreateMultihopPMode());
+                MessagingContext originalMessage = CreateAS4MessageWithPMode(CreateMultihopPMode());
 
                 Error error = new ErrorBuilder()
                     .WithOriginalMessage(originalMessage)
@@ -271,7 +271,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     .WithSignalMessage(error)
                     .Build();
 
-                var message = new InternalMessage(errorMessage) {SendingPMode = CreateMultihopPMode()};
+                var message = new MessagingContext(errorMessage) {SendingPMode = CreateMultihopPMode()};
 
                 // Act
                 XmlDocument document = AS4XmlSerializer.ToDocument(message, CancellationToken.None);
@@ -346,7 +346,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.Equal(expectedUserMessage.Receiver.PartyIds.First().Id, actualUserMessage.PartyInfo.From.PartyId.First().Value);
             }
 
-            private static InternalMessage CreateAS4MessageWithPMode(SendingProcessingMode pmode)
+            private static MessagingContext CreateAS4MessageWithPMode(SendingProcessingMode pmode)
             {
                 var sender = new Party("sender", new PartyId("senderId"));
                 var receiver = new Party("rcv", new PartyId("receiverId"));
@@ -355,7 +355,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     .WithUserMessage(new UserMessage { Sender = sender, Receiver = receiver })
                     .Build();
 
-                return new InternalMessage(as4Message) {SendingPMode = CreateMultihopPMode()};
+                return new MessagingContext(as4Message) {SendingPMode = CreateMultihopPMode()};
             }
 
             private static SendingProcessingMode CreateMultihopPMode()
@@ -425,7 +425,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static XmlDocument ExerciseToDocument(AS4Message message)
         {
-            return AS4XmlSerializer.ToDocument(new InternalMessage(message), CancellationToken.None);
+            return AS4XmlSerializer.ToDocument(new MessagingContext(message), CancellationToken.None);
         }
     }
 }

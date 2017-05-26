@@ -23,36 +23,36 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Start configuring Reception Awareness
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (!IsReceptionAwarenessEnabled(internalMessage))
+            if (!IsReceptionAwarenessEnabled(messagingContext))
             {
-                string pmodeId = internalMessage.SendingPMode.Id;
-                return await ReturnSameResult(internalMessage, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
+                string pmodeId = messagingContext.SendingPMode.Id;
+                return await ReturnSameResult(messagingContext, $"Reception Awareness is not enabled in Sending PMode {pmodeId}");
             }
 
-            await InsertReceptionAwarenessAsync(internalMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(internalMessage);
+            await InsertReceptionAwarenessAsync(messagingContext).ConfigureAwait(false);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static bool IsReceptionAwarenessEnabled(InternalMessage internalMessage)
+        private static bool IsReceptionAwarenessEnabled(MessagingContext messagingContext)
         {
-            return internalMessage.SendingPMode.Reliability.ReceptionAwareness.IsEnabled;
+            return messagingContext.SendingPMode.Reliability.ReceptionAwareness.IsEnabled;
         }
 
-        private static async Task<StepResult> ReturnSameResult(InternalMessage internalMessage, string description)
+        private static async Task<StepResult> ReturnSameResult(MessagingContext messagingContext, string description)
         {
-            Logger.Info($"{internalMessage.Prefix} {description}");
-            return await StepResult.SuccessAsync(internalMessage);
+            Logger.Info($"{messagingContext.Prefix} {description}");
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static async Task InsertReceptionAwarenessAsync(InternalMessage internalMessage)
+        private static async Task InsertReceptionAwarenessAsync(MessagingContext messagingContext)
         {
-            Logger.Info($"{internalMessage.Prefix} Set Reception Awareness");
-            AS4Message as4Message = internalMessage.AS4Message;
+            Logger.Info($"{messagingContext.Prefix} Set Reception Awareness");
+            AS4Message as4Message = messagingContext.AS4Message;
 
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 UpdateCurrentRetryCountFor(existingReceptionAwarenessEntities);
 
                 // For every MessageId for which no ReceptionAwareness entity exists, create one.
-                InsertReceptionAwarenessForMessagesWithout(internalMessage, repository, existingReceptionAwarenessEntities);
+                InsertReceptionAwarenessForMessagesWithout(messagingContext, repository, existingReceptionAwarenessEntities);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         }
 
         private static void InsertReceptionAwarenessForMessagesWithout(
-            InternalMessage message,
+            MessagingContext message,
             IDatastoreRepository repository,
             IEnumerable<Entities.ReceptionAwareness> existingReceptionAwarenessEntities)
         {

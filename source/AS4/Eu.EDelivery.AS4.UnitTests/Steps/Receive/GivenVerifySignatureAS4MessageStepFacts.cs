@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             "multipart/related; boundary=\"=-dXYE+NJdacou7AbmYZgUPw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
         private readonly VerifySignatureAS4MessageStep _step;
-        private InternalMessage _internalMessage;
+        private MessagingContext _messagingContext;
 
         public GivenVerifySignatureAS4MessageStepFacts()
         {
@@ -38,16 +38,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsAsync()
             {
                 // Arrange
-                _internalMessage = await GetSignedInternalMessageAsync(Properties.Resources.as4_soap_signed_message);
+                _messagingContext = await GetSignedInternalMessageAsync(Properties.Resources.as4_soap_signed_message);
 
                 UsingAllowedSigningVerification();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(_internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.True(result.InternalMessage.AS4Message.IsSigned);
+                Assert.True(result.MessagingContext.AS4Message.IsSigned);
             }
         }
 
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsAsync()
             {
                 // Arrange
-                _internalMessage =
+                _messagingContext =
                     await GetSignedInternalMessageAsync(Properties.Resources.as4_soap_wrong_signed_message);
 
                 UsingAllowedSigningVerification();
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Act / Assert
                 AS4Exception exception =
                     await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(_internalMessage, CancellationToken.None));
+                        () => _step.ExecuteAsync(_messagingContext, CancellationToken.None));
                 Assert.Equal(ErrorCode.Ebms0101, exception.ErrorCode);
             }
 
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsWithUntrustedCertificateAsync()
             {
                 // Arrange
-                _internalMessage =
+                _messagingContext =
                     await GetSignedInternalMessageAsync(Properties.Resources.as4_soap_untrusted_signed_message);
 
                 UsingAllowedSigningVerification();
@@ -84,25 +84,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Act / Assert
                 AS4Exception exception =
                     await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(_internalMessage, CancellationToken.None));
+                        () => _step.ExecuteAsync(_messagingContext, CancellationToken.None));
                 Assert.Equal(ErrorCode.Ebms0101, exception.ErrorCode);
             }
         }
 
-        protected async Task<InternalMessage> GetSignedInternalMessageAsync(string xml)
+        protected async Task<MessagingContext> GetSignedInternalMessageAsync(string xml)
         {
             var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(xml));
             var serializer = new SoapEnvelopeSerializer();
             AS4Message as4Message = await serializer.DeserializeAsync(memoryStream, ContentType, CancellationToken.None);
 
-            return new InternalMessage(as4Message);
+            return new MessagingContext(as4Message);
         }
 
         protected void UsingAllowedSigningVerification()
         {
             var receivingPMode = new ReceivingProcessingMode();
             receivingPMode.Security.SigningVerification.Signature = Limit.Allowed;
-            _internalMessage.ReceivingPMode = receivingPMode;
+            _messagingContext.ReceivingPMode = receivingPMode;
         }
     }
 }

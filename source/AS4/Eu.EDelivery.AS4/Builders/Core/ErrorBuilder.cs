@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return this;
         }
 
-        public ErrorBuilder WithOriginalMessage(InternalMessage message)
+        public ErrorBuilder WithOriginalMessage(MessagingContext message)
         {
             if (message.SendingPMode?.MessagePackaging.IsMultiHop == true)
             {

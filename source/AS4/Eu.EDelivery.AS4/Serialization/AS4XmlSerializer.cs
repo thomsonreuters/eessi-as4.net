@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="message">The message.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public static XmlDocument ToDocument(InternalMessage message, CancellationToken cancellationToken)
+        public static XmlDocument ToDocument(MessagingContext message, CancellationToken cancellationToken)
         {
             using (var memoryStream = new MemoryStream())
             {

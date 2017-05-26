@@ -39,10 +39,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 // Arrange
                 SetupMockedStep(sharedId);
                 ResetStep();
-                InternalMessage internalMessage = base.CreateDefaultInternalMessage();
+                MessagingContext messagingContext = base.CreateDefaultInternalMessage();
                 
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(messagingContext, CancellationToken.None);
                 
                 // Assert
                 AssertOutException(sharedId, e =>
@@ -58,11 +58,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 // Arrange
                 SetupMockedStep(sharedId);
                 ResetStep();
-                InternalMessage internalMessage = base.CreateDefaultInternalMessage();
-                internalMessage.SendingPMode.ExceptionHandling.NotifyMessageProducer = false;
+                MessagingContext messagingContext = base.CreateDefaultInternalMessage();
+                messagingContext.SendingPMode.ExceptionHandling.NotifyMessageProducer = false;
                 
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(messagingContext, CancellationToken.None);
                 
                 // Assert
                 AssertOutException(sharedId, e =>
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 ResetStep();
                 OutMessage outMessage = CreateDefaultOutMessage(sharedId);
                 InsertOutMessage(outMessage);
-                var internalMessage = new InternalMessage(new AS4Message());
+                var internalMessage = new MessagingContext(new AS4Message());
                 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
             _mockedStep = new Mock<IStep>();
             _mockedStep
-                .Setup(s => s.ExecuteAsync(It.IsAny<InternalMessage>(), It.IsAny<CancellationToken>()))
+                .Setup(s => s.ExecuteAsync(It.IsAny<MessagingContext>(), It.IsAny<CancellationToken>()))
                 .Throws(as4Exception);
         }
 
@@ -150,9 +150,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
             _step = new OutExceptionStepDecorator(_mockedStep.Object);
         }
 
-        protected InternalMessage CreateDefaultInternalMessage()
+        protected MessagingContext CreateDefaultInternalMessage()
         {
-            return new InternalMessage(new AS4MessageBuilder().Build())
+            return new MessagingContext(new AS4MessageBuilder().Build())
             {
                 SendingPMode = new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = true}}
             };

@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 StepResult result = await step.ExecuteAsync(CreateAS4MessageWithAttachment(), CancellationToken.None);
 
                 // Assert
-                Attachment firstAttachment = result.InternalMessage.AS4Message.Attachments.First();
+                Attachment firstAttachment = result.MessagingContext.AS4Message.Attachments.First();
                 Assert.Equal(expectedLocation, firstAttachment.Location);
             }
         }
@@ -59,14 +59,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             }
         }
 
-        protected InternalMessage CreateAS4MessageWithAttachment()
+        protected MessagingContext CreateAS4MessageWithAttachment()
         {
             var as4Message = new AS4Message
             {
                 Attachments = new[] {new Attachment("attachment-id") {Content = Stream.Null}}
             };
 
-            return new InternalMessage(as4Message)
+            return new MessagingContext(as4Message)
             {
                 ReceivingPMode =
                     new ReceivingProcessingMode {Deliver = {PayloadReferenceMethod = new Method {Type = "FILE"}}}

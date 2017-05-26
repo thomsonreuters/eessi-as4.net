@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             public async Task ThenExecuteMethodRetrievesPModeFailsWithInvalidPModeAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage(GetStubSubmitMessage());
+                var internalMessage = new MessagingContext(GetStubSubmitMessage());
                 _step = new RetrieveSendingPModeStep(_mockedConfig.Object);
 
                 // Act / Assert

@@ -24,12 +24,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         public async Task ThenExecuteStepFailsWithFailedSenderAsync()
         {
             // Arrange
-            InternalMessage internalMessage = EmptyDeliverMessageEnvelope();
+            MessagingContext messagingContext = EmptyDeliverMessageEnvelope();
             IStep sut = CreateSendDeliverStepWithSender(new SaboteurSender());
 
             // Act
             AS4Exception exception =
-                await Assert.ThrowsAsync<AS4Exception>(() => sut.ExecuteAsync(internalMessage, CancellationToken.None));
+                await Assert.ThrowsAsync<AS4Exception>(() => sut.ExecuteAsync(messagingContext, CancellationToken.None));
 
             Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
         }
@@ -38,14 +38,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         public async Task ThenExecuteStepSucceedsWithValidSenderAsync()
         {
             // Arrange
-            InternalMessage internalMessage = EmptyDeliverMessageEnvelope();
-            internalMessage.ReceivingPMode = CreateDefaultReceivingPMode();
+            MessagingContext messagingContext = EmptyDeliverMessageEnvelope();
+            messagingContext.ReceivingPMode = CreateDefaultReceivingPMode();
 
             var spySender = Mock.Of<IDeliverSender>();
             IStep sut = CreateSendDeliverStepWithSender(spySender);
 
             // Act
-            await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+            await sut.ExecuteAsync(messagingContext, CancellationToken.None);
 
             // Assert
             Mock.Get(spySender).Verify(s => s.SendAsync(It.IsAny<DeliverMessageEnvelope>()), Times.Once);
@@ -59,11 +59,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             return new SendDeliverMessageStep(stubProvider.Object);
         }
 
-        private static InternalMessage EmptyDeliverMessageEnvelope()
+        private static MessagingContext EmptyDeliverMessageEnvelope()
         {
             var deliverMessage = new DeliverMessageEnvelope(new MessageInfo(), new byte[] { }, string.Empty);
 
-            return new InternalMessage(deliverMessage);
+            return new MessagingContext(deliverMessage);
         }
 
         private static ReceivingProcessingMode CreateDefaultReceivingPMode()

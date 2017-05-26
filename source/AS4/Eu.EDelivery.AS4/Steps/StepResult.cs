@@ -20,9 +20,9 @@ namespace Eu.EDelivery.AS4.Steps
         public AS4Exception Exception { get; private set; }
 
         /// <summary>
-        /// Gets the included <see cref="InternalMessage"/> send throughout the step execution.
+        /// Gets the included <see cref="MessagingContext"/> send throughout the step execution.
         /// </summary>
-        public InternalMessage InternalMessage { get; private set; }
+        public MessagingContext MessagingContext { get; private set; }
         
         /// <summary>
         /// Gets a value indicating whether the next steps must be executed.
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public StepResult AndStopExecution()
         {
-            return new StepResult {InternalMessage = InternalMessage, Exception = Exception, CanProceed = false};
+            return new StepResult {MessagingContext = MessagingContext, Exception = Exception, CanProceed = false};
         }
 
         /// <summary>
@@ -52,21 +52,21 @@ namespace Eu.EDelivery.AS4.Steps
         /// Return a Failed <see cref="StepResult"/>.
         /// </summary>
         /// <param name="exception">Included <see cref="AS4Exception"/>.</param>
-        /// <param name="internalMessage">Included failed <see cref="InternalMessage"/>.</param>
+        /// <param name="messagingContext">Included failed <see cref="MessagingContext"/>.</param>
         /// <returns></returns>
-        public static StepResult Failed(AS4Exception exception, InternalMessage internalMessage)
+        public static StepResult Failed(AS4Exception exception, MessagingContext messagingContext)
         {
-            return new StepResult {Exception = exception, InternalMessage = internalMessage};
+            return new StepResult {Exception = exception, MessagingContext = messagingContext};
         }
 
         /// <summary>
         /// Return a Successful <see cref="StepResult" />
         /// </summary>
-        /// <param name="message">Included <see cref="InternalMessage" />.</param>
+        /// <param name="message">Included <see cref="MessagingContext" />.</param>
         /// <returns></returns>
-        public static StepResult Success(InternalMessage message)
+        public static StepResult Success(MessagingContext message)
         {
-            return new StepResult {InternalMessage = message};
+            return new StepResult {MessagingContext = message};
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public static Task<StepResult> SuccessAsync(InternalMessage message)
+        public static Task<StepResult> SuccessAsync(MessagingContext message)
         {
             return Task.FromResult(Success(message));
         }

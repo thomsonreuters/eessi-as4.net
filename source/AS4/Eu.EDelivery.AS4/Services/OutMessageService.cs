@@ -31,27 +31,27 @@ namespace Eu.EDelivery.AS4.Services
             _messageBodyPersister = as4MessageBodyPersister;            
         }
 
-        public async Task InsertAS4Message(InternalMessage internalMessage, Operation operation, CancellationToken cancellation)
+        public async Task InsertAS4Message(MessagingContext messagingContext, Operation operation, CancellationToken cancellation)
         {
-            AS4Message message = internalMessage.AS4Message;
+            AS4Message message = messagingContext.AS4Message;
             string messageBodyLocation = await _messageBodyPersister.SaveAS4MessageAsync(message, cancellation);
 
             foreach (var userMessage in message.UserMessages)
             {
-                OutMessage outMessage = CreateOutMessageForMessageUnit(userMessage, internalMessage, messageBodyLocation, operation);
+                OutMessage outMessage = CreateOutMessageForMessageUnit(userMessage, messagingContext, messageBodyLocation, operation);
 
                 _repository.InsertOutMessage(outMessage);
             }
 
             foreach (var signalMessage in message.SignalMessages)
             {
-                OutMessage outMessage = CreateOutMessageForMessageUnit(signalMessage, internalMessage, messageBodyLocation, operation);
+                OutMessage outMessage = CreateOutMessageForMessageUnit(signalMessage, messagingContext, messageBodyLocation, operation);
 
                 _repository.InsertOutMessage(outMessage);
             }
         }
 
-        private static OutMessage CreateOutMessageForMessageUnit(MessageUnit messageUnit, InternalMessage message, string location, Operation operation)
+        private static OutMessage CreateOutMessageForMessageUnit(MessageUnit messageUnit, MessagingContext message, string location, Operation operation)
         {
             OutMessage outMessage = OutMessageBuilder.ForInternalMessage(messageUnit, message)
                                                      .Build(CancellationToken.None);
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.Services
             return outMessage;
         }
 
-        private static void DetermineCorrectReplyPattern(MessageType outMessageType, InternalMessage message, out Operation operation, out OutStatus status)
+        private static void DetermineCorrectReplyPattern(MessageType outMessageType, MessagingContext message, out Operation operation, out OutStatus status)
         {
             bool isCallback = outMessageType == MessageType.Error ? IsErrorReplyPatternCallback(message)
                                                                   : IsReceiptReplyPatternCallback(message);
@@ -85,12 +85,12 @@ namespace Eu.EDelivery.AS4.Services
             status = isCallback ? OutStatus.Created : OutStatus.Sent;
         }
 
-        private static bool IsErrorReplyPatternCallback(InternalMessage message)
+        private static bool IsErrorReplyPatternCallback(MessagingContext message)
         {
             return message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
-        private static bool IsReceiptReplyPatternCallback(InternalMessage message)
+        private static bool IsReceiptReplyPatternCallback(MessagingContext message)
         {
             return message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
@@ -98,6 +98,6 @@ namespace Eu.EDelivery.AS4.Services
 
     public interface IOutMessageService
     {
-        Task InsertAS4Message(InternalMessage message, Operation operation, CancellationToken cancellation);
+        Task InsertAS4Message(MessagingContext message, Operation operation, CancellationToken cancellation);
     }
 }

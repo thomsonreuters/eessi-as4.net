@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Transformers
 {
     /// <summary>
     /// Transform <see cref="ReceivedMessage" />
-    /// to a <see cref="InternalMessage" /> with an <see cref="AS4Message" />
+    /// to a <see cref="MessagingContext" /> with an <see cref="AS4Message" />
     /// </summary>
     public class AS4MessageTransformer : ITransformer
     {
@@ -45,13 +45,13 @@ namespace Eu.EDelivery.AS4.Transformers
         }
 
         /// <summary>
-        /// Transform to a <see cref="InternalMessage"/>
+        /// Transform to a <see cref="MessagingContext"/>
         /// with a <see cref="AS4Message"/> included
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {           
             try
             {
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.Transformers
             catch (AS4Exception exception)
             {
                 Error error = CreateError(exception);
-                return new InternalMessage(CreateErrorMessage(error));
+                return new MessagingContext(CreateErrorMessage(error));
             }
         }
 
@@ -81,14 +81,14 @@ namespace Eu.EDelivery.AS4.Transformers
                 .Build();
         }
 
-        private async Task<InternalMessage> TransformMessage(ReceivedMessage receivedMessage,
+        private async Task<MessagingContext> TransformMessage(ReceivedMessage receivedMessage,
             CancellationToken cancellationToken)
         {
             ISerializer serializer = _provider.Get(receivedMessage.ContentType);
             AS4Message as4Message = await serializer
                 .DeserializeAsync(receivedMessage.RequestStream, receivedMessage.ContentType, cancellationToken);
 
-            var message = new InternalMessage(as4Message);
+            var message = new MessagingContext(as4Message);
             receivedMessage.AssignPropertiesTo(message);
 
             return message;

@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 // The receipt needs to be saved first, since we're testing the update-step.
-                var message = new InternalMessage(CreateReceiptAS4Message(EbmsMessageId)) {SendingPMode = GetSendingPMode()};
+                var message = new MessagingContext(CreateReceiptAS4Message(EbmsMessageId)) {SendingPMode = GetSendingPMode()};
                 var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyPersister.Default);
                 await step.ExecuteAsync(message, CancellationToken.None);
 
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 // The receipt needs to be saved first, since we're testing the update-step.
-                var message = new InternalMessage(CreateReceiptAS4Message(EbmsMessageId)) {SendingPMode = GetSendingPMode()};
+                var message = new MessagingContext(CreateReceiptAS4Message(EbmsMessageId)) {SendingPMode = GetSendingPMode()};
                 var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyPersister.Default);
                 await step.ExecuteAsync(message, CancellationToken.None);
 
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 // The receipt needs to be saved first, since we're testing the update-step.
-                var message = new InternalMessage(CreateErrorAS4Message(EbmsMessageId)) {SendingPMode = GetSendingPMode()};
+                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId)) {SendingPMode = GetSendingPMode()};
                 var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyPersister.Default);
                 await step.ExecuteAsync(message, CancellationToken.None);
 

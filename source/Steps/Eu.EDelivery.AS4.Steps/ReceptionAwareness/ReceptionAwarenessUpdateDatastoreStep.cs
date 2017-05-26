@@ -42,10 +42,10 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         /// <summary>
         /// Start updating the Data store
         /// </summary>
-        /// <param name="internalMessage"></param>        
+        /// <param name="messagingContext"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
                 var repository = new DatastoreRepository(context);
 
-                _receptionAwareness = internalMessage.ReceptionAwareness;
+                _receptionAwareness = messagingContext.ReceptionAwareness;
 
                 context.Attach(_receptionAwareness);
 
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
             WaitRetryInterval("Waiting retry interval...");
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private bool IsMessageAlreadyAnswered(IDatastoreRepository repository)

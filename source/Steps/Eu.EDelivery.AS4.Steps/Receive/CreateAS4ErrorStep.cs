@@ -45,19 +45,19 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Start creating <see cref="Error"/>
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (ShouldCreateError(internalMessage) == false)
+            if (ShouldCreateError(messagingContext) == false)
             {
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            AS4Message errorMessage = CreateAS4ErrorMessage(internalMessage);
-            InternalMessage message = internalMessage.CloneWith(errorMessage);
+            AS4Message errorMessage = CreateAS4ErrorMessage(messagingContext);
+            MessagingContext message = messagingContext.CloneWith(errorMessage);
 
             // Save the Error Message as well .... 
             using (DatastoreContext db = _createDatastore())
@@ -72,37 +72,37 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(message);
         }
 
-        private static AS4Message CreateAS4ErrorMessage(InternalMessage internalMessage)
+        private static AS4Message CreateAS4ErrorMessage(MessagingContext messagingContext)
         {
-            Logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
+            Logger.Info($"{messagingContext.Prefix} Create AS4 Error Message from AS4 Exception");
 
             var builder = new AS4MessageBuilder();
 
-            CreateErrorForEveryUserMessageIn(internalMessage, error => builder.WithSignalMessage(error));
+            CreateErrorForEveryUserMessageIn(messagingContext, error => builder.WithSignalMessage(error));
 
             AS4Message errorMessage = builder.Build();
 
-            errorMessage.SigningId = internalMessage.AS4Message.SigningId;
+            errorMessage.SigningId = messagingContext.AS4Message.SigningId;
 
             return errorMessage;
         }
 
-        private static void CreateErrorForEveryUserMessageIn(InternalMessage internalMessage, Action<Error> callback)
+        private static void CreateErrorForEveryUserMessageIn(MessagingContext messagingContext, Action<Error> callback)
         {
-            foreach (UserMessage userMessage in internalMessage.AS4Message.UserMessages)
+            foreach (UserMessage userMessage in messagingContext.AS4Message.UserMessages)
             {
-                Error error = CreateError(internalMessage.Exception, userMessage.MessageId, internalMessage);
+                Error error = CreateError(messagingContext.Exception, userMessage.MessageId, messagingContext);
 
                 callback(error);
             }
         }
 
-        private static bool ShouldCreateError(InternalMessage internalMessage)
+        private static bool ShouldCreateError(MessagingContext messagingContext)
         {
-            return internalMessage.Exception != null && (internalMessage.AS4Message?.UserMessages?.Any() ?? false);
+            return messagingContext.Exception != null && (messagingContext.AS4Message?.UserMessages?.Any() ?? false);
         }
 
-        private static Error CreateError(AS4Exception exception, string userMessageId, InternalMessage originalAS4Message)
+        private static Error CreateError(AS4Exception exception, string userMessageId, MessagingContext originalAS4Message)
         {
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(userMessageId)

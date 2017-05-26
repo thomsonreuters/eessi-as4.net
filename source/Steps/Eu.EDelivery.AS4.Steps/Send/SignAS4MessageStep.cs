@@ -44,30 +44,30 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Sign the <see cref="AS4Message" />
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Thrown when Signing Fails</exception>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (internalMessage.AS4Message.IsEmpty)
+            if (messagingContext.AS4Message.IsEmpty)
             {
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            if (internalMessage.SendingPMode?.Security.Signing.IsEnabled != true)
+            if (messagingContext.SendingPMode?.Security.Signing.IsEnabled != true)
             {
-                Logger.Info($"{internalMessage.Prefix} Sending PMode {internalMessage.SendingPMode?.Id} Signing is disabled");
-                return await StepResult.SuccessAsync(internalMessage);
+                Logger.Info($"{messagingContext.Prefix} Sending PMode {messagingContext.SendingPMode?.Id} Signing is disabled");
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            TrySignAS4Message(internalMessage, cancellationToken);
-            ResetAttachmentContents(internalMessage.AS4Message);
+            TrySignAS4Message(messagingContext, cancellationToken);
+            ResetAttachmentContents(messagingContext.AS4Message);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void TrySignAS4Message(InternalMessage message, CancellationToken cancellationToken)
+        private void TrySignAS4Message(MessagingContext message, CancellationToken cancellationToken)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private void SignAS4Message(InternalMessage message, CancellationToken cancellationToken)
+        private void SignAS4Message(MessagingContext message, CancellationToken cancellationToken)
         {
             X509Certificate2 certificate = RetrieveCertificate(message);
 
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             message.AS4Message.SecurityHeader.Sign(signingStrategy);
         }
 
-        private X509Certificate2 RetrieveCertificate(InternalMessage message)
+        private X509Certificate2 RetrieveCertificate(MessagingContext message)
         {
             Model.PMode.Signing signing = message.SendingPMode.Security.Signing;
 
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return certificate;
         }
 
-        private static AS4Exception ThrowCommonSigningException(InternalMessage message, string description, Exception innerException = null)
+        private static AS4Exception ThrowCommonSigningException(MessagingContext message, string description, Exception innerException = null)
         {
             Logger.Error(description);
 
@@ -122,12 +122,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .Build();
         }
 
-        private static ISigningStrategy CreateSignStrategy(InternalMessage internalMessage, X509Certificate2 certificate, CancellationToken cancellationToken)
+        private static ISigningStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate, CancellationToken cancellationToken)
         {
-            AS4Message message = internalMessage.AS4Message;
-            Model.PMode.Signing signing = internalMessage.SendingPMode.Security.Signing;
+            AS4Message message = messagingContext.AS4Message;
+            Model.PMode.Signing signing = messagingContext.SendingPMode.Security.Signing;
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(internalMessage, cancellationToken)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(messagingContext, cancellationToken)
                 .WithSecurityTokenReference(signing.KeyReferenceMethod)
                 .WithSignatureAlgorithm(signing.Algorithm)
                 .WithCertificate(certificate)

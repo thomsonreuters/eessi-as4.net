@@ -17,22 +17,22 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <summary>
     /// Canonical Message Format inside the Steps
     /// </summary>
-    public class InternalMessage : IMessage, IDisposable
+    public class MessagingContext : IMessage, IDisposable
     {
-        public static InternalMessage Empty => new InternalMessage();
+        public static MessagingContext Empty => new MessagingContext();
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="InternalMessage"/> class from being created.
+        /// Prevents a default instance of the <see cref="MessagingContext"/> class from being created.
         /// </summary>
-        private InternalMessage() {}
+        private MessagingContext() {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessage" /> class.
+        /// Initializes a new instance of the <see cref="MessagingContext" /> class.
         /// Create an Internal Message with a given <see cref="Core.AS4Message" />
         /// </summary>
         /// <param name="as4Message">
         /// </param>
-        public InternalMessage(AS4Message as4Message)
+        public MessagingContext(AS4Message as4Message)
         {
             SubmitMessage = null;
             AS4Message = as4Message;
@@ -41,12 +41,12 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessage" /> class.
+        /// Initializes a new instance of the <see cref="MessagingContext" /> class.
         /// Create and Internal Message with a given <see cref="Submit.SubmitMessage" />
         /// </summary>
         /// <param name="submitMessage">
         /// </param>
-        public InternalMessage(SubmitMessage submitMessage)
+        public MessagingContext(SubmitMessage submitMessage)
         {
             SubmitMessage = submitMessage;
             AS4Message = null;
@@ -55,10 +55,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessage"/> class.
+        /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
         /// <param name="deliverMessage">The deliver message.</param>
-        public InternalMessage(DeliverMessageEnvelope deliverMessage)
+        public MessagingContext(DeliverMessageEnvelope deliverMessage)
         {
             SubmitMessage = null;
             AS4Message = null;
@@ -67,10 +67,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessage"/> class.
+        /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
         /// <param name="notifyMessage">The notify message.</param>
-        public InternalMessage(NotifyMessageEnvelope notifyMessage)
+        public MessagingContext(NotifyMessageEnvelope notifyMessage)
         {
             SubmitMessage = null;
             AS4Message = null;
@@ -79,19 +79,19 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessage"/> class.
+        /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        public InternalMessage(AS4Exception exception)
+        public MessagingContext(AS4Exception exception)
         {
             Exception = exception;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessage" /> class.
+        /// Initializes a new instance of the <see cref="MessagingContext" /> class.
         /// </summary>
         /// <param name="awareness">The awareness.</param>
-        public InternalMessage(ReceptionAwareness awareness)
+        public MessagingContext(ReceptionAwareness awareness)
         {
             ReceptionAwareness = awareness;
         }
@@ -200,9 +200,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// </summary>
         /// <param name="as4Message">The as4 message.</param>
         /// <returns></returns>
-        public InternalMessage CloneWith(AS4Message as4Message)
+        public MessagingContext CloneWith(AS4Message as4Message)
         {
-            return new InternalMessage(as4Message)
+            return new MessagingContext(as4Message)
             {
                 SendingPMode = SendingPMode,
                 ReceivingPMode = ReceivingPMode

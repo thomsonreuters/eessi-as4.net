@@ -34,14 +34,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenMessageDontGetSignedWhenItsDisabledAsync()
             {
                 // Arrange
-                var internalMessage = new InternalMessage(new AS4Message()) {SendingPMode = new SendingProcessingMode()};
+                var internalMessage = new MessagingContext(new AS4Message()) {SendingPMode = new SendingProcessingMode()};
                 internalMessage.SendingPMode.Security.Signing.IsEnabled = false;
 
                 // Act
                 StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                SecurityHeader securityHeader = stepResult.InternalMessage.AS4Message.SecurityHeader;
+                SecurityHeader securityHeader = stepResult.MessagingContext.AS4Message.SecurityHeader;
                 Assert.NotNull(securityHeader);
                 Assert.False(securityHeader.IsSigned);
                 Assert.False(securityHeader.IsEncrypted);

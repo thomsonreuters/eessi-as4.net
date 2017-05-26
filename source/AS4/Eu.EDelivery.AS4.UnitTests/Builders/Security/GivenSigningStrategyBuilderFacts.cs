@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
         protected SigningStrategyBuilder CreateBuilder()
         {
-            return new SigningStrategyBuilder(new InternalMessage(new AS4Message()), CancellationToken.None);
+            return new SigningStrategyBuilder(new MessagingContext(new AS4Message()), CancellationToken.None);
         }
     }
 }

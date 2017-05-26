@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             IStep sut = CreateSendNotifyStepWithSender(new SaboteurSender());
 
             var notifyMessage = new NotifyMessageEnvelope(new MessageInfo(), Status.Delivered, null, string.Empty);
-            var internalMessage = new InternalMessage(notifyMessage);
+            var internalMessage = new MessagingContext(notifyMessage);
 
             // Act / Assert
             AS4Exception exception =
@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
         {
             // Arrange
             NotifyMessageEnvelope notifyMessage = EmptyNotifyMessageEnvelope(Status.Delivered);
-            var internalMessage = new InternalMessage(notifyMessage)
+            var internalMessage = new MessagingContext(notifyMessage)
             {
                 SendingPMode = CreateDefaultSendingPMode()
             };
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             // Arrange
             NotifyMessageEnvelope notifyMessage = EmptyNotifyMessageEnvelope(Status.Error);
 
-            var internalMessage = new InternalMessage(notifyMessage)
+            var internalMessage = new MessagingContext(notifyMessage)
             {
                 SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}}
             };

@@ -47,25 +47,25 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Start determine the Receiving Processing Mode
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Throws exception when a PMode cannot be retrieved</exception>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            AS4Message as4Message = internalMessage.AS4Message;
+            AS4Message as4Message = messagingContext.AS4Message;
 
             if (as4Message.IsSignalMessage)
             {
-                internalMessage.SendingPMode = GetPModeFromDatastore(internalMessage.AS4Message);
+                messagingContext.SendingPMode = GetPModeFromDatastore(messagingContext.AS4Message);
             }
             else
             {
-                internalMessage.ReceivingPMode = GetPModeFromSettings(internalMessage.AS4Message);
-                internalMessage.SendingPMode = GetReferencedSendingPMode(internalMessage);
+                messagingContext.ReceivingPMode = GetPModeFromSettings(messagingContext.AS4Message);
+                messagingContext.SendingPMode = GetReferencedSendingPMode(messagingContext);
             }
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static SendPMode GetPModeFromDatastore(AS4Message as4Message)
@@ -151,19 +151,19 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return AS4ExceptionBuilder.WithDescription(description).WithMessageIds(messageIds).Build();
         }
 
-        private SendPMode GetReferencedSendingPMode(InternalMessage internalMessage)
+        private SendPMode GetReferencedSendingPMode(MessagingContext messagingContext)
         {
-            if (string.IsNullOrWhiteSpace(internalMessage.ReceivingPMode.ReceiptHandling.SendingPMode))
+            if (string.IsNullOrWhiteSpace(messagingContext.ReceivingPMode.ReceiptHandling.SendingPMode))
             {
                 Logger.Warn("No SendingPMode defined in ReceiptHandling of Received PMode.");
                 return null;
             }
 
-            string pmodeId = internalMessage.ReceivingPMode.ReceiptHandling.SendingPMode;
+            string pmodeId = messagingContext.ReceivingPMode.ReceiptHandling.SendingPMode;
 
             Logger.Info("Receipt Sending PMode Id: " + pmodeId);
 
-            return TryGetSendingPMode(pmodeId, internalMessage.AS4Message.MessageIds);
+            return TryGetSendingPMode(pmodeId, messagingContext.AS4Message.MessageIds);
         }
 
         private SendPMode TryGetSendingPMode(string pmodeId, string[] messageIds)

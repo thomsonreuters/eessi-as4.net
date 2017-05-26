@@ -36,28 +36,28 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Start storing the AS4 Receipt
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (internalMessage.AS4Message.IsEmpty)
+            if (messagingContext.AS4Message.IsEmpty)
             {
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
             using (var context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                await new OutMessageService(repository, _messageBodyPersister).InsertAS4Message(internalMessage, Operation.NotApplicable, cancellationToken);
+                await new OutMessageService(repository, _messageBodyPersister).InsertAS4Message(messagingContext, Operation.NotApplicable, cancellationToken);
 
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-                _logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
+                _logger.Info($"{messagingContext.Prefix} Store AS4 Receipt into the Datastore");
             }
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
     }
 }

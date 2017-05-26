@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var sut = new DeliverMessageTransformer();
 
             // Act
-            InternalMessage actualMessage = await sut.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext actualMessage = await sut.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
             Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count);

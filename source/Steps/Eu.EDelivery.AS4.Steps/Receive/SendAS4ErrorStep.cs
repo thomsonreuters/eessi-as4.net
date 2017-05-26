@@ -10,30 +10,30 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 {
     public class SendAS4ErrorStep : IStep
     {        
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (internalMessage.AS4Message?.IsEmpty == true)
+            if (messagingContext.AS4Message?.IsEmpty == true)
             {
-                return await ReturnSameStepResult(internalMessage);
+                return await ReturnSameStepResult(messagingContext);
             }
 
-            return IsReplyPatternCallback(internalMessage)
-                ? await CreateEmptySoapResult(internalMessage)
-                : await ReturnSameStepResult(internalMessage);
+            return IsReplyPatternCallback(messagingContext)
+                ? await CreateEmptySoapResult(messagingContext)
+                : await ReturnSameStepResult(messagingContext);
         }
 
-        private static bool IsReplyPatternCallback(InternalMessage message)
+        private static bool IsReplyPatternCallback(MessagingContext message)
         {
             return message?.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
-        private static async Task<StepResult> CreateEmptySoapResult(InternalMessage internalMessage)
+        private static async Task<StepResult> CreateEmptySoapResult(MessagingContext messagingContext)
         {
-            LogManager.GetCurrentClassLogger().Info($"{internalMessage.Prefix} Empty SOAP Envelope will be send to requested party");
+            LogManager.GetCurrentClassLogger().Info($"{messagingContext.Prefix} Empty SOAP Envelope will be send to requested party");
 
-            var emptyInternalMessage = new InternalMessage(CreateEmptyAS4Message())
+            var emptyInternalMessage = new MessagingContext(CreateEmptyAS4Message())
             {
-                ReceivingPMode = internalMessage.ReceivingPMode
+                ReceivingPMode = messagingContext.ReceivingPMode
             };
 
             return await StepResult.SuccessAsync(emptyInternalMessage);
@@ -44,9 +44,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return new AS4MessageBuilder().Build();
         }
 
-        private static async Task<StepResult> ReturnSameStepResult(InternalMessage internalMessage)
+        private static async Task<StepResult> ReturnSameStepResult(MessagingContext messagingContext)
         {
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
     }
 }

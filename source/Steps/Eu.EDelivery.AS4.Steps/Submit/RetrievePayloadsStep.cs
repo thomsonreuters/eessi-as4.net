@@ -40,52 +40,52 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Execute to retrieve the Payloads from the <see cref="SubmitMessage" />
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            Logger.Info($"{internalMessage.Prefix} Executing RetrievePayloadsStep");
+            Logger.Info($"{messagingContext.Prefix} Executing RetrievePayloadsStep");
 
-            if (!internalMessage.SubmitMessage.HasPayloads)
+            if (!messagingContext.SubmitMessage.HasPayloads)
             {
-                Logger.Info($"{internalMessage.Prefix} Submit Message has no Payloads to retrieve");
-                return await StepResult.SuccessAsync(internalMessage);
+                Logger.Info($"{messagingContext.Prefix} Submit Message has no Payloads to retrieve");
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            await TryRetrievePayloads(internalMessage).ConfigureAwait(false);
+            await TryRetrievePayloads(messagingContext).ConfigureAwait(false);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
         
-        private async Task TryRetrievePayloads(InternalMessage internalMessage)
+        private async Task TryRetrievePayloads(MessagingContext messagingContext)
         {
             try
             {
-                Logger.Info($"{internalMessage.Prefix} Retrieve Submit Message Payloads");
+                Logger.Info($"{messagingContext.Prefix} Retrieve Submit Message Payloads");
 
-                await internalMessage.AddAttachments(
+                await messagingContext.AddAttachments(
                     async payload => await _provider.Get(payload).RetrievePayloadAsync(payload.Location));
 
-                Logger.Info($"{internalMessage.Prefix} Number of Payloads retrieved: {internalMessage.AS4Message.Attachments.Count}");
+                Logger.Info($"{messagingContext.Prefix} Number of Payloads retrieved: {messagingContext.AS4Message.Attachments.Count}");
             }
             catch (Exception exception)
             {
-                throw ThrowAS4FailedRetrievePayloadsException(internalMessage, exception);
+                throw ThrowAS4FailedRetrievePayloadsException(messagingContext, exception);
             }
         }
 
-        private static AS4Exception ThrowAS4FailedRetrievePayloadsException(InternalMessage internalMessage, Exception exception)
+        private static AS4Exception ThrowAS4FailedRetrievePayloadsException(MessagingContext messagingContext, Exception exception)
         {
-            string description = $"{internalMessage.Prefix} Failed to retrieve Submit Message Payloads";
+            string description = $"{messagingContext.Prefix} Failed to retrieve Submit Message Payloads";
             Logger.Error(description);
-            Logger.Error($"{internalMessage.Prefix} {exception.Message}");
+            Logger.Error($"{messagingContext.Prefix} {exception.Message}");
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(exception)
-                .WithMessageIds(internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(internalMessage.SendingPMode)
+                .WithMessageIds(messagingContext.AS4Message.MessageIds)
+                .WithSendingPMode(messagingContext.SendingPMode)
                 .Build();
         }
     }

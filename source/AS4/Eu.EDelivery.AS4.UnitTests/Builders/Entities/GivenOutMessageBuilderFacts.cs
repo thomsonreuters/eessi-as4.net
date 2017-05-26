@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForInternalMessage(as4Message.PrimaryUserMessage, new InternalMessage(as4Message) {SendingPMode = ExpectedPMode()})
+                return OutMessageBuilder.ForInternalMessage(as4Message.PrimaryUserMessage, new MessagingContext(as4Message) {SendingPMode = ExpectedPMode()})
                                                          .Build(CancellationToken.None);
             }
 
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private static OutMessage BuildForSignalMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForInternalMessage(as4Message.PrimarySignalMessage, new InternalMessage(as4Message))
+                return OutMessageBuilder.ForInternalMessage(as4Message.PrimarySignalMessage, new MessagingContext(as4Message))
                                                                          .Build(CancellationToken.None);
             }
         }

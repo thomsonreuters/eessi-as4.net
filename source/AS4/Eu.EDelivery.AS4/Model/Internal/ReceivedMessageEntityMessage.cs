@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             MessageEntity = messageEntity;
         }
 
-        public override void AssignPropertiesTo(InternalMessage message)
+        public override void AssignPropertiesTo(MessagingContext message)
         {
             base.AssignPropertiesTo(message);
 

@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 StepResult actualResult = await handler.HandleResponse(expectedResponse);
 
                 // Assert
-                Assert.Equal(expectedResponse.ResultedMessage, actualResult.InternalMessage);
+                Assert.Equal(expectedResponse.ResultedMessage, actualResult.MessagingContext);
             }
         }
 
@@ -61,8 +61,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 StepResult actualResult = await handler.HandleResponse(as4Response);
 
                 // Assert
-                InternalMessage expectedMessage = as4Response.OriginalRequest;
-                InternalMessage actualMessage = actualResult.InternalMessage;
+                MessagingContext expectedMessage = as4Response.OriginalRequest;
+                MessagingContext actualMessage = actualResult.MessagingContext;
 
                 Assert.Equal(expectedMessage, actualMessage);
                 Assert.False(actualResult.CanProceed);
@@ -72,8 +72,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage(new AS4Message()));
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(InternalMessage.Empty);
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(new AS4Message()));
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(MessagingContext.Empty);
 
                 return stubAS4Response.Object;
             }
@@ -130,11 +130,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
 
-                InternalMessage pullRequest = new InternalMessageBuilder().WithSignalMessage(new PullRequest()).Build();
+                MessagingContext pullRequest = new InternalMessageBuilder().WithSignalMessage(new PullRequest()).Build();
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
 
                 AS4Message deserializedMessage = await DeserializePullRequestWarning();
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage(deserializedMessage));
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(deserializedMessage));
 
                 return stubAS4Response.Object;
             }
@@ -184,7 +184,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         private static AS4Response CreateAnonymousAS4Response()
         {
             return AS4Response.Create(
-                requestMessage: InternalMessage.Empty, 
+                requestMessage: MessagingContext.Empty, 
                 webResponse: new Mock<HttpWebResponse>().Object, 
                 cancellation: CancellationToken.None).Result;
         }
