@@ -6,7 +6,10 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Xml;
 using NLog;
+using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -81,15 +84,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
             }
-            
-            // If the Receipt is a Receipt on a MultihopMessage, then we'll need the original
-            // UserMessage.
-           
-            // I think this check is wrong: we should check the Messaging Header of the received AS4Message, and not look in the PMode.
-            if (receivedAS4Message.SendingPMode?.MessagePackaging.IsMultiHop??false)
+
+            // If the Receipt is a Receipt on a MultihopMessage, then we'll need to add some routing-info.
+            if (receivedAS4Message.IsMultiHopMessage)
             {
                 Logger.Debug("The received UserMessage has been sent via MultiHop.  Send Receipt as MultiHop as well.");
-                receipt.RelatedUserMessageForMultihop = receivedAS4Message.PrimaryUserMessage;
+
+                receipt.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.PrimaryUserMessage);
             }
         }
 
