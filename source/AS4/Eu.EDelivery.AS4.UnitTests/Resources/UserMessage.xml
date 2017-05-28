@@ -67,8 +67,8 @@
         </eb:PartyInfo>
         <eb:CollaborationInfo>
           <eb:AgreementRef pmode="push-sample">http://agreements.holodeckb2b.org/examples/agreement0</eb:AgreementRef>
-          <eb:Service>http://docs.oasis-open.org/ebxml-msg/ebmS/v3.0/ns/core/200704/service</eb:Service>
-          <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebmS/v3.0/ns/core/200704/test</eb:Action>
+          <eb:Service>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service</eb:Service>
+          <eb:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test</eb:Action>
           <eb:ConversationId>eu:edelivery:as4:sampleconversation</eb:ConversationId>
         </eb:CollaborationInfo>
         <eb:MessageProperties>
