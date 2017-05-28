@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
             }
 
-            if (message.IsMultiHop)
+            if (message.IsMultiHopMessage || message.NeedsToBeMultiHop)
             {
                 messagingHeader.role = Constants.Namespaces.EbmsNextMsh;
                 messagingHeader.mustUnderstand1 = true;
@@ -115,12 +115,6 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
-            // TODO: i'd like to see this refactored.
-            // AS4Message could have a property 'IsMultihop', and based on that, the
-            // correct multihop-headers could be set.
-
-            // If the AS4Message is a signalmessage, check if the related usermessage
-            // was a multihop.
             if (as4Message.IsSignalMessage == false || as4Message.PrimarySignalMessage.MultiHopRouting == null)
             {
                 return;

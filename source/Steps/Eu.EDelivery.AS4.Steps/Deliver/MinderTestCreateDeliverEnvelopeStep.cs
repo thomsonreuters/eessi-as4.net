@@ -40,13 +40,24 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext.AS4Message);
+            bool includeAttachments = true;
+
+            var collaborationInfo = messagingContext.ReceivingPMode.MessagePackaging?.CollaborationInfo;
+
+            if (collaborationInfo != null &&
+                (collaborationInfo.Action?.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false) &&
+                (collaborationInfo.Service?.Value?.Equals("SRV_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false))
+            {
+                includeAttachments = false;
+            }
+
+            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext.AS4Message, includeAttachments);
             MessagingContext deliverContext = messagingContext.CloneWith(deliverMessage);
 
             return StepResult.SuccessAsync(deliverContext);
         }
 
-        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
+        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message, bool includeAttachments)
         {
             UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
@@ -54,8 +65,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             var builder = new AS4MessageBuilder();
             builder.WithUserMessage(deliverMessage);
 
-            if (deliverMessage.CollaborationInfo.Action.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) == false &&
-                deliverMessage.CollaborationInfo.Service?.Value?.Equals("SRV_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) == false)
+            if (includeAttachments)
             {
                 foreach (Attachment attachment in as4Message.Attachments)
                 {

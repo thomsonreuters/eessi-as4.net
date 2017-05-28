@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 // TODO: find better approach
                 if (_sendingPMode != null)
                 {
-                    _as4Message.IsMultiHop = SendingPMode.MessagePackaging?.IsMultiHop ?? false;
+                    _as4Message.NeedsToBeMultiHop = SendingPMode.MessagePackaging?.IsMultiHop ?? false;
                 }
             }
         }
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 // TODO: find better approach
                 if (_as4Message != null)
                 {
-                    _as4Message.IsMultiHop = _sendingPMode?.MessagePackaging?.IsMultiHop ?? false;
+                    _as4Message.NeedsToBeMultiHop = _sendingPMode?.MessagePackaging?.IsMultiHop ?? false;
                 }
             }
         }
