@@ -192,9 +192,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 XmlDocument doc = ExerciseToDocument(context);
 
                 // Assert
-                var messagingNode = doc.SelectSingleNode("//*[local-name()='Messaging']") as XmlElement;
+                var messagingNode = doc.AssertXmlNodeNotNull("Messaging") as XmlElement;
 
-                Assert.NotNull(messagingNode);
                 Assert.Equal(
                     Constants.Namespaces.EbmsNextMsh,
                     messagingNode.GetAttribute("role", Constants.Namespaces.Soap12));
@@ -255,22 +254,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.Equal(Constants.Namespaces.ICloud, toAddressing.InnerText);
             }
 
-            private static void AssertMessagingElementNamespaces(XmlNode doc)
+            private static void AssertMessagingElementNamespaces(XmlDocument doc)
             {
                 Messaging messaging = DeserializeMessagingHeader(doc);
                 Assert.True(messaging.mustUnderstand1);
                 Assert.Equal(Constants.Namespaces.EbmsNextMsh, messaging.role);
             }
 
-            private static Messaging DeserializeMessagingHeader(XmlNode doc)
+            private static Messaging DeserializeMessagingHeader(XmlDocument doc)
             {
-                XmlNode messagingNode = doc.SelectSingleNode(@"//*[local-name()='Messaging']");
-                Assert.NotNull(messagingNode);
-
+                XmlNode messagingNode = doc.AssertXmlNodeNotNull("Messaging");
                 return AS4XmlSerializer.FromString<Messaging>(messagingNode.OuterXml);
             }
 
-            private static void AssertIfSenderAndReceiverAreReversed(AS4Message expectedAS4Message, XmlNode doc)
+            private static void AssertIfSenderAndReceiverAreReversed(AS4Message expectedAS4Message, XmlDocument doc)
             {
                 RoutingInput routingInput = GetRoutingInputFrom(doc);
 
@@ -288,7 +285,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     actualMessage.PartyInfo.From.PartyId.First().Value);
             }
 
-            private static void AssertIfSignalReferenceUserMessage(AS4Message as4Message, XmlNode doc)
+            private static void AssertIfSignalReferenceUserMessage(AS4Message as4Message, XmlDocument doc)
             {
                 string actualRefToMessageId = DeserializeMessagingHeader(doc).SignalMessage.First().MessageInfo.RefToMessageId;
                 string expectedUserMessageId = as4Message.PrimaryUserMessage.MessageId;
@@ -296,11 +293,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.Equal(expectedUserMessageId, actualRefToMessageId);
             }
 
-            private static RoutingInput GetRoutingInputFrom(XmlNode doc)
+            private static RoutingInput GetRoutingInputFrom(XmlDocument doc)
             {
-                XmlNode routingInputNode = doc.SelectSingleNode(@"//*[local-name()='RoutingInput']");
-                Assert.NotNull(routingInputNode);
-
+                XmlNode routingInputNode = doc.AssertXmlNodeNotNull("RoutingInput");
                 return AS4XmlSerializer.FromString<RoutingInput>(routingInputNode.OuterXml);
             }
 
@@ -318,7 +313,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
                     // Serialize the Deserialized receipt again, and make sure the RoutingInput element is present and correct.
                     XmlDocument doc = ExerciseToDocument(multihopReceipt);
-                    Assert.NotNull(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
+                    doc.AssertXmlNodeNotNull("RoutingInput");
                 }
             }
 
@@ -335,7 +330,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Assert
                 Assert.False(ContainsActionElementInNamespace(doc));
                 Assert.False(ContainsUserMessageElementInMultiHopNamespace(doc));
-                Assert.Null(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
+                Assert.Null(doc.SelectSingleNode("//*[local-name()='RoutingInput']"));
             }
 
             private async Task<MessagingContext> SimulatedReceivedUserMessageWithPMode(
@@ -429,8 +424,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             XmlDocument document = ExerciseToDocument(as4Message);
 
             // Assert
-            XmlNode node = document.SelectSingleNode(@"//*[local-name()='NonRepudiationInformation']");
-            Assert.NotNull(node);
+            XmlNode node = document.AssertXmlNodeNotNull("NonRepudiationInformation");
             Assert.Equal(Constants.Namespaces.EbmsXmlSignals, node.NamespaceURI);
         }
 
@@ -456,8 +450,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             XmlDocument document = ExerciseToDocument(as4Message);
 
             // Assert
-            XmlNode node = document.SelectSingleNode(@"//*[local-name()='UserMessage']");
-            Assert.NotNull(node);
+            XmlNode node = document.AssertXmlNodeNotNull("UserMessage");
             Assert.Equal(Constants.Namespaces.EbmsXmlSignals, node.NamespaceURI);
         }
 
