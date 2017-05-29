@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Steps.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             _mockedProvider = new Mock<INotifySenderProvider>();
             _mockedProvider.Setup(p => p.GetNotifySender(It.IsAny<string>())).Returns(_mockedSender.Object);
 
-            _step = new SendNotifyMessageStep(_mockedProvider.Object, () => new DatastoreContext(Options));
+            _step = new SendNotifyMessageStep(_mockedProvider.Object, GetDataStoreContext);
         }
 
         public class GivenValidArguments : GivenSendNotifyMessageStepFacts
@@ -106,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             private void SetupFailedNotifySender()
             {
                 _mockedSender.Setup(s => s.SendAsync(It.IsAny<NotifyMessageEnvelope>())).Throws<Exception>();
-                _step = new SendNotifyMessageStep(_mockedProvider.Object, () => new DatastoreContext(Options));
+                _step = new SendNotifyMessageStep(_mockedProvider.Object, GetDataStoreContext);
             }
         }
     }

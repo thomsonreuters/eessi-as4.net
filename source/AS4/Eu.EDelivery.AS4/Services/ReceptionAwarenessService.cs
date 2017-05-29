@@ -16,8 +16,9 @@ namespace Eu.EDelivery.AS4.Services
         private readonly IDatastoreRepository _repository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceptionAwarenessService"/> class.
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessService" /> class.
         /// </summary>
+        /// <param name="repository">The repository.</param>
         public ReceptionAwarenessService(IDatastoreRepository repository)
         {
             _repository = repository;
@@ -26,7 +27,11 @@ namespace Eu.EDelivery.AS4.Services
         public async Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyPersister messageBodyPersister, CancellationToken cancellationToken)
         {
             _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
-            var pmode = _repository.RetrieveSendingPModeForOutMessage(messageId);
+
+            SendingProcessingMode pmode = _repository.FirstOrDefaultOutMessage(
+                messageId: messageId,
+                selection: m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
+
             Error errorMessage = CreateError(messageId);
 
             AS4Message as4Message = CreateAS4Message(errorMessage, pmode);

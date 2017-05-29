@@ -30,6 +30,13 @@ namespace Eu.EDelivery.AS4.Services
             _messageBodyPersister = as4MessageBodyPersister;            
         }
 
+        /// <summary>
+        /// Inserts a s4 message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public async Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken)
         {
             string messageBodyLocation = await _messageBodyPersister.SaveAS4MessageAsync(message, cancellationToken);
@@ -96,6 +103,6 @@ namespace Eu.EDelivery.AS4.Services
 
     public interface IOutMessageService
     {
-        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);        
+        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);
     }
 }

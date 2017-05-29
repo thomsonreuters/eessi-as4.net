@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using NLog;
 using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
@@ -44,13 +40,16 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Gets the <see cref="InMessage"/> entity that exists in the datastore for the specified <paramref name="ebmsMessageId"/>
+        /// Selects the in messages.
         /// </summary>
-        /// <param name="ebmsMessageId"></param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="messageId"></param>
+        /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public InMessage GetInMessageById(string ebmsMessageId)
+        public TResult FirstOrDefaultInMessage<TResult>(string messageId, Func<InMessage, TResult> selection)
         {
-            return _dbContext.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(ebmsMessageId));
+            return
+                _dbContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
         }
 
         /// <summary>
@@ -60,9 +59,9 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public IEnumerable<string> SelectExistingInMessageIds(IEnumerable<string> searchedMessageIds)
         {
-            return _dbContext.InMessages
-                             .Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
-                             .Select(m => m.EbmsMessageId);
+            return
+                _dbContext.InMessages.Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
+                          .Select(m => m.EbmsMessageId);
         }
 
         /// <summary>
@@ -144,32 +143,16 @@ namespace Eu.EDelivery.AS4.Repositories
         #region OutMessage related functionality
 
         /// <summary>
-        /// Get a <see cref="OutMessage"/> for a given AS4 Message Id
+        /// Firsts the or default out message.
         /// </summary>
-        /// <param name="messageId"></param>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public OutMessage GetOutMessageById(string messageId)
+        public TResult FirstOrDefaultOutMessage<TResult>(string messageId, Func<OutMessage, TResult> selection)
         {
-            OutMessage message = _dbContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
-
-            if (message != null && message.Id != default(long))
-            {
-                _outMessageIdMap.Set(messageId, message.Id, CacheLifeTime);
-            }
-
-            return message;
-        }
-
-        /// <summary>
-        /// Retrieves the <see cref="Operation"/> for a specified OutMessage.
-        /// </summary>
-        /// <param name="messageId"></param>
-        /// <returns></returns>
-        public Operation GetOutMessageOperation(string messageId)
-        {
-            return _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(messageId))
-                                         .Select(m => m.Operation)
-                                         .FirstOrDefault();
+            return
+                _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
         }
 
         /// <summary>
@@ -247,44 +230,6 @@ namespace Eu.EDelivery.AS4.Repositories
             {
                 updateAction(msg);
                 msg.ModificationTime = DateTimeOffset.UtcNow;
-            }
-        }
-
-        /// <summary>
-        /// Gets the <see cref="SendingProcessingMode"/> instance of the <see cref="OutMessage"/> with the given <paramref name="ebmsMessageId"/>.
-        /// </summary>
-        /// <param name="ebmsMessageId">Ebms Message Id to retrieve the <see cref="SendingProcessingMode"/> from.</param>
-        /// <returns></returns>
-        public SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId)
-        {
-            var sendPModes = _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(ebmsMessageId)).Select(m => m.PMode);
-
-            if (sendPModes.Any() == false)
-            {
-                return null;
-            }
-
-            string pmodeString = sendPModes.First();
-
-            return AS4XmlSerializer.FromString<SendingProcessingMode>(pmodeString);
-        }
-
-        /// <summary>
-        /// Retrieves the SendingProcessingMode strings that were used to sent the Messages with the specified ebmsMessageIds.
-        /// </summary>
-        /// <param name="ebmsMessageIds"></param>
-        /// <returns></returns>
-        public IEnumerable<(string ebmsMessageId, string sendingPMode)> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds)
-        {
-            ebmsMessageIds = ebmsMessageIds.Distinct();
-
-            var result = _dbContext.OutMessages
-                                   .Where(m => ebmsMessageIds.Contains(m.EbmsMessageId))
-                                   .Select(m => new { MessageId = m.EbmsMessageId, PMode = m.PMode });
-
-            foreach (var record in result)
-            {
-                yield return (ebmsMessageId: record.MessageId, sendingPMode: record.PMode);
             }
         }
 
@@ -487,49 +432,5 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         #endregion
-
-    }
-
-    public interface IDatastoreRepository
-    {
-        void InsertInMessage(InMessage inMessage);
-        void UpdateInMessage(string messageId, Action<InMessage> updateAction);
-        bool InMessageExists(Func<InMessage, bool> predicate);
-
-        InMessage GetInMessageById(string ebmsMessageId);
-
-        /// <summary>
-        /// Select all the found 'EbmsMessageIds' in the given datastore.
-        /// </summary>
-        /// <param name="searchedMessageIds">Collection of 'EbmsMessageIds' to be search for.</param>
-        /// <returns></returns>
-        IEnumerable<string> SelectExistingInMessageIds(IEnumerable<string> searchedMessageIds);
-
-        /// <summary>
-        /// Search all the found 'RefToMessageIds' in the given datastore.
-        /// </summary>
-        /// <param name="searchedMessageIds"></param>
-        /// <returns></returns>
-        IEnumerable<string> SelectExistingRefInMessageIds(IEnumerable<string> searchedMessageIds);
-
-        void InsertOutMessage(OutMessage outMessage);
-        void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
-        OutMessage GetOutMessageById(string messageId);
-        Operation GetOutMessageOperation(string messageId);
-
-        SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId);
-
-        IEnumerable<(string ebmsMessageId, string sendingPMode)> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds);
-
-        void InsertReceptionAwareness(ReceptionAwareness receptionAwareness);
-        void UpdateReceptionAwareness(string messageId, Action<ReceptionAwareness> updateAction);
-        IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds);
-
-        void InsertInException(InException inException);
-        void UpdateInException(string refToMessageId, Action<InException> updateAction);
-
-        void InsertOutException(OutException outException);
-        void UpdateOutException(string refToMessageId, Action<OutException> updateAction);
-
     }
 }

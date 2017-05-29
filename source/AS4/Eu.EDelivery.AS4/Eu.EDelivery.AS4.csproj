@@ -343,6 +343,7 @@
     <Compile Include="Repositories\AS4MessageBodyFilePersister.cs" />
     <Compile Include="Repositories\AS4MessageBodyFileRetriever.cs" />
     <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
+    <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
     <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />

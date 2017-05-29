@@ -101,16 +101,16 @@ namespace Eu.EDelivery.AS4.Services
 
         public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
         {
-            var inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
+            string messageLocation = _repository.FirstOrDefaultInMessage(as4Message.GetPrimaryMessageId(), m => m.MessageLocation);
 
-            if (inMessage == null)
+            if (messageLocation == null)
             {
                 throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
             }
 
             if (as4Message.UserMessages.Any())
             {
-                await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
+                await as4MessageBodyPersister.UpdateAS4MessageAsync(messageLocation, as4Message, cancellationToken);
             }
 
             foreach (var userMessage in as4Message.UserMessages)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -24,17 +25,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public void ThenGetOutMessageSucceeded(string sharedId)
             {
                 // Arrange
-                InsertOutMessage(sharedId, Operation.NotApplicable);
+                const Operation expected = Operation.Delivered;
+                InsertOutMessage(sharedId, expected);
 
                 using (DatastoreContext context = GetDataStoreContext())
                 {
                     var repository = new DatastoreRepository(context);
 
                     // Act
-                    OutMessage resultMessage = repository.GetOutMessageById(sharedId);
+                    Operation actual = repository.FirstOrDefaultOutMessage(sharedId, m => m.Operation);
 
                     // Assert
-                    Assert.NotNull(resultMessage);
+                    Assert.Equal(expected, actual);
                 }
             }
 
@@ -78,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 AssertOutMessage(sharedId, m => Assert.Equal(Operation.Sent, m.Operation));
             }
 
-            private void InsertOutMessage(string ebmsMessageId, Operation operation)
+            private void InsertOutMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
             {
                 using (var context = new DatastoreContext(Options))
                 {
@@ -164,9 +166,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
         public class InMessages : GivenDatastoreRepositoryFacts
         {
             [Fact]
+            public void SelectsOnlyMessageLocation()
+            {
+                // Arrange
+                const string messageId = "single-id";
+                const string expected = "message-location";
+                InsertInMessage(messageId, m => m.MessageLocation = expected);
+
+                // Act
+                string actual = ExerciseRepository(sut => sut.FirstOrDefaultInMessage(messageId, m => m.MessageLocation));
+
+                // Assert
+                Assert.Equal(expected, actual);
+            }
+
+            [Fact]
             public void GetsMessageIdsForFoundUserMessages()
             {
-                TestFoundInMessagesFor(id => InsertInMessage(id), repository => repository.SelectExistingInMessageIds);
+                TestFoundInMessagesFor(id => InsertInMessageWithOperation(id), repository => repository.SelectExistingInMessageIds);
             }
 
             [Fact]
@@ -199,7 +216,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public void ThenInMessageExistsSucceeded(string sharedId)
             {
                 // Arrange
-                InsertInMessage(sharedId);
+                InsertInMessageWithOperation(sharedId);
 
                 using (DatastoreContext context = GetDataStoreContext())
                 {
@@ -218,7 +235,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public void ThenInsertInMessageSucceedsAsync(string sharedId)
             {
                 // Arrange
-                InsertInMessage(sharedId);
+                InsertInMessageWithOperation(sharedId);
 
                 // Assert
                 AssertInMessage(sharedId, Assert.NotNull);
@@ -229,7 +246,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             public async Task ThenUpdateInMessageSucceedsAsync(string sharedId)
             {
                 // Arrange
-                InsertInMessage(sharedId, Operation.ToBeDelivered);
+                InsertInMessageWithOperation(sharedId, Operation.ToBeDelivered);
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
@@ -245,11 +262,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 AssertInMessage(sharedId, m => Assert.Equal(Operation.Delivered, m.Operation));
             }
 
-            private void InsertInMessage(string ebmsMessageId, Operation operation = Operation.NotApplicable)
+            private void InsertInMessageWithOperation(string ebmsMessageId, Operation operation = Operation.NotApplicable)
+            {
+                InsertInMessage(ebmsMessageId, m => m.Operation = operation);
+            }
+
+            private void InsertInMessage(string messageId, Action<InMessage> arrangeMessage)
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    context.InMessages.Add(new InMessage() { EbmsMessageId = ebmsMessageId, Operation = operation });
+                    var message = new InMessage {EbmsMessageId = messageId};
+                    arrangeMessage(message);
+
+                    context.InMessages.Add(message);
                     context.SaveChanges();
                 }
             }
@@ -258,8 +283,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    context.InMessages.Add(new InMessage { EbmsRefToMessageId = refToEbmsMessageId });
+                    context.InMessages.Add(new InMessage {EbmsRefToMessageId = refToEbmsMessageId});
                     context.SaveChanges();
+                }
+            }
+
+            private TResult ExerciseRepository<TResult>(Func<DatastoreRepository, TResult> act)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    var sut = new DatastoreRepository(context);
+
+                    // Act
+                    return act(sut);
                 }
             }
 
