@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -8,21 +9,32 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
+using NLog;
+using ReceptionAwareness = Eu.EDelivery.AS4.Entities.ReceptionAwareness;
 
 namespace Eu.EDelivery.AS4.Services
 {
-    public class ReceptionAwarenessService
+    public class ReceptionAwarenessService : IReceptionAwarenessService
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IDatastoreRepository _repository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceptionAwarenessService"/> class.
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessService" /> class.
         /// </summary>
+        /// <param name="repository">The repository.</param>
         public ReceptionAwarenessService(IDatastoreRepository repository)
         {
             _repository = repository;
         }
 
+        /// <summary>
+        /// Deadletters the out message asynchronous.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="messageBodyPersister">The message body persister.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         public async Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyPersister messageBodyPersister, CancellationToken cancellationToken)
         {
             _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
@@ -35,7 +47,6 @@ namespace Eu.EDelivery.AS4.Services
             // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
             // if he should be notified when a message cannot be sent.
             // (Maybe we should only create the InMessage when notification is enabled ?)
-
             string location = await messageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
 
             InMessage inMessage = InMessageBuilder.ForSignalMessage(errorMessage, as4Message)
@@ -78,5 +89,74 @@ namespace Eu.EDelivery.AS4.Services
             return builder.Build();
         }
 
+        /// <summary>
+        /// Determines whether [is message already answered] [the specified awareness].
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        /// <returns>
+        ///   <c>true</c> if [is message already answered] [the specified awareness]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsMessageAlreadyAnswered(ReceptionAwareness awareness)
+        {
+            return
+                _repository.InMessageExists(
+                    m => m.EbmsRefToMessageId != null && m.EbmsRefToMessageId.Equals(awareness.InternalMessageId));
+        }
+
+        /// <summary>
+        /// Messages the needs to be resend.
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        public bool MessageNeedsToBeResend(ReceptionAwareness awareness)
+        {
+            Func<DateTimeOffset> deadlineForResend =
+                () => awareness.LastSendTime.Add(TimeSpan.Parse(awareness.RetryInterval));
+
+            return awareness.Status != ReceptionStatus.Completed
+                   && awareness.CurrentRetryCount < awareness.TotalRetryCount
+                   && DateTimeOffset.UtcNow > deadlineForResend()
+                   && _repository.GetOutMessageOperation(awareness.InternalMessageId) != Operation.Sending;
+        }
+
+        /// <summary>
+        /// Completes the message.
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        public void CompleteReferencedMessage(ReceptionAwareness awareness)
+        {
+            Logger.Debug("Message has been answered, marking as complete");
+            Logger.Info($"[{awareness.InternalMessageId}] Reception Awareness completed");
+
+            UpdateReceptionAwareness(awareness, ReceptionStatus.Completed);
+        }
+
+        /// <summary>
+        /// Updates for resend.
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        public void UpdateForResend(ReceptionAwareness awareness)
+        {
+            string messageId = awareness.InternalMessageId;
+            Logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {awareness.CurrentRetryCount + 1})");
+
+            _repository.UpdateOutMessage(messageId, m => m.Operation = Operation.ToBeSent);
+            UpdateReceptionAwareness(awareness, ReceptionStatus.Pending);
+        }
+
+        /// <summary>
+        /// Resets the referenced message.
+        /// </summary>
+        /// <param name="awarenes">The awarenes.</param>
+        public void ResetReferencedMessage(ReceptionAwareness awarenes)
+        {
+            UpdateReceptionAwareness(awarenes, ReceptionStatus.Pending);
+        }
+
+        private void UpdateReceptionAwareness(ReceptionAwareness awarenes, ReceptionStatus receptionStatus)
+        {
+            _repository.UpdateReceptionAwareness(awarenes.InternalMessageId, r => r.Status = receptionStatus);
+        }
     }
 }
