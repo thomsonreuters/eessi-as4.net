@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Common;
-using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
@@ -20,11 +18,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
 
         public class OutMessages : GivenDatastoreRepositoryFacts
         {
-            [Theory]
-            [InlineData("shared-id")]
-            public void ThenGetOutMessageSucceeded(string sharedId)
+            [Fact]
+            public void ThenGetOutMessageSucceeded()
             {
                 // Arrange
+                const string sharedId = "message-id";
                 const Operation expected = Operation.Delivered;
                 InsertOutMessage(sharedId, expected);
 
@@ -40,12 +38,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 }
             }
 
-            [Theory]
-            [InlineData("shared-id")]
-            public async Task ThenInsertOutMessageSucceedsAsync(string sharedId)
+            [Fact]
+            public async Task ThenInsertOutMessageSucceedsAsync()
             {
                 // Arrange
-                var outMessage = new OutMessage { EbmsMessageId = sharedId };
+                var outMessage = new OutMessage {EbmsMessageId = "message-id"};
 
                 // Act
                 using (DatastoreContext context = GetDataStoreContext())
@@ -59,11 +56,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 AssertOutMessage(outMessage.EbmsMessageId, Assert.NotNull);
             }
 
-            [Theory]
-            [InlineData("shared-id")]
-            public void ThenUpdateOutMessageSucceedsAsync(string sharedId)
+            [Fact]
+            public void ThenUpdateOutMessageSucceedsAsync()
             {
                 // Arrange
+                const string sharedId = "message-id";
                 InsertOutMessage(sharedId, Operation.ToBeSent);
 
                 // Act
