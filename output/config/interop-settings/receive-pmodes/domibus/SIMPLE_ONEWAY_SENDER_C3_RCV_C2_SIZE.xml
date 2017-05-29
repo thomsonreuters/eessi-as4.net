@@ -8,13 +8,12 @@
       <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
-  <ReceiptHandling>
+    <ReceiptHandling>
     <UseNNRFormat>true</UseNNRFormat>
     <ReplyPattern>Response</ReplyPattern>
     <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
-    
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>

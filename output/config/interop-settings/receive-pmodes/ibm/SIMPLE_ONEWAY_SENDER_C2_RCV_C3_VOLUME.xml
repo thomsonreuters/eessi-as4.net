@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>ACT_SIMPLE_ONEWAY_SENDER_DOMIBUS-C3_RCV_AS4NET-C2_VOLUME</Id>
+  <Id>ACT_SIMPLE_ONEWAY_SENDER_IBMGW-C2_RCV_AS4NET-C3_SIZE</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Push</MepBinding>
   <Reliability>
@@ -8,16 +8,16 @@
       <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
-    <ReceiptHandling>
+  <ReceiptHandling>
     <UseNNRFormat>true</UseNNRFormat>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
+    <SendingPMode>SIGNED_RESPONSE_FROM_C3</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>
-    <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
+    <SendingPMode>SIGNED_RESPONSE_FROM_C3</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
@@ -35,7 +35,7 @@
  
     <Decryption>
       <Encryption>Allowed</Encryption>
-      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
+      <PrivateKeyFindValue>as4-net-c3</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
     </Decryption>
   </Security>
@@ -44,7 +44,7 @@
         <FromParty>
 				<PartyIds>
 					<PartyId>
-            <Id>domibus-c3</Id>
+            <Id>ibmgw-c2</Id>
             <Type/>
             <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
 					</PartyId>
@@ -54,7 +54,7 @@
 			<ToParty>
 				<PartyIds>
 					<PartyId>
-            <Id>as4.net-c2</Id>
+            <Id>as4.net-c3</Id>
             <Type/>
             <!--<Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>-->
 					</PartyId>
@@ -69,7 +69,7 @@
         </Service>
     </CollaborationInfo>
   </MessagePackaging>
-  <Deliver>
+ <Deliver>
     <IsEnabled>true</IsEnabled>
      <PayloadReferenceMethod >
       <Type>FILE</Type>
