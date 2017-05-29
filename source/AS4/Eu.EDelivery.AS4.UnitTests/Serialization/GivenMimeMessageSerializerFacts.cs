@@ -52,28 +52,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             [Fact]
             public async Task ThenAttachmentContentTypeIsNotNullAsync()
             {
-                using (Stream messageStream = SerializeAnonymousMessage())
-                {
-                    // Act
-                    AS4Message as4Message = await ExerciseMimeDeserialize(messageStream, AnonymousContentType);
+                // Act
+                AS4Message as4Message = await ExerciseMimeDeserializeAnonymousUserMessage();
 
-                    // Assert
-                    Assert.NotNull(as4Message);
-                    Assert.Equal(2, as4Message.Attachments.Count);
-                }
+                // Assert
+                Assert.NotNull(as4Message);
+                Assert.Equal(2, as4Message.Attachments.Count);
             }
 
             [Fact]
             public async Task ThenDeserializeAS4MessageSucceedsForContentTypeAsync()
             {
+                // Act
+                AS4Message as4Message = await ExerciseMimeDeserializeAnonymousUserMessage();
+
+                // Assert
+                Assert.NotEqual(AnonymousContentType, as4Message.ContentType);
+                Assert.Contains(Constants.ContentTypes.Mime, as4Message.ContentType);
+            }
+
+            private async Task<AS4Message> ExerciseMimeDeserializeAnonymousUserMessage()
+            {
                 using (Stream messageStream = SerializeAnonymousMessage())
                 {
-                    // Act
-                    AS4Message as4Message = await ExerciseMimeDeserialize(messageStream, AnonymousContentType);
-
-                    // Assert
-                    Assert.NotEqual(AnonymousContentType, as4Message.ContentType);
-                    Assert.Contains(Constants.ContentTypes.Mime, as4Message.ContentType);
+                    return await ExerciseMimeDeserialize(messageStream, AnonymousContentType);
                 }
             }
 
