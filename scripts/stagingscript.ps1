@@ -23,6 +23,7 @@ MkDir .\Staging\samples
 MkDir .\Staging\samples\certificates
 MkDir .\Staging\samples\messages
 MkDir .\Staging\samples\pmodes
+MkDir .\Staging\samples\pmodes\eessi
 MkDir .\Staging\x64
 MkDir .\Staging\x86
 
@@ -56,3 +57,4 @@ Copy-Item -Path .\messages\attachments\*.* .\Staging\messages\attachments\
 Copy-Item -Path .\samples\certificates\*.* .\Staging\samples\certificates\
 Copy-Item -Path .\samples\messages\*.* .\Staging\samples\messages\
 Copy-Item -Path .\samples\pmodes\*.* .\Staging\samples\pmodes\
+Copy-Item -Path .\samples\pmodes\eessi\*.* .\Staging\samples\pmodes\eessi\
