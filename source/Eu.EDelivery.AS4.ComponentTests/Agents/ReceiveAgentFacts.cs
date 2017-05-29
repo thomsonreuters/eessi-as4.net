@@ -84,6 +84,35 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 return message;
             }
+
+            [Fact]
+            public async Task ReturnsEmptyMessageFromError_IfReceivePModeIsCallback()
+            {
+                // Arrange
+                HttpRequestMessage request = WrongEncryptedAS4Message();
+
+                // Act
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+                // Assert
+                Assert.Empty(await response.Content.ReadAsStringAsync());
+            }
+
+            private HttpRequestMessage WrongEncryptedAS4Message()
+            {
+                var messageContent = new ByteArrayContent(Properties.Resources.receiveagent_wrong_encrypted_message)
+                {
+                    Headers =
+                    {
+                        {
+                            "Content-Type",
+                            "multipart/related; boundary=\"=-WoWSZIFF06iwFV8PHCZ0dg==\"; type=\"application/soap+xml\"; charset=\"utf-8\""
+                        }
+                    }
+                };
+
+                return new HttpRequestMessage(HttpMethod.Post, _receiveAgentUrl) {Content = messageContent};
+            }
         }
 
         public class GivenValidReceivedSignalMessageFacts : ReceiveAgentFacts

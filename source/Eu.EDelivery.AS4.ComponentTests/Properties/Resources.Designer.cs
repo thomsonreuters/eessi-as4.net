@@ -99,5 +99,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] receiveagent_wrong_encrypted_message {
+            get {
+                object obj = ResourceManager.GetObject("receiveagent_wrong_encrypted_message", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

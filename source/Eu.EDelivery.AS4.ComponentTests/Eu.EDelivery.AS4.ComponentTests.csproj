@@ -164,6 +164,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Resources\receiveagent-wrong-encrypted-message.as4" />
     <None Include="Resources\deliveragent-message.as4" />
     <None Include="Resources\receiveagent_message.as4" />
   </ItemGroup>
