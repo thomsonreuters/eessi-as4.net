@@ -41,7 +41,7 @@
         </Parameters>
     </DeliverMethod>
   </Deliver>
-    <ReceiptHandling>
+  <ReceiptHandling>
     <NotifyMessageProducer>true</NotifyMessageProducer>
     <NotifyMethod>
       <Type>FILE</Type>
@@ -50,7 +50,7 @@
       </Parameters>
     </NotifyMethod>
   </ReceiptHandling>
-    <ErrorHandling>
+  <ErrorHandling>
     <NotifyMessageProducer>true</NotifyMessageProducer>
     <NotifyMethod>
       <Type>FILE</Type>
