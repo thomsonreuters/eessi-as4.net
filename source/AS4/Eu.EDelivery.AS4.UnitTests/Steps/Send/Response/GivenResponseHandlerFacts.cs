@@ -1,8 +1,10 @@
 ﻿using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -60,11 +62,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 // Act
                 StepResult actualResult = await handler.HandleResponse(as4Response);
 
-                // Assert
-                InternalMessage expectedMessage = as4Response.OriginalRequest;
-                InternalMessage actualMessage = actualResult.InternalMessage;
+                // Assert               
+                Assert.False(actualResult.CanProceed);
+            }
 
-                Assert.Equal(expectedMessage, actualMessage);
+            [Fact]
+            public async Task ThenCannotProceed_IfStatusIsErroneous()
+            {
+                // Arrange
+                IAS4Response as4Response = CreateAS4ResponseWithStatus(HttpStatusCode.InternalServerError);
+                var handler = new EmptyBodyResponseHandler(CreateAnonymousNextHandler());
+
+                // Act
+                StepResult actualResult = await handler.HandleResponse(as4Response);
+
+                // Assert               
                 Assert.False(actualResult.CanProceed);
             }
 
@@ -79,10 +91,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             }
 
             [Fact]
-            public async Task ThenNextHandlerGetsTheResponse_IfStatusIsNotAccepted()
+            public async Task ThenNextHandlerGetsTheResponse_IfAS4MessageIsReceived()
             {
                 // Arrange
-                IAS4Response as4Response = CreateAnonymousAS4Response();
+                var as4Message = new AS4MessageBuilder().WithSignalMessage(new Error()).Build();
+                IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(new InternalMessage(as4Message));
+
                 var spyHandler = new SpyAS4ResponseHandler();
                 var handler = new EmptyBodyResponseHandler(spyHandler);
 
@@ -104,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 var spyHandler = new SpyAS4ResponseHandler();
                 var handler = new PullRequestResponseHandler(spyHandler);
-               
+
                 // Act
                 await handler.HandleResponse(as4Response);
 
@@ -182,11 +196,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         }
 
         private static AS4Response CreateAnonymousAS4Response()
-        {
+        {           
             return AS4Response.Create(
-                requestMessage: new InternalMessage(), 
-                webResponse: new Mock<HttpWebResponse>().Object, 
+                requestMessage: new InternalMessage(),
+                webResponse: new Mock<HttpWebResponse>().Object,
                 cancellation: CancellationToken.None).Result;
+        }
+
+        private static AS4Response CreateAS4ResponseWithResultedMessage(InternalMessage resultedMessage)
+        {
+            var response = CreateAnonymousAS4Response();
+
+            PropertyInfo resultedMessageProperty = typeof(AS4Response).GetProperty(nameof(response.ResultedMessage),
+                                                                                   BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            if (resultedMessageProperty != null)
+            {
+                resultedMessageProperty.SetValue(response, resultedMessage);
+            }
+
+            return response;
         }
     }
 }
