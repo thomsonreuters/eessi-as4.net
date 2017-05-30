@@ -22,5 +22,32 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awareness">The awareness.</param>
         /// <returns></returns>
         bool MessageNeedsToBeResend(ReceptionAwareness awareness);
+
+        /// <summary>
+        /// Determines whether [is message already answered] [the specified awareness].
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        /// <returns>
+        ///   <c>true</c> if [is message already answered] [the specified awareness]; otherwise, <c>false</c>.
+        /// </returns>
+        bool IsMessageAlreadyAnswered(ReceptionAwareness awareness);
+
+        /// <summary>
+        /// Updates for resend.
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        void UpdateForResend(ReceptionAwareness awareness);
+
+        /// <summary>
+        /// Completes the message.
+        /// </summary>
+        /// <param name="awareness">The awareness.</param>
+        void CompleteReferencedMessage(ReceptionAwareness awareness);
+
+        /// <summary>
+        /// Resets the referenced message.
+        /// </summary>
+        /// <param name="awarenes">The awarenes.</param>
+        void ResetReferencedMessage(ReceptionAwareness awarenes);
     }
 }

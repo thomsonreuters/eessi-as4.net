@@ -35,12 +35,24 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="messageBodyPersister">The message body persister.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyPersister messageBodyPersister, CancellationToken cancellationToken)
+        public async Task DeadletterOutMessageAsync(
+            string messageId,
+            IAS4MessageBodyPersister messageBodyPersister,
+            CancellationToken cancellationToken)
         {
             _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
-            var pmode = _repository.RetrieveSendingPModeForOutMessage(messageId);
-            Error errorMessage = CreateError(messageId);
 
+            InMessage inMessage = await CreateErrorInMessage(messageId, messageBodyPersister, cancellationToken);
+            _repository.InsertInMessage(inMessage);
+        }
+
+        private async Task<InMessage> CreateErrorInMessage(
+            string messageId,
+            IAS4MessageBodyPersister messageBodyPersister,
+            CancellationToken cancellationToken)
+        {
+            SendingProcessingMode pmode = _repository.RetrieveSendingPModeForOutMessage(messageId);
+            Error errorMessage = CreateError(messageId);
             AS4Message as4Message = CreateAS4Message(errorMessage, pmode);
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
@@ -49,26 +61,26 @@ namespace Eu.EDelivery.AS4.Services
             // (Maybe we should only create the InMessage when notification is enabled ?)
             string location = await messageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
 
-            InMessage inMessage = InMessageBuilder.ForSignalMessage(errorMessage, as4Message)
-                                                  .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
-                                                  .Build(cancellationToken);
+            InMessage inMessage = InMessageBuilder
+                .ForSignalMessage(errorMessage, as4Message)
+                .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
+                .Build(cancellationToken);
+
             inMessage.MessageLocation = location;
 
-            inMessage.Operation = pmode.ErrorHandling.NotifyMessageProducer ? Operation.ToBeNotified : Operation.NotApplicable;
+            inMessage.Operation = pmode.ErrorHandling.NotifyMessageProducer
+                    ? Operation.ToBeNotified
+                    : Operation.NotApplicable;
 
-            _repository.InsertInMessage(inMessage);
+            return inMessage;
         }
 
         private static Error CreateError(string messageId)
         {
-            AS4Exception as4Exception = CreateAS4Exception(messageId);
-
-            var error = new ErrorBuilder()
+            return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
-                .WithAS4Exception(as4Exception)
+                .WithAS4Exception(CreateAS4Exception(messageId))
                 .Build();
-
-            return error;
         }
 
         private static AS4Exception CreateAS4Exception(string messageId)
@@ -82,11 +94,10 @@ namespace Eu.EDelivery.AS4.Services
 
         private static AS4Message CreateAS4Message(SignalMessage errorMessage, SendingProcessingMode pmode)
         {
-            var builder = new AS4MessageBuilder()
+            return new AS4MessageBuilder()
                 .WithSendingPMode(pmode)
-                .WithSignalMessage(errorMessage);
-
-            return builder.Build();
+                .WithSignalMessage(errorMessage)
+                .Build();
         }
 
         /// <summary>
@@ -139,7 +150,8 @@ namespace Eu.EDelivery.AS4.Services
         public void UpdateForResend(ReceptionAwareness awareness)
         {
             string messageId = awareness.InternalMessageId;
-            Logger.Info($"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {awareness.CurrentRetryCount + 1})");
+            Logger.Info(
+                $"[{messageId}] Update datastore so the ebMS message can be resend. (RetryCount = {awareness.CurrentRetryCount + 1})");
 
             _repository.UpdateOutMessage(messageId, m => m.Operation = Operation.ToBeSent);
             UpdateReceptionAwareness(awareness, ReceptionStatus.Pending);
