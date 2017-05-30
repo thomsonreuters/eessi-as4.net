@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         private static List<MessageProperty> CreateMessageProperties()
         {
-            return new List<MessageProperty> {new MessageProperty("Name", "Type", "Value")};
+            return new List<MessageProperty> {new MessageProperty("Name", "Value")};
         }
     }
 }

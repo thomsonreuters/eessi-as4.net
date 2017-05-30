@@ -384,4 +384,13 @@
   <data name="as4_single_payload" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4_single_payload.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="as4_multihop_message" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-multihop-message.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="as4_pullrequest_warning" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4-pullrequest-warning.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="multihopreceipt" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\multihopreceipt.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
 </root>

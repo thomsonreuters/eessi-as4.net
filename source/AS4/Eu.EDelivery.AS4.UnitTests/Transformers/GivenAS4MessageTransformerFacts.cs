@@ -47,6 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 Assert.NotNull(internalMessage);
                 Assert.NotNull(internalMessage.AS4Message);
             }
+            
         }
 
         /// <summary>
@@ -67,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             {
                 // Arrange
                 AS4Message as4Message = CreateAS4MessageWithoutAttachments();
-                as4Message.UserMessages = new[] {new UserMessage("message-id")};
+                as4Message.UserMessages = new[] { new UserMessage("message-id") };
                 MemoryStream memoryStream = as4Message.ToStream();
 
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
@@ -133,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static Attachment CreateAttachment()
         {
-            var attachment = new Attachment("attachment-id") {Content = new MemoryStream(), ContentType = "application/xml"};
+            var attachment = new Attachment("attachment-id") { Content = new MemoryStream(), ContentType = "application/xml" };
 
             var xmlSerializer = new XmlSerializer(typeof(string));
             xmlSerializer.Serialize(attachment.Content, "<?xml version=\"1.0\"?><Root></Root>");
@@ -146,6 +147,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             var transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
             return await transformer.TransformAsync(message, CancellationToken.None);
-        } 
+        }
     }
 }

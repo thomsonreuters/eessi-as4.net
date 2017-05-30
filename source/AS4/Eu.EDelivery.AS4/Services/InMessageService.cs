@@ -276,6 +276,8 @@ namespace Eu.EDelivery.AS4.Services
 
             if (Logger.IsWarnEnabled)
             {
+                Logger.Warn("Details of the received Error:");
+
                 var errorSignalMessage = signalMessage as Error;
 
                 if (errorSignalMessage != null)

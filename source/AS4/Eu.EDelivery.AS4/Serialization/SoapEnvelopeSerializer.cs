@@ -13,7 +13,6 @@ using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Singletons;
@@ -94,7 +93,9 @@ namespace Eu.EDelivery.AS4.Serialization
                 messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
             }
 
-            if (IsMultiHop(message.SendingPMode))
+            // We need to check the Sending PMode as well, since when serializing
+            // an AS4 UserMessage that is sent, we need to check the PMode.
+            if (message.IsMultiHopMessage || (message.SendingPMode?.MessagePackaging.IsMultiHop ?? false))
             {
                 messagingHeader.role = Constants.Namespaces.EbmsNextMsh;
                 messagingHeader.mustUnderstand1 = true;
@@ -102,11 +103,6 @@ namespace Eu.EDelivery.AS4.Serialization
             }
 
             return messagingHeader;
-        }
-
-        private static bool IsMultiHop(SendingProcessingMode pmode)
-        {
-            return pmode?.MessagePackaging.IsMultiHop == true;
         }
 
         private static XmlNode GetSecurityHeader(AS4Message message)
@@ -121,13 +117,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
-            // TODO: i'd like to see this refactored.
-            // AS4Message could have a property 'IsMultihop', and based on that, the
-            // correct multihop-headers could be set.
-
-            // If the AS4Message is a signalmessage, check if the related usermessage
-            // was a multihop.
-            if (!IsMultiHop(as4Message.SendingPMode) || !as4Message.IsSignalMessage)
+            if (as4Message.IsSignalMessage == false || as4Message.PrimarySignalMessage.MultiHopRouting == null)
             {
                 return;
             }
@@ -140,7 +130,13 @@ namespace Eu.EDelivery.AS4.Serialization
 
             var routingInput = new RoutingInput
             {
-                UserMessage = AS4Mapper.Map<RoutingInputUserMessage>(as4Message.PrimarySignalMessage.RelatedUserMessage)
+                UserMessage = as4Message.PrimarySignalMessage.MultiHopRouting,
+
+                mustUnderstand = false,
+                mustUnderstandSpecified = true,
+
+                IsReferenceParameter = true,
+                IsReferenceParameterSpecified = true
             };
 
             builder.SetRoutingInput(routingInput);
@@ -185,6 +181,20 @@ namespace Eu.EDelivery.AS4.Serialization
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         DeserializeEnvelope(envelopeDocument, as4Message, reader);
+                    }
+                }
+
+                var routingInput = envelopeDocument.SelectSingleNode(@"//*[local-name()='RoutingInput']");
+
+                if (routingInput != null)
+                {
+                    var routing = AS4XmlSerializer.FromString<RoutingInput>(routingInput.OuterXml);
+                    if (routing != null)
+                    {
+                        if (as4Message.PrimarySignalMessage != null)
+                        {
+                            as4Message.PrimarySignalMessage.MultiHopRouting = routing.UserMessage;
+                        }
                     }
                 }
 
