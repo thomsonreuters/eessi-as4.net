@@ -1,7 +1,6 @@
 ﻿using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
-using SimpleHttpMock;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Validators
@@ -16,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [InlineData(128, 128)]
         [InlineData(192, 192)]
         [InlineData(256, 256)]
-        [InlineData(200, 256)]
+        [InlineData(200, 128)]
         public void ValidSendingPMode_IfKeySizeIs(int beforeKeySize, int afterKeySize)
         {
             // Arrange
