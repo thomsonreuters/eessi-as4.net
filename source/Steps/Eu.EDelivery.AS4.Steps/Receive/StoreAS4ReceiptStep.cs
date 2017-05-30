@@ -14,22 +14,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class StoreAS4ReceiptStep : IStep
     {
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IAS4MessageBodyPersister _messageBodyPersister;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class.
         /// </summary>
-        public StoreAS4ReceiptStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister)
-        {
-        }
+        public StoreAS4ReceiptStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep"/> class
+        /// Initializes a new instance of the <see cref="StoreAS4ReceiptStep" /> class
         /// </summary>
+        /// <param name="messageBodyPersister">The message body persister.</param>
         public StoreAS4ReceiptStep(IAS4MessageBodyPersister messageBodyPersister)
         {
-            _logger = LogManager.GetCurrentClassLogger();
             _messageBodyPersister = messageBodyPersister;
         }
 
@@ -54,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-                _logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
+                Logger.Info($"{internalMessage.Prefix} Store AS4 Receipt into the Datastore");
             }
 
             return await StepResult.SuccessAsync(internalMessage);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Strategies.Uploader;
 using Xunit;
 
@@ -34,6 +35,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
 
             // Assert
             Assert.Equal(expectedUploader, actualUploader);
+        }
+
+        [Fact]
+        public void FailsToGetUploader_IfNotUploaderIsRegisteredForType()
+        {
+            // Arrange
+            var sut = new AttachmentUploaderProvider();
+
+            // Act / Assert
+            Assert.ThrowsAny<Exception>(() => sut.Get("not exsising key"));
         }
     }
 }

@@ -18,18 +18,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     public class SendDeliverMessageStep : IStep
     {
         private readonly IDeliverSenderProvider _provider;
-        private readonly ILogger _logger;
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private InternalMessage _internalMessage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// </summary>
-        public SendDeliverMessageStep()
-        {
-            _provider = Registry.Instance.DeliverSenderProvider;
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        public SendDeliverMessageStep() : this(Registry.Instance.DeliverSenderProvider) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
@@ -40,7 +36,6 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public SendDeliverMessageStep(IDeliverSenderProvider provider)
         {
             _provider = provider;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
