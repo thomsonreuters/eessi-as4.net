@@ -122,10 +122,9 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-
                 Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
 
-                listener.Start();               
+                listener.Start();
             }
             catch (HttpListenerException exception)
             {
