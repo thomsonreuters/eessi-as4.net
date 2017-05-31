@@ -122,8 +122,10 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
+
                 Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
-                listener.Start();
+
+                listener.Start();               
             }
             catch (HttpListenerException exception)
             {
@@ -613,17 +615,29 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <param name="response"></param>
             protected override async Task ExecuteResultAsyncCore(HttpListenerResponse response)
             {
-                using (Stream responseStream = response.OutputStream)
+                try
                 {
-                    if (_internalMessage.AS4Message?.IsEmpty == false)
+                    using (Stream responseStream = response.OutputStream)
                     {
-                        ISerializer serializer = SerializerProvider.Get(_internalMessage.AS4Message.ContentType);
+                        if (_internalMessage.AS4Message?.IsEmpty == false)
+                        {
+                            ISerializer serializer = SerializerProvider.Get(_internalMessage.AS4Message.ContentType);
 
-                        await serializer.SerializeAsync(
-                            _internalMessage.AS4Message,
-                            responseStream,
-                            CancellationToken.None).ConfigureAwait(false);
+                            await serializer.SerializeAsync(
+                                _internalMessage.AS4Message,
+                                responseStream,
+                                CancellationToken.None).ConfigureAwait(false);
+                        }
                     }
+                }
+                catch (Exception exception)
+                {
+                    Logger.Error($"An error occured while writing the Response to the ResponseStream: {exception.Message}");
+                    if (Logger.IsTraceEnabled)
+                    {
+                        Logger.Trace(exception.StackTrace);
+                    }                    
+                    throw;
                 }
             }
         }
