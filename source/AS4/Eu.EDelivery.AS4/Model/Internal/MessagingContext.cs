@@ -197,11 +197,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <returns></returns>
         public MessagingContext CloneWith(AS4Message as4Message)
         {
-            return new MessagingContext(as4Message)
-            {
-                SendingPMode = SendingPMode,
-                ReceivingPMode = ReceivingPMode
-            };
+            return CopyContextInfoTo(new MessagingContext(as4Message));
         }
 
         /// <summary>
@@ -211,11 +207,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <returns></returns>
         public MessagingContext CloneWith(DeliverMessageEnvelope deliverMessage)
         {
-            return new MessagingContext(deliverMessage)
-            {
-                SendingPMode = SendingPMode,
-                ReceivingPMode = ReceivingPMode
-            };
+            return CopyContextInfoTo(new MessagingContext(deliverMessage));
         }
 
         /// <summary>
@@ -225,11 +217,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <returns></returns>
         public MessagingContext CloneWith(NotifyMessageEnvelope notifyMessage)
         {
-            return new MessagingContext(notifyMessage)
-            {
-                SendingPMode = SendingPMode,
-                ReceivingPMode = ReceivingPMode
-            };
+            return CopyContextInfoTo(new MessagingContext(notifyMessage));
+        }
+
+        private MessagingContext CopyContextInfoTo(MessagingContext context)
+        {
+            context.SendingPMode = SendingPMode;
+            context.ReceivingPMode = ReceivingPMode;
+
+            return context;
         }
 
         /// <summary>
