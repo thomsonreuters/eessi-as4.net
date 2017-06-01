@@ -29,14 +29,14 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         }
 
         /// <summary>
-        /// Fors the internal message.
+        /// For a given <paramref name="messageUnit"/>.
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
-        /// <param name="message">The message.</param>
+        /// <param name="context">The messaging context.</param>
         /// <returns></returns>
-        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, MessagingContext message)
+        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, MessagingContext context)
         {
-            return new OutMessageBuilder(messageUnit, message);
+            return new OutMessageBuilder(messageUnit, context);
         }
 
         /// <summary>
