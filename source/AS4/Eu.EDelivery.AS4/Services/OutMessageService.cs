@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private static OutMessage CreateOutMessageForMessageUnit(MessageUnit messageUnit, MessagingContext message, string location, Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForInternalMessage(messageUnit, message)
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, message)
                                                      .Build(CancellationToken.None);
 
             outMessage.MessageLocation = location;

@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public static OutMessageBuilder ForInternalMessage(MessageUnit messageUnit, MessagingContext message)
+        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, MessagingContext message)
         {
             return new OutMessageBuilder(messageUnit, message);
         }
