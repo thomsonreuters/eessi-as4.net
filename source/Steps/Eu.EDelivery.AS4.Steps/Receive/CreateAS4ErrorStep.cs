@@ -10,12 +10,16 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
+using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Xml;
 using NLog;
+using Error = Eu.EDelivery.AS4.Model.Core.Error;
+using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
     /// <summary>
-    /// Create an <see cref="Error"/> 
+    /// Create an <see cref="Model.Core.Error"/> 
     /// from a given <see cref="AS4Exception"/>
     /// </summary>
     public class CreateAS4ErrorStep : IStep
@@ -43,12 +47,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         }
 
         /// <summary>
-        /// Start creating <see cref="Error"/>
+        /// Start creating <see cref="Model.Core.Error"/>
         /// </summary>
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             if (ShouldCreateError(messagingContext) == false)
@@ -104,12 +108,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static Error CreateError(AS4Exception exception, string userMessageId, MessagingContext originalAS4Message)
         {
-            return new ErrorBuilder()
+            Error error = new ErrorBuilder()
                 .WithRefToEbmsMessageId(userMessageId)
-                .WithOriginalMessage(originalAS4Message)
                 .WithAS4Exception(exception)
                 .Build();
-        }
 
+            if (originalAS4Message.SendingPMode?.MessagePackaging.IsMultiHop == true)
+            {
+                error.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(originalAS4Message.AS4Message?.PrimaryUserMessage);
+            }
+
+            return error;
+        }
     }
 }

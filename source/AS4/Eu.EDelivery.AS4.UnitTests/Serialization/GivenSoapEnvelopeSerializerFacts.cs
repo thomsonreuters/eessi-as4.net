@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
@@ -217,10 +218,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static AS4Message CreateReferencedError(MessagingContext expectedContext)
             {
-                Error errorSignal = 
-                    new ErrorBuilder().WithOriginalMessage(expectedContext)
-                                      .WithRefToEbmsMessageId(expectedContext.AS4Message.PrimaryUserMessage.MessageId)
+                Error errorSignal =
+                    new ErrorBuilder().WithRefToEbmsMessageId(expectedContext.AS4Message.PrimaryUserMessage.MessageId)
                                       .Build();
+
+                if (expectedContext.SendingPMode?.MessagePackaging.IsMultiHop == true)
+                {
+                    errorSignal.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(expectedContext.AS4Message?.PrimaryUserMessage);
+                }
 
                 return new AS4MessageBuilder().WithSignalMessage(errorSignal).Build();
             }
