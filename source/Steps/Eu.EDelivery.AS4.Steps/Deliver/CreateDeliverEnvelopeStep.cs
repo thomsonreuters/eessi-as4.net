@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Validators;
@@ -50,18 +51,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 "application/xml");
         }
 
-        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, MessagingContext message)
+        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, MessagingContext context)
         {
             var deliverMessage = AS4Mapper.Map<DeliverMessage>(userMessage);
-            AssignSendingPModeId(message, deliverMessage);
-            AssignAttachmentLocations(message.AS4Message, deliverMessage);
+            AssignPModeIdToDeliverMessage(context.SendingPMode, deliverMessage);
+            AssignAttachmentLocations(context.AS4Message, deliverMessage);
 
             return deliverMessage;
         }
 
-        private static void AssignSendingPModeId(MessagingContext message, DeliverMessage deliverMessage)
+        private static void AssignPModeIdToDeliverMessage(IPMode pmode, DeliverMessage deliverMessage)
         {
-            deliverMessage.CollaborationInfo.AgreementRef.PModeId = message.SendingPMode?.Id ?? string.Empty;
+            deliverMessage.CollaborationInfo.AgreementRef.PModeId = pmode?.Id ?? string.Empty;
         }
 
         private static void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)
