@@ -118,20 +118,12 @@ namespace Eu.EDelivery.AS4.Services
 
             if (as4Message.UserMessages.Any())
             {
-                await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
-            }
+                await as4MessageBodyPersister.UpdateAS4MessageAsync(
+                    inMessage.MessageLocation,
+                    as4Message,
+                    cancellationToken);
 
-            foreach (var userMessage in as4Message.UserMessages)
-            {
-                _repository.UpdateInMessage(userMessage.MessageId, message =>
-                {
-                    message.PMode = messagingContext.GetReceivingPModeString();
-                    if (UserMessageNeedsToBeDelivered(messagingContext.ReceivingPMode, userMessage))
-                    {
-                        message.Operation = Operation.ToBeDelivered;
-                    }
-                }
-                );
+                UpdateUserMessagesForDeliveryAndNotification(messagingContext);
             }
 
             // Improvement: I think it will be safer if we retrieve the sending-pmodes of the related usermessages ourselves here
@@ -157,6 +149,42 @@ namespace Eu.EDelivery.AS4.Services
                 }
 
             }
+        }
+
+        private void UpdateUserMessagesForDeliveryAndNotification(MessagingContext messagingContext)
+        {
+            string receivingPModeString = messagingContext.GetReceivingPModeString();
+
+            bool userMessageNeedsToBeDelivered = UserMessageNeedsToBeDelivered(
+                messagingContext.ReceivingPMode,
+                messagingContext.AS4Message.PrimaryUserMessage);
+
+            Action<InMessage> updateOperation = NeedsToBeDeliveredIf()(userMessageNeedsToBeDelivered);
+
+            foreach (UserMessage userMessage in messagingContext.AS4Message.UserMessages)
+            {
+                _repository.UpdateInMessage(
+                    userMessage.MessageId,
+                    message =>
+                    {
+                        message.PMode = receivingPModeString;
+                        updateOperation(message);
+                    });
+            }
+        }
+
+        private static Func<bool, Action<InMessage>> NeedsToBeDeliveredIf()
+        {
+            return needsToBeNotified =>
+            {
+                return m =>
+                {
+                    if (needsToBeNotified)
+                    {
+                        m.Operation = Operation.ToBeDelivered;
+                    }
+                };
+            };
         }
 
         #region UserMessage related
