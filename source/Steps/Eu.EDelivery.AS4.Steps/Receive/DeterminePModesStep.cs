@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 var repository = new DatastoreRepository(context);
 
-                SendPMode pmode = repository.FirstOrDefaultOutMessage(
+                SendPMode pmode = repository.GetOutMessageData(
                     _as4Message.PrimarySignalMessage.RefToMessageId,
                     m => AS4XmlSerializer.FromString<SendPMode>(m.PMode));
 

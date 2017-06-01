@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Services
 
         public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
         {
-            string messageLocation = _repository.FirstOrDefaultInMessage(as4Message.GetPrimaryMessageId(), m => m.MessageLocation);
+            string messageLocation = _repository.GetInMessageData(as4Message.GetPrimaryMessageId(), m => m.MessageLocation);
 
             if (messageLocation == null)
             {

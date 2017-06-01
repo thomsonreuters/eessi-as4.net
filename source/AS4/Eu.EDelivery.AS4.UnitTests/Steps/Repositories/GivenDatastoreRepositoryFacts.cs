@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                     var repository = new DatastoreRepository(context);
 
                     // Act
-                    Operation actual = repository.FirstOrDefaultOutMessage(sharedId, m => m.Operation);
+                    Operation actual = repository.GetOutMessageData(sharedId, m => m.Operation);
 
                     // Assert
                     Assert.Equal(expected, actual);
@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 InsertInMessage(messageId, m => m.MessageLocation = expected);
 
                 // Act
-                string actual = ExerciseRepository(sut => sut.FirstOrDefaultInMessage(messageId, m => m.MessageLocation));
+                string actual = ExerciseRepository(sut => sut.GetInMessageData(messageId, m => m.MessageLocation));
 
                 // Assert
                 Assert.Equal(expected, actual);

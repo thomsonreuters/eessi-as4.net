@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId"></param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public TResult FirstOrDefaultInMessage<TResult>(string messageId, Func<InMessage, TResult> selection)
+        public TResult GetInMessageData<TResult>(string messageId, Func<InMessage, TResult> selection)
         {
             return
                 _dbContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId">The message identifier.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        public TResult FirstOrDefaultOutMessage<TResult>(string messageId, Func<OutMessage, TResult> selection)
+        public TResult GetOutMessageData<TResult>(string messageId, Func<OutMessage, TResult> selection)
         {
             return
                 _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();

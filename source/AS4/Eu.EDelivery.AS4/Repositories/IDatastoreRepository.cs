@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        TResult FirstOrDefaultInMessage<TResult>(string messageId, Func<InMessage, TResult> selection);
+        TResult GetInMessageData<TResult>(string messageId, Func<InMessage, TResult> selection);
 
         /// <summary>
         /// Firsts the or default out message.
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId">The message identifier.</param>
         /// <param name="selection">The selection.</param>
         /// <returns></returns>
-        TResult FirstOrDefaultOutMessage<TResult>(string messageId, Func<OutMessage, TResult> selection);
+        TResult GetOutMessageData<TResult>(string messageId, Func<OutMessage, TResult> selection);
 
         /// <summary>
         /// Inserts the in message.

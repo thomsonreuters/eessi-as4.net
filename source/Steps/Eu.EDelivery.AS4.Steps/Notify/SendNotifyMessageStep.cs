@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 var repository = new DatastoreRepository(context);
                 string messageId = internalMessage.AS4Message.PrimarySignalMessage.RefToMessageId;
 
-                return repository.FirstOrDefaultOutMessage(
+                return repository.GetOutMessageData(
                     messageId,
                     m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
             }

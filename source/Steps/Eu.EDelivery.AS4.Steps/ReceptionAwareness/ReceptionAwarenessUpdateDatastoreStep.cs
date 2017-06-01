@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             DateTimeOffset deadlineForResend = _receptionAwareness.LastSendTime.Add(retryInterval);
 
             bool isReferencedOutMessageNotBeingSent =
-                repository.FirstOrDefaultOutMessage(_receptionAwareness.InternalMessageId, m => m.Operation)
+                repository.GetOutMessageData(_receptionAwareness.InternalMessageId, m => m.Operation)
                 != Operation.Sending;
 
             return

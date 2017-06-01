@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
 
-            SendingProcessingMode pmode = _repository.FirstOrDefaultOutMessage(
+            SendingProcessingMode pmode = _repository.GetOutMessageData(
                 messageId: messageId,
                 selection: m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
 
