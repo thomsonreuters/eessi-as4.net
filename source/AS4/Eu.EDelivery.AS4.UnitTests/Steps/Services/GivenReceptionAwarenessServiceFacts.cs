@@ -105,14 +105,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             }
         }
 
-        public class CompleteMessage
+        public class ModifyStatus
         {
             [Fact]
             public void CompletesReferecedMessage()
             {
                 // Arrange
                 var mockStore = new Mock<IDatastoreRepository>();
-                var actual = new AS4.Entities.ReceptionAwareness {InternalMessageId = "message-id"};
+                var actual = new AS4.Entities.ReceptionAwareness {InternalMessageId = "message-id", Status = ReceptionStatus.Busy};
 
                 mockStore.Setup(
                             s =>
@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                              });
 
                 // Act
-                ExerciseService(mockStore.Object, s => s.CompleteReferencedMessage(actual));
+                ExerciseService(mockStore.Object, s => s.MarkReferencedMessageAsComplete(actual));
 
                 // Assert
                 Assert.Equal(ReceptionStatus.Completed, actual.Status);
@@ -153,7 +153,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                                   });
 
                 // Act
-                ExerciseService(mockRepository.Object, s => s.UpdateForResend(awareness));
+                ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
                 Assert.Equal(Operation.ToBeSent, actual.Operation);
@@ -183,7 +183,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                                   });
 
                 // Act
-                ExerciseService(mockRepository.Object, s => s.UpdateForResend(awareness));
+                ExerciseService(mockRepository.Object, s => s.MarkReferencedMessageForResend(awareness));
 
                 // Assert
                 Assert.Equal(ReceptionStatus.Pending, awareness.Status);

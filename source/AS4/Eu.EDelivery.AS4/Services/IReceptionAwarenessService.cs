@@ -36,13 +36,13 @@ namespace Eu.EDelivery.AS4.Services
         /// Updates for resend.
         /// </summary>
         /// <param name="awareness">The awareness.</param>
-        void UpdateForResend(ReceptionAwareness awareness);
+        void MarkReferencedMessageForResend(ReceptionAwareness awareness);
 
         /// <summary>
         /// Completes the message.
         /// </summary>
         /// <param name="awareness">The awareness.</param>
-        void CompleteReferencedMessage(ReceptionAwareness awareness);
+        void MarkReferencedMessageAsComplete(ReceptionAwareness awareness);
 
         /// <summary>
         /// Resets the referenced message.

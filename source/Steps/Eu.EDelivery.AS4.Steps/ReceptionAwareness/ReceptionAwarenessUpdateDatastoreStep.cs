@@ -66,13 +66,13 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         {
             if (service.IsMessageAlreadyAnswered(receptionAwareness))
             {
-                service.CompleteReferencedMessage(receptionAwareness);
+                service.MarkReferencedMessageAsComplete(receptionAwareness);
             }
             else
             {
                 if (service.MessageNeedsToBeResend(receptionAwareness))
                 {
-                    service.UpdateForResend(receptionAwareness);
+                    service.MarkReferencedMessageForResend(receptionAwareness);
                 }
                 else
                 {
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
                     {
                         Logger.Debug("Message is unanswered.");
 
-                        service.CompleteReferencedMessage(receptionAwareness);
+                        service.MarkReferencedMessageAsComplete(receptionAwareness);
 
                         await service.DeadletterOutMessageAsync(
                             messageId: receptionAwareness.InternalMessageId,

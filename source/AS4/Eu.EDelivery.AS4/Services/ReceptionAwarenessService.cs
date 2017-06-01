@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.Services
         /// Completes the message.
         /// </summary>
         /// <param name="awareness">The awareness.</param>
-        public void CompleteReferencedMessage(ReceptionAwareness awareness)
+        public void MarkReferencedMessageAsComplete(ReceptionAwareness awareness)
         {
             Logger.Debug("Message has been answered, marking as complete");
             Logger.Info($"[{awareness.InternalMessageId}] Reception Awareness completed");
@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.Services
         /// Updates for resend.
         /// </summary>
         /// <param name="awareness">The awareness.</param>
-        public void UpdateForResend(ReceptionAwareness awareness)
+        public void MarkReferencedMessageForResend(ReceptionAwareness awareness)
         {
             string messageId = awareness.InternalMessageId;
             Logger.Info(
@@ -163,6 +163,8 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="awarenes">The awarenes.</param>
         public void ResetReferencedMessage(ReceptionAwareness awarenes)
         {
+            Logger.Info($"[{awarenes.InternalMessageId}] Modify Reception Awareness Status");
+
             UpdateReceptionAwareness(awarenes, ReceptionStatus.Pending);
         }
 
