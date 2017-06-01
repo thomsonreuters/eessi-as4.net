@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Validators
 
         private static bool RuleForPayloadDirectProperties(Payload i)
         {
-            return i.Id != null && i.Location != null /*&& i.MimeType != null*/;
+            return i.Id != null && i.Location != null;
         }
 
         private static bool RuleForPayloadSchemas(Payload i)
