@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
 
             [Fact]
-            public async Task ReturnsEmptyMessageFromError_IfReceivePModeIsCallback()
+            public async Task ReturnsEmptyMessageFromInvalidMessage_IfReceivePModeIsCallback()
             {
                 // Arrange
                 HttpRequestMessage request = WrongEncryptedAS4Message();
