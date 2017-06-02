@@ -538,11 +538,11 @@
     <Compile Include="Utilities\FilenameSanitizer.cs" />
     <Compile Include="Streaming\VirtualStream.cs" />
     <Compile Include="Validators\DeliverMessageValidator.cs" />
-    <Compile Include="Validators\IValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
     <Compile Include="Validators\ReceivingProcessingModeValidator.cs" />
     <Compile Include="Validators\SendingProcessingModeValidator.cs" />
     <Compile Include="Validators\SubmitMessageValidator.cs" />
+    <Compile Include="Validators\ValidationResultExtension.cs" />
     <Compile Include="Watchers\PModeWatcher.cs" />
     <Compile Include="Xml\Generated.cs" />
     <Compile Include="Xml\MessagePartNRInformation.cs" />
