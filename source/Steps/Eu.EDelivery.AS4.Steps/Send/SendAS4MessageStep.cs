@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (internalMessage.AS4Message.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateMessageStatus(_originalAS4Message, Operation.Undetermined, OutStatus.Exception);               
+                UpdateMessageStatus(_originalAS4Message, Operation.Undetermined, OutStatus.Exception);
             }
 
             AS4Exception as4Exception = CreateFailedSendAS4Exception(internalMessage, exception);
@@ -241,8 +241,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task<StepResult> HandleAS4Response(InternalMessage originalMessage, WebResponse webResponse, CancellationToken cancellation)
         {
-            AS4Response as4Response = await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation);
-            return await _responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
+            using (AS4Response as4Response = await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation))
+            {
+                return await _responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
+            }
         }
 
         protected AS4Exception CreateFailedSendAS4Exception(InternalMessage internalMessage, Exception exception)
