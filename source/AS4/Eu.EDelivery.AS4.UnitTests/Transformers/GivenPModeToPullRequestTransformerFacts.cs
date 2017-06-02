@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -8,9 +8,11 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
+using Eu.EDelivery.AS4.UnitTests.Model.Internal;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Moq;
 using Xunit;
+using Xunit.Extensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -19,8 +21,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenPModeToPullRequestTransformerFacts
     {
+        /// <summary>
+        /// Gets the received message source.
+        /// </summary>
+        /// <value>
+        /// The received message source.
+        /// </value>
+        public static IEnumerable<object[]> ReceivedMessageSource
+        {
+            get
+            {
+                yield return new object[] { new ReceivedMessage(requestStream: null) };
+
+                SendingProcessingMode invalidSendingPMode = new ValidSendingPModeFactory().Create("my id");
+                invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;
+                invalidSendingPMode.PushConfiguration = new PushConfiguration();
+                invalidSendingPMode.PullConfiguration = null;
+
+                yield return new object[] { new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
+                yield return new object[] { new SaboteurReceivedMessage() };
+            }
+        }
+
         [Theory]
-        [ClassData(typeof(ReceivedPullMessageSource))]
+        [MemberData(nameof(ReceivedMessageSource))]
         public async Task FailsWithNoPullConfigurationSection(ReceivedMessage receivedMessage)
         {
             // Arrange
@@ -59,41 +83,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             expectedSendingPMode.PullConfiguration.Mpc = expectedMpc;
 
             return expectedSendingPMode;
-        }
-
-        /// <summary>
-        /// Source of different <see cref="ReceivedMessage"/> instances.
-        /// </summary>
-        private class ReceivedPullMessageSource : IEnumerable<object[]>
-        {
-            /// <summary>
-            /// Returns an enumerator that iterates through a collection.
-            /// </summary>
-            /// <returns>An <see cref="T:System.Collections.IEnumerator" /> object that can be used to iterate through the collection.</returns>
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            /// <summary>
-            /// Returns an enumerator that iterates through the collection.
-            /// </summary>
-            /// <returns>An enumerator that can be used to iterate through the collection.</returns>
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                yield return new object[] {new ReceivedMessage(requestStream: null)};
-
-                SendingProcessingMode invalidSendingPMode = new ValidSendingPModeFactory().Create("my id");
-                invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;                
-                invalidSendingPMode.PushConfiguration = new PushConfiguration();
-                invalidSendingPMode.PullConfiguration = null;
-                
-                yield return new object[] {new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
-
-                var message = new Mock<ReceivedMessage>();
-                message.Setup(m => m.AssignPropertiesTo(It.IsAny<AS4Message>())).Throws<Exception>();
-                yield return new object[] {message.Object};
-            }
         }
     }
 }

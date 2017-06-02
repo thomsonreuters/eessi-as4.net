@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     /// <see cref="IAS4MessageBodyStore" /> implementation to sabotage the loading of a <see cref="Stream" /> at a given
     /// location.
     /// </summary>
-    public class SaboteurMessageBodyRetriever : IAS4MessageBodyStore
+    public class SaboteurMessageBodyStore : IAS4MessageBodyStore
     {
         /// <summary>
         /// Loads a <see cref="T:System.IO.Stream" /> at a given stored <paramref name="location" />.
@@ -57,21 +57,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         [Fact]
         public async Task FailsToLoad()
         {
-            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyRetriever().LoadMessagesBody(null));
+            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().LoadMessagesBody(null));
         }
 
         [Fact]
         public async Task FailsToSave()
         {
             await Assert.ThrowsAnyAsync<Exception>(
-                () => new SaboteurMessageBodyRetriever().SaveAS4MessageAsync(null, null, CancellationToken.None));
+                () => new SaboteurMessageBodyStore().SaveAS4MessageAsync(null, null, CancellationToken.None));
         }
 
         [Fact]
         public async Task FailsToUpdate()
         {
             await Assert.ThrowsAnyAsync<Exception>(
-                () => new SaboteurMessageBodyRetriever().UpdateAS4MessageAsync(null, null, CancellationToken.None));
+                () => new SaboteurMessageBodyStore().UpdateAS4MessageAsync(null, null, CancellationToken.None));
         }
     }
 }

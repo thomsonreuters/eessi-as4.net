@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
-        public class GivenTailResponseHandlerFacts
+        public class GivenTailResponseHandlerFacts : GivenResponseHandlerFacts
         {
             [Fact]
             public async Task ThenHandlerReturnsFixedValue()
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             }
         }
 
-        public class GivenEmptyResponseHandlerFacts
+        public class GivenEmptyResponseHandlerFacts : GivenResponseHandlerFacts
         {
             [Fact]
             public async Task ThenHandlerReturnsSameResultedMessage_IfStatusIsAccepted()
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             }
         }
 
-        public class GivenPullRequestResponseHandlerFacts
+        public class GivenPullRequestResponseHandlerFacts : GivenResponseHandlerFacts
         {
             [Fact]
             public async Task ThenNextHandlerGetsResponse_IfNotOriginatedFromPullRequest()
@@ -178,7 +178,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
         private static IAS4ResponseHandler CreateAnonymousNextHandler()
         {
-            return new StubAS4ResponseHandler();
+            return new TailResponseHandler();
         }
 
         private static AS4Response CreateAnonymousAS4Response()

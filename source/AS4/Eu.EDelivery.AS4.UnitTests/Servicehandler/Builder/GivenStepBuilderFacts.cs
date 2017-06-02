@@ -101,9 +101,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
             [Fact]
             public void ThenBuilderCreatesConditionalStep()
             {
-                var config = CreateSimpleConditationStepConfig();
+                ConditionalStepConfig config = CreateSimpleConditationStepConfig();
 
-                var step = StepBuilder.FromConditionalConfig(config).Build();
+                IStep step = StepBuilder.FromConditionalConfig(config).Build();
 
                 Assert.NotNull(step);
                 Assert.IsType<ConditionalStep>(step);
@@ -111,23 +111,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
 
             private static ConditionalStepConfig CreateSimpleConditationStepConfig()
             {
-                var thenStep = new AS4.Model.Internal.Steps()
+                var thenStep = new AS4.Model.Internal.Steps
                 {
-                    Step = new Step[]
-                    {
-                        new Step() { Type = typeof(DeterminePModesStep).AssemblyQualifiedName }
-                    }
+                    Step = new[] {new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName}}
                 };
 
-                var elseStep = new AS4.Model.Internal.Steps()
+                var elseStep = new AS4.Model.Internal.Steps
                 {
-                    Step = new Step[]
-                    {
-                        new Step() { Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName }
-                    }
+                    Step = new[] {new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName}}
                 };
 
-                return new ConditionalStepConfig(x => String.IsNullOrEmpty(x.Prefix), thenStep, elseStep);
+                return new ConditionalStepConfig(condition: null, thenStepConfig: thenStep, elseStepConfig: elseStep);
             }
         }
     }

@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// <summary>
     /// Create a Stubbed Config for the tests
     /// </summary>
-    public class StubConfig : IConfig
+    public class StubConfig : PseudoConfig
     {
         private static readonly StubConfig Singleton = new StubConfig();
         private IDictionary<string, string> _configuration;
@@ -45,27 +45,46 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             _configuration = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
             {
                 ["IdFormat"] = "{GUID}",
-                ["Provider"] = "Sqlite",
+                ["Provider"] = "InMemory",
                 ["ConnectionString"] = @"Filename=database\messages.db",
                 ["CertificateStore"] = "My"
             };
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubConfig" /> class.
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        public StubConfig(IDictionary<string, string> configuration)
+        {
+            _configuration = configuration;
+        }
+        
         public static IConfig Instance => Singleton;
 
         /// <summary>
         /// Verify if the Configuration is IsInitialized
         /// </summary>
-        public bool IsInitialized => true;
+        public override bool IsInitialized => true;
 
         /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registerd Key for the Setting</param>
         /// <returns></returns>
-        public string GetSetting(string key)
+        public override string GetSetting(string key)
         {
             return _configuration[key];
+        }
+
+        /// <summary>
+        /// Retrieve the PMode from the Global Settings
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public override SendingProcessingMode GetSendingPMode(string id)
+        {
+            return _sendingPModes[id];
         }
 
         /// <summary>
@@ -73,48 +92,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// </summary>
         /// <param name="id">The Sending Processing Mode id for which the verification is done.</param>
         /// <returns></returns>
-        public bool ContainsSendingPMode(string id)
+        public override bool ContainsSendingPMode(string id)
         {
             return _sendingPModes.ContainsKey(id);
-        }
-
-        /// <summary>
-        /// Retrieve the PMode from the Global Settings
-        /// </summary>
-        /// <param name="id"></param>
-        /// <exception cref="Exception"></exception>
-        /// <returns></returns>
-        public SendingProcessingMode GetSendingPMode(string id)
-        {
-            return _sendingPModes[id];
-        }
-
-        /// <summary>
-        /// Initialize Configuration
-        /// </summary>
-        public void Initialize() {}
-
-        /// <summary>
-        /// Return all the Agents from the Settings
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<SettingsAgent> GetSettingsAgents()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Return all the installed Receiving Processing Modes
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<ReceivingProcessingMode> GetReceivingPModes()
-        {
-            return _receivingPmodes.Values;
-        }
-
-        public IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents()
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

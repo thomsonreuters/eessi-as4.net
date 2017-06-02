@@ -112,7 +112,8 @@ namespace Eu.EDelivery.AS4.Services
             if (as4Message.SignalMessages.Any())
             {
                 IEnumerable<string> relatedUserMessageIds = as4Message.SignalMessages.Select(m => m.RefToMessageId);
-                IDictionary<string, bool> duplicateSignalMessages = DetermineDuplicateSignalMessageIds(relatedUserMessageIds);
+
+                IDictionary<string, bool> duplicateSignalMessages = this.DetermineDuplicateSignalMessageIds(relatedUserMessageIds);
 
                 foreach (SignalMessage signalMessage in as4Message.SignalMessages)
                 {

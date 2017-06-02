@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Steps;
 using Microsoft.EntityFrameworkCore;
-using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
@@ -69,43 +67,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         protected Error CreateError()
         {
             return new Error(ErrorMessageId) {RefToMessageId = ErrorMessageId};
-        }
-
-        /// <summary>
-        /// Assert the Datastore for the first <paramref name="signalMessage"/> (as Out Message) with a given <paramref name="status"/>.
-        /// </summary>
-        /// <param name="signalMessage">Signal Message for which the id will be searched.</param>
-        /// <param name="status"><see cref="OutStatus"/> type to assert on the searched message.</param>
-        /// <returns></returns>
-        protected async Task AssertOutMessages(
-            MessageUnit signalMessage,
-            OutStatus status)
-        {
-            using (var context = GetDataStoreContext())
-            {
-                OutMessage outMessage = await context.OutMessages
-                    .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(signalMessage.RefToMessageId));
-
-                Assert.NotNull(outMessage);
-                Assert.Equal(status, outMessage.Status);
-            }
-        }
-
-        /// <summary>
-        /// Assert the Datastore for the first <paramref name="signalMessage"/> (as In Message) that has the <see cref="InStatus.Received"/>.
-        /// </summary>
-        /// <param name="signalMessage">Signal Message for which the id will be searched.</param>
-        /// <returns></returns>
-        protected async Task AssertInMessage(MessageUnit signalMessage)
-        {
-            using (var context = GetDataStoreContext())
-            {
-                InMessage inMessage = await context.InMessages
-                    .FirstOrDefaultAsync(m => m.EbmsMessageId.Equals(signalMessage.MessageId));
-
-                Assert.NotNull(inMessage);
-                Assert.Equal(InStatus.Received, inMessage.Status);
-            }
         }
     }
 }

@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 {
@@ -41,6 +43,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         public Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             throw new System.NotImplementedException();
+        }
+
+        [Fact]
+        public void SpyOnConfigure()
+        {
+            // Arrange
+            var sut = new SpySender();
+
+            // Act
+            sut.Configure(method: null);
+
+            // Assert
+            Assert.True(sut.IsConfigured);
+        }
+
+        [Fact]
+        public async Task Sabotage_Send()
+        {
+            // Arrange
+            var sut = new SpySender();
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(deliverMessage: null));
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(notifyMessage: null));
         }
     }
 }

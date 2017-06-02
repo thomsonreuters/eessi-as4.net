@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
@@ -49,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             public async Task MessageBodyReturnsNullStream_IfNoMessageLocationIsSpecified()
             {
                 // Arrange
-                var sut = new StubMessageEntity {MessageLocation = null};
+                StubMessageEntity sut = CreateMessageEntity(messageLocation: null);
 
                 // Act
                 using (Stream actualStream = await sut.RetrieveMessagesBody(store: null))
@@ -63,9 +64,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             public async Task MessageEntityCatchesInvalidMessageBodyRetrieval()
             {
                 // Arrange
-                var sut = new StubMessageEntity {MessageLocation = "ignored"};
+                StubMessageEntity sut = CreateMessageEntity(messageLocation: "ignored");
                 var stubProvider = new MessageBodyStore();
-                stubProvider.Accept(condition: s => true, persister: new SaboteurMessageBodyRetriever());
+                stubProvider.Accept(condition: s => true, persister: new SaboteurMessageBodyStore());
 
                 // Act
                 using (Stream actualStream = await sut.RetrieveMessagesBody(stubProvider))
@@ -74,8 +75,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                     Assert.Null(actualStream);
                 }
             }
+
+            private static StubMessageEntity CreateMessageEntity(string messageLocation)
+            {
+                return new StubMessageEntity {MessageLocation = messageLocation};
+            }
         }
 
+        [ExcludeFromCodeCoverage]
         private class StubMessageEntity : MessageEntity
         {
             public override string StatusString { get; set; }

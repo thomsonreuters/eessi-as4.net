@@ -33,12 +33,6 @@ namespace Eu.EDelivery.AS4.Transformers
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
             // the one usermessage that should be delivered.
             AS4Message as4Message = await RetrieveAS4Message(entityMessage, cancellationToken);
-
-            if (as4Message.UserMessages.Count != 1)
-            {
-                throw new InvalidOperationException("The AS4Message should contain only one UserMessage.");
-            }
-
             return new InternalMessage(as4Message);
         }
 
@@ -97,10 +91,10 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 Attachment attachment = attachmentCollection[i];
 
-                if (attachments.Exists(a => a.Id.Equals(attachment.Id)) == false)
+                if (attachments.Exists(a => a.Id.Equals(attachment?.Id)) == false)
                 {
                     attachment.Content.Dispose();
-                    attachments.Remove(attachment);
+                    attachmentCollection.Remove(attachment);
                 }
             }
 
@@ -111,7 +105,9 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             return
                 as4Message.PrimaryUserMessage.PayloadInfo.Select(
-                    partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo))).ToList();
+                              partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo)))
+                          .Where(a => a != null)
+                          .ToList();
         }
     }
 }

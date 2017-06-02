@@ -100,6 +100,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 // Act
                 Assert.Throws<ArgumentNullException>(() => _builder.WithSendingPMode(null));
             }
+
+            [Fact]
+            public void Fails_IfInvalidPullRequest()
+            {
+                Assert.ThrowsAny<Exception>(() => _builder.WithPullRequest(mpc: null));
+            }
+
+            [Fact]
+            public void Fails_IfInvalidAttachment()
+            {
+                Assert.ThrowsAny<Exception>(() => _builder.WithAttachment(attachment: null));
+            }
         }
     }
 }

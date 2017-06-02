@@ -24,9 +24,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateDefaultAS4MessageStep" /> class.
         /// </summary>
-        public CreateDefaultAS4MessageStep()
+        public CreateDefaultAS4MessageStep() : this(Config.Instance) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateDefaultAS4MessageStep" /> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        public CreateDefaultAS4MessageStep(IConfig config)
         {
-            _config = Config.Instance;
+            _config = config;
         }
 
         /// <summary>
