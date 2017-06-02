@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 if (!_configuration.ContainsSendingPMode(setting.Key))
                 {
                     Logger.Warn(
-                        "Sending Processing Mode with Id: {settings.Key} is not correctly retrieved from the Local Configuration");
+                        $"Sending Processing Mode with Id: {setting.Key} is not correctly retrieved from the Local Configuration");
 
                     continue;
                 }

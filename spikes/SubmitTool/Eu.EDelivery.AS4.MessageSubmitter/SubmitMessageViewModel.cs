@@ -25,6 +25,15 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
 
     internal class PayloadInfoViewModel
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PayloadInfoViewModel"/> class.
+        /// </summary>
+        public PayloadInfoViewModel()
+        {
+                
+        }
+
         public string FileName { get; set; }
+        public bool IncludeSEDPartType { get; set; }
     }
 }

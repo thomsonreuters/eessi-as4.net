@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             IsEnabled = false;
             Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             KeyTransport = new KeyEncryption();
-            AlgorithmKeySize = 256;
+            AlgorithmKeySize = 128;
         }
 
         public bool IsEnabled { get; set; }

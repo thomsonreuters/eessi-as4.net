@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>eessi-pull-send-pmode</Id>
+  <Mep>OneWay</Mep>
+  <MepBinding>Pull</MepBinding>
+  <PullConfiguration>
+    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/[Add your Institution's PULL endpoint here]</Mpc>
+    <Protocol>
+      <Url>[Add the URL of the AP Inbox Service here]</Url>
+    </Protocol>
+    <TlsConfiguration>
+      <IsEnabled>true</IsEnabled>
+      <TlsVersion>Tls12</TlsVersion>
+      <ClientCertificateReference>
+        <ClientCertificateFindValue>[Add the serial number of your Institution's TLS client certificate here]</ClientCertificateFindValue>
+        <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
+      </ClientCertificateReference>
+    </TlsConfiguration>
+  </PullConfiguration>
+   <Security>
+    <Signing>
+      <IsEnabled>true</IsEnabled>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <PrivateKeyFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </Signing>
+  </Security>
+  </PMode>

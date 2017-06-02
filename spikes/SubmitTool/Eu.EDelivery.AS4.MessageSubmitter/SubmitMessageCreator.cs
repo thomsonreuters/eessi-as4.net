@@ -34,29 +34,39 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
 
             for (int i = 0; i < submitInfo.NumberOfSubmitMessages; i++)
             {
-                var submitMessage = new SubmitMessage { MessageInfo = { MessageId = Guid.NewGuid().ToString() } };
+                var submitMessage = new SubmitMessage { MessageInfo = { MessageId = $"{Guid.NewGuid().ToString()}@{Environment.MachineName}" } };
                 submitMessage.Collaboration.AgreementRef.PModeId = submitInfo.SendingPMode.Id;
 
                 var originalSenderProperty = new MessageProperty("originalSender",
-                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Type,
                                                                  submitInfo.SendingPMode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Id);
 
                 var finalRecipientProperty = new MessageProperty("finalRecipient",
-                                                                 submitInfo.SendingPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Type,
                                                                  submitInfo.SendingPMode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Id);
 
-                submitMessage.MessageProperties = new[] {originalSenderProperty, finalRecipientProperty};
+                submitMessage.MessageProperties = new[] { originalSenderProperty, finalRecipientProperty };
 
                 var payloads = new List<Payload>();
 
                 foreach (var payloadInfo in submitInfo.PayloadInformation)
                 {
-                    payloads.Add(new Payload
+                    var messagePayload = new Payload
                     {
                         Id = CreatePayloadId(payloadInfo, submitMessage.MessageInfo.MessageId),
                         Location = $"file:///{payloadInfo.FileName}",
                         MimeType = MimeMapping.GetMimeMapping(Path.GetFileName(payloadInfo.FileName))
-                    });
+                    };
+
+                    if (messagePayload.MimeType.Equals("text/xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        messagePayload.MimeType = "application/xml";
+                    }
+
+                    if (payloadInfo.IncludeSEDPartType)
+                    {
+                        messagePayload.PayloadProperties = new[] { new PayloadProperty("PartType") { Value = "SED" }, };
+                    }
+
+                    payloads.Add(messagePayload);
                 }
 
                 submitMessage.Payloads = payloads.ToArray();

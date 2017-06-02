@@ -1,15 +1,18 @@
-﻿using System;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace Eu.EDelivery.AS4.Xml
 {
     /// <summary>
     /// Adding Concrete information to the Receipt
     /// </summary>
-    [XmlRoot(Namespace = "http://docs.oasis-open.org/ebxml-bp/ebbp-signals-2.0", IsNullable = false)]    
+    [XmlRoot(Namespace = Constants.Namespaces.EbmsXmlSignals, IsNullable = false)]
     public partial class Receipt
     {
+        [XmlElement(Namespace = Constants.Namespaces.EbmsXmlSignals)]
         public UserMessage UserMessage { get; set; }
+
+        [XmlElement(Namespace = Constants.Namespaces.EbmsXmlSignals)]
         public NonRepudiationInformation NonRepudiationInformation { get; set; }
+
     }
 }

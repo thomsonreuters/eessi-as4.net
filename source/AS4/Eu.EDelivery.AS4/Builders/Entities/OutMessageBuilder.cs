@@ -72,14 +72,13 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         {
             bool isSendPModeNotFound = _as4Message.SendingPMode?.Id == null;
             ReceivingProcessingMode receivePMode = _as4Message.ReceivingPMode;
-            bool isCallback = receivePMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
-
-            if (isSendPModeNotFound && messageType == MessageType.Receipt && isCallback)
+           
+            if (isSendPModeNotFound && messageType == MessageType.Receipt && receivePMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback)
             {
                 return Config.Instance.GetSendingPMode(receivePMode.ReceiptHandling.SendingPMode);
             }
 
-            if (isSendPModeNotFound && messageType == MessageType.Error && isCallback)
+            if (isSendPModeNotFound && messageType == MessageType.Error && receivePMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback)
             {
                 return Config.Instance.GetSendingPMode(receivePMode.ErrorHandling.SendingPMode);
             }
