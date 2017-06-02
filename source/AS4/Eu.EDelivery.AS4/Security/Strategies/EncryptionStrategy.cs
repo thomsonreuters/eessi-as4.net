@@ -189,30 +189,26 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             foreach (Attachment attachment in _attachments)
             {
-                EncryptedData encryptedData = EncryptAttachmentContents(attachment, encryptedKey, encryptionAlgorithm);
+                attachment.Content = EncryptData(attachment.Content, encryptionAlgorithm);
+                EncryptedData encryptedData = CreateEncryptedDataForAttachment(attachment, encryptedKey);
 
                 _encryptedDatas.Add(encryptedData);
+
                 encryptedKey.AddDataReference(encryptedData.Id);
+                attachment.ContentType = "application/octet-stream";
             }
         }
 
-        private EncryptedData EncryptAttachmentContents(
+        private EncryptedData CreateEncryptedDataForAttachment(
             Attachment attachment,
-            AS4EncryptedKey encryptedKey,
-            SymmetricAlgorithm algorithm)
+            AS4EncryptedKey encryptedKey)
         {
-            Stream encryptedStream = EncryptData(attachment.Content, algorithm); 
-
-            attachment.Content = encryptedStream;
-
-            var builder = new EncryptedDataBuilder()
+            return new EncryptedDataBuilder()
                 .WithDataEncryptionConfiguration(_dataEncryptionConfig)
                 .WithMimeType(attachment.ContentType)
                 .WithReferenceId(encryptedKey.GetReferenceId())
-                .WithUri(attachment.Id);
-
-            attachment.ContentType = "application/octet-stream";
-            return builder.Build();
+                .WithUri(attachment.Id)
+                .Build();
         }
 
         private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)
