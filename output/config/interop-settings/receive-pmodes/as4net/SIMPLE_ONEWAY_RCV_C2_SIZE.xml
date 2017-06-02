@@ -11,14 +11,13 @@
   <ReceiptHandling>
     <UseNNRFormat>true</UseNNRFormat>
     <ReplyPattern>Response</ReplyPattern>
-    <SendingPMode>AS4NET_RESPONSE_TO_C1</SendingPMode>
+    <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
   </ReceiptHandling>
   <ErrorHandling>
-    
     <UseSoapFault>false</UseSoapFault>
     <ReplyPattern>Response</ReplyPattern>
     <ResponseHttpCode>500</ResponseHttpCode>
-    <SendingPMode>AS4NET_RESPONSE_TO_C1</SendingPMode>
+    <SendingPMode>SIGNED_RESPONSE_FROM_C2</SendingPMode>
   </ErrorHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
