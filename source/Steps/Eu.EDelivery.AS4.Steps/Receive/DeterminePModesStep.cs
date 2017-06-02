@@ -9,6 +9,8 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
@@ -80,7 +82,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
-                var pmode = repository.RetrieveSendingPModeForOutMessage(_as4Message.PrimarySignalMessage.RefToMessageId);
+
+                SendPMode pmode = repository.GetOutMessageData(
+                    _as4Message.PrimarySignalMessage.RefToMessageId,
+                    m => AS4XmlSerializer.FromString<SendPMode>(m.PMode));
 
                 if (pmode == null)
                 {

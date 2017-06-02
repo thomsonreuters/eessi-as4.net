@@ -115,6 +115,6 @@ namespace Eu.EDelivery.AS4.Services
 
     public interface IOutMessageService
     {
-        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);        
+        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);
     }
 }

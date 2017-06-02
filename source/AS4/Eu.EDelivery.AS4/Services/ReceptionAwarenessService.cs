@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -48,7 +44,11 @@ namespace Eu.EDelivery.AS4.Services
         public async Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken)
         {
             _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
-            var pmode = _repository.RetrieveSendingPModeForOutMessage(messageId);
+
+            SendingProcessingMode pmode = _repository.GetOutMessageData(
+                messageId: messageId,
+                selection: m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
+
             Error errorMessage = CreateError(messageId);
 
             AS4Message as4Message = CreateAS4Message(errorMessage, pmode);

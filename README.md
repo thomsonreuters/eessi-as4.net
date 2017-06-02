@@ -1,7 +1,8 @@
 # AS4.NET
-AS4.NET is an open-source application that implements the OASIS AS4 specification.
-It supports the e-SENS e-Delivery profile as an ebMS endpoint.  
-It has been successfully undergoing e-SENS conformance and interop testing.
+AS4.NET is an open-source application that implements the OASIS AS4 specification. It supports both the e-SENS e-Delivery and the EESSI AS4 Messaging profile as an ebMS endpoint.   
+ 
+The component has been conformance and interop tested against the e-SENS eDelivery specifications.  
+Extensive testing against the EESSI AS4 Messaging profile is scheduled for June / July 2017, basic testing is already covered.
 
 # Features
 - One-Way/Push message exchange pattern (v1.0)
@@ -15,8 +16,18 @@ It has been successfully undergoing e-SENS conformance and interop testing.
 - AS4 Reception Awareness and Retry (v1.0)
 - AS4 Duplicate Detection and Elimination (v1.0)
 
+- Submit, deliver and notify via HTTP protocol (v1.1) 
+- Submit and deliver attachments via HTTP protocol (v1.1)
+- One-Way/Pull pattern as initiator (v1.1)
+- Support for sub channels in One-Way/Pull pattern (v1.1)
+- Support for multi-hop AS4 profile (v1.1)
+- Support for TLS client certificates (v1.1)
+- Performance tuning for large messages, up to 2GB (v1.1)
+- Performance tuning for high volume processing (v1.1) 
+ 
+
 # Installation
-AS4.NET v1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.0.1/eessi_as4.net-1.0.1.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
+AS4.NET v1.1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
 
 # Third Party software
 The following third party libraries are used by AS4.NET:

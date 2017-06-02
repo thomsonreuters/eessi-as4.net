@@ -133,16 +133,16 @@ namespace Eu.EDelivery.AS4.Services
         /// <exception cref="InvalidDataException"></exception>
         public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken)
         {
-            InMessage inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
+            string messageLocation = _repository.GetInMessageData(as4Message.GetPrimaryMessageId(), m => m.MessageLocation);
 
-            if (inMessage == null)
+            if (messageLocation == null)
             {
                 throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
             }
 
             if (as4Message.UserMessages.Any())
             {
-                await messageBodyStore.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
+                await messageBodyStore.UpdateAS4MessageAsync(messageLocation, as4Message, cancellationToken);
             }
 
             UpdateUserMessages(as4Message);

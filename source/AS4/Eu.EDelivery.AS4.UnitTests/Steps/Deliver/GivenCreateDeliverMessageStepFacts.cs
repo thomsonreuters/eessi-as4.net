@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -96,6 +97,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
             // Assert
             Assert.NotEmpty(deliverMessage.MessageProperties);
+        }
+
+        [Fact]
+        public async Task FailsToCreateDeliverMessage_IfInvalidDeliverMessage()
+        {
+            // Arrange
+            AS4Message as4Message = AS4MessageWithUserMessage();
+            as4Message.PrimaryUserMessage.MessageId = null;
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => ExecuteStepWith(as4Message));
         }
 
         private static async Task<DeliverMessage> TestExecuteStepWithFullBlownUserMessage()

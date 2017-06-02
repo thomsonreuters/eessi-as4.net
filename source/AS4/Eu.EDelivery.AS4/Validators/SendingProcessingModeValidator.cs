@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Castle.Core.Internal;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.PMode;
 using FluentValidation;
 using FluentValidation.Results;
@@ -13,11 +10,13 @@ namespace Eu.EDelivery.AS4.Validators
     /// <summary>
     /// Validator responsible for Validation Model <see cref="SendingProcessingMode" />
     /// </summary>
-    public class SendingProcessingModeValidator : AbstractValidator<SendingProcessingMode>,
-                                                  IValidator<SendingProcessingMode>
+    public class SendingProcessingModeValidator : AbstractValidator<SendingProcessingMode>
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SendingProcessingModeValidator"/> class.
+        /// </summary>
         public SendingProcessingModeValidator()
         {
             RuleFor(pmode => pmode.Id).NotEmpty();
@@ -110,19 +109,15 @@ namespace Eu.EDelivery.AS4.Validators
         }
 
         /// <summary>
-        /// Validate the given <paramref name="model"/>
+        /// Validates the specified instance
         /// </summary>
-        /// <param name="model"></param>
-        void IValidator<SendingProcessingMode>.Validate(SendingProcessingMode model)
+        /// <param name="instance">The object to validate</param>
+        /// <returns>A ValidationResult object containing any validation failures</returns>
+        public override ValidationResult Validate(SendingProcessingMode instance)
         {
-            PreConditions(model);
+            PreConditions(instance);
 
-            ValidationResult validationResult = base.Validate(model);
-
-            if (!validationResult.IsValid)
-            {
-                throw ThrowHandleInvalidPModeException(model, validationResult);
-            }
+            return base.Validate(instance);
         }
 
         private static void PreConditions(SendingProcessingMode model)
@@ -149,26 +144,10 @@ namespace Eu.EDelivery.AS4.Validators
 
             if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption != null)
             {
-                const int defaultKeySize = 256;
+                int defaultKeySize = Encryption.Default.AlgorithmKeySize;
                 Logger.Warn($"Invalid Encryption 'Key Size': {actualKeySize}, {defaultKeySize} is taken as default");
                 model.Security.Encryption.AlgorithmKeySize = defaultKeySize;
             }
-        }
-
-        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
-        {
-            foreach (ValidationFailure e in result.Errors)
-            {
-                Logger.Error($"Sending PMode Validation Error: {e.PropertyName} = {e.ErrorMessage}");
-            }
-
-            string description = $"Sending PMode {pmode.Id} was invalid, see logging";
-            Logger.Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(Guid.NewGuid().ToString())
-                .Build();
         }
     }
 }
