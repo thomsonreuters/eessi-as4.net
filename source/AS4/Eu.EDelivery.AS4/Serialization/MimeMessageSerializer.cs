@@ -267,20 +267,19 @@ namespace Eu.EDelivery.AS4.Serialization
             for (int i = startAfterSoapHeader; i < bodyParts.Count; i++)
             {
                 MimePart bodyPart = bodyParts[i];
-                Attachment attachment = CreateAttachment(bodyPart, message);
-                message.AddAttachment(attachment);
+                Attachment attachment = CreateAttachment(bodyPart);
+                
+                (bool hasValue, PartInfo value) partInfo = SelectReferencedPartInfo(attachment, message);
+
+                if (partInfo.hasValue)
+                {
+                    attachment.Properties = partInfo.value.Properties;
+                    message.AddAttachment(attachment);
+                }
             }
         }
 
-        private static Attachment CreateAttachment(MimePart bodyPart, AS4Message message)
-        {
-            Attachment attachment = CreateDefaultAttachment(bodyPart);
-            AssignPartProperties(attachment, message);
-
-            return attachment;
-        }
-
-        private static Attachment CreateDefaultAttachment(MimePart bodyPart)
+        private static Attachment CreateAttachment(MimePart bodyPart)
         {
             return new Attachment(id: bodyPart.ContentId)
             {
@@ -289,15 +288,12 @@ namespace Eu.EDelivery.AS4.Serialization
             };
         }
 
-        private static void AssignPartProperties(Attachment attachment, AS4Message message)
+        private static (bool, PartInfo) SelectReferencedPartInfo(Attachment attachment, AS4Message message)
         {
             PartInfo partInfo = message.PrimaryUserMessage?.PayloadInfo
-                .FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
+                            .FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
 
-            if (partInfo != null)
-            {
-                attachment.Properties = partInfo.Properties;
-            }
+            return (partInfo != null, partInfo);
         }
     }
 }
