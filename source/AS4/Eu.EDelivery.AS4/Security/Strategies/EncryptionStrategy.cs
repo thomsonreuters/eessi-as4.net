@@ -185,7 +185,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                                .Build();
         }
 
-        private void EncryptAttachmentsWithAlgorithm(AS4EncryptedKey encryptedKey, SymmetricAlgorithm encryptionAlgorithm)
+        private void EncryptAttachmentsWithAlgorithm(
+            AS4EncryptedKey encryptedKey,
+            SymmetricAlgorithm encryptionAlgorithm)
         {
             foreach (Attachment attachment in _attachments)
             {
@@ -199,9 +201,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             }
         }
 
-        private EncryptedData CreateEncryptedDataForAttachment(
-            Attachment attachment,
-            AS4EncryptedKey encryptedKey)
+        private EncryptedData CreateEncryptedDataForAttachment(Attachment attachment, AS4EncryptedKey encryptedKey)
         {
             return new EncryptedDataBuilder()
                 .WithDataEncryptionConfiguration(_dataEncryptionConfig)
