@@ -19,6 +19,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
 
             // Assert
             Assert.Null(actualStream);
-        }
+        }        
     }
 }

@@ -138,53 +138,13 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
         private async Task UpdateForUnansweredMessage(IDatastoreRepository repository, CancellationToken cancellationToken)
         {
             string messageId = _receptionAwareness.InternalMessageId;
-            _logger.Info($"[{messageId}] ebMS message is unanswered");
-
+           
             UpdateReceptionAwareness(awareness => awareness.Status = ReceptionStatus.Completed, repository);
-            repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
 
-            Error errorMessage = CreateError();
-            AS4Message as4Message = CreateAS4Message(errorMessage, repository);
-
-            var inMessageService = new InMessageService(repository, _inMessageBodyPersister);
-            await inMessageService.InsertAS4Message(as4Message, cancellationToken).ConfigureAwait(false);
+            ReceptionAwarenessService service = new ReceptionAwarenessService(repository);
+            await service.DeadletterOutMessageAsync(messageId, _inMessageBodyPersister, cancellationToken);
         }
-
-        private Error CreateError()
-        {
-            AS4Exception as4Exception = CreateAS4Exception();
-            string messageId = _receptionAwareness.InternalMessageId;
-
-            return new ErrorBuilder()
-                .WithRefToEbmsMessageId(messageId)
-                .WithAS4Exception(as4Exception)
-                .Build();
-        }
-
-        private AS4Exception CreateAS4Exception()
-        {
-            string messageId = _receptionAwareness.InternalMessageId;
-
-            return AS4ExceptionBuilder
-                .WithDescription($"[{messageId}] Missing Receipt")
-                .WithMessageIds(_receptionAwareness.InternalMessageId)
-                .WithErrorCode(ErrorCode.Ebms0301)
-                .Build();
-        }
-
-        private AS4Message CreateAS4Message(SignalMessage errorMessage, IDatastoreRepository repository)
-        {
-            string messageId = _receptionAwareness.InternalMessageId;
-
-            var pmode = repository.RetrieveSendingPModeForOutMessage(messageId);
-
-            var builder = new AS4MessageBuilder()
-                .WithSendingPMode(pmode)
-                .WithSignalMessage(errorMessage);
-
-            return builder.Build();
-        }
-
+              
         private void UpdateReceptionAwareness(Action<Entities.ReceptionAwareness> updateAction, IDatastoreRepository repository)
         {
             string messageId = _receptionAwareness.InternalMessageId;

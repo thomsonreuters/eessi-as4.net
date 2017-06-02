@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Security.Cryptography.Xml;
 using Eu.EDelivery.AS4.Exceptions;
@@ -23,7 +22,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public NonRepudiationInformationBuilder WithSignedReferences(ArrayList references)
         {
-            this._references = references;
+            _references = references;
             return this;
         }
 
@@ -36,8 +35,10 @@ namespace Eu.EDelivery.AS4.Builders.Core
             PreConditionsBuilder();
 
             var nrrInformation = new NonRepudiationInformation();
-            foreach (CryptoReference reference in this._references)
+            foreach (CryptoReference reference in _references)
+            {
                 AddMessagePartNRInformation(nrrInformation, reference);
+            }
 
             return nrrInformation;
         }
@@ -53,7 +54,11 @@ namespace Eu.EDelivery.AS4.Builders.Core
 
         private void PreConditionsBuilder()
         {
-            if (this._references != null) return;
+            if (_references != null)
+            {
+                return;
+            }
+
             const string description = "Builder needs signed references to create NonRepudiationInformation models";
             throw new AS4Exception(description);
         }

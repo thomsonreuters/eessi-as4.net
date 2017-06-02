@@ -1,6 +1,4 @@
-﻿#define METRICS
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
@@ -170,13 +168,13 @@ namespace Eu.EDelivery.AS4.Agents
         {
             Logger.Debug($"{AgentConfig.Name} received and starts handling message.");
 
-
-#if METRICS
-            var sw = new Stopwatch();
-            sw.Start();
-#endif
-
             InternalMessage internalMessage = await TryTransformAsync(message, cancellationToken).ConfigureAwait(false);
+
+            if (internalMessage == null)
+            {
+                Logger.Error("Could not transform the received message.");
+                return null;
+            }
 
             if (internalMessage.Exception != null)
             {
@@ -189,12 +187,8 @@ namespace Eu.EDelivery.AS4.Agents
 
             StepResult result = await step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
 
-            LogIfStepResultFailed(result, message);
+            LogIfStepResultFailed(result);
 
-#if METRICS
-            sw.Stop();
-            Trace.WriteLine($"{AgentConfig.Name}: processing message took {sw.ElapsedMilliseconds} msecs");
-#endif
             return result.InternalMessage;
         }
 
@@ -209,6 +203,11 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 Logger.Error(exception.Message);
                 return new InternalMessage(exception);
+            }
+            catch (Exception exception)
+            {
+                Logger.Error(exception.Message);
+                return null;
             }
         }
 
@@ -227,11 +226,12 @@ namespace Eu.EDelivery.AS4.Agents
             throw new InvalidOperationException("There is no StepConfiguration provided.");
         }
 
-        private void LogIfStepResultFailed(StepResult result, ReceivedMessage message)
+        private void LogIfStepResultFailed(StepResult result)
         {
             if (result.Exception != null)
             {
                 Logger.Warn($"Executing {AgentConfig.Name} Step failed: {result.Exception.Message}");
+                Logger.Trace(result.Exception.StackTrace);
 
                 if (result.Exception.InnerException != null)
                 {

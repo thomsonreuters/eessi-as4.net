@@ -248,7 +248,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             XmlNode nodeSignature = _document.SelectSingleNode("//*[local-name()='Signature'] ");
             var xmlSignature = nodeSignature as XmlElement;
             if (nodeSignature == null || xmlSignature == null)
+            {
                 throw ThrowAS4SignException("Invalid Signature: Signature Tag not found");
+            }
 
             return xmlSignature;
         }
@@ -277,12 +279,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void AddUnreconizedAttachmentReferences(ICollection<Attachment> attachments)
         {
             IEnumerable<CryptoReference> references = SignedInfo
-                .References.Cast<CryptoReference>().Where(ReferenceIsCidReference());
+                .References.Cast<CryptoReference>().Where(ReferenceIsCidReference()).ToArray();
 
             foreach (CryptoReference reference in references)
             {
-                string pureReferenceId = reference.Uri.Substring(CidPrefix.Length);
-                Attachment attachment = attachments.FirstOrDefault(x => x.Id.Equals(pureReferenceId));
+                var attachment = attachments.FirstOrDefault(a => a.Matches(reference));
+                
                 SetReferenceStream(reference, attachment);
                 SetAttachmentTransformContentType(reference, attachment);
             }

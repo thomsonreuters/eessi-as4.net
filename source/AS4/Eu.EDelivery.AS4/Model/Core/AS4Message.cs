@@ -43,7 +43,70 @@ namespace Eu.EDelivery.AS4.Model.Core
         // PModes
         public SendingProcessingMode SendingPMode { get; set; }
 
-        public ReceivingProcessingMode ReceivingPMode { get; set; }
+        private ReceivingProcessingMode _receivingPMode;
+
+        public ReceivingProcessingMode ReceivingPMode
+        {
+            get { return _receivingPMode; }
+            set
+            {
+                if (_receivingPMode != value)
+                {
+                    _receivingPMode = value;
+                    _receivingPModeString = null;
+                }
+            }
+        }
+
+        private string _receivingPModeString;
+
+        public string GetReceivingPModeString()
+        {
+            if (String.IsNullOrWhiteSpace(_receivingPModeString))
+            {
+                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
+            }
+            return _receivingPModeString;
+        }
+
+        private bool? _hasMultiHopAttribute;
+
+        /// <summary>
+        /// Gets a flag which indicates whether or not this AS4 Message is a MultiHop message.
+        /// </summary>
+        public bool IsMultiHopMessage
+        {
+            get
+            {
+                if (IsUserMessage && _hasMultiHopAttribute.HasValue == false)
+                {
+                    _hasMultiHopAttribute = IsMultiHopAttributePresent();
+                }
+
+                return (_hasMultiHopAttribute ?? false) ||
+                       (PrimarySignalMessage?.MultiHopRouting != null);
+            }
+        }
+
+        private bool? IsMultiHopAttributePresent()
+        {
+            var messagingNode =
+                EnvelopeDocument?.SelectSingleNode("/*[local-name()='Envelope']/*[local-name()='Header']/*[local-name()='Messaging']") as XmlElement;
+
+            if (messagingNode == null)
+            {
+                return null;
+            }
+
+            var role = messagingNode.GetAttribute("role", Constants.Namespaces.Soap12);
+
+            if (String.IsNullOrWhiteSpace(role))
+            {
+                return false;
+            }
+
+            return role.Equals(Constants.Namespaces.EbmsNextMsh);
+        }
 
         // AS4 Message
         public ICollection<UserMessage> UserMessages { get; internal set; }

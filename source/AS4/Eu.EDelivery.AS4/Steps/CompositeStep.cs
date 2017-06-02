@@ -22,7 +22,10 @@ namespace Eu.EDelivery.AS4.Steps
         /// </param>
         public CompositeStep(params IStep[] steps)
         {
-            if (steps == null) throw new ArgumentNullException(nameof(steps));
+            if (steps == null)
+            {
+                throw new ArgumentNullException(nameof(steps));
+            }
 
             _steps = steps;
         }

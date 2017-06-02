@@ -62,7 +62,7 @@
                     </DockPanel>
 
                     <Label Grid.Row="1" Grid.Column="0">Sending P-Mode:</Label>
-                    <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding SendingProcessingModeName}" IsEditable="True" x:Name="PModeCombobox"></ComboBox>
+                    <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" DisplayMemberPath="Id" SelectedValue="{Binding SendingPMode}" IsEditable="True" x:Name="PModeCombobox"></ComboBox>
 
                     <Label Grid.Row="2" Grid.Column="0">Payloads:</Label>
                     <ListView Grid.Row="2" Grid.Column="1" BorderThickness="1" x:Name="PayloadListView" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
@@ -81,10 +81,13 @@
 
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"></RowDefinition>
+                                        <RowDefinition Height="Auto"></RowDefinition>
                                     </Grid.RowDefinitions>
 
                                     <Label Grid.Column="0" Padding="0">File:</Label>
                                     <local:BrowseFileControl Grid.Column="1" SelectedFileName="{Binding FileName, Mode=TwoWay }"></local:BrowseFileControl>
+                                    
+                                    <CheckBox  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" IsChecked="{Binding IncludeSEDPartType, Mode=TwoWay, FallbackValue=False}">Include SED PartyInfo</CheckBox>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>

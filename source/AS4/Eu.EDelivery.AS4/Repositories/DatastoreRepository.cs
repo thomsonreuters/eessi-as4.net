@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
@@ -45,6 +44,16 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Gets the <see cref="InMessage"/> entity that exists in the datastore for the specified <paramref name="ebmsMessageId"/>
+        /// </summary>
+        /// <param name="ebmsMessageId"></param>
+        /// <returns></returns>
+        public InMessage GetInMessageById(string ebmsMessageId)
+        {
+            return _dbContext.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(ebmsMessageId));
+        }
+
+        /// <summary>
         /// Select all the found 'EbmsMessageIds' in the given datastore.
         /// </summary>
         /// <param name="searchedMessageIds">Collection of 'EbmsMessageIds' to be search for.</param>
@@ -52,8 +61,8 @@ namespace Eu.EDelivery.AS4.Repositories
         public IEnumerable<string> SelectExistingInMessageIds(IEnumerable<string> searchedMessageIds)
         {
             return _dbContext.InMessages
-                .Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
-                .Select(m => m.EbmsMessageId);
+                             .Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
+                             .Select(m => m.EbmsMessageId);
         }
 
         /// <summary>
@@ -64,8 +73,8 @@ namespace Eu.EDelivery.AS4.Repositories
         public IEnumerable<string> SelectExistingRefInMessageIds(IEnumerable<string> searchedMessageIds)
         {
             return _dbContext.InMessages
-                .Where(m => searchedMessageIds.Contains(m.EbmsRefToMessageId))
-                .Select(m => m.EbmsRefToMessageId);
+                             .Where(m => searchedMessageIds.Contains(m.EbmsRefToMessageId))
+                             .Select(m => m.EbmsRefToMessageId);
         }
 
         /// <summary>
@@ -167,8 +176,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// Insert a given <see cref="OutMessage"/>
         /// into the Data store
         /// </summary>
-        /// <param name="outMessage"></param>
-        /// <param name="bodyPersister">The <see cref="IAS4MessageBodyPersister"/> instance that must be used to persist the AS4 MessageBody.</param>
+        /// <param name="outMessage"></param>        
         public void InsertOutMessage(OutMessage outMessage)
         {
             if (String.IsNullOrWhiteSpace(outMessage.MessageLocation))
@@ -178,7 +186,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             _dbContext.OutMessages.Add(outMessage);
 
-        
+
         }
 
         /// <summary>
@@ -249,9 +257,35 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId)
         {
-            string pmodeString = _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(ebmsMessageId)).Select(m => m.PMode).FirstOrDefault();
+            var sendPModes = _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(ebmsMessageId)).Select(m => m.PMode);
+
+            if (sendPModes.Any() == false)
+            {
+                return null;
+            }
+
+            string pmodeString = sendPModes.First();
 
             return AS4XmlSerializer.FromString<SendingProcessingMode>(pmodeString);
+        }
+
+        /// <summary>
+        /// Retrieves the SendingProcessingMode strings that were used to sent the Messages with the specified ebmsMessageIds.
+        /// </summary>
+        /// <param name="ebmsMessageIds"></param>
+        /// <returns></returns>
+        public IEnumerable<(string ebmsMessageId, string sendingPMode)> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds)
+        {
+            ebmsMessageIds = ebmsMessageIds.Distinct();
+
+            var result = _dbContext.OutMessages
+                                   .Where(m => ebmsMessageIds.Contains(m.EbmsMessageId))
+                                   .Select(m => new { MessageId = m.EbmsMessageId, PMode = m.PMode });
+
+            foreach (var record in result)
+            {
+                yield return (ebmsMessageId: record.MessageId, sendingPMode: record.PMode);
+            }
         }
 
         #endregion
@@ -462,22 +496,7 @@ namespace Eu.EDelivery.AS4.Repositories
         void UpdateInMessage(string messageId, Action<InMessage> updateAction);
         bool InMessageExists(Func<InMessage, bool> predicate);
 
-        void InsertOutMessage(OutMessage outMessage);
-        void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
-        OutMessage GetOutMessageById(string messageId);
-        Operation GetOutMessageOperation(string messageId);
-
-        SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId);
-
-        void InsertReceptionAwareness(ReceptionAwareness receptionAwareness);
-        void UpdateReceptionAwareness(string messageId, Action<ReceptionAwareness> updateAction);
-        IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds);
-
-        void InsertInException(InException inException);
-        void UpdateInException(string refToMessageId, Action<InException> updateAction);
-
-        void InsertOutException(OutException outException);
-        void UpdateOutException(string refToMessageId, Action<OutException> updateAction);
+        InMessage GetInMessageById(string ebmsMessageId);
 
         /// <summary>
         /// Select all the found 'EbmsMessageIds' in the given datastore.
@@ -492,5 +511,25 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="searchedMessageIds"></param>
         /// <returns></returns>
         IEnumerable<string> SelectExistingRefInMessageIds(IEnumerable<string> searchedMessageIds);
+
+        void InsertOutMessage(OutMessage outMessage);
+        void UpdateOutMessage(string messageId, Action<OutMessage> updateAction);
+        OutMessage GetOutMessageById(string messageId);
+        Operation GetOutMessageOperation(string messageId);
+
+        SendingProcessingMode RetrieveSendingPModeForOutMessage(string ebmsMessageId);
+
+        IEnumerable<(string ebmsMessageId, string sendingPMode)> RetrieveSendingPModeStringForOutMessages(IEnumerable<string> ebmsMessageIds);
+
+        void InsertReceptionAwareness(ReceptionAwareness receptionAwareness);
+        void UpdateReceptionAwareness(string messageId, Action<ReceptionAwareness> updateAction);
+        IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds);
+
+        void InsertInException(InException inException);
+        void UpdateInException(string refToMessageId, Action<InException> updateAction);
+
+        void InsertOutException(OutException outException);
+        void UpdateOutException(string refToMessageId, Action<OutException> updateAction);
+
     }
 }

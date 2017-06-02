@@ -16,11 +16,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
     /// </summary>
     [XmlType(Namespace = "eu:edelivery:as4:pmode")]
     [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
-    [DebuggerDisplay("{" + nameof(Id) + "}")]
+    [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class SendingProcessingMode : IPMode
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendingProcessingMode"/> class.
+        /// Initializes a new instance of the <see cref="SendingProcessingMode" /> class.
         /// </summary>
         public SendingProcessingMode()
         {
@@ -93,11 +93,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
             IsEnabled = false;
             Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             KeyTransport = new KeyEncryption();
+            AlgorithmKeySize = 128;
         }
 
         public bool IsEnabled { get; set; }
 
         public string Algorithm { get; set; }
+
+        public int AlgorithmKeySize { get; set; }
 
         public X509FindType PublicKeyFindType { get; set; }
 
@@ -111,6 +114,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonIgnore]
         [ScriptIgnore]
         public bool AlgorithmSpecified => !string.IsNullOrWhiteSpace(Algorithm);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool AlgorithmKeySizeSpecified => AlgorithmKeySize > 0;
 
         [XmlIgnore]
         [JsonIgnore]

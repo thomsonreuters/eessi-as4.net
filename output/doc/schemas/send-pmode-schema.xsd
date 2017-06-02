@@ -149,6 +149,7 @@
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="IsEnabled" type="xs:boolean" />
       <xs:element minOccurs="0" maxOccurs="1" name="Algorithm" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="AlgorithmKeySize" type="xs:int" />
       <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindType" type="tns:X509FindType" />
       <xs:element minOccurs="0" maxOccurs="1" name="PublicKeyFindValue" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="KeyTransport" type="tns:KeyEncryption" />

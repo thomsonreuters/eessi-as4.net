@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             return returnProperties.ToArray();
         }
 
-        private void RetrieveCoreMessageProperties(SubmitMessage message, List<CoreMessageProperty> returnProperties)
+        private static void RetrieveCoreMessageProperties(SubmitMessage message, List<CoreMessageProperty> returnProperties)
         {
             if (message.MessageProperties != null)
                 MoveSubmitPropertiesToCoreProperties(returnProperties, message.MessageProperties);
@@ -34,17 +34,17 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 returnProperties.AddRange(message.PMode.MessagePackaging.MessageProperties);
         }
 
-        private void MoveSubmitPropertiesToCoreProperties(
+        private static void MoveSubmitPropertiesToCoreProperties(
             ICollection<CoreMessageProperty> returnProperties, IEnumerable<SubmitMessageProperty> submitProperties)
         {
             foreach (SubmitMessageProperty current in submitProperties)
                 MoveSubmitPropertyToCoreProperty(returnProperties, current);
         }
 
-        private void MoveSubmitPropertyToCoreProperty(
+        private static void MoveSubmitPropertyToCoreProperty(
             ICollection<CoreMessageProperty> returnProperties, SubmitMessageProperty current)
         {
-            var messageProperty = new CoreMessageProperty(current.Name, current.Type, current.Value);
+            var messageProperty = new CoreMessageProperty(current.Name, current.Value);
 
             returnProperties.Add(messageProperty);
         }

@@ -85,6 +85,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] as4_multihop_message {
+            get {
+                object obj = ResourceManager.GetObject("as4_multihop_message", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;s:Envelope  xmlns:s=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;
+        ///  &lt;s:Header&gt;
+        ///    &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;
+        ///      &lt;BinarySecurityToken EncodingType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary&quot; ValueType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3&quot; d2p1:Id=&quot;cert-01f912c0-3326-4a1d- [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string as4_pullrequest_warning {
+            get {
+                return ResourceManager.GetString("as4_pullrequest_warning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] as4_single_payload {
             get {
                 object obj = ResourceManager.GetObject("as4_single_payload", resourceCulture);
@@ -232,6 +254,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
             get {
                 object obj = ResourceManager.GetObject("holodeck_partyc_certificate", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;wsa:To s12:role=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh&quot; xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/icloud&lt;/wsa:To&gt;&lt;wsa:Action xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt&lt;/wsa:Action&gt;&lt;RoutingInput xmlns:wsu=&quot;http [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string multihopreceipt {
+            get {
+                return ResourceManager.GetString("multihopreceipt", resourceCulture);
             }
         }
         

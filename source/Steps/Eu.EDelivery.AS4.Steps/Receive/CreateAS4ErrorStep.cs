@@ -21,6 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class CreateAS4ErrorStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
         private readonly Func<DatastoreContext> _createDatastore;
 
@@ -70,13 +71,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(new InternalMessage(errorMessage));
         }
 
-        private AS4Message CreateAS4ErrorMessage(InternalMessage internalMessage)
+        private static AS4Message CreateAS4ErrorMessage(InternalMessage internalMessage)
         {
             Logger.Info($"{internalMessage.Prefix} Create AS4 Error Message from AS4 Exception");
 
             var builder = new AS4MessageBuilder();
 
-            CreateErrorForEveryUserMesageIn(internalMessage, error => builder.WithSignalMessage(error));
+            CreateErrorForEveryUserMessageIn(internalMessage, error => builder.WithSignalMessage(error));
 
             if (internalMessage.AS4Message.ReceivingPMode != null)
             {
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return errorMessage;
         }
 
-        private static void CreateErrorForEveryUserMesageIn(InternalMessage internalMessage, Action<Error> callback)
+        private static void CreateErrorForEveryUserMessageIn(InternalMessage internalMessage, Action<Error> callback)
         {
             foreach (UserMessage userMessage in internalMessage.AS4Message.UserMessages)
             {

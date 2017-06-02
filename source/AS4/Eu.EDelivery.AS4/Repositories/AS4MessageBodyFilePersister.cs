@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -49,11 +50,43 @@ namespace Eu.EDelivery.AS4.Repositories
                 await SaveMessageToFile(message, fileName, cancellationToken);
             }
 
-            return $"file://{fileName}";
+            return $"file:///{fileName}";
+        }
+
+        /// <summary>
+        /// Updates an existing AS4 Message body.
+        /// </summary>
+        /// <param name="location">The location where the existing AS4Message body can be found.</param>
+        /// <param name="message">The message that should overwrite the existing messagebody.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
+        {
+            if (message == null)
+            {
+                throw new ArgumentNullException(nameof(message));
+            }
+
+            // TODO: this is a quickfix.  If we should support multiple implementations of the IAS4MessageBodyPersister
+            //       then the InMessageService should be reponsible for retrieving the correct implementation that should
+            //       be used to overwrite.
+            if (location.StartsWith("file:///"))
+            {
+                location = location.Substring(8);
+            }
+            
+            if (File.Exists(location) == false)
+            {
+                throw new FileNotFoundException("The messagebody that must be updated could not be found.");
+            }
+
+            await SaveMessageToFile(message, location, cancellationToken);
         }
 
         private string AssembleStoreLocationWith(AS4Message message)
         {
+
+#if DEBUG
             string messageId = message.GetPrimaryMessageId();
 
             if (string.IsNullOrWhiteSpace(messageId))
@@ -61,7 +94,12 @@ namespace Eu.EDelivery.AS4.Repositories
                 throw new AS4Exception("The AS4Message to store has no Primary Message Id");
             }
 
-            return Path.Combine(_storeLocation, $"{messageId}.as4");
+            string fileName = FilenameSanitizer.EnsureValidFilename(messageId);
+#else
+            string fileName = Guid.NewGuid().ToString();
+#endif
+
+            return Path.Combine(_storeLocation, $"{fileName}.as4");
         }
 
         private async Task SaveMessageToFile(AS4Message message, string fileName, CancellationToken cancellationToken)
@@ -83,5 +121,14 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="cancellationToken">The Cancellation.</param>
         /// <returns>Location where the <paramref name="message"/> is saved.</returns>
         Task<string> SaveAS4MessageAsync(AS4Message message, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Updates an existing AS4 Message body.
+        /// </summary>
+        /// <param name="location">The location where the existing AS4Message body can be found.</param>
+        /// <param name="message">The message that should overwrite the existing messagebody.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken);
     }
 }

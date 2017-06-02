@@ -1,0 +1,48 @@
+﻿<s:Envelope  xmlns:s="http://www.w3.org/2003/05/soap-envelope" xmlns:wsa="http://www.w3.org/2005/08/addressing">
+  <s:Header>
+    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+      <BinarySecurityToken EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" d2p1:Id="cert-01f912c0-3326-4a1d-a458-25d0bf45d8b6" xmlns:d2p1="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">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</BinarySecurityToken>
+      <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+        <SignedInfo>
+          <CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+          <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+          <Reference URI="#header-62500991-114d-493f-b160-b0014dab1010">
+            <Transforms>
+              <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+            </Transforms>
+            <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+            <DigestValue>6Op6/7KI/cpCh2rnzqf7XupcTB0geEkR8VUUsEdBS0A=</DigestValue>
+          </Reference>
+          <Reference URI="#body-08ebe131-a4b5-4b54-a9e2-3701aaf50804">
+            <Transforms>
+              <Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+            </Transforms>
+            <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+            <DigestValue>K+etVlUBLGEtN/TqGqtpKzQc+HALKbZp5PuGmbWdj2g=</DigestValue>
+          </Reference>
+        </SignedInfo>
+        <SignatureValue>esn1H6PS/fEb0F005fuPhzpOJHFZ4Etwo4W8utbdziHOl4GvU1LNOf1JAIfgRZe8N3rtaggvQVBEJ70nfx/Wk2iaKJCgGT3c/yzQxTE5RU+ImXb1qtLJ+pIdKyDXXj+gB9S2dgVRmYB5NJANzW/ZyFYyJndrrC7RccCMZYLT8rZ8hLXz/8qYHw81TuwM1vnqqdahJckUcTHx1H35hewbTmLFQN1QBk7KypDaDsqpdkVXGvxO4XI6VK1uC8SE1Zz8TZm8h/1NzkyGhJ4XXPLxGbhEeCwi8+lwWQMzBUAzvBNkNnKvHPKr6NEbWCgTPMR7Gb63wp2Q0Ue6stYUbDUz7w==</SignatureValue>
+        <KeyInfo>
+          <SecurityTokenReference xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <Reference ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" URI="#cert-01f912c0-3326-4a1d-a458-25d0bf45d8b6" />
+          </SecurityTokenReference>
+        </KeyInfo>
+      </Signature>
+    </wsse:Security>
+    <wsa:To s:role="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh">http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/icloud</wsa:To>
+    <wsa:Action>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.error</wsa:Action>
+    <Messaging xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" d1p1:mustUnderstand="true" d1p1:role="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh" d1p2:Id="header-62500991-114d-493f-b160-b0014dab1010" xmlns:d1p2="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:d1p1="http://www.w3.org/2003/05/soap-envelope" xmlns="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/">
+      <SignalMessage>
+        <MessageInfo>
+          <Timestamp>2017-05-22T11:31:09Z</Timestamp>
+          <MessageId>b7346c9d-01a6-4dc1-9fa0-b3aff1d18061@UK:APUK01</MessageId>
+          <RefToMessageId>f1113705-f3fa-4f87-930d-3337d518ff7d@11.1.3.12</RefToMessageId>
+        </MessageInfo>
+        <Error shortDescription="EmptyMessagePartitionChannel" category="Communication" severity="warning" errorCode="EBMS:0006" origin="ebMS">
+          <Description xml:lang="en">There is no message available for pulling from this MPC at this moment.</Description>
+        </Error>
+      </SignalMessage>
+    </Messaging>
+  </s:Header>
+  <s:Body xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="body-08ebe131-a4b5-4b54-a9e2-3701aaf50804" />
+</s:Envelope>

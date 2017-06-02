@@ -34,6 +34,29 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
         }
 
         /// <summary>
+        /// Gets the first <see cref="OutMessage"/> instance that matches the given criterium in the <paramref name="expression"/>.
+        /// </summary>
+        /// <param name="expression">The expression to search for a single <see cref="OutMessage"/>.</param>
+        /// <returns></returns>
+        public OutMessage GetOutMessageFor(Func<OutMessage, bool> expression)
+        {
+            using (var context = new DatastoreContext(_configuration))
+            {
+                return context.OutMessages.Where(expression).FirstOrDefault();
+            }
+        }
+
+        public void InsertOutMessage(OutMessage message)
+        {
+            using (var context = new DatastoreContext(_configuration))
+            {
+                context.OutMessages.Add(message);
+
+                context.SaveChanges();
+            }
+        }
+
+        /// <summary>
         /// Gets the <see cref="InException"/> instances for a given <paramref name="expression"/>.
         /// </summary>
         /// <param name="expression">The expression to search for <see cref="InException"/> instances.</param>
