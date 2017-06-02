@@ -90,16 +90,16 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             foreach (SettingsMinderAgent agent in minderTestAgents)
             {
-                _agents.Add(CreateMinderTestAgent(agent.Url, agent.Transformer));
+                _agents.Add(CreateMinderTestAgent(agent.Url, agent.UseLogging, agent.Transformer));
             }
         }
 
         [ExcludeFromCodeCoverage]
-        private static Agent CreateMinderTestAgent(string url, Transformer transformerConfig)
+        private static Agent CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
 
-            receiver.Configure(new[] { new Setting("Url", url) });
+            receiver.Configure(new[] { new Setting("Url", url), new Setting("UseLogging", useLogging.ToString()) });
 
             return new Agent(
                 new AgentConfig("Minder Submit/Receive Agent"),

@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public CustomSettings CustomSettings { get; set; }
 
         public SettingsAgents Agents { get; set; }
-        
+
     }
 
     [Serializable]
@@ -107,13 +107,19 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating wheter the URL at which the Agent should listen to.
+        /// Gets or sets a value indicating whether the URL at which the Agent should listen to.
         /// </summary>
         [XmlAttribute("Url")]
         public string Url { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating wheter the Transformer that should be used to transform a received message.
+        /// Gets or sets a value indicating whether or not logging of received messages is enabled.
+        /// </summary>
+        [XmlAttribute("UseLogging")]        
+        public bool UseLogging { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Transformer that should be used to transform a received message.
         /// </summary>
         [XmlElement("Transformer")]
         public Transformer Transformer { get; set; }
@@ -258,7 +264,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="Setting"/> class.
         /// </summary>
-        private Setting() {}
+        private Setting() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Setting"/> class.
