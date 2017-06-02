@@ -166,6 +166,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Resources\deliveragent-message.as4" />
+    <None Include="Resources\receiveagent_message_nonexist_attachment.as4" />
     <None Include="Resources\receiveagent_message.as4" />
   </ItemGroup>
   <ItemGroup>

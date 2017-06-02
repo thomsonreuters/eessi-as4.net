@@ -196,6 +196,7 @@ namespace Eu.EDelivery.AS4.Serialization
             chainedStream.Add(inputStream, leaveOpen: true);
 
             return await ParseStreamToAS4MessageAsync(chainedStream, contentType, cancellationToken).ConfigureAwait(false);
+
         }
 
         private void PreConditions(Stream inputStream, string contentType)
@@ -228,6 +229,11 @@ namespace Eu.EDelivery.AS4.Serialization
                 .DeserializeAsync(envelopeStream, contentType, cancellationToken).ConfigureAwait(false);
 
             AddBodyPartsAsAttachmentsToMessage(bodyParts, message);
+
+            if (message.IsUserMessage)
+            {
+                VerifyTheAttachmentsWithTheReferencedPartInfos(message);
+            }
 
             return message;
         }
@@ -294,6 +300,23 @@ namespace Eu.EDelivery.AS4.Serialization
                             .FirstOrDefault(i => i.Href?.Contains(attachment.Id) == true);
 
             return (partInfo != null, partInfo);
+        }
+
+        private static void VerifyTheAttachmentsWithTheReferencedPartInfos(AS4Message message)
+        {
+            bool noAttachmentCanBeFounForEachPartInfo =
+                message.PrimaryUserMessage.PayloadInfo?.Count(
+                    p => message.Attachments.FirstOrDefault(a => a.Matches(p)) == null) > 0;
+
+            if (noAttachmentCanBeFounForEachPartInfo)
+            {
+                throw AS4ExceptionBuilder
+                    .WithDescription("No Attachment can be found for each UserMessage PartInfo")
+                    .WithErrorCode(ErrorCode.Ebms0004)
+                    .WithErrorAlias(ErrorAlias.InvalidHeader)
+                    .WithMessageIds(message.MessageIds)
+                    .Build();
+            }
         }
     }
 }
