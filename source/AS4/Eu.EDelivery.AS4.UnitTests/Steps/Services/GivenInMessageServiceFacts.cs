@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Moq;
 using Xunit;
 
@@ -13,7 +14,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
     /// </summary>
     public class GivenInMessageServiceFacts
     {
-
         [Fact]
         public void TestFindSignalMessageDuplicates()
         {
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             IEnumerable<string> expectedMessageIds = new[] { "known-messsage-id", "unknown-message-id" };
             Mock<IDatastoreRepository> mockedRepository = CreateMockedRepositoryThatHas(expectedMessageIds.ElementAt(0));
 
-            var sut = new InMessageService(mockedRepository.Object);
+            var sut = new InMessageService(StubConfig.Instance, mockedRepository.Object);
 
             // Act
             IDictionary<string, bool> actualDuplicates = actAction(expectedMessageIds, sut);

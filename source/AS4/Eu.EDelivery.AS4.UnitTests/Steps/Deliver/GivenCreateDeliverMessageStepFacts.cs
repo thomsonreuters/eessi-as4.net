@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -117,6 +118,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             string actualLocation = deliverMessage.Payloads.First().Location;
 
             Assert.Equal(expectedLocation, actualLocation);
+        }
+
+        [Fact]
+        public async Task FailsToCreateDeliverMessage_IfInvalidDeliverMessage()
+        {
+            // Arrange
+            AS4Message as4Message = AS4MessageWithUserMessage();
+            as4Message.PrimaryUserMessage.MessageId = null;
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => ExecuteStepWith(as4Message));
         }
 
         private static async Task<DeliverMessage> TestExecuteStepWithFullBlownUserMessage()

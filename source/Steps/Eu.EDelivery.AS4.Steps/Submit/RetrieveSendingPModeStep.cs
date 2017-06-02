@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Validators;
+using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -21,16 +22,12 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IConfig _config;
-        private readonly IValidator<SendingProcessingMode> _validator;
+        private readonly SendingProcessingModeValidator _validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
         /// </summary>
-        public RetrieveSendingPModeStep()
-        {
-            _config = Config.Instance;
-            _validator = new SendingProcessingModeValidator();
-        }
+        public RetrieveSendingPModeStep() : this(Config.Instance) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
@@ -96,8 +93,24 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private void ValidatePMode(SendingProcessingMode pmode)
         {
-            _validator.Validate(pmode);
-            Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message");
+            _validator.Validate(pmode).Result(
+                happyPath: result => Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message"),
+                unhappyPath: result =>
+                {
+                    result.LogErrors(Logger);
+                    throw ThrowHandleInvalidPModeException(pmode);
+                });
+        }
+
+        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode)
+        {
+            string description = $"Sending PMode {pmode.Id} was invalid, see logging";
+            Logger.Error(description);
+
+            return AS4ExceptionBuilder
+                .WithDescription(description)
+                .WithMessageIds(Guid.NewGuid().ToString())
+                .Build();
         }
 
         private static AS4Exception ThrowAS4CannotRetrieveSendPModeException(

@@ -9,6 +9,8 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
@@ -20,7 +22,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
     public class SendNotifyMessageStep : IStep
     {
         private readonly INotifySenderProvider _provider;
-        private readonly Func<DatastoreContext> _dataContextRetriever;
+        private readonly IOutMessageService _messageService;
+        private readonly Func<DatastoreContext> _createContext;
 
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
@@ -34,16 +37,13 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep" /> class.
-        /// Create a <see cref="IStep" /> implementation
-        /// to send a <see cref="NotifyMessage" />
-        /// to the consuming business application
         /// </summary>
         /// <param name="provider">The provider.</param>
-        /// <param name="dataContextRetriever">The data context retriever.</param>
-        public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> dataContextRetriever)
+        /// <param name="createContext">The create context.</param>
+        public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> createContext)
         {
             _provider = provider;
-            _dataContextRetriever = dataContextRetriever;
+            _createContext = createContext;
         }
 
         /// <summary>
@@ -70,10 +70,14 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private SendingProcessingMode RetrieveSendingPMode(InternalMessage internalMessage)
         {
-            using (DatastoreContext context = _dataContextRetriever())
+            using (DatastoreContext context = _createContext())
             {
-                var repo = new DatastoreRepository(context);
-                return repo.RetrieveSendingPModeForOutMessage(internalMessage.AS4Message.PrimarySignalMessage.RefToMessageId);
+                var repository = new DatastoreRepository(context);
+                string messageId = internalMessage.AS4Message.PrimarySignalMessage.RefToMessageId;
+
+                return repository.GetOutMessageData(
+                    messageId,
+                    m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
             }
         }
 

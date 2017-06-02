@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -21,18 +22,27 @@ namespace Eu.EDelivery.AS4.Services
     /// </summary>
     public class InMessageService : IInMessageService
     {
-        private readonly IDatastoreRepository _repository;
-
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        private readonly IDatastoreRepository _repository;
+        private readonly IConfig _configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMessageService"/> class. 
         /// Create a new Data store Repository
         /// </summary>
         /// <param name="repository"></param>
-        public InMessageService(IDatastoreRepository repository)
+        public InMessageService(IDatastoreRepository repository) : this(Config.Instance, repository) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InMessageService"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="respository">The respository.</param>
+        public InMessageService(IConfig config, IDatastoreRepository respository)
         {
-            _repository = repository;
+            _configuration = config;
+            _repository = respository;
         }
 
         /// <summary>
@@ -68,19 +78,25 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Inserts a <see cref="AS4Message"/>.
+        /// Inserts an <see cref="AS4Message"/>.
         /// </summary>
         /// <param name="as4Message">The as4 message.</param>
-        /// <param name="as4MessageBodyPersister">The as4 message body persister.</param>
+        /// <param name="messageBodyStore">The message body store.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        public async Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken)
         {
             // TODO: should we start the transaction here.
-            string location = await as4MessageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
+            string location = await messageBodyStore.SaveAS4MessageAsync(_configuration.InMessageStoreLocation, as4Message, cancellationToken);
 
+            InsertUserMessages(as4Message, location, cancellationToken);
+            InsertSignalMessages(as4Message, location, cancellationToken);
+        }
+
+        private void InsertUserMessages(AS4Message as4Message, string location, CancellationToken cancellationToken)
+        {
             IDictionary<string, bool> duplicateUserMessages =
-                this.DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
+                DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
 
             foreach (UserMessage userMessage in as4Message.UserMessages)
             {
@@ -89,7 +105,10 @@ namespace Eu.EDelivery.AS4.Services
 
                 AttemptToInsertUserMessage(userMessage, as4Message, location, cancellationToken);
             }
+        }
 
+        private void InsertSignalMessages(AS4Message as4Message, string location, CancellationToken cancellationToken)
+        {
             if (as4Message.SignalMessages.Any())
             {
                 IEnumerable<string> relatedUserMessageIds = as4Message.SignalMessages.Select(m => m.RefToMessageId);
@@ -106,25 +125,25 @@ namespace Eu.EDelivery.AS4.Services
         }
 
         /// <summary>
-        /// Updates a <see cref="AS4Message"/> for delivery and notification.
+        /// Updates an <see cref="AS4Message"/> for delivery and notification.
         /// </summary>
         /// <param name="as4Message">The as4 message.</param>
-        /// <param name="as4MessageBodyPersister">The as4 message body persister.</param>
+        /// <param name="messageBodyStore">The as4 message body persister.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="InvalidDataException"></exception>
-        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken)
+        public async Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken)
         {
-            InMessage inMessage = _repository.GetInMessageById(as4Message.GetPrimaryMessageId());
+            string messageLocation = _repository.GetInMessageData(as4Message.GetPrimaryMessageId(), m => m.MessageLocation);
 
-            if (inMessage == null)
+            if (messageLocation == null)
             {
                 throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
             }
 
             if (as4Message.UserMessages.Any())
             {
-                await as4MessageBodyPersister.UpdateAS4MessageAsync(inMessage.MessageLocation, as4Message, cancellationToken);
+                await messageBodyStore.UpdateAS4MessageAsync(messageLocation, as4Message, cancellationToken);
             }
 
             UpdateUserMessages(as4Message);

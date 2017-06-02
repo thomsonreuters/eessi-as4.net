@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         private void ArrangeOutMessageInDatastore(Operation operation, Stream stream, string contentType)
         {
             var stubRetriever = new StubMessageBodyRetriever(() => stream);
-            Registry.Instance.MessageBodyRetrieverProvider.Accept(s => s.Contains("test://"), stubRetriever);
+            Registry.Instance.MessageBodyStore.Accept(s => s.Contains("test://"), stubRetriever);
 
             using (DatastoreContext context = GetDataStoreContext())
             {

@@ -1,76 +1,77 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
+using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.Strategies.Uploader;
+using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
     /// <summary>
-    /// Testing <see cref="Registry"/>
+    /// Testing <see cref="AS4.Common.Registry" />
     /// </summary>
     public class GivenRegistryFacts
     {
-        private readonly IRegistry _registry;
+        private IRegistry Registry { get; } = new Registry();
 
-        public GivenRegistryFacts()
+        [Fact]
+        public async Task ExpectedMessageBodyStores()
         {
-            _registry = new Registry();
+            // Arrange
+            const string acceptedString = "find this string";
+            var spyStore = Mock.Of<IAS4MessageBodyStore>();
+            Registry.MessageBodyStore.Accept(s => s.Equals(acceptedString), spyStore);
+
+            // Act
+            await Registry.MessageBodyStore.LoadMessagesBody(acceptedString);
+
+            // Assert
+            Mock.Get(spyStore).Verify(s => s.LoadMessagesBody(It.IsAny<string>()), Times.Once);
         }
 
-        /// <summary>
-        /// Testing the Registry with valid arguments
-        /// </summary>
-        public class GivenValidArgumentsRegistry : GivenRegistryFacts
+        [Theory]
+        [InlineData("PAYLOAD-SERVICE", typeof(PayloadServiceAttachmentUploader))]
+        [InlineData("FILE", typeof(FileAttachmentUploader))]
+        [InlineData("EMAIL", typeof(EmailAttachmentUploader))]
+        public void ReturnKnwonAttachmentUploader(string key, Type expectedType)
         {
-            [Fact]
-            public void ThenGetFilePayloadStrategyProvider()
-            {
-                // Act
-                IPayloadRetrieverProvider provider = _registry.PayloadRetrieverProvider;
-
-                // Assert
-                IPayloadRetriever fileRetriever = provider.Get(new Payload("file:///"));
-                Assert.NotNull(fileRetriever);
-            }
-
-            [Fact]
-            public void ThenGetWebPayloadStrategyProvider()
-            {
-                // Act
-                IPayloadRetrieverProvider provider = _registry.PayloadRetrieverProvider;
-
-                // Assert
-                IPayloadRetriever webRetriever = provider.Get(new Payload("http"));
-                Assert.NotNull(webRetriever);
-            }
-
-            [Theory]
-            [InlineData("PAYLOAD-SERVICE", typeof(PayloadServiceAttachmentUploader))]
-            [InlineData("FILE", typeof(FileAttachmentUploader))]
-            [InlineData("EMAIL", typeof(EmailAttachmentUploader))]
-            public void ReturnKnwonAttachmentUploader(string key, Type expectedType)
-            {
-                Assert.IsType(expectedType, _registry.AttachmentUploader.Get(key));
-            }
+            Assert.IsType(expectedType, Registry.AttachmentUploader.Get(key));
         }
 
-        /// <summary>
-        /// Testing the Registry with invalid arguments
-        /// </summary>
-        public class GivenInvalidArgumentsRegistry : GivenRegistryFacts
+        [Fact]
+        public void ThenGetFilePayloadStrategyProvider()
         {
-            [Fact]
-            public void ThenProvidersDoesNotHasPayloadStrategy()
-            {
-                // Act
-                IPayloadRetrieverProvider provider = _registry.PayloadRetrieverProvider;
+            // Act
+            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
 
-                // Assert
-                Assert.Throws<AS4Exception>(() => provider.Get(new Payload("not-supported-location")));
-            }
+            // Assert
+            IPayloadRetriever fileRetriever = provider.Get(new Payload("file:///"));
+            Assert.NotNull(fileRetriever);
+        }
+
+        [Fact]
+        public void ThenGetWebPayloadStrategyProvider()
+        {
+            // Act
+            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
+
+            // Assert
+            IPayloadRetriever webRetriever = provider.Get(new Payload("http"));
+            Assert.NotNull(webRetriever);
+        }
+
+        [Fact]
+        public void ThenProvidersDoesNotHasPayloadStrategy()
+        {
+            // Act
+            IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
+
+            // Assert
+            Assert.Throws<AS4Exception>(() => provider.Get(new Payload("not-supported-location")));
         }
     }
 }

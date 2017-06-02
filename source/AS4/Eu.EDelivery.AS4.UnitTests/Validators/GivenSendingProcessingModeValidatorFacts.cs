@@ -7,7 +7,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 {
     /// <summary>
     /// Testing <see cref="SendingProcessingModeValidator"/>
-    /// TODO: return bool.
     /// </summary>
     public class GivenSendingProcessingModeValidatorFacts
     {
@@ -19,8 +18,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         public void ValidSendingPMode_IfKeySizeIs(int beforeKeySize, int afterKeySize)
         {
             // Arrange
-            IValidator<SendingProcessingMode> sut = new SendingProcessingModeValidator();
-            SendingProcessingMode pmode = new ValidStubSendingPModeFactory().Create();
+            var sut = new SendingProcessingModeValidator();
+
+            SendingProcessingMode pmode = new ValidSendingPModeFactory().Create();
             pmode.Security.Encryption.IsEnabled = true;
             pmode.Security.Encryption.AlgorithmKeySize = beforeKeySize;
 

@@ -69,7 +69,7 @@
     </Encryption>
   </Security>
   <MessagePackaging>
-    <UseAS4Compression>false</UseAS4Compression>
+    <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>false</IncludePModeId>
     <CollaborationInfo>

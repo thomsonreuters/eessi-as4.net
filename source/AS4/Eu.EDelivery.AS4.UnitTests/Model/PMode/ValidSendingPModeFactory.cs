@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
     /// <summary>
     /// Valid instance of the <see cref="SendingProcessingMode" />
     /// </summary>
-    public class ValidStubSendingPModeFactory : SendingProcessingMode
+    public class ValidSendingPModeFactory : SendingProcessingMode
     {
         /// <summary>
         /// Create a valid <see cref="SendingProcessingMode"/> instance.

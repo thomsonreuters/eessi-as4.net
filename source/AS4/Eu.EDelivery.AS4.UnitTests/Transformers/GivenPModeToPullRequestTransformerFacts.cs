@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             {
                 yield return new object[] { new ReceivedMessage(requestStream: null) };
 
-                SendingProcessingMode invalidSendingPMode = new ValidStubSendingPModeFactory().Create("my id");
+                SendingProcessingMode invalidSendingPMode = new ValidSendingPModeFactory().Create("my id");
                 invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;
                 invalidSendingPMode.PushConfiguration = new PushConfiguration();
                 invalidSendingPMode.PullConfiguration = null;
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static SendingProcessingMode CreateAnonymousSendingPModeWith(string expectedMpc)
         {
-            SendingProcessingMode expectedSendingPMode = new ValidStubSendingPModeFactory().Create("expected-id");
+            SendingProcessingMode expectedSendingPMode = new ValidSendingPModeFactory().Create("expected-id");
             expectedSendingPMode.PullConfiguration.Mpc = expectedMpc;
 
             return expectedSendingPMode;

@@ -96,5 +96,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             return _sendingPModes.ContainsKey(id);
         }
+
+        /// <summary>
+        /// Gets the in message store location.
+        /// </summary>
+        /// <value>The in message store location.</value>
+        public string InMessageStoreLocation => string.Empty;
+
+        /// <summary>
+        /// Gets the out message store location.
+        /// </summary>
+        /// <value>The out message store location.</value>
+        public string OutMessageStoreLocation => string.Empty;
     }
 }

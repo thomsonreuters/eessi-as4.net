@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         public GivenStoreAS4MessageStepsFacts()
         {            
-            _module = new StoreAS4MessageStep(StubMessageBodyPersister.Default);
+            _module = new StoreAS4MessageStep(StubMessageBodyStore.Default);
         }
 
         /// <summary>

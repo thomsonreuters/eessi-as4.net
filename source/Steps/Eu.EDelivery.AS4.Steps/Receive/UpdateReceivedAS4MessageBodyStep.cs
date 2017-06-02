@@ -11,25 +11,24 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class UpdateReceivedAS4MessageBodyStep : IStep
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;
-        private readonly IAS4MessageBodyPersister _messageBodyPersister;
+        private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep"/> class.
         /// </summary>
-        public UpdateReceivedAS4MessageBodyStep()
-            : this(Registry.Instance.CreateDatastoreContext, Config.Instance.IncomingAS4MessageBodyPersister) {}
+        public UpdateReceivedAS4MessageBodyStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UpdateReceivedAS4MessageBodyStep" /> class.
         /// </summary>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
-        /// <param name="messageBodyPersister">The <see cref="IAS4MessageBodyPersister" /> that must be used to persist the messagebody content.</param>
+        /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore" /> that must be used to persist the messagebody content.</param>
         public UpdateReceivedAS4MessageBodyStep(
             Func<DatastoreContext> createDatastoreContext,
-            IAS4MessageBodyPersister messageBodyPersister)
+            IAS4MessageBodyStore messageBodyStore)
         {
             _createDatastoreContext = createDatastoreContext;
-            _messageBodyPersister = messageBodyPersister;
+            _messageBodyStore = messageBodyStore;
         }
 
         /// <summary>
@@ -43,17 +42,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
-                var service = new InMessageService(new DatastoreRepository(datastoreContext));
+                var repository = new DatastoreRepository(datastoreContext);
 
-                await service.UpdateAS4MessageForDeliveryAndNotification(
-                    as4Message: internalMessage.AS4Message,
-                    as4MessageBodyPersister: _messageBodyPersister,
-                    cancellationToken: cancellationToken);
+                var service = new InMessageService(repository);
+
+                await service.UpdateAS4MessageForDeliveryAndNotification(internalMessage.AS4Message, _messageBodyStore, cancellationToken);
 
                 await datastoreContext.SaveChangesAsync(cancellationToken);
             }
 
             return StepResult.Success(internalMessage);
-        }
+        }        
     }
 }

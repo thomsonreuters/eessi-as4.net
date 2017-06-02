@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         public GivenUpdateReceivedMessageDatastoreFacts()
         {
-            Step = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, StubMessageBodyPersister.Default);
+            Step = new UpdateReceivedAS4MessageBodyStep(GetDataStoreContext, StubMessageBodyStore.Default);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 // The receipt needs to be saved first, since we're testing the update-step.
                 var message = new InternalMessage(CreateReceiptAS4Message(EbmsMessageId));
-                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyPersister.Default);
+                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyStore.Default);
                 await step.ExecuteAsync(message, CancellationToken.None);
 
                 // Act
@@ -116,7 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 // The receipt needs to be saved first, since we're testing the update-step.
                 var message = new InternalMessage(CreateReceiptAS4Message(EbmsMessageId));
-                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyPersister.Default);
+                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyStore.Default);
                 await step.ExecuteAsync(message, CancellationToken.None);
 
                 // Act
@@ -159,7 +159,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 // The receipt needs to be saved first, since we're testing the update-step.
                 var message = new InternalMessage(CreateErrorAS4Message(EbmsMessageId));
-                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyPersister.Default);
+                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyStore.Default);
                 await step.ExecuteAsync(message, CancellationToken.None);
 
                 // Act
