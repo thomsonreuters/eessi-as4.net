@@ -8,8 +8,6 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Watchers;
 using NLog;
 
@@ -48,17 +46,20 @@ namespace Eu.EDelivery.AS4.Common
         public bool PayloadServiceInProcess { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="IAS4MessageBodyPersister"/> that must be used for incoming messages.
+        /// Gets the in message store location.
         /// </summary>
-        public IAS4MessageBodyPersister IncomingAS4MessageBodyPersister { get; } =
-            new AS4MessageBodyFilePersister(@".\database\as4messages\in", SerializerProvider.Default);
+        /// <value>The in message store location.</value>
+        public string InMessageStoreLocation => _settings?.Database?.InMessageStoreLocation ?? @"file:///.\database\as4messages\in";
 
         /// <summary>
-        /// Gets the <see cref="IAS4MessageBodyPersister" /> that must be used for outgoing messages.
+        /// Gets the out message store location.
         /// </summary>
-        public IAS4MessageBodyPersister OutgoingAS4MessageBodyPersister { get; } =
-            new AS4MessageBodyFilePersister(@".\database\as4messages\out", SerializerProvider.Default);
+        /// <value>The out message store location.</value>
+        public string OutMessageStoreLocation => _settings?.Database?.OutMessageStoreLocation ?? @"file:///.\database\as4messages\out";
 
+        /// <summary>
+        /// Gets a value indicating whether if the Configuration is initialized
+        /// </summary>
         public bool IsInitialized { get; private set; }
 
         /// <summary>
@@ -207,7 +208,8 @@ namespace Eu.EDelivery.AS4.Common
 
             string fullPath = Path.GetFullPath(path);
 
-            if (Path.IsPathRooted(path) == false || File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false)
+            if (Path.IsPathRooted(path) == false || 
+                (File.Exists(fullPath) == false && StringComparer.OrdinalIgnoreCase.Equals(path, fullPath) == false))
             {
                 path = Path.Combine(".", path);
             }

@@ -263,7 +263,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             Logger.Info($"Received Message from Datastore with Ebms Message Id: {messageEntity.EbmsMessageId}");
 
-            using (Stream stream = messageEntity.RetrieveMessageBody(Registry.Instance.MessageBodyRetrieverProvider))
+            using (Stream stream = await messageEntity.RetrieveMessagesBody(Registry.Instance.MessageBodyStore))
             {
                 if (stream == null)
                 {

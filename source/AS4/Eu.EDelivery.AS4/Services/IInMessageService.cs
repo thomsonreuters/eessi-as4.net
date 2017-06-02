@@ -8,9 +8,23 @@ namespace Eu.EDelivery.AS4.Services
 {
     public interface IInMessageService
     {
-        Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken);
+        /// <summary>
+        /// Inserts an <see cref="AS4Message"/>.
+        /// </summary>
+        /// <param name="as4Message">The as4 message.</param>
+        /// <param name="messageBodyStore">The message body store.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task InsertAS4Message(AS4Message as4Message, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken);
 
-        Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyPersister as4MessageBodyPersister, CancellationToken cancellationToken);
+        /// <summary>
+        /// Updates an <see cref="AS4Message"/> for delivery and notification.
+        /// </summary>
+        /// <param name="as4Message">The as4 message.</param>
+        /// <param name="messageBodyStore">The message body store.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task UpdateAS4MessageForDeliveryAndNotification(AS4Message as4Message, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken);
 
         /// <summary>
         /// Search for duplicate <see cref="UserMessage"/> instances in the configured datastore for the given <paramref name="searchedMessageIds"/>.

@@ -151,10 +151,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 EbmsMessageType = MessageType.UserMessage,
                 MEP = MessageExchangePattern.Push,
                 MessageLocation =
-                    await Config.Instance.IncomingAS4MessageBodyPersister.SaveAS4MessageAsync(
-                        as4Message,
-                        CancellationToken.None),
-                PMode = deliveragent_pmode,
+                    await Registry.Instance.MessageBodyStore.SaveAS4MessageAsync(Config.Instance.InMessageStoreLocation, as4Message, CancellationToken.None),
+                PMode = deliveragent_pmode, 
                 Operation = Operation.ToBeDelivered
             };
         }
