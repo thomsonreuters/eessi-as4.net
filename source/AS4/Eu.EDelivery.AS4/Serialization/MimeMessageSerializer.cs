@@ -244,7 +244,10 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 MimeMessage mimeMessage = new MimeParser(inputStream, persistent: true).ParseMessage(cancellationToken);
                 List<MimePart> bodyParts = mimeMessage.BodyParts.OfType<MimePart>().ToList();
-                if (bodyParts.Count <= 0) throw new AS4Exception("MIME Body Parts are empty");
+                if (bodyParts.Count <= 0)
+                {
+                    throw new AS4Exception("MIME Body Parts are empty");
+                }
 
                 return bodyParts;
             }

@@ -114,13 +114,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.ConsoleHost
 
         private static void StartPayloadServiceInProcess()
         {
-            if (!Config.Instance.PayloadServiceInProcess) return;
-
-            Task.Factory.StartNew(
-                () =>
-                {
-                    PayloadService.Program.Main(new string[0]);
-                });
+            if (Config.Instance.PayloadServiceInProcess)
+            {
+                Task.Factory.StartNew(() => PayloadService.Program.Main(new string[0]));
+            }
         }
     }
 }
