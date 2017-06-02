@@ -204,14 +204,15 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             Stream encryptedStream = EncryptData(attachment.Content, algorithm); 
 
             attachment.Content = encryptedStream;
-            attachment.ContentType = "application/octet-stream";
 
-            return new EncryptedDataBuilder()
+            var builder = new EncryptedDataBuilder()
                 .WithDataEncryptionConfiguration(_dataEncryptionConfig)
                 .WithMimeType(attachment.ContentType)
                 .WithReferenceId(encryptedKey.GetReferenceId())
-                .WithUri(attachment.Id)
-                .Build();
+                .WithUri(attachment.Id);
+
+            attachment.ContentType = "application/octet-stream";
+            return builder.Build();
         }
 
         private Stream EncryptData(Stream secretStream, SymmetricAlgorithm algorithm)

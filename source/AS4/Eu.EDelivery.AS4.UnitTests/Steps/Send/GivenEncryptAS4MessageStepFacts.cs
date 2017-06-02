@@ -1,16 +1,17 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -43,13 +44,46 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 // Arrange
                 AS4Message as4Message = CreateEncryptedAS4Message();
-                var internalMessage = new InternalMessage(as4Message);
 
                 // Act
-                StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult stepResult = await ExerciseEncryptAS4Message(as4Message);
 
                 // Assert
                 Assert.True(stepResult.InternalMessage.AS4Message.IsEncrypted);
+            }
+
+            [Fact]
+            public async Task EncryptedDatasHasTakenOverAttachmentInfo()
+            {
+                // Arrange
+                AS4Message as4Message = CreateEncryptedAS4Message();
+                string expectedMimeType = as4Message.Attachments.First().ContentType;
+
+                // Act
+                StepResult result = await ExerciseEncryptAS4Message(as4Message);
+
+                // Assert
+                string actualMimeType = FirstEncryptedDataMimeTypeAttributeValue(result);
+
+                Assert.Equal(expectedMimeType, actualMimeType);
+                Assert.All(as4Message.Attachments, a => Assert.Equal("application/octet-stream", a.ContentType));
+            }
+
+            private async Task<StepResult> ExerciseEncryptAS4Message(AS4Message as4Message)
+            {
+                // Arrange
+                var internalMessage = new InternalMessage(as4Message);
+
+                // Act
+                return await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+            }
+
+            private static string FirstEncryptedDataMimeTypeAttributeValue(StepResult result)
+            {
+                XmlElement node = result.InternalMessage.AS4Message.SecurityHeader.GetXml();
+                XmlNode attachmentNode = node.SelectSingleNode("//*[local-name()='EncryptedData']");
+
+                return attachmentNode.Attributes.GetNamedItem("MimeType").Value;
             }
         }
 
@@ -84,7 +118,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         protected AS4Message CreateEncryptedAS4Message()
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));
-            var attachment = new Attachment("attachment-id") {Content = attachmentStream};
+            var attachment = new Attachment("attachment-id") {Content = attachmentStream, ContentType = "text/plain"};
             AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
             as4Message.SendingPMode = new SendingProcessingMode();
