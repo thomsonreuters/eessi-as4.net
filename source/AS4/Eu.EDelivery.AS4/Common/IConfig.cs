@@ -21,6 +21,18 @@ namespace Eu.EDelivery.AS4.Common
         bool IsInitialized { get; }
 
         /// <summary>
+        /// Gets the in message store location.
+        /// </summary>
+        /// <value>The in message store location.</value>
+        string InMessageStoreLocation { get; }
+
+        /// <summary>
+        /// Gets the out message store location.
+        /// </summary>
+        /// <value>The out message store location.</value>
+        string OutMessageStoreLocation { get; }
+
+        /// <summary>
         /// Retrieve Setting from the Global Configurations
         /// </summary>
         /// <param name="key">Registered Key for the Setting</param>

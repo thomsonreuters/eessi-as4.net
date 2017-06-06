@@ -50,15 +50,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             private static void AssertOnMessageReceived(IReceiver receiver)
             {
                 var waitHandle = new ManualResetEvent(initialState: false);
-
-                receiver.StartReceiving(
-                    (message, token) =>
-                    {
-                        waitHandle.Set();
-                        return Task.FromResult((MessagingContext) new EmptyMessagingContext());
-                    }, CancellationToken.None);
+                receiver.StartReceiving(SetEvent(waitHandle), CancellationToken.None);
 
                 Assert.False(waitHandle.WaitOne(TimeSpan.FromMilliseconds(500)));
+            }
+
+            [Fact]
+            public async Task TestSetEvent()
+            {
+                // Arrange
+                var waitHandle = new ManualResetEvent(initialState: false);
+                Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> func = SetEvent(waitHandle);
+
+                // Act
+                await func(null, CancellationToken.None);
+
+                // Assert
+                Assert.True(waitHandle.WaitOne());
+            }
+
+            private static Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> SetEvent(EventWaitHandle waitHandle)
+            {
+                return (message, token) =>
+                {
+                    waitHandle.Set();
+                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
+                };
             }
         }
 

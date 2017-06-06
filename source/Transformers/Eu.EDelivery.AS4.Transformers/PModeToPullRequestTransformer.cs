@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Validators;
+using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -61,19 +62,33 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static SendingProcessingMode DeserializeValidPMode(ReceivedMessage receivedMessage)
         {
-            try
-            {
-                var pmode = AS4XmlSerializer.FromStream<SendingProcessingMode>(receivedMessage.RequestStream);
-                IValidator<SendingProcessingMode> validator = new SendingProcessingModeValidator();
-                validator.Validate(pmode);
+            var pmode = AS4XmlSerializer.FromStream<SendingProcessingMode>(receivedMessage.RequestStream);
+            var validator = new SendingProcessingModeValidator();
 
+            ValidationResult result = validator.Validate(pmode);
+
+            if (result.IsValid)
+            {
                 return pmode;
             }
-            catch (Exception exception)
+
+            throw ThrowHandleInvalidPModeException(pmode, result);
+        }
+
+        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
+        {
+            foreach (ValidationFailure error in result.Errors)
             {
-                Logger.Error(exception.Message);
-                throw;
+                Logger.Error($"Sending PMode Validation Error: {error.PropertyName} = {error.ErrorMessage}");
             }
+
+            string description = $"Sending PMode {pmode.Id} was invalid, see logging";
+            Logger.Error(description);
+
+            return AS4ExceptionBuilder
+                .WithDescription(description)
+                .WithMessageIds(Guid.NewGuid().ToString())
+                .Build();
         }
 
         private static AS4Exception CreateAS4Exception(string description)

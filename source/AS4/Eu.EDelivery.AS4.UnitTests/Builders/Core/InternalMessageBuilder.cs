@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// Initializes a new instance of the <see cref="InternalMessageBuilder"/> class.
         /// </summary>
         /// <param name="messageId">The message Id.</param>
-        public InternalMessageBuilder(string messageId = null)
+        public InternalMessageBuilder(string messageId = "message-id")
         {
             _messagingContext = new MessagingContext(new AS4Message());
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
@@ -113,11 +113,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             return this;
         }
 
-        private UserMessage CreateDefaultUserMessage(string messageId = null)
+        private static UserMessage CreateDefaultUserMessage(string messageId)
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
-            var userMessage = new UserMessage {CollaborationInfo = {AgreementReference = new AgreementReference()}};
-            if (messageId != null) userMessage.MessageId = messageId;
+            var userMessage = new UserMessage
+            {
+                CollaborationInfo = {AgreementReference = new AgreementReference()},
+                MessageId = messageId
+            };
+
             return userMessage;
         }
     }

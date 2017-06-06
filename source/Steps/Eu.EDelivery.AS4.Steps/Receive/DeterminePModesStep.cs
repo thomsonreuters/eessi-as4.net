@@ -9,6 +9,8 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
@@ -74,7 +76,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
-                SendPMode pmode = repository.RetrieveSendingPModeForOutMessage(primarySignal.RefToMessageId);
+
+                SendPMode pmode = repository.GetOutMessageData(
+                    as4Message.PrimarySignalMessage.RefToMessageId,
+                    m => AS4XmlSerializer.FromString<SendPMode>(m.PMode));
 
                 if (pmode == null)
                 {
@@ -138,7 +143,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
         }
 
-        private static bool TheresMoreThanOneWinningParticipant(List<PModeParticipant> participants, PModeParticipant winningParticipant)
+        private static bool TheresMoreThanOneWinningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
         {
             return participants.Count(p => p.Points == winningParticipant.Points) > 1;
         }

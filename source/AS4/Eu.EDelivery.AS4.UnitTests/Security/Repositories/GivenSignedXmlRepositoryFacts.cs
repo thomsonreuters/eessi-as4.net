@@ -1,4 +1,6 @@
-﻿using System.Xml;
+﻿using System;
+using System.Security.Cryptography;
+using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Security.Repositories;
 using Xunit;
@@ -78,6 +80,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Repositories
 
                 // Assert
                 Assert.Equal(ErrorCode.Ebms0101, as4Exception.ErrorCode);
+            }
+
+            [Fact]
+            public void Fails_IfMalformedDocument()
+            {
+                // Arrange
+                var document = new XmlDocument();
+                document.LoadXml(
+                    "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                    + "<s12:Envelope xmlns:s12=\"http://www.w3.org/2003/05/soap-envelope\">"
+                    + "<s12:Body p2:Id=\"body-efc3a86d-ca12-4697-a9cf-85be4334dd41\" xmlns:p2=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"/>"
+                    + "<s12:Body p2:Id=\"body-efc3a86d-ca12-4697-a9cf-85be4334dd41\" xmlns:p2=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"/>"
+                    + "<s12:Body p2:Id=\"body-efc3a86d-ca12-4697-a9cf-85be4334dd41\" xmlns:p2=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\"/>"
+                    + "</s12:Envelope>");
+
+                var sut = new SignedXmlRepository(document);
+
+                // Act / Assert
+                Assert.ThrowsAny<CryptographicException>(
+                    () => sut.GetReferenceIdElement("body-efc3a86d-ca12-4697-a9cf-85be4334dd41"));
             }
         }
     }

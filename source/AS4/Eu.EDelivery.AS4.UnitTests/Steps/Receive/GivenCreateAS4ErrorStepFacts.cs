@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         public class GivenValidArguments : GivenCreateAS4ErrorStepFacts
         {
-            public IStep Step => new CreateAS4ErrorStep(new StubMessageBodyPersister(), () => new DatastoreContext(Options));
+            public IStep Step => new CreateAS4ErrorStep(new StubMessageBodyStore(), () => new DatastoreContext(Options));
 
             [Fact]
             public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()

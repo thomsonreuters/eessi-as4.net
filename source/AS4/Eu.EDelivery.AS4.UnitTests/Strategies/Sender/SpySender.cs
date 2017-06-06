@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
@@ -86,6 +87,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 
             // Assert
             Assert.True(sut.IsNotified);
+        }
+
+        [Fact]
+        public void SpyOnConfigure()
+        {
+            // Arrange
+            var sut = new SpySender();
+
+            // Act
+            sut.Configure(method: null);
+
+            // Assert
+            Assert.True(sut.IsConfigured);
         }
     }
 }

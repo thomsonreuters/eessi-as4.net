@@ -10,6 +10,8 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
@@ -23,7 +25,8 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly INotifySenderProvider _provider;
-        private readonly Func<DatastoreContext> _dataContextRetriever;
+        private readonly IOutMessageService _messageService;
+        private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendNotifyMessageStep"/> class
@@ -42,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         public SendNotifyMessageStep(INotifySenderProvider provider, Func<DatastoreContext> dataContextRetriever)
         {
             _provider = provider;
-            _dataContextRetriever = dataContextRetriever;
+            _createContext = dataContextRetriever;
         }
 
         /// <summary>
@@ -71,10 +74,14 @@ namespace Eu.EDelivery.AS4.Steps.Notify
 
         private SendingProcessingMode RetrieveSendingPMode(MessagingContext messagingContext)
         {
-            using (DatastoreContext context = _dataContextRetriever())
+            using (DatastoreContext context = _createContext())
             {
-                var repo = new DatastoreRepository(context);
-                return repo.RetrieveSendingPModeForOutMessage(messagingContext.NotifyMessage.MessageInfo.RefToMessageId);
+                var repository = new DatastoreRepository(context);
+                string messageId = messagingContext.NotifyMessage.MessageInfo.RefToMessageId;
+
+                return repository.GetOutMessageData(
+                    messageId,
+                    m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
             }
         }
 

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 {
@@ -16,7 +17,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// with a given <paramref name="method" />
         /// </summary>
         /// <param name="method"></param>
-        public void Configure(AS4.Model.PMode.Method method) {}
+        public void Configure(AS4.Model.PMode.Method method)
+        {
+            throw new SaboteurException("Sabotage 'Configure'");
+        }
 
         /// <summary>
         /// Start sending the <see cref="DeliverMessage" />
@@ -34,6 +38,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         public Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
             throw new SaboteurException("Sabotage 'Notify' Send");
+        }
+
+        [Fact]
+        public void Sabotage_Configure()
+        {
+            Assert.ThrowsAny<Exception>(() => new SaboteurSender().Configure(method: null));
+        }
+
+        [Fact]
+        public async Task Sabotage_Send()
+        {
+            // Arrange
+            var sut = new SaboteurSender();
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(deliverMessage: null));
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(notifyMessage: null));
         }
     }
 

@@ -20,23 +20,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
     /// </summary>
     public class GivenSubmitMessageXmlTransformerFacts
     {
-        /// <summary>
-        /// Testing if the Transformer succeeds
-        /// for the "Execute" Method
-        /// </summary>
-        public class GivenValidArgumentsToTransform : GivenSubmitMessageXmlTransformerFacts
+        [Fact]
+        public async Task ThenPModeIsNotPartOfTheSerializationAsync()
         {
-            [Fact]
-            public async Task ThenPModeIsNotPartOfTheSerializationAsync()
+            // Arrange
+            var submitMessage = new SubmitMessage
             {
-                // Arrange
-                var submitMessage = new SubmitMessage
-                {
-                    Collaboration = {AgreementRef = {PModeId = "this-pmode-id"}},
-                    PMode = new SendingProcessingMode {Id = "other-pmode-id"}
-                };
+                Collaboration = {AgreementRef = {PModeId = "this-pmode-id"}},
+                PMode = new SendingProcessingMode {Id = "other-pmode-id"}
+            };
 
-                ReceivedMessage receivedmessage = CreateMessageFrom(submitMessage);
+            ReceivedMessage receivedmessage = CreateMessageFrom(submitMessage);
 
                 // Act
                 MessagingContext messagingContext = await Transform(receivedmessage);
@@ -44,20 +38,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Assert
                 Assert.Null(messagingContext.SubmitMessage.PMode);
 
-                receivedmessage.RequestStream.Dispose();
-            }
+            receivedmessage.RequestStream.Dispose();
+        }
 
-            [Fact]
-            public async Task ThenTransformSucceedsWithPModeIdAsync()
+        [Fact]
+        public async Task ThenTransformSucceedsWithPModeIdAsync()
+        {
+            // Arrange
+            const string expectedPModeId = "01-pmode";
+            var submitMessage = new SubmitMessage
             {
-                // Arrange
-                const string expectedPModeId = "01-pmode";
-                var submitMessage = new SubmitMessage
-                {
-                    Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = expectedPModeId}}
-                };
+                Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = expectedPModeId}}
+            };
 
-                ReceivedMessage receivedMessage = CreateMessageFrom(submitMessage);
+            ReceivedMessage receivedMessage = CreateMessageFrom(submitMessage);
 
                 // Act
                 MessagingContext messagingContext = await Transform(receivedMessage);
@@ -65,41 +59,47 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Assert
                 Assert.Equal(expectedPModeId, messagingContext.SubmitMessage.Collaboration.AgreementRef.PModeId);
 
-                receivedMessage.RequestStream.Dispose();
-            }
+            receivedMessage.RequestStream.Dispose();
         }
 
-        public class GivenInvalidArgumentsToTransform : GivenSubmitMessageXmlTransformerFacts
+        [Fact]
+        public async Task SubmitMessageWithoutPModeIdIsNotAccepted()
         {
-            [Fact]
-            public async void SubmitMessageWithoutPModeIdIsNotAccepted()
+            // Arrange
+            var submitMessage = new SubmitMessage
             {
-                // Arrange
-                var submitMessage = new SubmitMessage
-                {
-                    Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = string.Empty}}
-                };
-                ReceivedMessage receivedMessage = CreateMessageFrom(submitMessage);
+                Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = string.Empty}}
+            };
+            ReceivedMessage receivedMessage = CreateMessageFrom(submitMessage);
 
-                // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(() => Transform(receivedMessage));
+            // Act / Assert
+            await Assert.ThrowsAsync<AS4Exception>(() => Transform(receivedMessage));
 
-                receivedMessage.RequestStream.Dispose();
-            }
+            receivedMessage.RequestStream.Dispose();
+        }
 
-            [Fact]
-            public async void TransformSubmitMessageFailsDeserializing()
-            {
-                // Arrange
-                var messageStream = new MemoryStream(Encoding.UTF8.GetBytes("<Invalid-XML"));
-                var receivedMessage = new ReceivedMessage(messageStream);
+        [Fact]
+        public async Task TransformSubmitMessageFailsDeserializing()
+        {
+            // Arrange
+            var messageStream = new MemoryStream(Encoding.UTF8.GetBytes("<Invalid-XML"));
+            var receivedMessage = new ReceivedMessage(messageStream);
 
-                // Act / Assert
-                AS4Exception actualException = 
-                    await Assert.ThrowsAsync<AS4Exception>(() => Transform(receivedMessage));
+            // Act / Assert
+            AS4Exception actualException = await Assert.ThrowsAsync<AS4Exception>(() => Transform(receivedMessage));
 
-                Assert.IsType<InvalidOperationException>(actualException.InnerException);
-            }
+            Assert.IsType<InvalidOperationException>(actualException.InnerException);
+        }
+
+        [Fact]
+        public async Task TransformFails_IfInvalidSubmitMessage()
+        {
+            // Arrange
+            var invalidMessage = new SubmitMessage {Collaboration = null};
+            ReceivedMessage receivedmessage = CreateMessageFrom(invalidMessage);
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedmessage));
         }
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)
@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             return await new SubmitMessageXmlTransformer().TransformAsync(message, CancellationToken.None);
         }
 
-        protected ReceivedMessage CreateMessageFrom(SubmitMessage submitMessage)
+        private static ReceivedMessage CreateMessageFrom(SubmitMessage submitMessage)
         {
             return new ReceivedMessage(WriteSubmitMessageToStream(submitMessage));
         }

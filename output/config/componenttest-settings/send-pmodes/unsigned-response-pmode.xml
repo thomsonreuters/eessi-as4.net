@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PMode 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4:pmode">
+  <Id>unsigned-response-pmode</Id>
+  <AllowOverride>false</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>
+  <Security>
+    <Signing>
+      <IsEnabled>false</IsEnabled>
+    </Signing>
+  </Security>
+</PMode>

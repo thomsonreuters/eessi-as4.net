@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -8,7 +7,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Steps.Submit;
-using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Moq;
 using Xunit;
 
@@ -19,50 +18,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
     /// </summary>
     public class GivenRetrieveSendingPModeStepFacts
     {
-        private readonly Mock<IConfig> _mockedConfig;
-        private readonly string _pmodeId;
-
-        private RetrieveSendingPModeStep _step;
-
-        public GivenRetrieveSendingPModeStepFacts()
+        [Fact]
+        public async Task FailsToRetrievePMode_IfInvalidPMode()
         {
-            _step = new RetrieveSendingPModeStep(StubConfig.Instance);
-            _pmodeId = "01-pmode";
-            _mockedConfig = new Mock<IConfig>();
-            _mockedConfig.Setup(c => c.GetSendingPMode(It.IsAny<string>())).Returns(GetStubWrongProcessingMode());
+            // Arrange
+            const string pmodeId = "01-pmode";
+            var internalMessage = new MessagingContext(GetStubSubmitMessage(pmodeId));
+
+            SendingProcessingMode invalidPMode = new ValidSendingPModeFactory().Create(pmodeId);
+            invalidPMode.MepBinding = MessageExchangePatternBinding.Push;
+            invalidPMode.PushConfiguration.Protocol = null;
+
+            var sut = new RetrieveSendingPModeStep(CreateStubConfigWithSendingPMode(invalidPMode));
+
+            // Act / Assert
+            await Assert.ThrowsAsync<AS4Exception>(() => sut.ExecuteAsync(internalMessage, CancellationToken.None));
         }
 
-        private SendingProcessingMode GetStubWrongProcessingMode()
-        {
-            Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
-            return new SendingProcessingMode {Id = _pmodeId, PushConfiguration = new PushConfiguration()};
-        }
-
-        private SubmitMessage GetStubSubmitMessage()
+        private static SubmitMessage GetStubSubmitMessage(string pmodeId)
         {
             return new SubmitMessage
             {
-                Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = _pmodeId}}
+                Collaboration = new CollaborationInfo {AgreementRef = new Agreement {PModeId = pmodeId}}
             };
         }
 
-        /// <summary>
-        /// Testing if the Step fails
-        /// for the "Execute" Method
-        /// </summary>
-        public class GivenInalidArgumentsForExecute : GivenRetrieveSendingPModeStepFacts
+        private static IConfig CreateStubConfigWithSendingPMode(SendingProcessingMode pmode)
         {
-            [Fact]
-            public async Task ThenExecuteMethodRetrievesPModeFailsWithInvalidPModeAsync()
-            {
-                // Arrange
-                var internalMessage = new MessagingContext(GetStubSubmitMessage());
-                _step = new RetrieveSendingPModeStep(_mockedConfig.Object);
+            var stubConfig = new Mock<IConfig>();
+            stubConfig.Setup(c => c.GetSendingPMode(It.IsAny<string>())).Returns(pmode);
 
-                // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(
-                    () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
-            }
+            return stubConfig.Object;
         }
     }
 }

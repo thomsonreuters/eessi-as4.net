@@ -39,13 +39,13 @@ namespace Eu.EDelivery.AS4.Common
 
         public IAttachmentUploaderProvider AttachmentUploader { get; private set; }
 
-        public AS4MessageBodyRetrieverProvider MessageBodyRetrieverProvider { get; private set; }
+        public MessageBodyStore MessageBodyStore { get; private set; }
         
 
         private void RegisterPayloadStrategyProvider()
         {
             PayloadRetrieverProvider = new PayloadRetrieverProvider();
-            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("file://", StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
+            PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("file:///", StringComparison.OrdinalIgnoreCase), new FilePayloadRetriever());
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase), new FtpPayloadRetriever());
             PayloadRetrieverProvider.Accept(p => p.Location.StartsWith("http", StringComparison.OrdinalIgnoreCase), new HttpPayloadRetriever());
         }
@@ -78,10 +78,10 @@ namespace Eu.EDelivery.AS4.Common
 
         private void RegisterAS4MessageBodyRetrieverProvider()
         {
-            MessageBodyRetrieverProvider = new AS4MessageBodyRetrieverProvider();
-            MessageBodyRetrieverProvider.Accept(l => l.StartsWith("file://", StringComparison.OrdinalIgnoreCase), new 
-                AS4MessageBodyFileRetriever());                
+            MessageBodyStore = new MessageBodyStore();
+            MessageBodyStore.Accept(
+                condition: l => l.StartsWith("file:///", StringComparison.OrdinalIgnoreCase),
+                persister: new AS4MessageBodyFileStore(Serialization.SerializerProvider.Default));
         }
-
     }
 }

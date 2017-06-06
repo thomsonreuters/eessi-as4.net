@@ -98,10 +98,10 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 Attachment attachment = attachmentCollection[i];
 
-                if (attachments.Exists(a => a.Id.Equals(attachment.Id)) == false)
+                if (attachments.Exists(a => a.Id.Equals(attachment?.Id)) == false)
                 {
                     attachment.Content.Dispose();
-                    attachments.Remove(attachment);
+                    attachmentCollection.Remove(attachment);
                 }
             }
 
@@ -112,7 +112,9 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             return
                 as4Message.PrimaryUserMessage.PayloadInfo.Select(
-                    partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo))).ToList();
+                              partInfo => as4Message.Attachments.FirstOrDefault(a => a.Matches(partInfo)))
+                          .Where(a => a != null)
+                          .ToList();
         }
     }
 }

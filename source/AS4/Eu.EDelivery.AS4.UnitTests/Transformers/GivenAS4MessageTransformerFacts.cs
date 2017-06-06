@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -55,6 +56,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         /// </summary>
         public class GivenInvalidArgumentsToTransfrormer : GivenAS4MessageTransformerFacts
         {
+            [Fact]
+            public void FailsToCreateTransformer_IfInvalidProvider()
+            {
+                // Act / Assert
+                Assert.ThrowsAny<Exception>(() => new AS4MessageTransformer(provider: null));
+            }
+
             [Fact]
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {

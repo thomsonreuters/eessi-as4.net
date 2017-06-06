@@ -26,25 +26,25 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
+        private readonly IAS4MessageBodyStore _messageBodyStore;
         private readonly Func<DatastoreContext> _createDatastore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
-        public CreateAS4ErrorStep()
-            : this(Config.Instance.OutgoingAS4MessageBodyPersister, Registry.Instance.CreateDatastoreContext) {}
+        public CreateAS4ErrorStep() : this(Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class
         /// </summary>
-        /// <param name="as4MessageBodyPersister">The <see cref="IAS4MessageBodyPersister"/> that must be used to persist the MessageBody.</param>
+        /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the MessageBody.</param>
         /// <param name="createDatastoreContext">The context in which teh datastore context is set.</param>
-        public CreateAS4ErrorStep(IAS4MessageBodyPersister as4MessageBodyPersister, Func<DatastoreContext> createDatastoreContext)
+        public CreateAS4ErrorStep(IAS4MessageBodyStore messageBodyStore, Func<DatastoreContext> createDatastoreContext)
         {
-            _as4MessageBodyPersister = as4MessageBodyPersister;
+            _messageBodyStore = messageBodyStore;
             _createDatastore = createDatastoreContext;
         }
+
 
         /// <summary>
         /// Start creating <see cref="Model.Core.Error"/>
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             // Save the Error Message as well .... 
             using (DatastoreContext db = _createDatastore())
             {
-                var service = new OutMessageService(new DatastoreRepository(db), _as4MessageBodyPersister);
+                var service = new OutMessageService(new DatastoreRepository(db), _messageBodyStore);
 
                 // The service will determine the correct operation for each message-part.
                 await service.InsertAS4Message(message, Operation.NotApplicable, cancellationToken);

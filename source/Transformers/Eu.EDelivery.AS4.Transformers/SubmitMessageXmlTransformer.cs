@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Validators;
+using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
@@ -17,17 +18,15 @@ namespace Eu.EDelivery.AS4.Transformers
     /// </summary>
     public class SubmitMessageXmlTransformer : ITransformer
     {
-        private readonly IValidator<SubmitMessage> _validator;
-        private readonly ILogger _logger;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly SubmitMessageValidator _validator;
 
         /// <summary>
-        /// Create a <see cref="SubmitMessage"/> Transformer
-        /// to transform from Xml
+        /// Initializes a new instance of the <see cref="SubmitMessageXmlTransformer" /> class.
         /// </summary>
         public SubmitMessageXmlTransformer()
         {
             _validator = new SubmitMessageValidator();
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
@@ -39,18 +38,18 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
-            _logger.Info($"Transforming ReceivedMessage to InternalMessage");
-            
-            var submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
+            Logger.Info("Transforming ReceivedMessage to InternalMessage");
+
+            SubmitMessage submitMessage = TryDeserializeSubmitMessage(message.RequestStream);
             ValidateSubmitMessage(submitMessage);
 
             var internalMessage = new MessagingContext(submitMessage);
-            LogTransformedInformation();
+            //LogTransformedInformation();
 
             return await Task.FromResult(internalMessage);
         }
 
-        private SubmitMessage TryDeserializeSubmitMessage(Stream stream)
+        private static SubmitMessage TryDeserializeSubmitMessage(Stream stream)
         {
             try
             {
@@ -68,27 +67,38 @@ namespace Eu.EDelivery.AS4.Transformers
             return serializer.Deserialize(stream) as SubmitMessage;
         }
 
-        private AS4Exception ThrowDeserializeAS4Exception(Exception exception)
+        private static AS4Exception ThrowDeserializeAS4Exception(Exception exception)
         {
             const string description = "Deserialize Submit Message Fails";
-            _logger.Error(description);
+            Logger.Error(description);
 
-            var builder = AS4ExceptionBuilder
-                .WithDescription(description, exception)
-                .WithInnerException(exception);
-                
+            AS4ExceptionBuilder builder =
+                AS4ExceptionBuilder.WithDescription(description, exception).WithInnerException(exception);
+
             return builder.Build();
         }
 
         private void ValidateSubmitMessage(SubmitMessage submitMessage)
         {
-            _validator.Validate(submitMessage);
-            _logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid");
+            _validator.Validate(submitMessage)
+                      .Result(
+                          happyPath: result => Logger.Debug($"Submit Message {submitMessage.MessageInfo.MessageId} is valid"),
+                          unhappyPath: result =>
+                          {
+                              result.LogErrors(Logger);
+                              throw ThrowInvalidSubmitMessageException(submitMessage);
+                          });
         }
 
-        private void LogTransformedInformation()
+        private static AS4Exception ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
         {
-            _logger.Info("SubmitMessage is successfully tranfromed from Xml");
+            string description = $"Submit Message {submitMessage.MessageInfo.MessageId} was invalid, see logging";
+            Logger.Error(description);
+
+            return AS4ExceptionBuilder
+                .WithDescription(description)
+                .WithMessageIds(submitMessage.MessageInfo.MessageId)
+                .Build();
         }
     }
 }

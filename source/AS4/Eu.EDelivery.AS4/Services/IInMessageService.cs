@@ -23,14 +23,28 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds);
 
+        /// <summary>
+        /// Update the given message for delivery and notification.
+        /// </summary>
+        /// <param name="messagingContext"></param>
+        /// <param name="as4MessageBodyPersister"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task UpdateAS4MessageForDeliveryAndNotification(
             MessagingContext messagingContext,
-            IAS4MessageBodyPersister as4MessageBodyPersister,
+            IAS4MessageBodyStore as4MessageBodyPersister,
             CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Insert the given message.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="as4MessageBodyPersister"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task InsertAS4Message(
             MessagingContext message,
-            IAS4MessageBodyPersister as4MessageBodyPersister,
+            IAS4MessageBodyStore as4MessageBodyPersister,
             CancellationToken cancellationToken);
     }
 }

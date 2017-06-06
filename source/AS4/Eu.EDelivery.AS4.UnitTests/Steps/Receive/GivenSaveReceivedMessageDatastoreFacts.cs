@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyPersister.Default);
+            Step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
         }
 
         /// <summary>

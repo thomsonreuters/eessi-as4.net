@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         public GivenStoreAS4MessageStepsFacts()
         {            
-            _module = new StoreAS4MessageStep(StubMessageBodyPersister.Default);
+            _module = new StoreAS4MessageStep(StubMessageBodyStore.Default);
         }
 
         /// <summary>
@@ -32,12 +32,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             [Fact]
             public async Task ThenTransmitMessageSucceedsAsync()
             {
-                // Arrange
-                AS4Message message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
-                var internalMessage = new MessagingContext(message);
-
                 // Act
-                StepResult result = await _module.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _module.ExecuteAsync(AS4UserMessage(), CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result);
@@ -50,12 +46,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         public class GivenStoreAs4MessageStepsFails : GivenStoreAS4MessageStepsFacts
         {
             [Fact]
+            public async Task StoreMessageFails_IfInvalidBodyPersister()
+            {
+                // Arrange
+                var sut = new StoreAS4MessageStep(null);
+
+                // Act / Assert
+                await Assert.ThrowsAnyAsync<Exception>(() => sut.ExecuteAsync(AS4UserMessage(), CancellationToken.None));
+            }
+
+            [Fact]
             public async Task ThenTransmitMessageFailsWithNullAS4MessageAsync()
             {
                 // Act / Assert
                 await Assert.ThrowsAsync<NullReferenceException>(
                     () => _module.ExecuteAsync(null, CancellationToken.None));
             }
+        }
+
+        protected static MessagingContext AS4UserMessage()
+        {
+            AS4Message message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
+            return new MessagingContext(message);
         }
     }
 }

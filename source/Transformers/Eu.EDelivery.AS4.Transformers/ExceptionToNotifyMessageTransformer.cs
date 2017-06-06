@@ -17,10 +17,10 @@ namespace Eu.EDelivery.AS4.Transformers
 {
     public class ExceptionToNotifyMessageTransformer : ITransformer
     {
-        private readonly ISerializerProvider _provider;
-
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
+        private readonly ISerializerProvider _provider;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="ExceptionToNotifyMessageTransformer"/> class.
         /// </summary>
@@ -53,16 +53,34 @@ namespace Eu.EDelivery.AS4.Transformers
             return internalMessage;
         }
 
-        protected virtual NotifyMessageEnvelope CreateNotifyMessageEnvelope(AS4Message as4Message)
+        private static ReceivedEntityMessage RetrieveEntityMessage(ReceivedMessage message)
         {
-            var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
+            var entityMessage = message as ReceivedEntityMessage;
+            if (entityMessage == null)
+            {
+                throw ThrowNotSupportedTypeException();
+            }
 
-            var serialized = AS4XmlSerializer.ToString(notifyMessage);
+            return entityMessage;
+        }
 
-            return new NotifyMessageEnvelope(notifyMessage.MessageInfo,
-                                             notifyMessage.StatusInfo.Status,
-                                             System.Text.Encoding.UTF8.GetBytes(serialized),
-                                             "application/xml");
+        private static ExceptionEntity RetrieveExceptionEntity(ReceivedEntityMessage messageEntity)
+        {
+            var exceptionEntity = messageEntity.Entity as ExceptionEntity;
+            if (exceptionEntity == null)
+            {
+                throw ThrowNotSupportedTypeException();
+            }
+
+            return exceptionEntity;
+        }
+
+        private static AS4Exception ThrowNotSupportedTypeException()
+        {
+            const string description = "Exception Transformer only supports Exception Entities";
+            Logger.Error(description);
+
+            return AS4ExceptionBuilder.WithDescription(description).Build();
         }
 
         private async Task<AS4Message> CreateErrorAS4Message(ExceptionEntity exceptionEntity, CancellationToken cancellationTokken)
@@ -73,26 +91,6 @@ namespace Eu.EDelivery.AS4.Transformers
             as4Message.EnvelopeDocument = await GetEnvelopeDocument(as4Message, cancellationTokken);
 
             return as4Message;
-        }
-
-        private async Task<XmlDocument> GetEnvelopeDocument(AS4Message as4Message, CancellationToken cancellationToken)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                ISerializer serializer = _provider.Get(Constants.ContentTypes.Soap);
-                await serializer.SerializeAsync(as4Message, memoryStream, cancellationToken);
-
-                var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
-                memoryStream.Position = 0;
-                xmlDocument.Load(memoryStream);
-
-                return xmlDocument;
-            }
-        }
-
-        public T GetPMode<T>(string pmode) where T : class
-        {
-            return AS4XmlSerializer.FromString<T>(pmode);
         }
 
         private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
@@ -115,28 +113,36 @@ namespace Eu.EDelivery.AS4.Transformers
                 .Build();
         }
 
-        private static ExceptionEntity RetrieveExceptionEntity(ReceivedEntityMessage messageEntity)
+        private T GetPMode<T>(string pmode) where T : class
         {
-            var exceptionEntity = messageEntity.Entity as ExceptionEntity;
-            if (exceptionEntity == null) throw ThrowNotSupportedTypeException();
-
-            return exceptionEntity;
+            return AS4XmlSerializer.FromString<T>(pmode);
         }
 
-        private static ReceivedEntityMessage RetrieveEntityMessage(ReceivedMessage message)
+        private async Task<XmlDocument> GetEnvelopeDocument(AS4Message as4Message, CancellationToken cancellationToken)
         {
-            var entityMessage = message as ReceivedEntityMessage;
-            if (entityMessage == null) throw ThrowNotSupportedTypeException();
+            using (var memoryStream = new MemoryStream())
+            {
+                ISerializer serializer = _provider.Get(Constants.ContentTypes.Soap);
+                await serializer.SerializeAsync(as4Message, memoryStream, cancellationToken);
 
-            return entityMessage;
+                var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
+                memoryStream.Position = 0;
+                xmlDocument.Load(memoryStream);
+
+                return xmlDocument;
+            }
         }
 
-        private static AS4Exception ThrowNotSupportedTypeException()
+        protected virtual NotifyMessageEnvelope CreateNotifyMessageEnvelope(AS4Message as4Message)
         {
-            const string description = "Exception Transformer only supports Exception Entities";
-            Logger.Error(description);
+            var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
 
-            return AS4ExceptionBuilder.WithDescription(description).Build();
+            var serialized = AS4XmlSerializer.ToString(notifyMessage);
+
+            return new NotifyMessageEnvelope(notifyMessage.MessageInfo,
+                                             notifyMessage.StatusInfo.Status,
+                                             System.Text.Encoding.UTF8.GetBytes(serialized),
+                                             "application/xml");
         }
     }
 }

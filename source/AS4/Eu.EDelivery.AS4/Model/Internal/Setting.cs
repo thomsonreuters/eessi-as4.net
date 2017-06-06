@@ -126,7 +126,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         public string Provider { get; set; }
 
-        public string ConnectionString { get; set; }        
+        public string ConnectionString { get; set; }
+
+        public string InMessageStoreLocation { get; set; }
+
+        public string OutMessageStoreLocation { get; set; }
     }
 
     [Serializable]

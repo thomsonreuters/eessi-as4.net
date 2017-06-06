@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
+﻿using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -16,45 +15,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
     /// </summary>
     public class GivenInExceptionServiceFacts : GivenDatastoreFacts
     {
-        private InExceptionService _service;
-        private Mock<IDatastoreRepository> _mockedRepository;
-
-        public GivenInExceptionServiceFacts()
+        [Fact]
+        public void ThenInsertAS4ExceptionSucceedsAsync()
         {
-            ResetDatastoreService();
+            // Arrange
+            const string sharedId = "message-id";
+            var mockedRepository = new Mock<IDatastoreRepository>();
+            mockedRepository.Setup(r => r.InsertInException(It.IsAny<InException>()))
+                            .Callback((InException exception) => Assert.Equal(sharedId, exception.EbmsRefToMessageId));
+
+            AS4Exception as4Exception = CreateExceptionWithMessageId(sharedId);
+
+            var service = new InExceptionService(mockedRepository.Object);
+
+            // Act
+            service.InsertAS4Exception(as4Exception, new AS4Message());
+
+            // Assert
+            mockedRepository.Verify(r => r.InsertInException(It.IsAny<InException>()), Times.Once);
         }
 
-        protected void ResetDatastoreService()
+        private static AS4Exception CreateExceptionWithMessageId(string sharedId)
         {
-            _mockedRepository = new Mock<IDatastoreRepository>();
-            _service = new InExceptionService(_mockedRepository.Object);
-        }
-
-        public class GivenValidArguments : GivenInExceptionServiceFacts
-        {
-            [Theory]
-            [InlineData("shared-id")]
-            public void ThenInsertAS4ExceptionSucceedsAsync(string sharedId)
-            {
-                // Arrange
-                _mockedRepository.Setup(r => r.InsertInException(It.IsAny<InException>()))
-                                 .Callback(
-                                     (InException intException) =>
-                                     {
-                                         // Assert
-                                         Assert.Equal(sharedId, intException.EbmsRefToMessageId);
-                                     });
-                ResetDatastoreService();
-
-                AS4Exception as4Exception =
-                    AS4ExceptionBuilder.WithDescription("Test Exception").WithMessageIds(sharedId).Build();
-
-                // Act
-                _service.InsertAS4Exception(as4Exception, new AS4Message());
-
-                // Assert
-                _mockedRepository.Verify(r => r.InsertInException(It.IsAny<InException>()), Times.Once);
-            }
+            return AS4ExceptionBuilder.WithDescription("Test Exception").WithMessageIds(sharedId).Build();
         }
     }
 }

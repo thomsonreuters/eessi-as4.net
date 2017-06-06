@@ -272,6 +272,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\GivenAgentFacts.cs" />
+    <Compile Include="Agents\GivenAgentProviderFacts.cs" />
+    <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Common\SaboteurAgentConfig.cs" />
+    <Compile Include="Common\SingleAgentConfig.cs" />
+    <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitConversationIdResolverFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
+    <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
+    <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
+    <Compile Include="Receivers\StubReceiver.cs" />
+    <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
+    <Compile Include="Steps\DummyStep.cs" />
+    <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
+    <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenAS4MessageBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
@@ -285,6 +299,7 @@
     <Compile Include="Common\GivenDataStoreFacts.cs" />
     <Compile Include="Common\GivenDatastoreStepFacts.cs" />
     <Compile Include="Common\GivenRegistryFacts.cs" />
+    <Compile Include="Common\PseudoConfig.cs" />
     <Compile Include="Common\StubConfig.cs" />
     <Compile Include="Entities\GivenExceptionEntityFacts.cs" />
     <Compile Include="Entities\GivenMessageEntityFacts.cs" />
@@ -318,6 +333,7 @@
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
+    <Compile Include="Model\FilledNRRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
@@ -332,7 +348,7 @@
     <Compile Include="Model\Internal\GivenSettingsFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenAgreementFacts.cs" />
     <Compile Include="Model\SubmitModel\GivenCollaborationInfoFacts.cs" />
-    <Compile Include="Model\PMode\ValidStubSendingPModeFactory.cs" />
+    <Compile Include="Model\PMode\ValidSendingPModeFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -341,12 +357,12 @@
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
     <Compile Include="Receivers\GivenIntervalRequestFacts.cs" />
-    <Compile Include="Repositories\GivenAS4MessageBodyFileRetrieverFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubXmlAttribute.cs" />
-    <Compile Include="Repositories\SaboteurMessageBodyRetriever.cs" />
-    <Compile Include="Repositories\StubMessageBodyPersister.cs" />
+    <Compile Include="Repositories\GivenAS4MessageStoreProviderFacts.cs" />
+    <Compile Include="Repositories\SaboteurMessageBodyStore.cs" />
+    <Compile Include="Repositories\StubMessageBodyStore.cs" />
     <Compile Include="Resources\Samples.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -416,7 +432,6 @@
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />
     <Compile Include="Steps\Send\Response\GivenAS4ResponseFacts.cs" />
     <Compile Include="Steps\Send\Response\GivenResponseHandlerFacts.cs" />
-    <Compile Include="Steps\Send\Response\StubAS4ResponseHandler.cs" />
     <Compile Include="Steps\Services\GivenInExceptionServiceFacts.cs" />
     <Compile Include="Steps\SinkStep.cs" />
     <Compile Include="Steps\Services\GivenInMessageServiceFacts.cs" />
@@ -454,8 +469,10 @@
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
+    <Compile Include="Validators\GivenReceivingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
+    <Compile Include="Validators\GivenValidationResultFacts.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -519,7 +536,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\as4-encrypted-envelope.xml" />
-    <Content Include="Resources\as4-pullrequest-warning.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
@@ -536,6 +552,7 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Services\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

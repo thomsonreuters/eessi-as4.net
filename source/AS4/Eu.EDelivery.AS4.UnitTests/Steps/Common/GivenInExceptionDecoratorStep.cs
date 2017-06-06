@@ -127,15 +127,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 };
             }
 
-            private void InsertInMessage(InMessage inMessage)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    context.InMessages.Add(inMessage);
-                    context.SaveChanges();
-                }
-            }
-
             private void AssertInMessage(string messageId, Action<InMessage> assertAction)
             {
                 using (DatastoreContext context = GetDataStoreContext())

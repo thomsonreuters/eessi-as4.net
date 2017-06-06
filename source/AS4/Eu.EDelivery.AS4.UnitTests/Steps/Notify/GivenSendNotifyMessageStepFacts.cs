@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
         private static SendingProcessingMode CreateDefaultSendingPMode()
         {
-            return new SendingProcessingMode {ReceiptHandling = {NotifyMethod = new Method()}};
+            return new SendingProcessingMode { ReceiptHandling = { NotifyMethod = new Method() } };
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
 
             var internalMessage = new MessagingContext(notifyMessage)
             {
-                SendingPMode = new SendingProcessingMode {ErrorHandling = {NotifyMethod = new Method()}}
+                SendingPMode = new SendingProcessingMode { ErrorHandling = { NotifyMethod = new Method() } }
             };
 
             var spySender = new SpySender();

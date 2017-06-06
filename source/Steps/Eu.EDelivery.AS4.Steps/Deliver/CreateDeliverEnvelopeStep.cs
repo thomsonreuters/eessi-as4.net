@@ -2,6 +2,8 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -10,6 +12,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Validators;
+using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
@@ -20,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     public class CreateDeliverEnvelopeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly IValidator<DeliverMessage> _validator = new DeliverMessageValidator();
+        private readonly DeliverMessageValidator _validator = new DeliverMessageValidator();
 
         /// <summary>
         /// Execute the step for a given <paramref name="messagingContext" />.
@@ -80,12 +83,27 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private void ValidateDeliverMessage(DeliverMessage deliverMessage)
         {
-            _validator.Validate(deliverMessage);
+            _validator.Validate(deliverMessage).Result(
+                happyPath: result =>
+                {
+                    string messageId = deliverMessage.MessageInfo.MessageId;
+                    string message = $"Deliver Message {messageId} was valid";
 
-            string messageId = deliverMessage.MessageInfo.MessageId;
-            string message = $"Deliver Message {messageId} was valid";
+                    Logger.Debug(message);
+                },
+                unhappyPath: result =>
+                {
+                    result.LogErrors(Logger);
+                    throw ThrowInvalidDeliverMessage(deliverMessage);
+                });
+        }
 
-            Logger.Debug(message);
+        private static AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage)
+        {
+            string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
+            Logger.Error(description);
+
+            return AS4ExceptionBuilder.WithDescription(description).Build();
         }
     }
 }
