@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
+using Eu.EDelivery.AS4.Utilities;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -299,8 +300,11 @@ namespace Eu.EDelivery.AS4.Receivers
                     Directory.CreateDirectory(logDir);
                 }
 
-                string newReceivedMessageFile = Path.Combine(logDir, $"{hostname}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
-                using (var destinationStream = new FileStream(newReceivedMessageFile, FileMode.Create))
+                UriBuilder uriBuilder = new UriBuilder(hostname);
+
+                string newReceivedMessageFile = FilenameSanitizer.EnsureValidFilename(Path.Combine(logDir, $"{uriBuilder.Path}_{uriBuilder.Port}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}"));
+
+                using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
                 {
                     await message.RequestStream.CopyToAsync(destinationStream).ConfigureAwait(false);
                 }
@@ -318,7 +322,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 HttpListenerRequest request,
                 MessagingContext processorResult);
 
-#region Concrete RequestHandler implementations
+            #region Concrete RequestHandler implementations
 
             private abstract class GetRequestHandler : RequestHandler
             {
@@ -489,7 +493,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                         if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                         {
-                            return (HttpStatusCode) errorHttpCode;
+                            return (HttpStatusCode)errorHttpCode;
                         }
 
                         return HttpStatusCode.InternalServerError;
@@ -499,12 +503,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
             }
 
-#endregion
+            #endregion
         }
 
-#endregion
+        #endregion
 
-#region Inner ContentResult classes
+        #region Inner ContentResult classes
 
         private abstract class HttpListenerContentResult
         {
@@ -528,7 +532,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <param name="response"></param>
             public async Task ExecuteResultAsync(HttpListenerResponse response)
             {
-                response.StatusCode = (int) _statusCode;
+                response.StatusCode = (int)_statusCode;
                 response.ContentType = _contentType;
                 response.KeepAlive = false;
 
@@ -564,7 +568,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <param name="statusCode">Embedded <see cref="HttpStatusCode"/> in the empty result.</param>
             /// <returns></returns>
             public static ByteContentResult Empty(HttpStatusCode statusCode)
-                => new ByteContentResult(statusCode, string.Empty, new byte[] {});
+                => new ByteContentResult(statusCode, string.Empty, new byte[] { });
 
             /// <summary>
             /// Specific <see cref="HttpListenerResponse"/> handling.
@@ -629,7 +633,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Stop the <see cref="IReceiver"/> instance from receiving.
@@ -650,7 +654,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             try
             {
-                ((IDisposable) _listener)?.Dispose();
+                ((IDisposable)_listener)?.Dispose();
             }
             catch (Exception exception)
             {
