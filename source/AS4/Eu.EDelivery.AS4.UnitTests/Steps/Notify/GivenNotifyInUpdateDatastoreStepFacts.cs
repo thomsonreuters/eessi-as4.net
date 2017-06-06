@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 // Arrange
                 InsertDefaultInMessage(sharedId);
                 NotifyMessageEnvelope notifyMessage = CreateNotifyMessage(sharedId);
-                var internalMessage = new InternalMessage(notifyMessage);
+                var internalMessage = new MessagingContext(notifyMessage);
 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);

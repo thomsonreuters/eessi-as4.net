@@ -7,7 +7,6 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Moq;
 using Xunit;
@@ -25,11 +24,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             ReceivedEntityMessage receivedMessage = CreateReceivedExceptionMessage<InException>();
             var transformer = new ExceptionToNotifyMessageTransformer();
+            var result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
-            // Act
-            InternalMessage result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
-
-            // Assert
             Assert.NotNull(result.NotifyMessage);
             Assert.Equal(
                 ((ExceptionEntity) receivedMessage.Entity).EbmsRefToMessageId,
@@ -44,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new ExceptionToNotifyMessageTransformer();
 
             // Act
-            InternalMessage result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext result = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result.NotifyMessage);
@@ -61,13 +57,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new ExceptionToNotifyMessageTransformer();
 
             // Act
-            InternalMessage internalMessage = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext messagingContext =
+                await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
-            var error = (Error) internalMessage.AS4Message.PrimarySignalMessage;
-            Assert.True(error.IsFormedByException);
-            Assert.False(string.IsNullOrWhiteSpace(((ExceptionEntity) receivedMessage.Entity).Exception));
-            Assert.Equal(((ExceptionEntity) receivedMessage.Entity).Exception, error.Exception.Message);
+            Assert.Equal(Status.Exception, messagingContext.NotifyMessage.StatusCode);
+            Assert.Equal(((InException) receivedMessage.Entity).EbmsRefToMessageId, messagingContext.NotifyMessage.MessageInfo.RefToMessageId);
         }
 
         private static ReceivedEntityMessage CreateReceivedExceptionMessage<T>() where T : ExceptionEntity, new()

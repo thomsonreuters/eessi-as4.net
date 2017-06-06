@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
         /// <param name="internalMessage">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext internalMessage, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

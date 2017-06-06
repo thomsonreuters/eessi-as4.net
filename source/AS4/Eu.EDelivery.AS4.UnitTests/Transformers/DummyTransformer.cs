@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         /// <param name="message">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

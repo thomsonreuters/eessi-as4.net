@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         /// </summary>
         /// <param name="messageCallback">Callback for each message that's being received.</param>
         /// <param name="cancellationToken">Cancel the <see cref="IReceiver"/> instance from receiving messages.</param>
-        public void StartReceiving(Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback, CancellationToken cancellationToken)
+        public void StartReceiving(Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> messageCallback, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

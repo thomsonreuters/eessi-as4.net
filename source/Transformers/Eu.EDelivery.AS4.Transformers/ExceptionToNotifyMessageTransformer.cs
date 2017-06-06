@@ -30,20 +30,22 @@ namespace Eu.EDelivery.AS4.Transformers
         }
 
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
+        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             ReceivedEntityMessage messageEntity = RetrieveEntityMessage(message);
             ExceptionEntity exceptionEntity = RetrieveExceptionEntity(messageEntity);
 
             AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, cancellationToken);
-            var internalMessage = new InternalMessage(as4Message)
+
+            var internalMessage = new MessagingContext(CreateNotifyMessageEnvelope(as4Message))
             {
-                NotifyMessage = CreateNotifyMessageEnvelope(as4Message)
+                SendingPMode = GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
+                ReceivingPMode = GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode),
             };
 
             Logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
@@ -86,9 +88,6 @@ namespace Eu.EDelivery.AS4.Transformers
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
             AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(error).Build();
-
-            as4Message.SendingPMode = GetPMode<SendingProcessingMode>(exceptionEntity.PMode);
-            as4Message.ReceivingPMode = GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode);
             as4Message.EnvelopeDocument = await GetEnvelopeDocument(as4Message, cancellationTokken);
 
             return as4Message;

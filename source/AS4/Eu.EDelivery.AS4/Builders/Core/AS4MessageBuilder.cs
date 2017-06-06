@@ -13,44 +13,12 @@ namespace Eu.EDelivery.AS4.Builders.Core
         private readonly List<Attachment> _attachments;
         private readonly List<SignalMessage> _signalMessages;
         private readonly List<UserMessage> _userMessages;
-        private SendingProcessingMode _sendPMode;
-        private ReceivingProcessingMode _receivePMode;
 
         public AS4MessageBuilder()
         {
             this._userMessages = new List<UserMessage>();
             this._signalMessages = new List<SignalMessage>();
             this._attachments = new List<Attachment>();
-            this._sendPMode = new SendingProcessingMode();
-            this._receivePMode = new ReceivingProcessingMode();
-        }
-
-        /// <summary>
-        /// Assign a <see cref="SendingProcessingMode" /> to the <see cref="AS4Message" />
-        /// </summary>
-        /// <param name="pmode"></param>
-        /// <returns></returns>
-        public AS4MessageBuilder WithSendingPMode(SendingProcessingMode pmode)
-        {
-            if (pmode == null)
-                throw new ArgumentNullException(nameof(pmode));
-
-            this._sendPMode = pmode;
-            return this;
-        }
-
-        /// <summary>
-        /// Assign a <see cref="ReceivingProcessingMode"/> to the <see cref="AS4Message"/>
-        /// </summary>
-        /// <param name="receivePMode"></param>
-        /// <returns></returns>
-        public AS4MessageBuilder WithReceivingPMode(ReceivingProcessingMode receivePMode)
-        {
-            if (receivePMode == null)
-                throw new ArgumentNullException(nameof(receivePMode));
-
-            this._receivePMode = receivePMode;
-            return this;
         }
 
         /// <summary>
@@ -122,9 +90,6 @@ namespace Eu.EDelivery.AS4.Builders.Core
             BuildingSignalMessages(message);
             BuildingAttachments(message);
 
-            message.SendingPMode = this._sendPMode;
-            message.ReceivingPMode = this._receivePMode;
-
             return message;
         }
 
@@ -155,8 +120,6 @@ namespace Eu.EDelivery.AS4.Builders.Core
             this._userMessages.Clear();
             this._signalMessages.Clear();
             this._attachments.Clear();
-            this._sendPMode = new SendingProcessingMode();
-            this._receivePMode = new ReceivingProcessingMode();
 
             return this;
         }

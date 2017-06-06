@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Xunit;
@@ -92,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
                     receivedMessage = message;
 
-                    return Task.FromResult(new InternalMessage());
+                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
                 },
                 tokenSource.Token), tokenSource.Token);
 

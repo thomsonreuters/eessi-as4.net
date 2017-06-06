@@ -101,17 +101,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
-                as4Message.SendingPMode.Security.Encryption.AlgorithmKeySize = -1;
+                var pmode = new SendingProcessingMode {Security = {Encryption = {AlgorithmKeySize = -1}}};
 
-                EncryptionStrategy sut = EncryptionStrategyFor(as4Message);
+                EncryptionStrategy sut = EncryptionStrategyFor(as4Message, pmode);
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => sut.EncryptMessage());
             }
 
-            private static EncryptionStrategy EncryptionStrategyFor(AS4Message as4Message)
+            private static EncryptionStrategy EncryptionStrategyFor(AS4Message as4Message, SendingProcessingMode pmode)
             {
-                AS4.Model.PMode.Encryption encryption = as4Message.SendingPMode.Security.Encryption;
+                AS4.Model.PMode.Encryption encryption = pmode.Security.Encryption;
                 var dataEncryptConfig = new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize);
 
                 return EncryptionStrategyBuilder

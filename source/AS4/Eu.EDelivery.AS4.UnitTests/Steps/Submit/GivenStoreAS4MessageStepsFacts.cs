@@ -64,10 +64,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             }
         }
 
-        protected static InternalMessage AS4UserMessage()
+        protected static MessagingContext AS4UserMessage()
         {
             AS4Message message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
-            return new InternalMessage(message);
+            return new MessagingContext(message);
         }
     }
 }

@@ -21,43 +21,43 @@ namespace Eu.EDelivery.AS4.Transformers
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
+        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="receivedMessage">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<InternalMessage> TransformAsync(ReceivedMessage receivedMessage, CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(ReceivedMessage receivedMessage, CancellationToken cancellationToken)
         {
             if (receivedMessage.RequestStream == null)
             {
-                return Task.FromResult(new InternalMessage(CreateAS4Exception("Invalid incoming request stream.")));
+                return Task.FromResult(new MessagingContext(CreateAS4Exception("Invalid incoming request stream.")));
             }
 
             return TryCreatePullRequest(receivedMessage);
         }
 
-        private static Task<InternalMessage> TryCreatePullRequest(ReceivedMessage receivedMessage)
+        private static Task<MessagingContext> TryCreatePullRequest(ReceivedMessage receivedMessage)
         {
-            var transformedMessage = new InternalMessage();
-
             try
             {
-                receivedMessage.AssignPropertiesTo(transformedMessage.AS4Message);
-
+                AS4Message as4Message = new AS4MessageBuilder().Build();
+                var message = new MessagingContext(as4Message);
+                receivedMessage.AssignPropertiesTo(message);
+                
                 SendingProcessingMode pmode = DeserializeValidPMode(receivedMessage);
-                transformedMessage.AS4Message.SendingPMode = pmode;
-                transformedMessage.AS4Message.SignalMessages.Add(new PullRequest(pmode.PullConfiguration.Mpc));
+                message.SendingPMode = pmode;
+                as4Message.SignalMessages.Add(new PullRequest(pmode.PullConfiguration.Mpc));
+                
+                return Task.FromResult(message);
             }
             catch (AS4Exception exception)
             {
-                transformedMessage.Exception = exception;
+                return Task.FromResult(new MessagingContext(exception));
             }
             catch (Exception exception)
             {
-                transformedMessage.Exception = CreateAS4Exception(exception.Message);
+                return Task.FromResult(new MessagingContext(CreateAS4Exception(exception.Message)));
             }
-
-            return Task.FromResult(transformedMessage);
         }
 
         private static SendingProcessingMode DeserializeValidPMode(ReceivedMessage receivedMessage)

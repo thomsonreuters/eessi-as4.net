@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 var as4Message = new AS4Message();
                 const string contentType = "image/png";
                 as4Message.AddAttachment(new Attachment("attachment-id") {ContentType = contentType});
-                var internalMessage = new InternalMessage(as4Message);
+                var internalMessage = new MessagingContext(as4Message);
 
                 // Act
                 await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 // Arrange
                 var as4Message = new AS4Message();
-                var internalMessage = new InternalMessage(as4Message);
+                var internalMessage = new MessagingContext(as4Message);
                 AddAttachments(as4Message);
 
                 // Act

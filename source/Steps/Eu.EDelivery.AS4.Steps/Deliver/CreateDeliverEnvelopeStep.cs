@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Validators;
@@ -25,21 +26,23 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private readonly DeliverMessageValidator _validator = new DeliverMessageValidator();
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage" />.
+        /// Execute the step for a given <paramref name="messagingContext" />.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            internalMessage.DeliverMessage = await CreateDeliverMessageEnvelope(internalMessage.AS4Message);
+            DeliverMessageEnvelope deliverMessage = await CreateDeliverMessageEnvelope(messagingContext);
+            MessagingContext deliverContext = messagingContext.CloneWith(deliverMessage);
 
-            return StepResult.Success(internalMessage);
+            return StepResult.Success(deliverContext);
         }
 
-        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(AS4Message as4Message)
+        private async Task<DeliverMessageEnvelope> CreateDeliverMessageEnvelope(MessagingContext messagingContext)
         {
-            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, as4Message);
+            AS4Message as4Message = messagingContext.AS4Message;
+            DeliverMessage deliverMessage = CreateDeliverMessage(as4Message.PrimaryUserMessage, messagingContext);
 
             ValidateDeliverMessage(deliverMessage);
 
@@ -51,18 +54,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 "application/xml");
         }
 
-        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, AS4Message as4Message)
+        private static DeliverMessage CreateDeliverMessage(UserMessage userMessage, MessagingContext context)
         {
             var deliverMessage = AS4Mapper.Map<DeliverMessage>(userMessage);
-            AssignSendingPModeId(as4Message, deliverMessage);
-            AssignAttachmentLocations(as4Message, deliverMessage);
+            AssignPModeIdToDeliverMessage(context.SendingPMode, deliverMessage);
+            AssignAttachmentLocations(context.AS4Message, deliverMessage);
 
             return deliverMessage;
         }
 
-        private static void AssignSendingPModeId(AS4Message as4Message, DeliverMessage deliverMessage)
+        private static void AssignPModeIdToDeliverMessage(IPMode pmode, DeliverMessage deliverMessage)
         {
-            deliverMessage.CollaborationInfo.AgreementRef.PModeId = as4Message.SendingPMode?.Id ?? string.Empty;
+            deliverMessage.CollaborationInfo.AgreementRef.PModeId = pmode?.Id ?? string.Empty;
         }
 
         private static void AssignAttachmentLocations(AS4Message as4Message, DeliverMessage deliverMessage)

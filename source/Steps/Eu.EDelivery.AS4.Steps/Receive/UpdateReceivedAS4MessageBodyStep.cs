@@ -32,13 +32,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         }
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
@@ -46,12 +45,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 var service = new InMessageService(repository);
 
-                await service.UpdateAS4MessageForDeliveryAndNotification(internalMessage.AS4Message, _messageBodyStore, cancellationToken);
+                await service.UpdateAS4MessageForDeliveryAndNotification(messagingContext, _messageBodyStore, cancellationToken);
 
                 await datastoreContext.SaveChangesAsync(cancellationToken);
             }
 
-            return StepResult.Success(internalMessage);
+            return StepResult.Success(messagingContext);
         }        
     }
 }

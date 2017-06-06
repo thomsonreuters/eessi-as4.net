@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             StepResult result = await sut.ExecuteAsync(AttachmentWithoutUserMessage(attachmentId), CancellationToken.None);
 
             // Assert
-            AS4Message as4Message = result.InternalMessage.AS4Message;
+            AS4Message as4Message = result.MessagingContext.AS4Message;
             Assert.Equal(1, as4Message.UserMessages.Count);
             Assert.Contains(attachmentId, as4Message.PrimaryUserMessage.PayloadInfo.First().Href);
         }
@@ -51,10 +51,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             return pmode;
         }
 
-        private static InternalMessage AttachmentWithoutUserMessage(string atttachmentId)
+        private static MessagingContext AttachmentWithoutUserMessage(string atttachmentId)
         {
             AS4Message as4Message = new AS4MessageBuilder().WithAttachment(new Attachment(atttachmentId)).Build();
-            return new InternalMessage(as4Message);
+            return new MessagingContext(as4Message);
         }
     }
 }

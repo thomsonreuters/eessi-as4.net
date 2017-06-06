@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -13,6 +14,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Model.Core;
 using Moq;
 using Xunit;
@@ -46,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 StepResult actualResult = await handler.HandleResponse(expectedResponse);
 
                 // Assert
-                Assert.Equal(expectedResponse.ResultedMessage, actualResult.InternalMessage);
+                Assert.Equal(expectedResponse.ResultedMessage, actualResult.MessagingContext);
             }
         }
 
@@ -64,6 +66,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert               
                 Assert.False(actualResult.CanProceed);
+                MessagingContext expectedMessage = as4Response.OriginalRequest;
+                MessagingContext actualMessage = actualResult.MessagingContext;
             }
 
             [Fact]
@@ -84,8 +88,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage());
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new InternalMessage());
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(new AS4Message()));
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
 
                 return stubAS4Response.Object;
             }
@@ -95,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 // Arrange
                 var as4Message = new AS4MessageBuilder().WithSignalMessage(new Error()).Build();
-                IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(new InternalMessage(as4Message));
+                IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(new MessagingContext(as4Message));
 
                 var spyHandler = new SpyAS4ResponseHandler();
                 var handler = new EmptyBodyResponseHandler(spyHandler);
@@ -105,6 +109,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert
                 Assert.True(spyHandler.IsCalled);
+            }
+
+            private static IAS4Response CreateAS4ResponseWithResultedMessage(MessagingContext resultedMessage)
+            {
+                var stubAS4Response = new Mock<IAS4Response>();
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(resultedMessage);
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
+
+                return stubAS4Response.Object;
             }
         }
 
@@ -144,11 +157,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
 
-                InternalMessage pullRequest = new InternalMessageBuilder().WithSignalMessage(new PullRequest()).Build();
+                MessagingContext pullRequest = new InternalMessageBuilder().WithSignalMessage(new PullRequest()).Build();
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
 
                 AS4Message deserializedMessage = await DeserializePullRequestWarning();
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessage(deserializedMessage));
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(deserializedMessage));
 
                 return stubAS4Response.Object;
             }
@@ -183,8 +196,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             private static IAS4Response CreateResponseWith(SignalMessage request, SignalMessage response)
             {
                 var stubAS4Response = new Mock<IAS4Response>();
-                stubAS4Response.Setup(r => r.OriginalRequest).Returns(new InternalMessageBuilder().WithSignalMessage(request).Build());
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new InternalMessageBuilder().WithSignalMessage(response).Build());
+
+                Func<SignalMessage, MessagingContext> buildContext =
+                    m => new InternalMessageBuilder().WithSignalMessage(m).Build();
+
+                stubAS4Response.Setup(r => r.OriginalRequest).Returns(buildContext(request));
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(buildContext(response));
 
                 return stubAS4Response.Object;
             }
@@ -198,24 +215,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         private static AS4Response CreateAnonymousAS4Response()
         {           
             return AS4Response.Create(
-                requestMessage: new InternalMessage(),
-                webResponse: new Mock<HttpWebResponse>().Object,
+                requestMessage: new EmptyMessagingContext(),
+                webResponse: new Mock<HttpWebResponse>().Object, 
                 cancellation: CancellationToken.None).Result;
-        }
-
-        private static AS4Response CreateAS4ResponseWithResultedMessage(InternalMessage resultedMessage)
-        {
-            var response = CreateAnonymousAS4Response();
-
-            PropertyInfo resultedMessageProperty = typeof(AS4Response).GetProperty(nameof(response.ResultedMessage),
-                                                                                   BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-            if (resultedMessageProperty != null)
-            {
-                resultedMessageProperty.SetValue(response, resultedMessage);
-            }
-
-            return response;
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     public class GivenDecompressAttachmentsStepFacts
     {
         private readonly DecompressAttachmentsStep _step;
-        private readonly InternalMessage _internalMessage;
+        private readonly MessagingContext _messagingContext;
         private readonly string _attachmentId;
 
         public GivenDecompressAttachmentsStepFacts()
@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var as4Message = new AS4Message();
             AddAttachment(as4Message);
             AddUserMessage(as4Message);
-            _internalMessage = new InternalMessage(as4Message);
+            _messagingContext = new MessagingContext(as4Message);
         }
 
         private void AddAttachment(AS4Message as4Message)
@@ -88,21 +88,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var as4Message = new AS4Message();
                 AddAttachment(as4Message);
                 AddUserMessage(as4Message);
-                var internalMessage = new InternalMessage(as4Message);
+                var internalMessage = new MessagingContext(as4Message);
                 var step = new DecompressAttachmentsStep();
 
                 // Act
                 StepResult stepResult = await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(stepResult.InternalMessage.AS4Message.Attachments.First().Content);
+                Assert.NotNull(stepResult.MessagingContext.AS4Message.Attachments.First().Content);
             }
 
             [Fact]
             public async Task ThenExecuteSucceedsWithNoCompressedAttachmentAsync()
             {
                 // Arrange
-                var attachments = (IList<Attachment>)_internalMessage.AS4Message.Attachments;
+                var attachments = (IList<Attachment>)_messagingContext.AS4Message.Attachments;
 
                 foreach (Attachment attachment1 in attachments)
                 {
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 }
 
                 // Act
-                StepResult stepResult = await _step.ExecuteAsync(_internalMessage, CancellationToken.None);
+                StepResult stepResult = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
 
                 // Assert
                 Attachment attachment = GetAssertAttachment(stepResult);
@@ -119,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private static Attachment GetAssertAttachment(StepResult stepResult)
             {
-                var attachments = (IList<Attachment>)stepResult.InternalMessage.AS4Message.Attachments;
+                var attachments = (IList<Attachment>)stepResult.MessagingContext.AS4Message.Attachments;
                 Assert.NotNull(attachments);
                 Attachment attachment = attachments[0];
                 Assert.NotNull(attachment.Content);
@@ -134,12 +134,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteFailsWithMissingMimTypePartPropertyAsync()
             {
                 // Act
-                Attachment attachment = _internalMessage.AS4Message.Attachments.First();
+                Attachment attachment = _messagingContext.AS4Message.Attachments.First();
                 attachment.Properties.Remove("MimeType");
 
                 // Assert
                 await Assert.ThrowsAsync<AS4Exception>(
-                    () => _step.ExecuteAsync(_internalMessage, CancellationToken.None));
+                    () => _step.ExecuteAsync(_messagingContext, CancellationToken.None));
             }
         }
     }

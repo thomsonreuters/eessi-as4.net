@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             if (response.ResultedMessage?.AS4Message.IsEmpty == true)
             {
                 if (response.StatusCode == HttpStatusCode.Accepted)
-                {                    
+                {
                     return StepResult.Success(response.ResultedMessage).AndStopExecution();
                 }
                 else

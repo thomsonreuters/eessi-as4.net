@@ -332,12 +332,13 @@
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
     <Compile Include="Model\Core\PullRequestError.cs" />
+    <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
     <Compile Include="Model\GivenAS4MessageFacts.cs" />
     <Compile Include="Model\GivenAttachmentFacts.cs" />
     <Compile Include="Model\GivenCollaborationInfoFacts.cs" />
-    <Compile Include="Model\GivenInternalMessageFacts.cs" />
+    <Compile Include="Model\GivenMessagingContextFacts.cs" />
     <Compile Include="Model\GivenPartyFacts.cs" />
     <Compile Include="Model\GivenPartyIdFacts.cs" />
     <Compile Include="Model\GivenReceivingProcessingModeFacts.cs" />
@@ -435,7 +436,6 @@
     <Compile Include="Steps\SinkStep.cs" />
     <Compile Include="Steps\Services\GivenInMessageServiceFacts.cs" />
     <Compile Include="Steps\SpyStep.cs" />
-    <Compile Include="Steps\Submit\GivenRetrievepayloadsStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSigningAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSendUpdateDatastoreFacts.cs" />

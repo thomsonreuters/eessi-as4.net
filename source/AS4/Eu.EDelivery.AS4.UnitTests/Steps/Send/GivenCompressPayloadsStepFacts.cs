@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 // Arrange
                 AS4Message message = new AS4MessageBuilder().WithAttachment(CreateAttachment()).Build();
-                var internalMessage = new InternalMessage(message);
+                var internalMessage = new MessagingContext(message);
 
                 // Act
                 Task<StepResult> result = _step.ExecuteAsync(internalMessage, CancellationToken.None);

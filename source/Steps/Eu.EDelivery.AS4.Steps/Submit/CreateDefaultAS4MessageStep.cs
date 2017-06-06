@@ -47,25 +47,25 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Start creating a <see cref="AS4Message" />
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            AddDefaultAS4Message(internalMessage);
-            Logger.Info($"{internalMessage.Prefix} Default AS4 Message is created");
+            AddDefaultAS4Message(messagingContext);
+            Logger.Info($"{messagingContext.Prefix} Default AS4 Message is created");
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void AddDefaultAS4Message(InternalMessage internalMessage)
+        private void AddDefaultAS4Message(MessagingContext messagingContext)
         {
             SendingProcessingMode pmode = GetDefaultPMode();
 
             UserMessage userMessage = UserMessageFactory.Instance.Create(pmode);
-            internalMessage.AS4Message.UserMessages.Add(userMessage);
-            internalMessage.AS4Message.SendingPMode = pmode;
-            AddPartInfos(internalMessage.AS4Message);
+            messagingContext.AS4Message.UserMessages.Add(userMessage);
+            messagingContext.SendingPMode = pmode;
+            AddPartInfos(messagingContext.AS4Message);
         }
 
         private SendingProcessingMode GetDefaultPMode()

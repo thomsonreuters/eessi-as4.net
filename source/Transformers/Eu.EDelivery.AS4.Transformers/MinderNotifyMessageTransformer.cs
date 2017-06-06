@@ -22,19 +22,18 @@ namespace Eu.EDelivery.AS4.Transformers
         protected Logger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
+        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             var as4Transformer = new AS4MessageTransformer();
-            var internalMessage = await as4Transformer.TransformAsync(message, cancellationToken);
+            MessagingContext context = await as4Transformer.TransformAsync(message, cancellationToken);
 
-            internalMessage.NotifyMessage = await CreateNotifyMessageEnvelope(internalMessage.AS4Message);
-
-            return internalMessage;
+            NotifyMessageEnvelope notifyMessage = await CreateNotifyMessageEnvelope(context.AS4Message);
+            return context.CloneWith(notifyMessage);
         }
 
         internal async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)

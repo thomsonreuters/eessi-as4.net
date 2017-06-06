@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
@@ -59,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             {
                 // Arrange
                 var waitHandle = new ManualResetEvent(initialState: false);
-                Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> func = SetEvent(waitHandle);
+                Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> func = SetEvent(waitHandle);
 
                 // Act
                 await func(null, CancellationToken.None);
@@ -68,12 +69,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 Assert.True(waitHandle.WaitOne());
             }
 
-            private static Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> SetEvent(EventWaitHandle waitHandle)
+            private static Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> SetEvent(EventWaitHandle waitHandle)
             {
                 return (message, token) =>
                 {
                     waitHandle.Set();
-                    return Task.FromResult(new InternalMessage());
+                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
                 };
             }
         }
@@ -118,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 };
             }
 
-            private Task<InternalMessage> OnMessageReceived(
+            private Task<MessagingContext> OnMessageReceived(
                 ReceivedMessage receivedMessage,
                 CancellationToken cancellationToken)
             {
@@ -131,7 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return Task.FromResult(new InternalMessage());
+                return Task.FromResult((MessagingContext) new EmptyMessagingContext());
             }
 
             /// <summary>

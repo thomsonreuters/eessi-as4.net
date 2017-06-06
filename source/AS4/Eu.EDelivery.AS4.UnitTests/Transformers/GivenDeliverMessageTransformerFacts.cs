@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 .Build();
 
             // Act
-            InternalMessage actualMessage = await ExerciseTransform(expectedId, as4Message);
+            MessagingContext actualMessage = await ExerciseTransform(expectedId, as4Message);
 
             // Assert
             Assert.Equal(1, actualMessage.AS4Message.Attachments.Count);
@@ -81,8 +81,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                  .WithUserMessage(new FilledUserMessage())
                  .Build();
 
+            ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
+            var sut = new DeliverMessageTransformer();
+
             // Act
-            InternalMessage actualMessage = await ExerciseTransform(expectedId, as4Message);
+            MessagingContext actualMessage = await sut.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
             Assert.Equal(1, actualMessage.AS4Message.UserMessages.Count);
@@ -90,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             Assert.Equal(expectedId, actualUserMessage.MessageId);
         }
 
-        private static async Task<InternalMessage> ExerciseTransform(string expectedId, AS4Message as4Message)
+        private static async Task<MessagingContext> ExerciseTransform(string expectedId, AS4Message as4Message)
         {
             ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
             var sut = new DeliverMessageTransformer();

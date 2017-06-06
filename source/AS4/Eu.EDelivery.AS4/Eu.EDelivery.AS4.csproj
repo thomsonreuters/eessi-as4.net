@@ -411,7 +411,7 @@
     <Compile Include="Mappings\Common\ServiceMap.cs" />
     <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
     <Compile Include="Model\Deliver\DeliverMessage.cs" />
-    <Compile Include="Model\Internal\InternalMessage.cs" />
+    <Compile Include="Model\Internal\MessagingContext.cs" />
     <Compile Include="Model\Notify\NotifyMessage.cs" />
     <Compile Include="Repositories\CertificateRepository.cs" />
     <Compile Include="Repositories\DatastoreRepository.cs" />

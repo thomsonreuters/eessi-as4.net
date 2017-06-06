@@ -41,11 +41,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);
 
                 // Act
-                InternalMessage internalMessage = await Transform(receivedMessage);
+                MessagingContext messagingContext = await Transform(receivedMessage);
 
                 // Assert
-                Assert.NotNull(internalMessage);
-                Assert.NotNull(internalMessage.AS4Message);
+                Assert.NotNull(messagingContext);
+                Assert.NotNull(messagingContext.AS4Message);
             }
             
         }
@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             private async Task VerifyIfTheTranformReturnsErrorMessage(ReceivedMessage saboteurMessage)
             {
                 // Act
-                InternalMessage actualMessage = await Transform(saboteurMessage);
+                MessagingContext actualMessage = await Transform(saboteurMessage);
 
                 // Assert
                 Assert.IsType<Error>(actualMessage.AS4Message.PrimarySignalMessage);
@@ -124,9 +124,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             };
 
             AS4Message as4Message =
-                new AS4MessageBuilder().WithSendingPMode(new SendingProcessingMode())
-                                       .WithUserMessage(userMessage)
+                new AS4MessageBuilder().WithUserMessage(userMessage)
                                        .Build();
+
             as4Message.ContentType = Constants.ContentTypes.Soap;
 
             return as4Message;
@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             return attachment;
         }
 
-        protected async Task<InternalMessage> Transform(ReceivedMessage message)
+        protected async Task<MessagingContext> Transform(ReceivedMessage message)
         {
             var transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
             return await transformer.TransformAsync(message, CancellationToken.None);

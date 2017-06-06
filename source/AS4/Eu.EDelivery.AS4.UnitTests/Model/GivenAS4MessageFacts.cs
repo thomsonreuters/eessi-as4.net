@@ -2,10 +2,14 @@
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
@@ -25,6 +29,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         {
             _builder = new AS4MessageBuilder();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+        }
+
+        public class AddAttachments
+        {
+            [Fact]
+            public async Task ThenAddAttachmentSucceeds()
+            {
+                // Arrange
+                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
+                var sut = new AS4Message();
+
+                // Act
+                await sut.AddAttachments(submitMessage.Payloads, async payload => await Task.FromResult(Stream.Null));
+
+                // Assert
+                Assert.NotNull(sut.Attachments);
+                Assert.Equal(Stream.Null, sut.Attachments.First().Content);
+            }
+
+            [Fact]
+            public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
+            {
+                // Arrange
+                var sut = new AS4Message();
+
+                // Act
+                await sut.AddAttachments(new Payload[0],  async payload => await Task.FromResult(Stream.Null));
+
+                // Assert
+                Assert.False(sut.HasAttachments);
+            }
         }
 
         public class IsPulling

@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly IConfig _configuration;
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private Func<PModePullRequest, Task<InternalMessage>> _messageCallback;
+        private Func<PModePullRequest, Task<MessagingContext>> _messageCallback;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequestReceiver" /> class.
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
         public override void StartReceiving(
-            Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
+            Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken cancellationToken)
         {
             _messageCallback = message =>
@@ -88,13 +88,14 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="intervalPullRequest"></param>
         /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         protected override async Task<Interval> OnRequestReceived(PModePullRequest intervalPullRequest)
         {
-            InternalMessage resultedMessage = await _messageCallback(intervalPullRequest).ConfigureAwait(false);
+            MessagingContext resultedMessage = await _messageCallback(intervalPullRequest).ConfigureAwait(false);
 
             try
             {
-                bool isUserMessage = resultedMessage.AS4Message.IsUserMessage;
+                bool isUserMessage = resultedMessage.AS4Message?.IsUserMessage == true;
                 Interval intervalResult = isUserMessage ? Interval.Reset : Interval.Increase;
                 Logger.Debug(
                     $"'Pull Request' resulted in a '{(isUserMessage ? "User Message" : "Error")}' so the next interval will be '{intervalResult}'");

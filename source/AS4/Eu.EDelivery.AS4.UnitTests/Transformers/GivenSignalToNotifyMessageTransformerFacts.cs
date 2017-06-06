@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             ReceivedMessageEntityMessage receival = await CreateReceivedReceiptMessage();
             receival.MessageEntity.EbmsMessageId = "other message id";
-
+                
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => ExerciseTransform(receival));
         }
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             ReceivedMessageEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
 
             // Act
-            InternalMessage result = await ExerciseTransform(receivedSignal);
+            MessagingContext result = await ExerciseTransform(receivedSignal);
 
             // Assert
             NotifyMessageEnvelope notifyMessage = result.NotifyMessage;
@@ -58,10 +58,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             ReceivedMessageEntityMessage receivedSignal = await CreateReceivedReceiptMessage();
 
             // Act
-            InternalMessage result = await ExerciseTransform(receivedSignal);
+            MessagingContext result = await ExerciseTransform(receivedSignal);
 
             // Assert
-            Assert.NotNull(result.AS4Message);
             Assert.NotNull(result.NotifyMessage);
 
             var notifyMessage =
@@ -86,16 +85,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             MessageEntity receivedMessageEntity = receivedSignal.MessageEntity;
 
             // Act
-            InternalMessage result = await ExerciseTransform(receivedSignal);
+            MessagingContext result = await ExerciseTransform(receivedSignal);
 
             // Assert
-            Assert.NotNull(result.AS4Message);
             Assert.NotNull(result.NotifyMessage);
             Assert.Equal(receivedMessageEntity.EbmsMessageId, result.NotifyMessage.MessageInfo.MessageId);
             Assert.Equal(receivedMessageEntity.EbmsRefToMessageId, result.NotifyMessage.MessageInfo.RefToMessageId);
         }
 
-        private async Task<InternalMessage> ExerciseTransform(ReceivedMessage receival)
+        private static async Task<MessagingContext> ExerciseTransform(ReceivedMessage receival)
         {
             var sut = new SignalMessageToNotifyMessageTransformer();
 

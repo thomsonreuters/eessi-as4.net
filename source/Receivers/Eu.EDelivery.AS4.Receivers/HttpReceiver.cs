@@ -16,7 +16,7 @@ using Eu.EDelivery.AS4.Streaming;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
-        System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.InternalMessage>>;
+        System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.MessagingContext>>;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
@@ -229,7 +229,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <exception cref="Exception">A delegate callback throws an exception.</exception>
             public async Task<HttpListenerContentResult> ExecuteAsync((HttpRequestMeta settings, HttpListenerRequest value) request, Function processor)
             {
-                InternalMessage processorResult = null;
+                MessagingContext processorResult = null;
 
                 try
                 {
@@ -316,7 +316,7 @@ namespace Eu.EDelivery.AS4.Receivers
             /// <returns></returns>
             protected abstract HttpListenerContentResult ExecuteCore(
                 HttpListenerRequest request,
-                InternalMessage processorResult);
+                MessagingContext processorResult);
 
 #region Concrete RequestHandler implementations
 
@@ -354,9 +354,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     /// <param name="request"></param>
                     /// <param name="processorResult"></param>
                     /// <returns></returns>
-                    protected override HttpListenerContentResult ExecuteCore(
-                        HttpListenerRequest request,
-                        InternalMessage processorResult)
+                    protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                     {
                         string logoLocation = request.RawUrl.TrimEnd('/') + "/assets/as4logo.png";
 
@@ -384,9 +382,7 @@ namespace Eu.EDelivery.AS4.Receivers
                     /// <param name="request"></param>
                     /// <param name="processorResult"></param>
                     /// <returns></returns>
-                    protected override HttpListenerContentResult ExecuteCore(
-                        HttpListenerRequest request,
-                        InternalMessage processorResult)
+                    protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                     {
                         string file = request.Url.ToString().Replace(request.UrlReferrer.ToString(), "./");
 
@@ -422,9 +418,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 /// <param name="request"></param>
                 /// <param name="processorResult"></param>
                 /// <returns></returns>
-                protected override HttpListenerContentResult ExecuteCore(
-                    HttpListenerRequest request,
-                    InternalMessage processorResult)
+                protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
                     return new ByteContentResult(_status, "text/plain", Encoding.UTF8.GetBytes(_message));
                 }
@@ -434,14 +428,12 @@ namespace Eu.EDelivery.AS4.Receivers
             {
                 public static readonly PostRequestHandler Default = new PostRequestHandler();
 
-                private static bool IsAS4MessageAnError(InternalMessage internalMessage)
+                private static bool IsAS4MessageAnError(MessagingContext messagingContext)
                 {
-                    return internalMessage.AS4Message.PrimarySignalMessage is Error;
+                    return messagingContext.AS4Message.PrimarySignalMessage is Error;
                 }
 
-                protected override HttpListenerContentResult ExecuteCore(
-                    HttpListenerRequest request,
-                    InternalMessage processorResult)
+                protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
                     if (processorResult.Exception != null)
                     {
@@ -471,29 +463,29 @@ namespace Eu.EDelivery.AS4.Receivers
                         return new AS4MessageContentResult(
                             statusCode: DetermineHttpCodeFrom(processorResult),
                             contentType: processorResult.AS4Message?.ContentType,
-                            internalMessage: processorResult);
+                            messagingContext: processorResult);
                     }
 
                     // In any other case, return a bad request error ?
                     return ByteContentResult.Empty(HttpStatusCode.BadRequest);
                 }
 
-                private static bool AreReceiptsOrErrorsSendInCallbackMode(InternalMessage processorResult)
+                private static bool AreReceiptsOrErrorsSendInCallbackMode(MessagingContext processorResult)
                 {
                     return (processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty)
                            && processorResult.Exception == null;
                 }
 
-                private static bool AreReceiptsOrErrorsSendInResponseMode(InternalMessage processorResult)
+                private static bool AreReceiptsOrErrorsSendInResponseMode(MessagingContext processorResult)
                 {
                     return processorResult.AS4Message != null && processorResult.AS4Message.IsEmpty == false;
                 }
 
-                private static HttpStatusCode DetermineHttpCodeFrom(InternalMessage processorResult)
+                private static HttpStatusCode DetermineHttpCodeFrom(MessagingContext processorResult)
                 {
-                    if (processorResult.AS4Message?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
+                    if (processorResult?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
                     {
-                        int errorHttpCode = processorResult.AS4Message.ReceivingPMode.ErrorHandling.ResponseHttpCode;
+                        int errorHttpCode = processorResult.ReceivingPMode.ErrorHandling.ResponseHttpCode;
 
                         if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                         {
@@ -592,20 +584,15 @@ namespace Eu.EDelivery.AS4.Receivers
         private class AS4MessageContentResult : HttpListenerContentResult
         {
             private static readonly ISerializerProvider SerializerProvider = Serialization.SerializerProvider.Default;
-            private readonly InternalMessage _internalMessage;
+            private readonly MessagingContext _messagingContext;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="AS4MessageContentResult" /> class.
             /// </summary>
-            /// <param name="statusCode">The status code.</param>
-            /// <param name="contentType">Type of the content.</param>
-            /// <param name="internalMessage">The internal message.</param>
-            public AS4MessageContentResult(
-                HttpStatusCode statusCode,
-                string contentType,
-                InternalMessage internalMessage) : base(statusCode, contentType)
+            public AS4MessageContentResult(HttpStatusCode statusCode, string contentType, MessagingContext messagingContext)
+                : base(statusCode, contentType)
             {
-                _internalMessage = internalMessage;
+                _messagingContext = messagingContext;
             }
 
             /// <summary>
@@ -618,12 +605,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     using (Stream responseStream = response.OutputStream)
                     {
-                        if (_internalMessage.AS4Message?.IsEmpty == false)
+                        if (_messagingContext.AS4Message?.IsEmpty == false)
                         {
-                            ISerializer serializer = SerializerProvider.Get(_internalMessage.AS4Message.ContentType);
+                            ISerializer serializer = SerializerProvider.Get(_messagingContext.AS4Message.ContentType);
 
                             await serializer.SerializeAsync(
-                                _internalMessage.AS4Message,
+                                _messagingContext.AS4Message,
                                 responseStream,
                                 CancellationToken.None).ConfigureAwait(false);
                         }
@@ -631,11 +618,12 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
                 catch (Exception exception)
                 {
-                    Logger.Error($"An error occured while writing the Response to the ResponseStream: {exception.Message}");
+                    Logger.Error(
+                        $"An error occured while writing the Response to the ResponseStream: {exception.Message}");
                     if (Logger.IsTraceEnabled)
                     {
                         Logger.Trace(exception.StackTrace);
-                    }                    
+                    }
                     throw;
                 }
             }

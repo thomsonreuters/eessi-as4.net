@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 
@@ -45,33 +46,54 @@ namespace Eu.EDelivery.AS4.Services
         /// <summary>
         /// Inserts a s4 message.
         /// </summary>
-        /// <param name="message">The message.</param>
+        /// <param name="messagingContext">The messaging context.</param>
         /// <param name="operation">The operation.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken)
+        public async Task InsertAS4Message(
+            MessagingContext messagingContext,
+            Operation operation,
+            CancellationToken cancellationToken)
         {
-            string messageBodyLocation = await _messageBodyStore.SaveAS4MessageAsync(_configuration.OutMessageStoreLocation, message, cancellationToken);
-            
-            foreach (UserMessage userMessage in message.UserMessages)
+            AS4Message message = messagingContext.AS4Message;
+            string messageBodyLocation =
+                await _messageBodyStore.SaveAS4MessageAsync(
+                    location: _configuration.OutMessageStoreLocation,
+                    message: message,
+                    cancellation: cancellationToken);
+
+            foreach (var userMessage in message.UserMessages)
             {
-                OutMessage outMessage = CreateOutMessageForMessageUnit(userMessage, message, messageBodyLocation, operation);
+                OutMessage outMessage = 
+                    CreateOutMessageForMessageUnit(
+                        messageUnit: userMessage,
+                        message: messagingContext,
+                        location: messageBodyLocation,
+                        operation: operation);
 
                 _repository.InsertOutMessage(outMessage);
             }
 
             foreach (SignalMessage signalMessage in message.SignalMessages)
             {
-                OutMessage outMessage = CreateOutMessageForMessageUnit(signalMessage, message, messageBodyLocation, operation);
+                OutMessage outMessage = 
+                    CreateOutMessageForMessageUnit(
+                        messageUnit: signalMessage,
+                        message: messagingContext,
+                        location: messageBodyLocation,
+                        operation: operation);
 
                 _repository.InsertOutMessage(outMessage);
-            }            
+            }
         }
-       
-        private static OutMessage CreateOutMessageForMessageUnit(MessageUnit messageUnit, AS4Message as4Message, string location, Operation operation)
+
+        private static OutMessage CreateOutMessageForMessageUnit(
+            MessageUnit messageUnit,
+            MessagingContext message,
+            string location,
+            Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForAS4Message(messageUnit, as4Message)
-                                                     .Build(CancellationToken.None);
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, message).Build(CancellationToken.None);
 
             outMessage.MessageLocation = location;
 
@@ -81,40 +103,50 @@ namespace Eu.EDelivery.AS4.Services
             }
             else
             {
-                Operation determinedOperation;
-                OutStatus status;
+                (OutStatus status, Operation operation) replyPattern =
+                    DetermineCorrectReplyPattern(outMessage.EbmsMessageType, message);
 
-                DetermineCorrectReplyPattern(outMessage.EbmsMessageType, as4Message, out determinedOperation, out status);
-
-                outMessage.Status = status;
-                outMessage.Operation = determinedOperation;
+                outMessage.Status = replyPattern.status;
+                outMessage.Operation = replyPattern.operation;
             }
 
             return outMessage;
         }
 
-        private static void DetermineCorrectReplyPattern(MessageType outMessageType, AS4Message message, out Operation operation, out OutStatus status)
+        private static (OutStatus, Operation) DetermineCorrectReplyPattern(
+            MessageType outMessageType,
+            MessagingContext message)
         {
-            bool isCallback = outMessageType == MessageType.Error ? IsErrorReplyPatternCallback(message)
-                                                                  : IsReceiptReplyPatternCallback(message);
+            bool isCallback = outMessageType == MessageType.Error
+                                  ? IsErrorReplyPatternCallback(message)
+                                  : IsReceiptReplyPatternCallback(message);
 
-            operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
-            status = isCallback ? OutStatus.Created : OutStatus.Sent;
+            Operation operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
+            OutStatus status = isCallback ? OutStatus.Created : OutStatus.Sent;
+
+            return (status, operation);
         }
 
-        private static bool IsErrorReplyPatternCallback(AS4Message as4Message)
+        private static bool IsErrorReplyPatternCallback(MessagingContext message)
         {
-            return as4Message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
+            return message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
-        private static bool IsReceiptReplyPatternCallback(AS4Message as4Message)
+        private static bool IsReceiptReplyPatternCallback(MessagingContext message)
         {
-            return as4Message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
+            return message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
     }
 
     public interface IOutMessageService
     {
-        Task InsertAS4Message(AS4Message message, Operation operation, CancellationToken cancellationToken);
+        /// <summary>
+        /// Inserts a s4 message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="operation">The operation.</param>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        Task InsertAS4Message(MessagingContext message, Operation operation, CancellationToken cancellation);
     }
 }

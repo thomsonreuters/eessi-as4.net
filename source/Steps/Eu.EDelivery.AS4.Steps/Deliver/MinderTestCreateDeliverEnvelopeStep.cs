@@ -33,16 +33,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             bool includeAttachments = true;
 
-            var collaborationInfo = internalMessage.AS4Message.ReceivingPMode.MessagePackaging?.CollaborationInfo;
+            var collaborationInfo = messagingContext.ReceivingPMode.MessagePackaging?.CollaborationInfo;
 
             if (collaborationInfo != null &&
                 (collaborationInfo.Action?.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false) &&
@@ -51,9 +51,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 includeAttachments = false;
             }
 
-            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(internalMessage.AS4Message, includeAttachments);
+            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext.AS4Message, includeAttachments);
+            MessagingContext deliverContext = messagingContext.CloneWith(deliverMessage);
 
-            return StepResult.SuccessAsync(internalMessage);
+            return StepResult.SuccessAsync(deliverContext);
         }
 
         private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message, bool includeAttachments)

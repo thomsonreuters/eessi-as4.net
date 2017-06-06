@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new PModeToPullRequestTransformer();
 
             // Act
-            InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
             Assert.NotNull(message.Exception);
@@ -69,12 +69,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new PModeToPullRequestTransformer();
 
             // Act
-            InternalMessage message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
             var actualSignalMessage = message.AS4Message.PrimarySignalMessage as PullRequest;
             Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
-            Assert.Equal(expectedSendingPMode.Id, message.AS4Message.SendingPMode.Id);
+            Assert.Equal(expectedSendingPMode.Id, message.SendingPMode.Id);
         }
 
         private static SendingProcessingMode CreateAnonymousSendingPModeWith(string expectedMpc)
