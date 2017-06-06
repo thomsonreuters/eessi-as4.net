@@ -449,17 +449,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // - No Action element in the wsa namespace
             // - No UserElement in the multihop namespace.
             // - No RoutingInput node
-
             Assert.False(ContainsActionElement(doc));
             Assert.False(ContainsUserMessageElement(doc));
             Assert.Null(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
-        }
-
-        private static void AssertUserMessageElement(XmlNode doc)
-        {
-            Assert.NotNull(
-                doc.SelectSingleNode(
-                    $@"//*[local-name()='UserMessage' and namespace-uri()='{Constants.Namespaces.EbmsMultiHop}']"));
         }
 
         private static bool ContainsUserMessageElement(XmlNode doc)
@@ -470,13 +462,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         private static bool ContainsActionElement(XmlNode doc)
         {
             return doc.SelectSingleNode($@"//*[local-name()='Action' and namespace-uri()='{Constants.Namespaces.Addressing}']") != null;
-        }
-
-        private static void AssertActionElement(XmlNode doc)
-        {
-            Assert.NotNull(
-                doc.SelectSingleNode(
-                    $@"//*[local-name()='Action' and namespace-uri()='{Constants.Namespaces.Addressing}']"));
         }
 
         private static void AssertMessagingElement(XmlNode doc)

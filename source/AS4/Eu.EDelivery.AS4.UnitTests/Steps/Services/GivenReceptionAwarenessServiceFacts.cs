@@ -194,24 +194,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         public class IsMessageAlreadyAnsweredFacts
         {
             [Theory]
-            [InlineData("same id", "same id", true)]
-            [InlineData(null, null, false)]
-            [InlineData("this message id", "other message id", false)]
-            public void TestAlreadyAnsweredMessage(string refToMessageId, string receptionAwarenessId, bool expected)
+            [InlineData(OutStatus.Ack, true)]
+            [InlineData(OutStatus.Nack, true)]
+            [InlineData(OutStatus.Exception, false)]
+            [InlineData(OutStatus.Created, false)]
+            public void TestAlreadyAnsweredMessage(OutStatus status, bool expected)
             {
-                // Arrange
+                // Arranges
                 var stubRepository = new Mock<IDatastoreRepository>();
 
-                stubRepository.Setup(r => r.InMessageExists(It.IsAny<Func<InMessage, bool>>()))
-                             .Returns((Func<InMessage, bool> exists) => exists(new InMessage {EbmsRefToMessageId = refToMessageId}));
+                const string messageId = "message id";
+                stubRepository.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, bool>>()))
+                              .Returns(
+                                  (string id, Func<OutMessage, bool> selection) =>
+                                      selection(new OutMessage {EbmsMessageId = messageId, Status = status}));
 
-                var awareness = new AS4.Entities.ReceptionAwareness {InternalMessageId = receptionAwarenessId};
+                var awareness = new AS4.Entities.ReceptionAwareness {InternalMessageId = messageId};
 
                 // Act
                 bool actual = ExerciseService(stubRepository.Object, s => s.IsMessageAlreadyAnswered(awareness));
 
                 // Assert
                 Assert.Equal(expected, actual);
+                stubRepository.Verify(
+                    expression: r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, bool>>()),
+                    times: Times.Once);
             }
         }
 
@@ -245,4 +252,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
         }
     }
 }
+
+
+
+
+
+
 

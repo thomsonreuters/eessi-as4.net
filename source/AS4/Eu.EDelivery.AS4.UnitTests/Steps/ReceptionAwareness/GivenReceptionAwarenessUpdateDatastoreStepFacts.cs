@@ -60,8 +60,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
             {
                 using (var context = new DatastoreContext(Options))
                 {
-                    var inMessage = new InMessage {EbmsMessageId = "message-id", EbmsRefToMessageId = messageId};
-                    context.InMessages.Add(inMessage);
+                    var outMessage = new OutMessage {EbmsMessageId = messageId, Status = OutStatus.Ack};
+                    context.OutMessages.Add(outMessage);
+
                     context.SaveChanges();
                 }
             }

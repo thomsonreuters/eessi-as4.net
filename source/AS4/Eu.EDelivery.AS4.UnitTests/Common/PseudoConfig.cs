@@ -88,13 +88,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Gets the in message store location.
         /// </summary>
         /// <value>The in message store location.</value>
-        public string InMessageStoreLocation { get; }
+        public string InMessageStoreLocation
+        {
+            get { throw new System.NotImplementedException(); }
+        }
 
         /// <summary>
         /// Gets the out message store location.
         /// </summary>
         /// <value>The out message store location.</value>
-        public string OutMessageStoreLocation { get; }
+        public string OutMessageStoreLocation
+        {
+            get { throw new NotImplementedException(); }
+        }
     }
 
     public class PseudeConfigFacts : PseudoConfig
@@ -125,6 +131,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public void FailsToGetSetting()
         {
             Assert.ThrowsAny<Exception>(() => GetSetting("ignored string"));
+            Assert.ThrowsAny<Exception>(() => InMessageStoreLocation);
+            Assert.ThrowsAny<Exception>(() => OutMessageStoreLocation);
         }
     }
 }

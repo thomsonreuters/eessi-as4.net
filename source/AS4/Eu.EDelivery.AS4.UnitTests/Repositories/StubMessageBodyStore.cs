@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
-    internal class StubMessageBodyStore : IAS4MessageBodyStore
+    public class StubMessageBodyStore : IAS4MessageBodyStore
     {
         internal static StubMessageBodyStore Default => new StubMessageBodyStore();
 
@@ -42,27 +42,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public Task<Stream> LoadMessagesBody(string location)
+        public virtual Task<Stream> LoadMessagesBody(string location)
         {
             return Task.FromResult(Stream.Null);
         }
+    }
 
+    public class StubMessageBodyStoreFacts
+    {
         [Fact]
         public void UpdatesComplete()
         {
-            Assert.True(Default.UpdateAS4MessageAsync(null, null, CancellationToken.None).IsCompleted);
+            Assert.True(StubMessageBodyStore.Default.UpdateAS4MessageAsync(null, null, CancellationToken.None).IsCompleted);
         }
 
         [Fact]
         public void SaveComplete()
         {
-            Assert.True(Default.SaveAS4MessageAsync(null, null, CancellationToken.None).IsCompleted);
+            Assert.True(StubMessageBodyStore.Default.SaveAS4MessageAsync(null, null, CancellationToken.None).IsCompleted);
         }
 
         [Fact]
         public async Task LoadsEmpty()
         {
-            Assert.Equal(Stream.Null, await Default.LoadMessagesBody(null));
+            Assert.Equal(Stream.Null, await StubMessageBodyStore.Default.LoadMessagesBody(null));
         }
     }
 }

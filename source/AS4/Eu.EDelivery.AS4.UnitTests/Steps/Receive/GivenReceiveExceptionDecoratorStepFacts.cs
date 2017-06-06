@@ -76,30 +76,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 AssertInException(messageId, Assert.NotNull);
             }
 
-            [Fact(Skip="I think this a component-test is better suited here")]
-            public async Task ThenExecuteStepSucceedsWithCallbackReplyPatternAsync()
-            {
-                // Why a component test: we're dependent on a sending pmode, a receiving pmode 
-                // and they must exist, otherwise other exceptions will be thrown.
-
-                // Arrange
-                MessagingContext messagingContext = DummyMessage();
-                messagingContext.ReceivingPMode.ErrorHandling.ReplyPattern = ReplyPattern.Callback;
-                messagingContext.ReceivingPMode.ErrorHandling.SendingPMode = "";
-
-                var stubStep = new SaboteurStep(CreateAS4Exception());
-                IStep sut = GetCatchedCompositeSteps(stubStep);
-
-                // Act
-                StepResult result = await sut.ExecuteAsync(messagingContext, CancellationToken.None);
-
-                // Assert                
-                Assert.NotNull(result.MessagingContext.AS4Message);
-                // TODO: could we assert more explicitly on somethting like AS4Message.Empty oid.
-                Assert.Empty(result.MessagingContext.AS4Message.UserMessages);
-                Assert.Empty(result.MessagingContext.AS4Message.SignalMessages);
-            }
-
             private void AssertInException(string messageId, Action<InException> condition)
             {
                 using (DatastoreContext context = GetDataStoreContext())
