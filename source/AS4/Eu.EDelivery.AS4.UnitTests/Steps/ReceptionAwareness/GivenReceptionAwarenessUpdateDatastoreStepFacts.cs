@@ -35,13 +35,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 EntityReceptionAwareness awareness = InsertAlreadyAnsweredMessage();
 
                 var internalMessage = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.Equal(ReceptionStatus.Completed, x.Status));
+                AssertReceptionAwareness(
+                    awareness.InternalMessageId,
+                    x => Assert.Equal(ReceptionStatus.Completed, x.Status));
             }
 
             private EntityReceptionAwareness InsertAlreadyAnsweredMessage()
@@ -49,7 +51,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
 
                 InsertReceptionAwareness(awareness);
-
                 ArrangeMessageIsAlreadyAnswered(awareness.InternalMessageId);
 
                 return awareness;
@@ -71,18 +72,31 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 // Arrange
                 EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
                 awareness.CurrentRetryCount = awareness.TotalRetryCount;
+
                 InsertReceptionAwareness(awareness);
                 InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                AssertInMessage(awareness.InternalMessageId);
-                AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.Equal(ReceptionStatus.Completed, x.Status));
+                AssertNotNullInMessage(awareness.InternalMessageId);
+                AssertReceptionAwareness(
+                    awareness.InternalMessageId,
+                    x => Assert.Equal(ReceptionStatus.Completed, x.Status));
+            }
+
+            private void AssertNotNullInMessage(string messageId)
+            {
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    InMessage inMessage = context.InMessages.FirstOrDefault(m => m.EbmsRefToMessageId.Equals(messageId));
+
+                    Assert.NotNull(inMessage);
+                }
             }
 
             [Fact]
@@ -91,29 +105,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 // Arrange
                 EntityReceptionAwareness awareness = CreateDefaultReceptionAwareness();
                 awareness.CurrentRetryCount = 0;
+
                 // When the DataReceiver receives a ReceptionAwareness item, it's status is Locked to Busy.
-                awareness.Status = ReceptionStatus.Busy; 
+                awareness.Status = ReceptionStatus.Busy;
 
                 InsertReceptionAwareness(awareness);
                 InsertOutMessage(awareness.InternalMessageId);
 
                 var internalMessage = new MessagingContext(awareness);
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                AssertReceptionAwareness(awareness.InternalMessageId, x => Assert.Equal(ReceptionStatus.Pending, x.Status));
+                AssertOutMessage(awareness.InternalMessageId, x => Assert.Equal(Operation.ToBeSent, x.Operation));
+                AssertReceptionAwareness(
+                    awareness.InternalMessageId,
+                    x => Assert.Equal(ReceptionStatus.Pending, x.Status));
             }
 
-            private void AssertInMessage(string messageId)
+            private void AssertOutMessage(string messagId, Action<OutMessage> condition)
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    InMessage inMessage = context.InMessages.FirstOrDefault(m => m.EbmsRefToMessageId.Equals(messageId));
+                    OutMessage outMessage = context.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messagId));
 
-                    Assert.NotNull(inMessage);
+                    Assert.NotNull(outMessage);
+                    condition(outMessage);
                 }
             }
 

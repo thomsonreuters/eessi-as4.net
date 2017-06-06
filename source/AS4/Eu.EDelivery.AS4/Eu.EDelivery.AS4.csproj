@@ -448,6 +448,7 @@
     <Compile Include="Services\IInMessageService.cs" />
     <Compile Include="Services\InExceptionService.cs" />
     <Compile Include="Services\InMessageService.cs" />
+    <Compile Include="Services\IReceptionAwarenessService.cs" />
     <Compile Include="Services\OutExceptionService.cs" />
     <Compile Include="Services\OutMessageService.cs" />
     <Compile Include="Services\ReceptionAwarenessService.cs" />
