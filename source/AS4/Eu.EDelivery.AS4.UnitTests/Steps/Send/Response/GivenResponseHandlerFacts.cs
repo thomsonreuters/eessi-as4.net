@@ -191,6 +191,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert
                 Assert.False(actualResult.CanProceed);
+                Assert.True(actualResult.MessagingContext.AS4Message.IsPullResponse);
             }
 
             private static IAS4Response CreateResponseWith(SignalMessage request, SignalMessage response)

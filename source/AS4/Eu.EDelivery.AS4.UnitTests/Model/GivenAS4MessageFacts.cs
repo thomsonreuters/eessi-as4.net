@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequest()).Build();
 
                 // Act
-                bool isPulling = as4Message.IsPulling;
+                bool isPulling = as4Message.IsPullRequest;
 
                 // Assert
                 Assert.True(isPulling);

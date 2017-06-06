@@ -110,7 +110,9 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
 
-        public bool IsPulling => PrimarySignalMessage is PullRequest;
+        public bool IsPullRequest => PrimarySignalMessage is PullRequest;
+
+        public bool IsPullResponse { get; private set; }
 
         public bool NeedsToBeMultiHop { get; internal set; }
 
@@ -121,6 +123,11 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return PrimaryUserMessage.MessageId;
             }
             return PrimarySignalMessage?.MessageId;
+        }
+
+        public void AsPullResponse()
+        {
+            IsPullResponse = true;
         }
 
         public long DetermineMessageSize(ISerializerProvider provider)

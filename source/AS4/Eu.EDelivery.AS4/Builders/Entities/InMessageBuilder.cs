@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 ContentType = _as4Message.ContentType,
                 Message = _as4Message,
                 PMode = _pmodeString,
-                MEP = MessageExchangePattern.Push, // TODO: this is hardcoded; is this correct ? Is this even relevant for inmsg ?
+                MEP = _as4Message.IsPullResponse ? MessageExchangePattern.Pull : MessageExchangePattern.Push,
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.UtcNow,
