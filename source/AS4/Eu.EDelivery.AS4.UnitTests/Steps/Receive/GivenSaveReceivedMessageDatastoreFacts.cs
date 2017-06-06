@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             _userMessageId = Guid.NewGuid().ToString();
 
-            Step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyPersister.Default);
+            Step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
         }
 
         /// <summary>
@@ -83,14 +83,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
                 AddTestableDataToUserMessage(userMessage);
-                InternalMessage internalMessage = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
+                MessagingContext messagingContext = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
 
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
-                internalMessage.AS4Message.ReceivingPMode = pmode;
+                messagingContext.ReceivingPMode = pmode;
 
                 // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
@@ -103,17 +103,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
                 signalMessage.IsDuplicated = false;
 
-                InternalMessage internalMessage = new InternalMessageBuilder().WithSignalMessage(signalMessage).Build();
+                MessagingContext messagingContext = new InternalMessageBuilder().WithSignalMessage(signalMessage).Build();
 
                 // Act           
                 // Execute the step twice.     
-                StepResult stepResult = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-                Assert.False(stepResult.InternalMessage.AS4Message.PrimarySignalMessage.IsDuplicated);
+                StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
+                Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicated);
 
-                stepResult = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
+                stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.True(stepResult.InternalMessage.AS4Message.PrimarySignalMessage.IsDuplicated);
+                Assert.True(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicated);
             }
 
             [Fact]
@@ -122,14 +122,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
                 await InsertDuplicateUserMessage(userMessage);
-                InternalMessage internalMessage = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
+                MessagingContext messagingContext = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
 
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
-                internalMessage.AS4Message.ReceivingPMode = pmode;
+                messagingContext.ReceivingPMode = pmode;
 
                 // Act
-                await Step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message message = new AS4MessageBuilder().Build();
-                var internalMessage = new InternalMessage(message);
+                var internalMessage = new MessagingContext(message);
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);

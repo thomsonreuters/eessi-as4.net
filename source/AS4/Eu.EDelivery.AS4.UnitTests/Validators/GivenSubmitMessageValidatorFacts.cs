@@ -1,8 +1,9 @@
-﻿using System.Linq;
-using Eu.EDelivery.AS4.Exceptions;
+﻿using System;
+using System.Linq;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Validators;
+using FluentValidation.Results;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Validators
@@ -12,58 +13,45 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
     /// </summary>
     public class GivenSubmitMessageValidatorFacts
     {
-        public class GivenValidArguments : GivenSubmitMessageValidatorFacts
+        [Fact]
+        public void ThenSubmitMessageIsValid()
         {
-            [Fact]
-            public void ThenSubmitMessageIsValid()
-            {
-                // Arrange
-                SubmitMessage submitMessage = CreateValidSubmitMessage();
-                IValidator<SubmitMessage> validator = new SubmitMessageValidator();
-
-                // Act
-                validator.Validate(submitMessage);
-            }
+            TestInvalidValidation(message => { }, expectedValid: true);
         }
 
-        public class GivenInvalidArguments : GivenSubmitMessageValidatorFacts
+        [Fact]
+        public void ThenSubmitMessageIsInvalidWithMissingPModeId()
         {
-            [Theory]
-            [InlineData(null)]
-            public void ThenSubmitMessageIsInvalidWithMissingPModeId(string pmodeId)
-            {
-                // Arrange
-                SubmitMessage submitMessage = CreateValidSubmitMessage();
-                submitMessage.Collaboration.AgreementRef.PModeId = pmodeId;
-                IValidator<SubmitMessage> validator = new SubmitMessageValidator();
-
-                // Act
-                Assert.Throws<AS4Exception>(() => validator.Validate(submitMessage));
-            }
-
-            [Theory]
-            [InlineData(null)]
-            public void ThenSubmitMessageIsInvalidWithMissingPayloadLocation(string location)
-            {
-                // Arrange
-                SubmitMessage submitMessage = CreateValidSubmitMessage();
-                submitMessage.Payloads.First().Location = location;
-                IValidator<SubmitMessage> validator = new SubmitMessageValidator();
-
-                // Act / Assert
-                Assert.Throws<AS4Exception>(() => validator.Validate(submitMessage));
-            }
+            TestInvalidValidation(message => message.Collaboration.AgreementRef.PModeId = null, expectedValid: false);
         }
 
-        protected SubmitMessage CreateValidSubmitMessage()
+        [Fact]
+        public void ThenSubmitMessageIsInvalidWithMissingPayloadLocation()
+        {
+            TestInvalidValidation(message => message.Payloads.First().Location = null, expectedValid: false);
+        }
+
+        private static void TestInvalidValidation(Action<SubmitMessage> arrangeMessage, bool expectedValid)
+        {
+            // Arrange
+            SubmitMessage message = CreateValidSubmitMessage();
+            arrangeMessage(message);
+
+            var sut = new SubmitMessageValidator();
+
+            // Act
+            ValidationResult result = sut.Validate(message);
+
+            // Assert
+            Assert.Equal(expectedValid, result.IsValid);
+        }
+        
+
+        private static SubmitMessage CreateValidSubmitMessage()
         {
             return new SubmitMessage
             {
-                Collaboration = {
-                                   AgreementRef = {
-                                                     PModeId = "pmode-id"
-                                                  }
-                                },
+                Collaboration = {AgreementRef = {PModeId = "pmode-id"}},
                 Payloads = new[] {new Payload("file:///")}
             };
         }

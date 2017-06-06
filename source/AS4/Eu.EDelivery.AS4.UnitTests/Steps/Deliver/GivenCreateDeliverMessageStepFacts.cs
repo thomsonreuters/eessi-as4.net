@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -98,25 +100,61 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             Assert.NotEmpty(deliverMessage.MessageProperties);
         }
 
+        [Theory]
+        [InlineData("attachment location", "attachment location")]
+        [InlineData(null, "")]
+        public async Task PartInfoLocationIsAttachmentLocation_IfIdMatches(string attachmentLocation, string expectedLocation)
+        {
+            // Arrange
+            const string referenceId = "payload id";
+            AS4Message message = AS4MessageWithUserMessage(referenceId);
+            message.AddAttachment(new Attachment(referenceId) {Location = attachmentLocation});
+
+            // Act
+            DeliverMessageEnvelope deliverEnvelope = await ExecuteStepWith(message);
+
+            // Assert
+            DeliverMessage deliverMessage = DeserializeDeliverEnvelope(deliverEnvelope);
+            string actualLocation = deliverMessage.Payloads.First().Location;
+
+            Assert.Equal(expectedLocation, actualLocation);
+        }
+
+        [Fact]
+        public async Task FailsToCreateDeliverMessage_IfInvalidDeliverMessage()
+        {
+            // Arrange
+            AS4Message as4Message = AS4MessageWithUserMessage();
+            as4Message.PrimaryUserMessage.MessageId = null;
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => ExecuteStepWith(as4Message));
+        }
+
         private static async Task<DeliverMessage> TestExecuteStepWithFullBlownUserMessage()
         {
             AS4Message as4Message = AS4MessageWithUserMessage();
             DeliverMessageEnvelope deliverEnvelope = await ExecuteStepWith(as4Message);
 
+            return DeserializeDeliverEnvelope(deliverEnvelope);
+        }
+
+        private static DeliverMessage DeserializeDeliverEnvelope(DeliverMessageEnvelope deliverEnvelope)
+        {
             return AS4XmlSerializer.FromString<DeliverMessage>(Encoding.UTF8.GetString(deliverEnvelope.DeliverMessage));
         }
 
         private static async Task<DeliverMessageEnvelope> ExecuteStepWith(AS4Message as4Message)
         {
             var sut = new CreateDeliverEnvelopeStep();
-            StepResult result = await sut.ExecuteAsync(new InternalMessage(as4Message), CancellationToken.None);
+            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message), CancellationToken.None);
 
-            return result.InternalMessage.DeliverMessage;
+            return result.MessagingContext.DeliverMessage;
         } 
 
-        private static AS4Message AS4MessageWithUserMessage()
+        private static AS4Message AS4MessageWithUserMessage(string attachmentId = "attachment-uri")
         {
-            return new AS4MessageBuilder().WithUserMessage(new FilledUserMessage()).Build();
+            return new AS4MessageBuilder().WithUserMessage(new FilledUserMessage(attachmentId: attachmentId)).Build();
         }
 
         private static void AssertsNotEmpty(params IEnumerable[] values)

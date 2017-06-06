@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequestError()).Build();
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(as4Message));
 
-            InternalMessage dummyMessage = CreateAnonymousPullRequest();
+            MessagingContext dummyMessage = CreateAnonymousPullRequest();
 
             // Act
             StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             OutStatus expectedStatus)
         {
             // Arrange
-            InternalMessage stubMessage = CreateAnonymousMessage();
+            MessagingContext stubMessage = CreateAnonymousMessage();
             stubMessage.AS4Message.ContentType = contentType;
             InsertToBeSentUserMessage(stubMessage);
 
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 });
         }
 
-        private void InsertToBeSentUserMessage(InternalMessage requestMessage)
+        private void InsertToBeSentUserMessage(MessagingContext requestMessage)
         {
             using (var context = new DatastoreContext(Options))
             {
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             return new AS4MessageBuilder().WithSignalMessage(new Receipt()).Build();
         }
 
-        private void AssertSentUserMessage(InternalMessage requestMessage, Action<OutMessage> assertion)
+        private void AssertSentUserMessage(MessagingContext requestMessage, Action<OutMessage> assertion)
         {
             using (var context = new DatastoreContext(Options))
             {
@@ -106,33 +106,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
-            InternalMessage dummyMessage = CreateAnonymousPullRequest();
+            MessagingContext dummyMessage = CreateAnonymousPullRequest();
 
             // Act
             StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
 
             // Assert
-            Assert.True(actualResult.InternalMessage.AS4Message.IsEmpty);
+            Assert.True(actualResult.MessagingContext.AS4Message.IsEmpty);
             Assert.False(actualResult.CanProceed);
         }
 
-        private static InternalMessage CreateAnonymousPullRequest()
+        private static MessagingContext CreateAnonymousPullRequest()
         {
             return BuildInternalMessage(builder => builder.WithSignalMessage(new PullRequest(mpc: null, messageId: "message-id")));
         }
 
-        private static InternalMessage CreateAnonymousMessage()
+        private static MessagingContext CreateAnonymousMessage()
         {
             return BuildInternalMessage(builder => builder.WithUserMessage(new UserMessage(messageId: "message-id")));
         }
 
-        private static InternalMessage BuildInternalMessage(Action<AS4MessageBuilder> assignToBuilder)
+        private static MessagingContext BuildInternalMessage(Action<AS4MessageBuilder> assignToBuilder)
         {
             var builder = new AS4MessageBuilder();
 
-            assignToBuilder(builder.WithSendingPMode(CreateValidSendingPMode()));
+            assignToBuilder(builder);
 
-            return new InternalMessage(builder.Build());
+            return new MessagingContext(builder.Build()) {SendingPMode = CreateValidSendingPMode()};
         }
 
         private static SendingProcessingMode CreateValidSendingPMode()

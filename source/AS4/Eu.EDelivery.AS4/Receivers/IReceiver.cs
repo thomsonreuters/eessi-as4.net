@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="messageCallback">Callback for each message that's being received.</param>
         /// <param name="cancellationToken">Cancel the <see cref="IReceiver"/> instance from receiving messages.</param>
         void StartReceiving(
-            Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
+            Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken cancellationToken);
 
         /// <summary>

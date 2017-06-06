@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
 using Eu.EDelivery.AS4.Repositories;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Common
 {
@@ -54,6 +55,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         public void Dispose()
         {
             _dummyCertificate.Dispose();
+        }
+
+        [Fact]
+        public void IsDisposed()
+        {
+            // Arrange
+            var sut = new StubCertificateRepository();
+            sut.Dispose();
+
+            // Act / Assert
+            Assert.ThrowsAny<Exception>(() => sut._dummyCertificate.PrivateKey);
         }
     }
 }

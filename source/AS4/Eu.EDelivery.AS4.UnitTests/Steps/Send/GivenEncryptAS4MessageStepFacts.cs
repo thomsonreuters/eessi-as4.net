@@ -29,12 +29,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         public GivenEncryptAS4MessageStepFacts()
         {
+            Mock<ICertificateRepository> certificateRepositoryMock = CreateStubCertificateRepository();
+
+            _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
+        }
+
+        private static Mock<ICertificateRepository> CreateStubCertificateRepository()
+        {
             var certificateRepositoryMock = new Mock<ICertificateRepository>();
 
             certificateRepositoryMock.Setup(x => x.GetCertificate(It.IsAny<X509FindType>(), It.IsAny<string>()))
                                      .Returns(new StubCertificateRepository().GetStubCertificate());
-
-            _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
+            return certificateRepositoryMock;
         }
 
         public class GivenValidArguments : GivenEncryptAS4MessageStepFacts
@@ -42,45 +48,40 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             [Fact]
             public async Task ThenExecuteStepSucceedsAsync()
             {
-                // Arrange
-                AS4Message as4Message = CreateEncryptedAS4Message();
-
                 // Act
-                StepResult stepResult = await ExerciseEncryptAS4Message(as4Message);
+                StepResult stepResult = await ExerciseEncryption(CreateEncryptedAS4Message());
 
                 // Assert
-                Assert.True(stepResult.InternalMessage.AS4Message.IsEncrypted);
+                Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
             }
 
             [Fact]
             public async Task EncryptedDatasHasTakenOverAttachmentInfo()
             {
                 // Arrange
-                AS4Message as4Message = CreateEncryptedAS4Message();
-                string expectedMimeType = as4Message.Attachments.First().ContentType;
+                MessagingContext message = CreateEncryptedAS4Message();
+                string expectedMimeType = message.AS4Message.Attachments.First().ContentType;
 
-                // Act
-                StepResult result = await ExerciseEncryptAS4Message(as4Message);
+                StepResult result = await ExerciseEncryption(message);
 
                 // Assert
                 string actualMimeType = FirstEncryptedDataMimeTypeAttributeValue(result);
 
                 Assert.Equal(expectedMimeType, actualMimeType);
-                Assert.All(as4Message.Attachments, a => Assert.Equal("application/octet-stream", a.ContentType));
+                Assert.All(message.AS4Message.Attachments, a => Assert.Equal("application/octet-stream", a.ContentType));
             }
 
-            private async Task<StepResult> ExerciseEncryptAS4Message(AS4Message as4Message)
+            private static async Task<StepResult> ExerciseEncryption(MessagingContext message)
             {
-                // Arrange
-                var internalMessage = new InternalMessage(as4Message);
+                var sut = new EncryptAS4MessageStep(CreateStubCertificateRepository().Object);
 
                 // Act
-                return await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                return await sut.ExecuteAsync(message, CancellationToken.None);
             }
 
             private static string FirstEncryptedDataMimeTypeAttributeValue(StepResult result)
             {
-                XmlElement node = result.InternalMessage.AS4Message.SecurityHeader.GetXml();
+                XmlElement node = result.MessagingContext.AS4Message.SecurityHeader.GetXml();
                 XmlNode attachmentNode = node.SelectSingleNode("//*[local-name()='EncryptedData']");
 
                 return attachmentNode.Attributes.GetNamedItem("MimeType").Value;
@@ -93,18 +94,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenExecuteStepFailsWithInvalidCertificateAsync()
             {
                 // Arrange
-                AS4Message as4Message = CreateEncryptedAS4Message();
-                var internalMessage = new InternalMessage(as4Message);
-
                 Mock<ICertificateRepository> certificateRepositoryMock = CreateFailedMockedCertificateRepository();
                 _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
 
                 // Act / Assert
                 await Assert.ThrowsAsync<AS4Exception>(
-                    () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
+                    () => _step.ExecuteAsync(CreateEncryptedAS4Message(), CancellationToken.None));
             }
 
-            private Mock<ICertificateRepository> CreateFailedMockedCertificateRepository()
+            private static Mock<ICertificateRepository> CreateFailedMockedCertificateRepository()
             {
                 var certificateRepositoryMock = new Mock<ICertificateRepository>();
 
@@ -115,17 +113,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        protected AS4Message CreateEncryptedAS4Message()
+        protected MessagingContext CreateEncryptedAS4Message()
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));
             var attachment = new Attachment("attachment-id") {Content = attachmentStream, ContentType = "text/plain"};
             AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
-            as4Message.SendingPMode = new SendingProcessingMode();
-            as4Message.SendingPMode.Security.Encryption.IsEnabled = true;
-            as4Message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+            var message = new MessagingContext(as4Message)
+            {
+                SendingPMode = new SendingProcessingMode()
+            };
 
-            return as4Message;
+            message.SendingPMode.Security.Encryption.IsEnabled = true;
+            message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+
+            return message;
         }
     }
 }

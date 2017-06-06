@@ -11,14 +11,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
     public class SinkStep : IStep
     {
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
     }
 }

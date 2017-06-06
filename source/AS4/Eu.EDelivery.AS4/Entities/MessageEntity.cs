@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         /// <remarks>
         /// This property is not persisted to the Datastore.  It is used to persist the Message in another location by an
-        /// <see cref="IAS4MessageBodyPersister" />
+        /// <see cref="IAS4MessageBodyStore" />
         /// </remarks>
         [NotMapped]
         internal AS4Message Message { get; set; }
@@ -111,12 +112,12 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Retrieves the Message body as a stream.
         /// </summary>
-        /// <param name="retrieverProvider">
-        /// The AS4MessageBodyRetrieverProvider which is responsible for providing the correct
-        /// IAS4MessageRepository that loads the AS4Message body.
+        /// <param name="store">
+        /// The <see cref="MessageBodyStore" /> which is responsible for providing the correct
+        /// <see cref="IAS4MessageBodyStore" /> that loads the <see cref="AS4Message" /> body.
         /// </param>
         /// <returns>A Stream which contains the MessageBody</returns>
-        public Stream RetrieveMessageBody(AS4MessageBodyRetrieverProvider retrieverProvider)
+        public async Task<Stream> RetrieveMessagesBody(IAS4MessageBodyStore store)
         {
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
@@ -124,16 +125,14 @@ namespace Eu.EDelivery.AS4.Entities
                 return null;
             }
 
-            IAS4MessageBodyRetriever repository = retrieverProvider.Get(MessageLocation);
-
-            return TryLoadMessageStream(repository);
+            return await TryLoadMessageBody(store);
         }
 
-        private Stream TryLoadMessageStream(IAS4MessageBodyRetriever repository)
+        private async Task<Stream> TryLoadMessageBody(IAS4MessageBodyStore store)
         {
             try
             {
-                return repository.LoadAS4MessageStream(MessageLocation);
+                return await store.LoadMessagesBody(MessageLocation);
             }
             catch (Exception exception)
             {

@@ -35,11 +35,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Arrange
                 const string messageId = "message-id";
                 AS4.Model.PMode.ReceptionAwareness receptionAwareness = CreatePModeReceptionAwareness();
-                InternalMessage internalMessage = CreateDefaultInternalMessage(messageId, receptionAwareness);
+                MessagingContext messagingContext = CreateDefaultInternalMessage(messageId, receptionAwareness);
                 var step = new SetReceptionAwarenessStep();
 
                 // Act                
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertReceptionAwareness(
@@ -66,16 +66,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 }
             }
 
-            private static InternalMessage CreateDefaultInternalMessage(
+            private static MessagingContext CreateDefaultInternalMessage(
                 string messageId,
                 AS4.Model.PMode.ReceptionAwareness receptionAwareness)
             {
                 var pmode = new SendingProcessingMode {Reliability = {ReceptionAwareness = receptionAwareness}};
                 var userMessage = new UserMessage(messageId);
-                var as4Message = new AS4Message {SendingPMode = pmode};
+                var as4Message = new AS4Message();
                 as4Message.UserMessages.Add(userMessage);
 
-                return new InternalMessage(as4Message);
+                return new MessagingContext(as4Message) {SendingPMode = pmode};
             }
         }
 

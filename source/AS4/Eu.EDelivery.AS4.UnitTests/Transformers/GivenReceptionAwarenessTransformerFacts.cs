@@ -25,12 +25,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var transformer = new ReceptionAwarenessTransformer();
 
                 // Act
-                InternalMessage internalMessage = await transformer.TransformAsync(
+                MessagingContext messagingContext = await transformer.TransformAsync(
                                                       receivedMessage,
                                                       CancellationToken.None);
 
                 // Assert
-                Assert.Equal(awareness, internalMessage.ReceptionAwareness);
+                Assert.Equal(awareness, messagingContext.ReceptionAwareness);
             }
         }
 

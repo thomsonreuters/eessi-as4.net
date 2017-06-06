@@ -21,55 +21,57 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Start verifying the Signature of the <see cref="AS4Message"/>
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="AS4Exception">Throws exception when the signature cannot be verified</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            PreConditions(internalMessage);
+            PreConditions(messagingContext);
 
-            if (MessageDoesNotNeedToBeVerified(internalMessage.AS4Message))
+            if (MessageDoesNotNeedToBeVerified(messagingContext))
             {
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            return await TryVerifyingSignature(internalMessage);
+            return await TryVerifyingSignature(messagingContext);
         }
 
-        private static void PreConditions(InternalMessage internalMessage)
+        private static void PreConditions(MessagingContext messagingContext)
         {
 
-            ReceivingProcessingMode pmode = internalMessage.AS4Message.ReceivingPMode;
+            ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             SigningVerification verification = pmode?.Security.SigningVerification;
 
-            bool isMessageFailsTheRequiredSigning = verification?.Signature == Limit.Required && !internalMessage.AS4Message.IsSigned;
-            bool isMessageFailedTheUnallowedSigning = verification?.Signature == Limit.NotAllowed && internalMessage.AS4Message.IsSigned;
+            bool isMessageFailsTheRequiredSigning = verification?.Signature == Limit.Required && !messagingContext.AS4Message.IsSigned;
+            bool isMessageFailedTheUnallowedSigning = verification?.Signature == Limit.NotAllowed && messagingContext.AS4Message.IsSigned;
 
             if (isMessageFailsTheRequiredSigning)
             {
                 string description = $"Receiving PMode {pmode.Id} requires a Signed AS4 Message and the message is not";
-                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, internalMessage);
+                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, messagingContext);
             }
 
             if (!isMessageFailedTheUnallowedSigning) return;
             {
                 string description = $"Receiving PMode {pmode.Id} doesn't allow a signed AS4 Message and the message is";
-                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, internalMessage);
+                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, messagingContext);
             }
         }
 
-        private static bool MessageDoesNotNeedToBeVerified(AS4Message as4Message)
+        private static bool MessageDoesNotNeedToBeVerified(MessagingContext message)
         {
+            AS4Message as4Message = message.AS4Message;
+
             return !as4Message.IsSigned ||
-                    as4Message.ReceivingPMode?.Security.SigningVerification.Signature == Limit.Ignored;
+                    message.ReceivingPMode?.Security.SigningVerification.Signature == Limit.Ignored;
         }
 
-        private static async Task<StepResult> TryVerifyingSignature(InternalMessage internalMessage)
+        private static async Task<StepResult> TryVerifyingSignature(MessagingContext messagingContext)
         {
             try
             {
-                return await VerifySignature(internalMessage).ConfigureAwait(false);
+                return await VerifySignature(messagingContext).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -82,25 +84,25 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                     Logger.Error(exception.InnerException.StackTrace);
                 }
 
-                throw ThrowVerifySignatureAS4Exception(exception.Message, ErrorCode.Ebms0101, internalMessage, exception);
+                throw ThrowVerifySignatureAS4Exception(exception.Message, ErrorCode.Ebms0101, messagingContext, exception);
             }
         }
 
-        private static async Task<StepResult> VerifySignature(InternalMessage internalMessage)
+        private static async Task<StepResult> VerifySignature(MessagingContext messagingContext)
         {
-            if (!IsValidSignature(internalMessage.AS4Message))
+            if (!IsValidSignature(messagingContext.AS4Message))
             {
-                throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101, internalMessage);
+                throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101, messagingContext);
             }
 
-            Logger.Info($"{internalMessage.Prefix} AS4 Message has a valid Signature present");
+            Logger.Info($"{messagingContext.Prefix} AS4 Message has a valid Signature present");
 
-            foreach (Attachment attachment in internalMessage.AS4Message.Attachments)
+            foreach (Attachment attachment in messagingContext.AS4Message.Attachments)
             {
                 attachment.ResetContentPosition();
             }
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static bool IsValidSignature(AS4Message as4Message)
@@ -119,17 +121,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         }
 
         private static AS4Exception ThrowVerifySignatureAS4Exception(
-            string description, ErrorCode errorCode, InternalMessage internalMessage, Exception innerException = null)
+            string description, ErrorCode errorCode, MessagingContext messagingContext, Exception innerException = null)
         {
-            description = internalMessage.Prefix + description;
+            description = messagingContext.Prefix + description;
             Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(internalMessage.AS4Message.MessageIds)
+                .WithMessageIds(messagingContext.AS4Message.MessageIds)
                 .WithErrorCode(errorCode)
                 .WithInnerException(innerException)
-                .WithReceivingPMode(internalMessage.AS4Message.ReceivingPMode)
+                .WithReceivingPMode(messagingContext.ReceivingPMode)
                 .Build();
         }
     }

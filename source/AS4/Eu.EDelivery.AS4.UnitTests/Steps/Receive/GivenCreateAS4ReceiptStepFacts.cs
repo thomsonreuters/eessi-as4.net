@@ -40,29 +40,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteSucceedsWithDefaultInternalMessageAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                MessagingContext messagingContext = CreateDefaultInternalMessage();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.NotEqual(result.InternalMessage, internalMessage);
-                Assert.IsType(typeof(Receipt), result.InternalMessage.AS4Message.PrimarySignalMessage);
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                Assert.NotEqual(result.MessagingContext, messagingContext);
+                Assert.IsType(typeof(Receipt), result.MessagingContext.AS4Message.PrimarySignalMessage);
             }
 
             [Fact]
             public async Task ThenExecuteSucceedsWithReceiptTypeAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                MessagingContext messagingContext = CreateDefaultInternalMessage();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                var receiptMessage = result.InternalMessage.AS4Message.PrimarySignalMessage as Receipt;
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                var receiptMessage = result.MessagingContext.AS4Message.PrimarySignalMessage as Receipt;
                 Assert.IsType(typeof(Receipt), receiptMessage);
                 Assert.Null(receiptMessage.NonRepudiationInformation);
             }
@@ -71,29 +71,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteSucceedsWithSigningReceiptAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                MessagingContext messagingContext = CreateDefaultInternalMessage();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.False(result.InternalMessage.AS4Message.IsSigned);
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                Assert.False(result.MessagingContext.AS4Message.IsSigned);
             }
 
             [Fact]
             public async Task ThenExecuteSucceedsWithNRRFormatAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateSignedInternalMessage();
-                internalMessage.AS4Message.ReceivingPMode.ReceiptHandling.UseNNRFormat = true;
+                MessagingContext messagingContext = CreateSignedInternalMessage();
+                messagingContext.ReceivingPMode.ReceiptHandling.UseNNRFormat = true;
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                var receiptMessage = result.InternalMessage.AS4Message.PrimarySignalMessage as Receipt;
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                var receiptMessage = result.MessagingContext.AS4Message.PrimarySignalMessage as Receipt;
                 Assert.IsType(typeof(Receipt), receiptMessage);
                 Assert.NotNull(receiptMessage.NonRepudiationInformation);
                 Assert.Null(receiptMessage.UserMessage);
@@ -103,15 +103,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteSucceedsWithSameReferenceTagsAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateSignedInternalMessage();
-                internalMessage.AS4Message.ReceivingPMode.ReceiptHandling.UseNNRFormat = true;
+                MessagingContext messagingContext = CreateSignedInternalMessage();
+                messagingContext.ReceivingPMode.ReceiptHandling.UseNNRFormat = true;
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                var receiptMessage = result.InternalMessage.AS4Message.PrimarySignalMessage as Receipt;
-                SecurityHeader securityHeader = internalMessage.AS4Message.SecurityHeader;
+                var receiptMessage = result.MessagingContext.AS4Message.PrimarySignalMessage as Receipt;
+                SecurityHeader securityHeader = messagingContext.AS4Message.SecurityHeader;
                 Assert.NotNull(receiptMessage);
                 Assert.NotNull(securityHeader);
                 AssertSignedReferences(receiptMessage, securityHeader);
@@ -136,32 +136,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false}};
         }
 
-        protected InternalMessage CreateDefaultInternalMessage()
+        protected MessagingContext CreateDefaultInternalMessage()
         {
             var as4Message = new AS4Message
             {
-                ReceivingPMode = GetReceivingPMode(),
                 UserMessages = new[] {GetUserMessage()}
             };
-            return new InternalMessage(as4Message);
+            return new MessagingContext(as4Message) {ReceivingPMode = GetReceivingPMode()};
         }
 
-        protected InternalMessage CreateSignedInternalMessage()
+        protected MessagingContext CreateSignedInternalMessage()
         {
-            InternalMessage internalMessage = CreateDefaultInternalMessage();
-            AS4Message as4Message = internalMessage.AS4Message;
+            MessagingContext messagingContext = CreateDefaultInternalMessage();
+            AS4Message as4Message = messagingContext.AS4Message;
 
-            ISigningStrategy signingStrategy = CreateSignStrategy(as4Message);
+            ISigningStrategy signingStrategy = CreateSignStrategy(messagingContext);
             as4Message.SecurityHeader.Sign(signingStrategy);
 
-            return internalMessage;
+            return messagingContext;
         }
 
-        private static ISigningStrategy CreateSignStrategy(AS4Message as4Message)
+        private static ISigningStrategy CreateSignStrategy(MessagingContext message)
         {
+            AS4Message as4Message = message.AS4Message;
             X509Certificate2 certificate = new StubCertificateRepository().GetStubCertificate();
 
-            SigningStrategyBuilder builder = new SigningStrategyBuilder(as4Message, CancellationToken.None)
+            SigningStrategyBuilder builder = new SigningStrategyBuilder(message, CancellationToken.None)
                 .WithSecurityTokenReference(X509ReferenceType.BSTReference)
                 .WithSignatureAlgorithm(Algorithm)
                 .WithCertificate(certificate)

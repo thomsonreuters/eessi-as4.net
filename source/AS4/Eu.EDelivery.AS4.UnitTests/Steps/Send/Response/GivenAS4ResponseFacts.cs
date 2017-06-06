@@ -1,11 +1,9 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps.Send.Response;
-using Xunit;
-using System.Reflection;
 using Moq;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 {
@@ -18,10 +16,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         public void GetsRequestMessageFromAS4Response()
         {
             // Arranage
-            var expectedRequest = new InternalMessage();
+            var expectedRequest = new MessagingContext(as4Message: null);
 
             // Act
-            InternalMessage actualRequest = CreateAS4ResponseWith(messageRequest: expectedRequest).OriginalRequest;
+            MessagingContext actualRequest = CreateAS4ResponseWith(messageRequest: expectedRequest).OriginalRequest;
 
             // Assert
             Assert.Equal(expectedRequest, actualRequest);
@@ -40,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             HttpWebResponse response = CreateWebResponseWithContentType(string.Empty);
 
             // Act
-            InternalMessage result = CreateAS4ResponseWith(webResponse: response).ResultedMessage;
+            MessagingContext result = CreateAS4ResponseWith(webResponse: response).ResultedMessage;
 
             // Assert
             Assert.True(result.AS4Message.IsEmpty);
@@ -67,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             return stubResponse.Object;
         }
 
-        private static AS4Response CreateAS4ResponseWith(HttpWebResponse webResponse = null, InternalMessage messageRequest = null)
+        private static AS4Response CreateAS4ResponseWith(HttpWebResponse webResponse = null, MessagingContext messageRequest = null)
         {
             return AS4Response.Create(
                 requestMessage: messageRequest,

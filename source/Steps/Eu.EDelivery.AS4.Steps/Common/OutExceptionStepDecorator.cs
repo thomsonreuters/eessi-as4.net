@@ -42,25 +42,25 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// <summary>
         /// Execute the given Step, so it can be catched
         /// </summary>
-        /// <param name="internalMessage"></param>        
+        /// <param name="messagingContext"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             try
             {
-                return await _step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
+                return await _step.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
             }
             catch (AS4Exception exception)
             {
                 _logger.Error(exception.Message);
 
-                internalMessage.Exception = exception;
+                messagingContext.Exception = exception;
                 try
                 {
                     using (var context = Registry.Instance.CreateDatastoreContext())
                     {
-                        HandleOutException(exception, internalMessage, new DatastoreRepository(context));
+                        HandleOutException(exception, messagingContext, new DatastoreRepository(context));
 
                         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                     }
@@ -70,34 +70,34 @@ namespace Eu.EDelivery.AS4.Steps.Common
                     _logger.Fatal($"An unexpected error occured: {ex.Message}");
 
                 }
-                return StepResult.Failed(exception, internalMessage);
+                return StepResult.Failed(exception, messagingContext);
             }
         }
 
-        private void HandleOutException(AS4Exception exception, InternalMessage internalMessage, IDatastoreRepository repository)
+        private void HandleOutException(AS4Exception exception, MessagingContext messagingContext, IDatastoreRepository repository)
         {
             foreach (string messageId in exception.MessageIds)
             {
-                TryHandleOutException(exception, messageId, internalMessage, repository);
+                TryHandleOutException(exception, messageId, messagingContext, repository);
             }
         }
 
-        private void TryHandleOutException(AS4Exception exception, string messageId, InternalMessage internalMessage, IDatastoreRepository repository)
+        private void TryHandleOutException(AS4Exception exception, string messageId, MessagingContext messagingContext, IDatastoreRepository repository)
         {
             try
             {
-                OutException outException = CreateOutException(exception, internalMessage, messageId);
+                OutException outException = CreateOutException(exception, messagingContext, messageId);
 
                 // We only need this in some cases ...
                 // TODO: only set this if we have no EbmsMessageId ?
-                outException.MessageBody = GetAS4MessageByteRepresentationSetMessageBody(internalMessage.AS4Message);
+                outException.MessageBody = GetAS4MessageByteRepresentationSetMessageBody(messagingContext.AS4Message);
 
                 repository.InsertOutException(outException);
                 repository.UpdateOutMessage(messageId, UpdateOutMessageType);
             }
             catch (Exception ex)
             {
-                _logger.Error($"{internalMessage.Prefix} Cannot Update Datastore with OutException: {ex.Message}");
+                _logger.Error($"{messagingContext.Prefix} Cannot Update Datastore with OutException: {ex.Message}");
                 if (ex.InnerException != null)
                 {
                     _logger.Error(ex.InnerException.Message);
@@ -105,12 +105,12 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
         }
 
-        private static OutException CreateOutException(AS4Exception exception, InternalMessage internalMessage, string messageId)
+        private static OutException CreateOutException(AS4Exception exception, MessagingContext messagingContext, string messageId)
         {
             OutExceptionBuilder builder = OutExceptionBuilder.ForAS4Exception(exception);
             builder.WithEbmsMessageId(messageId);
 
-            if (NeedsOutExceptionBeNotified(internalMessage.AS4Message?.SendingPMode))
+            if (NeedsOutExceptionBeNotified(messagingContext?.SendingPMode))
             {
                 builder.WithOperation(Operation.ToBeNotified);
             }
