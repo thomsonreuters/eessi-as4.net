@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,8 +27,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <param name="webResponse">The web Response.</param>
         private AS4Response(MessagingContext requestMessage, HttpWebResponse webResponse)
         {
-            _httpWebResponse = webResponse;
-
+            _httpWebResponse = webResponse;            
             OriginalRequest = requestMessage;
         }
 
@@ -73,7 +73,16 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             {
                 if (string.IsNullOrWhiteSpace(webResponse.ContentType))
                 {
-                    Logger.Info("No ContentType set - returning an empty AS4 response.");
+                    if (Logger.IsInfoEnabled)
+                    {
+                        Logger.Info("No ContentType set - returning an empty AS4 response.");
+
+                        var streamReader = new StreamReader(webResponse.GetResponseStream());
+                        string responseContent = await streamReader.ReadToEndAsync();
+
+                        Logger.Info(responseContent);
+                    }
+
                     return new MessagingContext(new AS4MessageBuilder().Build());
                 }
 
@@ -90,12 +99,18 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
 
             return new MessagingContext(deserializedResponse);
         }
+               
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        public void Dispose()
+        {
+            _httpWebResponse?.Dispose();
+        }
     }
 
     /// <summary>
     /// Contract to define the HTTP/AS4 response being handled.
     /// </summary>
-    public interface IAS4Response
+    public interface IAS4Response : IDisposable
     {
         /// <summary>
         /// Gets the HTTP Status Code of the HTTP response.

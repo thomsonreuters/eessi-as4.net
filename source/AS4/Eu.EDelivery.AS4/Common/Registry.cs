@@ -41,7 +41,6 @@ namespace Eu.EDelivery.AS4.Common
 
         public MessageBodyStore MessageBodyStore { get; private set; }
         
-
         private void RegisterPayloadStrategyProvider()
         {
             PayloadRetrieverProvider = new PayloadRetrieverProvider();
@@ -53,16 +52,16 @@ namespace Eu.EDelivery.AS4.Common
         private void RegisterDeliverSenderProvider()
         {
             DeliverSenderProvider = new DeliverSenderProvider();
-            DeliverSenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new ReliableSender(deliverSender: new FileSender()));
-            DeliverSenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), new ReliableSender(deliverSender: new HttpSender()));
+            DeliverSenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, "FILE"), new ReliableSender(deliverSender: new FileSender()));
+            DeliverSenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, "HTTP"), new ReliableSender(deliverSender: new HttpSender()));
         }
 
         private void RegisterNotifySenderProvider()
         {
             NotifySenderProvider = new NotifySenderProvider();
 
-            NotifySenderProvider.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(notifySender: new FileSender()));
-            NotifySenderProvider.Accept(s => s.Equals("HTTP", StringComparison.OrdinalIgnoreCase), () => new ReliableSender(notifySender: new HttpSender()));
+            NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, "FILE"), () => new ReliableSender(notifySender: new FileSender()));
+            NotifySenderProvider.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, "HTTP"), () => new ReliableSender(notifySender: new HttpSender()));
         }
 
         private void RegisterAttachmentUploaderProvider()
@@ -71,9 +70,9 @@ namespace Eu.EDelivery.AS4.Common
 
             var mimeTypeRepository = new MimeTypeRepository();
 
-            AttachmentUploader.Accept(s => s.Equals("FILE", StringComparison.OrdinalIgnoreCase), new FileAttachmentUploader(mimeTypeRepository));
-            AttachmentUploader.Accept(s => s.Equals("EMAIL", StringComparison.OrdinalIgnoreCase), new EmailAttachmentUploader(mimeTypeRepository));
-            AttachmentUploader.Accept(s => s.Equals("PAYLOAD-SERVICE", StringComparison.OrdinalIgnoreCase), new PayloadServiceAttachmentUploader());
+            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, "FILE"), new FileAttachmentUploader(mimeTypeRepository));
+            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, "EMAIL"), new EmailAttachmentUploader(mimeTypeRepository));
+            AttachmentUploader.Accept(s => StringComparer.OrdinalIgnoreCase.Equals(s, "PAYLOAD-SERVICE"), new PayloadServiceAttachmentUploader());
         }
 
         private void RegisterAS4MessageBodyRetrieverProvider()

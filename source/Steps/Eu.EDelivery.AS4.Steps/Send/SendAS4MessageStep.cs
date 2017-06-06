@@ -242,8 +242,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task<StepResult> HandleAS4Response(MessagingContext originalMessage, WebResponse webResponse, CancellationToken cancellation)
         {
-            AS4Response as4Response = await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation);
-            return await _responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
+            using (AS4Response as4Response = await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation))
+            {
+                return await _responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
+            }
         }
 
         protected AS4Exception CreateFailedSendAS4Exception(MessagingContext messagingContext, Exception exception)
