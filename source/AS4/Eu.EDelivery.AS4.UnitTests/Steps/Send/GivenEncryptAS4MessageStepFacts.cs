@@ -41,15 +41,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             [Fact]
             public async Task ThenExecuteStepSucceedsAsync()
             {
-                // Arrange
-                AS4Message as4Message = CreateEncryptedAS4Message();
-                var internalMessage = new InternalMessage(as4Message);
-
                 // Act
-                StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult stepResult = await _step.ExecuteAsync(CreateEncryptedAS4Message(), CancellationToken.None);
 
                 // Assert
-                Assert.True(stepResult.InternalMessage.AS4Message.IsEncrypted);
+                Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
             }
         }
 
@@ -59,15 +55,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenExecuteStepFailsWithInvalidCertificateAsync()
             {
                 // Arrange
-                AS4Message as4Message = CreateEncryptedAS4Message();
-                var internalMessage = new InternalMessage(as4Message);
-
                 Mock<ICertificateRepository> certificateRepositoryMock = CreateFailedMockedCertificateRepository();
                 _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
 
                 // Act / Assert
                 await Assert.ThrowsAsync<AS4Exception>(
-                    () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
+                    () => _step.ExecuteAsync(CreateEncryptedAS4Message(), CancellationToken.None));
             }
 
             private Mock<ICertificateRepository> CreateFailedMockedCertificateRepository()
@@ -81,17 +74,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             }
         }
 
-        protected AS4Message CreateEncryptedAS4Message()
+        protected MessagingContext CreateEncryptedAS4Message()
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));
             var attachment = new Attachment("attachment-id") {Content = attachmentStream};
             AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
 
-            as4Message.SendingPMode = new SendingProcessingMode();
-            as4Message.SendingPMode.Security.Encryption.IsEnabled = true;
-            as4Message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+            var message = new MessagingContext(as4Message);
+            message.SendingPMode = new SendingProcessingMode();
+            message.SendingPMode.Security.Encryption.IsEnabled = true;
+            message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
 
-            return as4Message;
+            return message;
         }
     }
 }

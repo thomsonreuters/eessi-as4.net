@@ -93,9 +93,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
             }
 
-            // We need to check the Sending PMode as well, since when serializing
-            // an AS4 UserMessage that is sent, we need to check the PMode.
-            if (message.IsMultiHopMessage || (message.SendingPMode?.MessagePackaging.IsMultiHop ?? false))
+            if (message.IsMultiHopMessage || message.NeedsToBeMultiHop)
             {
                 messagingHeader.role = Constants.Namespaces.EbmsNextMsh;
                 messagingHeader.mustUnderstand1 = true;

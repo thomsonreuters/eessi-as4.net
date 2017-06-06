@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Fe.Monitor;
 using Eu.EDelivery.AS4.Fe.Pmodes;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using NSubstitute;
@@ -19,14 +17,12 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         protected IEnumerable<ReceivingBasePmode> ReceivingPmodes { get; private set; }
         protected ReceivingBasePmode ReceivingBasePmode { get; private set; }
         protected SendingBasePmode SendingBasePmode { get; private set; }
-        protected string Pmode { get; private set; }
 
         protected As4PmodeServiceTests Setup()
         {
             Source = Substitute.For<IAs4PmodeSource>();
             Service = new As4PmodeService(Source);
             SetupPmodes();
-            Pmode = File.ReadAllText(@"receivingpmode.xml");
             return this;
         }
 

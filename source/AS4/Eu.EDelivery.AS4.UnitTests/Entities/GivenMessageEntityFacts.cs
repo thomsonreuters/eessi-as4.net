@@ -1,5 +1,6 @@
-﻿using System.IO;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
@@ -46,13 +47,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
         public class RetrieveMessageBody
         {
             [Fact]
-            public void MessageBodyReturnsNullStream_IfNoMessageLocationIsSpecified()
+            public async Task MessageBodyReturnsNullStream_IfNoMessageLocationIsSpecified()
             {
                 // Arrange
-                var sut = new StubMessageEntity {MessageLocation = null};
+                StubMessageEntity sut = CreateMessageEntity(messageLocation: null);
 
                 // Act
-                using (Stream actualStream = sut.RetrieveMessageBody(retrieverProvider: null))
+                using (Stream actualStream = await sut.RetrieveMessagesBody(store: null))
                 {
                     // Assert
                     Assert.Null(actualStream);
@@ -60,22 +61,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
             }
 
             [Fact]
-            public void MessageEntityCatchesInvalidMessageBodyRetrieval()
+            public async Task MessageEntityCatchesInvalidMessageBodyRetrieval()
             {
                 // Arrange
-                var sut = new StubMessageEntity {MessageLocation = "ignored"};
-                var stubProvider = new AS4MessageBodyRetrieverProvider();
-                stubProvider.Accept(condition: s => true, retriever: new SaboteurMessageBodyRetriever());
+                StubMessageEntity sut = CreateMessageEntity(messageLocation: "ignored");
+                var stubProvider = new MessageBodyStore();
+                stubProvider.Accept(condition: s => true, persister: new SaboteurMessageBodyStore());
 
                 // Act
-                using (Stream actualStream = sut.RetrieveMessageBody(stubProvider))
+                using (Stream actualStream = await sut.RetrieveMessagesBody(stubProvider))
                 {
                     // Assert
                     Assert.Null(actualStream);
                 }
             }
+
+            private static StubMessageEntity CreateMessageEntity(string messageLocation)
+            {
+                return new StubMessageEntity {MessageLocation = messageLocation};
+            }
         }
 
+        [ExcludeFromCodeCoverage]
         private class StubMessageEntity : MessageEntity
         {
             public override string StatusString { get; set; }

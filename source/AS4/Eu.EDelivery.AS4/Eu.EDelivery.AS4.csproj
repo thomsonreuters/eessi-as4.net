@@ -340,9 +340,10 @@
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Receivers\ExponentialIntervalReceiver.cs" />
     <Compile Include="Receivers\IntervalRequest.cs" />
-    <Compile Include="Repositories\AS4MessageBodyFilePersister.cs" />
-    <Compile Include="Repositories\AS4MessageBodyFileRetriever.cs" />
+    <Compile Include="Repositories\AS4MessageBodyFileStore.cs" />
     <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
+    <Compile Include="Repositories\IAS4MessageBodyStore.cs" />
+    <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
     <Compile Include="Builders\Security\EncryptionStrategyBuilder.cs" />
     <Compile Include="Builders\Security\SigningStrategyBuilder.cs" />
@@ -410,7 +411,7 @@
     <Compile Include="Mappings\Common\ServiceMap.cs" />
     <Compile Include="Mappings\Submit\SubmitMessageMap.cs" />
     <Compile Include="Model\Deliver\DeliverMessage.cs" />
-    <Compile Include="Model\Internal\InternalMessage.cs" />
+    <Compile Include="Model\Internal\MessagingContext.cs" />
     <Compile Include="Model\Notify\NotifyMessage.cs" />
     <Compile Include="Repositories\CertificateRepository.cs" />
     <Compile Include="Repositories\DatastoreRepository.cs" />
@@ -539,11 +540,11 @@
     <Compile Include="Utilities\FilenameSanitizer.cs" />
     <Compile Include="Streaming\VirtualStream.cs" />
     <Compile Include="Validators\DeliverMessageValidator.cs" />
-    <Compile Include="Validators\IValidator.cs" />
     <Compile Include="Validators\ParameterValidator.cs" />
     <Compile Include="Validators\ReceivingProcessingModeValidator.cs" />
     <Compile Include="Validators\SendingProcessingModeValidator.cs" />
     <Compile Include="Validators\SubmitMessageValidator.cs" />
+    <Compile Include="Validators\ValidationResultExtension.cs" />
     <Compile Include="Watchers\PModeWatcher.cs" />
     <Compile Include="Xml\Generated.cs" />
     <Compile Include="Xml\MessagePartNRInformation.cs" />

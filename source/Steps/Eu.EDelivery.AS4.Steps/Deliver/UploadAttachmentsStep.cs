@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private readonly ILogger _logger;
         private readonly IAttachmentUploaderProvider _provider;
 
-        private InternalMessage _internalMessage;
+        private MessagingContext _messagingContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UploadAttachmentsStep"/> class.
@@ -49,21 +49,21 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Start uploading the AS4 Message Payloads
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (!internalMessage.AS4Message.HasAttachments)
+            if (!messagingContext.AS4Message.HasAttachments)
             {
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            _internalMessage = internalMessage;
+            _messagingContext = messagingContext;
 
-            await UploadAttachments(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
+            await UploadAttachments(messagingContext.AS4Message.Attachments).ConfigureAwait(false);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private async Task UploadAttachments(IEnumerable<Attachment> attachments)
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             try
             {
-                _logger.Info($"{_internalMessage.Prefix} Start Uploading Attachment...");
+                _logger.Info($"{_messagingContext.Prefix} Start Uploading Attachment...");
                 await UploadAttachment(attachment).ConfigureAwait(false);
 
                 attachment.ResetContentPosition();
@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private Method GetPayloadReferenceMethod()
         {
-            ReceivingProcessingMode pmode = _internalMessage.AS4Message.ReceivingPMode;
+            ReceivingProcessingMode pmode = _messagingContext.ReceivingPMode;
             Method payloadReferenceMethod = pmode.Deliver.PayloadReferenceMethod;
             PreConditionsPayloadReferenceMethod(pmode, payloadReferenceMethod);
 
@@ -124,15 +124,15 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             AS4ExceptionBuilder builder = AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(exception)
-                .WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode);
+                .WithReceivingPMode(_messagingContext.ReceivingPMode);
 
-            if (_internalMessage.DeliverMessage != null)
+            if (_messagingContext.DeliverMessage != null)
             {
-                builder.WithMessageIds(_internalMessage.DeliverMessage.MessageInfo.MessageId);
+                builder.WithMessageIds(_messagingContext.DeliverMessage.MessageInfo.MessageId);
             }
-            else if (_internalMessage.AS4Message?.PrimaryUserMessage != null)
+            else if (_messagingContext.AS4Message?.PrimaryUserMessage != null)
             {
-                builder.WithMessageIds(_internalMessage.AS4Message.PrimaryUserMessage.MessageId);
+                builder.WithMessageIds(_messagingContext.AS4Message.PrimaryUserMessage.MessageId);
             }
 
             return builder.Build();

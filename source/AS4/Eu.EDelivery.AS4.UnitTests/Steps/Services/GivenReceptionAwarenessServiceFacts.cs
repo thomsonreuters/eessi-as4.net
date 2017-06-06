@@ -74,7 +74,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             {
                 var stub = new Mock<IDatastoreRepository>();
 
-                stub.Setup(r => r.GetOutMessageOperation(It.IsAny<string>())).Returns(operation);
+                stub.Setup(r => r.GetOutMessageData(It.IsAny<string>(), It.IsAny<Func<OutMessage, Operation>>()))
+                    .Returns(operation);
 
                 return stub.Object;
             }

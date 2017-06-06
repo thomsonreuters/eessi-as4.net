@@ -11,10 +11,10 @@ namespace Eu.EDelivery.AS4.Services
         /// Deadletters the out message asynchronous.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
-        /// <param name="messageBodyPersister">The message body persister.</param>
+        /// <param name="messageBodyStore">The message body persister.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyPersister messageBodyPersister, CancellationToken cancellationToken);
+        Task DeadletterOutMessageAsync(string messageId, IAS4MessageBodyStore messageBodyStore, CancellationToken cancellationToken);
 
         /// <summary>
         /// Messages the needs to be resend.

@@ -17,15 +17,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
         public bool IsCalled { get; private set; }
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken">Cancellation during the step execution.</param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             IsCalled = true;
-            return StepResult.SuccessAsync(internalMessage);
+            return StepResult.SuccessAsync(messagingContext);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             var step = new SpyStep();
 
             // Act
-            await step.ExecuteAsync(internalMessage: null, cancellationToken: CancellationToken.None);
+            await step.ExecuteAsync(messagingContext: null, cancellationToken: CancellationToken.None);
 
             // Assert
             Assert.True(step.IsCalled);

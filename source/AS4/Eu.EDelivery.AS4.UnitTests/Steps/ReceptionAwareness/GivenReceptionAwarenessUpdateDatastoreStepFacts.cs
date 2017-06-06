@@ -34,8 +34,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 // Arrange
                 EntityReceptionAwareness awareness = InsertAlreadyAnsweredMessage();
 
-                var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyPersister.Default);
+                var internalMessage = new MessagingContext(awareness);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -76,8 +76,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 InsertReceptionAwareness(awareness);
                 InsertOutMessage(awareness.InternalMessageId);
 
-                var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyPersister.Default);
+                var internalMessage = new MessagingContext(awareness);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -112,8 +112,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 InsertReceptionAwareness(awareness);
                 InsertOutMessage(awareness.InternalMessageId);
 
-                var internalMessage = new InternalMessage {ReceptionAwareness = awareness};
-                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyPersister.Default);
+                var internalMessage = new MessagingContext(awareness);
+                var step = new ReceptionAwarenessUpdateDatastoreStep(StubMessageBodyStore.Default, GetDataStoreContext);
 
                 // Act
                 await step.ExecuteAsync(internalMessage, CancellationToken.None);

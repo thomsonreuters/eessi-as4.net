@@ -39,14 +39,14 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// Start executing Step
         /// so it can be catched
         /// </summary>
-        /// <param name="internalMessage"></param>        
+        /// <param name="messagingContext"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             try
             {
-                return await _step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
+                return await _step.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
             }
             catch (AS4Exception exception)
             {
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
                     using (var context = Registry.Instance.CreateDatastoreContext())
                     {
                         var repository = new DatastoreRepository(context);
-                        HandleInException(exception, internalMessage, repository);
+                        HandleInException(exception, messagingContext, repository);
 
                         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                     }
@@ -73,16 +73,16 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
         }
 
-        private void HandleInException(AS4Exception exception, InternalMessage internalMessage, IDatastoreRepository repository)
+        private void HandleInException(AS4Exception exception, MessagingContext messagingContext, IDatastoreRepository repository)
         {
-            _logger.Info($"{internalMessage.Prefix} Handling AS4 Exception...");
+            _logger.Info($"{messagingContext.Prefix} Handling AS4 Exception...");
             foreach (string messageId in exception.MessageIds)
             {
-                TryHandleInException(exception, messageId, internalMessage, repository);
+                TryHandleInException(exception, messageId, messagingContext, repository);
             }
         }
 
-        private void TryHandleInException(AS4Exception exception, string messageId, InternalMessage message, IDatastoreRepository repository)
+        private void TryHandleInException(AS4Exception exception, string messageId, MessagingContext message, IDatastoreRepository repository)
         {
             try
             {

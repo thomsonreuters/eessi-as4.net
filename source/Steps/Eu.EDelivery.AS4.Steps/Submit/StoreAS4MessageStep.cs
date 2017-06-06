@@ -23,64 +23,64 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         // Right now, the MessageBody is the complete AS4Message; every OutMessage refers to that same messagebody which 
         // is not correct.
         // At this stage, there should be no AS4-message in my opinion, only UserMessages and SignalMessages.
-        private readonly IAS4MessageBodyPersister _as4MessageBodyPersister;
+        private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep" /> class.
         /// </summary>
-        public StoreAS4MessageStep() : this(Config.Instance.OutgoingAS4MessageBodyPersister) { }
+        public StoreAS4MessageStep() : this(Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StoreAS4MessageStep"/> class.
         /// </summary>
-        /// <param name="as4MessageBodyPersister">The as 4 Message Body Persister.</param>
-        public StoreAS4MessageStep(IAS4MessageBodyPersister as4MessageBodyPersister)
+        /// <param name="messageBodyStore">The as 4 Message Body Persister.</param>
+        public StoreAS4MessageStep(IAS4MessageBodyStore messageBodyStore)
         {
-            _as4MessageBodyPersister = as4MessageBodyPersister;
+            _messageBodyStore = messageBodyStore;
         }
 
         /// <summary>
         /// Store the <see cref="AS4Message" /> as OutMessage inside the DataStore
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken token)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken token)
         {
-            await TryStoreOutMessagesAsync(internalMessage.AS4Message, token).ConfigureAwait(false);
+            await TryStoreOutMessagesAsync(messagingContext, token).ConfigureAwait(false);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task TryStoreOutMessagesAsync(AS4Message as4Message, CancellationToken token)
+        private async Task TryStoreOutMessagesAsync(MessagingContext message, CancellationToken token)
         {
             try
             {
-                await StoreOutMessagesAsync(as4Message, token).ConfigureAwait(false);
+                await StoreOutMessagesAsync(message, token).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
-                throw ThrowAS4ExceptionWithInnerException(as4Message, exception);
+                throw ThrowAS4ExceptionWithInnerException(message, exception);
             }
         }
 
-        private static AS4Exception ThrowAS4ExceptionWithInnerException(AS4Message message, Exception exception)
+        private static AS4Exception ThrowAS4ExceptionWithInnerException(MessagingContext message, Exception exception)
         {
             return AS4ExceptionBuilder
                 .WithDescription("Unable to store AS4 Messages")
                 .WithInnerException(exception)
                 .WithSendingPMode(message.SendingPMode)
-                .WithMessageIds(message.MessageIds)
+                .WithMessageIds(message.AS4Message.MessageIds)
                 .Build();
         }
 
-        private async Task StoreOutMessagesAsync(AS4Message as4Message, CancellationToken token)
+        private async Task StoreOutMessagesAsync(MessagingContext message, CancellationToken token)
         {
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
-                var service = new OutMessageService(new DatastoreRepository(context), _as4MessageBodyPersister);
+                var service = new OutMessageService(new DatastoreRepository(context), _messageBodyStore);
 
-                await service.InsertAS4Message(as4Message, Operation.ToBeSent, token);
+                await service.InsertAS4Message(message, Operation.ToBeSent, token);
 
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
             }

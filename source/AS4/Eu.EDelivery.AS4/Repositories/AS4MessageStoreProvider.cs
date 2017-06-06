@@ -1,67 +1,100 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
-    public class AS4MessageBodyRetrieverProvider
+    public class MessageBodyStore : IAS4MessageBodyStore
     {
-        private readonly ICollection<AS4MessageRepositoryEntry> _repositories =
-            new Collection<AS4MessageRepositoryEntry>();
+        private readonly IDictionary<Func<string, bool>, IAS4MessageBodyStore> _stores = 
+            new Dictionary<Func<string, bool>, IAS4MessageBodyStore>();
 
         /// <summary>
-        /// Accept a <see cref="IAS4MessageBodyRetriever" /> implementation based on a given <paramref name="condition" />.
+        /// Accepts the specified condition.
         /// </summary>
-        /// <param name="condition">The condition when to use the <see cref="IAS4MessageBodyRetriever" />.</param>
-        /// <param name="retriever">
-        /// <see cref="IAS4MessageBodyRetriever" /> implementation used for a given
-        /// <paramref name="condition" />.
-        /// </param>
-        public void Accept(Func<string, bool> condition, IAS4MessageBodyRetriever retriever)
+        /// <param name="condition">The condition.</param>
+        /// <param name="persister">The persister.</param>
+        public void Accept(Func<string, bool> condition, IAS4MessageBodyStore persister)
         {
-            _repositories.Add(new AS4MessageRepositoryEntry(condition, retriever));
+            _stores[condition] = persister;
         }
 
         /// <summary>
-        /// Gets a <see cref="IAS4MessageBodyRetriever" /> implementation based on a given <paramref name="key" />.
+        /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
-        /// <param name="key">Key to identify the accepted <see cref="IAS4MessageBodyRetriever" /> implementation.</param>
+        /// <param name="location">The location.</param>
         /// <returns></returns>
-        public IAS4MessageBodyRetriever Get(string key)
+        public async Task<Stream> LoadMessagesBody(string location)
+        {
+            return await For(location).LoadMessagesBody(location);
+        }
+
+        /// <summary>
+        /// Saves a given <see cref="AS4Message" /> to a given location.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message to save.</param>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns>
+        /// Location where the <paramref name="message" /> is saved.
+        /// </returns>
+        public async Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
+        {
+            return await For(location).SaveAS4MessageAsync(location, message, cancellation);
+        }
+
+        /// <summary>
+        /// Updates an existing AS4 Message body.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message that should overwrite the existing messagebody.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
+        {
+            await For(location).UpdateAS4MessageAsync(location, message, cancellationToken);
+        }
+
+        private IAS4MessageBodyStore For(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
             {
                 throw new ArgumentNullException(nameof(key));
             }
 
-            AS4MessageRepositoryEntry result = _repositories.FirstOrDefault(s => s.Condition(key));
+            KeyValuePair<Func<string, bool>, IAS4MessageBodyStore> entry = _stores.FirstOrDefault(c => c.Key(key));
 
-            if (result == null)
+            if (entry.Value == null)
             {
-                throw new AS4Exception($"No registered IAS4MessageRepository found for {key}");
+                throw new AS4Exception($"No registered '{nameof(IAS4MessageBodyStore)}' found for {key}");
             }
 
-            return result.Store;
+            return entry.Value;
         }
 
         private sealed class AS4MessageRepositoryEntry
         {
             /// <summary>
-            /// Initializes a new instance of the <see cref="AS4MessageRepositoryEntry"/> class.
+            /// Initializes a new instance of the <see cref="AS4MessageRepositoryEntry" /> class.
             /// </summary>
             /// <param name="condition">The condition.</param>
-            /// <param name="store">The store.</param>
-            public AS4MessageRepositoryEntry(Func<string, bool> condition, IAS4MessageBodyRetriever store)
+            /// <param name="persister">The persister.</param>
+            public AS4MessageRepositoryEntry(
+                Func<string, bool> condition,
+                IAS4MessageBodyStore persister)
             {
                 Condition = condition;
-                Store = store;
+                Store = persister;
             }
 
-            public Func<string, bool> Condition { get; }
+            public IAS4MessageBodyStore Store { get; }
 
-            public IAS4MessageBodyRetriever Store { get; }
+            public Func<string, bool> Condition { get; }
         }
     }
 }

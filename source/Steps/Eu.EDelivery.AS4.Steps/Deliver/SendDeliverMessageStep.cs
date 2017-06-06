@@ -18,18 +18,14 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     public class SendDeliverMessageStep : IStep
     {
         private readonly IDeliverSenderProvider _provider;
-        private readonly ILogger _logger;
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private InternalMessage _internalMessage;
+        private MessagingContext _messagingContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
         /// </summary>
-        public SendDeliverMessageStep()
-        {
-            _provider = Registry.Instance.DeliverSenderProvider;
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        public SendDeliverMessageStep() : this(Registry.Instance.DeliverSenderProvider) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendDeliverMessageStep"/> class
@@ -40,24 +36,23 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         public SendDeliverMessageStep(IDeliverSenderProvider provider)
         {
             _provider = provider;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
         /// Start sending the AS4 Messages 
         /// to the consuming business application
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            _internalMessage = internalMessage;
-            _logger.Info($"{internalMessage.Prefix} Start sending the Deliver Message " +
+            _messagingContext = messagingContext;
+            _logger.Info($"{messagingContext.Prefix} Start sending the Deliver Message " +
                               "to the consuming Business Application");
 
-            await TrySendDeliverMessage(internalMessage.DeliverMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(internalMessage);
+            await TrySendDeliverMessage(messagingContext.DeliverMessage).ConfigureAwait(false);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private async Task TrySendDeliverMessage(DeliverMessageEnvelope deliverMessage)
@@ -68,7 +63,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
             catch (Exception exception)
             {
-                string description = $"{_internalMessage.Prefix} Deliver Message was not send correctly";
+                string description = $"{_messagingContext.Prefix} Deliver Message was not send correctly";
                 _logger.Error(description);
                 throw ThrowSendDeliverAS4Exception(description, exception);
             }
@@ -76,9 +71,9 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private async Task SendDeliverMessage(DeliverMessageEnvelope deliverMessage)
         {
-            Method deliverMethod = _internalMessage.AS4Message.ReceivingPMode.Deliver.DeliverMethod;
+            Method deliverMethod = _messagingContext?.ReceivingPMode.Deliver.DeliverMethod;
 
-            IDeliverSender sender = _provider.GetDeliverSender(deliverMethod.Type);
+            IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);
             await sender.SendAsync(deliverMessage).ConfigureAwait(false);
         }
@@ -87,10 +82,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         {
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithMessageIds(_internalMessage.AS4Message.MessageIds)
+                .WithMessageIds(_messagingContext.DeliverMessage.MessageInfo.MessageId)
                 .WithErrorAlias(ErrorAlias.ConnectionFailure)
                 .WithInnerException(innerException)
-                .WithReceivingPMode(_internalMessage.AS4Message.ReceivingPMode)
+                .WithReceivingPMode(_messagingContext?.ReceivingPMode)
                 .Build();
         }
     }

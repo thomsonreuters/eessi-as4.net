@@ -102,6 +102,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             {
                 return await HandleWebExceptionAsync(webException);
             }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                return new AS4Message();
+            }
         }
 
         private async Task<AS4Message> HandleWebResponse(HttpWebRequest webRequest)

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -17,14 +18,24 @@ namespace Eu.EDelivery.AS4.Services
     public class ReceptionAwarenessService : IReceptionAwarenessService
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly IDatastoreRepository _repository;
+        private readonly IConfig _configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessService" /> class.
         /// </summary>
         /// <param name="repository">The repository.</param>
-        public ReceptionAwarenessService(IDatastoreRepository repository)
+        public ReceptionAwarenessService(IDatastoreRepository repository) : this(Config.Instance, repository) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessService" /> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="repository">The repository.</param>
+        public ReceptionAwarenessService(IConfig config, IDatastoreRepository repository)
         {
+            _configuration = config;
             _repository = repository;
         }
 
@@ -32,26 +43,29 @@ namespace Eu.EDelivery.AS4.Services
         /// Deadletters the out message asynchronous.
         /// </summary>
         /// <param name="messageId">The message identifier.</param>
-        /// <param name="messageBodyPersister">The message body persister.</param>
+        /// <param name="messageBodyStore">The message body persister.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public async Task DeadletterOutMessageAsync(
             string messageId,
-            IAS4MessageBodyPersister messageBodyPersister,
+            IAS4MessageBodyStore messageBodyStore,
             CancellationToken cancellationToken)
         {
-            _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
-
-            InMessage inMessage = await CreateErrorInMessage(messageId, messageBodyPersister, cancellationToken);
+            InMessage inMessage = await CreateErrorInMessage(messageId, messageBodyStore, cancellationToken);
             _repository.InsertInMessage(inMessage);
+
+            _repository.UpdateOutMessage(messageId, x => x.Operation = Operation.DeadLettered);
         }
 
         private async Task<InMessage> CreateErrorInMessage(
             string messageId,
-            IAS4MessageBodyPersister messageBodyPersister,
+            IAS4MessageBodyStore messageBodyStore,
             CancellationToken cancellationToken)
         {
-            SendingProcessingMode pmode = _repository.RetrieveSendingPModeForOutMessage(messageId);
+            SendingProcessingMode pmode = _repository.GetOutMessageData(
+                messageId,
+                m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
+
             Error errorMessage = CreateError(messageId);
             AS4Message as4Message = CreateAS4Message(errorMessage, pmode);
 
@@ -59,11 +73,15 @@ namespace Eu.EDelivery.AS4.Services
             // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
             // if he should be notified when a message cannot be sent.
             // (Maybe we should only create the InMessage when notification is enabled ?)
-            string location = await messageBodyPersister.SaveAS4MessageAsync(as4Message, cancellationToken);
+            string location = 
+                await messageBodyStore.SaveAS4MessageAsync(
+                    location: _configuration.InMessageStoreLocation,
+                    message: as4Message,
+                    cancellation: cancellationToken);
 
             InMessage inMessage = InMessageBuilder
                 .ForSignalMessage(errorMessage, as4Message)
-                .WithPModeString(AS4XmlSerializer.ToString(as4Message.SendingPMode))
+                .WithPModeString(AS4XmlSerializer.ToString(pmode))
                 .Build(cancellationToken);
 
             inMessage.MessageLocation = location;
@@ -95,7 +113,6 @@ namespace Eu.EDelivery.AS4.Services
         private static AS4Message CreateAS4Message(SignalMessage errorMessage, SendingProcessingMode pmode)
         {
             return new AS4MessageBuilder()
-                .WithSendingPMode(pmode)
                 .WithSignalMessage(errorMessage)
                 .Build();
         }
@@ -128,7 +145,7 @@ namespace Eu.EDelivery.AS4.Services
             return awareness.Status != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
                    && DateTimeOffset.UtcNow > deadlineForResend()
-                   && _repository.GetOutMessageOperation(awareness.InternalMessageId) != Operation.Sending;
+                   && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending;
         }
 
         /// <summary>

@@ -33,13 +33,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(stream, contentType);
 
                 // Act
-                InternalMessage internalMessage = await new PayloadTransformer().TransformAsync(
+                MessagingContext messagingContext = await new PayloadTransformer().TransformAsync(
                                                       receivedMessage,
                                                       CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(internalMessage);
-                Attachment firstAttachment = internalMessage.AS4Message.Attachments.First();
+                Assert.NotNull(messagingContext);
+                Attachment firstAttachment = messagingContext.AS4Message.Attachments.First();
                 Assert.Equal(contentType, firstAttachment.ContentType);
                 Assert.Equal(stream, firstAttachment.Content);
             }

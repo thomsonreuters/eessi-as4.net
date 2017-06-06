@@ -15,34 +15,42 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
     public class ReceptionAwarenessUpdateDatastoreStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private readonly IAS4MessageBodyPersister _inMessageBodyPersister;
+
+        private readonly IAS4MessageBodyStore _inMessageBodyStore;
+        private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep"/> class.
         /// </summary>
         public ReceptionAwarenessUpdateDatastoreStep()
-            : this(Config.Instance.IncomingAS4MessageBodyPersister) {}
+            : this(Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep" /> class
+        /// Initializes a new instance of the <see cref="ReceptionAwarenessUpdateDatastoreStep" /> class.
         /// </summary>
-        /// <param name="inMessageBodyPersister">The in message body persister.</param>
-        public ReceptionAwarenessUpdateDatastoreStep(IAS4MessageBodyPersister inMessageBodyPersister)
+        /// <param name="inMessageBodyStore">The in message body store.</param>
+        /// <param name="createContext">The create context.</param>
+        public ReceptionAwarenessUpdateDatastoreStep(
+            IAS4MessageBodyStore inMessageBodyStore,
+            Func<DatastoreContext> createContext)
         {
-            _inMessageBodyPersister = inMessageBodyPersister;
+            _inMessageBodyStore = inMessageBodyStore;
+            _createContext = createContext;
         }
 
         /// <summary>
         /// Start updating the Data store
         /// </summary>
-        /// <param name="internalMessage"></param>        
+        /// <param name="messagingContext"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(
+            MessagingContext messagingContext,
+            CancellationToken cancellationToken)
         {
-            Entities.ReceptionAwareness receptionAwareness = internalMessage.ReceptionAwareness;
+            Entities.ReceptionAwareness receptionAwareness = messagingContext.ReceptionAwareness;
 
-            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
+            using (DatastoreContext context = _createContext())
             {
                 Logger.Debug("Executing ReceptionAwarenessDataStoreStep");
 
@@ -56,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
             }
 
             WaitRetryInterval(receptionAwareness);
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private async Task RunReceptionAwarenessFlow(
@@ -84,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.ReceptionAwareness
 
                         await service.DeadletterOutMessageAsync(
                             messageId: receptionAwareness.InternalMessageId,
-                            messageBodyPersister: _inMessageBodyPersister,
+                            messageBodyStore: _inMessageBodyStore,
                             cancellationToken: cancellationToken);
                     }
                     else

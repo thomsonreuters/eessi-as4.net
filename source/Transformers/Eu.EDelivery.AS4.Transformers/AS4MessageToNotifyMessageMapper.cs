@@ -18,11 +18,6 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static XmlElement[] GetOriginalSignalMessageSignature(AS4Message as4Message)
         {
-            if (as4Message.EnvelopeDocument == null)
-            {
-                return new XmlElement[0];
-            }
-
             const string xpath = "//*[local-name()='SignalMessage']";
             XmlNode nodeSignature = as4Message.EnvelopeDocument.SelectSingleNode(xpath);
 

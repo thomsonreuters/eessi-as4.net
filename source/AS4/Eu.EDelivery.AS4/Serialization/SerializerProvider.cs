@@ -9,6 +9,11 @@ namespace Eu.EDelivery.AS4.Serialization
     /// </summary>
     public interface ISerializerProvider
     {
+        /// <summary>
+        /// Gets the specific <see cref="ISerializer"/> implementation based on the content type.
+        /// </summary>
+        /// <param name="contentType">Type of the content.</param>
+        /// <returns></returns>
         ISerializer Get(string contentType);
     }
 
@@ -17,14 +22,18 @@ namespace Eu.EDelivery.AS4.Serialization
     /// </summary>
     public class SerializerProvider : ISerializerProvider
     {
+        private static readonly ISerializerProvider DefaultProvider = new SerializerProvider();
         private readonly IDictionary<string, ISerializer> _serializers;
 
-        public static ISerializerProvider Default = new SerializerProvider();
+        /// <summary>
+        /// Gets the default.
+        /// </summary><value>The default.
+        /// </value>
+        public static ISerializerProvider Default => DefaultProvider;
 
         internal SerializerProvider()
         {
             _serializers = new Dictionary<string, ISerializer>();
-
             var soapSerializer = new SoapEnvelopeSerializer();
             _serializers.Add(Constants.ContentTypes.Soap, soapSerializer);
             _serializers.Add(Constants.ContentTypes.Mime, new MimeMessageSerializer(soapSerializer));

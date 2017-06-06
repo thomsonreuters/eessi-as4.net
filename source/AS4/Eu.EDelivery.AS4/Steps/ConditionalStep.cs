@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class ConditionalStep : IStep
     {
-        private readonly Func<InternalMessage, bool> _condition;
+        private readonly Func<MessagingContext, bool> _condition;
         private readonly Model.Internal.Steps _thenStepConfig;
         private readonly Model.Internal.Steps _elseStepConfig;
 
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <param name="condition"></param>
         /// <param name="thenStepConfig"></param>
         /// <param name="elseStepConfig"></param>
-        public ConditionalStep(Func<InternalMessage, bool> condition, Model.Internal.Steps thenStepConfig, Model.Internal.Steps elseStepConfig)
+        public ConditionalStep(Func<MessagingContext, bool> condition, Model.Internal.Steps thenStepConfig, Model.Internal.Steps elseStepConfig)
         {
             this._condition = condition;
             this._thenStepConfig = thenStepConfig;
@@ -31,20 +31,20 @@ namespace Eu.EDelivery.AS4.Steps
         /// <summary>
         /// Run the selected step
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (this._condition(internalMessage))
+            if (this._condition(messagingContext))
             {
                 var steps = StepBuilder.FromSettings(this._thenStepConfig).Build();
-                return await steps.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
+                return await steps.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
             }
             else
             {
                 var steps = StepBuilder.FromSettings(this._elseStepConfig).Build();
-                return await steps.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
+                return await steps.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
             }
         }
     }

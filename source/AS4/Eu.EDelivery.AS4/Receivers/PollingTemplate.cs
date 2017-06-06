@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="onMessage">Message Callback after the Message is received</param>
         /// <param name="cancellationToken"></param>
-        protected void StartPolling(Func<TOut, CancellationToken, Task<InternalMessage>> onMessage, CancellationToken cancellationToken)
+        protected void StartPolling(Func<TOut, CancellationToken, Task<MessagingContext>> onMessage, CancellationToken cancellationToken)
         {
             if (PollingInterval.Ticks <= 0)
             {
@@ -102,14 +102,14 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="token"></param>
         protected abstract void MessageReceived(
             TIn entity,
-            Func<TOut, CancellationToken, Task<InternalMessage>> messageCallback,
+            Func<TOut, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken token);
 
         protected abstract void ReleasePendingItems();
 
         private IEnumerable<Task> CreateTaskForEachMessage(
             IEnumerable<TIn> messagesToPoll,
-            Func<TOut, CancellationToken, Task<InternalMessage>> messageCallback,
+            Func<TOut, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken cancellationToken)
         {
             return messagesToPoll

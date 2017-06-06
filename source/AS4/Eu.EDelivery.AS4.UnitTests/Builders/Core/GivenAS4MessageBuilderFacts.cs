@@ -66,20 +66,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 Assert.NotNull(message);
                 Assert.Contains(message.UserMessages, m => m == userMessage);
             }
-
-            [Fact]
-            public void ThenBuildUserMessageWithPModeSucceeds()
-            {
-                // Arrange
-                var pmode = new SendingProcessingMode();
-
-                // Act
-                AS4Message message = _builder.WithSendingPMode(pmode).Build();
-
-                // Assert
-                Assert.NotNull(message);
-                Assert.Same(pmode, message.SendingPMode);
-            }
         }
 
         /// <summary>
@@ -95,10 +81,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             }
 
             [Fact]
-            public void ThenBuildWithNullAsPModeFails()
+            public void Fails_IfInvalidPullRequest()
             {
-                // Act
-                Assert.Throws<ArgumentNullException>(() => _builder.WithSendingPMode(null));
+                Assert.ThrowsAny<Exception>(() => _builder.WithPullRequest(mpc: null));
+            }
+
+            [Fact]
+            public void Fails_IfInvalidAttachment()
+            {
+                Assert.ThrowsAny<Exception>(() => _builder.WithAttachment(attachment: null));
             }
         }
     }

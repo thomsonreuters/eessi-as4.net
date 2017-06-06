@@ -5,8 +5,7 @@ using System.Reflection;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using NLog;
-using Expression = System.Linq.Expressions.Expression<System.Func<
-    Eu.EDelivery.AS4.Common.DatastoreContext,
+using Expression = System.Linq.Expressions.Expression<System.Func<Eu.EDelivery.AS4.Common.DatastoreContext,
     System.Collections.Generic.IEnumerable<Eu.EDelivery.AS4.Entities.Entity>>>;
 
 namespace Eu.EDelivery.AS4.Receivers.Specifications
@@ -60,13 +59,13 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
             return query.ToList();
         }
         
-        private bool Where<T>(T dbSet)
+        private bool Where<T>(T databaseSet)
         {
             string name = _arguments.FilterColumnName;
 
             if (_filterPropertyInfo == null)
             {
-                _filterPropertyInfo = dbSet.GetType().GetProperty(name);
+                _filterPropertyInfo = databaseSet.GetType().GetProperty(name);
             }
 
             if (_filterPropertyInfo == null)
@@ -75,7 +74,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
                 return false;
             }
 
-            object propertyValue = _filterPropertyInfo.GetValue(dbSet);
+            object propertyValue = _filterPropertyInfo.GetValue(databaseSet);
             object configuredValue = ParseConfiguredValue(propertyValue);
 
             return propertyValue.Equals(configuredValue);
@@ -90,39 +89,39 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
                 return Enum.Parse(propertyValue.GetType(), value);
             }
 
-            if (propertyValue is bool)
-            {
-                return Convert.ToBoolean(value);
-            }
-
             return default(object);
         }
     }
 
     internal class DatastoreSpecificationArgs
     {
-        public string TableName { get; }
-        public string FilterColumnName { get; }
-        public string FilterValue { get; }
-
-        public int TakeRecords { get; }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="DatastoreSpecificationArgs"/> class.
+        /// Initializes a new instance of the <see cref="DatastoreSpecificationArgs" /> class.
         /// </summary>
+        /// <param name="tableName">Name of the table.</param>
+        /// <param name="filterColumn">The filter column.</param>
+        /// <param name="filterValue">The filter value.</param>
+        /// <param name="take">The take.</param>
+        /// <exception cref="ArgumentException">
+        /// A tablename should be specified. - tableName
+        /// or
+        /// A column where to filter on should be specified. - filterColumn
+        /// or
+        /// A filtervalue should be specified. - filterValue
+        /// </exception>
         public DatastoreSpecificationArgs(string tableName, string filterColumn, string filterValue, int take)
         {
-            if (String.IsNullOrWhiteSpace(tableName))
+            if (string.IsNullOrWhiteSpace(tableName))
             {
                 throw new ArgumentException("A tablename should be specified.", nameof(tableName));
             }
 
-            if (String.IsNullOrWhiteSpace(filterColumn))
+            if (string.IsNullOrWhiteSpace(filterColumn))
             {
                 throw new ArgumentException("A column where to filter on should be specified.", nameof(filterColumn));
             }
 
-            if (String.IsNullOrWhiteSpace(filterValue))
+            if (string.IsNullOrWhiteSpace(filterValue))
             {
                 throw new ArgumentException("A filtervalue should be specified.", nameof(filterValue));
             }
@@ -132,5 +131,13 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
             FilterValue = filterValue;
             TakeRecords = take;
         }
+
+        public string TableName { get; }
+
+        public string FilterColumnName { get; }
+
+        public string FilterValue { get; }
+
+        public int TakeRecords { get; }
     }
 }

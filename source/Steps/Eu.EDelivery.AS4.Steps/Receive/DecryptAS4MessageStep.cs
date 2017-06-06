@@ -43,38 +43,38 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <summary>
         /// Start Decrypting <see cref="AS4Message"/>
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (internalMessage.AS4Message.IsSignalMessage)
+            if (messagingContext.AS4Message.IsSignalMessage)
             {
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            PreConditions(internalMessage);
+            PreConditions(messagingContext);
 
-            if (IsEncryptedIgnored(internalMessage) || !internalMessage.AS4Message.IsEncrypted)
+            if (IsEncryptedIgnored(messagingContext) || !messagingContext.AS4Message.IsEncrypted)
             {
-                return await StepResult.SuccessAsync(internalMessage);
+                return await StepResult.SuccessAsync(messagingContext);
             }
 
-            TryDecryptAS4Message(internalMessage);
+            TryDecryptAS4Message(messagingContext);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void PreConditions(InternalMessage internalMessage)
+        private void PreConditions(MessagingContext messagingContext)
         {
-            AS4Message as4Message = internalMessage.AS4Message;
-            ReceivingProcessingMode pmode = as4Message.ReceivingPMode;
+            AS4Message as4Message = messagingContext.AS4Message;
+            ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             Decryption decryption = pmode.Security.Decryption;
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
                 throw ThrowCommonAS4Exception(
-                      internalMessage,
+                      messagingContext,
                       $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
                       ErrorCode.Ebms0103);
             }
@@ -82,44 +82,44 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
             {
                 throw ThrowCommonAS4Exception(
-                      internalMessage,
+                      messagingContext,
                       $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
                       ErrorCode.Ebms0103);
             }
         }
 
-        private bool IsEncryptedIgnored(InternalMessage internalMessage)
+        private bool IsEncryptedIgnored(MessagingContext messagingContext)
         {
-            ReceivingProcessingMode pmode = internalMessage.AS4Message.ReceivingPMode;
+            ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             bool isIgnored = pmode.Security.Decryption.Encryption == Limit.Ignored;
 
             if (isIgnored)
             {
-                _logger.Info($"{internalMessage.Prefix} Decryption Receiving PMode {pmode.Id} is ignored");
+                _logger.Info($"{messagingContext.Prefix} Decryption Receiving PMode {pmode.Id} is ignored");
             }
 
             return isIgnored;
         }
 
-        private void TryDecryptAS4Message(InternalMessage internalMessage)
+        private void TryDecryptAS4Message(MessagingContext messagingContext)
         {
             try
             {
-                _logger.Info($"{internalMessage.Prefix} Start decrypting AS4 Message ...");
-                IEncryptionStrategy strategy = CreateDecryptStrategy(internalMessage);
-                internalMessage.AS4Message.SecurityHeader.Decrypt(strategy);
-                _logger.Info($"{internalMessage.Prefix} AS4 Message is decrypted correctly");
+                _logger.Info($"{messagingContext.Prefix} Start decrypting AS4 Message ...");
+                IEncryptionStrategy strategy = CreateDecryptStrategy(messagingContext);
+                messagingContext.AS4Message.SecurityHeader.Decrypt(strategy);
+                _logger.Info($"{messagingContext.Prefix} AS4 Message is decrypted correctly");
             }
             catch (Exception exception)
             {
-                throw ThrowCommonAS4Exception(internalMessage, "Decryption failed", ErrorCode.Ebms0102, exception);
+                throw ThrowCommonAS4Exception(messagingContext, "Decryption failed", ErrorCode.Ebms0102, exception);
             }
         }
 
-        private IEncryptionStrategy CreateDecryptStrategy(InternalMessage internalMessage)
+        private IEncryptionStrategy CreateDecryptStrategy(MessagingContext messagingContext)
         {
-            X509Certificate2 certificate = GetCertificate(internalMessage);
-            AS4Message as4Message = internalMessage.AS4Message;
+            X509Certificate2 certificate = GetCertificate(messagingContext);
+            AS4Message as4Message = messagingContext.AS4Message;
 
             var builder = EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
                                                      .WithCertificate(certificate)
@@ -129,34 +129,37 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return builder.Build();
         }
 
-        private X509Certificate2 GetCertificate(InternalMessage internalMessage)
+        private X509Certificate2 GetCertificate(MessagingContext messagingContext)
         {
-            Decryption decryption = internalMessage.AS4Message.ReceivingPMode.Security.Decryption;
+            Decryption decryption = messagingContext.ReceivingPMode.Security.Decryption;
 
             var certificate = _certificateRepository.GetCertificate(decryption.PrivateKeyFindType, decryption.PrivateKeyFindValue);
 
             if (!certificate.HasPrivateKey)
             {
-                throw ThrowCommonAS4Exception(internalMessage, "Decryption failed - No private key found.", ErrorCode.Ebms0102);
+                throw ThrowCommonAS4Exception(messagingContext, "Decryption failed - No private key found.", ErrorCode.Ebms0102);
             }
 
             return certificate;
         }
 
-        private AS4Exception ThrowCommonAS4Exception(InternalMessage internalMessage,
-            string description, ErrorCode errorCode, Exception exception = null)
+        private AS4Exception ThrowCommonAS4Exception(
+            MessagingContext messagingContext,
+            string description,
+            ErrorCode errorCode,
+            Exception exception = null)
         {
-            AS4Message as4Message = internalMessage.AS4Message;
-            description = internalMessage.Prefix + description;
+            AS4Message as4Message = messagingContext.AS4Message;
+            description = messagingContext.Prefix + description;
             _logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(exception)
-                .WithMessageIds(as4Message.MessageIds)
-                .WithErrorCode(errorCode)
-                .WithReceivingPMode(as4Message.ReceivingPMode)
-                .Build();
+            return
+                AS4ExceptionBuilder.WithDescription(description)
+                                   .WithInnerException(exception)
+                                   .WithMessageIds(as4Message.MessageIds)
+                                   .WithErrorCode(errorCode)
+                                   .WithReceivingPMode(messagingContext.ReceivingPMode)
+                                   .Build();
         }
     }
 }

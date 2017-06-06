@@ -10,11 +10,11 @@ namespace Eu.EDelivery.AS4.Transformers
     public interface ITransformer
     {
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="InternalMessage"/> instance.
+        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken);
+        Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken);
     }
 }
