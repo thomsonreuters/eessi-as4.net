@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -60,6 +61,21 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             if (string.IsNullOrWhiteSpace(_messageUnitUnit.RefToMessageId) == false)
             {
                 outMessage.EbmsRefToMessageId = _messageUnitUnit.RefToMessageId;
+            }
+
+            UserMessage userMessage = _messagingContext.AS4Message.PrimaryUserMessage;
+
+            if (userMessage != null)
+            {
+                outMessage.FromParty = userMessage.Sender.PartyIds.First().Id;
+                outMessage.ToParty = userMessage.Receiver.PartyIds.First().Id;
+                outMessage.ConversationId = userMessage.CollaborationInfo.ConversationId;
+                outMessage.Action = userMessage.CollaborationInfo.Action;
+                outMessage.Service = userMessage.CollaborationInfo.Service.Value;
+                outMessage.IsDuplicate = userMessage.IsDuplicate;
+                outMessage.IsTest = userMessage.IsTest;
+                outMessage.Mpc = userMessage.Mpc;
+                outMessage.SoapEnvelope = AS4XmlSerializer.ToDocument(_messagingContext, cancellationToken).OuterXml;
             }
 
             return outMessage;

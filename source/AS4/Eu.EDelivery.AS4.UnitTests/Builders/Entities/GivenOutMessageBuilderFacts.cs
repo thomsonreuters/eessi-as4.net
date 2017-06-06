@@ -19,6 +19,58 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
             [Fact]
+            public void GetsPartyInfoFromEntity()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
+
+                // Act
+                OutMessage actual = BuildForUserMessage(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertPartyInfo(expected, actual);
+            }
+
+            [Fact]
+            public void GetsCollaborationInfo()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
+
+                // Act
+                OutMessage actual = BuildForUserMessage(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertCollaborationInfo(expected, actual);
+            }
+
+            [Fact]
+            public void GetsMetaInfo()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
+
+                // Act
+                OutMessage actual = BuildForUserMessage(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertMetaInfo(expected, actual);
+            }
+
+            [Fact]
+            public void GetsSoapEnvelope()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
+
+                // Act
+                OutMessage actual = BuildForUserMessage(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertSoapEnvelope(expected, actual);
+            }
+
+            [Fact]
             public void ThenBuildOutMessageSucceedsWithAS4Message()
             {
                 // Arrange
@@ -97,7 +149,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return new SendingProcessingMode {Id = "pmode-id"};
         }
 
-        protected AS4Message CreateAS4MessageWithUserMessage(string messageId)
+        protected AS4Message CreateAS4MessageWithUserMessage(string messageId = "message id")
         {
             return new AS4Message
             {

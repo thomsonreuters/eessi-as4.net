@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
@@ -19,6 +22,60 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenValidArguments : GivenInMessageBuilderFacts
         {
             [Fact]
+            public void GetsPartyInfo()
+            {
+                // Act
+                (AS4Message expected, InMessage actual) result = TestBuildUserMessage();
+
+                // Assert
+                MessageEntityAssertion.AssertPartyInfo(result.expected, result.actual);
+            }
+
+            [Fact]
+            public void GetsCollaborationInfo()
+            {
+                // Act
+                (AS4Message expected, InMessage actual) result = TestBuildUserMessage();
+
+                // Assert
+                MessageEntityAssertion.AssertCollaborationInfo(result.expected, result.actual);
+                
+            }
+
+            [Fact]
+            public void GetsMetaInfo()
+            {
+                // Act
+                (AS4Message expected, InMessage actual) result = TestBuildUserMessage();
+
+                // Assert
+                MessageEntityAssertion.AssertMetaInfo(result.expected, result.actual);
+            }
+
+            [Fact]
+            public void GetsSoapEnvelope()
+            {
+                // Act
+                (AS4Message expected, InMessage actual) result = TestBuildUserMessage();
+
+                // Assert
+                MessageEntityAssertion.AssertSoapEnvelope(result.expected, result.actual);
+            }
+
+            private static (AS4Message, InMessage) TestBuildUserMessage()
+            {
+                // Arrange
+                AS4Message expected = new AS4MessageBuilder().WithUserMessage(new FilledUserMessage()).Build();
+
+                // Act
+                InMessage actual =
+                    InMessageBuilder.ForUserMessage(expected.PrimaryUserMessage, expected)
+                                    .Build(CancellationToken.None);
+
+                return (expected, actual);
+            }
+
+            [Fact]
             public void ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
             {
                 // Arrange
@@ -26,9 +83,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Receipt receipt = CreateReceiptMessageUnit();
 
                 // Act
-                InMessage inMessage = InMessageBuilder.ForSignalMessage(receipt, as4Message)
-                                                        .WithPModeString(AS4XmlSerializer.ToString(new ReceivingProcessingMode()))
-                                                        .Build(CancellationToken.None);
+                InMessage inMessage =
+                    InMessageBuilder.ForSignalMessage(receipt, as4Message)
+                                    .WithPModeString(AS4XmlSerializer.ToString(new ReceivingProcessingMode()))
+                                    .Build(CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(inMessage);

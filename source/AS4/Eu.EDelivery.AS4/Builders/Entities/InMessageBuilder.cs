@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -69,7 +72,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 throw new AS4Exception("Builder needs a Message Unit for building an InMessage");
             }
 
-            return new InMessage
+            var inMessage = new InMessage
             {
                 EbmsMessageId = _messageUnit.MessageId,
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
@@ -83,6 +86,23 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 InsertionTime = DateTimeOffset.UtcNow,
                 ModificationTime = DateTimeOffset.UtcNow
             };
+
+            if (_as4Message.IsUserMessage)
+            {
+                UserMessage userMessage = _as4Message.PrimaryUserMessage;
+                inMessage.FromParty = userMessage.Sender.PartyIds.First().Id;
+                inMessage.ToParty = userMessage.Receiver.PartyIds.First().Id;
+                inMessage.Action = userMessage.CollaborationInfo.Action;
+                inMessage.Service = userMessage.CollaborationInfo.Service.Value;
+                inMessage.ConversationId = userMessage.CollaborationInfo.ConversationId;
+                inMessage.Mpc = userMessage.Mpc;
+                inMessage.IsTest = userMessage.IsTest;
+                inMessage.IsDuplicate = userMessage.IsDuplicate;
+                inMessage.SoapEnvelope =
+                    AS4XmlSerializer.ToDocument(new MessagingContext(_as4Message), cancellationToken).OuterXml;
+            }
+
+            return inMessage;
         }
 
         private static MessageType DetermineMessageType(MessageUnit messageUnit)

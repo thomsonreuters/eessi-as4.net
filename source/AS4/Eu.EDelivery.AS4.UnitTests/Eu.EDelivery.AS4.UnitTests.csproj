@@ -274,6 +274,7 @@
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Builders\Entities\MessageEntityAssertion.cs" />
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />
     <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />

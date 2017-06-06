@@ -34,6 +34,23 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped]
         internal AS4Message Message { get; set; }
 
+        public string FromParty { get; set; }
+
+        public string ToParty { get; set; }
+
+        [Column("MPC")]
+        public string Mpc { get; set; }
+
+        public string ConversationId { get; set; }
+
+        public string Service { get; set; }
+
+        public string Action { get; set; }
+
+        public bool IsDuplicate { get; set; }
+
+        public bool IsTest { get; set; }
+
         /// <summary>
         /// Gets to the location where the AS4Message body can be found.
         /// </summary>
@@ -94,6 +111,8 @@ namespace Eu.EDelivery.AS4.Entities
         [Column("Status")]
         [MaxLength(50)]
         public abstract string StatusString { get; set; }
+
+        public string SoapEnvelope { get; set; }
 
         /// <summary>
         /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
