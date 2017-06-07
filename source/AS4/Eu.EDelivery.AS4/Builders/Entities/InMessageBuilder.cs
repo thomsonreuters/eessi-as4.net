@@ -16,9 +16,11 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         private string _pmodeString;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InMessageBuilder"/> class. 
+        /// Initializes a new instance of the <see cref="InMessageBuilder" /> class.
         /// Starting the Builder with a given Serialize Provider
-        /// </summary>                
+        /// </summary>
+        /// <param name="messageUnit">The message unit.</param>
+        /// <param name="as4Message">The as4 message.</param>
         private InMessageBuilder(MessageUnit messageUnit, AS4Message as4Message)
         {
             _messageUnit = messageUnit;
@@ -64,6 +66,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 throw new AS4Exception("Builder needs a AS4Message for building an InMessage");
             }
+
             if (_messageUnit == null)
             {
                 throw new AS4Exception("Builder needs a Message Unit for building an InMessage");
@@ -77,7 +80,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 ContentType = _as4Message.ContentType,
                 Message = _as4Message,
                 PMode = _pmodeString,
-                MEP = _as4Message.IsPullResponse ? MessageExchangePattern.Pull : MessageExchangePattern.Push,
+                MEP = _as4Message.Mep,
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.UtcNow,
@@ -91,10 +94,12 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 return MessageType.UserMessage;
             }
+
             if (messageUnit is Receipt)
             {
                 return MessageType.Receipt;
             }
+
             if (messageUnit is Error)
             {
                 return MessageType.Error;
@@ -102,14 +107,5 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
             throw new InvalidOperationException("There is no MessageType mapped for this MessageUnit.");
         }
-
-        ////private byte[] CreateMessageBody(AS4Message as4Message, CancellationToken token)
-        ////{
-        ////    var memoryStream = new MemoryStream();
-        ////    ISerializer serializer = this._provider.Get(as4Message.ContentType);
-        ////    serializer.Serialize(as4Message, memoryStream, token);
-
-        ////    return memoryStream.ToArray();
-        ////}
     }
 }

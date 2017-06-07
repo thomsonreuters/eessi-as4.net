@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
@@ -112,7 +113,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsPullRequest => PrimarySignalMessage is PullRequest;
 
-        public bool IsPullResponse { get; private set; }
+        public MessageExchangePattern Mep { get; set; }
 
         public bool NeedsToBeMultiHop { get; internal set; }
 
@@ -123,11 +124,6 @@ namespace Eu.EDelivery.AS4.Model.Core
                 return PrimaryUserMessage.MessageId;
             }
             return PrimarySignalMessage?.MessageId;
-        }
-
-        public void AsPullResponse()
-        {
-            IsPullResponse = true;
         }
 
         public long DetermineMessageSize(ISerializerProvider provider)

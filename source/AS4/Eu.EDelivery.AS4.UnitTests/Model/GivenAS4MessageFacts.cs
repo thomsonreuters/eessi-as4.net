@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
-        public class AddAttachments
+        public class Attachments
         {
             [Fact]
             public async Task ThenAddAttachmentSucceeds()
@@ -59,6 +59,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 // Assert
                 Assert.False(sut.HasAttachments);
+            }
+
+            [Fact]
+            public void DisposeAllAttachments()
+            {
+                // Arrange
+                AS4Message sut =
+                    new AS4MessageBuilder().WithAttachment(new Attachment("id") {Content = new MemoryStream()}).Build();
+
+                // Act
+                sut.CloseAttachments();
+
+                // Assert
+                Assert.All(sut.Attachments, a => Assert.False(a.Content.CanSeek));
             }
         }
 
