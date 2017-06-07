@@ -34,17 +34,23 @@ namespace Eu.EDelivery.AS4.Entities
         [NotMapped]
         internal AS4Message Message { get; set; }
 
+        [MaxLength(255)]
         public string FromParty { get; set; }
 
+        [MaxLength(255)]
         public string ToParty { get; set; }
 
         [Column("MPC")]
+        [MaxLength(255)]
         public string Mpc { get; set; }
 
+        [MaxLength(50)]
         public string ConversationId { get; set; }
 
+        [MaxLength(255)]
         public string Service { get; set; }
 
+        [MaxLength(255)]
         public string Action { get; set; }
 
         public bool IsDuplicate { get; set; }
