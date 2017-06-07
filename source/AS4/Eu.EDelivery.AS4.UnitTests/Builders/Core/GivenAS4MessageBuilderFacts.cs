@@ -24,17 +24,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// </summary>
         public class GivenAS4MessageBuilderSucceeds : GivenAS4MessageBuilderFacts
         {
-            [Fact]
-            public void UsePModeForDefiningMultiHopMessage()
+            [Theory]
+            [InlineData(true)]
+            [InlineData(false)]
+            public void UsePModeForDefiningMultiHopMessage(bool expected)
             {
                 // Arrange
-                var multiHopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = true}};
+                var multiHopPMode = new SendingProcessingMode {MessagePackaging = {IsMultiHop = expected}};
 
                 // Act
                 AS4Message message = new AS4MessageBuilder(multiHopPMode).Build();
 
                 // Assert
-                Assert.True(message.IsMultiHopMessage);
+                Assert.Equal(expected, message.IsMultiHopMessage);
             }
 
             [Fact]
