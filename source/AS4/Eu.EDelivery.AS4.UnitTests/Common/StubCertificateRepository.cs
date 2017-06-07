@@ -10,7 +10,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
     /// </summary>
     public sealed class StubCertificateRepository : ICertificateRepository, IDisposable
     {
-        private readonly X509Store _certificateStore;
         private readonly X509Certificate2 _dummyCertificate;
 
         /// <summary>
@@ -23,10 +22,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 Properties.Resources.certificate_password,
                 X509KeyStorageFlags.Exportable);
 
-            _certificateStore = new X509Store();
-            _certificateStore.Open(OpenFlags.ReadWrite);
-            _certificateStore.Add(_dummyCertificate);
+            CertificateStore = new X509Store();
+            CertificateStore.Open(OpenFlags.ReadWrite);
+            CertificateStore.Add(_dummyCertificate);
         }
+
+        public X509Store CertificateStore { get; }
 
         /// <summary>
         /// Find a <see cref="X509Certificate2"/> based on the given <paramref name="privateKeyReference"/> for the <paramref name="findType"/>.
@@ -36,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// <returns></returns>
         public X509Certificate2 GetCertificate(X509FindType findType, string privateKeyReference)
         {
-            return _certificateStore.Certificates.Find(findType, privateKeyReference, validOnly: false)[0];
+            return CertificateStore.Certificates.Find(findType, privateKeyReference, validOnly: false)[0];
         }
 
         /// <summary>
