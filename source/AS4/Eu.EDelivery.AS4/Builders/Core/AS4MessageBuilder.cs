@@ -14,12 +14,20 @@ namespace Eu.EDelivery.AS4.Builders.Core
         private readonly List<Attachment> _attachments;
         private readonly List<SignalMessage> _signalMessages;
         private readonly List<UserMessage> _userMessages;
+        private readonly SendingProcessingMode _sendPmode;
 
-        public AS4MessageBuilder()
+        public AS4MessageBuilder() : this(new SendingProcessingMode {MessagePackaging = {IsMultiHop = false}}) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AS4MessageBuilder" /> class.
+        /// </summary>
+        /// <param name="pmode">The pmode.</param>
+        public AS4MessageBuilder(SendingProcessingMode pmode)
         {
-            this._userMessages = new List<UserMessage>();
-            this._signalMessages = new List<SignalMessage>();
-            this._attachments = new List<Attachment>();
+            _sendPmode = pmode;
+            _userMessages = new List<UserMessage>();
+            _signalMessages = new List<SignalMessage>();
+            _attachments = new List<Attachment>();
         }
 
         /// <summary>
@@ -85,7 +93,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public AS4Message Build()
         {
-            AS4Message message = AS4Message.ForSoapEnvelope(new XmlDocument(), Constants.ContentTypes.Soap);
+            AS4Message message = AS4Message.ForSendingPMode(_sendPmode);
 
             BuildingUsermessages(message);
             BuildingSignalMessages(message);
