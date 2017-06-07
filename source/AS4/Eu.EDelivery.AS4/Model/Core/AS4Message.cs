@@ -24,9 +24,9 @@ namespace Eu.EDelivery.AS4.Model.Core
         private bool _serializeAsMultiHop;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AS4Message"/> class.
+        /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
         /// </summary>
-        internal AS4Message()
+        private AS4Message()
         {
             ContentType = "application/soap+xml";
             SigningId = new SigningId();
@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message ForSendingPMode(SendingProcessingMode pmode)
         {
-            return new AS4Message {_serializeAsMultiHop = pmode.MessagePackaging?.IsMultiHop == true};
+            return new AS4Message {_serializeAsMultiHop = pmode?.MessagePackaging?.IsMultiHop == true};
         }
 
         /// <summary>

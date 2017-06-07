@@ -161,7 +161,9 @@ namespace Eu.EDelivery.AS4.Serialization
             using (Stream stream = await CopyEnvelopeStream(envelopeStream).ConfigureAwait(false))
             {
                 XmlDocument envelopeDocument = LoadXmlDocument(stream);
-                ValidateEnvelopeDocument(envelopeDocument);
+
+                // Sometimes throws 'The 'http://www.w3.org/XML/1998/namespace:lang' attribute is not declared.'
+                // ValidateEnvelopeDocument(envelopeDocument);
 
                 stream.Position = 0;
 

@@ -51,18 +51,19 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 includeAttachments = false;
             }
 
-            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext.AS4Message, includeAttachments);
+            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext, includeAttachments);
             MessagingContext deliverContext = messagingContext.CloneWith(deliverMessage);
 
             return StepResult.SuccessAsync(deliverContext);
         }
 
-        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message, bool includeAttachments)
+        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(MessagingContext context, bool includeAttachments)
         {
+            AS4Message as4Message = context.AS4Message;
             UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
             // The Minder Deliver Message should be an AS4-Message.
-            var builder = new AS4MessageBuilder();
+            var builder = new AS4MessageBuilder(context.SendingPMode);
             builder.WithUserMessage(deliverMessage);
 
             if (includeAttachments)
