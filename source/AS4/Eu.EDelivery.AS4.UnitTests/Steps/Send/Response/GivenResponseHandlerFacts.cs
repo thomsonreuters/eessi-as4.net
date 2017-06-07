@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -66,8 +66,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert               
                 Assert.False(actualResult.CanProceed);
-                MessagingContext expectedMessage = as4Response.OriginalRequest;
+                MessagingContext expectedMessage = as4Response.ResultedMessage;
                 MessagingContext actualMessage = actualResult.MessagingContext;
+                
+                Assert.Equal(expectedMessage, actualMessage);
             }
 
             [Fact]
@@ -87,6 +89,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             private static IAS4Response CreateAS4ResponseWithStatus(HttpStatusCode statusCode)
             {
                 var stubAS4Response = new Mock<IAS4Response>();
+
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
                 stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(new AS4Message()));
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
@@ -98,7 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenNextHandlerGetsTheResponse_IfAS4MessageIsReceived()
             {
                 // Arrange
-                var as4Message = new AS4MessageBuilder().WithSignalMessage(new Error()).Build();
+                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new Error()).Build();
                 IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(new MessagingContext(as4Message));
 
                 var spyHandler = new SpyAS4ResponseHandler();
@@ -133,10 +136,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 var handler = new PullRequestResponseHandler(spyHandler);
 
                 // Act
-                await handler.HandleResponse(as4Response);
+                StepResult result = await handler.HandleResponse(as4Response);
 
                 // Assert
                 Assert.True(spyHandler.IsCalled);
+                Assert.Equal(MessageExchangePattern.Push, result.MessagingContext.AS4Message.Mep);
             }
 
             [Fact]
@@ -159,24 +163,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 MessagingContext pullRequest = new InternalMessageBuilder().WithSignalMessage(new PullRequest()).Build();
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
-
-                AS4Message deserializedMessage = await DeserializePullRequestWarning();
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(deserializedMessage));
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(await PullResponseWarning()));
 
                 return stubAS4Response.Object;
             }
 
-            private static async Task<AS4Message> DeserializePullRequestWarning()
+            private static async Task<AS4Message> PullResponseWarning()
             {
-                AS4Message deserializedMessage;
-
                 using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(as4_pullrequest_warning)))
                 {
                     var serializer = new SoapEnvelopeSerializer();
-                    deserializedMessage = await serializer.DeserializeAsync(stream, Constants.ContentTypes.Soap, CancellationToken.None);
+                    return await serializer.DeserializeAsync(stream, Constants.ContentTypes.Soap, CancellationToken.None);
                 }
-
-                return deserializedMessage;
             }
 
             [Fact]
@@ -191,6 +189,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 // Assert
                 Assert.False(actualResult.CanProceed);
+                Assert.Equal(MessageExchangePattern.Pull, actualResult.MessagingContext.AS4Message.Mep);
             }
 
             private static IAS4Response CreateResponseWith(SignalMessage request, SignalMessage response)

@@ -272,7 +272,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static ISendConfiguration GetSendConfigurationFrom(MessagingContext message)
         {
-            return message.AS4Message.IsPulling
+            return message.AS4Message.IsPullRequest
                        ? (ISendConfiguration)message.SendingPMode?.PullConfiguration
                        : message.SendingPMode?.PushConfiguration;
         }

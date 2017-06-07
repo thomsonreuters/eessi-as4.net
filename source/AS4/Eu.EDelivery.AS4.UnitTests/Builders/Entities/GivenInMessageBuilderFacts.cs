@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Moq;
 using Xunit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 {
@@ -19,6 +22,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenValidArguments : GivenInMessageBuilderFacts
         {
             [Fact]
+            public void BuildInMessageAsPull_IfAS4MessageIsPullResponse()
+            {
+                // Arrange
+                AS4Message as4Message = CreateDefaultAS4Message();
+                as4Message.Mep = MessageExchangePattern.Pull;
+
+                Receipt receipt = CreateReceiptMessageUnit();
+
+                // Act
+                InMessage inMessage =
+                    InMessageBuilder.ForSignalMessage(receipt, as4Message).Build(CancellationToken.None);
+
+                // Assert
+                Assert.Equal(as4Message.Mep, inMessage.MEP);
+            }
+
+            [Fact]
             public void ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
             {
                 // Arrange
@@ -26,9 +46,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Receipt receipt = CreateReceiptMessageUnit();
 
                 // Act
-                InMessage inMessage = InMessageBuilder.ForSignalMessage(receipt, as4Message)
-                                                        .WithPModeString(AS4XmlSerializer.ToString(new ReceivingProcessingMode()))
-                                                        .Build(CancellationToken.None);
+                InMessage inMessage =
+                    InMessageBuilder.ForSignalMessage(receipt, as4Message)
+                                    .WithPModeString(AS4XmlSerializer.ToString(new ReceivingProcessingMode()))
+                                    .Build(CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(inMessage);
@@ -60,6 +81,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Act / Assert
                 Assert.Throws<AS4Exception>(
                     () => InMessageBuilder.ForUserMessage(null, as4Message).Build(CancellationToken.None));
+            }
+
+            [Fact]
+            public void FailsToBuild_IfInvalidMessageUnit()
+            {
+                // Arrange
+                InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), new AS4MessageBuilder().Build());
+
+                // Act / Assert
+                Assert.ThrowsAny<Exception>(() => sut.Build(CancellationToken.None));
             }
         }
 
