@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
@@ -121,7 +120,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
-        public static AS4Message ForSendingPMode(SendingProcessingMode pmode)
+        public static AS4Message ForSendingPMode(PMode.SendingProcessingMode pmode)
         {
             return new AS4Message {_serializeAsMultiHop = pmode?.MessagePackaging?.IsMultiHop == true};
         }
