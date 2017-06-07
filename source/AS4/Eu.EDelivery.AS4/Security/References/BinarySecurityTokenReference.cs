@@ -77,10 +77,12 @@ namespace Eu.EDelivery.AS4.Security.References
         private bool IsElementABinarySecurityTokenElement(XmlElement x)
         {
             // Extra check on ReferenceId. 
-            XmlAttribute idAttribute = x.Attributes["Id", Constants.Namespaces.WssSecurityUtility];
-            string pureId = ReferenceId.Replace("#", string.Empty);
+            XmlNode idAttribute = x.Attributes["Id", Constants.Namespaces.WssSecurityUtility];
 
-            return x.LocalName == "BinarySecurityToken" && idAttribute?.Value == pureId
+            string pureReferenceId = ReferenceId.Replace("#", string.Empty);
+            string pureAttributeId = idAttribute?.Value.Replace("#", string.Empty);
+
+            return x.LocalName == "BinarySecurityToken" && pureAttributeId == pureReferenceId
                    && x.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;
         }
 

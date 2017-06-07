@@ -229,6 +229,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
                 // Assert
                 Assert.Equal(_dummyReferenceId, _reference.ReferenceId);
             }
+
+            [Fact]
+            public void LoadsCertificate_FromIbmSecurityHeader()
+            {
+                // Arrange
+                XmlElement securityTokenReference = GetSecurityTokenReferenceFromIbm();
+
+                // Act
+                _reference.LoadXml(securityTokenReference);
+
+                // Assert
+                Assert.NotNull(_reference.Certificate);
+            }
+
+            private static XmlElement GetSecurityTokenReferenceFromIbm()
+            {
+                var ibmSecurityHeader = new XmlDocument();
+                ibmSecurityHeader.LoadXml(Properties.Resources.ibm_security_header);
+
+                return ibmSecurityHeader.SelectNodes("//*[local-name()='SecurityTokenReference']").Item(1) as XmlElement;
+            }
         }
 
         protected XmlElement GetDummySecurityToken(XmlDocument document)

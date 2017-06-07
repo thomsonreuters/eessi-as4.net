@@ -277,6 +277,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;&lt;xenc:EncryptedKey xmlns:xenc=&quot;http://www.w3.org/2001/04/xmlenc#&quot; Id=&quot;G45568c58-1592-4878-af95-9f33baa6562f&quot;&gt;&lt;xenc:EncryptionMethod Algorithm=&quot;http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p&quot; /&gt;&lt;dsig:KeyInfo xmlns:dsig=&quot;http://www.w3.org/2000/09/xmldsig#&quot;&gt;&lt;wsse:SecurityTokenReference xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; wsu:Id=&quot;Gf4c3121b-7241 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ibm_security_header {
+            get {
+                return ResourceManager.GetString("ibm_security_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;wsa:To s12:role=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh&quot; xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/icloud&lt;/wsa:To&gt;&lt;wsa:Action xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt&lt;/wsa:Action&gt;&lt;RoutingInput xmlns:wsu=&quot;http [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string multihopreceipt {
