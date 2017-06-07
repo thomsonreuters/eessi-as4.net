@@ -277,6 +277,7 @@
     <Compile Include="Builders\Entities\MessageEntityAssertion.cs" />
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />
+    <Compile Include="Entities\GivenEntityFacts.cs" />
     <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitConversationIdResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
