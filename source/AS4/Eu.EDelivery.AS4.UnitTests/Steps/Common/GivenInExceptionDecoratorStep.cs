@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                var internalMessage = new MessagingContext(new AS4Message());
+                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                var internalMessage = new MessagingContext(new AS4Message());
+                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
                     await context.SaveChangesAsync();
                 }
-                var internalMessage = new MessagingContext(new AS4Message());
+                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);

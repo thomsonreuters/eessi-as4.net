@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Moq;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
@@ -34,7 +35,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenMessageDontGetSignedWhenItsDisabledAsync()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(new AS4Message()) {SendingPMode = new SendingProcessingMode()};
+                var internalMessage = new MessagingContext(EmptyAS4Message)
+                {
+                    SendingPMode = new SendingProcessingMode()
+                };
+
                 internalMessage.SendingPMode.Security.Signing.IsEnabled = false;
 
                 // Act

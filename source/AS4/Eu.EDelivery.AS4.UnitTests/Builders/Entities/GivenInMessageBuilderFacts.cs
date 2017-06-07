@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
@@ -70,11 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
         protected AS4Message CreateDefaultAS4Message()
         {
-            return new AS4Message
-            {
-                ContentType = "application/soap+xml",
-                Attachments = new List<Attachment>()
-            };
+            return new AS4MessageBuilder().Build();
         }
     }
 }
