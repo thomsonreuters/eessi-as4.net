@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -26,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var sut = new DeliverMessageTransformer();
             ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(
                 updateInMessage: m => m.EbmsMessageId = "ignored id",
-                as4Message: new AS4Message());
+                as4Message: EmptyAS4Message);
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(

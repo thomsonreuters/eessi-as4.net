@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
-                var sut = new AS4Message();
+                AS4Message sut = new AS4MessageBuilder().Build();
 
                 // Act
                 await sut.AddAttachments(submitMessage.Payloads, async payload => await Task.FromResult(Stream.Null));
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
             {
                 // Arrange
-                var sut = new AS4Message();
+                AS4Message sut = new AS4MessageBuilder().Build();
 
                 // Act
                 await sut.AddAttachments(new Payload[0],  async payload => await Task.FromResult(Stream.Null));

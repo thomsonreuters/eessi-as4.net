@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -61,10 +62,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         protected MessagingContext CreateAS4MessageWithAttachment()
         {
-            var as4Message = new AS4Message
-            {
-                Attachments = new[] {new Attachment("attachment-id") {Content = Stream.Null}}
-            };
+            AS4Message as4Message =
+                new AS4MessageBuilder().WithAttachment(new Attachment("attachment-id") {Content = Stream.Null}).Build();
 
             return new MessagingContext(as4Message)
             {

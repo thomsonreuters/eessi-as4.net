@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -84,7 +85,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public AS4Message Build()
         {
-            var message = new AS4Message();
+            AS4Message message = AS4Message.ForSoapEnvelope(new XmlDocument(), Constants.ContentTypes.Soap);
 
             BuildingUsermessages(message);
             BuildingSignalMessages(message);

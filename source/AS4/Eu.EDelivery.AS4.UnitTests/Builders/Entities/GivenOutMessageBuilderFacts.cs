@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -99,29 +100,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
         protected AS4Message CreateAS4MessageWithUserMessage(string messageId)
         {
-            return new AS4Message
-            {
-                ContentType = "application/soap+xml",
-                UserMessages = new List<UserMessage>() { new UserMessage(messageId) }
-            };
+            return new AS4MessageBuilder().WithUserMessage(new UserMessage(messageId)).Build();
         }
 
         protected AS4Message CreateAS4MessageWithReceiptMessage(string messageId)
         {
-            return new AS4Message
-            {
-                ContentType = "application/soap+xml",
-                SignalMessages = new List<SignalMessage>() { new Receipt { MessageId = messageId } }
-            };
+            return new AS4MessageBuilder().WithSignalMessage(new Receipt(messageId)).Build();
         }
 
         protected AS4Message CreateAS4MessageWithErrorMessage(string messageId)
         {
-            return new AS4Message
-            {
-                ContentType = "application/soap+xml",
-                SignalMessages = new List<SignalMessage>() { new Error { MessageId = messageId } }
-            };
+            return new AS4MessageBuilder().WithSignalMessage(new Error(messageId)).Build();
         }
     }
 }
