@@ -126,9 +126,9 @@ namespace Eu.EDelivery.AS4.Services
         /// </returns>
         public bool IsMessageAlreadyAnswered(ReceptionAwareness awareness)
         {
-            return
-                _repository.InMessageExists(
-                    m => m.EbmsRefToMessageId != null && m.EbmsRefToMessageId.Equals(awareness.InternalMessageId));
+            return _repository.GetOutMessageData(
+                awareness.InternalMessageId,
+                m => m.Status == OutStatus.Ack || m.Status == OutStatus.Nack);
         }
 
         /// <summary>

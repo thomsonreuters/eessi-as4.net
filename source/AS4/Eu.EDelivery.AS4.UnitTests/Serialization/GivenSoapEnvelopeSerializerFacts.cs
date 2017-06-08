@@ -490,12 +490,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // - No Action element in the wsa namespace
             // - No UserElement in the multihop namespace.
             // - No RoutingInput node
-
             Assert.False(ContainsActionElement(doc));
             Assert.False(ContainsUserMessageElement(doc));
             Assert.Null(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
         }
-        
+
         private static bool ContainsUserMessageElement(XmlNode doc)
         {
             return doc.SelectSingleNode($@"//*[local-name()='UserMessage' and namespace-uri()='{Constants.Namespaces.EbmsMultiHop}']") != null;

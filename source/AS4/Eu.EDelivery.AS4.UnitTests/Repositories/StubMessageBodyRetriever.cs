@@ -1,14 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
-    public class StubMessageBodyRetriever : IAS4MessageBodyStore
+    public class StubMessageBodyRetriever : StubMessageBodyStore
     {
         private readonly Func<Stream> _createStream;
         
@@ -27,35 +24,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <param name="location">The location.</param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public Task<Stream> LoadMessagesBody(string location)
+        public override Task<Stream> LoadMessagesBody(string location)
         {
             return Task.FromResult(_createStream());
-        }
-
-        /// <summary>
-        /// Saves a given <see cref="AS4Message" /> to a given location.
-        /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message to save.</param>
-        /// <param name="cancellation">The cancellation.</param>
-        /// <returns>
-        /// Location where the <paramref name="message" /> is saved.
-        /// </returns>
-        public Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Updates an existing AS4 Message body.
-        /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message that should overwrite the existing messagebody.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
         }
     }
 
