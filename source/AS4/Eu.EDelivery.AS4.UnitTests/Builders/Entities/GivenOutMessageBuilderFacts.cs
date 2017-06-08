@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBuildOutMessageSucceedsWithAS4Message()
             {
                 // Arrange
-                AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
+                AS4Message as4Message = CreateAS4MessageWithUserMessage();
 
                 // Act
                 OutMessage outMessage = BuildForUserMessage(as4Message);
@@ -97,21 +97,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return new SendingProcessingMode {Id = "pmode-id"};
         }
 
-        protected AS4Message CreateAS4MessageWithUserMessage(string messageId)
+        protected AS4Message CreateAS4MessageWithUserMessage(string messageId = "message id")
         {
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
-                UserMessages = new List<UserMessage>() { new UserMessage(messageId) }
+                UserMessages = new List<UserMessage> {new UserMessage(messageId)}
             };
         }
 
-        protected AS4Message CreateAS4MessageWithReceiptMessage(string messageId)
+        protected AS4Message CreateAS4MessageWithReceiptMessage(string messageId = "message-id", bool isDuplicate = false)
         {
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
-                SignalMessages = new List<SignalMessage>() { new Receipt { MessageId = messageId } }
+                SignalMessages = new List<SignalMessage> {new Receipt {MessageId = messageId, IsDuplicated = isDuplicate}}
             };
         }
 
@@ -120,7 +120,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return new AS4Message
             {
                 ContentType = "application/soap+xml",
-                SignalMessages = new List<SignalMessage>() { new Error { MessageId = messageId } }
+                SignalMessages = new List<SignalMessage> {new Error {MessageId = messageId}}
             };
         }
     }
