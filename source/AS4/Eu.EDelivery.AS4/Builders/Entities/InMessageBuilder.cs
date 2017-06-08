@@ -87,20 +87,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 ModificationTime = DateTimeOffset.UtcNow
             };
 
-            if (_as4Message.IsUserMessage)
-            {
-                UserMessage userMessage = _as4Message.PrimaryUserMessage;
-                inMessage.FromParty = userMessage.Sender.PartyIds.First().Id;
-                inMessage.ToParty = userMessage.Receiver.PartyIds.First().Id;
-                inMessage.Action = userMessage.CollaborationInfo.Action;
-                inMessage.Service = userMessage.CollaborationInfo.Service.Value;
-                inMessage.ConversationId = userMessage.CollaborationInfo.ConversationId;
-                inMessage.Mpc = userMessage.Mpc;
-                inMessage.IsTest = userMessage.IsTest;
-                inMessage.IsDuplicate = userMessage.IsDuplicate;
-                inMessage.SoapEnvelope =
-                    AS4XmlSerializer.ToDocument(new MessagingContext(_as4Message), cancellationToken).OuterXml;
-            }
+            inMessage.AssignAS4Properties(_as4Message, cancellationToken);
 
             return inMessage;
         }
@@ -122,14 +109,5 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
             throw new InvalidOperationException("There is no MessageType mapped for this MessageUnit.");
         }
-
-        ////private byte[] CreateMessageBody(AS4Message as4Message, CancellationToken token)
-        ////{
-        ////    var memoryStream = new MemoryStream();
-        ////    ISerializer serializer = this._provider.Get(as4Message.ContentType);
-        ////    serializer.Serialize(as4Message, memoryStream, token);
-
-        ////    return memoryStream.ToArray();
-        ////}
     }
 }

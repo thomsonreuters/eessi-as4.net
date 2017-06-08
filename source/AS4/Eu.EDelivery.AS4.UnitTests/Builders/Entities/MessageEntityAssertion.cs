@@ -44,10 +44,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         /// </summary>
         /// <param name="expected">The expected.</param>
         /// <param name="actual">The actual.</param>
-        public static void AssertMetaInfo(AS4Message expected, MessageEntity actual)
+        public static void AssertUserMessageMetaInfo(AS4Message expected, MessageEntity actual)
         {
             Assert.Equal(expected.PrimaryUserMessage.IsTest, actual.IsTest);
             Assert.Equal(expected.PrimaryUserMessage.IsDuplicate, actual.IsDuplicate);
+        }
+
+        /// <summary>
+        /// Asserts the signal message meta information.
+        /// </summary>
+        /// <param name="expected">The expected.</param>
+        /// <param name="actual">The actual.</param>
+        public static void AssertSignalMessageMetaInfo(AS4Message expected, MessageEntity actual)
+        {
+            Assert.Equal(expected.PrimarySignalMessage.IsDuplicated, actual.IsDuplicate);
         }
 
         /// <summary>

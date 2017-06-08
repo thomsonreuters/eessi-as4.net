@@ -2,10 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -119,6 +123,36 @@ namespace Eu.EDelivery.AS4.Entities
         public abstract string StatusString { get; set; }
 
         public string SoapEnvelope { get; set; }
+
+        /// <summary>
+        /// Assigns the parent properties.
+        /// </summary>
+        /// <param name="as4Message">The as4 message.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public void AssignAS4Properties(AS4Message as4Message, CancellationToken cancellationToken)
+        {
+            Message = as4Message;
+
+            if (as4Message.IsUserMessage)
+            {
+                UserMessage userMessage = as4Message.PrimaryUserMessage;
+                FromParty = userMessage.Sender.PartyIds.First().Id;
+                ToParty = userMessage.Receiver.PartyIds.First().Id;
+                Action = userMessage.CollaborationInfo.Action;
+                Service = userMessage.CollaborationInfo.Service.Value;
+                ConversationId = userMessage.CollaborationInfo.ConversationId;
+                Mpc = userMessage.Mpc;
+                IsTest = userMessage.IsTest;
+                IsDuplicate = userMessage.IsDuplicate;
+                SoapEnvelope =
+                    AS4XmlSerializer.ToDocument(new MessagingContext(as4Message), cancellationToken).OuterXml;
+            }
+
+            if (as4Message.IsSignalMessage)
+            {
+                IsDuplicate = as4Message.PrimarySignalMessage.IsDuplicated;
+            }
+        }
 
         /// <summary>
         /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
