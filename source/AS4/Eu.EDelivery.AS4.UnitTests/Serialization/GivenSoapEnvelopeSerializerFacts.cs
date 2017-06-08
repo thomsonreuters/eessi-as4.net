@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +23,6 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
-using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
@@ -40,6 +39,48 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public GivenSoapEnvelopeSerializerFacts()
         {
             _serializer = new SoapEnvelopeSerializer();
+        }
+
+        public class GivenSerializationIsConsistent
+        {
+            [Fact(Skip="Skipped on purpose since the Flame Envelope is modified.  Possibly by the .NET SignedXml document; possibly due to how newlines are treated in Windows versus Apple")]
+            public async Task DeserializedEnvelopeMustBeIdenticalWithReceivedEnvelope()
+            {
+                using (var stream = new MemoryStream(as4_flame_envelope))
+                {
+                    var originalHash = CalculateMD5Hash(stream.ToArray());
+
+                    XmlDocument original = new XmlDocument();
+                    original.PreserveWhitespace = true;
+                    original.Load(stream);
+
+                    stream.Position = 0;
+
+                    var serializer = new SoapEnvelopeSerializer();
+                    var message = await serializer.DeserializeAsync(stream, Constants.ContentTypes.Mime, CancellationToken.None);
+
+                    var deserializedHash = CalculateMD5Hash(Encoding.UTF8.GetBytes(message.EnvelopeDocument.OuterXml));
+
+                    Assert.Equal(message.EnvelopeDocument.OuterXml, original.OuterXml);
+                    Assert.Equal(originalHash, deserializedHash);
+                }
+            }
+
+            private static string CalculateMD5Hash(byte[] input)
+            {
+                MD5 md5 = MD5.Create();
+
+                byte[] hash = md5.ComputeHash(input);
+
+                StringBuilder sb = new StringBuilder();
+
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    sb.Append(hash[i].ToString("X2"));
+                }
+
+                return sb.ToString();
+            }
         }
 
         /// <summary>
@@ -164,7 +205,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                         cancellationToken: CancellationToken.None);
 
                     // Act / Assert
-                    await TestValidEbmsMessageEnvelopeFrom(receiptMessage); 
+                    await TestValidEbmsMessageEnvelopeFrom(receiptMessage);
                 }
             }
 
@@ -308,7 +349,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public void MultihopUserMessageCreatedWhenSpecifiedInPMode()
         {
             // Arrange
-            AS4Message as4Message = CreateAS4MessageWithPMode();
+            AS4Message as4Message = CreateAS4Message();
             var context = new MessagingContext(as4Message) {SendingPMode = CreateMultiHopPMode()};
 
             // Act
@@ -391,7 +432,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             Assert.True(ContainsUserMessageElement(document));
 
             AssertMessagingElement(document);
-            AssertIfSenderAndReceiverAreReversed(expectedAS4Message, document);    
+            AssertIfSenderAndReceiverAreReversed(expectedAS4Message, document);
         }
 
         private static void AssertToElement(XmlNode doc)
@@ -454,14 +495,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             Assert.False(ContainsUserMessageElement(doc));
             Assert.Null(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
         }
-
-        private static void AssertUserMessageElement(XmlNode doc)
-        {
-            Assert.NotNull(
-                doc.SelectSingleNode(
-                    $@"//*[local-name()='UserMessage' and namespace-uri()='{Constants.Namespaces.EbmsMultiHop}']"));
-        }
-
+        
         private static bool ContainsUserMessageElement(XmlNode doc)
         {
             return doc.SelectSingleNode($@"//*[local-name()='UserMessage' and namespace-uri()='{Constants.Namespaces.EbmsMultiHop}']") != null;
@@ -470,13 +504,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         private static bool ContainsActionElement(XmlNode doc)
         {
             return doc.SelectSingleNode($@"//*[local-name()='Action' and namespace-uri()='{Constants.Namespaces.Addressing}']") != null;
-        }
-
-        private static void AssertActionElement(XmlNode doc)
-        {
-            Assert.NotNull(
-                doc.SelectSingleNode(
-                    $@"//*[local-name()='Action' and namespace-uri()='{Constants.Namespaces.Addressing}']"));
         }
 
         private static void AssertMessagingElement(XmlNode doc)
@@ -512,17 +539,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 expectedUserMessage.Receiver.PartyIds.First().Id,
                 actualUserMessage.PartyInfo.From.PartyId.First().Value);
         }
-
-        private static AS4Message CreateAS4MessageWithPMode()
-        {
-            var sender = new Party("sender", new PartyId("senderId"));
-            var receiver = new Party("rcv", new PartyId("receiverId"));
-
-            return
-                new AS4MessageBuilder().WithUserMessage(new UserMessage {Sender = sender, Receiver = receiver})
-                                       .Build();
-        }
-
+       
         private static async Task<AS4Message> CreateReceivedAS4Message(SendingProcessingMode sendPMode)
         {
             var message = CreateAS4Message();
@@ -551,12 +568,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static SendingProcessingMode CreateMultiHopPMode()
         {
-            return new SendingProcessingMode {Id = "multihop-pmode", MessagePackaging = {IsMultiHop = true}};
+            return new SendingProcessingMode { Id = "multihop-pmode", MessagePackaging = { IsMultiHop = true } };
         }
 
         private static SendingProcessingMode CreateNonMultiHopPMode()
         {
-            return new SendingProcessingMode {Id = "multihop-pmode", MessagePackaging = {IsMultiHop = false}};
+            return new SendingProcessingMode { Id = "multihop-pmode", MessagePackaging = { IsMultiHop = false } };
         }
     }
 

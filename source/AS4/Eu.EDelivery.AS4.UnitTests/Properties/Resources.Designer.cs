@@ -104,6 +104,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] as4_flame_envelope {
+            get {
+                object obj = ResourceManager.GetObject("as4_flame_envelope", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] as4_multihop_message {
             get {
                 object obj = ResourceManager.GetObject("as4_multihop_message", resourceCulture);
