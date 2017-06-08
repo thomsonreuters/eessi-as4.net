@@ -1,8 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.UnitTests.Builders.Entities;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
@@ -13,6 +18,95 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
     /// </summary>
     public class GivenMessageEntityFacts
     {
+        public class Create
+        {
+            [Fact]
+            public void GetsPartyInfoFromEntity()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage();
+
+                // Act
+                MessageEntity actual = BuildForAS4Message(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertPartyInfo(expected, actual);
+            }
+
+            [Fact]
+            public void GetsCollaborationInfo()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage();
+
+                // Act
+                MessageEntity actual = BuildForAS4Message(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertCollaborationInfo(expected, actual);
+            }
+
+            [Fact]
+            public void GetsMetaInfo_ForUserMessage()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage();
+
+                // Act
+                MessageEntity actual = BuildForAS4Message(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertUserMessageMetaInfo(expected, actual);
+            }
+
+            [Theory]
+            [InlineData(true)]
+            [InlineData(false)]
+            public void GetsMetaInfo_ForSignalMessage(bool isDuplicate)
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithReceiptMessage(isDuplicate: isDuplicate);
+
+                // Act
+                MessageEntity actual = BuildForAS4Message(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertSignalMessageMetaInfo(expected, actual);
+
+            }
+
+            [Fact]
+            public void GetsSoapEnvelope()
+            {
+                // Arrange
+                AS4Message expected = CreateAS4MessageWithUserMessage();
+
+                // Act
+                MessageEntity actual = BuildForAS4Message(expected);
+
+                // Assert
+                MessageEntityAssertion.AssertSoapEnvelope(expected, actual);
+            }
+
+            private static AS4Message CreateAS4MessageWithUserMessage()
+            {
+                return new AS4MessageBuilder().WithUserMessage(new FilledUserMessage()).Build();
+            }
+
+            private static AS4Message CreateAS4MessageWithReceiptMessage(bool isDuplicate)
+            {
+                return new AS4MessageBuilder().WithSignalMessage(new FilledNRRReceipt {IsDuplicated = isDuplicate}).Build();
+            }
+
+            private static MessageEntity BuildForAS4Message(AS4Message expected)
+            {
+                var message = new StubMessageEntity();
+                message.AssignAS4Properties(expected, CancellationToken.None);
+
+                return message;
+            }
+        }
+
         public class Lock
         {
             [Fact]
