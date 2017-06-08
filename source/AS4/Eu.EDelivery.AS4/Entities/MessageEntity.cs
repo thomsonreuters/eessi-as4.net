@@ -28,16 +28,6 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string PMode { get; set; }
 
-        /// <summary>
-        /// Gets or sets the AS4Message instance for which this MessageEntity is an instance.
-        /// </summary>
-        /// <remarks>
-        /// This property is not persisted to the Datastore.  It is used to persist the Message in another location by an
-        /// <see cref="IAS4MessageBodyStore" />
-        /// </remarks>
-        [NotMapped]
-        internal AS4Message Message { get; set; }
-
         [MaxLength(255)]
         public string FromParty { get; set; }
 
@@ -131,8 +121,6 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="cancellationToken">The cancellation token.</param>
         public void AssignAS4Properties(AS4Message as4Message, CancellationToken cancellationToken)
         {
-            Message = as4Message;
-
             if (as4Message.IsUserMessage)
             {
                 UserMessage userMessage = as4Message.PrimaryUserMessage;

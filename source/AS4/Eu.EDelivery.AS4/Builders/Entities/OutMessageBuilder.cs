@@ -59,7 +59,6 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
-                Message = _messagingContext.AS4Message,
                 EbmsMessageType = messageType,
                 PMode = AS4XmlSerializer.ToString(GetSendingPMode(messageType)),
             };
