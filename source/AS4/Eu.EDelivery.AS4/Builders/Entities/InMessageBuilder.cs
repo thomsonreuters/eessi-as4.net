@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -72,7 +75,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 throw new AS4Exception("Builder needs a Message Unit for building an InMessage");
             }
 
-            return new InMessage
+            var inMessage = new InMessage
             {
                 EbmsMessageId = _messageUnit.MessageId,
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
@@ -86,6 +89,10 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 InsertionTime = DateTimeOffset.UtcNow,
                 ModificationTime = DateTimeOffset.UtcNow
             };
+
+            inMessage.AssignAS4Properties(_as4Message, cancellationToken);
+
+            return inMessage;
         }
 
         private static MessageType DetermineMessageType(MessageUnit messageUnit)
