@@ -40,21 +40,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             }
 
             [Fact]
-            public void ThenBuilderBreaksDownTheCollectedInfo()
-            {
-                // Arrange
-                var userMessage = new UserMessage("message-id");
-                AS4Message as4MessageWithUserMessage = _builder.WithUserMessage(userMessage).Build();
-
-                // Act
-                AS4Message as4MessageWithoutUserMessage = _builder.BreakDown().Build();
-
-                // Assert
-                Assert.False(
-                    as4MessageWithUserMessage.UserMessages.Count == as4MessageWithoutUserMessage.UserMessages.Count);
-            }
-
-            [Fact]
             public void ThenBuildMultipleTimesUniqueMessagesEveryTimeSucceeds()
             {
                 // Arrange 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -30,16 +31,31 @@ namespace Eu.EDelivery.AS4.Builders.Core
         }
 
         /// <summary>
-        /// Break down the Builder
+        /// For the message unit.
         /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
-        public AS4MessageBuilder BreakDown()
+        public static AS4MessageBuilder ForMessageUnit(SignalMessage message, SendingProcessingMode pmode)
         {
-            _userMessages.Clear();
-            _signalMessages.Clear();
-            _attachments.Clear();
+            var builder = new AS4MessageBuilder(pmode);
+            builder.WithSignalMessage(message);
 
-            return this;
+            return builder;
+        }
+
+        /// <summary>
+        /// For the message unit.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4MessageBuilder ForMessageUnit(UserMessage message, SendingProcessingMode pmode)
+        {
+            var builder = new AS4MessageBuilder(pmode);
+            builder.WithUserMessage(message);
+
+            return builder;
         }
 
         /// <summary>
