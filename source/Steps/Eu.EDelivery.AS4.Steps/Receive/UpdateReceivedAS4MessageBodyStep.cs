@@ -1,15 +1,19 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
     public class UpdateReceivedAS4MessageBodyStep : IStep
     {
+        private static ILogger Logger = LogManager.GetCurrentClassLogger();
+
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
@@ -41,16 +45,32 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
-                var repository = new DatastoreRepository(datastoreContext);
-
-                var service = new InMessageService(repository);
-
-                await service.UpdateAS4MessageForDeliveryAndNotification(messagingContext, _messageBodyStore, cancellationToken);
-
+                await UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken);
                 await datastoreContext.SaveChangesAsync(cancellationToken);
             }
 
             return StepResult.Success(messagingContext);
-        }        
+        }
+
+        private async Task UpdateReceivedMessage(
+            MessagingContext messagingContext,
+            DatastoreContext datastoreContext,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var repository = new DatastoreRepository(datastoreContext);
+                var service = new InMessageService(repository);
+
+                await service.UpdateAS4MessageForDeliveryAndNotification(
+                    messageContext: messagingContext,
+                    messageBodyStore: _messageBodyStore,
+                    cancellationToken: cancellationToken);
+            }
+            catch (InvalidDataException exception)
+            {
+                Logger.Error(exception);
+            }
+        }
     }
 }
