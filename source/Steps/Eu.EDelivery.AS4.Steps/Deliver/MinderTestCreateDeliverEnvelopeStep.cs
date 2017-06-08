@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
@@ -63,8 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
             // The Minder Deliver Message should be an AS4-Message.
-            var builder = new AS4MessageBuilder(context.SendingPMode);
-            builder.WithUserMessage(deliverMessage);
+            AS4MessageBuilder builder = AS4MessageBuilder.ForMessageUnit(deliverMessage, new SendingProcessingMode());
 
             if (includeAttachments)
             {
