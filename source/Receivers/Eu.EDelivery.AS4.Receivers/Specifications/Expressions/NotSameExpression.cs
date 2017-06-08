@@ -1,21 +1,31 @@
 namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
     /// <summary>
-    /// <see cref="IEqualExpression"/> implementation to verify if the column value is not the same as the given value. 
+    ///   <see cref="IExpression" /> implementation to verify if the column value is not the same as the given value.
     /// </summary>
-    internal sealed class NotSameExpression : IEqualExpression
+    /// <typeparam name="T"></typeparam>
+    internal sealed class NotSameExpression<T> : IExpression
     {
+        private readonly IExpression _innerExpression;
+
         /// <summary>
-        /// Verification if the given <paramref name="columnValue"/> for the given <paramref name="columnName"/> is the same.
+        /// Initializes a new instance of the <see cref="NotSameExpression{T}" /> class.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="columnName"></param>
-        /// <param name="columnValue"></param>
-        /// <param name="databaseSet"></param>
-        /// <returns></returns>
-        public bool Equals<T>(string columnName, string columnValue, T databaseSet)
+        /// <param name="columnName">Name of the column.</param>
+        /// <param name="columnValue">The column value.</param>
+        /// <param name="databaseSet">The database set.</param>
+        public NotSameExpression(string columnName, string columnValue, T databaseSet)
         {
-            return !new SameExpression().Equals(columnName, columnValue, databaseSet);
+            _innerExpression = new SameExpression<T>(columnName, columnValue, databaseSet);
+        }
+
+        /// <summary>
+        /// Evaluate the expression.
+        /// </summary>
+        /// <returns></returns>
+        public bool Evaluate()
+        {
+            return !_innerExpression.Evaluate();
         }
     }
 }

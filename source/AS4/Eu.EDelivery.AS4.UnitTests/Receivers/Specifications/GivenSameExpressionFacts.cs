@@ -5,7 +5,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
 {
     /// <summary>
-    /// Testing <see cref="SameExpression"/>
+    /// Testing <see cref="SameExpression{T}"/>
     /// </summary>
     public class GivenSameExpressionFacts
     {
@@ -13,11 +13,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         public void IsTheSame_Operation()
         {
             // Arrange
-            var sut = new SameExpression();
             var inMessage = new InMessage {Operation = Operation.ToBeDelivered};
+            var sut = new SameExpression<InMessage>("Operation", "ToBeDelivered", inMessage);
 
             // Act
-            bool isTheSame = sut.Equals("Operation", "ToBeDelivered", inMessage);
+            bool isTheSame = sut.Evaluate();
 
             // Assert
             Assert.True(isTheSame);
@@ -29,11 +29,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         public void IsTheSameAsNull_If(string expectedId, bool expectedEvaluation)
         {
             // Arrange
-            var sut = new SameExpression();
             var inMessage = new InMessage {EbmsMessageId = expectedId};
+            var sut = new SameExpression<InMessage>("EbmsMessageId", "NULL", inMessage);
 
             // Act
-            bool actualEvaluation = sut.Equals("EbmsMessageId", "NULL", inMessage);
+            bool actualEvaluation = sut.Evaluate();
 
             // Assert
             Assert.Equal(expectedEvaluation, actualEvaluation);

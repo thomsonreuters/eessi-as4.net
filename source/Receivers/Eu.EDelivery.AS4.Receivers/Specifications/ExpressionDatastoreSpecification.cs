@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
                 {
                     tokens.Push(
                        token.IsEqualExpression
-                           ? Token.CreateToken(EqualExpression.Equals(token.Expression, databaseSet))
+                           ? Token.CreateToken(EqualExpression<T>.For(token.Expression, databaseSet).Evaluate().ToString())
                            : token);
                 }
             }
@@ -128,8 +128,8 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
             string rightValue = stack.Pop().Expression;
 
             string expression = BooleanExpression
-                .For(operatorValue)
-                .Evaluate(leftValue, rightValue)
+                .For(operatorValue, leftValue, rightValue)
+                .Evaluate()
                 .ToString();
 
             return Token.CreateToken(expression);

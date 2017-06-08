@@ -1,19 +1,31 @@
 ﻿namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
     /// <summary>
-    /// <see cref="IBooleanExpression"/> implementation to evaluate a boolean 'AND'.
+    /// <see cref="IExpression"/> implementation to evaluate a boolean 'AND'.
     /// </summary>
-    internal sealed class AndExpression : IBooleanExpression
+    internal sealed class AndExpression : IExpression
     {
+        private readonly bool _left;
+        private readonly bool _right;
+
         /// <summary>
-        /// Evaluate a given expression arguments to a boolean expression result.
+        /// Initializes a new instance of the <see cref="AndExpression" /> class.
         /// </summary>
-        /// <param name="left">The left argument.</param>
-        /// <param name="right">The right argument</param>
-        /// <returns></returns>
-        public bool Evaluate(bool left, bool right)
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        public AndExpression(bool left, bool right)
         {
-            return left && right;
+            _left = left;
+            _right = right;
+        }
+
+        /// <summary>
+        /// Evaluate the expression.
+        /// </summary>
+        /// <returns></returns>
+        public bool Evaluate()
+        {
+            return _left && _right;
         }
     }
 }

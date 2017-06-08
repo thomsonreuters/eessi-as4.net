@@ -6,25 +6,40 @@ using System.Reflection;
 namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
     /// <summary>
-    /// <see cref="IEqualExpression"/> implementation to verify if the column value is the same as the given value.
+    /// Evaluates if an expression is has the same left and right side value.
     /// </summary>
-    internal sealed class SameExpression : IEqualExpression
+    /// <typeparam name="T"></typeparam>
+    /// <seealso cref="IExpression" />
+    internal sealed class SameExpression<T> : IExpression
     {
-        /// <summary>
-        /// Verification if the given <paramref name="columnValue"/> for the given <paramref name="columnName"/> is the same.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="columnName"></param>
-        /// <param name="columnValue"></param>
-        /// <param name="databaseSet"></param>
-        /// <returns></returns>
-        public bool Equals<T>(string columnName, string columnValue, T databaseSet)
-        {
-            PropertyInfo filterPropertyInfo = databaseSet.GetType().GetProperty(columnName);
+        private readonly T _databaseSet;
+        private readonly string _columnName;
+        private readonly string _columnValue;
 
-            object propertyValue = filterPropertyInfo.GetValue(databaseSet);
-            object configuredValue = Conversion.Convert(propertyValue, columnValue);
-            
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SameExpression{T}" /> class.
+        /// </summary>
+        /// <param name="columnName">Name of the column.</param>
+        /// <param name="columnValue">The column value.</param>
+        /// <param name="databaseSet">The database set.</param>
+        public SameExpression(string columnName, string columnValue, T databaseSet)
+        {
+            _columnName = columnName;
+            _columnValue = columnValue;
+            _databaseSet = databaseSet;
+        }
+
+        /// <summary>
+        /// Evaluate the expression.
+        /// </summary>
+        /// <returns></returns>
+        public bool Evaluate()
+        {
+            PropertyInfo filterPropertyInfo = _databaseSet.GetType().GetProperty(_columnName);
+
+            object propertyValue = filterPropertyInfo.GetValue(_databaseSet);
+            object configuredValue = Conversion.Convert(propertyValue, _columnValue);
+
             return propertyValue?.Equals(configuredValue) == true || propertyValue == configuredValue;
         }
     }

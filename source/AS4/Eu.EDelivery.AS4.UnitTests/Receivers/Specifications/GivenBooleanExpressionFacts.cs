@@ -20,10 +20,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         public void GetsRightBooleanExpressionType(string type, string left, string right, bool expected)
         {
             // Arrange
-            BooleanExpression expression = BooleanExpression.For(type);
+            BooleanExpression expression = BooleanExpression.For(type, left, right);
 
             // Act
-            bool actual = expression.Evaluate(left, right);
+            bool actual = expression.Evaluate();
 
             // Assert
             Assert.Equal(expected, actual);
@@ -39,10 +39,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
             public void EvaluateAndExpression(bool left, bool right, bool expected)
             {
                 // Arrange
-                var sut = new AndExpression();
+                var sut = new AndExpression(left, right);
 
                 // Act
-                bool actual = sut.Evaluate(left, right);
+                bool actual = sut.Evaluate();
 
                 // Assert
                 Assert.Equal(expected, actual);
@@ -59,10 +59,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
             public void EvaluateOrExpression(bool left, bool right, bool expected)
             {
                 // Arrange
-                var sut = new OrExpression();
+                var sut = new OrExpression(left, right);
 
                 // Act
-                bool actual = sut.Evaluate(left, right);
+                bool actual = sut.Evaluate();
 
                 // Assert
                 Assert.Equal(expected, actual);

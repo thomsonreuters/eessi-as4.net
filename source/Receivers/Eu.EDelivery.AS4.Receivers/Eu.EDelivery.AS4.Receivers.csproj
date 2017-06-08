@@ -67,6 +67,7 @@
     <Compile Include="Specifications\Expressions\AndExpression.cs" />
     <Compile Include="Specifications\Expressions\BooleanExpression.cs" />
     <Compile Include="Specifications\Expressions\EqualExpression.cs" />
+    <Compile Include="Specifications\Expressions\IExpression.cs" />
     <Compile Include="Specifications\Expressions\NotSameExpression.cs" />
     <Compile Include="Specifications\Expressions\SameExpression.cs" />
     <Compile Include="Specifications\Expressions\OrExpression.cs" />

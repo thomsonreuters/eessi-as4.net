@@ -4,25 +4,35 @@ using System.Linq;
 
 namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
-    internal sealed class EqualExpression
+    internal sealed class EqualExpression<T> : IExpression
     {
-        private static readonly IDictionary<string, Func<IEqualExpression>> Expressions
-            = new Dictionary<string, Func<IEqualExpression>>
+        private static readonly IDictionary<string, Func<string, string, T, IExpression>> Expressions
+            = new Dictionary<string, Func<string, string, T, IExpression>>
             {
-                ["="] = () => new SameExpression(),
-                ["IS"] = () => new SameExpression(),
-                ["IS NOT"] = () => new NotSameExpression(),
-                ["!="] = () => new NotSameExpression()
+                ["="] = (name, value, set) => new SameExpression<T>(name, value, set),
+                ["IS"] = (name, value, set) => new SameExpression<T>(name, value, set),
+                ["IS NOT"] = (name, value, set) => new NotSameExpression<T>(name, value, set),
+                ["!="] = (name, value, set) => new NotSameExpression<T>(name, value, set)
             };
 
+        private readonly IExpression _innerExpression;
+
         /// <summary>
-        /// Create a <see cref="IEqualExpression"/> implementation for the given <paramref name="expression"/>.
+        /// Initializes a new instance of the <see cref="EqualExpression{T}" /> class.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="expression">The expression symbol ('=', '!=').</param>
-        /// <param name="databaseSet">The database Set.</param>
+        /// <param name="innerExpression">The inner expression.</param>
+        public EqualExpression(IExpression innerExpression)
+        {
+            _innerExpression = innerExpression;
+        }
+
+        /// <summary>
+        /// Fors the specified expression.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="databaseSet">The database set.</param>
         /// <returns></returns>
-        public static string Equals<T>(string expression, T databaseSet)
+        public static EqualExpression<T> For(string expression, T databaseSet)
         {
             string separator = expression.Contains("=")
                 ? expression.Contains("!=") ? "!=" : "="
@@ -38,7 +48,7 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 
             ThrowIfInvalidEqualEspression(left, separator, right);
 
-            return Expressions[separator]().Equals(left, right, databaseSet).ToString();
+            return new EqualExpression<T>(Expressions[separator](left, right, databaseSet));
         }
 
         private static void ThrowIfInvalidEqualEspression(string left, string separator, string right)
@@ -48,18 +58,14 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
                 throw new FormatException($"Equality expression is invalid: '{left}{separator}{right}'");
             }
         }
-    }
 
-    internal interface IEqualExpression
-    {
         /// <summary>
-        /// Verification if the given <paramref name="columnValue"/> for the given <paramref name="columnName"/> is the same.
+        /// Evaluate the expression.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="columnName"></param>
-        /// <param name="columnValue"></param>
-        /// <param name="databaseSet"></param>
         /// <returns></returns>
-        bool Equals<T>(string columnName, string columnValue, T databaseSet);
-    }
+        public bool Evaluate()
+        {
+            return _innerExpression.Evaluate();
+        }
+    }    
 }
