@@ -19,14 +19,15 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public class AS4Message : IMessage
     {
-        private bool? _hasMultiHopAttribute;
-        private bool _serializeAsMultiHop;
+        private readonly bool _serializeAsMultiHop;
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
+        /// Initializes a new instance of the <see cref="AS4Message"/> class.
         /// </summary>
-        private AS4Message()
+        /// <param name="serializeAsMultiHop">if set to <c>true</c> [serialize as multi hop].</param>
+        private AS4Message(bool serializeAsMultiHop = false)
         {
+            _serializeAsMultiHop = serializeAsMultiHop;
             ContentType = "application/soap+xml";
             SigningId = new SigningId();
             SecurityHeader = new SecurityHeader();
@@ -39,6 +40,8 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public XmlDocument EnvelopeDocument { get; set; }
 
+        private bool? __hasMultiHopAttribute;
+
         /// <summary>
         /// Gets a value indicating whether or not this AS4 Message is a MultiHop message.
         /// </summary>
@@ -46,12 +49,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             get
             {
-                if (IsUserMessage && _hasMultiHopAttribute.HasValue == false)
+                if (IsUserMessage && __hasMultiHopAttribute.HasValue == false)
                 {
-                    _hasMultiHopAttribute = IsMultiHopAttributePresent();
+                    __hasMultiHopAttribute = IsMultiHopAttributePresent();
                 }
 
-                return (_hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop || NeedsToBeMultiHop;
+                return (__hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
             }
         }
 
@@ -102,15 +105,13 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsPulling => PrimarySignalMessage is PullRequest;
 
-        public bool NeedsToBeMultiHop { get; internal set; }
-
         /// <summary>
         /// Create message with SOAP envelope.
         /// </summary>
         /// <param name="soapEnvelope">The SOAP envelope.</param>
         /// <param name="contentType">Type of the content.</param>
         /// <returns></returns>
-        public static AS4Message ForSoapEnvelope(XmlDocument soapEnvelope, string contentType)
+        public static AS4Message Create(XmlDocument soapEnvelope, string contentType)
         {
             return new AS4Message {EnvelopeDocument = soapEnvelope, ContentType = contentType};
         }
@@ -120,9 +121,9 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
-        public static AS4Message ForSendingPMode(PMode.SendingProcessingMode pmode)
+        public static AS4Message Create(PMode.SendingProcessingMode pmode)
         {
-            return new AS4Message {_serializeAsMultiHop = pmode?.MessagePackaging?.IsMultiHop == true};
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
         }
 
         /// <summary>

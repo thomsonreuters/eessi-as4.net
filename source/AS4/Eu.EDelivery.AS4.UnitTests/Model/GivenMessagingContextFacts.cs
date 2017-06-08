@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 };
 
                 // Act
-                MessagingContext actual = expected.CloneWith(AS4Message.ForSoapEnvelope(null, contentType: "other"));
+                MessagingContext actual = expected.CloneWith(AS4Message.Create(null, contentType: "other"));
 
                 // Assert
                 Assert.NotEqual(expected.AS4Message, actual.AS4Message);

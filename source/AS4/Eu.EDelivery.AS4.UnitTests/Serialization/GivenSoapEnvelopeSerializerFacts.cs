@@ -308,8 +308,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public void MultihopUserMessageCreatedWhenSpecifiedInPMode()
         {
             // Arrange
-            AS4Message as4Message = CreateAS4MessageWithPMode();
-            var context = new MessagingContext(as4Message) {SendingPMode = CreateMultiHopPMode()};
+            AS4Message as4Message = CreateAS4MessageWithPMode(CreateMultiHopPMode());
+            var context = new MessagingContext(as4Message);
 
             // Act
             XmlDocument doc = AS4XmlSerializer.ToDocument(context, CancellationToken.None);
@@ -449,17 +449,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             // - No Action element in the wsa namespace
             // - No UserElement in the multihop namespace.
             // - No RoutingInput node
-
             Assert.False(ContainsActionElement(doc));
             Assert.False(ContainsUserMessageElement(doc));
             Assert.Null(doc.SelectSingleNode(@"//*[local-name()='RoutingInput']"));
-        }
-
-        private static void AssertUserMessageElement(XmlNode doc)
-        {
-            Assert.NotNull(
-                doc.SelectSingleNode(
-                    $@"//*[local-name()='UserMessage' and namespace-uri()='{Constants.Namespaces.EbmsMultiHop}']"));
         }
 
         private static bool ContainsUserMessageElement(XmlNode doc)
@@ -470,13 +462,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         private static bool ContainsActionElement(XmlNode doc)
         {
             return doc.SelectSingleNode($@"//*[local-name()='Action' and namespace-uri()='{Constants.Namespaces.Addressing}']") != null;
-        }
-
-        private static void AssertActionElement(XmlNode doc)
-        {
-            Assert.NotNull(
-                doc.SelectSingleNode(
-                    $@"//*[local-name()='Action' and namespace-uri()='{Constants.Namespaces.Addressing}']"));
         }
 
         private static void AssertMessagingElement(XmlNode doc)
@@ -513,38 +498,39 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 actualUserMessage.PartyInfo.From.PartyId.First().Value);
         }
 
-        private static AS4Message CreateAS4MessageWithPMode()
+        private static AS4Message CreateAS4MessageWithPMode(SendingProcessingMode pmode)
         {
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
             return
-                new AS4MessageBuilder().WithUserMessage(new UserMessage {Sender = sender, Receiver = receiver})
+                new AS4MessageBuilder(pmode).WithUserMessage(new UserMessage {Sender = sender, Receiver = receiver})
                                        .Build();
         }
 
         private static async Task<AS4Message> CreateReceivedAS4Message(SendingProcessingMode sendPMode)
         {
-            var message = CreateAS4Message();
+            AS4Message message = CreateAS4Message(sendPMode);
             var context = new MessagingContext(message) {SendingPMode = sendPMode};
 
-            var serializer = SerializerProvider.Default.Get(message.ContentType);
+            ISerializer serializer = SerializerProvider.Default.Get(message.ContentType);
 
             // Serialize and deserialize the AS4 Message to simulate a received message.
             using (var stream = new MemoryStream())
             {
                 serializer.Serialize(context.AS4Message, stream, CancellationToken.None);
                 stream.Position = 0;
+
                 return await serializer.DeserializeAsync(stream, message.ContentType, CancellationToken.None);
             }
         }
 
-        private static AS4Message CreateAS4Message()
+        private static AS4Message CreateAS4Message(SendingProcessingMode sendPMode)
         {
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
-            return new AS4MessageBuilder()
+            return new AS4MessageBuilder(sendPMode)
                 .WithUserMessage(new UserMessage { Sender = sender, Receiver = receiver })
                 .Build();
         }

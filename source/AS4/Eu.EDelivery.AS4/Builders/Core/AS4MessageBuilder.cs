@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public AS4Message Build()
         {
-            AS4Message message = AS4Message.ForSendingPMode(_sendPmode);
+            AS4Message message = AS4Message.Create(_sendPmode);
 
             BuildingUsermessages(message);
             BuildingSignalMessages(message);
