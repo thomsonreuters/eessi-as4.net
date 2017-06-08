@@ -101,11 +101,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
         protected AS4Message CreateDefaultAS4Message()
         {
-            return new AS4Message
-            {
-                ContentType = "application/soap+xml",
-                Attachments = new List<Attachment>()
-            };
+            return new AS4MessageBuilder().Build();
         }
     }
 }

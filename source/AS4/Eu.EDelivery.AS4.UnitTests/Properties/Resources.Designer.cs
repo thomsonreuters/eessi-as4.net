@@ -61,6 +61,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pz4cZK4SULUwmraZa.
+        /// </summary>
+        internal static string access_point_a_password {
+            get {
+                return ResourceManager.GetString("access_point_a_password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AccessPointA {
+            get {
+                object obj = ResourceManager.GetObject("AccessPointA", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos;?&gt;
         ///&lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot;&gt;
         ///  &lt;soapenv:Header&gt;
@@ -264,6 +283,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
             get {
                 object obj = ResourceManager.GetObject("holodeck_partyc_certificate", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;&lt;xenc:EncryptedKey xmlns:xenc=&quot;http://www.w3.org/2001/04/xmlenc#&quot; Id=&quot;G45568c58-1592-4878-af95-9f33baa6562f&quot;&gt;&lt;xenc:EncryptionMethod Algorithm=&quot;http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p&quot; /&gt;&lt;dsig:KeyInfo xmlns:dsig=&quot;http://www.w3.org/2000/09/xmldsig#&quot;&gt;&lt;wsse:SecurityTokenReference xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; wsu:Id=&quot;Gf4c3121b-7241 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ibm_security_header {
+            get {
+                return ResourceManager.GetString("ibm_security_header", resourceCulture);
             }
         }
         

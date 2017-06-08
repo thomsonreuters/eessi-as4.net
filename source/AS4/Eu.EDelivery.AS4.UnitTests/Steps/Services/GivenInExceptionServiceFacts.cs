@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Moq;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
 {
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             var service = new InExceptionService(mockedRepository.Object);
 
             // Act
-            service.InsertAS4Exception(as4Exception, new AS4Message());
+            service.InsertAS4Exception(as4Exception, EmptyAS4Message);
 
             // Assert
             mockedRepository.Verify(r => r.InsertInException(It.IsAny<InException>()), Times.Once);

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -28,7 +29,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 var notPopulatedRepository = Mock.Of<IDatastoreRepository>();
                 var sut = new InMessageService(null, notPopulatedRepository);
 
-                var context = new MessagingContext(new AS4Message());
+                var context = new MessagingContext(new AS4MessageBuilder().Build());
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<InvalidDataException>(
