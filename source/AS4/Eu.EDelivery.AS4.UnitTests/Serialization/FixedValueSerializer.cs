@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
@@ -82,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public async Task DeserializeFixedMessage()
         {
             // Arrange
-            var expectedMessage = new AS4Message();
+            AS4Message expectedMessage = new AS4MessageBuilder().Build();
             var sut = new FixedValueSerializer(expectedMessage);
 
             // Act

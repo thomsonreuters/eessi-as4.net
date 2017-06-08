@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -72,8 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 var pmode = new SendingProcessingMode {Reliability = {ReceptionAwareness = receptionAwareness}};
                 var userMessage = new UserMessage(messageId);
-                var as4Message = new AS4Message();
-                as4Message.UserMessages.Add(userMessage);
+                AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(userMessage).Build();
 
                 return new MessagingContext(as4Message) {SendingPMode = pmode};
             }

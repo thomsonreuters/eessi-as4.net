@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private static AS4Message CreateAS4Message(SignalMessage errorMessage, SendingProcessingMode pmode)
         {
-            return new AS4MessageBuilder()
+            return new AS4MessageBuilder(pmode)
                 .WithSignalMessage(errorMessage)
                 .Build();
         }

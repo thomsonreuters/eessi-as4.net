@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -51,6 +53,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 Assert.True(stepResult.MessagingContext.AS4Message.IsEncrypted);
             }
+
+            [Fact]
+            public async Task TestIfAttachmentContentTypeIsSetBackToOriginal()
+            {
+                // Arrange
+                AS4Message as4Message = await GetEncryptedAS4MessageAsync();
+                var context = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+                context.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
+
+                // Act
+                StepResult result = await _step.ExecuteAsync(context, CancellationToken.None);
+
+                // Assert
+                IEnumerable<Attachment> attachments = result.MessagingContext.AS4Message.Attachments;
+                Assert.All(attachments, a => Assert.Equal("image/jpeg", a.ContentType));
+            }
         }
 
         public class GivenInvalidArguments : GivenDecryptAS4MessageStepFacts
@@ -59,10 +77,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsWithNotAllowedEncryptionAsync()
             {
                 // Arrange
-                var as4Message = new AS4Message
-                {
-                    SecurityHeader = new SecurityHeader(null, _mockedEncryptedStrategy.Object)
-                };
+                AS4Message as4Message = new AS4MessageBuilder().Build();
+                as4Message.SecurityHeader = new SecurityHeader(null, _mockedEncryptedStrategy.Object);
+                
                 var internalMessage = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.NotAllowed;
 
@@ -78,8 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsWithRequiredEncryptionAsync()
             {
                 // Arrange
-                var as4Message = new AS4Message();
-                var internalMessage = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build()) {ReceivingPMode = new ReceivingProcessingMode()};
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.Required;
 
                 // Act
@@ -89,6 +105,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 Assert.Equal(ErrorCode.Ebms0103, as4Exception.ErrorCode);
             }
+        }
+
+        [Fact]
+        public async Task TestEncryptedMessage_IfAttachmentsAreCorrectlyDeserialized()
+        {
+            // Act
+            AS4Message sut = await GetEncryptedAS4MessageAsync();
+
+            // Assert
+            Assert.True(sut.HasAttachments, "Deserialized message hasn't got any attachments");
+            Assert.All(sut.Attachments, a => Assert.Equal("application/octet-stream", a.ContentType));
         }
 
         protected Task<AS4Message> GetEncryptedAS4MessageAsync()

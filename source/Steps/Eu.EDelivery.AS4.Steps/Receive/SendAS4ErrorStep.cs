@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             LogManager.GetCurrentClassLogger().Info($"{messagingContext.Prefix} Empty SOAP Envelope will be send to requested party");
 
-            var emptyInternalMessage = new MessagingContext(CreateEmptyAS4Message())
+            var emptyInternalMessage = new MessagingContext(CreateEmptyAS4Message(messagingContext.SendingPMode))
             {
                 ReceivingPMode = messagingContext.ReceivingPMode
             };
@@ -39,9 +39,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await StepResult.SuccessAsync(emptyInternalMessage);
         }
 
-        private static AS4Message CreateEmptyAS4Message()
+        private static AS4Message CreateEmptyAS4Message(SendingProcessingMode pmode)
         {
-            return new AS4MessageBuilder().Build();
+            return new AS4MessageBuilder(pmode).Build();
         }
 
         private static async Task<StepResult> ReturnSameStepResult(MessagingContext messagingContext)

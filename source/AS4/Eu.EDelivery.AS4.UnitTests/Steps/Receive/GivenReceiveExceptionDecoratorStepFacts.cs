@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -36,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 IStep sut = GetCatchedCompositeSteps();
-                var internalMessage = new MessagingContext(new AS4Message());
+                var internalMessage = new MessagingContext(EmptyAS4Message);
 
                 // Act
                 StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -102,10 +103,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected MessagingContext DummyMessage()
         {
-            var as4Message = new AS4Message
-            {
-                UserMessages = new[] {new UserMessage("message-id")}
-            };
+            AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
+
             return new MessagingContext(as4Message)
             {
                 ReceivingPMode = GetStubReceivingPMode(),

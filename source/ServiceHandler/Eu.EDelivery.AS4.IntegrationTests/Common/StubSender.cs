@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 
@@ -105,7 +106,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
-                return new AS4Message();
+                return new AS4MessageBuilder().Build();
             }
         }
 
@@ -136,7 +137,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             if (response.StatusCode == HttpStatusCode.Accepted)
             {
-                return new AS4Message();
+                return new AS4MessageBuilder().Build();
             }
 
             string contentType = response.ContentType;

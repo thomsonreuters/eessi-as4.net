@@ -1,0 +1,106 @@
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.Steps.Send;
+using Xunit;
+
+namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
+{
+    /// <summary>
+    /// Testing <seealso cref="CompressAttachmentsStep" />
+    /// </summary>
+    public class GivenCompressAttachmentsStepFacts
+    {
+        [Fact]
+        public async Task DoesntCompressAttachments_IfPModeIsNotSetForCompression()
+        {
+            // Arrange
+            Attachment expected = NonCompressedAttachment();
+            MessagingContext context = AS4MessageContext(expected, PModeWithoutCompressionSettings());
+
+            // Act
+            StepResult result = await ExerciseCompression(context);
+
+            // Assert
+            Attachment actual = result.MessagingContext.AS4Message.Attachments.First();
+
+            Assert.Equal(expected.Content, actual.Content);
+            Assert.NotEqual("application/gzip", actual.ContentType);
+        }
+
+        private static SendingProcessingMode PModeWithoutCompressionSettings()
+        {
+            return new SendingProcessingMode {MessagePackaging = {UseAS4Compression = false}};
+        }
+
+        [Fact]
+        public async Task SucceedsToCompressAttachment_IfPModeIsSetForCompression()
+        {
+            // Arrange
+            Attachment nonCompressedAttachment = NonCompressedAttachment();
+            long expectedLength = nonCompressedAttachment.Content.Length;
+            string expectedType = nonCompressedAttachment.ContentType;
+
+            MessagingContext context = AS4MessageContext(nonCompressedAttachment, PModeWithCompressionSettings());
+
+            // Act
+            StepResult result = await ExerciseCompression(context);
+
+            // Assert
+            Attachment actual = result.MessagingContext.AS4Message.Attachments.First();
+
+            Assert.NotEqual(expectedLength, actual.Content.Length);
+            Assert.Equal(expectedType, actual.Properties["MimeType"]);
+            Assert.Equal("application/gzip", actual.ContentType);
+        }
+
+        [Fact]
+        public async Task FailsToCompressAttachments_IfInvalidAttachment()
+        {
+            // Arrange
+            Attachment invalidAttachment = NonCompressedAttachment();
+            invalidAttachment.Content.Position = 100;
+
+            MessagingContext context = AS4MessageContext(invalidAttachment, PModeWithCompressionSettings());
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => ExerciseCompression(context));
+        }
+
+        private static Attachment NonCompressedAttachment()
+        {
+            return new Attachment("attachment-id")
+            {
+                Content = new MemoryStream(Encoding.UTF8.GetBytes("compress me!")),
+                ContentType = "text/plain"
+            };
+        }
+
+        private static MessagingContext AS4MessageContext(Attachment attachment, SendingProcessingMode pmode)
+        {
+            AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
+            return new MessagingContext(as4Message) {SendingPMode = pmode};
+        }
+
+        private static SendingProcessingMode PModeWithCompressionSettings()
+        {
+            return new SendingProcessingMode {MessagePackaging = {UseAS4Compression = true}};
+        }
+
+        private static async Task<StepResult> ExerciseCompression(MessagingContext context)
+        {
+            var sut = new CompressAttachmentsStep();
+
+            // Act
+            return await sut.ExecuteAsync(context, CancellationToken.None);
+        }
+    }
+}

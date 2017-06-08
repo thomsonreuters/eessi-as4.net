@@ -31,14 +31,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
-        public class AddAttachments
+        public class Attachments
         {
             [Fact]
             public async Task ThenAddAttachmentSucceeds()
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
-                var sut = new AS4Message();
+                AS4Message sut = new AS4MessageBuilder().Build();
 
                 // Act
                 await sut.AddAttachments(submitMessage.Payloads, async payload => await Task.FromResult(Stream.Null));
@@ -52,13 +52,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
             {
                 // Arrange
-                var sut = new AS4Message();
+                AS4Message sut = new AS4MessageBuilder().Build();
 
                 // Act
                 await sut.AddAttachments(new Payload[0],  async payload => await Task.FromResult(Stream.Null));
 
                 // Assert
                 Assert.False(sut.HasAttachments);
+            }
+
+            [Fact]
+            public void DisposeAllAttachments()
+            {
+                // Arrange
+                AS4Message sut =
+                    new AS4MessageBuilder().WithAttachment(new Attachment("id") {Content = new MemoryStream()}).Build();
+
+                // Act
+                sut.CloseAttachments();
+
+                // Assert
+                Assert.All(sut.Attachments, a => Assert.False(a.Content.CanSeek));
             }
         }
 
@@ -71,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequest()).Build();
 
                 // Act
-                bool isPulling = as4Message.IsPulling;
+                bool isPulling = as4Message.IsPullRequest;
 
                 // Assert
                 Assert.True(isPulling);

@@ -17,6 +17,7 @@ using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
+using Eu.EDelivery.AS4.Builders.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 {
@@ -171,7 +172,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
         protected SigningStrategyBuilder CreateBuilder()
         {
-            return new SigningStrategyBuilder(new MessagingContext(new AS4Message()), CancellationToken.None);
+            return new SigningStrategyBuilder(new MessagingContext(new AS4MessageBuilder().Build()), CancellationToken.None);
         }
     }
 }

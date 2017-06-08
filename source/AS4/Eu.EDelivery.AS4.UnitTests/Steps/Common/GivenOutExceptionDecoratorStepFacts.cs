@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 ResetStep();
                 OutMessage outMessage = CreateDefaultOutMessage(sharedId);
                 InsertOutMessage(outMessage);
-                var internalMessage = new MessagingContext(new AS4Message());
+                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
                 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);

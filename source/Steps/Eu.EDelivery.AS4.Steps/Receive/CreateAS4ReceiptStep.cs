@@ -57,9 +57,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static AS4Message CreateReceiptAS4MessageFor(MessagingContext messagingContext)
         {
             AS4Message receivedAS4Message = messagingContext.AS4Message;
+
             // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
             // If no UserMessages are present, an Empty AS4Message should be returned.
-            AS4MessageBuilder messageBuilder = new AS4MessageBuilder();
+            var messageBuilder = new AS4MessageBuilder(messagingContext.SendingPMode);
 
             foreach (var messageId in receivedAS4Message.UserMessages.Select(m => m.MessageId))
             {
