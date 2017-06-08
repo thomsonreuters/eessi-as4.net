@@ -525,6 +525,7 @@
   <ItemGroup>
     <None Include="Resources\as4-multihop-message.as4" />
     <None Include="Resources\as4_encrypted_message" />
+    <None Include="Resources\as4_flame_envelope.as4" />
     <None Include="Resources\certificate-as4.pfx" />
     <None Include="Resources\as4_single_payload.as4" />
     <None Include="Resources\holodeck-partya-certificate.pfx" />
