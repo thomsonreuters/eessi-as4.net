@@ -366,7 +366,6 @@
     <Compile Include="Receivers\Specifications\GivenExpressionDatastoreSpecificationFacts.cs" />
     <Compile Include="Receivers\Specifications\GivenSameExpressionFacts.cs" />
     <Compile Include="Receivers\Specifications\GivenTokenFacts.cs" />
-    <Compile Include="Repositories\GivenAS4MessageBodyFileRetrieverFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubXmlAttribute.cs" />

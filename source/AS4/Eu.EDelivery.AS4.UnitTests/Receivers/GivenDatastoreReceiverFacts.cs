@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -26,16 +28,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         /// </summary>
         public GivenDatastoreReceiverFacts()
         {
-            Registry.Instance.MessageBodyRetrieverProvider.Accept(s => true, new StubMessageBodyRetriever());
+            Registry.Instance.MessageBodyStore.Accept(s => true, new StubMessageBodyRetriever(() => Stream.Null));
         }
 
         [Fact]
         public void CatchesInvalidDatastoreCreation()
         {
             // Arrange
-            var receiver = new DatastoreReceiver(
-                () => { throw new SaboteurException("Sabotage datastore creation");
-                });
+            var receiver = new DatastoreReceiver(() => { throw new SaboteurException("Sabotage datastore creation"); });
 
             receiver.Configure(DummySettings());
 
@@ -45,8 +45,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private static IEnumerable<Setting> DummySettings()
         {
-            const string ignored = "ignored";
-            return CreateSettings(ignored, ignored, ignored, ignored);
+            return SettingsToPollOnOutMessages(
+                        filter: "Operation = ToBeDelivered",
+                        updates: new[] { "Operation", "Status" },
+                        values: new[] { "Sending", "Sent" });
         }
 
         [Fact]
@@ -73,6 +75,49 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     Assert.Equal(Operation.Sending, message.Operation);
                     Assert.Equal(OutStatus.Sent, message.Status);
                 });
+        }
+
+        [Fact]
+        public void ReceivesOutMessage()
+        {
+            // Arrange
+            Stream expectedStream = Stream.Null;
+            const string expectedType = Constants.ContentTypes.Soap;
+
+            ArrangeOutMessageInDatastore(Operation.ToBeDelivered, expectedStream, expectedType);
+
+            var receiver = new DatastoreReceiver(GetDataStoreContext);
+            receiver.Configure(SettingsToPollOnOutMessages(
+                        filter: "Operation = ToBeDelivered",
+                        updates: new[] { "Operation", "Status" },
+                        values: new[] { "Sending", "Sent" }));
+
+            // Act
+            ReceivedMessage actualMessage = StartReceiver(receiver);
+
+            // Assert
+            Assert.Equal(expectedStream, actualMessage.RequestStream);
+            Assert.Equal(expectedType, actualMessage.ContentType);
+        }
+
+        private void ArrangeOutMessageInDatastore(Operation operation, Stream stream, string contentType)
+        {
+            var stubRetriever = new StubMessageBodyRetriever(() => stream);
+            Registry.Instance.MessageBodyStore.Accept(s => s.Contains("test://"), stubRetriever);
+
+            using (DatastoreContext context = GetDataStoreContext())
+            {
+                context.OutMessages.Add(
+                    new OutMessage
+                    {
+                        EbmsMessageId = "message-id",
+                        Operation = operation,
+                        MessageLocation = "test://",
+                        ContentType = contentType
+                    });
+
+                context.SaveChanges();
+            }
         }
 
         private void InsertOutMessageInDatastoreWith(Operation operation, OutStatus status)
@@ -123,21 +168,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             return settings;
         }
 
-        private static void StartReceiver(IReceiver receiver)
+        private static ReceivedMessage StartReceiver(IReceiver receiver, bool isCalled = true)
         {
-            var waitHandle = new ManualResetEvent(initialState: false);
-            var cancellationSource = new CancellationTokenSource();
+            var tokenSource = new CancellationTokenSource();
+            var waitHandle = new ManualResetEvent(false);
+            ReceivedMessage receivedMessage = null;
 
-            receiver.StartReceiving(
-                (m, c) =>
+            Task.Run(() => receiver.StartReceiving(
+                (message, token) =>
                 {
                     waitHandle.Set();
-                    cancellationSource.Cancel();
-                    return Task.FromResult(new InternalMessage());
-                },
-                cancellationSource.Token);
+                    tokenSource.Cancel();
 
-            Assert.True(waitHandle.WaitOne(TimeSpan.FromSeconds(5)));
+                    receivedMessage = message;
+
+                    return Task.FromResult((MessagingContext)new EmptyMessagingContext());
+                },
+                tokenSource.Token), tokenSource.Token);
+
+            Assert.Equal(isCalled, waitHandle.WaitOne(TimeSpan.FromSeconds(1)));
+
+            tokenSource.Cancel();
+            receiver.StopReceiving();
+
+            return receivedMessage;
         }
 
         private void AssertOutMessageIf(Func<OutMessage, bool> where, Action<OutMessage> assertion)
