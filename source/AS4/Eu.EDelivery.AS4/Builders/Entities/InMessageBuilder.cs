@@ -81,7 +81,6 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
                 EbmsMessageType = DetermineMessageType(_messageUnit),
                 ContentType = _as4Message.ContentType,
-                Message = _as4Message,
                 PMode = _pmodeString,
                 MEP = _as4Message.Mep,
                 Status = InStatus.Received,
