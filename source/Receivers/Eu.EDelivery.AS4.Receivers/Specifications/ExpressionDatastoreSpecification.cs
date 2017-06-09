@@ -29,22 +29,22 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications
         /// <returns></returns>
         public Expression GetExpression()
         {
-            return x => GetExpression(x);
+            IEnumerable<Token> tokens = Token.Tokenize(_arguments.Filter);
+            return x => GetExpression(x, tokens);
         }
 
-        private IEnumerable<Entity> GetExpression(DatastoreContext datastoreContext)
+        private IEnumerable<Entity> GetExpression(DatastoreContext datastoreContext, IEnumerable<Token> tokens)
         {
             object tableProperty = datastoreContext
                .GetType()
                .GetProperty(_arguments.TableName)
                .GetValue(datastoreContext);
 
-            return GetEntities(tableProperty as IQueryable<Entity>);
+            return GetEntities(tableProperty as IQueryable<Entity>, tokens);
         }
 
-        private IEnumerable<T> GetEntities<T>(IQueryable<T> queryable)
+        private IEnumerable<T> GetEntities<T>(IQueryable<T> queryable, IEnumerable<Token> tokens)
         {
-            IEnumerable<Token> tokens = Token.Tokenize(_arguments.Filter);
             IQueryable<T> query = queryable.Where(dbSet => DatastoreExpressionParser.Evaluate(dbSet, tokens));
 
             if (_arguments.TakeRecords > 0)
