@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -19,32 +20,81 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
     /// </summary>
     public class GivenDecompressAttachmentsStepFacts
     {
-        private readonly DecompressAttachmentsStep _step;
-        private readonly InternalMessage _internalMessage;
-        private readonly string _attachmentId;
-
-        public GivenDecompressAttachmentsStepFacts()
+        /// <summary>
+        /// Testing the Step with valid arguments
+        /// </summary>
+        public class GivenValidArguments : GivenDecompressAttachmentsStepFacts
         {
-            _attachmentId = "Dummy Attachment Id";
-            _step = new DecompressAttachmentsStep();
+            [Fact]
+            public async Task ThenExecuteSucceedsWithValidAttachmentsAsync()
+            {
+                // Arrange
+                MessagingContext context = CompressedAS4Message();
 
-            var as4Message = new AS4Message();
-            AddAttachment(as4Message);
-            AddUserMessage(as4Message);
-            _internalMessage = new InternalMessage(as4Message);
+                // Act
+                StepResult stepResult = await ExerciseDecompress(context);
+
+                // Assert
+                Assert.NotNull(stepResult.MessagingContext.AS4Message.Attachments.First().Content);
+            }
+
+            [Fact]
+            public async Task ThenExecuteSucceedsWithNoCompressedAttachmentAsync()
+            {
+                // Arrange
+                MessagingContext context = CompressedAS4Message();
+                context.AS4Message.Attachments.First().ContentType = "not supported MIME type";
+
+                // Act
+                StepResult stepResult = await ExerciseDecompress(context);
+
+                // Assert
+                Assert.All(
+                    stepResult.MessagingContext.AS4Message.Attachments,
+                    a => Assert.NotEqual("application/gzip", a.ContentType));
+            }
         }
 
-        private void AddAttachment(AS4Message as4Message)
+        public class GivenInvalidArguments : GivenDecompressAttachmentsStepFacts
         {
-            Attachment attachment = CreateAttachment();
+            [Fact]
+            public async Task ThenExecuteFailsWithMissingMimTypePartPropertyAsync()
+            {
+                // Act
+                MessagingContext context = CompressedAS4Message();
+                Attachment attachment = context.AS4Message.Attachments.First();
+                attachment.Properties.Remove("MimeType");
+
+                // Assert
+                await Assert.ThrowsAsync<AS4Exception>(() => ExerciseDecompress(context));
+            }
+        }
+
+        private static MessagingContext CompressedAS4Message()
+        {
+            const string attachmentId = "attachment-id";
+
+            AS4Message as4Message =
+                new AS4MessageBuilder().WithAttachment(CompressedAttachment(attachmentId))
+                                       .WithUserMessage(UserMessageWithCompressedInfo(attachmentId))
+                                       .Build();
+
+            return new MessagingContext(as4Message);
+        }
+
+        private static Attachment CompressedAttachment(string attachmentId)
+        {
+            Attachment attachment = CreateAttachment(attachmentId);
             CompressAttachment(attachment);
             AssignAttachmentProperties(attachment);
-            as4Message.AddAttachment(attachment);
+
+            return attachment;
         }
 
-        private Attachment CreateAttachment()
+        private static Attachment CreateAttachment(string id)
         {
-            var attachment = new Attachment(_attachmentId);
+            var attachment = new Attachment(id);
+
             byte[] bytes = Encoding.UTF8.GetBytes("Dummy Attachment Content");
             attachment.Content = new MemoryStream(bytes);
 
@@ -67,80 +117,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             attachment.Properties["MimeType"] = "html/text";
         }
 
-        private void AddUserMessage(AS4Message as4Message)
+        private static UserMessage UserMessageWithCompressedInfo(string attachmentId)
         {
-            var properties = new Dictionary<string, string> {["MimeType"] = "html/text"};
-            var partInfo = new PartInfo("cid:" + _attachmentId) {Properties = properties};
-            var userMessage = new UserMessage("message-id") {PayloadInfo = new List<PartInfo> {partInfo}};
+            var properties = new Dictionary<string, string> { ["MimeType"] = "html/text" };
+            var partInfo = new PartInfo("cid:" + attachmentId) { Properties = properties };
+            var userMessage = new UserMessage("message-id") { PayloadInfo = new List<PartInfo> { partInfo } };
 
-            as4Message.UserMessages.Add(userMessage);
+            return userMessage;
         }
 
-        /// <summary>
-        /// Testing the Step with valid arguments
-        /// </summary>
-        public class GivenValidArguments : GivenDecompressAttachmentsStepFacts
+        private static async Task<StepResult> ExerciseDecompress(MessagingContext context)
         {
-            [Fact]
-            public async Task ThenExecuteSucceedsWithValidAttachmentsAsync()
-            {
-                // Arrange
-                var as4Message = new AS4Message();
-                AddAttachment(as4Message);
-                AddUserMessage(as4Message);
-                var internalMessage = new InternalMessage(as4Message);
-                var step = new DecompressAttachmentsStep();
+            var sut = new DecompressAttachmentsStep();
 
-                // Act
-                StepResult stepResult = await step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                Assert.NotNull(stepResult.InternalMessage.AS4Message.Attachments.First().Content);
-            }
-
-            [Fact]
-            public async Task ThenExecuteSucceedsWithNoCompressedAttachmentAsync()
-            {
-                // Arrange
-                var attachments = (IList<Attachment>)_internalMessage.AS4Message.Attachments;
-
-                foreach (Attachment attachment1 in attachments)
-                {
-                    attachment1.ContentType = "not supported MIME type";
-                }
-
-                // Act
-                StepResult stepResult = await _step.ExecuteAsync(_internalMessage, CancellationToken.None);
-
-                // Assert
-                Attachment attachment = GetAssertAttachment(stepResult);
-                Assert.NotEqual("application/gzip", attachment.ContentType);
-            }
-
-            private static Attachment GetAssertAttachment(StepResult stepResult)
-            {
-                var attachments = (IList<Attachment>)stepResult.InternalMessage.AS4Message.Attachments;
-                Assert.NotNull(attachments);
-                Attachment attachment = attachments[0];
-                Assert.NotNull(attachment.Content);
-
-                return attachment;
-            }
-        }
-
-        public class GivenInvalidArguments : GivenDecompressAttachmentsStepFacts
-        {
-            [Fact]
-            public async Task ThenExecuteFailsWithMissingMimTypePartPropertyAsync()
-            {
-                // Act
-                Attachment attachment = _internalMessage.AS4Message.Attachments.First();
-                attachment.Properties.Remove("MimeType");
-
-                // Assert
-                await Assert.ThrowsAsync<AS4Exception>(
-                    () => _step.ExecuteAsync(_internalMessage, CancellationToken.None));
-            }
+            // Act
+            return await sut.ExecuteAsync(context, CancellationToken.None);
         }
     }
 }

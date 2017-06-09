@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -32,28 +33,45 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         }
 
         /// <summary>
-        /// Execute the step for a given <paramref name="internalMessage"/>.
+        /// Execute the step for a given <paramref name="messagingContext"/>.
         /// </summary>
-        /// <param name="internalMessage">Message used during the step execution.</param>
+        /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            internalMessage.DeliverMessage = CreateDeliverMessageEnvelope(internalMessage.AS4Message);
-            return StepResult.SuccessAsync(internalMessage);
+            bool includeAttachments = true;
+
+            var collaborationInfo = messagingContext.ReceivingPMode.MessagePackaging?.CollaborationInfo;
+
+            if (collaborationInfo != null &&
+                (collaborationInfo.Action?.Equals("ACT_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false) &&
+                (collaborationInfo.Service?.Value?.Equals("SRV_SIMPLE_ONEWAY_SIZE", StringComparison.OrdinalIgnoreCase) ?? false))
+            {
+                includeAttachments = false;
+            }
+
+            DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext, includeAttachments);
+            MessagingContext deliverContext = messagingContext.CloneWith(deliverMessage);
+
+            return StepResult.SuccessAsync(deliverContext);
         }
 
-        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(AS4Message as4Message)
+        private DeliverMessageEnvelope CreateDeliverMessageEnvelope(MessagingContext context, bool includeAttachments)
         {
+            AS4Message as4Message = context.AS4Message;
             UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
             // The Minder Deliver Message should be an AS4-Message.
-            var builder = new AS4MessageBuilder();
+            var builder = new AS4MessageBuilder(context.SendingPMode);
             builder.WithUserMessage(deliverMessage);
 
-            foreach (Attachment attachment in as4Message.Attachments)
+            if (includeAttachments)
             {
-                builder.WithAttachment(attachment);
+                foreach (Attachment attachment in as4Message.Attachments)
+                {
+                    builder.WithAttachment(attachment);
+                }
             }
 
             AS4Message msg = builder.Build();

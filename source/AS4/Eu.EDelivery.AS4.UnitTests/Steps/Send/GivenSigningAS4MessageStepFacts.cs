@@ -1,14 +1,18 @@
-﻿using System.Threading;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
-using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
-using Moq;
+using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
@@ -17,73 +21,125 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     /// </summary>
     public class GivenSigningAS4MessageStepFacts
     {
-        private readonly SignAS4MessageStep _step;
-        private AS4Message _message;
-
-        public GivenSigningAS4MessageStepFacts()
+        [Fact]
+        public async Task DoesntSignMessage_IfAS4MessageIsEmpty()
         {
-            var mockedContext = new Mock<IConfig>();
-            CreateAS4Message();
+            // Arrange
+            MessagingContext context = AS4MessageContext(new AS4MessageBuilder().Build(), pmode: null);
 
-            _step = new SignAS4MessageStep(new CertificateRepository(mockedContext.Object));
+            // Act
+            StepResult stepResult = await ExerciseSigning(context);
+
+            // Assert
+            AssertNotSignedSecurityHeader(stepResult);
         }
 
-        private void CreateAS4Message()
+        [Fact]
+        public async Task DoesntSignMessage_IfPModeIsNotSetForSigning()
         {
-            _message = new AS4Message
+            // Arrange
+            MessagingContext context = AS4MessageContext(AS4UserMessageWithAttachment(), PModeWithoutSigningSettings());
+
+            // Act
+            StepResult stepResult = await ExerciseSigning(context);
+
+            // Assert
+            AssertNotSignedSecurityHeader(stepResult);
+        }
+
+        private static SendingProcessingMode PModeWithoutSigningSettings()
+        {
+            return new SendingProcessingMode {Security = {Signing = {IsEnabled = false}}};
+        }
+
+        private static void AssertNotSignedSecurityHeader(StepResult result)
+        {
+            SecurityHeader securityHeader = result.MessagingContext.AS4Message.SecurityHeader;
+
+            Assert.False(securityHeader.IsSigned);
+            Assert.False(securityHeader.IsEncrypted);
+        }
+
+        [Fact]
+        public async Task FailToSignMessage_IfCertificateHasntRightKeySet()
+        {
+            // Arrange
+            var certWithoutPrivateKey = new X509Certificate2(AccessPointA, access_point_a_password, X509KeyStorageFlags.Exportable);
+
+            SendingProcessingMode pmode = PModeWithSigningSettings();
+            pmode.Security.Signing.PrivateKeyFindValue = "AccessPointA";
+
+            MessagingContext context = AS4MessageContext(AS4UserMessageWithAttachment(), pmode);
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(() => ExerciseSigning(context, certWithoutPrivateKey));
+        }
+
+        [Fact]
+        public async Task SignMessage_IfPModeIsSetForSigning()
+        {
+            // Arrange
+            MessagingContext context = AS4MessageContext(AS4UserMessageWithAttachment(), PModeWithSigningSettings());
+
+            // Act
+            StepResult result = await ExerciseSigning(context);
+
+            // Assert
+            SecurityHeader securityHeader = result.MessagingContext.AS4Message.SecurityHeader;
+
+            Assert.True(securityHeader.IsSigned);
+        }
+
+        private static AS4Message AS4UserMessageWithAttachment()
+        {
+            return new AS4MessageBuilder().WithUserMessage(new FilledUserMessage())
+                                       .WithAttachment(new FilledAttachment())
+                                       .Build();
+        }
+
+        private static SendingProcessingMode PModeWithSigningSettings()
+        {
+            return new SendingProcessingMode
             {
-                SendingPMode =
-                    new SendingProcessingMode {Security = new AS4.Model.PMode.Security {Signing = new Signing()}}
+                Security =
+                {
+                    Signing =
+                    {
+                        IsEnabled = true,
+                        KeyReferenceMethod = X509ReferenceType.BSTReference,
+                        PrivateKeyFindValue = "PartyA",
+                        PrivateKeyFindType = X509FindType.FindBySubjectName,
+                        Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+                        HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256"
+                    }
+                }
             };
         }
 
-        /// <summary>
-        /// Testing if the SigningTransmitter succeeds for the "Execute" Method
-        /// </summary>
-        public class GivenValidArgumentsExecute : GivenSigningAS4MessageStepFacts
+        private static MessagingContext AS4MessageContext(AS4Message as4Message, SendingProcessingMode pmode)
         {
-            [Fact]
-            public async Task ThenMessageDontGetSignedWhenItsDisabledAsync()
-            {
-                // Arrange
-                _message.SendingPMode.Security.Signing.IsEnabled = false;
-                var internalMessage = new InternalMessage(_message);
-
-                // Act
-                StepResult stepResult = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                SecurityHeader securityHeader = stepResult.InternalMessage.AS4Message.SecurityHeader;
-                Assert.NotNull(securityHeader);
-                Assert.False(securityHeader.IsSigned);
-                Assert.False(securityHeader.IsEncrypted);
-            }
+            return new MessagingContext(as4Message) {SendingPMode = pmode};
         }
 
-        /// <summary>
-        /// Testing if the SigningTransmitter fails
-        /// </summary>
-        public class GivenSigningStepFails : GivenSigningAS4MessageStepFacts
+        private static async Task<StepResult> ExerciseSigning(MessagingContext context)
         {
-            [Fact]
-            public void ThenConfigureTransmitterFails()
-            {
-                // Arrange
+            return await ExerciseSigning(context, r => { });
+        }
 
-                // Act
+        private static async Task<StepResult> ExerciseSigning(MessagingContext context, X509Certificate2 certificate)
+        {
+            return await ExerciseSigning(context, r => r.CertificateStore.Add(certificate));
+        }
 
-                // Assert
-            }
+        private static async Task<StepResult> ExerciseSigning(
+            MessagingContext context,
+            Action<StubCertificateRepository> updateStore)
+        {
+            var stub = new StubCertificateRepository();
+            updateStore(stub);
 
-            [Fact]
-            public void ThenTransmitMessageFails()
-            {
-                // Arrange
-
-                // Act
-
-                // Assert
-            }
+            var sut = new SignAS4MessageStep(stub);
+            return await sut.ExecuteAsync(context, CancellationToken.None);
         }
     }
 }

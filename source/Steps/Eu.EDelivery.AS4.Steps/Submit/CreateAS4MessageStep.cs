@@ -2,12 +2,15 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Strategies.Retriever;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -17,73 +20,125 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// </summary>
     public class CreateAS4MessageStep : IStep
     {
-        private readonly ILogger _logger;
-        private readonly AS4MessageBuilder _builder;
-        private InternalMessage _internalMessage;
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+        private readonly IPayloadRetrieverProvider _payloadProvider;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class
+        /// Initializes a new instance of the <see cref="CreateAS4MessageStep"/> class.
         /// </summary>
-        public CreateAS4MessageStep()
+        public CreateAS4MessageStep() : this(Registry.Instance.PayloadRetrieverProvider) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateAS4MessageStep" /> class.
+        /// </summary>
+        /// <param name="payloadPayloadProvider">The payload provider.</param>
+        public CreateAS4MessageStep(IPayloadRetrieverProvider payloadPayloadProvider)
         {
-            _logger = LogManager.GetCurrentClassLogger();
-            _builder = new AS4MessageBuilder();
+            _payloadProvider = payloadPayloadProvider;
         }
 
         /// <summary>
         /// Start Mapping from a <see cref="SubmitMessage"/> 
         /// to an <see cref="AS4Message"/>
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Thrown when creating an <see cref="AS4Message"/> Fails (Mapping, Building...)</exception>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        {
+            AS4Message as4Message = CreateAS4Message(messagingContext);
+
+            await RetrieveAttachmentsForAS4Message(as4Message, messagingContext);
+
+            return StepResult.Success(messagingContext.CloneWith(as4Message));
+        }
+
+        private static AS4Message CreateAS4Message(MessagingContext messagingContext)
         {
             try
             {
-                _internalMessage = internalMessage;
-                _internalMessage.AS4Message = CreateAS4Message();
-
-                return await StepResult.SuccessAsync(internalMessage);
+                return CreateAS4MessageFromSubmit(messagingContext);
             }
             catch (Exception exception)
             {
-                throw ThrowNewAS4Exception(exception);
+                throw UnableToCreateAS4Message(exception, messagingContext);
             }
         }
 
-        private AS4Exception ThrowNewAS4Exception(Exception innerException)
+        private static AS4Exception UnableToCreateAS4Message(Exception innerException, MessagingContext messagingContext)
         {
             string generatedMessageId = IdentifierFactory.Instance.Create();
             string description = $"[generated: {generatedMessageId}] Unable to Create AS4 Message from Submit Message";
-            _logger.Error(description);
+            Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
-                .WithSendingPMode(_internalMessage.AS4Message.SendingPMode)
+                .WithSendingPMode(messagingContext?.SendingPMode)
                 .WithMessageIds(generatedMessageId)
                 .WithInnerException(innerException)
                 .Build();
         }
 
-        private AS4Message CreateAS4Message()
+        private static AS4Message CreateAS4MessageFromSubmit(MessagingContext messagingContext)
         {
-            UserMessage userMessage = CreateUserMessage();
-            _logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
+            UserMessage userMessage = CreateUserMessage(messagingContext);
+            Logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
 
-            return _builder
-                .BreakDown()
-                .WithSendingPMode(_internalMessage.SubmitMessage.PMode)
+            return new AS4MessageBuilder(messagingContext.SendingPMode)
                 .WithUserMessage(userMessage)
                 .Build();
         }
 
-        private UserMessage CreateUserMessage()
+        private static UserMessage CreateUserMessage(MessagingContext messagingContext)
         {
-            _logger.Debug("Map Submit Message to UserMessage");
+            Logger.Debug("Map Submit Message to UserMessage");
             
-            return AS4Mapper.Map<UserMessage>(_internalMessage.SubmitMessage);
+            return AS4Mapper.Map<UserMessage>(messagingContext.SubmitMessage);
+        }
+
+        private async Task RetrieveAttachmentsForAS4Message(AS4Message as4Message, MessagingContext context)
+        {
+            try
+            {
+                if (context.SubmitMessage.HasPayloads)
+                {
+                    Logger.Info($"{context.Prefix} Retrieve Submit Message Payloads");
+
+                    await as4Message.AddAttachments(
+                        context.SubmitMessage.Payloads,
+                        async payload => await RetrieveAttachmentContent(payload));
+
+                    Logger.Info($"{context.Prefix} Number of Payloads retrieved: {as4Message.Attachments.Count}");
+                }
+                else
+                {
+                    Logger.Info($"{context.Prefix} Submit Message has no Payloads to retrieve");
+                }
+            }
+            catch (Exception exception)
+            {
+                throw FailedToRetrievePayloads(exception, context, as4Message);
+            }
+        }
+
+        private async Task<System.IO.Stream> RetrieveAttachmentContent(Payload payload)
+        {
+            return await _payloadProvider.Get(payload).RetrievePayloadAsync(payload.Location);
+        }
+
+        private static AS4Exception FailedToRetrievePayloads(Exception exception, MessagingContext messagingContext, AS4Message as4Message)
+        {
+            string description = $"{messagingContext.Prefix} Failed to retrieve Submit Message Payloads";
+            Logger.Error(description);
+            Logger.Error($"{messagingContext.Prefix} {exception.Message}");
+
+            return AS4ExceptionBuilder
+                .WithDescription(description)
+                .WithInnerException(exception)
+                .WithMessageIds(as4Message.MessageIds)
+                .WithSendingPMode(messagingContext.SendingPMode)
+                .Build();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Modules;
@@ -62,6 +63,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
         public class TestRunAtStartup : IRunAtServicesStartup
         {
+            [ExcludeFromCodeCoverage]
             public void Run(IServiceCollection services, IConfigurationRoot configuration)
             {
                 throw new System.NotImplementedException();

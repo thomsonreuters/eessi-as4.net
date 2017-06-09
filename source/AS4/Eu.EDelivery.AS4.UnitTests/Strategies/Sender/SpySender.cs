@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Strategies.Sender;
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
 {
@@ -14,6 +16,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// Gets a value indicating whether the <see cref="SpySender"/> is called for configuration.
         /// </summary>
         public bool IsConfigured { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is delivered.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is delivered; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDelivered { get; private set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is notified.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is notified; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsNotified { get; set; }
 
         /// <summary>
         /// Configure the <see cref="IDeliverSender"/>
@@ -31,7 +49,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// <param name="deliverMessage"></param>
         public Task SendAsync(DeliverMessageEnvelope deliverMessage)
         {
-            throw new System.NotImplementedException();
+            IsDelivered = true;
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -40,7 +59,47 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         /// <param name="notifyMessage"></param>
         public Task SendAsync(NotifyMessageEnvelope notifyMessage)
         {
-            throw new System.NotImplementedException();
+            IsNotified = true;
+            return Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task TestIsDelivered()
+        {
+            // Arrange
+            var sut = new SpySender();
+
+            // Act
+            await sut.SendAsync(new DeliverMessageEnvelope(null, null, null));
+
+            // Assert
+            Assert.True(sut.IsDelivered);
+        }
+
+        [Fact]
+        public async Task TestIsNotified()
+        {
+            // Arrange
+            var sut = new SpySender();
+
+            // Act
+            await sut.SendAsync(new NotifyMessageEnvelope(null, default(Status), null, null));
+
+            // Assert
+            Assert.True(sut.IsNotified);
+        }
+
+        [Fact]
+        public void SpyOnConfigure()
+        {
+            // Arrange
+            var sut = new SpySender();
+
+            // Act
+            sut.Configure(method: null);
+
+            // Assert
+            Assert.True(sut.IsConfigured);
         }
     }
 }

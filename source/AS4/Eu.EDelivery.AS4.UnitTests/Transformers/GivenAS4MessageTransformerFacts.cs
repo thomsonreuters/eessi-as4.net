@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -40,12 +41,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);
 
                 // Act
-                InternalMessage internalMessage = await Transform(receivedMessage);
+                MessagingContext messagingContext = await Transform(receivedMessage);
 
                 // Assert
-                Assert.NotNull(internalMessage);
-                Assert.NotNull(internalMessage.AS4Message);
+                Assert.NotNull(messagingContext);
+                Assert.NotNull(messagingContext.AS4Message);
             }
+            
         }
 
         /// <summary>
@@ -55,11 +57,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         public class GivenInvalidArgumentsToTransfrormer : GivenAS4MessageTransformerFacts
         {
             [Fact]
+            public void FailsToCreateTransformer_IfInvalidProvider()
+            {
+                // Act / Assert
+                Assert.ThrowsAny<Exception>(() => new AS4MessageTransformer(provider: null));
+            }
+
+            [Fact]
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {
                 // Arrange
                 AS4Message as4Message = CreateAS4MessageWithoutAttachments();
-                as4Message.UserMessages = new[] {new UserMessage("message-id")};
+                as4Message.UserMessages = new[] { new UserMessage("message-id") };
                 MemoryStream memoryStream = as4Message.ToStream();
 
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
@@ -89,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             private async Task VerifyIfTheTranformReturnsErrorMessage(ReceivedMessage saboteurMessage)
             {
                 // Act
-                InternalMessage actualMessage = await Transform(saboteurMessage);
+                MessagingContext actualMessage = await Transform(saboteurMessage);
 
                 // Assert
                 Assert.IsType<Error>(actualMessage.AS4Message.PrimarySignalMessage);
@@ -115,9 +124,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             };
 
             AS4Message as4Message =
-                new AS4MessageBuilder().WithSendingPMode(new SendingProcessingMode())
-                                       .WithUserMessage(userMessage)
+                new AS4MessageBuilder().WithUserMessage(userMessage)
                                        .Build();
+
             as4Message.ContentType = Constants.ContentTypes.Soap;
 
             return as4Message;
@@ -125,7 +134,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
         private static Attachment CreateAttachment()
         {
-            var attachment = new Attachment("attachment-id") {Content = new MemoryStream(), ContentType = "application/xml"};
+            var attachment = new Attachment("attachment-id") { Content = new MemoryStream(), ContentType = "application/xml" };
 
             var xmlSerializer = new XmlSerializer(typeof(string));
             xmlSerializer.Serialize(attachment.Content, "<?xml version=\"1.0\"?><Root></Root>");
@@ -134,10 +143,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             return attachment;
         }
 
-        protected async Task<InternalMessage> Transform(ReceivedMessage message)
+        protected async Task<MessagingContext> Transform(ReceivedMessage message)
         {
             var transformer = new AS4MessageTransformer(Registry.Instance.SerializerProvider);
             return await transformer.TransformAsync(message, CancellationToken.None);
-        } 
+        }
     }
 }

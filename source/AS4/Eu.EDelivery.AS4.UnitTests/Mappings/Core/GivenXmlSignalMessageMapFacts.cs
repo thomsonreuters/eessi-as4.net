@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
                 Assert.Equal(receipt.MessageInfo.RefToMessageId, result.RefToMessageId);
                 Assert.Equal(receipt.MessageInfo.Timestamp, result.Timestamp);
             }
-
+            
             private static SignalMessage GetReceiptXmlSignalMessage()
             {
                 return new SignalMessage

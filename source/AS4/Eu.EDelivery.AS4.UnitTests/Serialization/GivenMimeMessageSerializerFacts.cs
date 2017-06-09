@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Serialization
 {
@@ -15,46 +16,66 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
     /// </summary>
     public class GivenMimeMessageSerializerFacts
     {
-        private const string ContentType =
+        private const string AnonymousContentType =
             "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
-        private readonly MimeMessageSerializer _serializer;
-
-        public GivenMimeMessageSerializerFacts()
+        protected async Task<AS4Message> ExerciseMimeDeserialize(Stream stream, string contentType)
         {
-            _serializer = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+            // Arrange
+            var sut = new MimeMessageSerializer(new SoapEnvelopeSerializer());
+
+            // Act
+            return await sut.DeserializeAsync(stream, contentType, CancellationToken.None);
         }
 
-        /// <summary>
-        /// Testing if the Mime Serializer Succeeds
-        /// </summary>
         public class GivenMimeMessageSerializerSucceeds : GivenMimeMessageSerializerFacts
         {
             [Fact]
-            public async Task ThenAttachmentContentTypeIsNotNullAsync()
+            public async Task DeserializeMultiHopSignalMessage()
             {
-                using (Stream messageStream = SerializeAnonymousMessage())
+                // Arrange
+                const string contentType =
+                    "multipart/related; boundary=\"=-M/sMGEhQK8RBNg/21Nf7Ig==\";\ttype=\"application/soap+xml\"";
+                string messageString = Encoding.UTF8.GetString(as4_multihop_message).Replace((char)0x1F, ' ');
+                byte[] messageContent = Encoding.UTF8.GetBytes(messageString);
+
+                using (var messageStream = new MemoryStream(messageContent))
                 {
                     // Act
-                    AS4Message as4Message = await _serializer.DeserializeAsync(messageStream, ContentType, CancellationToken.None);
+                    AS4Message actualMessage = await ExerciseMimeDeserialize(messageStream, contentType);
 
                     // Assert
-                    Assert.NotNull(as4Message);
-                    Assert.Equal(2, as4Message.Attachments.Count);
+                    Assert.True(actualMessage.IsSignalMessage);
                 }
+            }
+
+            [Fact]
+            public async Task ThenAttachmentContentTypeIsNotNullAsync()
+            {
+                // Act
+                AS4Message as4Message = await ExerciseMimeDeserializeAnonymousUserMessage();
+
+                // Assert
+                Assert.NotNull(as4Message);
+                Assert.Equal(2, as4Message.Attachments.Count);
             }
 
             [Fact]
             public async Task ThenDeserializeAS4MessageSucceedsForContentTypeAsync()
             {
+                // Act
+                AS4Message as4Message = await ExerciseMimeDeserializeAnonymousUserMessage();
+
+                // Assert
+                Assert.NotEqual(AnonymousContentType, as4Message.ContentType);
+                Assert.Contains(Constants.ContentTypes.Mime, as4Message.ContentType);
+            }
+
+            private async Task<AS4Message> ExerciseMimeDeserializeAnonymousUserMessage()
+            {
                 using (Stream messageStream = SerializeAnonymousMessage())
                 {
-                    // Act
-                    AS4Message as4Message = await _serializer.DeserializeAsync(messageStream, ContentType, CancellationToken.None);
-
-                    // Assert
-                    Assert.NotEqual(ContentType, as4Message.ContentType);
-                    Assert.Contains(Constants.ContentTypes.Mime, as4Message.ContentType);
+                    return await ExerciseMimeDeserialize(messageStream, AnonymousContentType);
                 }
             }
 
@@ -65,9 +86,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 {
                     // Arrange
                     AS4Message as4Message = CreateAnonymousMessage();
+                    var sut = new MimeMessageSerializer(new SoapEnvelopeSerializer());
 
                     // Act
-                    _serializer.Serialize(as4Message, messageStream, CancellationToken.None);
+                    sut.Serialize(as4Message, messageStream, CancellationToken.None);
 
                     // Assert
                     Assert.True(messageStream.CanRead);
@@ -102,10 +124,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             }
         }
 
-        /// <summary>
-        /// Testing if the Mime Serializer fails
-        /// with invalid arguments
-        /// </summary>
         public class GivenMimeMessageSerializerFails : GivenMimeMessageSerializerFacts
         {
             [Fact]
@@ -113,17 +131,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             {
                 using (Stream messageStream = SerializeAnonymousMessage())
                 {
+                    const string notCompleteContentType = Constants.ContentTypes.Mime;
+
                     // Act / Assert
                     await Assert.ThrowsAsync<AS4Exception>(
-                        () => _serializer.DeserializeAsync(messageStream, Constants.ContentTypes.Mime, CancellationToken.None));
+                        () => ExerciseMimeDeserialize(messageStream, notCompleteContentType));
                 }
-               
             }
         }
 
         private static Stream SerializeAnonymousMessage()
         {
-            return new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.as4message));
+            return new MemoryStream(Encoding.UTF8.GetBytes(as4message));
         }
     }
 }

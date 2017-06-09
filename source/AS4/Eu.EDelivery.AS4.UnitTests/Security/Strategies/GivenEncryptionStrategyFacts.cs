@@ -101,22 +101,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedMessageAsync();
-                KeyEncryption keyTransport = as4Message.SendingPMode.Security.Encryption.KeyTransport;
-                keyTransport.KeySize = -1;
+                var pmode = new SendingProcessingMode {Security = {Encryption = {AlgorithmKeySize = -1}}};
 
-                EncryptionStrategy sut = EncryptionStrategyFor(as4Message, keyTransport);
+                EncryptionStrategy sut = EncryptionStrategyFor(as4Message, pmode);
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => sut.EncryptMessage());
             }
 
-            private static EncryptionStrategy EncryptionStrategyFor(AS4Message as4Message, KeyEncryption keyTransport)
+            private static EncryptionStrategy EncryptionStrategyFor(AS4Message as4Message, SendingProcessingMode pmode)
             {
-                var keyEncryptConfig = new KeyEncryptionConfiguration(tokenReference: null, keyEncryption: keyTransport);
+                AS4.Model.PMode.Encryption encryption = pmode.Security.Encryption;
+                var dataEncryptConfig = new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize);
 
                 return EncryptionStrategyBuilder
                     .Create(as4Message.EnvelopeDocument)
-                    .WithKeyEncryptionConfiguration(keyEncryptConfig)
+                    .WithDataEncryptionConfiguration(dataEncryptConfig)
                     .Build();
             }
         }

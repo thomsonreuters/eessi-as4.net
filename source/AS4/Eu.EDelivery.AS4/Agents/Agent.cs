@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
@@ -139,7 +138,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 Logger.Error($"An AS4 Exception occured: {exception.Message}");
 
-                var internalMessage = new InternalMessage { Exception = exception };
+                var internalMessage = new MessagingContext(exception);
 
                 IStep step = CreateSteps();
 
@@ -163,37 +162,37 @@ namespace Eu.EDelivery.AS4.Agents
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
-        protected virtual async Task<InternalMessage> OnReceived(
+        protected virtual async Task<MessagingContext> OnReceived(
             ReceivedMessage message,
             CancellationToken cancellationToken)
         {
             Logger.Debug($"{AgentConfig.Name} received and starts handling message.");
 
-            InternalMessage internalMessage = await TryTransformAsync(message, cancellationToken).ConfigureAwait(false);
+            MessagingContext messagingContext = await TryTransformAsync(message, cancellationToken).ConfigureAwait(false);
 
-            if (internalMessage == null)
+            if (messagingContext == null)
             {
                 Logger.Error("Could not transform the received message.");
                 return null;
             }
 
-            if (internalMessage.Exception != null)
+            if (messagingContext.Exception != null)
             {
                 // TODO: when Transforming a received message fails, we should log this in
                 // an exception table.
-                return internalMessage;
+                return messagingContext;
             }
 
             IStep step = CreateSteps();
 
-            StepResult result = await step.ExecuteAsync(internalMessage, cancellationToken).ConfigureAwait(false);
+            StepResult result = await step.ExecuteAsync(messagingContext, cancellationToken).ConfigureAwait(false);
 
-            LogIfStepResultFailed(result, message);
+            LogIfStepResultFailed(result);
 
-            return result.InternalMessage;
+            return result.MessagingContext;
         }
 
-        private async Task<InternalMessage> TryTransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        private async Task<MessagingContext> TryTransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             try
             {
@@ -203,7 +202,7 @@ namespace Eu.EDelivery.AS4.Agents
             catch (AS4Exception exception)
             {
                 Logger.Error(exception.Message);
-                return new InternalMessage(exception);
+                return new MessagingContext(exception);
             }
             catch (Exception exception)
             {
@@ -227,11 +226,12 @@ namespace Eu.EDelivery.AS4.Agents
             throw new InvalidOperationException("There is no StepConfiguration provided.");
         }
 
-        private void LogIfStepResultFailed(StepResult result, ReceivedMessage message)
+        private void LogIfStepResultFailed(StepResult result)
         {
             if (result.Exception != null)
             {
                 Logger.Warn($"Executing {AgentConfig.Name} Step failed: {result.Exception.Message}");
+                Logger.Trace(result.Exception.StackTrace);
 
                 if (result.Exception.InnerException != null)
                 {

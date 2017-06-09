@@ -18,31 +18,31 @@ namespace Eu.EDelivery.AS4.Steps.Send
     public class CompressAttachmentsStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        private InternalMessage _internalMessage;
+        private MessagingContext _messagingContext;
 
         /// <summary>
         /// Compress the <see cref="AS4Message" /> if required
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (!internalMessage.AS4Message.SendingPMode.MessagePackaging.UseAS4Compression)
+            if (!messagingContext.SendingPMode.MessagePackaging.UseAS4Compression)
             {
-                return await ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(messagingContext);
             }
 
-            _internalMessage = internalMessage;
-            await TryCompressAS4MessageAsync(internalMessage.AS4Message.Attachments).ConfigureAwait(false);
+            _messagingContext = messagingContext;
+            await TryCompressAS4MessageAsync(messagingContext.AS4Message.Attachments).ConfigureAwait(false);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private static async Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
+        private static async Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
         {
-            Logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Compression is disabled");
-            return await StepResult.SuccessAsync(internalMessage);
+            Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Compression is disabled");
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private async Task TryCompressAS4MessageAsync(IEnumerable<Attachment> attachments)
@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             try
             {
                 Logger.Info(
-                    $"{_internalMessage.Prefix} Compress AS4 Message Attachments with GZip Compression");
+                    $"{_messagingContext.Prefix} Compress AS4 Message Attachments with GZip Compression");
                 await CompressAttachments(attachments);
             }
             catch (SystemException exception)
@@ -70,7 +70,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task CompressAttachmentAsync(Attachment attachment)
         {
-            var outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
+            VirtualStream outputStream =
+                VirtualStream.CreateVirtualStream(
+                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
 
             using (var gzipCompression = new GZipStream(outputStream, CompressionMode.Compress, leaveOpen: true))
             {
@@ -90,14 +92,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private AS4Exception ThrowAS4CompressingException(Exception innerException)
         {
-            string description = $"{_internalMessage.Prefix} Attachments cannot be compressed";
+            string description = $"{_messagingContext.Prefix} Attachments cannot be compressed";
             Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
-                .WithMessageIds(_internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(_internalMessage.AS4Message.SendingPMode)
+                .WithMessageIds(_messagingContext.AS4Message.MessageIds)
+                .WithSendingPMode(_messagingContext.SendingPMode)
                 .Build();
         }
     }

@@ -61,6 +61,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pz4cZK4SULUwmraZa.
+        /// </summary>
+        internal static string access_point_a_password {
+            get {
+                return ResourceManager.GetString("access_point_a_password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] AccessPointA {
+            get {
+                object obj = ResourceManager.GetObject("AccessPointA", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&apos;1.0&apos; encoding=&apos;UTF-8&apos;?&gt;
         ///&lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot;&gt;
         ///  &lt;soapenv:Header&gt;
@@ -79,6 +98,38 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
             get {
                 object obj = ResourceManager.GetObject("as4_encrypted_message", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] as4_flame_envelope {
+            get {
+                object obj = ResourceManager.GetObject("as4_flame_envelope", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] as4_multihop_message {
+            get {
+                object obj = ResourceManager.GetObject("as4_multihop_message", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;s:Envelope  xmlns:s=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;
+        ///  &lt;s:Header&gt;
+        ///    &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;
+        ///      &lt;BinarySecurityToken EncodingType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary&quot; ValueType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3&quot; d2p1:Id=&quot;cert-01f912c0-3326-4a1d- [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string as4_pullrequest_warning {
+            get {
+                return ResourceManager.GetString("as4_pullrequest_warning", resourceCulture);
             }
         }
         
@@ -232,6 +283,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
             get {
                 object obj = ResourceManager.GetObject("holodeck_partyc_certificate", resourceCulture);
                 return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;&lt;xenc:EncryptedKey xmlns:xenc=&quot;http://www.w3.org/2001/04/xmlenc#&quot; Id=&quot;G45568c58-1592-4878-af95-9f33baa6562f&quot;&gt;&lt;xenc:EncryptionMethod Algorithm=&quot;http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p&quot; /&gt;&lt;dsig:KeyInfo xmlns:dsig=&quot;http://www.w3.org/2000/09/xmldsig#&quot;&gt;&lt;wsse:SecurityTokenReference xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; wsu:Id=&quot;Gf4c3121b-7241 [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ibm_security_header {
+            get {
+                return ResourceManager.GetString("ibm_security_header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;wsa:To s12:role=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/nextmsh&quot; xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/part2/200811/icloud&lt;/wsa:To&gt;&lt;wsa:Action xmlns:wsa=&quot;http://www.w3.org/2005/08/addressing&quot;&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay.receipt&lt;/wsa:Action&gt;&lt;RoutingInput xmlns:wsu=&quot;http [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string multihopreceipt {
+            get {
+                return ResourceManager.GetString("multihopreceipt", resourceCulture);
             }
         }
         

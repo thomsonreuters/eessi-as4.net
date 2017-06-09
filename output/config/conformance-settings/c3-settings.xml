@@ -1,4 +1,5 @@
-  <!-- Sample Global Settings File -->
+  
+<!-- Sample Global Settings File -->
 <Settings 
   xmlns="eu:edelivery:as4">
   <!-- Format of the message ID -->
@@ -28,7 +29,7 @@
         <Setting key="Update" field="Operation">Sending</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
@@ -48,7 +49,7 @@
       <Transformer type="Eu.EDelivery.AS4.Transformers.DeliverMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Deliver.UploadAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-        <Step type="Eu.EDelivery.AS4.Steps.Deliver.MinderTestCreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" >
+        <Step type="Eu.EDelivery.AS4.Steps.Deliver.MinderTestCreateDeliverEnvelopeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
           <Setting key="Uri">http://www.esens.eu/as4/conformancetest</Setting>
         </Step>
         <Step type="Eu.EDelivery.AS4.Steps.Deliver.SendDeliverMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -63,7 +64,7 @@
 	<Setting key="PollingInterval">2000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">        
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       </Steps>
@@ -76,7 +77,7 @@
 	<Setting key="PollingInterval">2000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">        
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       </Steps>
@@ -89,7 +90,7 @@
 	<Setting key="PollingInterval">3000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">        
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.InExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       </Steps>
@@ -102,7 +103,7 @@
 	<Setting key="PollingInterval">3000</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">        
+      <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       </Steps>
@@ -119,12 +120,11 @@
         <Step type="Eu.EDelivery.AS4.Steps.ReceptionAwareness.ReceptionAwarenessUpdateDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       </Steps>
     </ReceptionAwarenessAgent>
-
     <!-- For ConformanceTesting using Minder, setup 2 instances of the consolehost application and enable only one minder-agent at each corner. -->
-    <MinderSubmitReceiveAgent Enabled="false" Url="http://*:8080/as4-net-c2/">
+    <MinderSubmitReceiveAgent Enabled="false" UseLogging="false" Url="http://*:8080/as4-net-c2/">
       <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingSubmitReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     </MinderSubmitReceiveAgent>
-    <MinderSubmitReceiveAgent Enabled="true" Url="http://*:9090/as4-net-c3/">
+    <MinderSubmitReceiveAgent Enabled="true" UseLogging="false" Url="http://*:9090/as4-net-c3/">
       <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingSubmitReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     </MinderSubmitReceiveAgent>
   </Agents>

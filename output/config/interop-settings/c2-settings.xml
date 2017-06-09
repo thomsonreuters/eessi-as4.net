@@ -31,7 +31,6 @@
       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-        <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrievePayloadsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
       </Steps>
 	</SubmitAgent>
@@ -43,7 +42,6 @@
       <Steps decorator="Eu.EDelivery.AS4.Steps.Common.OutExceptionStepDecorator, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrieveSendingPModeStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Submit.CreateAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-        <Step type="Eu.EDelivery.AS4.Steps.Submit.RetrievePayloadsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Submit.StoreAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
       </Steps>
 	</SubmitAgent>
@@ -154,10 +152,10 @@
     </ReceptionAwarenessAgent>
 
     <!-- For testing using Minder, setup 2 instances of the consolehost application and enable only one minder-agent at each corner. -->
-    <MinderSubmitReceiveAgent Enabled="true" Url="http://interas4.westeurope.cloudapp.azure.com:8080/as4-net-c2/">
+    <MinderSubmitReceiveAgent Enabled="true" UseLogging="false" Url="http://interas4.westeurope.cloudapp.azure.com:8080/as4-net-c2/">
       <Transformer type="Eu.EDelivery.AS4.Transformers.InteropTestTransformers.InteropTestingSubmitReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     </MinderSubmitReceiveAgent>
-    <MinderSubmitReceiveAgent Enabled="false" Url="http://interas4.westeurope.cloudapp.azure.com:9090/as4-net-c3/">
+    <MinderSubmitReceiveAgent Enabled="false" UseLogging="false" Url="http://interas4.westeurope.cloudapp.azure.com:9090/as4-net-c3/">
       <Transformer type="Eu.EDelivery.AS4.Transformers.InteropTestTransformers.InteropTestingSubmitReceiveMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
     </MinderSubmitReceiveAgent>
   </Agents>

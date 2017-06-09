@@ -632,10 +632,7 @@ namespace Eu.EDelivery.AS4.Xml
             {
                 this.valueField = value;
             }
-        }
-
-        [XmlAttribute("type")]
-        public string Type { get; set; }
+        }       
     }
 
     /// <remarks/>

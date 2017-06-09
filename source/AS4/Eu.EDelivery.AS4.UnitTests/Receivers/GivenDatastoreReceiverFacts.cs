@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -9,7 +9,9 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
+using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
@@ -25,6 +27,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         public GivenDatastoreReceiverFacts()
         {
             Registry.Instance.MessageBodyRetrieverProvider.Accept(s => true, new StubMessageBodyRetriever());
+        }
+
+        [Fact]
+        public void CatchesInvalidDatastoreCreation()
+        {
+            // Arrange
+            var receiver = new DatastoreReceiver(
+                () => { throw new SaboteurException("Sabotage datastore creation");
+                });
+
+            receiver.Configure(DummySettings());
+
+            // Act / Assert
+            StartReceiver(receiver, isCalled: false);
+        }
+
+        private static IEnumerable<Setting> DummySettings()
+        {
+            const string ignored = "ignored";
+            return CreateSettings(ignored, ignored, ignored, ignored);
         }
 
         [Fact]

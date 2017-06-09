@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Encryption;
 using Eu.EDelivery.AS4.Security.References;
@@ -25,7 +26,9 @@ namespace Eu.EDelivery.AS4.Builders.Security
         private KeyEncryptionConfiguration _keyConfiguration =
             new KeyEncryptionConfiguration(new BinarySecurityTokenReference(), KeyEncryption.Default);
 
-        private DataEncryptionConfiguration _dataConfiguration = new DataEncryptionConfiguration(Encryption.Default.Algorithm);
+        private DataEncryptionConfiguration _dataConfiguration = new DataEncryptionConfiguration(
+            Encryption.Default.Algorithm,
+            Encryption.Default.AlgorithmKeySize);
 
         private EncryptionStrategyBuilder(XmlDocument soapEnvelope)
         {
@@ -42,28 +45,40 @@ namespace Eu.EDelivery.AS4.Builders.Security
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="as4Message"/>
+        /// Initializes a new instance of the <see cref="EncryptionStrategyBuilder"/> class for the specified <paramref name="message"/>
         /// </summary>
-        /// <param name="as4Message"></param>
-        public static EncryptionStrategyBuilder Create(AS4Message as4Message)
+        /// <param name="message"></param>
+        public static EncryptionStrategyBuilder Create(MessagingContext message)
         {
+            AS4Message as4Message = message.AS4Message;
+
             if (as4Message == null)
             {
                 throw new ArgumentNullException(nameof(as4Message));
             }
 
             XmlDocument soapEnvelope = as4Message.EnvelopeDocument
-               ?? AS4XmlSerializer.ToDocument(as4Message, default(CancellationToken));
+               ?? AS4XmlSerializer.ToDocument(message, default(CancellationToken));
 
             return new EncryptionStrategyBuilder(soapEnvelope);
         }
 
+        /// <summary>
+        /// With the key encryption configuration.
+        /// </summary>
+        /// <param name="keyEncryptionConfig">The key encryption configuration.</param>
+        /// <returns></returns>
         public EncryptionStrategyBuilder WithKeyEncryptionConfiguration(KeyEncryptionConfiguration keyEncryptionConfig)
         {
             _keyConfiguration = keyEncryptionConfig;
             return this;
         }
 
+        /// <summary>
+        /// With the data encryption configuration.
+        /// </summary>
+        /// <param name="dataEncryptionConfig">The data encryption configuration.</param>
+        /// <returns></returns>
         public EncryptionStrategyBuilder WithDataEncryptionConfiguration(
             DataEncryptionConfiguration dataEncryptionConfig)
         {
@@ -71,6 +86,11 @@ namespace Eu.EDelivery.AS4.Builders.Security
             return this;
         }
 
+        /// <summary>
+        /// Withes the certificate.
+        /// </summary>
+        /// <param name="certificate">The certificate.</param>
+        /// <returns></returns>
         public EncryptionStrategyBuilder WithCertificate(X509Certificate2 certificate)
         {
             _certificate = certificate;

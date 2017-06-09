@@ -2,10 +2,14 @@
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
@@ -27,6 +31,51 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
+        public class Attachments
+        {
+            [Fact]
+            public async Task ThenAddAttachmentSucceeds()
+            {
+                // Arrange
+                var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
+                AS4Message sut = new AS4MessageBuilder().Build();
+
+                // Act
+                await sut.AddAttachments(submitMessage.Payloads, async payload => await Task.FromResult(Stream.Null));
+
+                // Assert
+                Assert.NotNull(sut.Attachments);
+                Assert.Equal(Stream.Null, sut.Attachments.First().Content);
+            }
+
+            [Fact]
+            public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
+            {
+                // Arrange
+                AS4Message sut = new AS4MessageBuilder().Build();
+
+                // Act
+                await sut.AddAttachments(new Payload[0],  async payload => await Task.FromResult(Stream.Null));
+
+                // Assert
+                Assert.False(sut.HasAttachments);
+            }
+
+            [Fact]
+            public void DisposeAllAttachments()
+            {
+                // Arrange
+                AS4Message sut =
+                    new AS4MessageBuilder().WithAttachment(new Attachment("id") {Content = new MemoryStream()}).Build();
+
+                // Act
+                sut.CloseAttachments();
+
+                // Assert
+                Assert.All(sut.Attachments, a => Assert.False(a.Content.CanSeek));
+            }
+        }
+
         public class IsPulling
         {
             [Fact]
@@ -36,7 +85,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequest()).Build();
 
                 // Act
-                bool isPulling = as4Message.IsPulling;
+                bool isPulling = as4Message.IsPullRequest;
 
                 // Assert
                 Assert.True(isPulling);

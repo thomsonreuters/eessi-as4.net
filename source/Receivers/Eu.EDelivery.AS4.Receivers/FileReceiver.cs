@@ -14,7 +14,7 @@ using Eu.EDelivery.AS4.Security;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
-        System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.InternalMessage>>;
+        System.Threading.Tasks.Task<Eu.EDelivery.AS4.Model.Internal.MessagingContext>>;
 
 namespace Eu.EDelivery.AS4.Receivers
 {
@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 if (result.success)
                 {
-                    InternalMessage internalMessage = null;
+                    MessagingContext messagingContext = null;
 
                     try
                     {
@@ -135,14 +135,14 @@ namespace Eu.EDelivery.AS4.Receivers
                         {
                             fileStream.Seek(0, SeekOrigin.Begin);
                             var receivedMessage = new ReceivedMessage(fileStream, contentType);
-                            internalMessage = await messageCallback(receivedMessage, token).ConfigureAwait(false);
+                            messagingContext = await messageCallback(receivedMessage, token).ConfigureAwait(false);
                         }
 
-                        await NotifyReceivedFile(fileInfo, internalMessage).ConfigureAwait(false);
+                        await NotifyReceivedFile(fileInfo, messagingContext).ConfigureAwait(false);
                     }
                     finally
                     {
-                        internalMessage?.Dispose();
+                        messagingContext?.Dispose();
                     }
                 }
             }
@@ -153,11 +153,11 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private async Task NotifyReceivedFile(FileInfo fileInfo, InternalMessage internalMessage)
+        private async Task NotifyReceivedFile(FileInfo fileInfo, MessagingContext messagingContext)
         {
-            if (internalMessage.Exception != null)
+            if (messagingContext.Exception != null)
             {
-                await HandleException(fileInfo, internalMessage.Exception);
+                await HandleException(fileInfo, messagingContext.Exception);
             }
             else
             {

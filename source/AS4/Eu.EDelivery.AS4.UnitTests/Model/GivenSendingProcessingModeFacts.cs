@@ -19,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void KeySizeIsDefault_IfNotDefined()
             {
                 // Assert
-                Assert.Equal(256, DefaultEmptyPMode.Security.Encryption.KeyTransport.KeySize);
+                Assert.Equal(Encryption.Default.AlgorithmKeySize, DefaultEmptyPMode.Security.Encryption.AlgorithmKeySize);
             }
 
             [Fact]

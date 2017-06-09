@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -29,10 +30,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             public async Task ThenStepWillNotZipSingleAttachment()
             {
                 // Arrange
-                var as4Message = new AS4Message();
                 const string contentType = "image/png";
-                as4Message.AddAttachment(new Attachment("attachment-id") {ContentType = contentType});
-                var internalMessage = new InternalMessage(as4Message);
+                var internalMessage =
+                    new MessagingContext(
+                        new AS4MessageBuilder().WithAttachment(
+                            new Attachment("attachment-id") {ContentType = contentType}).Build());
 
                 // Act
                 await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -45,9 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             public async Task ThenStepWillZipMultipleAttachments()
             {
                 // Arrange
-                var as4Message = new AS4Message();
-                var internalMessage = new InternalMessage(as4Message);
-                AddAttachments(as4Message);
+                var internalMessage = new MessagingContext(AS4MessageWithTwoAttachments());
 
                 // Act
                 await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -58,14 +58,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 Assert.Equal("application/zip", attachments.First().ContentType);
             }
 
-            private static void AddAttachments(AS4Message as4Message)
+            private static AS4Message AS4MessageWithTwoAttachments()
             {
-                var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes("Plain Dummy Text"));
-                const string contentType = "text/plain";
-                as4Message.AddAttachment(
-                    new Attachment("attachment-id") { Content = memoryStream, ContentType = contentType });
-                as4Message.AddAttachment(
-                    new Attachment("attachment-id") { Content = memoryStream, ContentType = contentType });
+                var attachment = new Attachment("attachment-id")
+                {
+                    Content = new MemoryStream(Encoding.UTF8.GetBytes("Plain Dummy Text")),
+                    ContentType = "text/plain"
+                };
+
+                return new AS4MessageBuilder().WithAttachment(attachment).WithAttachment(attachment).Build();
             }
         }
     }

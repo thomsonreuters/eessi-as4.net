@@ -19,24 +19,18 @@ namespace Eu.EDelivery.AS4.Security
                 int dwLogonType,
                 int dwLogonProvider,
                 out IntPtr phToken);
-
-            [DllImport("advapi32.DLL")]
-            public static extern bool ImpersonateLoggedOnUser(IntPtr hToken); //handle to token for logged-on user 
-
-            [DllImport("advapi32.DLL")]
-            public static extern bool RevertToSelf();
         }
 
         public static object Impersonate(string user, string password)
         {
             string domain = "";
-            // ReSharper disable once StringIndexOfIsCultureSpecific.1
-            if (user.IndexOf(@"\") > 0)
+
+            int domainSeparatorPosition = user.IndexOf(@"\", StringComparison.OrdinalIgnoreCase);
+
+            if (domainSeparatorPosition > 0)
             {
-                // ReSharper disable once StringIndexOfIsCultureSpecific.1
-                domain = user.Substring(0, user.IndexOf(@"\"));
-                // ReSharper disable once StringIndexOfIsCultureSpecific.1
-                user = user.Substring(user.IndexOf(@"\") + 1);
+                domain = user.Substring(0, domainSeparatorPosition);
+                user = user.Substring(domainSeparatorPosition + 1);
             }
 
             IntPtr securityToken;

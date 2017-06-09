@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         {
             _encryptedDatas.Clear();
 
-            byte[] encryptionKey = GenerateSymmetricKey(_keyEncryptionConfig.KeySize);
+            byte[] encryptionKey = GenerateSymmetricKey(_dataEncryptionConfig.AlgorithmKeySize);
             AS4EncryptedKey as4EncryptedKey = GetEncryptedKey(encryptionKey, _certificate, _keyEncryptionConfig);
 
             using (SymmetricAlgorithm encryptionAlgorithm =
@@ -185,27 +185,24 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                                .Build();
         }
 
-        private void EncryptAttachmentsWithAlgorithm(AS4EncryptedKey encryptedKey, SymmetricAlgorithm encryptionAlgorithm)
+        private void EncryptAttachmentsWithAlgorithm(
+            AS4EncryptedKey encryptedKey,
+            SymmetricAlgorithm encryptionAlgorithm)
         {
             foreach (Attachment attachment in _attachments)
             {
-                EncryptedData encryptedData = EncryptAttachmentContents(attachment, encryptedKey, encryptionAlgorithm);
+                attachment.Content = EncryptData(attachment.Content, encryptionAlgorithm);
+                EncryptedData encryptedData = CreateEncryptedDataForAttachment(attachment, encryptedKey);
 
                 _encryptedDatas.Add(encryptedData);
+
                 encryptedKey.AddDataReference(encryptedData.Id);
+                attachment.ContentType = "application/octet-stream";
             }
         }
 
-        private EncryptedData EncryptAttachmentContents(
-            Attachment attachment,
-            AS4EncryptedKey encryptedKey,
-            SymmetricAlgorithm algorithm)
+        private EncryptedData CreateEncryptedDataForAttachment(Attachment attachment, AS4EncryptedKey encryptedKey)
         {
-            Stream encryptedStream = EncryptData(attachment.Content, algorithm); 
-
-            attachment.Content = encryptedStream;
-            attachment.ContentType = "application/octet-stream";
-
             return new EncryptedDataBuilder()
                 .WithDataEncryptionConfiguration(_dataEncryptionConfig)
                 .WithMimeType(attachment.ContentType)
@@ -439,7 +436,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             return decryptedStream;
         }
 
-        private VirtualStream CreateVirtualStreamOf(Stream innerStream)
+        private static VirtualStream CreateVirtualStreamOf(Stream innerStream)
         {
             return VirtualStream.CreateVirtualStream(
                     expectedSize: innerStream.CanSeek ? innerStream.Length : VirtualStream.ThresholdMax);

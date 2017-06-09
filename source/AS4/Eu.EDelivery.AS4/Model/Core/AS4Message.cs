@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Streaming;
 using MimeKit;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -19,10 +20,13 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public class AS4Message : IMessage
     {
+        private bool? _hasMultiHopAttribute;
+        private bool _serializeAsMultiHop;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="AS4Message"/> class.
+        /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
         /// </summary>
-        internal AS4Message()
+        private AS4Message()
         {
             ContentType = "application/soap+xml";
             SigningId = new SigningId();
@@ -30,59 +34,54 @@ namespace Eu.EDelivery.AS4.Model.Core
             Attachments = new List<Attachment>();
             SignalMessages = new List<SignalMessage>();
             UserMessages = new List<UserMessage>();
-
-            SendingPMode = new SendingProcessingMode();
-            ReceivingPMode = new ReceivingProcessingMode();
         }
 
-        // Standard Properties
         public string ContentType { get; set; }
 
         public XmlDocument EnvelopeDocument { get; set; }
 
-        // PModes
-        public SendingProcessingMode SendingPMode { get; set; }
-
-        private ReceivingProcessingMode _receivingPMode;
-
-        public ReceivingProcessingMode ReceivingPMode
+        /// <summary>
+        /// Gets a value indicating whether or not this AS4 Message is a MultiHop message.
+        /// </summary>
+        public bool IsMultiHopMessage
         {
-            get { return _receivingPMode; }
-            set
+            get
             {
-                if (_receivingPMode != value)
+                if (IsUserMessage && _hasMultiHopAttribute.HasValue == false)
                 {
-                    _receivingPMode = value;
-                    _receivingPModeString = null;
+                    _hasMultiHopAttribute = IsMultiHopAttributePresent();
                 }
+
+                return (_hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop || NeedsToBeMultiHop;
             }
         }
 
-        private string _receivingPModeString;
-
-        public string GetReceivingPModeString()
+        private bool? IsMultiHopAttributePresent()
         {
-            if (String.IsNullOrWhiteSpace(_receivingPModeString))
+            var messagingNode =
+                EnvelopeDocument?.SelectSingleNode(
+                    "/*[local-name()='Envelope']/*[local-name()='Header']/*[local-name()='Messaging']") as XmlElement;
+
+            if (messagingNode == null)
             {
-                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
+                return null;
             }
-            return _receivingPModeString;
-            ;
+
+            string role = messagingNode.GetAttribute("role", Constants.Namespaces.Soap12);
+
+            return !string.IsNullOrWhiteSpace(role) && role.Equals(Constants.Namespaces.EbmsNextMsh);
         }
 
-        // AS4 Message
         public ICollection<UserMessage> UserMessages { get; internal set; }
 
         public ICollection<SignalMessage> SignalMessages { get; internal set; }
 
         public ICollection<Attachment> Attachments { get; internal set; }
 
-        // Security Properties
         public SigningId SigningId { get; set; }
 
         public SecurityHeader SecurityHeader { get; set; }
 
-        // Exposed extra info
         public string[] MessageIds
             => UserMessages.Select(m => m.MessageId).Concat(SignalMessages.Select(m => m.MessageId)).ToArray();
 
@@ -102,22 +101,52 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsEmpty => PrimarySignalMessage == null && PrimaryUserMessage == null;
 
-        public bool IsPulling => PrimarySignalMessage is PullRequest;
+        public bool IsPullRequest => PrimarySignalMessage is PullRequest;
 
-        public string GetPrimaryMessageId()
+        public MessageExchangePattern Mep { get; set; }
+
+        public bool NeedsToBeMultiHop { get; internal set; }
+
+        /// <summary>
+        /// Create message with SOAP envelope.
+        /// </summary>
+        /// <param name="soapEnvelope">The SOAP envelope.</param>
+        /// <param name="contentType">Type of the content.</param>
+        /// <returns></returns>
+        public static AS4Message ForSoapEnvelope(XmlDocument soapEnvelope, string contentType)
         {
-            if (IsUserMessage)
-            {
-                return PrimaryUserMessage.MessageId;
-            }
-            return PrimarySignalMessage?.MessageId;
+            return new AS4Message {EnvelopeDocument = soapEnvelope, ContentType = contentType};
         }
 
+        /// <summary>
+        /// Fors the sending p mode.
+        /// </summary>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4Message ForSendingPMode(PMode.SendingProcessingMode pmode)
+        {
+            return new AS4Message {_serializeAsMultiHop = pmode?.MessagePackaging?.IsMultiHop == true};
+        }
+
+        /// <summary>
+        /// Gets the primary message identifier.
+        /// </summary>
+        /// <returns></returns>
+        public string GetPrimaryMessageId()
+        {
+            return IsUserMessage ? PrimaryUserMessage.MessageId : PrimarySignalMessage?.MessageId;
+        }
+
+        /// <summary>
+        /// Determines the size of the message.
+        /// </summary>
+        /// <param name="provider">The provider.</param>
+        /// <returns></returns>
         public long DetermineMessageSize(ISerializerProvider provider)
         {
             ISerializer serializer = provider.Get(this.ContentType);
 
-            using (DetermineSizeStream stream = new DetermineSizeStream())
+            using (var stream = new DetermineSizeStream())
             {
                 serializer.Serialize(this, stream, CancellationToken.None);
 
@@ -149,6 +178,9 @@ namespace Eu.EDelivery.AS4.Model.Core
             ContentType = contentTypeString.Replace("Content-Type: ", string.Empty);
         }
 
+        /// <summary>
+        /// Closes the attachments.
+        /// </summary>
         public void CloseAttachments()
         {
             foreach (Attachment attachment in Attachments)
@@ -157,42 +189,48 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
         }
 
+        /// <summary>
+        /// Adds the attachments.
+        /// </summary>
+        /// <param name="payloads">The payloads.</param>
+        /// <param name="retrieval">The retrieval.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+        public async Task AddAttachments(IReadOnlyList<Payload> payloads, Func<Payload, Task<Stream>> retrieval)
+        {
+            foreach (Payload payload in payloads)
+            {
+                Attachment attachment = CreateAttachmentFromPayload(payload);
+                attachment.Content = await retrieval(payload).ConfigureAwait(false);
+                AddAttachment(attachment);
+            }
+        }
+
+        private static Attachment CreateAttachmentFromPayload(Payload payload)
+        {
+            return new Attachment(payload.Id) { ContentType = payload.MimeType, Location = payload.Location };
+        }
+
         #region Inner DetermineSizeStream class.
 
         private sealed class DetermineSizeStream : Stream
         {
+            private long _length;
+
             /// <summary>When overridden in a derived class, writes a sequence of bytes to the current stream and advances the current position within this stream by the number of bytes written.</summary>
             /// <param name="buffer">An array of bytes. This method copies <paramref name="count" /> bytes from <paramref name="buffer" /> to the current stream. </param>
             /// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin copying bytes to the current stream. </param>
             /// <param name="count">The number of bytes to be written to the current stream. </param>
-            /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is greater than the buffer length.</exception>
-            /// <exception cref="T:System.ArgumentNullException">
-            /// <paramref name="buffer" />  is null.</exception>
-            /// <exception cref="T:System.ArgumentOutOfRangeException">
-            /// <paramref name="offset" /> or <paramref name="count" /> is negative.</exception>
-            /// <exception cref="T:System.IO.IOException">An I/O error occured, such as the specified file cannot be found.</exception>
-            /// <exception cref="T:System.NotSupportedException">The stream does not support writing.</exception>
-            /// <exception cref="T:System.ObjectDisposedException">
-            /// <see cref="M:System.IO.Stream.Write(System.Byte[],System.Int32,System.Int32)" /> was called after the stream was closed.</exception>
             public override void Write(byte[] buffer, int offset, int count)
             {
                 _length += count;
             }
 
-            private long _length = 0;
-
-
             /// <summary>When overridden in a derived class, gets the length in bytes of the stream.</summary>
             /// <returns>A long value representing the length of the stream in bytes.</returns>
-            /// <exception cref="T:System.NotSupportedException">A class derived from Stream does not support seeking. </exception>
-            /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
-            public override long Length
-            {
-                get { return _length; }
-            }
+            public override long Length => _length;
 
             /// <summary>When overridden in a derived class, clears all buffers for this stream and causes any buffered data to be written to the underlying device.</summary>
-            /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
             public override void Flush()
             {
                 // Do Nothing
@@ -202,19 +240,16 @@ namespace Eu.EDelivery.AS4.Model.Core
             /// <returns>The new position within the current stream.</returns>
             /// <param name="offset">A byte offset relative to the <paramref name="origin" /> parameter. </param>
             /// <param name="origin">A value of type <see cref="T:System.IO.SeekOrigin" /> indicating the reference point used to obtain the new position. </param>
-            /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-            /// <exception cref="T:System.NotSupportedException">The stream does not support seeking, such as if the stream is constructed from a pipe or console output. </exception>
-            /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
             public override long Seek(long offset, SeekOrigin origin)
             {
                 return -1;
             }
 
-            /// <summary>When overridden in a derived class, sets the length of the current stream.</summary>
-            /// <param name="value">The desired length of the current stream in bytes. </param>
-            /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-            /// <exception cref="T:System.NotSupportedException">The stream does not support both writing and seeking, such as if the stream is constructed from a pipe or console output. </exception>
-            /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
+            /// <summary>
+            /// When overridden in a derived class, sets the length of the current stream.
+            /// </summary>
+            /// <param name="value">The desired length of the current stream in bytes.</param>
+            /// <exception cref="InvalidOperationException"></exception>
             public override void SetLength(long value)
             {
                 throw new InvalidOperationException();
@@ -225,14 +260,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             /// <param name="buffer">An array of bytes. When this method returns, the buffer contains the specified byte array with the values between <paramref name="offset" /> and (<paramref name="offset" /> + <paramref name="count" /> - 1) replaced by the bytes read from the current source. </param>
             /// <param name="offset">The zero-based byte offset in <paramref name="buffer" /> at which to begin storing the data read from the current stream. </param>
             /// <param name="count">The maximum number of bytes to be read from the current stream. </param>
-            /// <exception cref="T:System.ArgumentException">The sum of <paramref name="offset" /> and <paramref name="count" /> is larger than the buffer length. </exception>
-            /// <exception cref="T:System.ArgumentNullException">
-            /// <paramref name="buffer" /> is null. </exception>
-            /// <exception cref="T:System.ArgumentOutOfRangeException">
-            /// <paramref name="offset" /> or <paramref name="count" /> is negative. </exception>
-            /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
             /// <exception cref="T:System.NotSupportedException">The stream does not support reading. </exception>
-            /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
             public override int Read(byte[] buffer, int offset, int count)
             {
                 throw new NotSupportedException();
@@ -252,9 +280,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
             /// <summary>When overridden in a derived class, gets or sets the position within the current stream.</summary>
             /// <returns>The current position within the stream.</returns>
-            /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
-            /// <exception cref="T:System.NotSupportedException">The stream does not support seeking. </exception>
-            /// <exception cref="T:System.ObjectDisposedException">Methods were called after the stream was closed. </exception>
             public override long Position { get; set; }
         }
 

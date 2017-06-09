@@ -6,8 +6,10 @@ using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Xml;
 using NLog;
+using NonRepudiationInformation = Eu.EDelivery.AS4.Model.Core.NonRepudiationInformation;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
@@ -17,120 +19,105 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class CreateAS4ReceiptStep : IStep
     {
-        private readonly ILogger _logger;
-
-        private InternalMessage _internalMessage;
-        private AS4Message _originalAS4Message;
-        private ReceivingProcessingMode _receivePMode;
-        private SendingProcessingMode _sendPMode;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateAS4ReceiptStep"/> class
-        /// </summary>
-        public CreateAS4ReceiptStep()
-        {
-            this._logger = LogManager.GetCurrentClassLogger();
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// It is only executed when the external message (received) is an AS4 UserMessage
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="AS4Exception">Throws exception when AS4 Receipt cannot be created</exception>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            InitializeFields(internalMessage);
-            TryCreateAS4ReceiptMessage(internalMessage);
+            AS4Message receiptMessage = TryCreateAS4ReceiptMessage(messagingContext);
 
-            return await StepResult.SuccessAsync(this._internalMessage);
+            var message = new MessagingContext(receiptMessage)
+            {
+                SendingPMode = messagingContext.SendingPMode,
+                ReceivingPMode = messagingContext.ReceivingPMode
+            };
+
+            return await StepResult.SuccessAsync(message);
         }
 
-        private void InitializeFields(InternalMessage internalMessage)
-        {
-            this._internalMessage = internalMessage;
-            this._originalAS4Message = internalMessage.AS4Message;
-            this._receivePMode = this._originalAS4Message.ReceivingPMode;
-            this._sendPMode = this._originalAS4Message.SendingPMode;
-        }
-
-        private void TryCreateAS4ReceiptMessage(InternalMessage internalMessage)
+        private static AS4Message TryCreateAS4ReceiptMessage(MessagingContext messagingContext)
         {
             try
             {
-                AS4Message receiptMessage = CreateReceiptAS4Message();
+                AS4Message receiptMessage = CreateReceiptAS4MessageFor(messagingContext);
 
-                AssignPModesToReceiptAS4Message(receiptMessage);
-                this._internalMessage = new InternalMessage(receiptMessage);
+                return receiptMessage;
             }
             catch (AS4Exception exception)
             {
-                this._internalMessage = internalMessage;
-                throw ThrowCommonAS4Exception(exception);
+                throw ThrowCommonAS4Exception(exception, messagingContext);
             }
         }
 
-        private void AssignPModesToReceiptAS4Message(AS4Message receiptMessage)
+        private static AS4Message CreateReceiptAS4MessageFor(MessagingContext messagingContext)
         {
-            receiptMessage.ReceivingPMode = this._receivePMode;
-            receiptMessage.SendingPMode = this._sendPMode;
-        }
+            AS4Message receivedAS4Message = messagingContext.AS4Message;
 
-        private AS4Message CreateReceiptAS4Message()
-        {
             // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
             // If no UserMessages are present, an Empty AS4Message should be returned.
-            AS4MessageBuilder messageBuilder = new AS4MessageBuilder();
+            var messageBuilder = new AS4MessageBuilder(messagingContext.SendingPMode);
 
-            foreach (var messageId in _originalAS4Message.UserMessages.Select(m => m.MessageId))
+            foreach (var messageId in receivedAS4Message.UserMessages.Select(m => m.MessageId))
             {
                 var receipt = new Receipt { RefToMessageId = messageId };
-                AdaptReceiptMessage(receipt);
+                AdaptReceiptMessage(receipt, messagingContext);
 
                 messageBuilder.WithSignalMessage(receipt);
             }
 
             var receiptMessage = messageBuilder.Build();
 
-            receiptMessage.SigningId = _originalAS4Message.SigningId;
+            receiptMessage.SigningId = receivedAS4Message.SigningId;
 
             return receiptMessage;
         }
 
-        private void AdaptReceiptMessage(Receipt receipt)
+        private static void AdaptReceiptMessage(Receipt receipt, MessagingContext messagingContext)
         {
-            if (this._receivePMode?.ReceiptHandling.UseNNRFormat == true)
+            AS4Message receivedAS4Message = messagingContext.AS4Message;
+            if (messagingContext.ReceivingPMode?.ReceiptHandling.UseNNRFormat == true)
             {
-                this._logger.Debug(
-                    $"{this._internalMessage.Prefix} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
-                receipt.NonRepudiationInformation = CreateNonRepudiationInformation();
+                Logger.Debug(
+                    $"{receivedAS4Message.GetPrimaryMessageId()} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");
+                receipt.NonRepudiationInformation = GetNonRepudiationInformationFrom(receivedAS4Message);
+            }
+            else
+            {
+                receipt.UserMessage = receivedAS4Message.PrimaryUserMessage;
             }
 
-            // If the receipt should not contain NonRepudiationInformation, or the 
-            // Receipt is a Receipt on a MultihopMessage, then we'll need the original
-            // UserMessage.
-            if (_sendPMode.MessagePackaging.IsMultiHop)
+            // If the Receipt is a Receipt on a MultihopMessage, then we'll need to add some routing-info.
+            if (receivedAS4Message.IsMultiHopMessage)
             {
-                receipt.RelatedUserMessage = this._originalAS4Message.PrimaryUserMessage;
+                Logger.Debug("The received UserMessage has been sent via MultiHop.  Send Receipt as MultiHop as well.");
+
+                receipt.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(receivedAS4Message.PrimaryUserMessage);
             }
         }
 
-        private NonRepudiationInformation CreateNonRepudiationInformation()
+        private static NonRepudiationInformation GetNonRepudiationInformationFrom(AS4Message receivedAS4Message)
         {
-            ArrayList references = this._originalAS4Message.SecurityHeader.GetReferences();
+            ArrayList references = receivedAS4Message.SecurityHeader.GetReferences();
 
             return new NonRepudiationInformationBuilder()
                 .WithSignedReferences(references).Build();
         }
 
-        private AS4Exception ThrowCommonAS4Exception(AS4Exception exception)
+        private static AS4Exception ThrowCommonAS4Exception(AS4Exception exception, MessagingContext messagingContext)
         {
+            AS4Message as4Message = messagingContext.AS4Message;
+
             return AS4ExceptionBuilder
                 .WithDescription("An error occured while receiving a message.")
                 .WithExistingAS4Exception(exception)
-                .WithPModeString(this._internalMessage.ReceivingPModeString)
-                .WithMessageIds(this._internalMessage.AS4Message.MessageIds)
-                .WithReceivingPMode(this._internalMessage.AS4Message.ReceivingPMode)
+                .WithPModeString(messagingContext.GetReceivingPModeString())
+                .WithMessageIds(as4Message.MessageIds)
+                .WithReceivingPMode(messagingContext.ReceivingPMode)
                 .Build();
         }
     }

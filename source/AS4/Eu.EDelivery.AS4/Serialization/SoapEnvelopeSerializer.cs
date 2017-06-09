@@ -13,7 +13,6 @@ using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Resources;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Singletons;
@@ -83,7 +82,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static Messaging CreateMessagingHeader(AS4Message message)
         {
-            var messagingHeader = new Messaging { SecurityId = message.SigningId.HeaderSecurityId };
+            var messagingHeader = new Messaging {SecurityId = message.SigningId.HeaderSecurityId};
 
             if (message.IsSignalMessage)
             {
@@ -94,7 +93,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 messagingHeader.UserMessage = AS4Mapper.Map<Xml.UserMessage[]>(message.UserMessages);
             }
 
-            if (IsMultiHop(message.SendingPMode))
+            if (message.IsMultiHopMessage)
             {
                 messagingHeader.role = Constants.Namespaces.EbmsNextMsh;
                 messagingHeader.mustUnderstand1 = true;
@@ -104,46 +103,37 @@ namespace Eu.EDelivery.AS4.Serialization
             return messagingHeader;
         }
 
-        private static bool IsMultiHop(SendingProcessingMode pmode)
-        {
-            return pmode?.MessagePackaging.IsMultiHop == true;
-        }
-
         private static XmlNode GetSecurityHeader(AS4Message message)
         {
-            if (message.SecurityHeader.IsSigned == false && message.SecurityHeader.IsEncrypted == false)
+            if (message.SecurityHeader.IsSigned || message.SecurityHeader.IsEncrypted)
             {
-                return null;
+                return message.SecurityHeader?.GetXml();
             }
 
-            return message.SecurityHeader?.GetXml();
+            return null;
         }
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
         {
-            // TODO: i'd like to see this refactored.
-            // AS4Message could have a property 'IsMultihop', and based on that, the
-            // correct multihop-headers could be set.
-
-            // If the AS4Message is a signalmessage, check if the related usermessage
-            // was a multihop.
-            if (!IsMultiHop(as4Message.SendingPMode) || !as4Message.IsSignalMessage)
+            if (as4Message.IsSignalMessage && as4Message.PrimarySignalMessage.MultiHopRouting != null)
             {
-                return;
+                var to = new To {Role = Constants.Namespaces.EbmsNextMsh};
+                builder.SetToHeader(to);
+
+                string actionValue = as4Message.PrimarySignalMessage.GetActionValue();
+                builder.SetActionHeader(actionValue);
+
+                var routingInput = new RoutingInput
+                {
+                    UserMessage = as4Message.PrimarySignalMessage.MultiHopRouting,
+                    mustUnderstand = false,
+                    mustUnderstandSpecified = true,
+                    IsReferenceParameter = true,
+                    IsReferenceParameterSpecified = true
+                };
+
+                builder.SetRoutingInput(routingInput);
             }
-
-            var to = new To { Role = Constants.Namespaces.EbmsNextMsh };
-            builder.SetToHeader(to);
-
-            string actionValue = as4Message.PrimarySignalMessage.GetActionValue();
-            builder.SetActionHeader(actionValue);
-
-            var routingInput = new RoutingInput
-            {
-                UserMessage = AS4Mapper.Map<RoutingInputUserMessage>(as4Message.PrimarySignalMessage.RelatedUserMessage)
-            };
-
-            builder.SetRoutingInput(routingInput);
         }
 
         private static void WriteSoapEnvelopeTo(XmlNode soapEnvelopeDocument, Stream stream)
@@ -172,19 +162,32 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 XmlDocument envelopeDocument = LoadXmlDocument(stream);
 
-                // FRGH
-                // [Conformance Testing]
-                // Temporarely disabled.
+                // Sometimes throws 'The 'http://www.w3.org/XML/1998/namespace:lang' attribute is not declared.'
                 // ValidateEnvelopeDocument(envelopeDocument);
+
                 stream.Position = 0;
 
-                var as4Message = new AS4Message { ContentType = contentType, EnvelopeDocument = envelopeDocument };
+                AS4Message as4Message = AS4Message.ForSoapEnvelope(envelopeDocument, contentType);
 
                 using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
                 {
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
                         DeserializeEnvelope(envelopeDocument, as4Message, reader);
+                    }
+                }
+
+                XmlNode routingInput = envelopeDocument.SelectSingleNode(@"//*[local-name()='RoutingInput']");
+
+                if (routingInput != null)
+                {
+                    var routing = AS4XmlSerializer.FromString<RoutingInput>(routingInput.OuterXml);
+                    if (routing != null)
+                    {
+                        if (as4Message.PrimarySignalMessage != null)
+                        {
+                            as4Message.PrimarySignalMessage.MultiHopRouting = routing.UserMessage;
+                        }
                     }
                 }
 
@@ -312,7 +315,10 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void DeserializeMessagingHeader(XmlReader reader, AS4Message as4Message)
         {
-            if (!IsReadersNameMessaging(reader))
+            bool isReadersNameMessaging = StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Messaging")
+                                          && IsReadersNamespace(reader) && reader.IsStartElement();
+
+            if (!isReadersNameMessaging)
             {
                 return;
             }
@@ -322,9 +328,6 @@ namespace Eu.EDelivery.AS4.Serialization
             as4Message.UserMessages = GetUserMessagesFromHeader(messagingHeader);
             as4Message.SigningId.HeaderSecurityId = messagingHeader.SecurityId;
         }
-
-        private static bool IsReadersNameMessaging(XmlReader reader)
-            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Messaging") && IsReadersNamespace(reader) && reader.IsStartElement();
 
         private static List<SignalMessage> GetSignalMessagesFromHeader(Messaging messagingHeader)
         {
@@ -343,7 +346,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return messages;
         }
 
-        private static void AddSignalMessageToList(List<SignalMessage> signalMessages, Xml.SignalMessage signalMessage)
+        private static void AddSignalMessageToList(ICollection<SignalMessage> signalMessages, Xml.SignalMessage signalMessage)
         {
             if (signalMessage.Error != null)
             {
@@ -361,16 +364,9 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static List<UserMessage> GetUserMessagesFromHeader(Messaging header)
+        private static ICollection<UserMessage> GetUserMessagesFromHeader(Messaging header)
         {
-            if (header.UserMessage == null)
-            {
-                return new List<UserMessage>();
-            }
-
-            IEnumerable<UserMessage> messages = TryMapUserMessages(header);
-
-            return messages.ToList();
+            return header.UserMessage == null ? new List<UserMessage>() : TryMapUserMessages(header).ToList();
         }
 
         private static IEnumerable<UserMessage> TryMapUserMessages(Messaging header)
@@ -387,17 +383,15 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static void DeserializeBody(XmlReader reader, AS4Message as4Message)
         {
-            if (!IsReadersNameBody(reader))
+            bool isReadersNameBody = StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Body")
+                                     && IsReadersNamespace(reader) && reader.IsStartElement();
+
+            if (isReadersNameBody)
             {
-                return;
+                var body = AS4XmlSerializer.FromReader<Body>(reader);
+                as4Message.SigningId.BodySecurityId = GetBodySecurityId(body);
             }
-
-            var body = AS4XmlSerializer.FromReader<Body>(reader);
-            as4Message.SigningId.BodySecurityId = GetBodySecurityId(body);
         }
-
-        private static bool IsReadersNameBody(XmlReader reader)
-            => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Body") && IsReadersNamespace(reader) && reader.IsStartElement();
 
         private static bool IsReadersNamespace(XmlReader reader) => reader.NamespaceURI.Equals(Constants.Namespaces.EbmsXmlCore);
 

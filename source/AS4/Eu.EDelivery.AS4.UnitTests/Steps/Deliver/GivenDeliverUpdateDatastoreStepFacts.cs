@@ -54,10 +54,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             public async Task ThenExecuteMethodSucceedsWithValidUserMessageAsync()
             {
                 // Arrange
-                InternalMessage internalMessage = CreateDefaultInternalMessage();
+                MessagingContext messagingContext = CreateDefaultInternalMessage();
 
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertInMessages();
@@ -81,9 +81,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             return new DeliverMessageEnvelope(new MessageInfo {MessageId = _messageId}, new byte[] {}, string.Empty);
         }
 
-        protected InternalMessage CreateDefaultInternalMessage()
+        protected MessagingContext CreateDefaultInternalMessage()
         {
-            return new InternalMessage(CreateDeliverMessage());
+            return new MessagingContext(CreateDeliverMessage());
         }
     }
 }
