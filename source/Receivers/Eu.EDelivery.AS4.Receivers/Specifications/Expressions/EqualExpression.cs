@@ -27,6 +27,15 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         }
 
         /// <summary>
+        /// Evaluate the expression.
+        /// </summary>
+        /// <returns></returns>
+        public bool Evaluate()
+        {
+            return _innerExpression.Evaluate();
+        }
+
+        /// <summary>
         /// Fors the specified expression.
         /// </summary>
         /// <param name="expression">The expression.</param>
@@ -57,15 +66,6 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
             {
                 throw new FormatException($"Equality expression is invalid: '{left}{separator}{right}'");
             }
-        }
-
-        /// <summary>
-        /// Evaluate the expression.
-        /// </summary>
-        /// <returns></returns>
-        public bool Evaluate()
-        {
-            return _innerExpression.Evaluate();
         }
     }    
 }

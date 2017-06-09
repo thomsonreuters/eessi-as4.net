@@ -17,6 +17,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         [InlineData("2 IS  IS 2")]
         [InlineData("1 AND OR 2")]
         [InlineData(";laksjdf = L:KAJSDlk = ;laksjdfa")]
+        [InlineData("(()))")]
         public void FailsToTokenize_IfInvalidExpression(string expression)
         {
             // Act / Assert

@@ -55,12 +55,25 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         /// <returns></returns>
         public static IEnumerable<Token> Tokenize(string filter)
         {
+            ThrowIfInvalidFilter(filter);
+
             return
                 Regex.Split(filter, @"(AND|OR|\(|\))")
                      .Select(t => t.Trim())
                      .Where(t => !string.IsNullOrEmpty(t))
                      .ToArray()
                      .Select(CreateToken);
+        }
+
+        private static void ThrowIfInvalidFilter(string filter)
+        {
+            bool expressionHasntEqualOpenAndClosingParenthesis =
+                filter.Count(c => c.Equals('(')) != filter.Count(c => c.Equals(')'));
+
+            if (expressionHasntEqualOpenAndClosingParenthesis)
+            {
+                throw new FormatException("Expression doesn't contain as much '(' as ')'");
+            }
         }
 
         /// <summary>

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
-    internal sealed class BooleanExpression
+    internal sealed class BooleanExpression : IExpression
     {
         private static readonly IDictionary<string, Func<bool, bool, IExpression>> LogicalExpressions =
             new Dictionary<string, Func<bool, bool, IExpression>>

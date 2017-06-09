@@ -11,11 +11,11 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
         /// <param name="databaseSet">The database set.</param>
         /// <param name="tokenExpression">The token expression.</param>
         /// <returns></returns>
-        public static bool Evaluate<T>(T databaseSet, IReadOnlyCollection<Token> tokenExpression)
+        public static bool Evaluate<T>(T databaseSet, IEnumerable<Token> tokenExpression)
         {
             var tokenResult = new Stack<Token>();
 
-            foreach (Token token in tokenResult)
+            foreach (Token token in tokenExpression)
             {
                 if (token.IsClosedParenthesis)
                 {
@@ -24,10 +24,9 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
                 else
                 {
                     tokenResult.Push(
-                        token.IsEqualExpression
-                            ? Token.CreateToken(
-                                EqualExpression<T>.For(token.Expression, databaseSet).Evaluate().ToString())
-                            : token);
+                       token.IsEqualExpression
+                           ? Token.CreateToken(EqualExpression<T>.For(token.Expression, databaseSet).Evaluate().ToString())
+                           : token);
                 }
             }
 
