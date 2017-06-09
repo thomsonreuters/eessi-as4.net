@@ -79,19 +79,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void OverrideMessageWithAS4Message()
             {
                 // Arrange
-                var expected = new MessagingContext(new AS4MessageBuilder().Build())
+                var expected = new MessagingContext(AS4MessageWithEbmsMessageId())
                 {
                     ReceivingPMode = new ReceivingProcessingMode(),
                     SendingPMode = new SendingProcessingMode()
                 };
 
                 // Act
-                MessagingContext actual = expected.CloneWith(AS4Message.Create(null, contentType: "other"));
+                MessagingContext actual = expected.CloneWith(AS4MessageWithoutEbmsMessageId());
 
                 // Assert
                 Assert.NotEqual(expected.AS4Message, actual.AS4Message);
                 Assert.Equal(expected.SendingPMode, actual.SendingPMode);
                 Assert.Equal(expected.ReceivingPMode, actual.ReceivingPMode);
+            }
+
+            private static AS4Message AS4MessageWithEbmsMessageId()
+            {
+                return AS4MessageBuilder.ForMessageUnit(new FilledNRRReceipt(), new SendingProcessingMode()).Build();
+            }
+
+            private static AS4Message AS4MessageWithoutEbmsMessageId()
+            {
+                return AS4Message.Create(null, contentType: "other");
             }
 
             [Fact]

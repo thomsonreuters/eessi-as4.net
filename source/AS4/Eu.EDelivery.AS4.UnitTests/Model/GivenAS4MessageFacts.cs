@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -29,6 +30,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         {
             _builder = new AS4MessageBuilder();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+        }
+
+        public class Empty
+        {
+            [Fact]
+            public void EmptyInstance_IsTheSameAsEmptyCreation()
+            {
+                // Arrange
+                AS4Message expected = AS4Message.Create(new SendingProcessingMode());
+
+                // Act
+                AS4Message actual = AS4Message.Empty;
+
+                // Assert
+                Assert.Equal(expected, actual);
+            }
+
+            [Fact]
+            public void EmptyInstance_IsNotTheSameWithDifferentId()
+            {
+                // Arrange
+                AS4Message expected =
+                    AS4MessageBuilder.ForMessageUnit(new FilledUserMessage(), new SendingProcessingMode()).Build();
+
+                // Act
+                AS4Message actual = AS4Message.Empty;
+
+                // Assert
+                Assert.NotEqual(expected, actual);
+            }
         }
 
         public class AddAttachments

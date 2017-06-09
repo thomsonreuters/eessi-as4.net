@@ -17,8 +17,9 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// <summary>
     /// Internal AS4 Message between MSH
     /// </summary>
-    public class AS4Message : IMessage
+    public class AS4Message : IMessage, IEquatable<AS4Message>
     {
+        private static readonly AS4Message EmptyMessage = new AS4Message(serializeAsMultiHop: false);
         private readonly bool _serializeAsMultiHop;
 
         /// <summary>
@@ -35,6 +36,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             SignalMessages = new List<SignalMessage>();
             UserMessages = new List<UserMessage>();
         }
+
+        public static AS4Message Empty => EmptyMessage;
 
         public string ContentType { get; set; }
 
@@ -207,6 +210,14 @@ namespace Eu.EDelivery.AS4.Model.Core
         private static Attachment CreateAttachmentFromPayload(Payload payload)
         {
             return new Attachment(payload.Id) { ContentType = payload.MimeType, Location = payload.Location };
+        }
+
+        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(AS4Message other)
+        {
+            return GetPrimaryMessageId() == other.GetPrimaryMessageId();
         }
 
         #region Inner DetermineSizeStream class.

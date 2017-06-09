@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                         Logger.Info(responseContent);
                     }
 
-                    return new MessagingContext(new AS4MessageBuilder().Build());
+                    return new MessagingContext(AS4Message.Empty);
                 }
 
                 ISerializer serializer = Registry.Instance.SerializerProvider.Get(webResponse.ContentType);
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                deserializedResponse = new AS4MessageBuilder().Build();
+                deserializedResponse = AS4Message.Empty;
             }
 
             return new MessagingContext(deserializedResponse);

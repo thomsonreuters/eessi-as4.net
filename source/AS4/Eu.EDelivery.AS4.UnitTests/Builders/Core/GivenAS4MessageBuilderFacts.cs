@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             }
 
             [Fact]
-            public void ThenBuildMultipleTimesUniqueMessagesEveryTimeSucceeds()
+            public void ThenBuildMultipleTimesSameMessagesEveryTimeSucceeds()
             {
                 // Arrange 
                 AS4MessageBuilder builder = _builder.WithUserMessage(new UserMessage("message-id"));
@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 AS4Message secondMessage = builder.Build();
 
                 // Assert
-                Assert.NotEqual(firstMessage, secondMessage);
+                Assert.Equal(firstMessage, secondMessage);
             }
 
             [Fact]
