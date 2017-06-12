@@ -136,6 +136,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             Console.WriteLine($@"Deleting files at location: {directory}");
 
+            // Wait an extra 2 seconds before starting to delete the files.  This can prevent IOExceptions
+            // because the files might still be in use by a running application.
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+
             foreach (string file in Directory.EnumerateFiles(directory))
             {
                 if (predicateFile == null || predicateFile(file))
