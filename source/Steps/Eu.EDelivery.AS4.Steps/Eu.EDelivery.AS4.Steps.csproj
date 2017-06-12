@@ -215,6 +215,7 @@
     <Compile Include="Send\Response\IAS4ResponseHandler.cs" />
     <Compile Include="Send\Response\PullRequestResponseHandler.cs" />
     <Compile Include="Send\Response\TailResponseHandler.cs" />
+    <Compile Include="Send\SelectUserMessageToSendStep.cs" />
     <Compile Include="Send\SetReceptionAwarenessStep.cs" />
     <Compile Include="Receive\ReceiveExceptionStepDecorator.cs" />
     <Compile Include="Receive\DecompressAttachmentsStep.cs" />
