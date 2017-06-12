@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
-    internal static class DatastoreExpressionParser
+    internal static class DatastoreExpressionEvaluator
     {
         /// <summary>
         /// Evaluates the specified database set.
