@@ -23,6 +23,8 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
 
             var as4Message = internalMessage.AS4Message;
 
+            MessagingContextMode mode = MessagingContextMode.Receive;            
+
             if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
             {
                 var properties = as4Message.PrimaryUserMessage?.MessageProperties;
@@ -30,9 +32,11 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 TransformUserMessage(as4Message.PrimaryUserMessage, properties);
 
                 AssignPMode(internalMessage);
+
+                mode = MessagingContextMode.Submit;
             }
 
-            return new MessagingContext(as4Message);
+            return new MessagingContext(as4Message, mode);
         }
 
         private static void AssignPMode(MessagingContext message)

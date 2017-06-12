@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var receipt = new Receipt("message-id") {RefToMessageId = _sharedId};
                 AS4Message receiptMessage = AS4Message.Create(receipt);
 
-                return new MessagingContext(receiptMessage)
+                return new MessagingContext(receiptMessage, MessagingContextMode.Unknown)
                 {
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()

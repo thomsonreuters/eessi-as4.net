@@ -21,6 +21,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             var internalMessage = await transformer.TransformAsync(message, cancellationToken);
 
             var as4Message = internalMessage.AS4Message;
+            MessagingContextMode mode = MessagingContextMode.Receive;
 
             if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
             {
@@ -30,16 +31,10 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
 
                 AssignPMode(internalMessage);
 
-                // This is an ugly hack, but we need something to use in our ConditionalStep in order to know whether or not we should submit or receive.
-                // This needs to be reviewed later.  It is very possible that we can get rid of the SubmitMessage - property in the InternalMessage, which
-                // will be an opportunity to refactor this.
-                var result = new MessagingContext(as4Message);
-                result.SubmitMessage.Collaboration.Action = "Submit";
-
-                return result;
+                mode = MessagingContextMode.Submit;
             }
 
-            return new MessagingContext(as4Message);
+            return new MessagingContext(as4Message, mode);
         }
 
         private static void AssignPMode(MessagingContext message)

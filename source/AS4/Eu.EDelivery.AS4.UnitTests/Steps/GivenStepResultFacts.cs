@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
+﻿using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -40,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
 
             private static MessagingContext AnonymousMessage()
             {
-                return new MessagingContext(AS4Message.Empty);
+                return new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
             }
         }
     }

@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         public static MessagingContext ContextWith(AS4Message message)
         {
-            return new MessagingContext(message) {SendingPMode = CreateValidSendingPMode()};
+            return new MessagingContext(message, MessagingContextMode.Unknown) {SendingPMode = CreateValidSendingPMode()};
         }
 
         private static SendingProcessingMode CreateValidSendingPMode()

@@ -40,10 +40,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(sharedId);
                 ResetStep();
                 MessagingContext messagingContext = base.CreateDefaultInternalMessage();
-                
+
                 // Act
                 await _step.ExecuteAsync(messagingContext, CancellationToken.None);
-                
+
                 // Assert
                 AssertOutException(sharedId, e =>
                 {
@@ -60,10 +60,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 ResetStep();
                 MessagingContext messagingContext = base.CreateDefaultInternalMessage();
                 messagingContext.SendingPMode.ExceptionHandling.NotifyMessageProducer = false;
-                
+
                 // Act
                 await _step.ExecuteAsync(messagingContext, CancellationToken.None);
-                
+
                 // Assert
                 AssertOutException(sharedId, e =>
                 {
@@ -90,11 +90,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 ResetStep();
                 OutMessage outMessage = CreateDefaultOutMessage(sharedId);
                 InsertOutMessage(outMessage);
-                var internalMessage = new MessagingContext(AS4Message.Empty);
-                
+
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
+
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
-                
+                await _step.ExecuteAsync(context, CancellationToken.None);
+
                 // Assert
                 AssertOutMessage(sharedId, m =>
                 {
@@ -152,9 +153,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected MessagingContext CreateDefaultInternalMessage()
         {
-            return new MessagingContext(AS4Message.Empty)
+            return new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown)
             {
-                SendingPMode = new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = true}}
+                SendingPMode = new SendingProcessingMode { ExceptionHandling = { NotifyMessageProducer = true } }
             };
         }
     }

@@ -76,7 +76,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void OverrideMessageWithAS4Message()
             {
                 // Arrange
-                var expected = new MessagingContext(AS4MessageWithEbmsMessageId())
+
+                var expected = new MessagingContext(AS4MessageWithEbmsMessageId(), MessagingContextMode.Unknown)
                 {
                     ReceivingPMode = new ReceivingProcessingMode(),
                     SendingPMode = new SendingProcessingMode()
@@ -106,11 +107,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
+
                 AS4Message as4Message = AS4Message.Create(new UserMessage(messageId));
-                var internalMessage = new MessagingContext(as4Message);
+                var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
                 // Act
-                string[] messageIds = internalMessage.AS4Message.MessageIds;
+                string[] messageIds = context.AS4Message.MessageIds;
 
                 // Assert
                 Assert.NotNull(messageIds);
@@ -121,10 +123,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenHasAttachmentsIsCorrectFalse()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(AS4Message.Empty);
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
-                bool hasAttachments = internalMessage.AS4Message.HasAttachments;
+                bool hasAttachments = context.AS4Message.HasAttachments;
 
                 // Assert
                 Assert.False(hasAttachments);
@@ -136,10 +138,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Arrange
                 AS4Message as4Message = AS4Message.Create(soapEnvelope: null, contentType: null);
                 as4Message.AddAttachment(new Attachment("attachment-id"));
-                var internalMessage = new MessagingContext(as4Message);
+                var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
                 // Act
-                bool hasAttachments = internalMessage.AS4Message.HasAttachments;
+                bool hasAttachments = context.AS4Message.HasAttachments;
 
                 // Assert
                 Assert.True(hasAttachments);
@@ -178,10 +180,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var signalMessage = new Receipt("message-Id");
-                var internalMessage = new MessagingContext(AS4Message.Create(signalMessage));
+
+                var context = new MessagingContext(AS4Message.Create(signalMessage), MessagingContextMode.Unknown);
 
                 // Act
-                string prefix = internalMessage.Prefix;
+                string prefix = context.Prefix;
 
                 // Assert
                 Assert.Equal($"[{signalMessage.MessageId}]", prefix);
@@ -192,11 +195,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var userMessage = new UserMessage("message-Id");
+
                 AS4Message as4Message = AS4Message.Create(userMessage);
-                var internalMessage = new MessagingContext(as4Message);
+                var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
                 // Act
-                string prefix = internalMessage.Prefix;
+                string prefix = context.Prefix;
 
                 // Assert
                 Assert.Equal($"[{userMessage.MessageId}]", prefix);
@@ -212,10 +216,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenGettingMessageIdsFailsWitEmptyAS4Message()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(AS4Message.Empty);
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
-                string[] messageIds = internalMessage.AS4Message.MessageIds;
+                string[] messageIds = context.AS4Message.MessageIds;
 
                 // Assert
                 Assert.NotNull(messageIds);
@@ -226,7 +230,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenGettingMessageIdsFailsWithNullAS4Message()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(as4Message: null);
+                var internalMessage = new MessagingContext(as4Message: null, mode: MessagingContextMode.Unknown);
 
                 // Act / Assert
                 Assert.Throws<NullReferenceException>(() => internalMessage.AS4Message.MessageIds);
@@ -236,7 +240,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenHasAttachmentsFailsWithNullAS4Message()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(as4Message: null);
+                var internalMessage = new MessagingContext(as4Message: null, mode: MessagingContextMode.Unknown);
 
                 // Act / Assert
                 Assert.Throws<NullReferenceException>(() => internalMessage.AS4Message.HasAttachments);

@@ -20,7 +20,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="messageId">The message Id.</param>
         public InternalMessageBuilder(string messageId = "message-id")
         {
-            _messagingContext = new MessagingContext(AS4Message.Empty);
+            _messagingContext = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
+
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
             _messagingContext.AS4Message.UserMessages.Add(userMessage);
         }
@@ -96,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithSignalMessage(SignalMessage signalMessage)
         {
-            _messagingContext.AS4Message.SignalMessages = new List<SignalMessage> {signalMessage};
+            _messagingContext.AS4Message.SignalMessages = new List<SignalMessage> { signalMessage };
 
             return this;
         }
@@ -108,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <returns></returns>
         public InternalMessageBuilder WithUserMessage(UserMessage userMessage)
         {
-            _messagingContext.AS4Message.UserMessages = new List<UserMessage> {userMessage};
+            _messagingContext.AS4Message.UserMessages = new List<UserMessage> { userMessage };
 
             return this;
         }
@@ -118,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
             var userMessage = new UserMessage
             {
-                CollaborationInfo = {AgreementReference = new AgreementReference()},
+                CollaborationInfo = { AgreementReference = new AgreementReference() },
                 MessageId = messageId
             };
 

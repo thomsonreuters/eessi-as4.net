@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
@@ -134,12 +133,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected ReceivingProcessingMode GetReceivingPMode()
         {
-            return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false}};
+            return new ReceivingProcessingMode { ReceiptHandling = { UseNNRFormat = false } };
         }
 
         protected MessagingContext CreateDefaultInternalMessage()
         {
-            return new MessagingContext(AS4Message.Create(GetUserMessage())) {ReceivingPMode = GetReceivingPMode()};
+            return new MessagingContext(AS4Message.Create(GetUserMessage()), MessagingContextMode.Receive)
+            {
+                ReceivingPMode = GetReceivingPMode()
+            };
         }
 
         protected MessagingContext CreateSignedInternalMessage()

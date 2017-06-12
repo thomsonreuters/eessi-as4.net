@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
@@ -56,10 +55,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
 
             private static MessagingContext CreateDummyMessageWithAttachment()
             {
+
                 AS4Message message = AS4Message.Empty;
                 message.AddAttachment(new Attachment());
 
-                return new MessagingContext(message);
+                return new MessagingContext(message, MessagingContextMode.Unknown);
             }
 
             private static Mock<IStep> CreateMockStepWith(StepResult stepResult)

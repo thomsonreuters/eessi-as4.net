@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext AS4MessageContext(AS4Message as4Message, SendingProcessingMode pmode)
         {
-            return new MessagingContext(as4Message) {SendingPMode = pmode};
+            return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};
         }
 
         private static async Task<StepResult> ExerciseSigning(MessagingContext context)
