@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
@@ -15,26 +16,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         [Fact]
         public async Task FailsVerifySignature_ResultsInStoppedExecution()
         {
-            await TestExerciseVerifySignature(as4_soap_wrong_signed_pullrequest, r => Assert.False(r.CanProceed));
+            // Arrange
+            Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(as4_soap_signed_pullrequest);
+
+            // Act
+            StepResult result = await act();
+
+            // Assert
+            Assert.True(result.CanProceed);
         }
 
         [Fact]
         public async Task SucceedsVerifySignature_ResultsInSameMessage()
         {
-            await TestExerciseVerifySignature(as4_soap_signed_pullrequest, r => Assert.True(r.CanProceed));
+            // Arrange
+            Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(as4_soap_wrong_signed_pullrequest);
+
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<PullException>(() => act());
         }
 
-        private static async Task TestExerciseVerifySignature(string content, Action<StepResult> assertion)
+        private static async Task<Func<Task<StepResult>>> SetupExerciseVerificationStepWith(string content)
         {
             // Arrange
             var sut = new PullVerifySignatureStep();
             var context = new MessagingContext(await content.SoapSerialize());
 
-            // Act
-            StepResult result = await sut.ExecuteAsync(context, CancellationToken.None);
-
-            // Assert
-            assertion(result);
+            // Act / Assert
+            return async () => await sut.ExecuteAsync(context, CancellationToken.None);
         }
     }
 }
