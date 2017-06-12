@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
@@ -46,25 +45,19 @@ namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 
     internal static class Conversion
     {
-        private static readonly Dictionary<Func<object, string, bool>, Func<object, string, object>> Conversions =
-            new Dictionary<Func<object, string, bool>, Func<object, string, object>>
-            {
-                [(a, b) => b.Equals("NULL")] = (a, b) => null,
-                [(a, b) => a?.GetType().IsEnum == true] = (a, b) => Enum.Parse(a.GetType(), b),
-                [(a, b) => a is int] = (a, b) => System.Convert.ToInt32(b),
-                [(a, b) => a is string] = (a, b) => b,
-                [(a, b) => true] = (a, b) => default(object)
-            };
-
         /// <summary>
         /// The convert.
         /// </summary>
         /// <param name="property">The property.</param>
         /// <param name="value">The value.</param>
-        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public static object Convert(object property, string value)
         {
-            return Conversions.FirstOrDefault(c => c.Key(property, value)).Value(property, value);
+            if (value?.Equals("NULL") == true)
+            {
+                return null;
+            }
+
+            return TypeDescriptor.GetConverter(property).ConvertFrom(value);
         }
     }
 }

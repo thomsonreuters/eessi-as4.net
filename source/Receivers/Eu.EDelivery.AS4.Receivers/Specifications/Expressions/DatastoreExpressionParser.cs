@@ -2,20 +2,20 @@
 
 namespace Eu.EDelivery.AS4.Receivers.Specifications.Expressions
 {
-    internal sealed class DatastoreExpressionParser
+    internal static class DatastoreExpressionParser
     {
         /// <summary>
         /// Evaluates the specified database set.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="databaseSet">The database set.</param>
-        /// <param name="tokenExpression">The token expression.</param>
+        /// <param name="tokenizedExpression">The token expression.</param>
         /// <returns></returns>
-        public static bool Evaluate<T>(T databaseSet, IEnumerable<Token> tokenExpression)
+        public static bool Evaluate<T>(T databaseSet, IEnumerable<Token> tokenizedExpression)
         {
             var tokenResult = new Stack<Token>();
 
-            foreach (Token token in tokenExpression)
+            foreach (Token token in tokenizedExpression)
             {
                 if (token.IsClosedParenthesis)
                 {
