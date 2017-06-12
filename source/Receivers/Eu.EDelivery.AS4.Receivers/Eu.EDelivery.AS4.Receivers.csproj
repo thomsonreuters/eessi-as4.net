@@ -66,7 +66,7 @@
     <Compile Include="Specifications\ExpressionDatastoreSpecification.cs" />
     <Compile Include="Specifications\Expressions\AndExpression.cs" />
     <Compile Include="Specifications\Expressions\BooleanExpression.cs" />
-    <Compile Include="Specifications\Expressions\DatastoreExpressionParser.cs" />
+    <Compile Include="Specifications\Expressions\DatastoreExpressionEvaluator.cs" />
     <Compile Include="Specifications\Expressions\EqualExpression.cs" />
     <Compile Include="Specifications\Expressions\IExpression.cs" />
     <Compile Include="Specifications\Expressions\NotSameExpression.cs" />
