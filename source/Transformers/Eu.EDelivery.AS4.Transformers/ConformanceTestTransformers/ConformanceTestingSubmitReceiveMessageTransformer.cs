@@ -39,12 +39,13 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             return new MessagingContext(as4Message, mode);
         }
 
-        private static void AssignPMode(MessagingContext message)
+        private static void AssignPMode(MessagingContext context)
         {
-            AS4Message as4Message = message.AS4Message;
+            AS4Message as4Message = context.AS4Message;
+
             // The PMode that must be used is defined in the CollaborationInfo.Service property.
             var pmode = Config.Instance.GetSendingPMode(as4Message.PrimaryUserMessage.CollaborationInfo.Action);
-            message.SendingPMode = pmode;
+            context.SendingPMode = pmode;
         }
 
         private static void TransformUserMessage(UserMessage userMessage, IList<MessageProperty> properties)
