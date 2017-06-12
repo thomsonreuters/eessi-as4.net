@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,6 +52,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 Assert.True(stepResult.InternalMessage.AS4Message.IsEncrypted);
+            }
+
+            [Fact]
+            public async Task TestIfAttachmentContentTypeIsSetBackToOriginal()
+            {
+                // Arrange
+                AS4Message as4Message = await GetEncryptedAS4MessageAsync();
+                var context = new InternalMessage(as4Message);
+                as4Message.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
+
+                // Act
+                StepResult result = await _step.ExecuteAsync(context, CancellationToken.None);
+
+                // Assert
+                IEnumerable<Attachment> attachments = result.InternalMessage.AS4Message.Attachments;
+                Assert.All(attachments, a => Assert.Equal("image/jpeg", a.ContentType));
             }
         }
 
