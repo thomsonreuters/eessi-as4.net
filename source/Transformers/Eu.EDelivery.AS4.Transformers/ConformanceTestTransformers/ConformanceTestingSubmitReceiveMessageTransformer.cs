@@ -19,27 +19,27 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
             // In any other case, we should just return an InternalMessage which contains the as4Message.
             var transformer = new AS4MessageTransformer();
-            var internalMessage = await transformer.TransformAsync(message, cancellationToken);
+            var messagingContext = await transformer.TransformAsync(message, cancellationToken);
 
-            var as4Message = internalMessage.AS4Message;
-
-            MessagingContextMode mode = MessagingContextMode.Receive;            
-
+            var as4Message = messagingContext.AS4Message;
+            
             if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
             {
                 var properties = as4Message.PrimaryUserMessage?.MessageProperties;
 
                 TransformUserMessage(as4Message.PrimaryUserMessage, properties);
 
-                AssignPMode(internalMessage);
+                messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
 
-                mode = MessagingContextMode.Submit;
+                AssignPModeToContext(messagingContext);
+
+                return messagingContext;
             }
 
-            return new MessagingContext(as4Message, mode);
+            return new MessagingContext(as4Message, MessagingContextMode.Receive);
         }
 
-        private static void AssignPMode(MessagingContext context)
+        private static void AssignPModeToContext(MessagingContext context)
         {
             AS4Message as4Message = context.AS4Message;
 
