@@ -16,20 +16,23 @@ namespace Eu.EDelivery.AS4.PayloadService
         public static void Main(string[] args)
         {
             const string hostUrl = "http://localhost:3000/";
-            Console.WriteLine($"Payload Service started at: {hostUrl}");
 
-            IWebHost host = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .UseApplicationInsights()
-                
-                // TODO: Hosting URL must be made configurable...
-                .UseUrls(hostUrl)
-                .Build();
+            IWebHost host =
+                new WebHostBuilder()
+                    .UseKestrel()
+                    .UseContentRoot(Directory.GetCurrentDirectory())
+                    .UseIISIntegration()
+                    .UseStartup<Startup>()
+                    .UseApplicationInsights()
 
+                    // TODO: Hosting URL must be made configurable...
+                    .UseUrls(hostUrl)
+                    .Build();
+
+            Console.WriteLine("=== Payload Service Started ===");
             host.Run();
+
+            Console.WriteLine("Payload Service shutdown");
         }
     }
 }
