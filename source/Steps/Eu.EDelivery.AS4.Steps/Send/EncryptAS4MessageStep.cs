@@ -43,44 +43,44 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Start Encrypting AS4 Message
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (!internalMessage.AS4Message.SendingPMode.Security.Encryption.IsEnabled)
+            if (!messagingContext.SendingPMode.Security.Encryption.IsEnabled)
             {
-                return await ReturnSameInternalMessage(internalMessage);
+                return await ReturnSameInternalMessage(messagingContext);
             }
 
-            TryEncryptAS4Message(internalMessage);
+            TryEncryptAS4Message(messagingContext);
 
-            return await StepResult.SuccessAsync(internalMessage);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private void TryEncryptAS4Message(InternalMessage internalMessage)
+        private void TryEncryptAS4Message(MessagingContext messagingContext)
         {
-            Logger.Info($"{internalMessage.Prefix} Encrypt AS4 Message with given Encryption Information");
+            Logger.Info($"{messagingContext.Prefix} Encrypt AS4 Message with given Encryption Information");
             try
             {
-                IEncryptionStrategy strategy = CreateEncryptStrategy(internalMessage);
-                internalMessage.AS4Message.SecurityHeader.Encrypt(strategy);
+                IEncryptionStrategy strategy = CreateEncryptStrategy(messagingContext);
+                messagingContext.AS4Message.SecurityHeader.Encrypt(strategy);
             }
             catch (Exception exception)
             {
-                string description = $"{internalMessage.Prefix} Problems with Encrypting AS4 Message: {exception.Message}";
-                throw ThrowCommonEncryptionException(internalMessage, description, exception);
+                string description = $"{messagingContext.Prefix} Problems with Encrypting AS4 Message: {exception.Message}";
+                throw ThrowCommonEncryptionException(messagingContext, description, exception);
             }
         }
 
-        private IEncryptionStrategy CreateEncryptStrategy(InternalMessage internalMessage)
+        private IEncryptionStrategy CreateEncryptStrategy(MessagingContext messagingContext)
         {
-            AS4Message as4Message = internalMessage.AS4Message;
-            Encryption encryption = as4Message.SendingPMode.Security.Encryption;
+            AS4Message as4Message = messagingContext.AS4Message;
+            Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
 
-            X509Certificate2 certificate = RetrieveCertificate(internalMessage);
+            X509Certificate2 certificate = RetrieveCertificate(messagingContext);
 
-            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(as4Message);
+            EncryptionStrategyBuilder builder = EncryptionStrategyBuilder.Create(messagingContext);
 
             builder.WithDataEncryptionConfiguration(
                 new DataEncryptionConfiguration(encryption.Algorithm, algorithmKeySize: encryption.AlgorithmKeySize));
@@ -94,28 +94,28 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return builder.Build();
         }
 
-        private X509Certificate2 RetrieveCertificate(InternalMessage internalMessage)
+        private X509Certificate2 RetrieveCertificate(MessagingContext messagingContext)
         {
-            Encryption encryption = internalMessage.AS4Message.SendingPMode.Security.Encryption;
+            Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
 
             return _certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
         }
 
-        private static Task<StepResult> ReturnSameInternalMessage(InternalMessage internalMessage)
+        private static Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
         {
-            Logger.Debug($"Sending PMode {internalMessage.AS4Message.SendingPMode.Id} Encryption is disabled");
-            return StepResult.SuccessAsync(internalMessage);
+            Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Encryption is disabled");
+            return StepResult.SuccessAsync(messagingContext);
         }
 
-        private static AS4Exception ThrowCommonEncryptionException(InternalMessage internalMessage, string description, Exception innerException = null)
+        private static AS4Exception ThrowCommonEncryptionException(MessagingContext messagingContext, string description, Exception innerException = null)
         {
             Logger.Error(description);
 
             return AS4ExceptionBuilder
                 .WithDescription(description)
                 .WithInnerException(innerException)
-                .WithMessageIds(internalMessage.AS4Message.MessageIds)
-                .WithSendingPMode(internalMessage.AS4Message.SendingPMode)
+                .WithMessageIds(messagingContext.AS4Message.MessageIds)
+                .WithSendingPMode(messagingContext.SendingPMode)
                 .Build();
         }
     }

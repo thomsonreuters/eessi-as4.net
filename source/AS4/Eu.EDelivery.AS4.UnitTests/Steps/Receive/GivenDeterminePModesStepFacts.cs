@@ -45,10 +45,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var pmode = new PMode {Id = sharedId};
                 SetupPModes(pmode, CreateDefaultPMode());
 
-                InternalMessage internalMessage = new InternalMessageBuilder().WithPModeId(sharedId).Build();
+                MessagingContext messagingContext = new InternalMessageBuilder().WithPModeId(sharedId).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -66,10 +66,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new PMode());
 
-                InternalMessage internalMessage = new InternalMessageBuilder().WithPartys(fromParty, toParty).Build();
+                MessagingContext messagingContext = new InternalMessageBuilder().WithPartys(fromParty, toParty).Build();
 
                 // Act               
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -82,13 +82,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 PMode pmode = ArrangePModeThenPartyInfoNotDefined(service, action);
 
-                InternalMessage internalMessage =
+                MessagingContext messagingContext =
                     new InternalMessageBuilder().WithUserMessage(new UserMessage("message-id"))
                                                 .WithServiceAction(service, action)
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmode, result);
@@ -112,11 +112,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var toParty = new Party(toId, new PartyId(toId));
                 PMode idPMode = ArrangePModeThenPModeWinsOverPartyInfo(sharedId, fromParty, toParty);
 
-                InternalMessage internalMessage =
+                MessagingContext messagingContext =
                     new InternalMessageBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertPMode(idPMode, result);
@@ -147,13 +147,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 PMode pmodeServiceAction = CreatePModeWithActionService(service, action);
                 SetupPModes(pmodeParties, pmodeServiceAction);
 
-                InternalMessage internalMessage =
+                MessagingContext messagingContext =
                     new InternalMessageBuilder().WithPartys(fromParty, toParty)
                                                 .WithServiceAction(service, action)
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
@@ -176,13 +176,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 SetupPModes(pmodeServiceAction, pmodeParties);
 
-                InternalMessage internalMessage =
+                MessagingContext messagingContext =
                     new InternalMessageBuilder().WithServiceAction(service, action)
                                                 .WithPartys(fromParty, toParty)
                                                 .Build();
 
                 // Act
-                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertPMode(pmodeParties, result);
@@ -210,13 +210,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 ArrangePModeThenServiceAndActionIsNotEnough(action, service);
 
-                InternalMessage internalMessage =
+                MessagingContext messagingContext =
                     new InternalMessageBuilder().WithServiceAction(service, action).Build();
 
                 // Act / Assert
                 AS4Exception exception =
                     await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
+                        () => _step.ExecuteAsync(messagingContext, CancellationToken.None));
 
                 Assert.Equal(ErrorCode.Ebms0001, exception.ErrorCode);
             }
@@ -237,7 +237,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var agreementRef = new AgreementReference {Value = name, Type = type};
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
-                InternalMessage internalMessage =
+                MessagingContext messagingContext =
                     new InternalMessageBuilder().WithAgreementRef(agreementRef)
                                                 .WithServiceAction("service", "action")
                                                 .Build();
@@ -245,7 +245,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Act / Assert
                 AS4Exception exception =
                     await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
+                        () => _step.ExecuteAsync(messagingContext, CancellationToken.None));
 
                 Assert.Equal(ErrorCode.Ebms0001, exception.ErrorCode);
             }
@@ -293,7 +293,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             Assert.NotNull(expectedPMode);
             Assert.NotNull(result);
-            Assert.Equal(expectedPMode, result.InternalMessage.AS4Message.ReceivingPMode);
+            Assert.Equal(expectedPMode, result.MessagingContext.ReceivingPMode);
         }
 
         private static void DifferntiatePartyInfo(PMode pmode)

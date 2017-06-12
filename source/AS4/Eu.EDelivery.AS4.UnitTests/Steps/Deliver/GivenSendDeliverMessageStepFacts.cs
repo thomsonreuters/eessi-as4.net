@@ -1,93 +1,74 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Common;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Deliver;
 using Eu.EDelivery.AS4.Strategies.Sender;
+using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Moq;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 {
     /// <summary>
-    /// Testing <see cref="SendDeliverMessageStep"/>
+    /// Testing <see cref="SendDeliverMessageStep" />
     /// </summary>
     public class GivenSendDeliverMessageStepFacts
     {
-        private readonly Mock<IDeliverSender> _mockedSender;
-
-        private Mock<IDeliverSenderProvider> _mockedProvider;
-        private SendDeliverMessageStep _step;
-
-        public GivenSendDeliverMessageStepFacts()
+        [Fact]
+        public async Task ThenExecuteStepFailsWithFailedSenderAsync()
         {
-            _mockedSender = new Mock<IDeliverSender>();
-            SetupMockedProvider();
-            _step = new SendDeliverMessageStep(_mockedProvider.Object);
+            // Arrange
+            MessagingContext messagingContext = EmptyDeliverMessageEnvelope();
+            IStep sut = CreateSendDeliverStepWithSender(new SaboteurSender());
+
+            // Act
+            AS4Exception exception =
+                await Assert.ThrowsAsync<AS4Exception>(() => sut.ExecuteAsync(messagingContext, CancellationToken.None));
+
+            Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
         }
 
-        private void SetupMockedProvider()
+        [Fact]
+        public async Task ThenExecuteStepSucceedsWithValidSenderAsync()
         {
-            this._mockedProvider = new Mock<IDeliverSenderProvider>();
-            this._mockedProvider
-                .Setup(p => p.GetDeliverSender(It.IsAny<string>()))
-                .Returns(this._mockedSender.Object);
+            // Arrange
+            MessagingContext messagingContext = EmptyDeliverMessageEnvelope();
+            messagingContext.ReceivingPMode = CreateDefaultReceivingPMode();
+
+            var spySender = Mock.Of<IDeliverSender>();
+            IStep sut = CreateSendDeliverStepWithSender(spySender);
+
+            // Act
+            await sut.ExecuteAsync(messagingContext, CancellationToken.None);
+
+            // Assert
+            Mock.Get(spySender).Verify(s => s.SendAsync(It.IsAny<DeliverMessageEnvelope>()), Times.Once);
         }
 
-        public class GivenValidArguments : GivenSendDeliverMessageStepFacts
+        private static IStep CreateSendDeliverStepWithSender(IDeliverSender spySender)
         {
-            [Fact]
-            public async Task ThenExecuteStepSucceedsWithValidSenderAsync()
-            {
-                // Arrange
-                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, string.Empty);
-                var internalMessage = new InternalMessage(deliverMessage)
-                {
-                    AS4Message = {ReceivingPMode = CreateDefaultReceivingPMode()}
-                };
+            var stubProvider = new Mock<IDeliverSenderProvider>();
+            stubProvider.Setup(p => p.GetDeliverSender(It.IsAny<string>())).Returns(spySender);
 
-                // Act
-                await base._step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                base._mockedSender.Verify(s => s.SendAsync(It.IsAny<DeliverMessageEnvelope>()), Times.Once);
-            }
-
-            private static ReceivingProcessingMode CreateDefaultReceivingPMode()
-            {
-                return new ReceivingProcessingMode
-                {
-                    Deliver = { DeliverMethod = new Method() }
-                };
-            }
+            return new SendDeliverMessageStep(stubProvider.Object);
         }
 
-        public class GivenInvalidArguments : GivenSendDeliverMessageStepFacts
+        private static MessagingContext EmptyDeliverMessageEnvelope()
         {
-            [Fact]
-            public async Task ThenExecuteStepFailsWithFailedSenderAsync()
-            {
-                // Arrange
-                SetupFailedDeliverSender();
-                var deliverMessage = new DeliverMessageEnvelope(new AS4.Model.Common.MessageInfo(), new byte[] { }, string.Empty);
-                var internalMessage = new InternalMessage(deliverMessage);
-                
-                // Act
-                AS4Exception exception = await Assert.ThrowsAsync<AS4Exception>(()
-                    => base._step.ExecuteAsync(internalMessage, CancellationToken.None));
-                Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
-            }
+            var deliverMessage = new DeliverMessageEnvelope(new MessageInfo(), new byte[] { }, string.Empty);
 
-            private void SetupFailedDeliverSender()
-            {
-                base._mockedSender
-                    .Setup(s => s.SendAsync(It.IsAny<DeliverMessageEnvelope>()))
-                    .Throws(new AS4Exception("Failed to send Deliver Message"));
-                base._step = new SendDeliverMessageStep(base._mockedProvider.Object);
-            }
+            return new MessagingContext(deliverMessage);
+        }
+
+        private static ReceivingProcessingMode CreateDefaultReceivingPMode()
+        {
+            return new ReceivingProcessingMode {Deliver = {DeliverMethod = new Method()}};
         }
     }
 }

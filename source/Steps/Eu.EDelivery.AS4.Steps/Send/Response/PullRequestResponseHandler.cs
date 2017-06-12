@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
@@ -27,9 +28,14 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
             bool isOriginatedFromPullRequest = (response.ResultedMessage.AS4Message.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
-            bool isRequestBeingSendAPullRequest = response.OriginalRequest.AS4Message.IsPulling;
+            bool isRequestBeingSendAPullRequest = response.OriginalRequest.AS4Message?.IsPullRequest == true;
 
-            if (isOriginatedFromPullRequest && isRequestBeingSendAPullRequest)
+            response.ResultedMessage.AS4Message.Mep =
+                isRequestBeingSendAPullRequest
+                    ? MessageExchangePattern.Pull
+                    : MessageExchangePattern.Push;
+
+            if (isOriginatedFromPullRequest)
             {
                 return StepResult.Success(response.ResultedMessage).AndStopExecution();
             }

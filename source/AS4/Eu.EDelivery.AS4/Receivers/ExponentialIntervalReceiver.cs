@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
         public abstract void StartReceiving(
-            Func<ReceivedMessage, CancellationToken, Task<InternalMessage>> messageCallback,
+            Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken cancellationToken);
 
         /// <summary>

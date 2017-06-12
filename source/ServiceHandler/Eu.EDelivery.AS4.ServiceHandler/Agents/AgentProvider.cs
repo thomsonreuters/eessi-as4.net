@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -70,16 +71,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             }
         }
 
-        private void AddMinderAgentsToProvider()
-        {
-            IEnumerable<SettingsMinderAgent> minderTestAgents = _config.GetEnabledMinderTestAgents();
-
-            foreach (SettingsMinderAgent agent in minderTestAgents)
-            {
-                _agents.Add(CreateMinderTestAgent(agent.Url, agent.Transformer));
-            }
-        }
-
         private static IAgent GetAgentFromSettings(SettingsAgent agent)
         {
             if (agent == null)
@@ -92,11 +83,23 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return new Agent(new AgentConfig(agent.Name), receiver, agent.Transformer, agent.Steps);
         }
 
-        private static Agent CreateMinderTestAgent(string url, Transformer transformerConfig)
+        [ExcludeFromCodeCoverage]
+        private void AddMinderAgentsToProvider()
+        {
+            IEnumerable<SettingsMinderAgent> minderTestAgents = _config.GetEnabledMinderTestAgents();
+
+            foreach (SettingsMinderAgent agent in minderTestAgents)
+            {
+                _agents.Add(CreateMinderTestAgent(agent.Url, agent.UseLogging, agent.Transformer));
+            }
+        }
+
+        [ExcludeFromCodeCoverage]
+        private static Agent CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
 
-            receiver.Configure(new[] { new Setting("Url", url) });
+            receiver.Configure(new[] { new Setting("Url", url), new Setting("UseLogging", useLogging.ToString()) });
 
             return new Agent(
                 new AgentConfig("Minder Submit/Receive Agent"),
@@ -105,9 +108,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 CreateMinderSubmitReceiveStepConfig());
         }
 
+        [ExcludeFromCodeCoverage]
         private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
         {
-            Func<InternalMessage, bool> isSubmitMessage =
+            Func<MessagingContext, bool> isSubmitMessage =
                 m =>
                     m.SubmitMessage.Collaboration?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false;
 
@@ -117,9 +121,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
         }
 
+        [ExcludeFromCodeCoverage]
         private static Model.Internal.Steps CreateSubmitStep()
         {
-            var s = new Model.Internal.Steps()
+            var s = new Model.Internal.Steps
             {
                 Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
                 Step =
@@ -133,9 +138,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             return s;
         }
 
+        [ExcludeFromCodeCoverage]
         private static Model.Internal.Steps CreateReceiveStep()
         {
-            return new Model.Internal.Steps()
+            return new Model.Internal.Steps
             {
                 Decorator = typeof(ReceiveExceptionStepDecorator).AssemblyQualifiedName,
                 Step =

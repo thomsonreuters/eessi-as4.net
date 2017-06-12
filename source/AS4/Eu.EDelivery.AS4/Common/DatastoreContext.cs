@@ -163,14 +163,14 @@ namespace Eu.EDelivery.AS4.Common
 
             modelBuilder.Entity<InMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<InMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
-            modelBuilder.Entity<InMessage>().HasIndex(im => im.EbmsMessageId);
+            modelBuilder.Entity<InMessage>().HasIndex(im => new { im.EbmsMessageId, im.IsDuplicate});
             modelBuilder.Entity<InMessage>().HasIndex(im => im.OperationString);
             modelBuilder.Entity<InMessage>().HasIndex(im => im.EbmsRefToMessageId);
 
             modelBuilder.Entity<OutMessage>().HasKey(im => im.Id);
             modelBuilder.Entity<OutMessage>().Property(im => im.Id).UseSqlServerIdentityColumn();
             modelBuilder.Entity<OutMessage>().HasAlternateKey(im => im.EbmsMessageId);
-            modelBuilder.Entity<OutMessage>().HasIndex(im => im.OperationString);
+            modelBuilder.Entity<OutMessage>().HasIndex(im => new { im.OperationString, im.MEP, im.Mpc, im.InsertionTime });
             modelBuilder.Entity<OutMessage>().HasIndex(im => im.EbmsRefToMessageId);
 
             modelBuilder.Entity<InException>().HasKey(ie => ie.Id);

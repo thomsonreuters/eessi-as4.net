@@ -2,9 +2,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -28,10 +33,33 @@ namespace Eu.EDelivery.AS4.Entities
         /// </summary>
         /// <remarks>
         /// This property is not persisted to the Datastore.  It is used to persist the Message in another location by an
-        /// <see cref="IAS4MessageBodyPersister" />
+        /// <see cref="IAS4MessageBodyStore" />
         /// </remarks>
         [NotMapped]
         internal AS4Message Message { get; set; }
+
+        [MaxLength(255)]
+        public string FromParty { get; set; }
+
+        [MaxLength(255)]
+        public string ToParty { get; set; }
+
+        [Column("MPC")]
+        [MaxLength(255)]
+        public string Mpc { get; set; }
+
+        [MaxLength(50)]
+        public string ConversationId { get; set; }
+
+        [MaxLength(255)]
+        public string Service { get; set; }
+
+        [MaxLength(255)]
+        public string Action { get; set; }
+
+        public bool IsDuplicate { get; set; }
+
+        public bool IsTest { get; set; }
 
         /// <summary>
         /// Gets to the location where the AS4Message body can be found.
@@ -94,6 +122,38 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(50)]
         public abstract string StatusString { get; set; }
 
+        public string SoapEnvelope { get; set; }
+
+        /// <summary>
+        /// Assigns the parent properties.
+        /// </summary>
+        /// <param name="as4Message">The as4 message.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        public void AssignAS4Properties(AS4Message as4Message, CancellationToken cancellationToken)
+        {
+            Message = as4Message;
+
+            if (as4Message.IsUserMessage)
+            {
+                UserMessage userMessage = as4Message.PrimaryUserMessage;
+                FromParty = userMessage.Sender.PartyIds.First().Id;
+                ToParty = userMessage.Receiver.PartyIds.First().Id;
+                Action = userMessage.CollaborationInfo.Action;
+                Service = userMessage.CollaborationInfo.Service.Value;
+                ConversationId = userMessage.CollaborationInfo.ConversationId;
+                Mpc = userMessage.Mpc;
+                IsTest = userMessage.IsTest;
+                IsDuplicate = userMessage.IsDuplicate;
+                SoapEnvelope =
+                    AS4XmlSerializer.ToDocument(new MessagingContext(as4Message), cancellationToken).OuterXml;
+            }
+
+            if (as4Message.IsSignalMessage)
+            {
+                IsDuplicate = as4Message.PrimarySignalMessage.IsDuplicated;
+            }
+        }
+
         /// <summary>
         /// Update the <see cref="Entity" /> to lock it with a given <paramref name="value" />.
         /// </summary>
@@ -111,12 +171,12 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Retrieves the Message body as a stream.
         /// </summary>
-        /// <param name="retrieverProvider">
-        /// The AS4MessageBodyRetrieverProvider which is responsible for providing the correct
-        /// IAS4MessageRepository that loads the AS4Message body.
+        /// <param name="store">
+        /// The <see cref="MessageBodyStore" /> which is responsible for providing the correct
+        /// <see cref="IAS4MessageBodyStore" /> that loads the <see cref="AS4Message" /> body.
         /// </param>
         /// <returns>A Stream which contains the MessageBody</returns>
-        public Stream RetrieveMessageBody(AS4MessageBodyRetrieverProvider retrieverProvider)
+        public async Task<Stream> RetrieveMessagesBody(IAS4MessageBodyStore store)
         {
             if (string.IsNullOrWhiteSpace(MessageLocation))
             {
@@ -124,16 +184,14 @@ namespace Eu.EDelivery.AS4.Entities
                 return null;
             }
 
-            IAS4MessageBodyRetriever repository = retrieverProvider.Get(MessageLocation);
-
-            return TryLoadMessageStream(repository);
+            return await TryLoadMessageBody(store);
         }
 
-        private Stream TryLoadMessageStream(IAS4MessageBodyRetriever repository)
+        private async Task<Stream> TryLoadMessageBody(IAS4MessageBodyStore store)
         {
             try
             {
-                return repository.LoadAS4MessageStream(MessageLocation);
+                return await store.LoadMessagesBody(MessageLocation);
             }
             catch (Exception exception)
             {

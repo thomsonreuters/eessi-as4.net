@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
+using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Moq;
 using Xunit;
 
@@ -13,48 +20,67 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
     /// </summary>
     public class GivenInMessageServiceFacts
     {
-
-        [Fact]
-        public void TestFindSignalMessageDuplicates()
+        public class UpdateAS4Message
         {
-            TestFindMessageDuplicates((messageIds, service) => service.DetermineDuplicateSignalMessageIds(messageIds));
+            [Fact]
+            public async Task FailsToUpdateMessage_IfNoMessageLocationCanBeFound()
+            {
+                // Arrange
+                var notPopulatedRepository = Mock.Of<IDatastoreRepository>();
+                var sut = new InMessageService(null, notPopulatedRepository);
+
+                var context = new MessagingContext(new AS4MessageBuilder().Build());
+
+                // Act / Assert
+                await Assert.ThrowsAnyAsync<InvalidDataException>(
+                    () => sut.UpdateAS4MessageForDeliveryAndNotification(context, null, CancellationToken.None));
+            }
         }
 
-        [Fact]
-        public void TestFindUserMessageDuplicates()
+        public class DetermineDuplicates
         {
-            TestFindMessageDuplicates((messageIds, service) => service.DetermineDuplicateUserMessageIds(messageIds));
-        }
+            [Fact]
+            public void TestFindSignalMessageDuplicates()
+            {
+                TestFindMessageDuplicates((messageIds, service) => service.DetermineDuplicateSignalMessageIds(messageIds));
+            }
 
-        private static void TestFindMessageDuplicates(Func<IEnumerable<string>, InMessageService, IDictionary<string, bool>> actAction)
-        {
-            // Arrange
-            IEnumerable<string> expectedMessageIds = new[] { "known-messsage-id", "unknown-message-id" };
-            Mock<IDatastoreRepository> mockedRepository = CreateMockedRepositoryThatHas(expectedMessageIds.ElementAt(0));
+            [Fact]
+            public void TestFindUserMessageDuplicates()
+            {
+                TestFindMessageDuplicates((messageIds, service) => service.DetermineDuplicateUserMessageIds(messageIds));
+            }
 
-            var sut = new InMessageService(mockedRepository.Object);
+            private static void TestFindMessageDuplicates(Func<IEnumerable<string>, InMessageService, IDictionary<string, bool>> actAction)
+            {
+                // Arrange
+                IEnumerable<string> expectedMessageIds = new[] { "known-messsage-id", "unknown-message-id" };
+                Mock<IDatastoreRepository> mockedRepository = CreateMockedRepositoryThatHas(expectedMessageIds.ElementAt(0));
 
-            // Act
-            IDictionary<string, bool> actualDuplicates = actAction(expectedMessageIds, sut);
+                var sut = new InMessageService(StubConfig.Instance, mockedRepository.Object);
 
-            // Assert
-            Assert.True(actualDuplicates.ElementAt(0).Value);
-            Assert.False(actualDuplicates.ElementAt(1).Value);
-        }
+                // Act
+                IDictionary<string, bool> actualDuplicates = actAction(expectedMessageIds, sut);
 
-        private static Mock<IDatastoreRepository> CreateMockedRepositoryThatHas(string expectedMessageId)
-        {
-            var mockedRepository = new Mock<IDatastoreRepository>();
+                // Assert
+                Assert.True(actualDuplicates.ElementAt(0).Value);
+                Assert.False(actualDuplicates.ElementAt(1).Value);
+            }
 
-            mockedRepository
-                .Setup(r => r.SelectExistingInMessageIds(It.IsAny<IEnumerable<string>>()))
-                .Returns(new[] { expectedMessageId });
+            private static Mock<IDatastoreRepository> CreateMockedRepositoryThatHas(string expectedMessageId)
+            {
+                var mockedRepository = new Mock<IDatastoreRepository>();
 
-            mockedRepository
-                .Setup(r => r.SelectExistingRefInMessageIds(It.IsAny<IEnumerable<string>>()))
-                .Returns(new[] { expectedMessageId });
+                mockedRepository
+                    .Setup(r => r.SelectExistingInMessageIds(It.IsAny<IEnumerable<string>>()))
+                    .Returns(new[] { expectedMessageId });
 
-            return mockedRepository;
+                mockedRepository
+                    .Setup(r => r.SelectExistingRefInMessageIds(It.IsAny<IEnumerable<string>>()))
+                    .Returns(new[] { expectedMessageId });
+
+                return mockedRepository;
+            }
         }
     }
 }

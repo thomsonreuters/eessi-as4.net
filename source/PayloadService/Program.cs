@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
 namespace Eu.EDelivery.AS4.PayloadService
@@ -14,6 +15,9 @@ namespace Eu.EDelivery.AS4.PayloadService
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
+            const string hostUrl = "http://localhost:3000/";
+            Console.WriteLine($"Payload Service started at: {hostUrl}");
+
             IWebHost host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
@@ -22,7 +26,7 @@ namespace Eu.EDelivery.AS4.PayloadService
                 .UseApplicationInsights()
                 
                 // TODO: Hosting URL must be made configurable...
-                .UseUrls("http://localhost:3000/")
+                .UseUrls(hostUrl)
                 .Build();
 
             host.Run();

@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
     {        
         private readonly ILogger _logger;
 
-        private InternalMessage _internalMessage;
+        private MessagingContext _messagingContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeliverUpdateDatastoreStep"/> class
@@ -30,16 +30,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         /// <summary>
         /// Start updating the InMessages
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            _internalMessage = internalMessage;
-            _logger.Info($"{this._internalMessage.Prefix} Update AS4 UserMessages in Datastore");
+            _messagingContext = messagingContext;
+            _logger.Info($"{this._messagingContext.Prefix} Update AS4 UserMessages in Datastore");
 
-            await UpdateUserMessageAsync(internalMessage.DeliverMessage).ConfigureAwait(false);
-            return await StepResult.SuccessAsync(internalMessage);
+            await UpdateUserMessageAsync(messagingContext.DeliverMessage).ConfigureAwait(false);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private async Task UpdateUserMessageAsync(DeliverMessageEnvelope deliverMessage)
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 var repository = new DatastoreRepository(context);
 
                 string messageId = deliverMessage.MessageInfo.MessageId;
-                _logger.Info($"{this._internalMessage.Prefix} Update InMessage with Delivered Status and Operation");
+                _logger.Info($"{this._messagingContext.Prefix} Update InMessage with Delivered Status and Operation");
 
                 repository.UpdateInMessage(messageId, UpdateNotifiedInMessage);
 

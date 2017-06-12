@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Transformers
 {
     /// <summary>
     /// Transform the given <see cref="ReceptionAwareness"/> Model
-    /// to a <see cref="InternalMessage"/> Model
+    /// to a <see cref="MessagingContext"/> Model
     /// </summary>
     public class ReceptionAwarenessTransformer : ITransformer
     {
@@ -31,11 +31,11 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<InternalMessage> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
+        public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             ReceivedEntityMessage entityMessage = RetrieveEntityMessage(message);
             ReceptionAwareness awareness = RetrieveReceptionAwareness(entityMessage);
-            var internalMessage = new InternalMessage { ReceptionAwareness = awareness };
+            var internalMessage = new MessagingContext(awareness);
 
             _logger.Info($"[{awareness.InternalMessageId}] Reception Awareness is successfully transformed");
             return await Task.FromResult(internalMessage);

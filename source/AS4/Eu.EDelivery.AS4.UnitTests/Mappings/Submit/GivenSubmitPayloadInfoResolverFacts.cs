@@ -27,6 +27,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         public class GivenValidArguments : GivenSubmitPayloadInfoResolverFacts
         {
             [Fact]
+            public void ResolveEmptyPartInfos_WhenNoPayloadsArePresent()
+            {
+                // Arrange
+                SubmitMessage message = CreatePopulatedSubmitMessage();
+                message.Payloads = null;
+
+                // Act
+                List<PartInfo> actual = ExerciseResolve(message);
+
+                // Assert
+                Assert.Empty(actual);
+            }
+
+            [Fact]
             public void ThenResolvePayloadInfoSucceeds()
             {
                 // Arrange
@@ -34,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act
-                List<PartInfo> partInfos = new SubmitPayloadInfoResolver().Resolve(submitMessage);
+                List<PartInfo> partInfos = ExerciseResolve(submitMessage);
 
                 // Assert
                 Assert.Equal(2, partInfos.Count);
@@ -48,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act
-                List<PartInfo> partInfos = new SubmitPayloadInfoResolver().Resolve(submitMessage);
+                List<PartInfo> partInfos = ExerciseResolve(submitMessage);
 
                 // Assert
                 partInfos.ForEach(p => Assert.StartsWith("cid:", p.Href));
@@ -63,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode.MessagePackaging.UseAS4Compression = true;
 
                 // Act
-                List<PartInfo> partInfos = new SubmitPayloadInfoResolver().Resolve(submitMessage);
+                List<PartInfo> partInfos = ExerciseResolve(submitMessage);
 
                 // Assert
                 IEnumerable<PartInfo> compressedPartInfos =
@@ -75,31 +89,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         public class GivenInvalidArguments : GivenSubmitPayloadInfoResolverFacts
         {
             [Fact]
-            public void ThenResolveFailsWithEmptyPayloadPropertyName()
+            public void ThenResolveFails_IfPayloadPropertyNameIsEmpty()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-
-                foreach (Payload p in submitMessage.Payloads) p.PayloadProperties = new[] {new PayloadProperty(string.Empty)};
-
+                submitMessage.Payloads.First().PayloadProperties = new[] {new PayloadProperty(name: string.Empty)};
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act
-                Assert.Throws<AS4Exception>(() => new SubmitPayloadInfoResolver().Resolve(submitMessage));
+                Assert.Throws<AS4Exception>(() => ExerciseResolve(submitMessage));
             }
 
             [Fact]
-            public void ThenResolveFailsWithEmptySchemaLocation()
+            public void ThenResolveFails_IfSchemaLocationIsEmpty()
             {
                 // Arrange
                 SubmitMessage submitMessage = CreatePopulatedSubmitMessage();
-
-                foreach (Payload p in submitMessage.Payloads) p.Schemas = new[] {new CommonSchema(string.Empty)};
-
+                submitMessage.Payloads.First().Schemas = new[] {new CommonSchema(location: string.Empty)};
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => new SubmitPayloadInfoResolver().Resolve(submitMessage));
+                Assert.Throws<AS4Exception>(() => ExerciseResolve(submitMessage));
             }
         }
 
@@ -111,6 +121,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
         protected SendingProcessingMode CreatePopulatedSendingPMode()
         {
             return AS4XmlSerializer.FromString<SendingProcessingMode>(Properties.Resources.sendingprocessingmode);
+        }
+
+        protected List<PartInfo> ExerciseResolve(SubmitMessage message)
+        {
+            var sut = new SubmitPayloadInfoResolver();
+
+            return sut.Resolve(message);
         }
     }
 }

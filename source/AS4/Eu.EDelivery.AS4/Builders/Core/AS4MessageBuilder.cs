@@ -11,88 +11,34 @@ namespace Eu.EDelivery.AS4.Builders.Core
     public class AS4MessageBuilder
     {
         private readonly List<Attachment> _attachments;
+        private readonly SendingProcessingMode _sendPmode;
         private readonly List<SignalMessage> _signalMessages;
         private readonly List<UserMessage> _userMessages;
-        private SendingProcessingMode _sendPMode;
-        private ReceivingProcessingMode _receivePMode;
 
-        public AS4MessageBuilder()
+        public AS4MessageBuilder() : this(new SendingProcessingMode {MessagePackaging = {IsMultiHop = false}}) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AS4MessageBuilder" /> class.
+        /// </summary>
+        /// <param name="pmode">The pmode.</param>
+        public AS4MessageBuilder(SendingProcessingMode pmode)
         {
-            this._userMessages = new List<UserMessage>();
-            this._signalMessages = new List<SignalMessage>();
-            this._attachments = new List<Attachment>();
-            this._sendPMode = new SendingProcessingMode();
-            this._receivePMode = new ReceivingProcessingMode();
+            _sendPmode = pmode;
+            _userMessages = new List<UserMessage>();
+            _signalMessages = new List<SignalMessage>();
+            _attachments = new List<Attachment>();
         }
 
         /// <summary>
-        /// Assign a <see cref="SendingProcessingMode" /> to the <see cref="AS4Message" />
+        /// Break down the Builder
         /// </summary>
-        /// <param name="pmode"></param>
         /// <returns></returns>
-        public AS4MessageBuilder WithSendingPMode(SendingProcessingMode pmode)
+        public AS4MessageBuilder BreakDown()
         {
-            if (pmode == null)
-                throw new ArgumentNullException(nameof(pmode));
+            _userMessages.Clear();
+            _signalMessages.Clear();
+            _attachments.Clear();
 
-            this._sendPMode = pmode;
-            return this;
-        }
-
-        /// <summary>
-        /// Assign a <see cref="ReceivingProcessingMode"/> to the <see cref="AS4Message"/>
-        /// </summary>
-        /// <param name="receivePMode"></param>
-        /// <returns></returns>
-        public AS4MessageBuilder WithReceivingPMode(ReceivingProcessingMode receivePMode)
-        {
-            if (receivePMode == null)
-                throw new ArgumentNullException(nameof(receivePMode));
-
-            this._receivePMode = receivePMode;
-            return this;
-        }
-
-        /// <summary>
-        /// Add a <see cref="PullRequest" /> to the <see cref="AS4Message" />
-        /// </summary>
-        /// <param name="mpc">Message Partition Channel</param>
-        /// <returns></returns>
-        public AS4MessageBuilder WithPullRequest(string mpc)
-        {
-            if (mpc == null)
-                throw new ArgumentNullException(nameof(mpc));
-
-            SignalMessage signalMessage = new PullRequest(mpc);
-            this._signalMessages.Add(signalMessage);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a <see cref="UserMessage" /> to the <see cref="AS4Message" />
-        /// </summary>
-        /// <param name="userMessage"></param>
-        /// <returns></returns>
-        public AS4MessageBuilder WithUserMessage(UserMessage userMessage)
-        {
-            if (userMessage == null)
-                throw new ArgumentNullException(nameof(userMessage));
-
-            this._userMessages.Add(userMessage);
-            return this;
-        }
-
-        /// <summary>
-        /// Add a <see cref="SignalMessage"/> to the <see cref="AS4Message"/>
-        /// </summary>
-        /// <param name="signalMessage"></param>
-        /// <returns></returns>
-        public AS4MessageBuilder WithSignalMessage(SignalMessage signalMessage)
-        {
-            if (signalMessage == null)
-                throw new ArgumentNullException(nameof(signalMessage));
-
-            this._signalMessages.Add(signalMessage);
             return this;
         }
 
@@ -104,9 +50,60 @@ namespace Eu.EDelivery.AS4.Builders.Core
         public AS4MessageBuilder WithAttachment(Attachment attachment)
         {
             if (attachment == null)
+            {
                 throw new ArgumentNullException(nameof(attachment));
+            }
 
-            this._attachments.Add(attachment);
+            _attachments.Add(attachment);
+            return this;
+        }
+
+        /// <summary>
+        /// Add a <see cref="PullRequest" /> to the <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="mpc">Message Partition Channel</param>
+        /// <returns></returns>
+        public AS4MessageBuilder WithPullRequest(string mpc)
+        {
+            if (mpc == null)
+            {
+                throw new ArgumentNullException(nameof(mpc));
+            }
+
+            SignalMessage signalMessage = new PullRequest(mpc);
+            _signalMessages.Add(signalMessage);
+            return this;
+        }
+
+        /// <summary>
+        /// Add a <see cref="SignalMessage" /> to the <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="signalMessage"></param>
+        /// <returns></returns>
+        public AS4MessageBuilder WithSignalMessage(SignalMessage signalMessage)
+        {
+            if (signalMessage == null)
+            {
+                throw new ArgumentNullException(nameof(signalMessage));
+            }
+
+            _signalMessages.Add(signalMessage);
+            return this;
+        }
+
+        /// <summary>
+        /// Add a <see cref="UserMessage" /> to the <see cref="AS4Message" />
+        /// </summary>
+        /// <param name="userMessage"></param>
+        /// <returns></returns>
+        public AS4MessageBuilder WithUserMessage(UserMessage userMessage)
+        {
+            if (userMessage == null)
+            {
+                throw new ArgumentNullException(nameof(userMessage));
+            }
+
+            _userMessages.Add(userMessage);
             return this;
         }
 
@@ -116,49 +113,37 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public AS4Message Build()
         {
-            var message = new AS4Message();
+            AS4Message message = AS4Message.ForSendingPMode(_sendPmode);
 
             BuildingUsermessages(message);
             BuildingSignalMessages(message);
             BuildingAttachments(message);
-
-            message.SendingPMode = this._sendPMode;
-            message.ReceivingPMode = this._receivePMode;
 
             return message;
         }
 
         private void BuildingUsermessages(AS4Message message)
         {
-            for (int i = 0, l = this._userMessages.Count; i < l; i++)
-                message.UserMessages.Add(this._userMessages[i]);
+            for (int i = 0, l = _userMessages.Count; i < l; i++)
+            {
+                message.UserMessages.Add(_userMessages[i]);
+            }
         }
 
         private void BuildingSignalMessages(AS4Message message)
         {
-            for (int i = 0, l = this._signalMessages.Count; i < l; i++)
-                message.SignalMessages.Add(this._signalMessages[i]);
+            for (int i = 0, l = _signalMessages.Count; i < l; i++)
+            {
+                message.SignalMessages.Add(_signalMessages[i]);
+            }
         }
 
         private void BuildingAttachments(AS4Message message)
         {
-            for (int i = 0, l = this._attachments.Count; i < l; i++)
-                message.AddAttachment(this._attachments[i]);
-        }
-
-        /// <summary>
-        /// Break down the Builder
-        /// </summary>
-        /// <returns></returns>
-        public AS4MessageBuilder BreakDown()
-        {
-            this._userMessages.Clear();
-            this._signalMessages.Clear();
-            this._attachments.Clear();
-            this._sendPMode = new SendingProcessingMode();
-            this._receivePMode = new ReceivingProcessingMode();
-
-            return this;
+            for (int i = 0, l = _attachments.Count; i < l; i++)
+            {
+                message.AddAttachment(_attachments[i]);
+            }
         }
     }
 }

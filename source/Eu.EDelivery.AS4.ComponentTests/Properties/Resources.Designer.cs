@@ -109,5 +109,15 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] receiveagent_message_nonexist_attachment {
+            get {
+                object obj = ResourceManager.GetObject("receiveagent_message_nonexist_attachment", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

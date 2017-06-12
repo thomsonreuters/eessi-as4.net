@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Receivers
@@ -49,15 +50,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             private static void AssertOnMessageReceived(IReceiver receiver)
             {
                 var waitHandle = new ManualResetEvent(initialState: false);
-
-                receiver.StartReceiving(
-                    (message, token) =>
-                    {
-                        waitHandle.Set();
-                        return Task.FromResult(new InternalMessage());
-                    }, CancellationToken.None);
+                receiver.StartReceiving(SetEvent(waitHandle), CancellationToken.None);
 
                 Assert.False(waitHandle.WaitOne(TimeSpan.FromMilliseconds(500)));
+            }
+
+            [Fact]
+            public async Task TestSetEvent()
+            {
+                // Arrange
+                var waitHandle = new ManualResetEvent(initialState: false);
+                Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> func = SetEvent(waitHandle);
+
+                // Act
+                await func(null, CancellationToken.None);
+
+                // Assert
+                Assert.True(waitHandle.WaitOne());
+            }
+
+            private static Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> SetEvent(EventWaitHandle waitHandle)
+            {
+                return (message, token) =>
+                {
+                    waitHandle.Set();
+                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
+                };
             }
         }
 
@@ -101,7 +119,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 };
             }
 
-            private Task<InternalMessage> OnMessageReceived(
+            private Task<MessagingContext> OnMessageReceived(
                 ReceivedMessage receivedMessage,
                 CancellationToken cancellationToken)
             {
@@ -114,7 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return Task.FromResult(new InternalMessage());
+                return Task.FromResult((MessagingContext) new EmptyMessagingContext());
             }
 
             /// <summary>

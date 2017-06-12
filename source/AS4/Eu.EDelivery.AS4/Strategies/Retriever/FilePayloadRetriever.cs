@@ -39,11 +39,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
             {
                 return RetrievePayloadAtlocation(location);
             }
-            catch (UriFormatException exception)
-            {
-                throw ThrowAS4PayloadException(location, exception);
-            }
-            catch (IOException exception)
+            catch (Exception exception)
             {
                 throw ThrowAS4PayloadException(location, exception);
             }

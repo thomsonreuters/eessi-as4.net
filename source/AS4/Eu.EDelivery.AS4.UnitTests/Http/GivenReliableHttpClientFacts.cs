@@ -8,6 +8,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
 {
     public class GivenReliableHttpClientFacts
     {
+        public class Request
+        {
+            [Fact]
+            public void CreatePostRequest()
+            {
+                // Arrange
+                const string expectedUrl = "http://valid/url";
+                const string expectedType = "application/json";
+                var sut = new ReliableHttpClient();
+
+                // Act
+                HttpWebRequest request = sut.Request(expectedUrl, expectedType);
+
+                // Assert
+                Assert.Equal("POST", request.Method);
+                Assert.Equal(expectedUrl, request.RequestUri.AbsoluteUri);
+                Assert.Equal(expectedType, request.ContentType);
+            }
+        }
+
         public class Respond
         {
             [Fact]

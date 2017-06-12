@@ -16,6 +16,7 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -36,14 +37,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 IStep sut = GetCatchedCompositeSteps();
-                var internalMessage = new InternalMessage();
+                var internalMessage = new MessagingContext(EmptyAS4Message);
 
                 // Act
                 StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.Equal(internalMessage, result.InternalMessage);
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                Assert.Equal(internalMessage, result.MessagingContext);
             }
 
             [Fact]
@@ -57,8 +58,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 StepResult result = await sut.ExecuteAsync(DummyMessage(), CancellationToken.None);
 
                 // Assert
-                Assert.NotNull(result.InternalMessage.AS4Message);
-                Assert.NotNull(result.InternalMessage.AS4Message.ReceivingPMode);
+                Assert.NotNull(result.MessagingContext.AS4Message);
+                Assert.NotNull(result.MessagingContext.ReceivingPMode);
             }
 
             [Theory]
@@ -91,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             return new CompositeStep(
                 new ReceiveExceptionStepDecorator(catchedStep ?? new SinkStep()),
-                new CreateAS4ErrorStep(new StubMessageBodyPersister(), () => new DatastoreContext(Options)),
+                new CreateAS4ErrorStep(new StubMessageBodyStore(), () => new DatastoreContext(Options)),
                 new SendAS4ErrorStep());
         }
 
@@ -100,14 +101,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false, SendingPMode = "pmode"}};
         }
 
-        protected InternalMessage DummyMessage()
+        protected MessagingContext DummyMessage()
         {
-            var as4Message = new AS4Message
+            AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
+
+            return new MessagingContext(as4Message)
             {
                 ReceivingPMode = GetStubReceivingPMode(),
-                UserMessages = new[] {new UserMessage("message-id")}
+                SendingPMode = new SendingProcessingMode()
             };
-            return new InternalMessage(as4Message);
         }
 
         private AS4Exception CreateAS4Exception(string messageId = "ignored-string")

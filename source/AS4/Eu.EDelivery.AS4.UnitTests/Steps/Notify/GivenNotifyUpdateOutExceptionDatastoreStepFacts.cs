@@ -24,11 +24,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 // Arrange
                 OutException outException = CreateDefaultOutException();
                 InsertOutException(outException);
-                InternalMessage internalMessage = CreateNotifyMessage(outException);
+                MessagingContext messagingContext = CreateNotifyMessage(outException);
                 var step = new NotifyUpdateOutExceptionDatastoreStep();
 
                 // Act
-                await step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
                 AssertOutException(outException);
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 return new OutException { EbmsRefToMessageId = "ref-to-message-id", Operation = Operation.ToBeNotified };
             }
 
-            private static InternalMessage CreateNotifyMessage(OutException outException)
+            private static MessagingContext CreateNotifyMessage(OutException outException)
             {
                 var notifyMessage =
                     new NotifyMessageEnvelope(
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                         null,
                         string.Empty);
 
-                return new InternalMessage(notifyMessage);
+                return new MessagingContext(notifyMessage);
             }
 
             private void AssertOutException(ExceptionEntity previousOutException)

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -42,7 +43,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             private ISigningStrategy CreateSignStrategyForSigning()
             {
                 var signingId = new SigningId("header-id", "body-id");
-                var as4Message = new AS4Message {SigningId = signingId};
+                AS4Message as4Message = new AS4MessageBuilder().Build();
+                as4Message.SigningId = signingId;
 
                 XmlDocument xmlDocument = SerializeAS4Message(as4Message);
 

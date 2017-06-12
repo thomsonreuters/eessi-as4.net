@@ -33,20 +33,20 @@ namespace Eu.EDelivery.AS4.Steps
         /// <summary>
         /// Send message through the Use Case
         /// </summary>
-        /// <param name="internalMessage"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {            
-            InternalMessage messageToSend = internalMessage;
+            MessagingContext messageToSend = messagingContext;
 
             foreach (IStep step in _steps)
             {
                 StepResult result = await step.ExecuteAsync(messageToSend, cancellationToken).ConfigureAwait(false);
 
-                if (result.InternalMessage != null)
+                if (result.MessagingContext != null)
                 {
-                    messageToSend = result.InternalMessage;
+                    messageToSend = result.MessagingContext;
                 }
 
                 if (!result.CanProceed)
