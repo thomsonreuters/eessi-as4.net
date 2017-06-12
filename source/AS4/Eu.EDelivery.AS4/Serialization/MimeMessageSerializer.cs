@@ -181,10 +181,7 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="contentType">Multi-Part Content ExceptionType</param>
         /// <param name="cancellationToken"></param>
         /// <returns><see cref="AS4Message" /> that wraps the Envelope and Payloads Streams</returns>
-        public async Task<AS4Message> DeserializeAsync(
-            Stream inputStream,
-            string contentType,
-            CancellationToken cancellationToken)
+        public async Task<AS4Message> DeserializeAsync(Stream inputStream, string contentType, CancellationToken cancellationToken)
         {
             PreConditions(inputStream, contentType);
 
