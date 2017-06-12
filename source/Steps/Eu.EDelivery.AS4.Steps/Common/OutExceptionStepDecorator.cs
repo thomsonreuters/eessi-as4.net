@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         /// <param name="messagingContext"></param>        
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public virtual async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             try
             {
@@ -53,25 +53,30 @@ namespace Eu.EDelivery.AS4.Steps.Common
             }
             catch (AS4Exception exception)
             {
-                _logger.Error(exception.Message);
-
-                messagingContext.Exception = exception;
-                try
-                {
-                    using (var context = Registry.Instance.CreateDatastoreContext())
-                    {
-                        HandleOutException(exception, messagingContext, new DatastoreRepository(context));
-
-                        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Fatal($"An unexpected error occured: {ex.Message}");
-
-                }
-                return StepResult.Failed(exception, messagingContext);
+                return await HandleAS4Exception(messagingContext, exception, cancellationToken);
             }
+        }
+
+        protected async Task<StepResult> HandleAS4Exception(MessagingContext messagingContext, AS4Exception exception, CancellationToken cancellationToken)
+        {
+            _logger.Error(exception.Message);
+
+            messagingContext.Exception = exception;
+            try
+            {
+                using (var context = Registry.Instance.CreateDatastoreContext())
+                {
+                    HandleOutException(exception, messagingContext, new DatastoreRepository(context));
+
+                    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Fatal($"An unexpected error occured: {ex.Message}");
+
+            }
+            return StepResult.Failed(exception, messagingContext);
         }
 
         private void HandleOutException(AS4Exception exception, MessagingContext messagingContext, IDatastoreRepository repository)
