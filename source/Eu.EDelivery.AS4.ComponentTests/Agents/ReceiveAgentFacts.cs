@@ -84,10 +84,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 return message;
             }
-        }
 
-        public class GivenValidReceivedSignalMessageFacts : ReceiveAgentFacts
-        {
             [Fact]
             public async Task ReturnsEmptyMessageFromInvalidMessage_IfReceivePModeIsCallback()
             {
@@ -116,7 +113,10 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 return new HttpRequestMessage(HttpMethod.Post, _receiveAgentUrl) { Content = messageContent };
             }
+        }
 
+        public class GivenValidReceivedSignalMessageFacts : ReceiveAgentFacts
+        {
             [Fact]
             public async Task ThenRelatedUserMessageIsAcked()
             {
