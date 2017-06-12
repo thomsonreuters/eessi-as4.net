@@ -15,13 +15,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         [Fact]
         public async Task FailsVerifySignature_ResultsInStoppedExecution()
         {
-            await TestExerciseVerifySignature(as4_soap_wrong_signed_message, r => Assert.False(r.CanProceed));
+            await TestExerciseVerifySignature(as4_soap_wrong_signed_pullrequest, r => Assert.False(r.CanProceed));
         }
 
         [Fact]
         public async Task SucceedsVerifySignature_ResultsInSameMessage()
         {
-            await TestExerciseVerifySignature(as4_soap_signed_message, r => Assert.True(r.CanProceed));
+            await TestExerciseVerifySignature(as4_soap_signed_pullrequest, r => Assert.True(r.CanProceed));
         }
 
         private static async Task TestExerciseVerifySignature(string content, Action<StepResult> assertion)
