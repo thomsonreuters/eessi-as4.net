@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         {
             // Arrange
             var inMessage = new InMessage {Operation = Operation.ToBeDelivered};
-            var sut = new SameExpression<InMessage>("Operation", "ToBeDelivered", inMessage);
+            var sut = EqualExpression<InMessage>.For("Operation = ToBeDelivered", inMessage);
 
             // Act
             bool isTheSame = sut.Evaluate();
@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
         {
             // Arrange
             var inMessage = new InMessage {EbmsMessageId = expectedId};
-            var sut = new SameExpression<InMessage>("EbmsMessageId", "NULL", inMessage);
+            var sut = EqualExpression<InMessage>.For("EbmsMessageId = NULL", inMessage);
 
             // Act
             bool actualEvaluation = sut.Evaluate();

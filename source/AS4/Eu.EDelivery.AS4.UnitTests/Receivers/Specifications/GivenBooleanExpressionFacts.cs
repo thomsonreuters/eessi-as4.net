@@ -28,45 +28,5 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers.Specifications
             // Assert
             Assert.Equal(expected, actual);
         }
-
-        public class AndExpressionFacts
-        {
-            [Theory]
-            [InlineData(false, false, false)]
-            [InlineData(false, true, false)]
-            [InlineData(true, false, false)]
-            [InlineData(true, true, true)]
-            public void EvaluateAndExpression(bool left, bool right, bool expected)
-            {
-                // Arrange
-                var sut = new AndExpression(left, right);
-
-                // Act
-                bool actual = sut.Evaluate();
-
-                // Assert
-                Assert.Equal(expected, actual);
-            }
-        }
-
-        public class OrExpressionFacts
-        {
-            [Theory]
-            [InlineData(false, false, false)]
-            [InlineData(false, true, true)]
-            [InlineData(true, false, true)]
-            [InlineData(true, true, true)]
-            public void EvaluateOrExpression(bool left, bool right, bool expected)
-            {
-                // Arrange
-                var sut = new OrExpression(left, right);
-
-                // Act
-                bool actual = sut.Evaluate();
-
-                // Assert
-                Assert.Equal(expected, actual);
-            }
-        }
     }
 }
