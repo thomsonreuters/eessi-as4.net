@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private PullOutExceptionStepDecorator DecoratorWitSInvalidSignatureSabotuer()
         {
-            var saboteur = new SaboteurStep(PullException.InvalidSignature("message-id"));
+            var saboteur = new SaboteurStep(PullRequestValidationException.InvalidSignature("message-id"));
             return new PullOutExceptionStepDecorator(saboteur, GetDataStoreContext);
         }
 

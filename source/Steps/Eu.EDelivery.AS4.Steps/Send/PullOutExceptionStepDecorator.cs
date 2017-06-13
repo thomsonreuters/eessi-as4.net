@@ -42,7 +42,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 return await _innerStep.ExecuteAsync(messagingContext, cancellationToken);
             }
-            catch (PullException exception)
+            catch (PullRequestValidationException exception)
             {
                 InsertOutException(messagingContext, exception);
 
