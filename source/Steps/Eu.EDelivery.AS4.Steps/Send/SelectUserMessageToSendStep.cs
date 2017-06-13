@@ -46,18 +46,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
             (bool hasMatch, OutMessage match) selection = SelectUserMessageFor(messagingContext);
 
             var builder = new AS4MessageBuilder();
+
             if (selection.hasMatch)
             {
                 AS4Message message = await RetrieveAS4UserMessage(selection.match, cancellationToken);
+
                 builder.WithUserMessage(message.PrimaryUserMessage);
-            }
-            else
-            {
-               builder.WithSignalMessage(new PullRequestError());
+                return SuccessStepResult(builder);
             }
 
-
-            return StepResult.Success(new MessagingContext(builder.Build()));
+            builder.WithSignalMessage(new PullRequestError());
+            return SuccessStepResult(builder).AndStopExecution();
         }
 
         private async Task<AS4Message> RetrieveAS4UserMessage(MessageEntity selection, CancellationToken cancellationToken)
@@ -109,6 +108,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return userMessage.Mpc == pullRequest.Mpc 
                    && userMessage.Operation == Operation.ToBeSent
                    && userMessage.MEP == MessageExchangePattern.Pull;
+        }
+
+        private static StepResult SuccessStepResult(AS4MessageBuilder builder)
+        {
+            return StepResult.Success(new MessagingContext(builder.Build()));
         }
     }
 }

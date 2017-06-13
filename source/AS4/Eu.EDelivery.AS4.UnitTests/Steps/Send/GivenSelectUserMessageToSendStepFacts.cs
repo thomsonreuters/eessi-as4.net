@@ -34,6 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             // Assert
             var signal = result.MessagingContext.AS4Message.PrimarySignalMessage as PullRequestError;
             Assert.Equal(new PullRequestError(), signal);
+            Assert.False(result.CanProceed);
         }
 
         [Fact]
