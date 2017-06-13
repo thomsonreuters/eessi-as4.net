@@ -31,6 +31,10 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private readonly string _securityTokenReferenceNamespace;
         private readonly XmlDocument _document;
 
+        /// <summary>
+        /// Gets the security token reference used to sign the <see cref="AS4Message"/>.
+        /// </summary>
+        /// <value>The security token reference.</value>
         public SecurityTokenReference SecurityTokenReference { get; }
 
         /// <summary>

@@ -230,6 +230,7 @@
     <Compile Include="Receive\CreateAS4ReceiptStep.cs" />
     <Compile Include="Receive\VerifySignatureAS4MessageStep.cs" />
     <Compile Include="Send\CompressAttachmentsStep.cs" />
+    <Compile Include="Send\VerifyPullRequestAuthorizationStep.cs" />
     <Compile Include="Submit\CreateAS4MessageStep.cs" />
     <Compile Include="Send\EncryptAS4MessageStep.cs" />
     <Compile Include="Common\OutExceptionStepDecorator.cs" />
