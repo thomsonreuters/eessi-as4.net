@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
 
             private static MessagingContext AnonymousMessage()
             {
-                return new MessagingContext(new AS4MessageBuilder().Build());
+                return new MessagingContext(AS4Message.Empty);
             }
         }
     }

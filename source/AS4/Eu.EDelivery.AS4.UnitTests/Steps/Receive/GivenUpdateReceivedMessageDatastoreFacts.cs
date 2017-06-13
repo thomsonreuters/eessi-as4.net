@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 var receipt = new Receipt {RefToMessageId = refToMessageId};
 
-                return new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+                return AS4Message.Create(receipt);
             }
         }
 
@@ -187,7 +187,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 var receipt = new Receipt {RefToMessageId = refToMessageId};
 
-                return new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+                return AS4Message.Create(receipt);
             }
         }
     }

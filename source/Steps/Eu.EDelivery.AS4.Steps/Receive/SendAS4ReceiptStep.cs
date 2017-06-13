@@ -52,17 +52,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             _logger.Info($"{messagingContext.Prefix} Empty SOAP Envelope will be send to requested party");
 
-            var emptyInternalMessage = new MessagingContext(CreateEmptyAS4Message(messagingContext.SendingPMode))
+            var emptyInternalMessage = new MessagingContext(AS4Message.Create(messagingContext.SendingPMode))
             {
                 ReceivingPMode = messagingContext.ReceivingPMode
             };
 
             return await StepResult.SuccessAsync(emptyInternalMessage);
-        }
-
-        private static AS4Message CreateEmptyAS4Message(SendingProcessingMode pmode)
-        {            
-            return new AS4MessageBuilder(pmode).Build();
         }
 
         private static async Task<StepResult> ReturnSameStepResult(MessagingContext messagingContext)

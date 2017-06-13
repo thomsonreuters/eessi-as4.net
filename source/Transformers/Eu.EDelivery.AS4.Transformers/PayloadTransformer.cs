@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -24,7 +25,8 @@ namespace Eu.EDelivery.AS4.Transformers
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             Attachment attachment = CreateAttachmentFromReceivedMessage(message);
-            AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
+            AS4Message as4Message = AS4Message.Create(new XmlDocument(), Constants.ContentTypes.Soap);
+            as4Message.AddAttachment(attachment);
 
             Logger.Info("Transform the given Payload to a AS4 Attachment");
             return await Task.FromResult(new MessagingContext(as4Message));

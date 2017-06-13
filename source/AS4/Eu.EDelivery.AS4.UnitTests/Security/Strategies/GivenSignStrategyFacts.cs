@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
             private ISigningStrategy CreateSignStrategyForSigning()
             {
                 var signingId = new SigningId("header-id", "body-id");
-                AS4Message as4Message = new AS4MessageBuilder().Build();
+                AS4Message as4Message = AS4Message.Empty;
                 as4Message.SigningId = signingId;
 
                 XmlDocument xmlDocument = SerializeAS4Message(as4Message);

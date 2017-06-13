@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
@@ -74,11 +75,9 @@ namespace Eu.EDelivery.AS4.Transformers
                 .BuildWithOriginalAS4Exception();
         }
 
-        private static AS4Message CreateErrorMessage(Error errorMessage)
+        private static AS4Message CreateErrorMessage(SignalMessage errorMessage)
         {
-            return new AS4MessageBuilder()
-                .WithSignalMessage(errorMessage)
-                .Build();
+            return AS4Message.Create(errorMessage, new SendingProcessingMode());
         }
 
         private async Task<MessagingContext> TransformMessage(ReceivedMessage receivedMessage,

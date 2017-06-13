@@ -11,8 +11,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
     /// </summary>
     public static class AS4MessageExtensions
     {
-        public static AS4Message EmptyAS4Message => new AS4MessageBuilder().Build();
-
         /// <summary>
         /// Serialize a given <paramref name="message"/> to a Stream instance.
         /// </summary>

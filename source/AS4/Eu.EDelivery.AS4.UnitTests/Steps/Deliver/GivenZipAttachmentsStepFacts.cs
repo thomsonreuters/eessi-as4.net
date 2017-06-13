@@ -31,10 +31,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 // Arrange
                 const string contentType = "image/png";
-                var internalMessage =
-                    new MessagingContext(
-                        new AS4MessageBuilder().WithAttachment(
-                            new Attachment("attachment-id") {ContentType = contentType}).Build());
+                AS4Message as4Message = AS4Message.Empty;
+                as4Message.AddAttachment(new Attachment("attachment-id") { ContentType = contentType });
+
+                var internalMessage = new MessagingContext(as4Message);
 
                 // Act
                 await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -66,7 +66,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                     ContentType = "text/plain"
                 };
 
-                return new AS4MessageBuilder().WithAttachment(attachment).WithAttachment(attachment).Build();
+                AS4Message message = AS4Message.Empty;
+                message.AddAttachment(attachment);
+                message.AddAttachment(attachment);
+
+                return message;
             }
         }
     }

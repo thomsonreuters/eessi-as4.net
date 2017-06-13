@@ -117,7 +117,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             Stream attachmentStream = new MemoryStream(Encoding.UTF8.GetBytes("Hello, encrypt me"));
             var attachment = new Attachment("attachment-id") {Content = attachmentStream, ContentType = "text/plain"};
-            AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
+
+            AS4Message as4Message = AS4Message.Empty;
+            as4Message.AddAttachment(attachment);
 
             var message = new MessagingContext(as4Message)
             {

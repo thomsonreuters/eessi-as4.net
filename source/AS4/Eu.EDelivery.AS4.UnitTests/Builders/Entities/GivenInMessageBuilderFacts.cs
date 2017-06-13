@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message();
+                AS4Message as4Message = AS4Message.Empty;
                 Receipt receipt = CreateReceiptMessageUnit();
 
                 // Act
@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBulidInMessageFailsWithMissingMessageUnit()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message();                
+                AS4Message as4Message = AS4Message.Empty;                
 
                 // Act / Assert
                 Assert.Throws<AS4Exception>(
@@ -67,11 +67,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         protected Receipt CreateReceiptMessageUnit()
         {
             return new Receipt(Guid.NewGuid().ToString()) { RefToMessageId = Guid.NewGuid().ToString() };
-        }
-
-        protected AS4Message CreateDefaultAS4Message()
-        {
-            return new AS4MessageBuilder().Build();
         }
     }
 }

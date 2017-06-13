@@ -27,7 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var sut = new DeliverMessageTransformer();
             ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(
                 updateInMessage: m => m.EbmsMessageId = "ignored id",
-                as4Message: EmptyAS4Message);
+                as4Message: AS4Message.Empty);
 
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(
@@ -48,15 +48,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             const string expectedId = "usermessage-id";
             const string expectedUri = "expected-attachment-uri";
-            AS4Message as4Message = new AS4MessageBuilder()
-                .WithUserMessage(new FilledUserMessage(expectedId, expectedUri))
-                .WithAttachment(FilledAttachment(expectedUri))
-                .WithAttachment(FilledAttachment())
-                .WithAttachment(FilledAttachment())
-                .Build();
-
+            
+            AS4Message message = AS4Message.Create(new FilledUserMessage(expectedId, expectedUri));
+            message.AddAttachment(FilledAttachment(expectedUri));
+            message.AddAttachment(FilledAttachment());
+            message.AddAttachment(FilledAttachment());
+            
             // Act
-            MessagingContext actualMessage = await ExerciseTransform(expectedId, as4Message);
+            MessagingContext actualMessage = await ExerciseTransform(expectedId, message);
 
             // Assert
             Assert.Equal(1, actualMessage.AS4Message.Attachments.Count);
@@ -77,10 +76,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             const string expectedId = "usermessage-id";
 
-            AS4Message as4Message = new AS4MessageBuilder()
-                 .WithUserMessage(new FilledUserMessage(expectedId))
-                 .WithUserMessage(new FilledUserMessage())
-                 .Build();
+            AS4Message as4Message = AS4Message.Create(new FilledUserMessage(expectedId));
+            as4Message.UserMessages.Add(new FilledUserMessage());
 
             ReceivedMessageEntityMessage receivedMessage = CreateReceivedMessage(m => m.EbmsMessageId = expectedId, as4Message);
             var sut = new DeliverMessageTransformer();

@@ -64,17 +64,16 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
             // The Minder Deliver Message should be an AS4-Message.
-            AS4MessageBuilder builder = AS4MessageBuilder.ForMessageUnit(deliverMessage, new SendingProcessingMode());
+            AS4Message msg = AS4Message.Create(deliverMessage, new SendingProcessingMode());
 
             if (includeAttachments)
             {
                 foreach (Attachment attachment in as4Message.Attachments)
                 {
-                    builder.WithAttachment(attachment);
+                    msg.AddAttachment(attachment);
                 }
             }
 
-            AS4Message msg = builder.Build();
             byte[] content = SerializeAS4Message(msg);
 
             return new DeliverMessageEnvelope(

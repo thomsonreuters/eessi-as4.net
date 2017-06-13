@@ -146,7 +146,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task AS4NRRReceipt_ValidatesWithXsdSchema()
             {
                 // Arrange
-                AS4Message receiptMessage = new AS4MessageBuilder().WithSignalMessage(new FilledNRRReceipt()).Build();
+                AS4Message receiptMessage = AS4Message.Create(new FilledNRRReceipt(), pmode: null);
 
                 // Act / Assert
                 await TestValidEbmsMessageEnvelopeFrom(receiptMessage);
@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task AS4Error_ValidatesWithXsdSchema()
             {
                 // Arrange
-                AS4Message errorMessage = new AS4MessageBuilder().WithSignalMessage(new Error("message-id")).Build();
+                AS4Message errorMessage = AS4Message.Create(new Error("message-id"), pmode: null);
 
                 // Act / Assert
                 await TestValidEbmsMessageEnvelopeFrom(errorMessage);
@@ -256,9 +256,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static AS4Message AnonymousAS4UserMessage()
         {
-            return new AS4MessageBuilder()
-                .WithUserMessage(CreateAnonymousUserMessage())
-                .Build();
+            return AS4Message.Create(CreateAnonymousUserMessage(), pmode: null);
         }
 
         private static UserMessage CreateAnonymousUserMessage()
@@ -373,10 +371,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             
             error.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message?.PrimaryUserMessage);
 
-            AS4Message errorMessage = new AS4MessageBuilder()
-                .WithSignalMessage(error)
-                .Build();
-
+            AS4Message errorMessage = AS4Message.Create(error, pmode: null);
             var message = new MessagingContext(errorMessage) {SendingPMode = CreateMultiHopPMode()};
 
             // Act
@@ -503,9 +498,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
-            return
-                new AS4MessageBuilder(pmode).WithUserMessage(new UserMessage {Sender = sender, Receiver = receiver})
-                                       .Build();
+            return AS4Message.Create(new UserMessage {Sender = sender, Receiver = receiver}, pmode);
         }
 
         private static async Task<AS4Message> CreateReceivedAS4Message(SendingProcessingMode sendPMode)
@@ -530,9 +523,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             var sender = new Party("sender", new PartyId("senderId"));
             var receiver = new Party("rcv", new PartyId("receiverId"));
 
-            return new AS4MessageBuilder(sendPMode)
-                .WithUserMessage(new UserMessage { Sender = sender, Receiver = receiver })
-                .Build();
+            return AS4Message.Create(new UserMessage {Sender = sender, Receiver = receiver}, sendPMode);
         }
 
         private static SendingProcessingMode CreateMultiHopPMode()
@@ -553,7 +544,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             var receipt = CreateReceiptWithNonRepudiationInfo();
 
-            var as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+            var as4Message = AS4Message.Create(receipt);
 
             XmlDocument document = AS4XmlSerializer.ToDocument(new MessagingContext(as4Message), CancellationToken.None);
 
@@ -568,7 +559,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         {
             var receipt = CreateReceiptWithRelatedUserMessageInfo();
 
-            var as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+            var as4Message = AS4Message.Create(receipt);
 
             XmlDocument document = AS4XmlSerializer.ToDocument(new MessagingContext(as4Message), CancellationToken.None);
 

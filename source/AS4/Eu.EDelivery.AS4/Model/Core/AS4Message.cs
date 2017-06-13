@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Common;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
@@ -19,7 +20,6 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// </summary>
     public class AS4Message : IMessage, IEquatable<AS4Message>
     {
-        private static readonly AS4Message EmptyMessage = new AS4Message(serializeAsMultiHop: false);
         private readonly bool _serializeAsMultiHop;
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.Model.Core
             UserMessages = new List<UserMessage>();
         }
 
-        public static AS4Message Empty => EmptyMessage;
+        public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
 
         public string ContentType { get; set; }
 
@@ -127,6 +127,28 @@ namespace Eu.EDelivery.AS4.Model.Core
         public static AS4Message Create(PMode.SendingProcessingMode pmode)
         {
             return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
+        }
+
+        /// <summary>
+        /// Creates the specified message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4Message Create(SignalMessage message, SendingProcessingMode pmode = null)
+        {
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {SignalMessages = {message}};
+        }
+
+        /// <summary>
+        /// Creates the specified message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4Message Create(UserMessage message, SendingProcessingMode pmode = null)
+        {
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {UserMessages = {message}};
         }
 
         /// <summary>

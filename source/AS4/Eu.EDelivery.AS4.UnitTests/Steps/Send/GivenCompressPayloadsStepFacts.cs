@@ -36,7 +36,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public void ThenTransmitMessageSucceeds()
             {
                 // Arrange
-                AS4Message message = new AS4MessageBuilder().WithAttachment(CreateAttachment()).Build();
+                AS4Message message = AS4Message.Empty;
+                message.AddAttachment(CreateAttachment());
                 var internalMessage = new MessagingContext(message);
 
                 // Act

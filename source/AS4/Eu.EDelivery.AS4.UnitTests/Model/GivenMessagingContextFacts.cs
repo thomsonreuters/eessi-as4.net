@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             private static AS4Message AS4MessageWithEbmsMessageId()
             {
-                return AS4MessageBuilder.ForMessageUnit(new FilledNRRReceipt(), new SendingProcessingMode()).Build();
+                return AS4Message.Create(new FilledNRRReceipt(), pmode: null);
             }
 
             private static AS4Message AS4MessageWithoutEbmsMessageId()
@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(new UserMessage(messageId)).Build();
+                AS4Message as4Message = AS4Message.Create(new UserMessage(messageId), pmode: null);
                 var internalMessage = new MessagingContext(as4Message);
 
                 // Act
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenHasAttachmentsIsCorrectFalse()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
+                var internalMessage = new MessagingContext(AS4Message.Empty);
 
                 // Act
                 bool hasAttachments = internalMessage.AS4Message.HasAttachments;
@@ -137,7 +137,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenHasAttachmentsIsCorrectTrue()
             {
                 // Arrange
-                AS4Message as4Message = new AS4MessageBuilder().WithAttachment(new Attachment("attachment-id")).Build();
+                AS4Message as4Message = AS4Message.Create(soapEnvelope: null, contentType: null);
+                as4Message.AddAttachment(new Attachment("attachment-id"));
                 var internalMessage = new MessagingContext(as4Message);
 
                 // Act
@@ -180,8 +181,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var signalMessage = new Receipt("message-Id");
-                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(signalMessage).Build();
-                var internalMessage = new MessagingContext(as4Message);
+                var internalMessage = new MessagingContext(AS4Message.Create(signalMessage, pmode: null));
 
                 // Act
                 string prefix = internalMessage.Prefix;
@@ -195,7 +195,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var userMessage = new UserMessage("message-Id");
-                AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(userMessage).Build();
+                AS4Message as4Message = AS4Message.Create(userMessage, pmode: null);
                 var internalMessage = new MessagingContext(as4Message);
 
                 // Act
@@ -215,7 +215,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenGettingMessageIdsFailsWitEmptyAS4Message()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
+                var internalMessage = new MessagingContext(AS4Message.Empty);
 
                 // Act
                 string[] messageIds = internalMessage.AS4Message.MessageIds;

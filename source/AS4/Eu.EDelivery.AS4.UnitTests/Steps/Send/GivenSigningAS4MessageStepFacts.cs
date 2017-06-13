@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             public async Task ThenMessageDontGetSignedWhenItsDisabledAsync()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(EmptyAS4Message)
+                var internalMessage = new MessagingContext(AS4Message.Empty)
                 {
                     SendingPMode = new SendingProcessingMode()
                 };
