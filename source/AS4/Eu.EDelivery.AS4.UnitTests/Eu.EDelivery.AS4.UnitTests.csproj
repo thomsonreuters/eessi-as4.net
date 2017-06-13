@@ -274,12 +274,15 @@
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Builders\Entities\MessageEntityAssertion.cs" />
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />
+    <Compile Include="Entities\GivenEntityFacts.cs" />
     <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitConversationIdResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
+    <Compile Include="Model\FilledAttachment.cs" />
     <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
@@ -420,7 +423,7 @@
     <Compile Include="Steps\Repositories\GivenDatastoreRepositoryFacts.cs" />
     <Compile Include="Steps\Repositories\GivenMimeTypeRepositoryFacts.cs" />
     <Compile Include="Steps\SaboteurStep.cs" />
-    <Compile Include="Steps\Send\GivenCompressPayloadsStepFacts.cs" />
+    <Compile Include="Steps\Send\GivenCompressAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecompressAttachmentsStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDeterminePModesStepFacts.cs" />
     <Compile Include="Steps\Send\GivenCreateAS4MessageStepFacts.cs" />
@@ -520,8 +523,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\AccessPointA.cer" />
     <None Include="Resources\as4-multihop-message.as4" />
     <None Include="Resources\as4_encrypted_message" />
+    <None Include="Resources\as4_flame_envelope.as4" />
     <None Include="Resources\certificate-as4.pfx" />
     <None Include="Resources\as4_single_payload.as4" />
     <None Include="Resources\holodeck-partya-certificate.pfx" />

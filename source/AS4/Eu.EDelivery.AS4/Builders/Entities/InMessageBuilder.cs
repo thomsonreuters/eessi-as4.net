@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -16,9 +19,11 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         private string _pmodeString;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InMessageBuilder"/> class. 
+        /// Initializes a new instance of the <see cref="InMessageBuilder" /> class.
         /// Starting the Builder with a given Serialize Provider
-        /// </summary>                
+        /// </summary>
+        /// <param name="messageUnit">The message unit.</param>
+        /// <param name="as4Message">The as4 message.</param>
         private InMessageBuilder(MessageUnit messageUnit, AS4Message as4Message)
         {
             _messageUnit = messageUnit;
@@ -64,25 +69,29 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 throw new AS4Exception("Builder needs a AS4Message for building an InMessage");
             }
+
             if (_messageUnit == null)
             {
                 throw new AS4Exception("Builder needs a Message Unit for building an InMessage");
             }
 
-            return new InMessage
+            var inMessage = new InMessage
             {
                 EbmsMessageId = _messageUnit.MessageId,
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
                 EbmsMessageType = DetermineMessageType(_messageUnit),
                 ContentType = _as4Message.ContentType,
-                Message = _as4Message,
                 PMode = _pmodeString,
-                MEP = MessageExchangePattern.Push, // TODO: this is hardcoded; is this correct ? Is this even relevant for inmsg ?
+                MEP = _as4Message.Mep,
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.UtcNow,
                 ModificationTime = DateTimeOffset.UtcNow
             };
+
+            inMessage.AssignAS4Properties(_as4Message, cancellationToken);
+
+            return inMessage;
         }
 
         private static MessageType DetermineMessageType(MessageUnit messageUnit)
@@ -91,10 +100,12 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 return MessageType.UserMessage;
             }
+
             if (messageUnit is Receipt)
             {
                 return MessageType.Receipt;
             }
+
             if (messageUnit is Error)
             {
                 return MessageType.Error;
@@ -102,14 +113,5 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
             throw new InvalidOperationException("There is no MessageType mapped for this MessageUnit.");
         }
-
-        ////private byte[] CreateMessageBody(AS4Message as4Message, CancellationToken token)
-        ////{
-        ////    var memoryStream = new MemoryStream();
-        ////    ISerializer serializer = this._provider.Get(as4Message.ContentType);
-        ////    serializer.Serialize(as4Message, memoryStream, token);
-
-        ////    return memoryStream.ToArray();
-        ////}
     }
 }

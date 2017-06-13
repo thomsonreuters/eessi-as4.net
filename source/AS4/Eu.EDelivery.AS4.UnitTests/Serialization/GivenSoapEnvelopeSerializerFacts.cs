@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,6 +39,48 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public GivenSoapEnvelopeSerializerFacts()
         {
             _serializer = new SoapEnvelopeSerializer();
+        }
+
+        public class GivenSerializationIsConsistent
+        {
+            [Fact(Skip="Skipped on purpose since the Flame Envelope is modified.  Possibly by the .NET SignedXml document; possibly due to how newlines are treated in Windows versus Apple")]
+            public async Task DeserializedEnvelopeMustBeIdenticalWithReceivedEnvelope()
+            {
+                using (var stream = new MemoryStream(as4_flame_envelope))
+                {
+                    var originalHash = CalculateMD5Hash(stream.ToArray());
+
+                    XmlDocument original = new XmlDocument();
+                    original.PreserveWhitespace = true;
+                    original.Load(stream);
+
+                    stream.Position = 0;
+
+                    var serializer = new SoapEnvelopeSerializer();
+                    var message = await serializer.DeserializeAsync(stream, Constants.ContentTypes.Mime, CancellationToken.None);
+
+                    var deserializedHash = CalculateMD5Hash(Encoding.UTF8.GetBytes(message.EnvelopeDocument.OuterXml));
+
+                    Assert.Equal(message.EnvelopeDocument.OuterXml, original.OuterXml);
+                    Assert.Equal(originalHash, deserializedHash);
+                }
+            }
+
+            private static string CalculateMD5Hash(byte[] input)
+            {
+                MD5 md5 = MD5.Create();
+
+                byte[] hash = md5.ComputeHash(input);
+
+                StringBuilder sb = new StringBuilder();
+
+                for (int i = 0; i < hash.Length; i++)
+                {
+                    sb.Append(hash[i].ToString("X2"));
+                }
+
+                return sb.ToString();
+            }
         }
 
         /// <summary>
@@ -162,7 +205,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                         cancellationToken: CancellationToken.None);
 
                     // Act / Assert
-                    await TestValidEbmsMessageEnvelopeFrom(receiptMessage); 
+                    await TestValidEbmsMessageEnvelopeFrom(receiptMessage);
                 }
             }
 
@@ -384,7 +427,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             Assert.True(ContainsUserMessageElement(document));
 
             AssertMessagingElement(document);
-            AssertIfSenderAndReceiverAreReversed(expectedAS4Message, document);    
+            AssertIfSenderAndReceiverAreReversed(expectedAS4Message, document);
         }
 
         private static void AssertToElement(XmlNode doc)
@@ -526,12 +569,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static SendingProcessingMode CreateMultiHopPMode()
         {
-            return new SendingProcessingMode {Id = "multihop-pmode", MessagePackaging = {IsMultiHop = true}};
+            return new SendingProcessingMode { Id = "multihop-pmode", MessagePackaging = { IsMultiHop = true } };
         }
 
         private static SendingProcessingMode CreateNonMultiHopPMode()
         {
-            return new SendingProcessingMode {Id = "multihop-pmode", MessagePackaging = {IsMultiHop = false}};
+            return new SendingProcessingMode { Id = "multihop-pmode", MessagePackaging = { IsMultiHop = false } };
         }
     }
 

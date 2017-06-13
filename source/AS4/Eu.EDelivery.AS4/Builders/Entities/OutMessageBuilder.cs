@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -49,18 +50,25 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </returns>
         public OutMessage Build(CancellationToken cancellationToken)
         {
-            string messageId = _messageUnitUnit.MessageId;
+            MessageType messageType = DetermineSignalMessageType(_messageUnitUnit);
 
-            OutMessage outMessage = CreateDefaultOutMessage(messageId);
-            outMessage.ContentType = _messagingContext.AS4Message.ContentType;
-            outMessage.Message = _messagingContext.AS4Message;
-            outMessage.EbmsMessageType = DetermineSignalMessageType(_messageUnitUnit);
-            outMessage.PMode = AS4XmlSerializer.ToString(GetSendingPMode(outMessage.EbmsMessageType));
-            
+            var outMessage = new OutMessage
+            {
+                EbmsMessageId = _messageUnitUnit.MessageId,
+                ContentType = _messagingContext.AS4Message.ContentType,
+                Operation = Operation.NotApplicable,
+                ModificationTime = DateTimeOffset.Now,
+                InsertionTime = DateTimeOffset.Now,
+                EbmsMessageType = messageType,
+                PMode = AS4XmlSerializer.ToString(GetSendingPMode(messageType)),
+            };
+
             if (string.IsNullOrWhiteSpace(_messageUnitUnit.RefToMessageId) == false)
             {
                 outMessage.EbmsRefToMessageId = _messageUnitUnit.RefToMessageId;
             }
+
+            outMessage.AssignAS4Properties(_messagingContext.AS4Message, cancellationToken);
 
             return outMessage;
         }
@@ -102,17 +110,5 @@ namespace Eu.EDelivery.AS4.Builders.Entities
 
             throw new NotSupportedException($"There exists no MessageType mapping for the specified MessageUnit type {typeof(MessageUnit)}");
         }
-       
-        private OutMessage CreateDefaultOutMessage(string messageId)
-        {
-            return new OutMessage
-            {
-                EbmsMessageId = messageId,
-                ContentType = _messagingContext.AS4Message.ContentType,                
-                Operation = Operation.NotApplicable,
-                ModificationTime = DateTimeOffset.Now,
-                InsertionTime = DateTimeOffset.Now
-            };
-        }        
     }
 }

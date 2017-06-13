@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -31,9 +32,114 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         /// </summary>
         protected override IStep Step { get; }
 
-        private Func<DatastoreContext> CreateDataContext()
+        public class GivenReceivedReceiptMessage : GivenUpdateReceivedMessageDatastoreFacts
         {
-            return () => new DatastoreContext(Options);
+            private const string EbmsMessageId = "some-messageid";
+
+            [Fact]
+            public async Task ThenOperationIsToBeNotified()
+            {
+                // Arrange
+                InsertReceivedOutMessage();
+
+                MessagingContext message = ReceiptAS4MessageWithSendingPMode(EbmsMessageId);
+                await SaveReceiptFor(message);
+
+                // Act
+                await Step.ExecuteAsync(message, CancellationToken.None);
+
+                // Assert
+                InMessage inMessage = GetInMessageWithRefToMessageId(EbmsMessageId);
+                Assert.NotNull(inMessage);
+                Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
+
+                OutMessage outMessage = GetOutMessage(EbmsMessageId);
+                Assert.NotNull(outMessage);
+                Assert.Equal(OutStatus.Ack, outMessage.Status);
+            }
+
+            private static MessagingContext ReceiptAS4MessageWithSendingPMode(string refToMessageId)
+            {
+                var receipt = new Receipt {RefToMessageId = refToMessageId};
+
+                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+
+                return new MessagingContext(as4Message) {SendingPMode = GetSendingPMode()};
+            }
+
+            [Fact]
+            public async Task DoesntUpdateMessages_IfNoMessageLocationCanBeFound()
+            {
+                // Arrange
+                InsertReceivedOutMessage("other message id");
+                MessagingContext message = ReceiptAS4MessageWithSendingPMode(EbmsMessageId);
+                
+                // Act
+                await Step.ExecuteAsync(message, CancellationToken.None);
+
+                // Assert
+                Assert.Null(GetOutMessage(EbmsMessageId));
+                Assert.Null(GetInMessageWithRefToMessageId(EbmsMessageId));
+            }
+
+            private static AS4Message CreateReceiptAS4Message(string refToMessageId)
+            {
+                var receipt = new Receipt {RefToMessageId = refToMessageId};
+
+                return AS4Message.Create(receipt);
+            }
+        }
+
+        public class GivenReceivedErrorMessage : GivenUpdateReceivedMessageDatastoreFacts
+        {
+            private const string EbmsMessageId = "some-messageid";
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="GivenUpdateReceivedMessageDatastoreFacts.GivenReceivedErrorMessage"/> class.
+            /// </summary>
+            /// <exception cref="Exception">A delegate callback throws an exception.</exception>
+            public GivenReceivedErrorMessage()
+            {
+                using (DatastoreContext db = GetDataStoreContext())
+                {
+                    db.OutMessages.Add(CreateOutMessage(EbmsMessageId));
+                    db.SaveChanges();
+                }
+            }
+
+            [Fact]
+            public async Task ThenRelatedUserMessageStatusIsSetToNAck()
+            {
+                // Arrange
+                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId))
+                {
+                    SendingPMode = GetSendingPMode()
+                };
+
+                await SaveReceiptFor(message);
+
+                // Act
+                await Step.ExecuteAsync(message, CancellationToken.None);
+
+                // Assert
+                OutMessage outMessage = GetOutMessage(EbmsMessageId);
+                Assert.NotNull(outMessage);
+                Assert.Equal(OutStatus.Ack, outMessage.Status);
+            }
+
+            private static AS4Message CreateErrorAS4Message(string refToMessageId)
+            {
+                var receipt = new Receipt {RefToMessageId = refToMessageId};
+
+                return AS4Message.Create(receipt);
+            }
+        }
+
+        private async Task SaveReceiptFor(MessagingContext context)
+        {
+            // The receipt needs to be saved first, since we're testing the update-step.
+            var step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
+            await step.ExecuteAsync(context, CancellationToken.None);
         }
 
         private static OutMessage CreateOutMessage(string messageId)
@@ -71,123 +177,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             using (DatastoreContext db = GetDataStoreContext())
             {
                 return db.OutMessages.FirstOrDefault(m => m.EbmsMessageId == messageId);
-            }
-        }
-
-        public class GivenReceivedReceiptMessage : GivenUpdateReceivedMessageDatastoreFacts
-        {
-            private const string EbmsMessageId = "some-messageid";
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="GivenUpdateReceivedMessageDatastoreFacts.GivenReceivedReceiptMessage" />
-            /// class.
-            /// </summary>
-            /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-            public GivenReceivedReceiptMessage()
-            {
-                using (DatastoreContext db = GetDataStoreContext())
-                {
-                    db.OutMessages.Add(CreateOutMessage(EbmsMessageId));
-                    db.SaveChanges();
-                }
-            }
-
-            [Fact]
-            public async void ThenOperationIsToBeNotified()
-            {
-                // Arrange
-                // The receipt needs to be saved first, since we're testing the update-step.
-                var message = new MessagingContext(CreateReceiptAS4Message(EbmsMessageId))
-                {
-                    SendingPMode = GetSendingPMode()
-                };
-
-                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyStore.Default);
-                await step.ExecuteAsync(message, CancellationToken.None);
-
-                // Act
-                await Step.ExecuteAsync(message, CancellationToken.None);
-
-                // Assert
-                InMessage inMessage = GetInMessageWithRefToMessageId(EbmsMessageId);
-                Assert.NotNull(inMessage);
-                Assert.Equal(Operation.ToBeNotified, inMessage.Operation);
-            }
-
-            [Fact]
-            public async void ThenRelatedUserMessageStatusIsSetToAck()
-            {
-                // Arrange
-                // The receipt needs to be saved first, since we're testing the update-step.
-                var message = new MessagingContext(CreateReceiptAS4Message(EbmsMessageId))
-                {
-                    SendingPMode = GetSendingPMode()
-                };
-
-                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyStore.Default);
-                await step.ExecuteAsync(message, CancellationToken.None);
-
-                // Act
-                await Step.ExecuteAsync(message, CancellationToken.None);
-
-                // Assert
-                OutMessage outMessage = GetOutMessage(EbmsMessageId);
-                Assert.NotNull(outMessage);
-                Assert.Equal(OutStatus.Ack, outMessage.Status);
-            }
-
-            private static AS4Message CreateReceiptAS4Message(string refToMessageId)
-            {
-                var receipt = new Receipt {RefToMessageId = refToMessageId};
-
-                return AS4Message.Create(receipt);
-            }
-        }
-
-        public class GivenReceivedErrorMessage : GivenUpdateReceivedMessageDatastoreFacts
-        {
-            private const string EbmsMessageId = "some-messageid";
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="GivenUpdateReceivedMessageDatastoreFacts.GivenReceivedErrorMessage"/> class.
-            /// </summary>
-            /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-            public GivenReceivedErrorMessage()
-            {
-                using (DatastoreContext db = GetDataStoreContext())
-                {
-                    db.OutMessages.Add(CreateOutMessage(EbmsMessageId));
-                    db.SaveChanges();
-                }
-            }
-
-            [Fact]
-            public async void ThenRelatedUserMessageStatusIsSetToNAck()
-            {
-                // Arrange
-                // The receipt needs to be saved first, since we're testing the update-step.
-                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId))
-                {
-                    SendingPMode = GetSendingPMode()
-                };
-
-                var step = new SaveReceivedMessageStep(CreateDataContext(), StubMessageBodyStore.Default);
-                await step.ExecuteAsync(message, CancellationToken.None);
-
-                // Act
-                await Step.ExecuteAsync(message, CancellationToken.None);
-
-                // Assert
-                OutMessage outMessage = GetOutMessage(EbmsMessageId);
-                Assert.NotNull(outMessage);
-                Assert.Equal(OutStatus.Ack, outMessage.Status);
-            }
-
-            private static AS4Message CreateErrorAS4Message(string refToMessageId)
-            {
-                var receipt = new Receipt {RefToMessageId = refToMessageId};
-
-                return AS4Message.Create(receipt);
             }
         }
     }
