@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Xml;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="messageId">The message Id.</param>
         public InternalMessageBuilder(string messageId = "message-id")
         {
-            _messagingContext = new MessagingContext(AS4Message.Create(new XmlDocument(), Constants.ContentTypes.Soap));
+            _messagingContext = new MessagingContext(AS4Message.Empty);
             UserMessage userMessage = CreateDefaultUserMessage(messageId);
             _messagingContext.AS4Message.UserMessages.Add(userMessage);
         }

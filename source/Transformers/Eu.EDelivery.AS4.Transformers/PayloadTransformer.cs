@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.Transformers
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
             Attachment attachment = CreateAttachmentFromReceivedMessage(message);
-            AS4Message as4Message = AS4Message.Create(new XmlDocument(), Constants.ContentTypes.Soap);
+            AS4Message as4Message = AS4Message.Empty;
             as4Message.AddAttachment(attachment);
 
             Logger.Info("Transform the given Payload to a AS4 Attachment");

@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
             private static AS4Message CreateAnonymousMessage()
             {
-                AS4Message message = AS4Message.Create(CreateUserMessage(), pmode: null);
+                AS4Message message = AS4Message.Create(CreateUserMessage());
                 message.AddAttachment(CreateEarthAttachment());
 
                 return message;

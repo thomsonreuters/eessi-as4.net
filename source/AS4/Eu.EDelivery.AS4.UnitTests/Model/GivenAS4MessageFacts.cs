@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void IsTrueWhenSignalMessageIsPullRequest()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Create(new PullRequest(), pmode: null);
+                AS4Message as4Message = AS4Message.Create(new PullRequest());
 
                 // Act
                 bool isPulling = as4Message.IsPulling;
@@ -153,7 +153,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 UserMessage userMessage = CreateUserMessage();
 
-                AS4Message message = AS4Message.Create(userMessage, pmode: null);
+                AS4Message message = AS4Message.Create(userMessage);
                 message.AddAttachment(attachment);
 
                 // Act
@@ -187,7 +187,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
-                AS4Message message = AS4Message.Create(userMessage, pmode: null);
+                AS4Message message = AS4Message.Create(userMessage);
 
                 // Act
                 using (var soapStream = new MemoryStream())
@@ -232,7 +232,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected AS4Message BuildAS4Message(string mpc, UserMessage userMessage)
         {
-            AS4Message as4Message = AS4Message.Create(userMessage, pmode: null);
+            AS4Message as4Message = AS4Message.Create(userMessage);
             as4Message.SignalMessages.Add(new PullRequest(mpc));
 
             return as4Message;

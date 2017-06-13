@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -13,7 +11,6 @@ using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
-using Eu.EDelivery.AS4.Builders.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
@@ -96,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
             private static AS4Message AS4MessageWithEbmsMessageId()
             {
-                return AS4Message.Create(new FilledNRRReceipt(), pmode: null);
+                return AS4Message.Create(new FilledNRRReceipt());
             }
 
             private static AS4Message AS4MessageWithoutEbmsMessageId()
@@ -109,7 +106,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = AS4Message.Create(new UserMessage(messageId), pmode: null);
+                AS4Message as4Message = AS4Message.Create(new UserMessage(messageId));
                 var internalMessage = new MessagingContext(as4Message);
 
                 // Act
@@ -181,7 +178,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var signalMessage = new Receipt("message-Id");
-                var internalMessage = new MessagingContext(AS4Message.Create(signalMessage, pmode: null));
+                var internalMessage = new MessagingContext(AS4Message.Create(signalMessage));
 
                 // Act
                 string prefix = internalMessage.Prefix;
@@ -195,7 +192,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 var userMessage = new UserMessage("message-Id");
-                AS4Message as4Message = AS4Message.Create(userMessage, pmode: null);
+                AS4Message as4Message = AS4Message.Create(userMessage);
                 var internalMessage = new MessagingContext(as4Message);
 
                 // Act

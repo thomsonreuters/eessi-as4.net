@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static AS4Message CreateErrorMessage(SignalMessage errorMessage)
         {
-            return AS4Message.Create(errorMessage, new SendingProcessingMode());
+            return AS4Message.Create(errorMessage);
         }
 
         private async Task<MessagingContext> TransformMessage(ReceivedMessage receivedMessage,

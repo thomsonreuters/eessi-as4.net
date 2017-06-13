@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             UserMessage deliverMessage = CreateMinderDeliverMessage(as4Message);
 
             // The Minder Deliver Message should be an AS4-Message.
-            AS4Message msg = AS4Message.Create(deliverMessage, new SendingProcessingMode());
+            AS4Message msg = AS4Message.Create(deliverMessage);
 
             if (includeAttachments)
             {

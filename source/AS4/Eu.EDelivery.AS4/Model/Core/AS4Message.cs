@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
-        public static AS4Message Create(PMode.SendingProcessingMode pmode)
+        public static AS4Message Create(SendingProcessingMode pmode)
         {
             return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
         }

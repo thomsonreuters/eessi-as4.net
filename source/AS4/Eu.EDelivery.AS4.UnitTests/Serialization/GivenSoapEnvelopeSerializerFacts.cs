@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -23,7 +22,6 @@ using Eu.EDelivery.AS4.Xml;
 using Xunit;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
-using MessagePartNRInformation = Eu.EDelivery.AS4.Model.Core.MessagePartNRInformation;
 using PartyId = Eu.EDelivery.AS4.Model.Core.PartyId;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
 using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
@@ -146,7 +144,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task AS4NRRReceipt_ValidatesWithXsdSchema()
             {
                 // Arrange
-                AS4Message receiptMessage = AS4Message.Create(new FilledNRRReceipt(), pmode: null);
+                AS4Message receiptMessage = AS4Message.Create(new FilledNRRReceipt());
 
                 // Act / Assert
                 await TestValidEbmsMessageEnvelopeFrom(receiptMessage);
@@ -172,7 +170,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task AS4Error_ValidatesWithXsdSchema()
             {
                 // Arrange
-                AS4Message errorMessage = AS4Message.Create(new Error("message-id"), pmode: null);
+                AS4Message errorMessage = AS4Message.Create(new Error("message-id"));
 
                 // Act / Assert
                 await TestValidEbmsMessageEnvelopeFrom(errorMessage);
@@ -256,7 +254,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
 
         private static AS4Message AnonymousAS4UserMessage()
         {
-            return AS4Message.Create(CreateAnonymousUserMessage(), pmode: null);
+            return AS4Message.Create(CreateAnonymousUserMessage());
         }
 
         private static UserMessage CreateAnonymousUserMessage()
@@ -369,9 +367,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 .WithRefToEbmsMessageId(expectedAS4Message.PrimaryUserMessage.MessageId)
                 .Build();
             
-            error.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message?.PrimaryUserMessage);
+            error.MultiHopRouting = AS4Mapper.Map<RoutingInputUserMessage>(expectedAS4Message.PrimaryUserMessage);
 
-            AS4Message errorMessage = AS4Message.Create(error, pmode: null);
+            AS4Message errorMessage = AS4Message.Create(error);
             var message = new MessagingContext(errorMessage) {SendingPMode = CreateMultiHopPMode()};
 
             // Act
