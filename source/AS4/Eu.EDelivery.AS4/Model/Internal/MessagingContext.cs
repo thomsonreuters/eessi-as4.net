@@ -55,6 +55,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = null;
             DeliverMessage = deliverMessage;
             NotifyMessage = null;
+            Mode = MessagingContextMode.Deliver;
         }
 
         /// <summary>
@@ -67,6 +68,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = null;
             DeliverMessage = null;
             NotifyMessage = notifyMessage;
+            Mode = MessagingContextMode.Notify;
         }
 
         /// <summary>
@@ -76,6 +78,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(AS4Exception exception)
         {
             Exception = exception;
+            Mode = MessagingContextMode.Unknown;
         }
 
         /// <summary>
@@ -85,6 +88,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(ReceptionAwareness awareness)
         {
             ReceptionAwareness = awareness;
+            Mode = MessagingContextMode.Unknown;
         }
 
 
