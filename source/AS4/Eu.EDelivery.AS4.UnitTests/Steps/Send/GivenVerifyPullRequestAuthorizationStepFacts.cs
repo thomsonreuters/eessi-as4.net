@@ -12,21 +12,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
     public class GivenVerifyPullRequestAuthorizationStepFacts
     {
-        [Fact]
-        public async Task ContinuesExecution_IfMatchedCertificateCanBeFoundForTheMpc()
+        [Theory]
+        [InlineData("equal-mpc", "equal-mpc", true)]
+        [InlineData("equal-mpc", "not-equal-mpc", false)]
+        public async Task ContinuesExecution_IfMatchedCertificateCanBeFoundForTheMpc(
+            string messageMpc,
+            string mapMpc,
+            bool expected)
         {
             // Arrange
-            const string expectedMpc = "message-mpc";
-            MessagingContext context = ContextWithPullRequest(expectedMpc);
+            MessagingContext context = ContextWithPullRequest(messageMpc);
 
-            var stubMap = new StubAuthorizationMap((r, c) => r.Mpc.Equals(expectedMpc));
+            var stubMap = new StubAuthorizationMap((r, c) => r.Mpc.Equals(mapMpc));
             var sut = new VerifyPullRequestAuthorizationStep(stubMap);
 
             // Act
             StepResult result = await sut.ExecuteAsync(context, CancellationToken.None);
 
             // Assert
-            Assert.True(result.CanProceed);
+            Assert.Equal(expected, result.CanProceed);
         }
 
         private static MessagingContext ContextWithPullRequest(string expectedMpc)

@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services;
 
@@ -7,11 +8,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
 {
     public class VerifyPullRequestAuthorizationStep : IStep
     {
+        private readonly IAuthorizationMap _authorizationMap;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifyPullRequestAuthorizationStep" /> class.
         /// </summary>
         /// <param name="authorizationMap">The authorization map.</param>
-        public VerifyPullRequestAuthorizationStep(IAuthorizationMap authorizationMap) {}
+        public VerifyPullRequestAuthorizationStep(IAuthorizationMap authorizationMap)
+        {
+            _authorizationMap = authorizationMap;
+        }
 
         /// <summary>
         /// Execute the step for a given <paramref name="messagingContext" />.
@@ -21,7 +27,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            return StepResult.SuccessAsync(messagingContext);
+            var pullRequest = messagingContext.AS4Message.PrimarySignalMessage as PullRequest;
+
+            if (_authorizationMap.IsPullRequestAuthorized(pullRequest, null))
+            {
+                return StepResult.SuccessAsync(messagingContext);
+            }
+
+            return Task.FromResult(StepResult.Success(messagingContext).AndStopExecution());
         }
     }
 }
