@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(as4_soap_wrong_signed_pullrequest);
 
             // Act / Assert
-            await Assert.ThrowsAnyAsync<PullException>(() => act());
+            await Assert.ThrowsAnyAsync<PullRequestValidationException>(() => act());
         }
 
         private static async Task<Func<Task<StepResult>>> SetupExerciseVerificationStepWith(string content)

@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (AS4Exception)
             {
-                throw PullException.InvalidSignature(messagingContext.AS4Message.GetPrimaryMessageId());
+                throw PullRequestValidationException.InvalidSignature(messagingContext.AS4Message.GetPrimaryMessageId());
             }
         }
     }

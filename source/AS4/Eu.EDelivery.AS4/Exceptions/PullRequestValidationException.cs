@@ -2,13 +2,13 @@
 
 namespace Eu.EDelivery.AS4.Exceptions
 {
-    public class PullException : AS4Exception
+    public class PullRequestValidationException : AS4Exception
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PullException" /> class.
+        /// Initializes a new instance of the <see cref="PullRequestValidationException" /> class.
         /// </summary>
         /// <param name="message">The message that describes the error.</param>
-        private PullException(string message) : base(message) { }
+        private PullRequestValidationException(string message) : base(message) { }
 
         /// <summary>
         /// Invalids the signature.
@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <returns></returns>
         public static Exception InvalidSignature(string messageId)
         {
-            var exception = new PullException("Signature verifycation failed") { ErrorCode = ErrorCode.Ebms0101 };
+            var exception = new PullRequestValidationException("Signature verifycation failed") { ErrorCode = ErrorCode.Ebms0101 };
             exception.AddMessageId(messageId);
 
             return exception;
