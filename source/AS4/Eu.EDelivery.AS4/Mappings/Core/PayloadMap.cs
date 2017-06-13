@@ -3,7 +3,6 @@ using AutoMapper;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
-using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -20,22 +19,28 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     (modelPartInfo, xmlPartInfo) =>
                     {
                         xmlPartInfo.PartProperties = modelPartInfo.Properties
-                            .Select(p => new Xml.Property {name = p.Key, Value = p.Value}).ToArray();
+                            .Select(p => new Xml.Property { name = p.Key, Value = p.Value }).ToArray();
                     });
 
             CreateMap<Xml.PartInfo, Model.Core.PartInfo>()
                 .ForMember(dest => dest.Href, src => src.MapFrom(t => t.href))
-                .ForMember(dest => dest.Schemas, src => src.MapFrom(t => t.Schemas ?? new Xml.Schema[] {}))
+                .ForMember(dest => dest.Schemas, src => src.MapFrom(t => t.Schemas ?? new Xml.Schema[] { }))
                 .ForMember(dest => dest.Properties, src => src.Ignore())
                 .AfterMap(
                     (xmlPartInfo, modelPartInfo) =>
                     {
-                        if (xmlPartInfo.PartProperties == null || xmlPartInfo.PartProperties.Length == 0) return;
+                        if (xmlPartInfo.PartProperties == null || xmlPartInfo.PartProperties.Length == 0)
+                        {
+                            return;
+                        }
+
                         modelPartInfo.Properties = xmlPartInfo.PartProperties
                             .ToDictionary(property => property.name, property => property.Value);
 
-                        if (!modelPartInfo.Href.StartsWith("cid:"))
+                        if (modelPartInfo.Href != null && !modelPartInfo.Href.StartsWith("cid:"))
+                        {
                             throw ThrowNoExternalPayloadsSupportedException(modelPartInfo);
+                        }
                     });
         }
 
