@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
@@ -6,9 +9,13 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -22,51 +29,75 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task SelectsUserMessage_IfUserMessageMatchesCriteria()
         {
             // Arrange
-            const string expectedId = "message-id", expectedMpc = "message-mpc";
-            InsertUserMessageForPullRequest(expectedId, expectedMpc);
-
-            var sut = new SelectUserMessageToSendStep(GetDataStoreContext);
-            MessagingContext context = ContextWithPullRequest(expectedId, expectedMpc);
+            const string expectedMpc = "message-mpc";
+            await InsertUserMessage(expectedMpc, MessageExchangePattern.Push, Operation.ToBeSent);
+            await InsertUserMessage("yet-another-mpc", MessageExchangePattern.Pull, Operation.DeadLettered);
+            await InsertUserMessage(expectedMpc, MessageExchangePattern.Pull, Operation.ToBeSent);
 
             // Act
-            StepResult result = await sut.ExecuteAsync(context, CancellationToken.None);
+            StepResult result = await ExerciseSelection(expectedMpc);
 
             // Assert
             UserMessage userMessage = result.MessagingContext.AS4Message.PrimaryUserMessage;
-            Assert.Equal(expectedId, userMessage.MessageId);
             Assert.Equal(expectedMpc, userMessage.Mpc);
+
+            AssertOutMessage(userMessage.MessageId, m => Assert.True(m.Operation == Operation.Sending));
         }
 
-        private void InsertUserMessageForPullRequest(string expectedId, string expectedMpc)
+        private async Task<StepResult> ExerciseSelection(string expectedMpc)
         {
-            InsertOutMessage(
-                m =>
-                {
-                    m.EbmsMessageId = expectedId;
-                    m.Operation = Operation.ToBeSent;
-                    m.Mpc = expectedMpc;
-                    m.MEP = MessageExchangePattern.Pull;
-                });
+            var sut = new SelectUserMessageToSendStep(GetDataStoreContext, InMemoryMessageBodyStore.Default);
+            MessagingContext context = ContextWithPullRequest(expectedMpc);
+
+            // Act
+            return await sut.ExecuteAsync(context, CancellationToken.None);
         }
 
-        private void InsertOutMessage(Action<OutMessage> arrangeMessage)
+        private async Task InsertUserMessage(string mpc, MessageExchangePattern pattern, Operation operation)
+        {
+            using (var messageStream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.as4_encrypted_envelope)))
+            {
+                var serializer = new SoapEnvelopeSerializer();
+                AS4Message message = await serializer
+                    .DeserializeAsync(messageStream, Constants.ContentTypes.Soap, CancellationToken.None);
+
+                message.PrimaryUserMessage.Mpc = mpc;
+                message.Mep = pattern;
+
+                await InsertOutMessage(message, operation);
+            }
+        }
+
+        private async Task InsertOutMessage(AS4Message as4Message, Operation operation)
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
-                var message = new OutMessage();
-                arrangeMessage(message);
+                var service = new OutMessageService(new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
 
-                context.OutMessages.Add(message);
+                await service.InsertAS4Message(
+                    new MessagingContext(as4Message),
+                    operation,
+                    CancellationToken.None);
+
                 context.SaveChanges();
             }
         }
 
-        private static MessagingContext ContextWithPullRequest(string id, string mpc)
+        private static MessagingContext ContextWithPullRequest(string mpc)
         {
-            var pullRequest = new PullRequest(mpc, id);
+            var pullRequest = new PullRequest(mpc, "message-id");
             AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(pullRequest).Build();
 
             return new MessagingContext(as4Message);
+        }
+
+        private void AssertOutMessage(string messageId, Action<OutMessage> assertion)
+        {
+            using (DatastoreContext context = GetDataStoreContext())
+            {
+                OutMessage outMessage = context.OutMessages.First(m => m.EbmsMessageId.Equals(messageId));
+                assertion(outMessage);
+            }
         }
     }
 }
