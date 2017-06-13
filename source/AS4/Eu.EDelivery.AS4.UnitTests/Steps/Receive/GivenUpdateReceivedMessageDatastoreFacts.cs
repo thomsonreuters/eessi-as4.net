@@ -1,8 +1,6 @@
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -62,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 var receipt = new Receipt {RefToMessageId = refToMessageId};
 
-                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+                AS4Message as4Message = AS4Message.Create(receipt);
 
                 return new MessagingContext(as4Message) {SendingPMode = GetSendingPMode()};
             }
@@ -82,11 +80,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Null(GetInMessageWithRefToMessageId(EbmsMessageId));
             }
 
-            private static AS4Message CreateReceiptAS4Message(string refToMessageId)
+            private void InsertReceivedOutMessage(string messageId = EbmsMessageId)
             {
-                var receipt = new Receipt {RefToMessageId = refToMessageId};
-
-                return AS4Message.Create(receipt);
+                using (DatastoreContext context = GetDataStoreContext())
+                {
+                    context.OutMessages.Add(new OutMessage {EbmsMessageId = messageId});
+                    context.SaveChanges();
+                }
             }
         }
 

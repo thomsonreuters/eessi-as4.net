@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void BuildInMessageAsPull_IfAS4MessageIsPullResponse()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message();
+                AS4Message as4Message = AS4Message.Empty;
                 as4Message.Mep = MessageExchangePattern.Pull;
 
                 Receipt receipt = CreateReceiptMessageUnit();
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void FailsToBuild_IfInvalidMessageUnit()
             {
                 // Arrange
-                InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), new AS4MessageBuilder().Build());
+                InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), AS4Message.Empty);
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => sut.Build(CancellationToken.None));

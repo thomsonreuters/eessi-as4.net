@@ -119,8 +119,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             return new AS4Message {EnvelopeDocument = soapEnvelope, ContentType = contentType};
         }
-        public MessageExchangePattern Mep { get; set; }
 
+        public Entities.MessageExchangePattern Mep { get; set; }
 
         /// <summary>
         /// Fors the sending p mode.
@@ -128,13 +128,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
         public static AS4Message Create(SendingProcessingMode pmode)
-        /// <summary>
-        /// Create message with SOAP envelope.
-        /// </summary>
-        /// <param name="soapEnvelope">The SOAP envelope.</param>
-        /// <param name="contentType">Type of the content.</param>
-        /// <returns></returns>
-        public static AS4Message ForSoapEnvelope(XmlDocument soapEnvelope, string contentType)
         {
             return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
         }
@@ -159,26 +152,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         public static AS4Message Create(UserMessage message, SendingProcessingMode pmode = null)
         {
             return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {UserMessages = {message}};
-        }
-
-        /// <summary>
-        /// Gets the primary message identifier.
-        /// </summary>
-        /// <returns></returns>
-        public string GetPrimaryMessageId()
-        {
-            return IsUserMessage ? PrimaryUserMessage.MessageId : PrimarySignalMessage?.MessageId;
-            return new AS4Message {EnvelopeDocument = soapEnvelope, ContentType = contentType};
-        }
-
-        /// <summary>
-        /// Fors the sending p mode.
-        /// </summary>
-        /// <param name="pmode">The pmode.</param>
-        /// <returns></returns>
-        public static AS4Message ForSendingPMode(PMode.SendingProcessingMode pmode)
-        {
-            return new AS4Message {_serializeAsMultiHop = pmode?.MessagePackaging?.IsMultiHop == true};
         }
 
         /// <summary>

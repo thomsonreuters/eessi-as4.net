@@ -90,12 +90,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             private static AS4Message CreateAS4MessageWithUserMessage()
             {
-                return new AS4MessageBuilder().WithUserMessage(new FilledUserMessage()).Build();
+                return AS4Message.Create(new FilledUserMessage());
             }
 
             private static AS4Message CreateAS4MessageWithReceiptMessage(bool isDuplicate)
             {
-                return new AS4MessageBuilder().WithSignalMessage(new FilledNRRReceipt {IsDuplicated = isDuplicate}).Build();
+                return AS4Message.Create(new FilledNRRReceipt {IsDuplicated = isDuplicate});
             }
 
             private static MessageEntity BuildForAS4Message(AS4Message expected)
