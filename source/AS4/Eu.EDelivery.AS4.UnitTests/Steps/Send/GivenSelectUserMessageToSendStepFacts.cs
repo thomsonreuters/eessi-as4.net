@@ -26,6 +26,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     public class GivenSelectUserMessageToSendStepFacts : GivenDatastoreFacts
     {
         [Fact]
+        public async Task SelectionReturnsPullRequestWarning_IfNoMatchesAreFound()
+        {
+            // Act
+            StepResult result = await ExerciseSelection(expectedMpc: null);
+
+            // Assert
+            var signal = result.MessagingContext.AS4Message.PrimarySignalMessage as PullRequestError;
+            Assert.Equal(new PullRequestError(), signal);
+        }
+
+        [Fact]
         public async Task SelectsUserMessage_IfUserMessageMatchesCriteria()
         {
             // Arrange

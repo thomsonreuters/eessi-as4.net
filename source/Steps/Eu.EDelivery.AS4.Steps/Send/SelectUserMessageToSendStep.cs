@@ -43,10 +43,21 @@ namespace Eu.EDelivery.AS4.Steps.Send
             MessagingContext messagingContext,
             CancellationToken cancellationToken)
         {
-            OutMessage selection = SelectUserMessageFor(messagingContext);
-            AS4Message message = await RetrieveAS4UserMessage(selection, cancellationToken);
-            AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(message.PrimaryUserMessage).Build();
-            return StepResult.Success(new MessagingContext(as4Message));
+            (bool hasMatch, OutMessage match) selection = SelectUserMessageFor(messagingContext);
+
+            var builder = new AS4MessageBuilder();
+            if (selection.hasMatch)
+            {
+                AS4Message message = await RetrieveAS4UserMessage(selection.match, cancellationToken);
+                builder.WithUserMessage(message.PrimaryUserMessage);
+            }
+            else
+            {
+               builder.WithSignalMessage(new PullRequestError());
+            }
+
+
+            return StepResult.Success(new MessagingContext(builder.Build()));
         }
 
         private async Task<AS4Message> RetrieveAS4UserMessage(MessageEntity selection, CancellationToken cancellationToken)
@@ -58,19 +69,19 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private OutMessage SelectUserMessageFor(MessagingContext messagingContext)
+        private (bool, OutMessage) SelectUserMessageFor(MessagingContext messagingContext)
         {
             var options = new TransactionOptions {IsolationLevel = IsolationLevel.RepeatableRead};
             using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
             {
-                OutMessage outMessage = ConcurrentSelectUserMessage(messagingContext);
+                (bool, OutMessage) outMessage = ConcurrentSelectUserMessage(messagingContext);
 
                 scope.Complete();
                 return outMessage;
             }
         }
 
-        private OutMessage ConcurrentSelectUserMessage(MessagingContext messagingContext)
+        private (bool, OutMessage) ConcurrentSelectUserMessage(MessagingContext messagingContext)
         {
             return _createContext().Using(
                 context =>
@@ -81,10 +92,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
                             m => PullRequestQuery(m, messagingContext.AS4Message.PrimarySignalMessage as PullRequest),
                             m => m);
 
+                    if (message == null)
+                    {
+                        return (false, null);
+                    }
+
                     repository.UpdateOutMessage(message.EbmsMessageId, m => m.Operation = Operation.Sending);
                     context.SaveChanges();
 
-                    return message;
+                    return (true, message);
                 });
         }
 
