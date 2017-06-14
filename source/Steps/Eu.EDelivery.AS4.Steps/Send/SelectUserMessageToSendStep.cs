@@ -82,25 +82,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private (bool, OutMessage) ConcurrentSelectUserMessage(MessagingContext messagingContext)
         {
-            return _createContext().Using(
-                context =>
+            using (DatastoreContext context = _createContext())
+            {
+                var repository = new DatastoreRepository(context);
+                OutMessage message =
+                    repository.GetOutMessageData(
+                        m => PullRequestQuery(m, messagingContext.AS4Message.PrimarySignalMessage as PullRequest),
+                        m => m);
+
+                if (message == null)
                 {
-                    var repository = new DatastoreRepository(context);
-                    OutMessage message =
-                        repository.GetOutMessageData(
-                            m => PullRequestQuery(m, messagingContext.AS4Message.PrimarySignalMessage as PullRequest),
-                            m => m);
+                    return (false, null);
+                }
 
-                    if (message == null)
-                    {
-                        return (false, null);
-                    }
+                repository.UpdateOutMessage(message.EbmsMessageId, m => m.Operation = Operation.Sending);
+                context.SaveChanges();
 
-                    repository.UpdateOutMessage(message.EbmsMessageId, m => m.Operation = Operation.Sending);
-                    context.SaveChanges();
-
-                    return (true, message);
-                });
+                return (true, message);
+            }
         }
 
         private static bool PullRequestQuery(MessageEntity userMessage, PullRequest pullRequest)
