@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext AnonymousContext()
         {
-            return new MessagingContext(AS4Message.Create(new SendingProcessingMode()));
+            return new MessagingContext(AS4Message.Create(new SendingProcessingMode()), MessagingContextMode.Unknown);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext ContextWithPullRequest()
         {
-            return new MessagingContext(AS4Message.Create(new PullRequest()));
+            return new MessagingContext(AS4Message.Create(new PullRequest()), MessagingContextMode.Send);
         }
 
         private void AssertOnOutException(AS4Message as4Message)

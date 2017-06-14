@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         {
             var tokenSource = new CancellationTokenSource();
             var waitHandle = new ManualResetEvent(false);
-            ReceivedMessage receivedMessage = null;
+            var receivedMessage = new ReceivedMessage(Stream.Null);
 
             Task.Run(() => receiver.StartReceiving(
                 (message, token) =>

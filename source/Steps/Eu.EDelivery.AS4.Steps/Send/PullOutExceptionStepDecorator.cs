@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 // TODO: ugly hack
                 var pmode = new ReceivingProcessingMode {ErrorHandling = {ResponseHttpCode = 403}};
-                return StepResult.Success(new MessagingContext(as4Message) {ReceivingPMode = pmode});
+                return StepResult.Success(new MessagingContext(as4Message, MessagingContextMode.Send) {ReceivingPMode = pmode});
             }
             catch (AS4Exception exception)
             {
