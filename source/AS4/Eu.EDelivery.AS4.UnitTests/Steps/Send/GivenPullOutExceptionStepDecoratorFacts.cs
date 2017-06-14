@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
@@ -39,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext AnonymousContext()
         {
-            return new MessagingContext(AS4Message.ForSendingPMode(new SendingProcessingMode()));
+            return new MessagingContext(AS4Message.Create(new SendingProcessingMode()));
         }
 
         [Fact]
@@ -64,8 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext ContextWithPullRequest()
         {
-            AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequest()).Build();
-            return new MessagingContext(as4Message);
+            return new MessagingContext(AS4Message.Create(new PullRequest()));
         }
 
         private void AssertOnOutException(AS4Message as4Message)

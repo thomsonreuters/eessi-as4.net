@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 .WithAS4Exception(exception)
                 .Build();
 
-            return new AS4MessageBuilder().WithSignalMessage(error).Build();
+            return AS4Message.Create(error);
         }
     }
 }
