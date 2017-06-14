@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         public bool IsPullRequest => PrimarySignalMessage is PullRequest;
 
         /// <summary>
-        /// Create message with SOAP envelope.
+        /// Creates message with a SOAP envelope.
         /// </summary>
         /// <param name="soapEnvelope">The SOAP envelope.</param>
         /// <param name="contentType">Type of the content.</param>
@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Fors the sending p mode.
+        /// Creates message with a <see cref="SendingProcessingMode"/>.
         /// </summary>
         /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Creates the specified message.
+        /// Creates message with a <see cref="SignalMessage"/> and <see cref="SendingProcessingMode"/>.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="pmode">The pmode.</param>
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Creates the specified message.
+        /// Creates message with a <see cref="UserMessage"/> and <see cref="SendingProcessingMode"/>.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="pmode">The pmode.</param>
