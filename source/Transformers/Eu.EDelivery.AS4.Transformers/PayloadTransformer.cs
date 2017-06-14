@@ -29,7 +29,7 @@ namespace Eu.EDelivery.AS4.Transformers
             as4Message.AddAttachment(attachment);
 
             Logger.Info("Transform the given Payload to a AS4 Attachment");
-            return await Task.FromResult(new MessagingContext(as4Message));
+            return await Task.FromResult(new MessagingContext(as4Message, MessagingContextMode.Submit));
         }
 
         private static Attachment CreateAttachmentFromReceivedMessage(ReceivedMessage receivedMessage)

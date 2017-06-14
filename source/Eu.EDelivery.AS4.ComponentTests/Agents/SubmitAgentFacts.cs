@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public class GivenValidSubmitMessage : SubmitAgentFacts
         {
             [Fact]
-            public async void ThenAgentRespondsWithHttpAccepted()
+            public async Task ThenAgentRespondsWithHttpAccepted()
             {
                 var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, GetValidSubmitMessage());
 
@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
 
             [Fact]
-            public async void ThenAgentRespondsWithErrorWhenSubmitFails()
+            public async Task ThenAgentRespondsWithErrorWhenSubmitFails()
             {
                 // Wait a little bit to make sure we do not delete the DB to early; otherwise it is recreated.
                 await Task.Delay(1500);
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         public class GivenInvalidSubmitMessage : SubmitAgentFacts
         {
             [Fact]
-            public async void ThenAgentRespondsWithHttpBadRequest()
+            public async Task ThenAgentRespondsWithHttpBadRequest()
             {
                 var request = CreateRequestMessage(HttpSubmitAgentUrl, HttpMethod.Post, "");
 
@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
 
             [Fact(Skip = "This functionality has not been implemented yet. Wait for backlogitem 5983")]
-            public async void ThenDatabaseContainsInException()
+            public async Task ThenDatabaseContainsInException()
             {
                 var invalidSubmitMessage = GetInvalidSubmitMessage();
 
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         protected override void Disposing(bool isDisposing)
         {
-            _as4Msh.Dispose();
+            _as4Msh.Dispose();            
         }
 
     }

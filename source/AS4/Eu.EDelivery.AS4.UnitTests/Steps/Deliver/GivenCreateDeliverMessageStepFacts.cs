@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         private static async Task<DeliverMessageEnvelope> ExecuteStepWith(AS4Message as4Message)
         {
             var sut = new CreateDeliverEnvelopeStep();
-            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message), CancellationToken.None);
+            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message, MessagingContextMode.Unknown), CancellationToken.None);
 
             return result.MessagingContext.DeliverMessage;
         } 

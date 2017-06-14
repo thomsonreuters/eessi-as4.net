@@ -19,14 +19,15 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Initializes a new instance of the <see cref="MessagingContext" /> class.
         /// Create an Internal Message with a given <see cref="Core.AS4Message" />
         /// </summary>
-        /// <param name="as4Message">
-        /// </param>
-        public MessagingContext(AS4Message as4Message)
+        /// <param name="as4Message"> </param>
+        /// <param name="mode">The <see cref="MessagingContextMode"/> in which the context is currently acting</param>
+        public MessagingContext(AS4Message as4Message, MessagingContextMode mode)
         {
             SubmitMessage = null;
             AS4Message = as4Message;
             DeliverMessage = null;
             NotifyMessage = null;
+            Mode = mode;
         }
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = null;
             DeliverMessage = null;
             NotifyMessage = null;
+            Mode = MessagingContextMode.Submit;
         }
 
         /// <summary>
@@ -53,6 +55,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = null;
             DeliverMessage = deliverMessage;
             NotifyMessage = null;
+            Mode = MessagingContextMode.Deliver;
         }
 
         /// <summary>
@@ -65,6 +68,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             AS4Message = null;
             DeliverMessage = null;
             NotifyMessage = notifyMessage;
+            Mode = MessagingContextMode.Notify;
         }
 
         /// <summary>
@@ -74,6 +78,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(AS4Exception exception)
         {
             Exception = exception;
+            Mode = MessagingContextMode.Unknown;
         }
 
         /// <summary>
@@ -83,9 +88,13 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(ReceptionAwareness awareness)
         {
             ReceptionAwareness = awareness;
+            Mode = MessagingContextMode.Unknown;
         }
 
+
         public AS4Message AS4Message { get; }
+
+        public MessagingContextMode Mode { get; private set; }
 
         public SubmitMessage SubmitMessage { get; }
 
@@ -107,7 +116,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
             {
                 return _receivingPMode;
             }
-
             set
             {
                 if (_receivingPMode != value)
@@ -145,7 +153,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             if (string.IsNullOrWhiteSpace(_receivingPModeString))
             {
-                _receivingPModeString = AS4XmlSerializer.ToString(this.ReceivingPMode);
+                _receivingPModeString = AS4XmlSerializer.ToString(ReceivingPMode);
             }
 
             return _receivingPModeString;
@@ -158,7 +166,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <returns></returns>
         public MessagingContext CloneWith(AS4Message as4Message)
         {
-            return CopyContextInfoTo(new MessagingContext(as4Message));
+            return CopyContextInfoTo(new MessagingContext(as4Message, Mode));
         }
 
         /// <summary>
@@ -185,6 +193,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             context.SendingPMode = SendingPMode;
             context.ReceivingPMode = ReceivingPMode;
+            context.Mode = Mode;
 
             return context;
         }
@@ -196,5 +205,16 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             AS4Message?.CloseAttachments();
         }
+    }
+
+    public enum MessagingContextMode
+    {
+        Unknown,
+        Submit,
+        Send,
+        Receive,
+        Deliver,
+        Forward,
+        Notify
     }
 }

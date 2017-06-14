@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -52,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, new MessagingContext(as4Message) {SendingPMode = ExpectedPMode()})
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = ExpectedPMode() })
                                                          .Build(CancellationToken.None);
             }
 
@@ -88,14 +86,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private static OutMessage BuildForSignalMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, new MessagingContext(as4Message))
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, new MessagingContext(as4Message, MessagingContextMode.Send))
                                                                          .Build(CancellationToken.None);
             }
         }
 
         protected SendingProcessingMode ExpectedPMode()
         {
-            return new SendingProcessingMode {Id = "pmode-id"};
+            return new SendingProcessingMode { Id = "pmode-id" };
         }
 
         protected AS4Message CreateAS4MessageWithUserMessage(string messageId)

@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message receiptMessage = TryCreateAS4ReceiptMessage(messagingContext);
 
-            var message = new MessagingContext(receiptMessage)
+            var message = new MessagingContext(receiptMessage, MessagingContextMode.Receive)
             {
                 SendingPMode = messagingContext.SendingPMode,
                 ReceivingPMode = messagingContext.ReceivingPMode

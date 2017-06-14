@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             AS4Message as4Message = AS4Message.Create(pmode);
             as4Message.AddAttachment(attachment);
 
-            return new MessagingContext(as4Message) {SendingPMode = pmode};
+            return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};
         }
 
         private static SendingProcessingMode PModeWithCompressionSettings()

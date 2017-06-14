@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
@@ -20,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
         private readonly StoreAS4MessageStep _module;
 
         public GivenStoreAS4MessageStepsFacts()
-        {            
+        {
             _module = new StoreAS4MessageStep(StubMessageBodyStore.Default);
         }
 
@@ -66,7 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         protected static MessagingContext AS4UserMessage()
         {
-            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")));
+            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")), MessagingContextMode.Unknown);
         }
     }
 }

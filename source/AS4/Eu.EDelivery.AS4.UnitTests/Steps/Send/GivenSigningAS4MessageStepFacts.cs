@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static SendingProcessingMode PModeWithoutSigningSettings()
         {
-            return new SendingProcessingMode {Security = {Signing = {IsEnabled = false}}};
+            return new SendingProcessingMode { Security = { Signing = { IsEnabled = false } } };
         }
 
         private static void AssertNotSignedSecurityHeader(StepResult result)
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task ThenMessageDontGetSignedWhenItsDisabledAsync()
         {
             // Arrange
-            var context = new MessagingContext(AS4Message.Empty) {SendingPMode = new SendingProcessingMode()};
+            var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Send) { SendingPMode = new SendingProcessingMode() };
 
             context.SendingPMode.Security.Signing.IsEnabled = false;
 
@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             MessagingContext context = AS4MessageContext(AS4UserMessageWithAttachment(), PModeWithSigningSettings());
-            
+
             // Act
             StepResult result = await ExerciseSigning(context);
 
@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext AS4MessageContext(AS4Message as4Message, SendingProcessingMode pmode)
         {
-            return new MessagingContext(as4Message) {SendingPMode = pmode};
+            return new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = pmode };
         }
 
         private static async Task<StepResult> ExerciseSigning(MessagingContext context)

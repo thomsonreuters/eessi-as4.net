@@ -11,6 +11,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         /// <summary>
         /// Initializes a new instance of the <see cref="EmptyMessagingContext"/> class.
         /// </summary>
-        public EmptyMessagingContext() : base(as4Message: null) {}
+        public EmptyMessagingContext() : base(as4Message: null, mode: MessagingContextMode.Unknown) { }
     }
 }

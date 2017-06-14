@@ -3,7 +3,6 @@ using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -44,7 +43,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedAS4MessageAsync();
-                var internalMessage = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+                var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
 
                 // Act
@@ -59,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 AS4Message as4Message = await GetEncryptedAS4MessageAsync();
-                var context = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+                var context = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
                 context.ReceivingPMode.Security.Decryption.Encryption = Limit.Allowed;
 
                 // Act
@@ -79,8 +78,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 AS4Message as4Message = AS4Message.Empty;
                 as4Message.SecurityHeader = new SecurityHeader(null, _mockedEncryptedStrategy.Object);
-                
-                var internalMessage = new MessagingContext(as4Message) {ReceivingPMode = new ReceivingProcessingMode()};
+
+                var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.NotAllowed;
 
                 // Act / Assert
@@ -95,13 +94,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepFailsWithRequiredEncryptionAsync()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(AS4Message.Empty) {ReceivingPMode = new ReceivingProcessingMode()};
-                internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.Required;
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
+
+                context.ReceivingPMode.Security.Decryption.Encryption = Limit.Required;
 
                 // Act
                 AS4Exception as4Exception =
                     await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
+                        () => _step.ExecuteAsync(context, CancellationToken.None));
 
                 Assert.Equal(ErrorCode.Ebms0103, as4Exception.ErrorCode);
             }
