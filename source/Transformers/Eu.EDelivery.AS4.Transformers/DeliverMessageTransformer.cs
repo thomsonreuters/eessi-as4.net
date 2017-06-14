@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 Attachment attachment = attachmentCollection[i];
 
-                if (attachments.Exists(a => a.Id != null && a.Id.Equals(attachment?.Id)) == false)
+                if (attachments.Exists(a => a.Id == null || a.Id.Equals(attachment?.Id)) == false)
                 {
                     attachment.Content.Dispose();
                     attachmentCollection.Remove(attachment);
