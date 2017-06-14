@@ -97,6 +97,22 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         /// <summary>
+        /// Serialize this bytes.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public static byte[] ToBytes(AS4Message message)
+        {
+            using (var messageBodyStream = new MemoryStream())
+            {
+                var serializer = new SoapEnvelopeSerializer();
+                serializer.Serialize(message, messageBodyStream, CancellationToken.None);
+
+                return messageBodyStream.ToArray();
+            }
+        }
+
+        /// <summary>
         /// Deserialize a Xml stream to a Model.
         /// </summary>
         /// <typeparam name="T">Type to which the given stream must be deserialized.</typeparam>

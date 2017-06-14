@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -70,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             OutException exception = GetFirstOutException();
 
             Assert.Null(exception.EbmsRefToMessageId);
-            Assert.Equal(as4Message.AsBytes(), exception.MessageBody);
+            Assert.Equal(AS4XmlSerializer.ToBytes(as4Message), exception.MessageBody);
             Assert.NotEmpty(exception.Exception);
         }
 

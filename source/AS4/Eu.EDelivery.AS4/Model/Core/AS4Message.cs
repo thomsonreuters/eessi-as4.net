@@ -179,21 +179,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         }
 
         /// <summary>
-        /// Serialize this bytes.
-        /// </summary>
-        /// <returns></returns>
-        public byte[] AsBytes()
-        {
-            using (var messageBodyStream = new MemoryStream())
-            {
-                var serializer = new SoapEnvelopeSerializer();
-                serializer.Serialize(this, messageBodyStream, CancellationToken.None);
-
-                return messageBodyStream.ToArray();
-            }
-        }
-
-        /// <summary>
         /// Add Attachment to <see cref="AS4Message" />
         /// </summary>
         /// <param name="attachment"></param>

@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps.Common;
 
 namespace Eu.EDelivery.AS4.Steps.Send
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private void InsertOutException(MessagingContext context, AS4Exception exception)
         {
             OutException outException = OutExceptionBuilder.ForAS4Exception(exception).Build();
-            outException.MessageBody = context.AS4Message.AsBytes();
+            outException.MessageBody = AS4XmlSerializer.ToBytes(context.AS4Message);
 
             using (DatastoreContext datastoreContext = _createContext())
             {
