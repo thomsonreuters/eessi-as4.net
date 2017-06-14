@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -51,8 +50,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             // Assert
             UserMessage userMessage = result.MessagingContext.AS4Message.PrimaryUserMessage;
-            Assert.Equal(expectedMpc, userMessage.Mpc);
 
+            Assert.Equal(expectedMpc, userMessage.Mpc);
             AssertOutMessage(userMessage.MessageId, m => Assert.True(m.Operation == Operation.Sending));
         }
 
@@ -87,9 +86,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var service = new OutMessageService(new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
 
                 await service.InsertAS4Message(
-                    new MessagingContext(as4Message),
-                    operation,
-                    CancellationToken.None);
+                    messagingContext: new MessagingContext(as4Message, MessagingContextMode.Send),
+                    operation: operation,
+                    cancellationToken: CancellationToken.None);
 
                 context.SaveChanges();
             }
@@ -98,9 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static MessagingContext ContextWithPullRequest(string mpc)
         {
             var pullRequest = new PullRequest(mpc, "message-id");
-            AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(pullRequest).Build();
-
-            return new MessagingContext(as4Message);
+            return new MessagingContext(AS4Message.Create(pullRequest), MessagingContextMode.Send);
         }
 
         private void AssertOutMessage(string messageId, Action<OutMessage> assertion)
