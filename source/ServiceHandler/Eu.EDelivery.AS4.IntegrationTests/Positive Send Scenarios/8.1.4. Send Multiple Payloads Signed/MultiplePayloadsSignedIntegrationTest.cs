@@ -20,10 +20,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
         public void ThenSendingMultiplePayloadSignedSucceeds()
         {
             // Before
-            CleanUpFiles(HolodeckBInputPath);
             AS4Component.Start();
             CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange

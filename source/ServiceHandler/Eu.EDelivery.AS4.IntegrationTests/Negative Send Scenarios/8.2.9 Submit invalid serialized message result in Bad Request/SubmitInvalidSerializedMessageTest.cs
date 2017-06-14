@@ -9,8 +9,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._9_Sub
     /// </summary>
     public class SubmitInvalidSerializedMessageTest : IntegrationTestTemplate
     {
-        private readonly StubSender _stubSender = new StubSender();
-
         [Fact]
         public void SubmitResultInBadRequest_IfInvalidSerializedMessageIsSend()
         {
@@ -19,7 +17,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._9_Sub
             AS4Component.Start();
 
             // Act
-            HttpWebResponse response = _stubSender.SendPdf();
+            HttpWebResponse response = new StubSender().SendPdf();
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

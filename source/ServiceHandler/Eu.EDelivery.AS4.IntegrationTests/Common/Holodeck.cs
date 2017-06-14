@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -58,10 +59,35 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             Assert.Equal(sendPayload.Length, receivedPayload.Length);
         }
 
+        /// <summary>
+        /// Asserts the error on holodeck a.
+        /// </summary>
+        /// <param name="errorCode">The error code.</param>
         public void AssertErrorOnHolodeckA(ErrorCode errorCode = ErrorCode.NotApplicable)
         {
             FileInfo error = _holodeckAInputDirectory.GetFiles("*.xml").FirstOrDefault();
             Assert.NotNull(error);
+        }
+
+        /// <summary>
+        /// Asserts the payloads on holodeck a.
+        /// </summary>
+        /// <param name="files">The files.</param>
+        public void AssertPayloadsOnHolodeckA(IEnumerable<FileInfo> files)
+        {
+            var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
+
+            Assert.All(files, f => Assert.Equal(sendPayload.Length, f.Length));
+        }
+
+        /// <summary>
+        /// Asserts the XML files on holodeck a.
+        /// </summary>
+        /// <param name="files">The files.</param>
+        public void AssertXmlFilesOnHolodeckA(IEnumerable<FileInfo> files)
+        {
+            Assert.Equal(2, files.Count());
+            Console.WriteLine($@"There're {files.Count()} incoming Xml Documents found");
         }
 
         /// <summary>

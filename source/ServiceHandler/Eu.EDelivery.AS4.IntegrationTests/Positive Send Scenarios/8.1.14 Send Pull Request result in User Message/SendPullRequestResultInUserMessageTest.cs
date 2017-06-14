@@ -15,11 +15,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
         public void ThenSendingPullRequestSucceeds()
         {
             // Setup
-            CleanUpFiles(HolodeckBInputPath);
-            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4FullOutputPath);
             CleanUpFiles(AS4FullInputPath);
-            CleanUpFiles(Properties.Resources.holodeck_B_output_path);
             
             AS4Component.OverrideSettings("8.1.14-settings.xml");
             AS4Component.Start();

@@ -12,13 +12,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
     /// </summary>
     public class ReceiveIncorrectlySignedMessageIntegrationTest : IntegrationTestTemplate
     {
-        private readonly StubSender _sender;
-
-        public ReceiveIncorrectlySignedMessageIntegrationTest()
-        {
-            _sender = new StubSender();
-        }
-
         [Fact]
         public async void ThenReceivingIncorrectlySignedMessageFails()
         {
@@ -28,7 +21,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
 
             // Act
             string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_message;
-            AS4Message as4Message = await _sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
+            AS4Message as4Message = await new StubSender().SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
             AssertErrorMessage(as4Message);

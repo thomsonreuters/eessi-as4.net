@@ -27,12 +27,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._11
         public void ThenReceiveSinglePayloadSyncSignedNRRReceipt()
         {
             // Before
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
             AS4Component.Start();
             CleanUpFiles(AS4FullInputPath);
-            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             // Arrange
             CopyPModeToHolodeckA("8.3.11-pmode.xml");

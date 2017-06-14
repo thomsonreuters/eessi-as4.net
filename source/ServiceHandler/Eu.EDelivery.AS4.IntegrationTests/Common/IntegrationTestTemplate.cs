@@ -27,6 +27,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
         protected AS4Component AS4Component { get; } = new AS4Component();
 
+        protected Holodeck Holodeck { get; } = new Holodeck();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="IntegrationTestTemplate"/> class.
         /// </summary>

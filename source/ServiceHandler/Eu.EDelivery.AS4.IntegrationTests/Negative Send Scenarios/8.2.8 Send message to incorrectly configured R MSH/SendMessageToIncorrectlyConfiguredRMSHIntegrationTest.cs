@@ -14,67 +14,53 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._8_Sen
     public class SendMessageToIncorrectlyConfiguredRMSHIntegrationTest : IntegrationTestTemplate
     {
         private const string SubmitMessageFilename = "\\8.2.8-sample.xml";
-        private readonly string _as4MessagesPath;
-        private readonly string _as4OutputPath;
-
-        public SendMessageToIncorrectlyConfiguredRMSHIntegrationTest()
-        {
-            this._as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-            this._as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-        }
-
+        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
+        private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
+        
         [Fact]
         public void ThenSendMessageFailes()
         {
             // Before
-            base.CleanUpFiles(base.HolodeckBInputPath);
-            this.AS4Component.Start();
-            base.CleanUpFiles(AS4FullOutputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            base.CleanUpFiles(AS4ErrorsPath);
+            AS4Component.Start();
+            CleanUpFiles(AS4FullOutputPath);
+            CleanUpFiles(AS4ErrorsPath);
 
             // Act
-            File.Copy( this._as4MessagesPath, this._as4OutputPath);
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = AreErrorFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Send Message to Incorrectly Configured R-MSH Integration Test succeeded!");
+            Assert.True(AreErrorFilesFound());
         }
 
         private bool AreErrorFilesFound()
         {
             const int milisecondsRetryCount = 3000;
-            return base.PollingAt(AS4ErrorsPath, "*.xml", milisecondsRetryCount);
+            return PollingAt(AS4ErrorsPath, "*.xml", milisecondsRetryCount);
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             FileInfo notifyErrorFile = files.FirstOrDefault(f => f.Extension.Equals(".xml"));
-            if (notifyErrorFile == null) return;
+            Assert.NotNull(notifyErrorFile);
 
             Console.WriteLine($@"Notify Error Message found at: {notifyErrorFile.FullName}");
             XmlDocument xmlDocument = TryGetXmlDocument(notifyErrorFile);
-            if (xmlDocument == null) return;
+            Assert.NotNull(xmlDocument);
 
             AssertNotifyDescription(xmlDocument);
             AssertNotifyStatus(xmlDocument);
         }
 
-        private XmlDocument TryGetXmlDocument(FileInfo notifyErrorFile)
+        private static XmlDocument TryGetXmlDocument(FileSystemInfo notifyErrorFile)
         {
-            try
-            {
-                var xmlDocument = new XmlDocument();
-                xmlDocument.Load(notifyErrorFile.FullName);
-                return xmlDocument;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            var xmlDocument = new XmlDocument();
+            string xml = File.ReadAllText(notifyErrorFile.FullName);
+            xmlDocument.LoadXml(xml);
+
+            return xmlDocument;
         }
 
-        private void AssertNotifyStatus(XmlDocument xmlDocument)
+        private static void AssertNotifyStatus(XmlNode xmlDocument)
         {
             XmlNode statusNode = xmlDocument.SelectSingleNode("//*[local-name()='Status']");
             Assert.NotNull(statusNode);
@@ -83,7 +69,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._8_Sen
             Console.WriteLine($@"Notify Error Message Status = {statusNode.InnerText}");
         }
 
-        private void AssertNotifyDescription(XmlDocument xmlDocument)
+        private static void AssertNotifyDescription(XmlNode xmlDocument)
         {
             XmlNode errorDetailNode = xmlDocument.SelectSingleNode("//*[local-name()='ErrorDetail']");
             Assert.NotNull(errorDetailNode);

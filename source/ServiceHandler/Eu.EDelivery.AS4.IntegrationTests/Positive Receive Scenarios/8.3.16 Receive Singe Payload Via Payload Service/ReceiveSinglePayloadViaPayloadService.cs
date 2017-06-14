@@ -22,11 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._16
         public void RunIntegrationTest()
         {
             // Before
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
             CleanUpFiles(AS4FullInputPath);
-            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             // Arrange
             CopyPModeToHolodeckA("8.3.16-pmode.xml");

@@ -14,34 +14,26 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._2_
     {
         private const string ContentType = "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
-        private readonly StubSender _sender;
-
-        public ReceiveExternalPayloadReferencesMessageIntegrationTest()
-        {
-            this._sender = new StubSender();
-        }
-
         [Fact]
         public async void ThenSendingMessageFailsAsync()
         {
             // Before
-            this.AS4Component.Start();
-            base.CleanUpFiles(AS4FullInputPath);
+            AS4Component.Start();
+            CleanUpFiles(AS4FullInputPath);
 
             // Act
             string messageMissingMimeProperty = Properties.Resources.as4message_external_payloads;
-            AS4Message as4Message = await this._sender
-                .SendMessage(messageMissingMimeProperty, ContentType);
+            AS4Message as4Message = await new StubSender().SendMessage(messageMissingMimeProperty, ContentType);
 
             // Assert
             AssertErrorMessage(as4Message);
 
             // After
             Console.WriteLine(@"Receive Compressed Message with External Payload References Integration Test succeeded!");
-            base.StopApplication();
+            StopApplication();
         }
 
-        private void AssertErrorMessage(AS4Message as4Message)
+        private static void AssertErrorMessage(AS4Message as4Message)
         {
             var error = as4Message.PrimarySignalMessage as Error;
             Assert.NotNull(error);
@@ -50,7 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._2_
             AssertErrorCode(error);
         }
 
-        private void AssertErrorCode(Error error)
+        private static void AssertErrorCode(Error error)
         {
             string errorCode = error.Errors.FirstOrDefault().ErrorCode;
             Assert.Equal($"EBMS:{(int)ErrorCode.Ebms0011:0000}", errorCode);

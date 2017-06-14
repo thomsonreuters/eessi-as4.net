@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
@@ -12,27 +10,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
     /// </summary>
     public class ReceiveMultiplePayloadsCompressedSignedIntegrationTest : IntegrationTestTemplate
     {
-        private const string HolodeckMessageFilename = "\\8.3.6-sample.mmd";
-        private readonly string _holodeckMessagesPath;
-        private readonly string _destFileName;
-        private readonly Holodeck _holodeck;
-        
-        public ReceiveMultiplePayloadsCompressedSignedIntegrationTest()
-        {
-            _holodeckMessagesPath = Path.GetFullPath($"{HolodeckMessagesPath}{HolodeckMessageFilename}");
-            _destFileName = $"{Properties.Resources.holodeck_A_output_path}{HolodeckMessageFilename}";
-            _holodeck = new Holodeck();
-        }
-
         [Fact]
         public void ThenReceiveMultiplePayloadsCompressedSignedSucceeds()
         {
             // Before
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
             CleanUpFiles(AS4FullInputPath);
-            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
 
             AS4Component.Start();
 
@@ -40,14 +22,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
             CopyPModeToHolodeckA("8.3.6-pmode.xml");
 
             // Act
-            File.Copy(_holodeckMessagesPath, _destFileName);
+            CopyMessageToHolodeckA("8.3.6-sample.mmd");
 
             // Assert
-            bool areFilesFound = PollingAt(AS4FullInputPath);
-            if (areFilesFound)
-            {
-                Console.WriteLine(@"Receive Multiple Payloads Compressed and Signed Integration Test succeeded!");
-            }
+            Assert.True(PollingAt(AS4FullInputPath));
         }
 
         /// <summary>
@@ -57,35 +35,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             // Assert
-            AssertPayloads(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
-            AssertXmlFiles(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
-
-            _holodeck.AssertReceiptOnHolodeckA();
-        }
-
-        private void AssertPayloads(IEnumerable<FileInfo> files)
-        {
-            var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
-
-            foreach (FileInfo receivedPayload in files)
-            {
-                if (receivedPayload != null)
-                {
-                    Assert.Equal(sendPayload.Length, receivedPayload.Length);
-                }
-            }
-        }
-
-        private void AssertXmlFiles(IEnumerable<FileInfo> files)
-        {
-            int count = files.Count();
-            if (count == 0)
-            {
-                return;
-            }
-
-            Assert.Equal(2, count);
-            Console.WriteLine($@"There're {count} incoming Xml Documents found");
+            Holodeck.AssertPayloadsOnHolodeckA(new DirectoryInfo(AS4FullInputPath).GetFiles("*.jpg"));
+            Holodeck.AssertXmlFilesOnHolodeckA(new DirectoryInfo(AS4FullInputPath).GetFiles("*.xml"));
+            Holodeck.AssertReceiptOnHolodeckA();
         }
     }
 }

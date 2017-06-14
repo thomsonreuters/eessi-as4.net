@@ -30,9 +30,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
         {
             // Before
             string sharedMessageId = UpdateSubmitMessageId();
-            CleanUpFiles(HolodeckBInputPath);
             CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
             CleanUpFiles(AS4ErrorsPath);
 
             AS4Component.Start();
