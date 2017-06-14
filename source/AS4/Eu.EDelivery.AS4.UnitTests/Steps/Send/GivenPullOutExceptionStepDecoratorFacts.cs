@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task FailsToVerifySignature_ReturnsErrorMessage()
         {
             // Arrange
-            PullOutExceptionStepDecorator sut = DecoratorWitSInvalidSignatureSabotuer();
+            PullOutExceptionStepDecorator sut = DecoratorWithPullRequestValidationExceptionSaboteur();
 
             // Act
             StepResult result = await sut.ExerciseStep(AnonymousContext());
@@ -34,6 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             SignalMessage primarySignal = result.MessagingContext.AS4Message.PrimarySignalMessage;
             Assert.IsType<Error>(primarySignal);
             Assert.Equal(1, ((Error)primarySignal).Errors.Count);
+            Assert.Equal(403, result.MessagingContext.ReceivingPMode.ErrorHandling.ResponseHttpCode);
         }
 
         private static MessagingContext AnonymousContext()
@@ -45,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task FailsToVerifySignature_ResultesInInsertedOutException()
         {
             // Arrange
-            PullOutExceptionStepDecorator sut = DecoratorWitSInvalidSignatureSabotuer();
+            PullOutExceptionStepDecorator sut = DecoratorWithPullRequestValidationExceptionSaboteur();
             MessagingContext context = ContextWithPullRequest();
 
             // Act
@@ -55,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             AssertOnOutException(context.AS4Message);
         }
 
-        private PullOutExceptionStepDecorator DecoratorWitSInvalidSignatureSabotuer()
+        private PullOutExceptionStepDecorator DecoratorWithPullRequestValidationExceptionSaboteur()
         {
             var saboteur = new SaboteurStep(PullRequestValidationException.InvalidSignature("message-id"));
             return new PullOutExceptionStepDecorator(saboteur, GetDataStoreContext);

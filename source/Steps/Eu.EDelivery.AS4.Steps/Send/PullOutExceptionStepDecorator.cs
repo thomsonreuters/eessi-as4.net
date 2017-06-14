@@ -8,10 +8,15 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps.Common;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
+    /// <summary>
+    /// TODO: temporary solution for handling different 'unhappy' paths
+    /// </summary>
+    /// <seealso cref="OutExceptionStepDecorator" />
     public class PullOutExceptionStepDecorator : OutExceptionStepDecorator
     {
         private readonly IStep _innerStep;
@@ -47,7 +52,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 InsertOutException(messagingContext, exception);
 
                 AS4Message as4Message = BuildAS4Error(messagingContext, exception);
-                return StepResult.Success(new MessagingContext(as4Message));
+
+                // TODO: ugly hack
+                var pmode = new ReceivingProcessingMode {ErrorHandling = {ResponseHttpCode = 403}};
+                return StepResult.Success(new MessagingContext(as4Message) {ReceivingPMode = pmode});
             }
             catch (AS4Exception exception)
             {
