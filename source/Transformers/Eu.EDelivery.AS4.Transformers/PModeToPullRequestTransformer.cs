@@ -40,15 +40,16 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             try
             {
-                AS4Message as4Message = new AS4MessageBuilder().Build();
-                var message = new MessagingContext(as4Message);
-                receivedMessage.AssignPropertiesTo(message);
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
+
+                receivedMessage.AssignPropertiesTo(context);
                 
                 SendingProcessingMode pmode = DeserializeValidPMode(receivedMessage);
-                message.SendingPMode = pmode;
-                as4Message.SignalMessages.Add(new PullRequest(pmode.PullConfiguration.Mpc));
-                
-                return Task.FromResult(message);
+                context.SendingPMode = pmode;
+
+                AS4Message as4Message = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
+
+                return Task.FromResult(context.CloneWith(as4Message));
             }
             catch (AS4Exception exception)
             {

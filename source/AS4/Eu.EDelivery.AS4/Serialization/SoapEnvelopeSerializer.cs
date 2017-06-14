@@ -47,8 +47,6 @@ namespace Eu.EDelivery.AS4.Serialization
             IgnoreComments = true
         };
 
-        private static XmlSchema _envelopeSchema;
-
         public Task SerializeAsync(AS4Message message, Stream stream, CancellationToken cancellationToken)
         {
             return Task.Run(() => this.Serialize(message, stream, cancellationToken), cancellationToken);
@@ -105,12 +103,12 @@ namespace Eu.EDelivery.AS4.Serialization
 
         private static XmlNode GetSecurityHeader(AS4Message message)
         {
-            if (message.SecurityHeader.IsSigned || message.SecurityHeader.IsEncrypted)
+            if (message.SecurityHeader.IsSigned == false && message.SecurityHeader.IsEncrypted == false)
             {
-                return message.SecurityHeader?.GetXml();
+                return null;
             }
 
-            return null;
+            return message.SecurityHeader?.GetXml();
         }
 
         private static void SetMultiHopHeaders(SoapEnvelopeBuilder builder, AS4Message as4Message)
@@ -167,7 +165,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 stream.Position = 0;
 
-                AS4Message as4Message = AS4Message.ForSoapEnvelope(envelopeDocument, contentType);
+                AS4Message as4Message = AS4Message.Create(envelopeDocument, contentType);
 
                 using (XmlReader reader = XmlReader.Create(stream, DefaultXmlReaderSettings))
                 {
@@ -217,17 +215,19 @@ namespace Eu.EDelivery.AS4.Serialization
             Logger.Debug("Valid ebMS Envelope Document");
         }
 
+        private static XmlSchema __envelopeSchema;
+
         private static XmlSchema GetEnvelopeSchema()
         {
-            if (_envelopeSchema == null)
+            if (__envelopeSchema == null)
             {
                 using (var stringReader = new StringReader(Schemas.Soap12))
                 {
-                    _envelopeSchema = XmlSchema.Read(stringReader, (sender, args) => { });
+                    __envelopeSchema = XmlSchema.Read(stringReader, (sender, args) => { });
                 }
             }
 
-            return _envelopeSchema;
+            return __envelopeSchema;
         }
 
         private static void TryValidateEnvelopeDocument(XmlDocument envelopeDocument)

@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var serializer = new SoapEnvelopeSerializer();
             AS4Message as4Message = await serializer.DeserializeAsync(memoryStream, ContentType, CancellationToken.None);
 
-            return new MessagingContext(as4Message);
+            return new MessagingContext(as4Message, MessagingContextMode.Unknown);
         }
 
         protected void UsingAllowedSigningVerification()

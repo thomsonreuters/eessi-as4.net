@@ -135,7 +135,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             EnsureDirectory(directory);
 
             Console.WriteLine($@"Deleting files at location: {directory}");
-
+            
             foreach (string file in Directory.EnumerateFiles(directory))
             {
                 if (predicateFile == null || predicateFile(file))

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
@@ -139,8 +138,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsAsync()
             {
                 // Arrange
-                AS4Message message = new AS4MessageBuilder().Build();
-                var internalMessage = new MessagingContext(message);
+                var internalMessage = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);

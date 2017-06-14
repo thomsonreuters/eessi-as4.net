@@ -49,7 +49,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 byte[] attachmentContents = Encoding.UTF8.GetBytes("hi!");
                 var attachment = new Attachment("attachment-id") { Content = new MemoryStream(attachmentContents) };
 
-                AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
+                AS4Message as4Message = AS4Message.Create(soapEnvelope: null, contentType: null);
+                as4Message.AddAttachment(attachment);
 
                 IEncryptionStrategy encryptionStrategy = CreateEncryptionStrategyForEncrypting(as4Message);
 

@@ -62,10 +62,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         protected MessagingContext CreateAS4MessageWithAttachment()
         {
-            AS4Message as4Message =
-                new AS4MessageBuilder().WithAttachment(new Attachment("attachment-id") {Content = Stream.Null}).Build();
+            AS4Message as4Message = AS4Message.Empty;
+            as4Message.AddAttachment(new Attachment("attachment-id") {Content = Stream.Null});
 
-            return new MessagingContext(as4Message)
+            return new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {
                 ReceivingPMode =
                     new ReceivingProcessingMode {Deliver = {PayloadReferenceMethod = new Method {Type = "FILE"}}}

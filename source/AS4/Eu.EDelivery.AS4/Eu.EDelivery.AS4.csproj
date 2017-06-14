@@ -317,7 +317,6 @@
     <Compile Include="Agents\Agent.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
     <Compile Include="Builders\Core\AS4ExceptionBuilder.cs" />
-    <Compile Include="Builders\Core\AS4MessageBuilder.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Core\NonRepudiationInformationBuilder.cs" />
     <Compile Include="Builders\Entities\InExceptionBuilder.cs" />
@@ -512,7 +511,6 @@
     <Compile Include="Model\Core\Attachment.cs" />
     <Compile Include="Model\Core\CollaborationInfo.cs" />
     <Compile Include="Model\Core\Error.cs" />
-    <Compile Include="Common\IMessage.cs" />
     <Compile Include="Model\Core\MessageUnit.cs" />
     <Compile Include="Model\Core\Party.cs" />
     <Compile Include="Model\Core\PartInfo.cs" />

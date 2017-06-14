@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
-            AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(error).Build();
+            AS4Message as4Message = AS4Message.Create(error, new SendingProcessingMode());
             as4Message.EnvelopeDocument = await GetEnvelopeDocument(as4Message, cancellationTokken);
 
             return as4Message;

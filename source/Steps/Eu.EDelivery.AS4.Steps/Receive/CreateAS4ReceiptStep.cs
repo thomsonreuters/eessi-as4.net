@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             AS4Message receiptMessage = TryCreateAS4ReceiptMessage(messagingContext);
 
-            var message = new MessagingContext(receiptMessage)
+            var message = new MessagingContext(receiptMessage, MessagingContextMode.Receive)
             {
                 SendingPMode = messagingContext.SendingPMode,
                 ReceivingPMode = messagingContext.ReceivingPMode
@@ -60,17 +60,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             // Should we create a Receipt for each and every UserMessage that can be present in the bundle ?
             // If no UserMessages are present, an Empty AS4Message should be returned.
-            var messageBuilder = new AS4MessageBuilder(messagingContext.SendingPMode);
+            AS4Message receiptMessage = AS4Message.Create(messagingContext.SendingPMode);
 
-            foreach (var messageId in receivedAS4Message.UserMessages.Select(m => m.MessageId))
+            foreach (string messageId in receivedAS4Message.UserMessages.Select(m => m.MessageId))
             {
                 var receipt = new Receipt { RefToMessageId = messageId };
                 AdaptReceiptMessage(receipt, messagingContext);
 
-                messageBuilder.WithSignalMessage(receipt);
+                receiptMessage.SignalMessages.Add(receipt);
             }
-
-            var receiptMessage = messageBuilder.Build();
 
             receiptMessage.SigningId = receivedAS4Message.SigningId;
 

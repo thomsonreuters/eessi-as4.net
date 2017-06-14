@@ -147,14 +147,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         private static async Task<DeliverMessageEnvelope> ExecuteStepWith(AS4Message as4Message)
         {
             var sut = new CreateDeliverEnvelopeStep();
-            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message), CancellationToken.None);
+            StepResult result = await sut.ExecuteAsync(new MessagingContext(as4Message, MessagingContextMode.Unknown), CancellationToken.None);
 
             return result.MessagingContext.DeliverMessage;
         } 
 
         private static AS4Message AS4MessageWithUserMessage(string attachmentId = "attachment-uri")
         {
-            return new AS4MessageBuilder().WithUserMessage(new FilledUserMessage(attachmentId: attachmentId)).Build();
+            return AS4Message.Create(new FilledUserMessage(attachmentId: attachmentId));
         }
 
         private static void AssertsNotEmpty(params IEnumerable[] values)

@@ -83,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public async Task DeserializeFixedMessage()
         {
             // Arrange
-            AS4Message expectedMessage = new AS4MessageBuilder().Build();
+            AS4Message expectedMessage = AS4Message.Empty;
             var sut = new FixedValueSerializer(expectedMessage);
 
             // Act

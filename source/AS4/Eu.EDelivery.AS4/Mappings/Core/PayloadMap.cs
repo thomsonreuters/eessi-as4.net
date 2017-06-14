@@ -30,12 +30,18 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .AfterMap(
                     (xmlPartInfo, modelPartInfo) =>
                     {
-                        if (xmlPartInfo.PartProperties == null || xmlPartInfo.PartProperties.Length == 0) return;
+                        if (xmlPartInfo.PartProperties == null || xmlPartInfo.PartProperties.Length == 0)
+                        {
+                            return;
+                        }
+
                         modelPartInfo.Properties = xmlPartInfo.PartProperties
                             .ToDictionary(property => property.name, property => property.Value);
 
-                        if (!modelPartInfo.Href.StartsWith("cid:"))
+                        if (modelPartInfo.Href != null && !modelPartInfo.Href.StartsWith("cid:"))
+                        {
                             throw ThrowNoExternalPayloadsSupportedException(modelPartInfo);
+                        }
                     });
         }
 

@@ -70,6 +70,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// </summary>
         /// <param name="messageCallback"></param>
         /// <param name="cancellationToken"></param>
+        /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public override void StartReceiving(
             Func<ReceivedMessage, CancellationToken, Task<MessagingContext>> messageCallback,
             CancellationToken cancellationToken)

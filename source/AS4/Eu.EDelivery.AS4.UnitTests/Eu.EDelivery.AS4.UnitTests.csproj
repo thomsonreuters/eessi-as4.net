@@ -293,7 +293,6 @@
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
-    <Compile Include="Builders\Core\GivenAS4MessageBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenNonRepudiationInformationBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenInExceptionBuilderFacts.cs" />
@@ -363,6 +362,12 @@
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
     <Compile Include="Receivers\GivenIntervalRequestFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenBooleanExpressionFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenConversionFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenDatastoreSpecificationArgsFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenExpressionDatastoreSpecificationFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenSameExpressionFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenTokenFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubXmlAttribute.cs" />
@@ -545,6 +550,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\as4-encrypted-envelope.xml" />
+    <Content Include="Resources\as4-soap-signed-encrypted-message-with-extra-hashtag.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
