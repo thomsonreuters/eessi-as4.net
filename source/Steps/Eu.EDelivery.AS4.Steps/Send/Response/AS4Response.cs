@@ -65,16 +65,16 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         }
 
         private static async Task<MessagingContext> TryDeserializeHttpResponse(WebResponse webResponse, CancellationToken cancellation)
-        {
-            if (webResponse == null)
-            {
-                throw new ArgumentNullException(nameof(webResponse));
-            }
-
+        {            
             AS4Message deserializedResponse;
 
             try
             {
+                if (webResponse == null)
+                {
+                    throw new ArgumentNullException(nameof(webResponse));
+                }
+
                 if (string.IsNullOrWhiteSpace(webResponse.ContentType))
                 {
                     if (Logger.IsInfoEnabled)
