@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 receiver.StartReceiving(OnMessageReceived, CancellationToken.None);
 
                 // Assert
-                Assert.True(_waitHandle.WaitOne(timeout: TimeSpan.FromMinutes(1)));
+                Assert.True(_waitHandle.WaitOne(timeout: TimeSpan.FromMinutes(2)));
             }
 
             private static Setting CreateMockReceiverSetting()
