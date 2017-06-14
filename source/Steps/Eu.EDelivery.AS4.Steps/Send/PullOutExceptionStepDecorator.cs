@@ -73,12 +73,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
             OutException outException = OutExceptionBuilder.ForAS4Exception(exception).Build();
             outException.MessageBody = context.AS4Message.AsBytes();
 
-            _createContext().Using(
-                c =>
-                {
-                    c.OutExceptions.Add(outException);
-                    c.SaveChanges();
-                });
+            using (DatastoreContext datastoreContext = _createContext())
+            {
+                datastoreContext.OutExceptions.Add(outException);
+                datastoreContext.SaveChanges();
+            }
         }
 
         private static AS4Message BuildAS4Error(MessagingContext messagingContext, AS4Exception exception)

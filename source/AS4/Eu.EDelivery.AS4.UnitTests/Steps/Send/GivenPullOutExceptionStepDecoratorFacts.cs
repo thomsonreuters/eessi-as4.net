@@ -70,11 +70,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private void AssertOnOutException(AS4Message as4Message)
         {
-            OutException exception = GetDataStoreContext().Using(c => c.OutExceptions.First());
+            OutException exception = GetFirstOutException();
 
             Assert.Null(exception.EbmsRefToMessageId);
             Assert.Equal(as4Message.AsBytes(), exception.MessageBody);
             Assert.NotEmpty(exception.Exception);
+        }
+
+        private OutException GetFirstOutException()
+        {
+            using (DatastoreContext context = GetDataStoreContext())
+            {
+                return context.OutExceptions.First();
+            }
         }
     }
 }

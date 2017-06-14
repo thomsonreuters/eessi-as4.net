@@ -188,32 +188,6 @@ namespace Eu.EDelivery.AS4.Common
         }
 
         /// <summary>
-        /// Use the current context.
-        /// </summary>
-        /// <param name="usingContext"></param>
-        public void Using(Action<DatastoreContext> usingContext)
-        {
-            using (this)
-            {
-                usingContext(this);
-            }
-        }
-
-        /// <summary>
-        /// Usings the specified use context.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="useContext">The use context.</param>
-        /// <returns></returns>
-        public T Using<T>(Func<DatastoreContext, T> useContext)
-        {
-            using (this)
-            {
-                return useContext(this);
-            }
-        }
-
-        /// <summary>
         /// Determines whether the DatastoreContext is already tracking the specified entity.
         /// </summary>
         /// <typeparam name="T"></typeparam>
