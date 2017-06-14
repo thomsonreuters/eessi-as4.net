@@ -1,5 +1,4 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -14,7 +13,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <summary>
     /// Canonical Message Format inside the Steps
     /// </summary>
-    public class MessagingContext : IMessage, IDisposable
+    public class MessagingContext : IDisposable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext" /> class.

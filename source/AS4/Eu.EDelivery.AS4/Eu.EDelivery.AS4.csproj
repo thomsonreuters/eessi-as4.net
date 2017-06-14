@@ -509,7 +509,6 @@
     <Compile Include="Model\Core\Attachment.cs" />
     <Compile Include="Model\Core\CollaborationInfo.cs" />
     <Compile Include="Model\Core\Error.cs" />
-    <Compile Include="Common\IMessage.cs" />
     <Compile Include="Model\Core\MessageUnit.cs" />
     <Compile Include="Model\Core\Party.cs" />
     <Compile Include="Model\Core\PartInfo.cs" />

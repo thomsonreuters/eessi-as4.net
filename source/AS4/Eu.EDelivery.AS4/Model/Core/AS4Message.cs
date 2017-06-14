@@ -6,8 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
@@ -19,7 +17,7 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// <summary>
     /// Internal AS4 Message between MSH
     /// </summary>
-    public class AS4Message : IMessage, IEquatable<AS4Message>
+    public class AS4Message : IEquatable<AS4Message>
     {
         private readonly bool _serializeAsMultiHop;
 
@@ -95,6 +93,8 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
 
+        public Entities.MessageExchangePattern Mep { get; set; }
+
         public bool IsSignalMessage => SignalMessages.Count > 0;
 
         public bool IsUserMessage => UserMessages.Count > 0;
@@ -119,8 +119,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             return new AS4Message {EnvelopeDocument = soapEnvelope, ContentType = contentType};
         }
-
-        public Entities.MessageExchangePattern Mep { get; set; }
 
         /// <summary>
         /// Fors the sending p mode.
