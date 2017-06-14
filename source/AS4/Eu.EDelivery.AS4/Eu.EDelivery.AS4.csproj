@@ -335,6 +335,7 @@
     <Compile Include="Mappings\PMode\PModeReceiverResolver.cs" />
     <Compile Include="Mappings\PMode\PModeSenderResolver.cs" />
     <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
+    <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Receivers\ExponentialIntervalReceiver.cs" />

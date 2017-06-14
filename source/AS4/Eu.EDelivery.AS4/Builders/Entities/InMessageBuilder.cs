@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Serialization;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
