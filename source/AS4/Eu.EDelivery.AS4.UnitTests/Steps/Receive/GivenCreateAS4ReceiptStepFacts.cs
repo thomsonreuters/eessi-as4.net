@@ -139,8 +139,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected MessagingContext CreateDefaultInternalMessage()
         {
-            AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(GetUserMessage()).Build();
-            return new MessagingContext(as4Message) {ReceivingPMode = GetReceivingPMode()};
+            return new MessagingContext(AS4Message.Create(GetUserMessage())) {ReceivingPMode = GetReceivingPMode()};
         }
 
         protected MessagingContext CreateSignedInternalMessage()

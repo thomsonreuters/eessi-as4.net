@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBuildOutMessageSucceedsWithAS4Message()
             {
                 // Arrange
-                AS4Message as4Message = CreateAS4MessageWithUserMessage();
+                AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
 
                 // Act
                 OutMessage outMessage = BuildForUserMessage(as4Message);
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = CreateAS4MessageWithReceiptMessage(messageId);
+                AS4Message as4Message = AS4Message.Create(new Receipt(messageId), ExpectedPMode());
 
                 // Act
                 OutMessage outMessage = BuildForSignalMessage(as4Message);
@@ -76,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = CreateAS4MessageWithErrorMessage(messageId);
+                AS4Message as4Message = AS4Message.Create(new Error(messageId), ExpectedPMode());
 
                 // Act
                 OutMessage outMessage = BuildForSignalMessage(as4Message);
@@ -98,19 +98,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             return new SendingProcessingMode {Id = "pmode-id"};
         }
 
-        protected AS4Message CreateAS4MessageWithUserMessage(string messageId = "message id")
+        protected AS4Message CreateAS4MessageWithUserMessage(string messageId)
         {
-            return new AS4MessageBuilder().WithUserMessage(new UserMessage(messageId)).Build();
-        }
-
-        protected AS4Message CreateAS4MessageWithReceiptMessage(string messageId = "message-id", bool isDuplicate = false)
-        {
-            return new AS4MessageBuilder().WithSignalMessage(new Receipt(messageId) {IsDuplicated = isDuplicate}).Build();
-        }
-
-        protected AS4Message CreateAS4MessageWithErrorMessage(string messageId)
-        {
-            return new AS4MessageBuilder().WithSignalMessage(new Error(messageId)).Build();
+            return AS4Message.Create(new UserMessage(messageId), ExpectedPMode());
         }
     }
 }

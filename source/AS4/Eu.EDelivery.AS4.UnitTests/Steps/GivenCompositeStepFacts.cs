@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             public async void ThenTransmitMessageSucceeds()
             {
                 // Arrange
-                MessagingContext dummyMessage = CreateDummyMessage();
+                MessagingContext dummyMessage = CreateDummyMessageWithAttachment();
                 StepResult expectedStepResult = StepResult.Success(dummyMessage);
 
                 var compositeStep = new CompositeStep(CreateMockStepWith(expectedStepResult).Object);
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             public async void ThenStepStopExecutionWithMarkedStepResult()
             {
                 // Arrange
-                MessagingContext expectedMessage = CreateDummyMessage();
+                MessagingContext expectedMessage = CreateDummyMessageWithAttachment();
                 StepResult stopExecutionResult = StepResult.Success(expectedMessage).AndStopExecution();
 
                 var spyStep = new SpyStep();
@@ -54,9 +54,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
                 Assert.Equal(expectedMessage, actualResult.MessagingContext);
             }
 
-            private static MessagingContext CreateDummyMessage()
+            private static MessagingContext CreateDummyMessageWithAttachment()
             {
-                return new MessagingContext(new AS4MessageBuilder().WithAttachment(new Attachment()).Build());
+                AS4Message message = AS4Message.Empty;
+                message.AddAttachment(new Attachment());
+
+                return new MessagingContext(message);
             }
 
             private static Mock<IStep> CreateMockStepWith(StepResult stepResult)

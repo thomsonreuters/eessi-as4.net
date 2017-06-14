@@ -6,9 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Common;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
@@ -18,16 +17,17 @@ namespace Eu.EDelivery.AS4.Model.Core
     /// <summary>
     /// Internal AS4 Message between MSH
     /// </summary>
-    public class AS4Message : IMessage
+    public class AS4Message : IEquatable<AS4Message>
     {
-        private bool? _hasMultiHopAttribute;
-        private bool _serializeAsMultiHop;
+        private readonly bool _serializeAsMultiHop;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="AS4Message"/> class from being created.
         /// </summary>
-        private AS4Message()
+        /// <param name="serializeAsMultiHop">if set to <c>true</c> [serialize as multi hop].</param>
+        private AS4Message(bool serializeAsMultiHop = false)
         {
+            _serializeAsMultiHop = serializeAsMultiHop;
             ContentType = "application/soap+xml";
             SigningId = new SigningId();
             SecurityHeader = new SecurityHeader();
@@ -36,9 +36,13 @@ namespace Eu.EDelivery.AS4.Model.Core
             UserMessages = new List<UserMessage>();
         }
 
+        public static AS4Message Empty => new AS4Message(serializeAsMultiHop: false);
+
         public string ContentType { get; set; }
 
         public XmlDocument EnvelopeDocument { get; set; }
+
+        private bool? __hasMultiHopAttribute;
 
         /// <summary>
         /// Gets a value indicating whether or not this AS4 Message is a MultiHop message.
@@ -47,12 +51,12 @@ namespace Eu.EDelivery.AS4.Model.Core
         {
             get
             {
-                if (IsUserMessage && _hasMultiHopAttribute.HasValue == false)
+                if (IsUserMessage && __hasMultiHopAttribute.HasValue == false)
                 {
-                    _hasMultiHopAttribute = IsMultiHopAttributePresent();
+                    __hasMultiHopAttribute = IsMultiHopAttributePresent();
                 }
 
-                return (_hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop || NeedsToBeMultiHop;
+                return (__hasMultiHopAttribute ?? false) || PrimarySignalMessage?.MultiHopRouting != null || _serializeAsMultiHop;
             }
         }
 
@@ -89,6 +93,8 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
 
+        public Entities.MessageExchangePattern Mep { get; set; }
+
         public bool IsSignalMessage => SignalMessages.Count > 0;
 
         public bool IsUserMessage => UserMessages.Count > 0;
@@ -103,29 +109,47 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public bool IsPullRequest => PrimarySignalMessage is PullRequest;
 
-        public MessageExchangePattern Mep { get; set; }
-
-        public bool NeedsToBeMultiHop { get; internal set; }
-
         /// <summary>
-        /// Create message with SOAP envelope.
+        /// Creates message with a SOAP envelope.
         /// </summary>
         /// <param name="soapEnvelope">The SOAP envelope.</param>
         /// <param name="contentType">Type of the content.</param>
         /// <returns></returns>
-        public static AS4Message ForSoapEnvelope(XmlDocument soapEnvelope, string contentType)
+        public static AS4Message Create(XmlDocument soapEnvelope, string contentType)
         {
             return new AS4Message {EnvelopeDocument = soapEnvelope, ContentType = contentType};
         }
 
         /// <summary>
-        /// Fors the sending p mode.
+        /// Creates message with a <see cref="SendingProcessingMode"/>.
         /// </summary>
         /// <param name="pmode">The pmode.</param>
         /// <returns></returns>
-        public static AS4Message ForSendingPMode(PMode.SendingProcessingMode pmode)
+        public static AS4Message Create(SendingProcessingMode pmode)
         {
-            return new AS4Message {_serializeAsMultiHop = pmode?.MessagePackaging?.IsMultiHop == true};
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
+        }
+
+        /// <summary>
+        /// Creates message with a <see cref="SignalMessage"/> and <see cref="SendingProcessingMode"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4Message Create(SignalMessage message, SendingProcessingMode pmode = null)
+        {
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {SignalMessages = {message}};
+        }
+
+        /// <summary>
+        /// Creates message with a <see cref="UserMessage"/> and <see cref="SendingProcessingMode"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public static AS4Message Create(UserMessage message, SendingProcessingMode pmode = null)
+        {
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {UserMessages = {message}};
         }
 
         /// <summary>
@@ -224,6 +248,14 @@ namespace Eu.EDelivery.AS4.Model.Core
         private static Attachment CreateAttachmentFromPayload(Payload payload)
         {
             return new Attachment(payload.Id) { ContentType = payload.MimeType, Location = payload.Location };
+        }
+
+        /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
+        /// <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        /// <param name="other">An object to compare with this object.</param>
+        public bool Equals(AS4Message other)
+        {
+            return GetPrimaryMessageId() == other.GetPrimaryMessageId();
         }
 
         #region Inner DetermineSizeStream class.

@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 ResetStep();
                 OutMessage outMessage = CreateDefaultOutMessage(sharedId);
                 InsertOutMessage(outMessage);
-                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
+                var internalMessage = new MessagingContext(AS4Message.Empty);
                 
                 // Act
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
 
         protected MessagingContext CreateDefaultInternalMessage()
         {
-            return new MessagingContext(new AS4MessageBuilder().Build())
+            return new MessagingContext(AS4Message.Empty)
             {
                 SendingPMode = new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = true}}
             };

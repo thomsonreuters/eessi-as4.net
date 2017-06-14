@@ -116,9 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private static AS4Message CreateFilledAS4Message()
             {
-                return
-                    new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id"))
-                                           .Build();
+                return AS4Message.Create(new UserMessage("message-id"));
             }
         }
     }

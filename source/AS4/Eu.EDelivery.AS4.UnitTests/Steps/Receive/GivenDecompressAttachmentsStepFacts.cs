@@ -74,10 +74,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             const string attachmentId = "attachment-id";
 
-            AS4Message as4Message =
-                new AS4MessageBuilder().WithAttachment(CompressedAttachment(attachmentId))
-                                       .WithUserMessage(UserMessageWithCompressedInfo(attachmentId))
-                                       .Build();
+            AS4Message as4Message = AS4Message.Create(UserMessageWithCompressedInfo(attachmentId));
+            as4Message.AddAttachment(CompressedAttachment(attachmentId));
 
             return new MessagingContext(as4Message);
         }

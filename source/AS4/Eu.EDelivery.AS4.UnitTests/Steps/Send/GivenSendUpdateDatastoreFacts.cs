@@ -31,8 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task ThenExecuteStepSucceedsAsync()
         {
             // Arrange
-            AS4Message message = new AS4MessageBuilder().Build();
-            var internalMessage = new MessagingContext(message);
+            var internalMessage = new MessagingContext(AS4Message.Empty);
 
             // Act
             StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);

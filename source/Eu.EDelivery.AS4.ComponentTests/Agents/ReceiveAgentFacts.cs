@@ -111,6 +111,36 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                            CancellationToken.None);
             }
 
+            [Fact]
+            public async Task ReturnsEmptyMessageFromInvalidMessage_IfReceivePModeIsCallback()
+            {
+                // Arrange
+                HttpRequestMessage request = WrongEncryptedAS4Message();
+
+                // Act
+                HttpResponseMessage response = await HttpClient.SendAsync(request);
+
+                // Assert
+                Assert.Empty(await response.Content.ReadAsStringAsync());
+            }
+
+            private HttpRequestMessage WrongEncryptedAS4Message()
+            {
+                var messageContent = new ByteArrayContent(receiveagent_wrong_encrypted_message)
+                {
+                    Headers =
+                    {
+                        {
+                            "Content-Type",
+                            "multipart/related; boundary=\"=-WoWSZIFF06iwFV8PHCZ0dg==\"; type=\"application/soap+xml\"; charset=\"utf-8\""
+                        }
+                    }
+                };
+
+                return new HttpRequestMessage(HttpMethod.Post, _receiveAgentUrl) { Content = messageContent };
+            }
+
+
             private InMessage GetInsertedUserMessageFor(AS4Message receivedAS4Message)
             {
                 return
@@ -142,7 +172,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 var r = new Receipt {RefToMessageId = refToMessageId};
 
-                return new AS4MessageBuilder().WithSignalMessage(r).Build();
+                return AS4Message.Create(r, GetSendingPMode());
             }
 
             [Fact]
@@ -194,7 +224,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithAS4Exception(exception).Build();
 
-                return new AS4MessageBuilder().WithSignalMessage(error).Build();
+                return AS4Message.Create(error, GetSendingPMode());
             }
 
             private HttpRequestMessage CreateSendMessage(AS4Message message)

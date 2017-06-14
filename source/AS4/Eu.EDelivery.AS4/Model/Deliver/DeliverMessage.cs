@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.Model.Deliver
     /// <summary>
     /// Describes all the fields that could be passed to the consuming business application when delivering messages. 
     /// </summary>
-    public class DeliverMessage : IMessage
+    public class DeliverMessage
     {
         public MessageInfo MessageInfo { get; set; }
         public PartyInfo PartyInfo { get; set; }

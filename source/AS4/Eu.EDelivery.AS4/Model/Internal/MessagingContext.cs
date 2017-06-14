@@ -1,5 +1,4 @@
 ﻿using System;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -14,7 +13,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <summary>
     /// Canonical Message Format inside the Steps
     /// </summary>
-    public class MessagingContext : IMessage, IDisposable
+    public class MessagingContext : IDisposable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext" /> class.
@@ -86,24 +85,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             ReceptionAwareness = awareness;
         }
 
-        public AS4Message AS4Message
-        {
-            get
-            {
-                return _as4Message;
-            }
-
-            set
-            {
-                _as4Message = value;
-
-                // TODO: find better approach
-                if (_sendingPMode != null)
-                {
-                    _as4Message.NeedsToBeMultiHop = SendingPMode.MessagePackaging?.IsMultiHop ?? false;
-                }
-            }
-        }
+        public AS4Message AS4Message { get; }
 
         public SubmitMessage SubmitMessage { get; }
 
@@ -115,24 +97,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public AS4Exception Exception { get; set; }
 
-        public SendingProcessingMode SendingPMode
-        {
-            get
-            {
-                return _sendingPMode;
-            }
-
-            set
-            {
-                _sendingPMode = value;
-
-                // TODO: find better approach
-                if (_as4Message != null)
-                {
-                    _as4Message.NeedsToBeMultiHop = _sendingPMode?.MessagePackaging?.IsMultiHop ?? false;
-                }
-            }
-        }
+        public SendingProcessingMode SendingPMode { get; set; }
 
         private ReceivingProcessingMode _receivingPMode;
 
@@ -154,10 +119,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         private string _receivingPModeString;
-
-        private SendingProcessingMode _sendingPMode;
-
-        private AS4Message _as4Message;
 
         /// <summary>
         /// Gets the prefix.

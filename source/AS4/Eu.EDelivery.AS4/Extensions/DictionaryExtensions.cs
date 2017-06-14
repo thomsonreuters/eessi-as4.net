@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Extensions

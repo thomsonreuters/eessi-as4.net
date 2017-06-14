@@ -85,9 +85,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             UserMessage userMessage = CreateUserMessage(messagingContext);
             Logger.Info($"[{userMessage.MessageId}] Create AS4Message with Submit Message");
 
-            return new AS4MessageBuilder(messagingContext.SendingPMode)
-                .WithUserMessage(userMessage)
-                .Build();
+            return AS4Message.Create(userMessage, messagingContext.SendingPMode);
         }
 
         private static UserMessage CreateUserMessage(MessagingContext messagingContext)

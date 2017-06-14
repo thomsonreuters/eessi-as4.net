@@ -66,8 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         protected static MessagingContext AS4UserMessage()
         {
-            AS4Message message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
-            return new MessagingContext(message);
+            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")));
         }
     }
 }
