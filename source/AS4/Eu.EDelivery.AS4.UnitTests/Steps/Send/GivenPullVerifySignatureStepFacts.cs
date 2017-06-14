@@ -27,6 +27,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         }
 
         [Fact]
+        public async Task SucceedsWithUnsignedPullRequest()
+        {
+            // Arrange
+            Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(as4_soap_pullrequest);
+
+            // Act
+            StepResult result = await act();
+
+            // Assert
+            Assert.True(result.CanProceed);
+        }
+
+        [Fact]
         public async Task SucceedsVerifySignature_ResultsInSameMessage()
         {
             // Arrange

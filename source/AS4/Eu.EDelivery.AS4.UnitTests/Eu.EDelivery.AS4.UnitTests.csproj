@@ -544,6 +544,7 @@
   <ItemGroup>
     <Content Include="Resources\as4-encrypted-envelope.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
+    <Content Include="Resources\as4-soap-pullrequest.xml" />
     <Content Include="Resources\as4-soap-wrong-signed-pullrequest.xml" />
     <Content Include="Resources\as4-soap-signed-pullrequest.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
