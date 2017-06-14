@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services;
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.SuccessAsync(messagingContext);
             }
 
-            return Task.FromResult(StepResult.Success(messagingContext).AndStopExecution());
+            throw PullRequestValidationException.MissingMpcCertificate(pullRequest.MessageId, pullRequest.Mpc);
         }
     }
 }
