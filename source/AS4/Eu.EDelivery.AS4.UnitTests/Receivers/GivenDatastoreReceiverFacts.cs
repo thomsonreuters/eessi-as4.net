@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -20,12 +23,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
     /// </summary>
     public class GivenDatastoreReceiverFacts : GivenDatastoreFacts
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GivenDatastoreReceiverFacts"/> class.
+        /// </summary>
+        public GivenDatastoreReceiverFacts()
+        {
+            Registry.Instance.MessageBodyStore.Accept(s => true, new StubMessageBodyRetriever(() => Stream.Null));
+        }
+
         [Fact]
         public void CatchesInvalidDatastoreCreation()
         {
             // Arrange
-            var receiver = new DatastoreReceiver(
-                () => { throw new SaboteurException("Sabotage datastore creation"); });
+            var receiver = new DatastoreReceiver(() => { throw new SaboteurException("Sabotage datastore creation"); });
 
             receiver.Configure(DummySettings());
 
@@ -35,8 +45,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
         private static IEnumerable<Setting> DummySettings()
         {
-            const string ignored = "ignored";
-            return CreateSettings(ignored, ignored, ignored, ignored);
+            return SettingsToPollOnOutMessages(
+                        filter: "Operation = ToBeDelivered",
+                        updates: new[] { "Operation", "Status" },
+                        values: new[] { "Sending", "Sent" });
+        }
+
+        [Fact]
+        public void ReceiverUpdatesMultipleValues_IfMultipleUpdateSettingsAreSpecified()
+        {
+            // Arrange
+            InsertOutMessageInDatastoreWith(Operation.ToBeDelivered, OutStatus.NotApplicable);
+
+            IReceiver receiver =
+                DataStoreReceiverWith(
+                    SettingsToPollOnOutMessages(
+                        filter: "Operation = ToBeDelivered",
+                        updates: new[] {"Operation", "Status"},
+                        values: new[] {"Sending", "Sent"}));
+
+            // Act
+            StartReceiver(receiver);
+
+            // Assert
+            AssertOutMessageIf(
+                m => m.Operation == Operation.Sending,
+                message =>
+                {
+                    Assert.Equal(Operation.Sending, message.Operation);
+                    Assert.Equal(OutStatus.Sent, message.Status);
+                });
         }
 
         [Fact]
@@ -49,7 +87,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             ArrangeOutMessageInDatastore(Operation.ToBeDelivered, expectedStream, expectedType);
 
             var receiver = new DatastoreReceiver(GetDataStoreContext);
-            receiver.Configure(CreateSettings("OutMessages", "Operation", "ToBeDelivered", "Delivering"));
+            receiver.Configure(SettingsToPollOnOutMessages(
+                        filter: "Operation = ToBeDelivered",
+                        updates: new[] { "Operation", "Status" },
+                        values: new[] { "Sending", "Sent" }));
 
             // Act
             ReceivedMessage actualMessage = StartReceiver(receiver);
@@ -79,6 +120,54 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             }
         }
 
+        private void InsertOutMessageInDatastoreWith(Operation operation, OutStatus status)
+        {
+            using (var context = new DatastoreContext(Options))
+            {
+                var expectedMessage = new OutMessage
+                {
+                    EbmsMessageId = "message-id",
+                    MessageLocation = "ignored location",
+                    Status = status,
+                    Operation = operation
+                };
+
+                context.OutMessages.Add(expectedMessage);
+                context.SaveChanges();
+            }
+        }
+
+        private IReceiver DataStoreReceiverWith(IEnumerable<Setting> settings)
+        {
+            var receiver = new DatastoreReceiver(() => new DatastoreContext(Options));
+            receiver.Configure(settings);
+
+            return receiver;
+        }
+
+        private static IEnumerable<Setting> SettingsToPollOnOutMessages(
+            string filter,
+            IReadOnlyList<string> updates,
+            IReadOnlyList<string> values)
+        {
+            var settings = new List<Setting>
+            {
+                new Setting("Table", "OutMessages"),
+                new Setting("Field", filter),
+            };
+
+            for (var index = 0; index < updates.Count; index++)
+            {
+                string update = updates[index];
+                var attributes = new XmlAttribute[] {new StubXmlAttribute("field", update)};
+                string value = values[index];
+
+                settings.Add(new Setting("Update", value) {Attributes = attributes});
+            }
+
+            return settings;
+        }
+
         private static ReceivedMessage StartReceiver(IReceiver receiver, bool isCalled = true)
         {
             var tokenSource = new CancellationTokenSource();
@@ -93,7 +182,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
                     receivedMessage = message;
 
-                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
+                    return Task.FromResult((MessagingContext)new EmptyMessagingContext());
                 },
                 tokenSource.Token), tokenSource.Token);
 
@@ -105,13 +194,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             return receivedMessage;
         }
 
-        private static IEnumerable<Setting> CreateSettings(string table, string field, string value, string update)
+        private void AssertOutMessageIf(Func<OutMessage, bool> where, Action<OutMessage> assertion)
         {
-            return new[]
+            using (var context = new DatastoreContext(Options))
             {
-                new Setting("Table", table), new Setting("Field", field), new Setting("Value", value),
-                new Setting("Update", update), new Setting("PollingInterval", "1000")
-            };
+                OutMessage actualMessag = context.OutMessages.Where(where).FirstOrDefault();
+                assertion(actualMessag);
+            }
         }
     }
 }
