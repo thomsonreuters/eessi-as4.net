@@ -16,7 +16,6 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
-using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -37,14 +36,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 IStep sut = GetCatchedCompositeSteps();
-                var internalMessage = new MessagingContext(AS4Message.Empty);
+
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
-                StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await sut.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.MessagingContext.AS4Message);
-                Assert.Equal(internalMessage, result.MessagingContext);
+                Assert.Equal(context, result.MessagingContext);
             }
 
             [Fact]
@@ -98,12 +98,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected ReceivingProcessingMode GetStubReceivingPMode()
         {
-            return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false, SendingPMode = "pmode"}};
+            return new ReceivingProcessingMode { ReceiptHandling = { UseNNRFormat = false, SendingPMode = "pmode" } };
         }
 
         protected MessagingContext DummyMessage()
         {
-            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")))
+
+            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")), MessagingContextMode.Unknown)
             {
                 ReceivingPMode = GetStubReceivingPMode(),
                 SendingPMode = new SendingProcessingMode()

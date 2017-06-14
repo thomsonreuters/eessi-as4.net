@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Services
                 OutMessage outMessage = 
                     CreateOutMessageForMessageUnit(
                         messageUnit: userMessage,
-                        message: messagingContext,
+                        messagingContext: messagingContext,
                         location: messageBodyLocation,
                         operation: operation);
 
@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Services
                 OutMessage outMessage = 
                     CreateOutMessageForMessageUnit(
                         messageUnit: signalMessage,
-                        message: messagingContext,
+                        messagingContext: messagingContext,
                         location: messageBodyLocation,
                         operation: operation);
 
@@ -89,13 +89,13 @@ namespace Eu.EDelivery.AS4.Services
 
         private static OutMessage CreateOutMessageForMessageUnit(
             MessageUnit messageUnit,
-            MessagingContext message,
+            MessagingContext messagingContext,
             string location,
             Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, message).Build(CancellationToken.None);
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messagingContext).Build(CancellationToken.None);
 
-            outMessage.MessageLocation = location;
+            outMessage.MessageLocation = location;            
 
             if (outMessage.EbmsMessageType == MessageType.UserMessage)
             {
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Services
             else
             {
                 (OutStatus status, Operation operation) replyPattern =
-                    DetermineCorrectReplyPattern(outMessage.EbmsMessageType, message);
+                    DetermineCorrectReplyPattern(outMessage.EbmsMessageType, messagingContext);
 
                 outMessage.Status = replyPattern.status;
                 outMessage.Operation = replyPattern.operation;

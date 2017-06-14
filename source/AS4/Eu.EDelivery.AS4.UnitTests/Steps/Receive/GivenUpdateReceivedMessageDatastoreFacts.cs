@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 AS4Message as4Message = AS4Message.Create(receipt);
 
-                return new MessagingContext(as4Message) {SendingPMode = GetSendingPMode()};
+                return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = GetSendingPMode()};
             }
 
             [Fact]
@@ -111,7 +111,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenRelatedUserMessageStatusIsSetToNAck()
             {
                 // Arrange
-                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId))
+                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId), MessagingContextMode.Receive)
                 {
                     SendingPMode = GetSendingPMode()
                 };

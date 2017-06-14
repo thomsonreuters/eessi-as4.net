@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             AS4Message as4Message = AS4Message.Empty;
             as4Message.AddAttachment(attachment);
 
-            var message = new MessagingContext(as4Message)
+            var message = new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {
                 SendingPMode = new SendingProcessingMode()
             };

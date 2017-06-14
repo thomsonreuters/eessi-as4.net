@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
             AS4Message message = AS4Message.Empty;
             message.AddAttachment(new Attachment(atttachmentId));
 
-            return new MessagingContext(message);
+            return new MessagingContext(message, MessagingContextMode.Unknown);
         }
     }
 }

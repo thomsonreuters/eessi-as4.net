@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             AS4Message as4Message = AS4Message.Create(UserMessageWithCompressedInfo(attachmentId));
             as4Message.AddAttachment(CompressedAttachment(attachmentId));
 
-            return new MessagingContext(as4Message);
+            return new MessagingContext(as4Message, MessagingContextMode.Unknown);
         }
 
         private static Attachment CompressedAttachment(string attachmentId)

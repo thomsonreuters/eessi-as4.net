@@ -273,8 +273,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         // - Exception when the UserMessage is not valid (an InException should be present).
         protected override void Disposing(bool isDisposing)
         {
-            _as4Msh.Dispose();
-            HttpClient.Dispose();
+            _as4Msh.Dispose();            
         }
     }
 }

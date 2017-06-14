@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                 var notPopulatedRepository = Mock.Of<IDatastoreRepository>();
                 var sut = new InMessageService(null, notPopulatedRepository);
 
-                var context = new MessagingContext(AS4Message.Empty);
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<InvalidDataException>(

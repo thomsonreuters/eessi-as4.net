@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Transformers
             catch (AS4Exception exception)
             {
                 Error error = CreateError(exception);
-                return new MessagingContext(CreateErrorMessage(error));
+                return new MessagingContext(CreateErrorMessage(error), MessagingContextMode.Unknown);
             }
         }
 
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Transformers
             AS4Message as4Message = await serializer
                 .DeserializeAsync(receivedMessage.RequestStream, receivedMessage.ContentType, cancellationToken);
 
-            var message = new MessagingContext(as4Message);
+            var message = new MessagingContext(as4Message, MessagingContextMode.Unknown);
             receivedMessage.AssignPropertiesTo(message);
 
             return message;

@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -27,7 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <param name="webResponse">The web Response.</param>
         private AS4Response(MessagingContext requestMessage, HttpWebResponse webResponse)
         {
-            _httpWebResponse = webResponse;            
+            _httpWebResponse = webResponse;
             OriginalRequest = requestMessage;
         }
 
@@ -66,11 +65,16 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         }
 
         private static async Task<MessagingContext> TryDeserializeHttpResponse(WebResponse webResponse, CancellationToken cancellation)
-        {
+        {            
             AS4Message deserializedResponse;
 
             try
             {
+                if (webResponse == null)
+                {
+                    throw new ArgumentNullException(nameof(webResponse));
+                }
+
                 if (string.IsNullOrWhiteSpace(webResponse.ContentType))
                 {
                     if (Logger.IsInfoEnabled)
@@ -83,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                         Logger.Info(responseContent);
                     }
 
-                    return new MessagingContext(AS4Message.Empty);
+                    return new MessagingContext(AS4Message.Empty, MessagingContextMode.Send);
                 }
 
                 ISerializer serializer = Registry.Instance.SerializerProvider.Get(webResponse.ContentType);
@@ -97,9 +101,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 deserializedResponse = AS4Message.Empty;
             }
 
-            return new MessagingContext(deserializedResponse);
+            return new MessagingContext(deserializedResponse, MessagingContextMode.Send);
         }
-               
+
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {

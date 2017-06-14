@@ -1,7 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
@@ -31,10 +29,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task ThenExecuteStepSucceedsAsync()
         {
             // Arrange
-            var internalMessage = new MessagingContext(AS4Message.Empty);
+            var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
             // Act
-            StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
+            StepResult result = await Step.ExecuteAsync(context, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);

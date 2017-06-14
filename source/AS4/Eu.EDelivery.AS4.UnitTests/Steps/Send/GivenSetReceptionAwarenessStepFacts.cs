@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var userMessage = new UserMessage(messageId);
                 AS4Message as4Message = AS4Message.Create(userMessage, pmode);;
 
-                return new MessagingContext(as4Message) {SendingPMode = pmode};
+                return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};
             }
         }
 

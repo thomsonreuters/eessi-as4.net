@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -9,7 +8,7 @@ using NLog;
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
     public class SendAS4ErrorStep : IStep
-    {        
+    {
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             if (messagingContext.AS4Message?.IsEmpty == true)
@@ -31,12 +30,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             LogManager.GetCurrentClassLogger().Info($"{messagingContext.Prefix} Empty SOAP Envelope will be send to requested party");
 
-            var emptyInternalMessage = new MessagingContext(AS4Message.Create(messagingContext.SendingPMode))
+            var emptyContext = new MessagingContext(AS4Message.Create(messagingContext.SendingPMode), MessagingContextMode.Receive)
             {
                 ReceivingPMode = messagingContext.ReceivingPMode
             };
 
-            return await StepResult.SuccessAsync(emptyInternalMessage);
+            return await StepResult.SuccessAsync(emptyContext);
         }
 
         private static async Task<StepResult> ReturnSameStepResult(MessagingContext messagingContext)
