@@ -91,6 +91,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
+        /// Asserts the receipt on holodeck b.
+        /// </summary>
+        /// <param name="files">The files.</param>
+        public void AssertReceiptOnHolodeckB(IEnumerable<FileInfo> files)
+        {
+            FileInfo receipt = files.First();
+            string xml = File.ReadAllText(receipt.FullName);
+
+            Assert.Contains("Receipt", xml);
+        }
+
+        /// <summary>
         /// Assert the received <Receipt /> with Holodeck
         /// </summary>
         public void AssertReceiptOnHolodeckA()
