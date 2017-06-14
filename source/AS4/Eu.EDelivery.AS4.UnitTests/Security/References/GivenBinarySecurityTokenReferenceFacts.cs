@@ -28,6 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
         /// </summary>
         public class GivenValidArgumentsForGetSecurityToken : GivenBinarySecurityTokenReferenceFacts
         {
+
             [Fact]
             public void ThenBinarySecurityTokenIsAddedToXmlDocumentArgument()
             {
@@ -217,17 +218,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.References
             }
 
             [Fact]
-            public void ThenLoadXmlFindsReferenceId()
+            public void ThenLoadXmlFindsReferenceId_EvenWithExtraHashtag()
             {
                 // Arrange
                 var xmlDocument = new XmlDocument();
-                XmlElement securityTokenElement = GetDummySecurityToken(xmlDocument);
+                xmlDocument.LoadXml(Properties.Resources.as4_soap_signed_message_with_extra_hashtag);
 
                 // Act
-                _reference.LoadXml(securityTokenElement);
+                _reference.LoadXml((XmlElement) xmlDocument.SelectSingleNode("//*[local-name()='SecurityTokenReference']"));
 
                 // Assert
-                Assert.Equal(_dummyReferenceId, _reference.ReferenceId);
+                Assert.NotNull(_reference.Certificate);
             }
 
             [Fact]
