@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 var r = new Receipt {RefToMessageId = refToMessageId};
 
-                return new AS4MessageBuilder().WithSignalMessage(r).Build();
+                return AS4Message.Create(r, GetSendingPMode());
             }
 
             [Fact]
@@ -224,7 +224,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithAS4Exception(exception).Build();
 
-                return new AS4MessageBuilder().WithSignalMessage(error).Build();
+                return AS4Message.Create(error, GetSendingPMode());
             }
 
             private HttpRequestMessage CreateSendMessage(AS4Message message)

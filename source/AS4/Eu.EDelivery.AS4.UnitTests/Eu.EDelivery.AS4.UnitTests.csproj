@@ -290,7 +290,6 @@
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
-    <Compile Include="Builders\Core\GivenAS4MessageBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenNonRepudiationInformationBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenInExceptionBuilderFacts.cs" />

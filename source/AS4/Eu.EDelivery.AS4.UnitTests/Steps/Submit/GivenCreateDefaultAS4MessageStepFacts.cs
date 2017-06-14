@@ -53,8 +53,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
 
         private static MessagingContext AttachmentWithoutUserMessage(string atttachmentId)
         {
-            AS4Message as4Message = new AS4MessageBuilder().WithAttachment(new Attachment(atttachmentId)).Build();
-            return new MessagingContext(as4Message);
+            AS4Message message = AS4Message.Empty;
+            message.AddAttachment(new Attachment(atttachmentId));
+
+            return new MessagingContext(message);
         }
     }
 }

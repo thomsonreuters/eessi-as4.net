@@ -1,6 +1,4 @@
-﻿using System;
-using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Common;
+﻿using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
@@ -8,7 +6,7 @@ using PartyInfo = Eu.EDelivery.AS4.Model.Common.PartyInfo;
 namespace Eu.EDelivery.AS4.Model.Submit
 {
     [XmlRoot(Namespace = "urn:cef:edelivery:eu:as4:messages")]
-    public class SubmitMessage : IMessage
+    public class SubmitMessage
     {
         public MessageInfo MessageInfo { get; set; }
         public PartyInfo PartyInfo { get; set; }

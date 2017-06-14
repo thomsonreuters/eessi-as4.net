@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -86,7 +85,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext AS4MessageContext(Attachment attachment, SendingProcessingMode pmode)
         {
-            AS4Message as4Message = new AS4MessageBuilder().WithAttachment(attachment).Build();
+            AS4Message as4Message = AS4Message.Create(pmode);
+            as4Message.AddAttachment(attachment);
+
             return new MessagingContext(as4Message) {SendingPMode = pmode};
         }
 

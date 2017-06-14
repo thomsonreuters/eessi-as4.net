@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
             var service = new InExceptionService(mockedRepository.Object);
 
             // Act
-            service.InsertAS4Exception(as4Exception, EmptyAS4Message);
+            service.InsertAS4Exception(as4Exception, AS4Message.Empty);
 
             // Assert
             mockedRepository.Verify(r => r.InsertInException(It.IsAny<InException>()), Times.Once);

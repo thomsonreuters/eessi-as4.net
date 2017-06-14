@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Common;
@@ -23,22 +24,43 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     /// </summary>
     public class GivenAS4MessageFacts
     {
-        private readonly AS4MessageBuilder _builder;
 
         public GivenAS4MessageFacts()
         {
-            _builder = new AS4MessageBuilder();
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
 
-        public class Attachments
+        public class Empty
+        {
+            [Fact]
+            public void EmptyInstance_IsNotTheSameWithDifferentId()
+            {
+                // Arrange
+                AS4Message expected =
+                    AS4Message.Create(new FilledUserMessage(), new SendingProcessingMode());
+
+                // Act
+                AS4Message actual = AS4Message.Empty;
+
+                // Assert
+                Assert.NotEqual(expected, actual);
+            }
+
+            [Fact]
+            public void EmptyIsntanceReturnsExpected()
+            {
+                Assert.Equal(AS4Message.Empty, AS4Message.Empty);
+            }
+        }
+
+        public class AddAttachments
         {
             [Fact]
             public async Task ThenAddAttachmentSucceeds()
             {
                 // Arrange
                 var submitMessage = new SubmitMessage {Payloads = new[] {new Payload(string.Empty)}};
-                AS4Message sut = new AS4MessageBuilder().Build();
+                AS4Message sut = AS4Message.Empty;
 
                 // Act
                 await sut.AddAttachments(submitMessage.Payloads, async payload => await Task.FromResult(Stream.Null));
@@ -52,27 +74,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public async Task ThenNoAttachmentsAreAddedWithZeroPayloads()
             {
                 // Arrange
-                AS4Message sut = new AS4MessageBuilder().Build();
+                AS4Message sut = AS4Message.Empty;
 
                 // Act
                 await sut.AddAttachments(new Payload[0],  async payload => await Task.FromResult(Stream.Null));
 
                 // Assert
                 Assert.False(sut.HasAttachments);
-            }
-
-            [Fact]
-            public void DisposeAllAttachments()
-            {
-                // Arrange
-                AS4Message sut =
-                    new AS4MessageBuilder().WithAttachment(new Attachment("id") {Content = new MemoryStream()}).Build();
-
-                // Act
-                sut.CloseAttachments();
-
-                // Assert
-                Assert.All(sut.Attachments, a => Assert.False(a.Content.CanSeek));
             }
         }
 
@@ -82,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void IsTrueWhenSignalMessageIsPullRequest()
             {
                 // Arrange
-                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequest()).Build();
+                AS4Message as4Message = AS4Message.Create(new PullRequest());
 
                 // Act
                 bool isPulling = as4Message.IsPullRequest;
@@ -145,8 +153,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 UserMessage userMessage = CreateUserMessage();
 
-                AS4Message message =
-                    new AS4MessageBuilder().WithUserMessage(userMessage).WithAttachment(attachment).Build();
+                AS4Message message = AS4Message.Create(userMessage);
+                message.AddAttachment(attachment);
 
                 // Act
                 AssertMimeMessageIsValid(message);
@@ -179,7 +187,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             {
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
-                AS4Message message = new AS4MessageBuilder().WithUserMessage(userMessage).Build();
+                AS4Message message = AS4Message.Create(userMessage);
 
                 // Act
                 using (var soapStream = new MemoryStream())
@@ -224,7 +232,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         protected AS4Message BuildAS4Message(string mpc, UserMessage userMessage)
         {
-            return _builder.WithUserMessage(userMessage).WithPullRequest(mpc).Build();
+            AS4Message as4Message = AS4Message.Create(userMessage);
+            as4Message.SignalMessages.Add(new PullRequest(mpc));
+
+            return as4Message;
         }
     }
 }

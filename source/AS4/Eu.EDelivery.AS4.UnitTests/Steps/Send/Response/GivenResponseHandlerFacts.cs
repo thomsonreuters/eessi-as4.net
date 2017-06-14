@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 var stubAS4Response = new Mock<IAS4Response>();
 
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(EmptyAS4Message));
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(AS4Message.Empty));
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
 
                 return stubAS4Response.Object;
@@ -102,7 +102,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenNextHandlerGetsTheResponse_IfAS4MessageIsReceived()
             {
                 // Arrange
-                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new Error()).Build();
+                AS4Message as4Message = AS4Message.Create(new Error());
                 IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(new MessagingContext(as4Message));
 
                 var spyHandler = new SpyAS4ResponseHandler();

@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 IStep sut = GetCatchedCompositeSteps();
-                var internalMessage = new MessagingContext(EmptyAS4Message);
+                var internalMessage = new MessagingContext(AS4Message.Empty);
 
                 // Act
                 StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -103,9 +103,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected MessagingContext DummyMessage()
         {
-            AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
-
-            return new MessagingContext(as4Message)
+            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")))
             {
                 ReceivingPMode = GetStubReceivingPMode(),
                 SendingPMode = new SendingProcessingMode()

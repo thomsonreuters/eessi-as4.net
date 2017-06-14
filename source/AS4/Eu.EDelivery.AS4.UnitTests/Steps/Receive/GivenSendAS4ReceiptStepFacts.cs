@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             private MessagingContext CreateDefaultInternalMessage()
             {
                 var receipt = new Receipt("message-id") {RefToMessageId = _sharedId};
-                AS4Message receiptMessage = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+                AS4Message receiptMessage = AS4Message.Create(receipt);
 
                 return new MessagingContext(receiptMessage)
                 {
