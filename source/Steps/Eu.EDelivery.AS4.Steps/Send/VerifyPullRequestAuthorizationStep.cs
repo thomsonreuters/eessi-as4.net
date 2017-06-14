@@ -12,6 +12,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly IAuthorizationMap _authorizationMap;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="VerifyPullRequestAuthorizationStep"/> class.
+        /// </summary>
+        public VerifyPullRequestAuthorizationStep()
+        {
+            _authorizationMap = new PullAuthorizationMap();
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="VerifyPullRequestAuthorizationStep" /> class.
         /// </summary>
         /// <param name="authorizationMap">The authorization map.</param>

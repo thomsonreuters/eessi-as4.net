@@ -286,6 +286,7 @@
     <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
+    <Compile Include="Services\GivenAuthorizationMapFacts.cs" />
     <Compile Include="Services\StubAuthorizationMap.cs" />
     <Compile Include="Steps\DummyStep.cs" />
     <Compile Include="Steps\Send\GivenVerifyPullRequestAuthorizationStepFacts.cs" />

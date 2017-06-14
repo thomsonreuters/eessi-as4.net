@@ -13,10 +13,9 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns>
         ///   <c>true</c> if [is pull request authorized] [the specified request]; otherwise, <c>false</c>.
         /// </returns>
-        /// <exception cref="System.NotImplementedException"></exception>
         public bool IsPullRequestAuthorized(PullRequest request, X509Certificate2 certificate)
         {
-            throw new System.NotImplementedException();
+            return true;
         }
     }
 
