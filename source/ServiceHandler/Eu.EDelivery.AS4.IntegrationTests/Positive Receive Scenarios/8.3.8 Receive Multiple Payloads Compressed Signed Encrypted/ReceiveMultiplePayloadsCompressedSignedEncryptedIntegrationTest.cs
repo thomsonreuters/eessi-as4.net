@@ -24,8 +24,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._8_
             CopyMessageToHolodeckA("8.3.8-sample.mmd");
 
             // Assert
-            bool areFilesFound = PollingAt(Properties.Resources.holodeck_A_input_path);
-            Assert.True(areFilesFound, "Receive Multiple Payloads Compressed, Signed and Encrypted Integration Test failed");
+            Assert.True(PollingAt(AS4FullInputPath), "Receive Multiple Payloads Compressed, Signed and Encrypted Integration Test failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)

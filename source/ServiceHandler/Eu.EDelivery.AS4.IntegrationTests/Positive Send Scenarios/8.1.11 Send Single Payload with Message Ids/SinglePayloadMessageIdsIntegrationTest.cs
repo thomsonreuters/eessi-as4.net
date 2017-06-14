@@ -42,16 +42,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
             AS4Component.Start();
 
             // Assert
-            bool areFilesFound = PollingAt(AS4ReceiptsPath);
-            if (areFilesFound)
-            {
-                Console.WriteLine(@"Single Payload with Message Properties Integration Test succeeded!");
-            }
-
-            Assert.True(areFilesFound, "Send Single Payload with Message Id failed");
+            Assert.True(PollingAt(AS4ReceiptsPath), "Send Single Payload with Message Id failed");
         }
-
-        private static string GenerateId() => Guid.NewGuid().ToString("N");
 
         /// <summary>
         /// Perform extra validation for the output files of Holodeck

@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._2_
             CopyMessageToHolodeckA("8.3.2-sample.mmd");
 
             // Assert
-            Assert.True(PollingAt(Properties.Resources.holodeck_A_input_path));
+            Assert.True(PollingAt(AS4FullInputPath));
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
