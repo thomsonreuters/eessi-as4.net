@@ -16,14 +16,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._3_
     public class ReceiveCompressedMessageWithoutMimeTypeIntegrationTest : IntegrationTestTemplate
     {
         private const string ContentType = "multipart/related; boundary=\"MIMEBoundary_58227ff3e3fc7f2a7373840dd22c75172d4362e9ce55d295\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
-
-        private readonly Holodeck _holodeck;
+        
         private readonly StubSender _sender;
 
         public ReceiveCompressedMessageWithoutMimeTypeIntegrationTest()
         {
-            this._holodeck = new Holodeck();
-            this._sender = new StubSender();
+            _sender = new StubSender();
         }
 
         [Fact]

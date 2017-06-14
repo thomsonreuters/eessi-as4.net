@@ -79,8 +79,8 @@ namespace Eu.EDelivery.AS4.Security.References
             // Extra check on ReferenceId. 
             XmlNode idAttribute = x.Attributes["Id", Constants.Namespaces.WssSecurityUtility];
 
-            string pureReferenceId = ReferenceId.Replace("#", string.Empty);
-            string pureAttributeId = idAttribute?.Value.Replace("#", string.Empty);
+            string pureReferenceId = ReferenceId.TrimStart('#');
+            string pureAttributeId = idAttribute?.Value.Trim('#');
 
             return x.LocalName == "BinarySecurityToken" && pureAttributeId == pureReferenceId
                    && x.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;

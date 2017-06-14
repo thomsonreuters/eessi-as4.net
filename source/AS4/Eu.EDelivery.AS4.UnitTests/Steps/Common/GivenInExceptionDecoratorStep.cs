@@ -43,10 +43,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 AssertInException(sharedId, exception =>
@@ -76,11 +76,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
-
+                await _step.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 AssertInException(sharedId, exception =>
@@ -98,17 +97,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
-                using (var context = GetDataStoreContext())
+                using (var dbContext = GetDataStoreContext())
                 {
                     InMessage inMessage = CreateDefaultInMessage(sharedId);
-                    context.InMessages.Add(inMessage);
+                    dbContext.InMessages.Add(inMessage);
 
-                    await context.SaveChangesAsync();
+                    await dbContext.SaveChangesAsync();
                 }
-                var internalMessage = new MessagingContext(new AS4MessageBuilder().Build());
+
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
-                await _step.ExecuteAsync(internalMessage, CancellationToken.None);
+                await _step.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 AssertInMessage(sharedId, message =>

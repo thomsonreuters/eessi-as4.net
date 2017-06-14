@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
@@ -18,7 +17,6 @@ using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Model.Core;
 using Moq;
 using Xunit;
-using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
@@ -69,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 Assert.False(actualResult.CanProceed);
                 MessagingContext expectedMessage = as4Response.ResultedMessage;
                 MessagingContext actualMessage = actualResult.MessagingContext;
-                
+
                 Assert.Equal(expectedMessage, actualMessage);
             }
 
@@ -92,7 +90,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 var stubAS4Response = new Mock<IAS4Response>();
 
                 stubAS4Response.Setup(r => r.StatusCode).Returns(statusCode);
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(EmptyAS4Message));
+
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown));
+
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(new EmptyMessagingContext());
 
                 return stubAS4Response.Object;
@@ -102,8 +102,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenNextHandlerGetsTheResponse_IfAS4MessageIsReceived()
             {
                 // Arrange
-                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new Error()).Build();
-                IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(new MessagingContext(as4Message));
+                AS4Message as4Message = AS4Message.Create(new Error());
+                IAS4Response as4Response = CreateAS4ResponseWithResultedMessage(new MessagingContext(as4Message, MessagingContextMode.Unknown));
 
                 var spyHandler = new SpyAS4ResponseHandler();
                 var handler = new EmptyBodyResponseHandler(spyHandler);
@@ -164,7 +164,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
 
                 MessagingContext pullRequest = new InternalMessageBuilder().WithSignalMessage(new PullRequest()).Build();
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
-                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(await PullResponseWarning()));
+                stubAS4Response.Setup(r => r.ResultedMessage).Returns(new MessagingContext(await PullResponseWarning(), MessagingContextMode.Unknown));
 
                 return stubAS4Response.Object;
             }
@@ -213,10 +213,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         }
 
         private static AS4Response CreateAnonymousAS4Response()
-        {           
+        {
             return AS4Response.Create(
                 requestMessage: new EmptyMessagingContext(),
-                webResponse: new Mock<HttpWebResponse>().Object, 
+                webResponse: new Mock<HttpWebResponse>().Object,
                 cancellation: CancellationToken.None).Result;
         }
     }

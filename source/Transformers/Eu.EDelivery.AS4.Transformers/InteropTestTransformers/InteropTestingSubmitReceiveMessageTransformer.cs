@@ -18,31 +18,27 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
             // In any other case, we should just return an InternalMessage which contains the as4Message.
             var transformer = new AS4MessageTransformer();
-            var internalMessage = await transformer.TransformAsync(message, cancellationToken);
+            var messagingContext = await transformer.TransformAsync(message, cancellationToken);
 
-            var as4Message = internalMessage.AS4Message;
-
+            var as4Message = messagingContext.AS4Message;
+            
             if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
             {
                 var properties = as4Message.PrimaryUserMessage?.MessageProperties;
 
                 TransformUserMessage(as4Message.PrimaryUserMessage, properties);
 
-                AssignPMode(internalMessage);
+                messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
 
-                // This is an ugly hack, but we need something to use in our ConditionalStep in order to know whether or not we should submit or receive.
-                // This needs to be reviewed later.  It is very possible that we can get rid of the SubmitMessage - property in the InternalMessage, which
-                // will be an opportunity to refactor this.
-                var result = new MessagingContext(as4Message);
-                result.SubmitMessage.Collaboration.Action = "Submit";
+                AssignPModeToContext(messagingContext);
 
-                return result;
+                return messagingContext;               
             }
 
-            return new MessagingContext(as4Message);
+            return new MessagingContext(as4Message, MessagingContextMode.Receive);
         }
 
-        private static void AssignPMode(MessagingContext message)
+        private static void AssignPModeToContext(MessagingContext message)
         {
             AS4Message as4Message = message.AS4Message;
             // The PMode that should be used can be determind by concatenating several items to create the PMode ID

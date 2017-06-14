@@ -80,11 +80,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Logger.Info($"{messagingContext.Prefix} Create AS4 Error Message from AS4 Exception");
 
-            var builder = new AS4MessageBuilder(messagingContext.SendingPMode);
+            AS4Message errorMessage = AS4Message.Create(messagingContext.SendingPMode);
 
-            CreateErrorForEveryUserMessageIn(messagingContext, error => builder.WithSignalMessage(error));
-
-            AS4Message errorMessage = builder.Build();
+            CreateErrorForEveryUserMessageIn(messagingContext, error => errorMessage.SignalMessages.Add(error));
 
             errorMessage.SigningId = messagingContext.AS4Message.SigningId;
 
