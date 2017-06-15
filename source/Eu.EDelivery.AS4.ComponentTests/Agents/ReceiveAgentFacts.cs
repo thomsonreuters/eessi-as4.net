@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 // Arrange
                 const string expectedId = "message-id";
-                CreateExistingOutMessage(expectedId);
+                await CreateExistingOutMessage(expectedId);
 
                 AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
@@ -192,13 +192,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 AssertIfInMessageExistsForSignalMessage(expectedId);
             }
 
-            private void CreateExistingOutMessage(string messageId)
+            private async Task CreateExistingOutMessage(string messageId)
             {
                 var outMessage = new OutMessage
                 {
                     EbmsMessageId = messageId,
                     Status = OutStatus.Sent,
-                    PMode = AS4XmlSerializer.ToString(GetSendingPMode())
+                    PMode = await AS4XmlSerializer.ToStringAsync(GetSendingPMode())
                 };
 
                 _databaseSpy.InsertOutMessage(outMessage);

@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.Services
 
             InMessage inMessage = InMessageBuilder
                 .ForSignalMessage(errorMessage, as4Message)
-                .WithPModeString(AS4XmlSerializer.ToString(pmode))
+                .WithPModeString(await AS4XmlSerializer.ToStringAsync(pmode))
                 .Build(cancellationToken);
 
             inMessage.MessageLocation = location;

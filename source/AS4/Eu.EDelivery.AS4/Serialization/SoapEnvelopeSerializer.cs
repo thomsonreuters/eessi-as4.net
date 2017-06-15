@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 {
                     while (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        DeserializeEnvelope(envelopeDocument, as4Message, reader);
+                        await DeserializeEnvelope(envelopeDocument, as4Message, reader);
                     }
                 }
 
@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
                 if (routingInput != null)
                 {
-                    var routing = AS4XmlSerializer.FromString<RoutingInput>(routingInput.OuterXml);
+                    var routing = await AS4XmlSerializer.FromStringAsync<RoutingInput>(routingInput.OuterXml);
                     if (routing != null)
                     {
                         if (as4Message.PrimarySignalMessage != null)
@@ -263,7 +263,7 @@ namespace Eu.EDelivery.AS4.Serialization
             return document;
         }
 
-        private static void DeserializeEnvelope(XmlDocument envelopeDocument, AS4Message as4Message, XmlReader reader)
+        private static async Task DeserializeEnvelope(XmlDocument envelopeDocument, AS4Message as4Message, XmlReader reader)
         {
             // Try to Deserialize the Messaging-Headers first since here an 
             // XmlSerializer is used to perform the deserialization.  
@@ -271,11 +271,11 @@ namespace Eu.EDelivery.AS4.Serialization
             // causes a next Read to position on the next node.
             // By doing this, it could be possible that the Security node is skipped when we
             // try to deserialize the security header first.
-            DeserializeMessagingHeader(reader, as4Message);
+            await DeserializeMessagingHeader(reader, as4Message);
 
             DeserializeSecurityHeader(reader, envelopeDocument, as4Message);
 
-            DeserializeBody(reader, as4Message);
+            await DeserializeBody(reader, as4Message);
         }
 
         private static void DeserializeSecurityHeader(XmlReader reader, XmlDocument envelopeDocument, AS4Message as4Message)
@@ -313,7 +313,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static bool IsReadersNameSecurityHeader(XmlReader reader)
             => StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Security") && reader.IsStartElement();
 
-        private static void DeserializeMessagingHeader(XmlReader reader, AS4Message as4Message)
+        private static async Task DeserializeMessagingHeader(XmlReader reader, AS4Message as4Message)
         {
             bool isReadersNameMessaging = StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Messaging")
                                           && IsReadersNamespace(reader) && reader.IsStartElement();
@@ -323,7 +323,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 return;
             }
 
-            var messagingHeader = AS4XmlSerializer.FromReader<Messaging>(reader);
+            var messagingHeader = await AS4XmlSerializer.FromReaderAsync<Messaging>(reader);
             as4Message.SignalMessages = GetSignalMessagesFromHeader(messagingHeader);
             as4Message.UserMessages = GetUserMessagesFromHeader(messagingHeader);
             as4Message.SigningId.HeaderSecurityId = messagingHeader.SecurityId;
@@ -381,14 +381,14 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static void DeserializeBody(XmlReader reader, AS4Message as4Message)
+        private static async Task DeserializeBody(XmlReader reader, AS4Message as4Message)
         {
             bool isReadersNameBody = StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Body")
                                      && IsReadersNamespace(reader) && reader.IsStartElement();
 
             if (isReadersNameBody)
             {
-                var body = AS4XmlSerializer.FromReader<Body>(reader);
+                var body = await AS4XmlSerializer.FromReaderAsync<Body>(reader);
                 as4Message.SigningId.BodySecurityId = GetBodySecurityId(body);
             }
         }

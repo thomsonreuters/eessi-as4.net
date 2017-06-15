@@ -42,10 +42,10 @@ namespace Eu.EDelivery.AS4.Transformers
 
             AS4Message as4Message = await CreateErrorAS4Message(exceptionEntity, cancellationToken);
 
-            var internalMessage = new MessagingContext(CreateNotifyMessageEnvelope(as4Message))
+            var internalMessage = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message))
             {
-                SendingPMode = GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
-                ReceivingPMode = GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode),
+                SendingPMode = await GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
+                ReceivingPMode = await GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode),
             };
 
             Logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
@@ -113,9 +113,9 @@ namespace Eu.EDelivery.AS4.Transformers
                 .Build();
         }
 
-        private T GetPMode<T>(string pmode) where T : class
+        private static Task<T> GetPMode<T>(string pmode) where T : class
         {
-            return AS4XmlSerializer.FromString<T>(pmode);
+            return AS4XmlSerializer.FromStringAsync<T>(pmode);
         }
 
         private async Task<XmlDocument> GetEnvelopeDocument(AS4Message as4Message, CancellationToken cancellationToken)
@@ -133,11 +133,11 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        protected virtual NotifyMessageEnvelope CreateNotifyMessageEnvelope(AS4Message as4Message)
+        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
         {
             var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
 
-            var serialized = AS4XmlSerializer.ToString(notifyMessage);
+            var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage);
 
             return new NotifyMessageEnvelope(notifyMessage.MessageInfo,
                                              notifyMessage.StatusInfo.Status,

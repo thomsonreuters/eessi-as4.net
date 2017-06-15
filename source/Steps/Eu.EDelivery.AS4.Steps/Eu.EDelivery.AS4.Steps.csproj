@@ -193,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\InExceptionStepDecorator.cs" />
+    <Compile Include="Send\PullOutExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\MinderTestCreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />

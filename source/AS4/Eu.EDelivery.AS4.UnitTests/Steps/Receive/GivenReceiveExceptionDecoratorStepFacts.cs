@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithAS4ExceptionThrowedAsync()
             {
                 // Arrange
-                var stubStep = new SaboteurStep(CreateAS4Exception());
+                var stubStep = new SaboteurStep(await CreateAS4Exception());
                 IStep sut = GetCatchedCompositeSteps(stubStep);
 
                 // Act
@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithInsertedInExceptionAsync(string messageId)
             {
                 // Arrange
-                var stubStep = new SaboteurStep(CreateAS4Exception(messageId));
+                var stubStep = new SaboteurStep(await CreateAS4Exception(messageId));
                 IStep sut = GetCatchedCompositeSteps(stubStep);
 
                 // Act
@@ -111,11 +111,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             };
         }
 
-        private AS4Exception CreateAS4Exception(string messageId = "ignored-string")
+        private async Task<AS4Exception> CreateAS4Exception(string messageId = "ignored-string")
         {
             return AS4ExceptionBuilder
                 .WithDescription("Testing AS4 Exception")
-                .WithPModeString(AS4XmlSerializer.ToString(GetStubReceivingPMode()))
+                .WithPModeString(await AS4XmlSerializer.ToStringAsync(GetStubReceivingPMode()))
                 .WithMessageIds(messageId)
                 .Build();
         }

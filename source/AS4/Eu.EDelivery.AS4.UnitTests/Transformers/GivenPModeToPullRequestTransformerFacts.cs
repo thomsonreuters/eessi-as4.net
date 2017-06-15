@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 invalidSendingPMode.PushConfiguration = new PushConfiguration();
                 invalidSendingPMode.PullConfiguration = null;
 
-                yield return new object[] { new ReceivedMessage(AS4XmlSerializer.ToStream(invalidSendingPMode)) };
+                yield return new object[] { new ReceivedMessage(AS4XmlSerializer.ToStreamAsync(invalidSendingPMode).Result) };
                 yield return new object[] { new SaboteurReceivedMessage() };
             }
         }
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             const string expectedMpc = "expected-mpc";
             SendingProcessingMode expectedSendingPMode = CreateAnonymousSendingPModeWith(expectedMpc);
-            var receivedMessage = new ReceivedMessage(AS4XmlSerializer.ToStream(expectedSendingPMode));
+            var receivedMessage = new ReceivedMessage(await AS4XmlSerializer.ToStreamAsync(expectedSendingPMode));
 
             var transformer = new PModeToPullRequestTransformer();
 

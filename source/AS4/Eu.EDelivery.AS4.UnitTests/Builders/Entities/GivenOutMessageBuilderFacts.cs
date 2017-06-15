@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -18,7 +19,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
             [Fact]
-            public void ThenBuildOutMessageSucceedsWithAS4Message()
+            public async Task ThenBuildOutMessageSucceedsWithAS4Message()
             {
                 // Arrange
                 AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
                 Assert.Equal(MessageType.UserMessage, outMessage.EbmsMessageType);
-                Assert.Equal(AS4XmlSerializer.ToString(ExpectedPMode()), outMessage.PMode);
+                Assert.Equal(await AS4XmlSerializer.ToStringAsync(ExpectedPMode()), outMessage.PMode);
             }
 
             [Fact]
