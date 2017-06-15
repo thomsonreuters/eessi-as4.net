@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -59,6 +60,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
+                MEP = (MessageExchangePattern) _messagingContext.AS4Message?.Mep,
                 EbmsMessageType = messageType,
                 PMode = AS4XmlSerializer.ToString(GetSendingPMode(messageType)),
             };
