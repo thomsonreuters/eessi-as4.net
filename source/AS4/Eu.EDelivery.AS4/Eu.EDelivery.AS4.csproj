@@ -343,6 +343,7 @@
     <Compile Include="Receivers\IntervalRequest.cs" />
     <Compile Include="Repositories\AS4MessageBodyFileStore.cs" />
     <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
+    <Compile Include="Services\PullAuthorizationMap.cs" />
     <Compile Include="Repositories\IAS4MessageBodyStore.cs" />
     <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />

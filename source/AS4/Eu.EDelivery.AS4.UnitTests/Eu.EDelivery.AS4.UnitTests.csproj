@@ -288,9 +288,12 @@
     <Compile Include="Receivers\StubReceiver.cs" />
     <Compile Include="Repositories\InMemoryMessageBodyStore.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
+    <Compile Include="Services\GivenAuthorizationMapFacts.cs" />
+    <Compile Include="Services\StubAuthorizationMap.cs" />
     <Compile Include="Steps\DummyStep.cs" />
     <Compile Include="Steps\Send\GivenSelectUserMessageToSendStepFacts.cs" />
     <Compile Include="Steps\Send\GivenPullOutExceptionStepDecoratorFacts.cs" />
+    <Compile Include="Steps\Send\GivenVerifyPullRequestAuthorizationStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
@@ -567,7 +570,6 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

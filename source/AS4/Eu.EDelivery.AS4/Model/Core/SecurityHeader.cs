@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Security.Strategies;
@@ -38,6 +39,12 @@ namespace Eu.EDelivery.AS4.Model.Core
             _signingStrategy = signingStrategy;
             _encryptionStrategy = encryptionStrategy;
         }
+
+        /// <summary>
+        /// Gets the certificate that's being used for the signing.
+        /// </summary>
+        /// <value>The signing certificate.</value>
+        public X509Certificate2 SigningCertificate => _signingStrategy?.SecurityTokenReference?.Certificate;
 
         /// <summary>
         /// Set the <see cref="ISigningStrategy"/> implementation
