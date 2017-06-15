@@ -285,10 +285,12 @@
     <Compile Include="Model\FilledAttachment.cs" />
     <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
+    <Compile Include="Repositories\InMemoryMessageBodyStore.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
     <Compile Include="Services\GivenAuthorizationMapFacts.cs" />
     <Compile Include="Services\StubAuthorizationMap.cs" />
     <Compile Include="Steps\DummyStep.cs" />
+    <Compile Include="Steps\Send\GivenSelectUserMessageToSendStepFacts.cs" />
     <Compile Include="Steps\Send\GivenVerifyPullRequestAuthorizationStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
@@ -336,7 +338,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
-    <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
