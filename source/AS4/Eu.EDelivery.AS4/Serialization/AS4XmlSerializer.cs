@@ -21,15 +21,18 @@ namespace Eu.EDelivery.AS4.Serialization
             new ConcurrentDictionary<Type, XmlSerializer>();
 
         /// <summary>
-        /// Serializer a given data model to a Xml Stream.
+        /// Serialize a given data Model to a Xml Stream.
         /// </summary>
-        /// <typeparam name="T">Type of the class to which the data model must be serialized.</typeparam>
-        /// <param name="data">Given data instance to serialize.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data">The data.</param>
         /// <returns></returns>
-        public static Stream ToStream<T>(T data)
+        public static async Task<Stream> ToStreamAsync<T>(T data)
         {
-            string xml = ToString(data);
-            return new MemoryStream(Encoding.UTF8.GetBytes(xml));
+            return await Task.Run(() =>
+            {
+                string xml = ToString(data);
+                return (Stream) new MemoryStream(Encoding.UTF8.GetBytes(xml));
+            });
         }
 
         /// <summary>
@@ -67,17 +70,12 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <param name="message">The message.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public static XmlDocument ToDocument(MessagingContext message, CancellationToken cancellationToken)
+        public static XmlDocument ToSoapEnvelopeDocument(MessagingContext message, CancellationToken cancellationToken)
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                var provider = SerializerProvider.Default;
-
-                ISerializer serializer = provider.Get(Constants.ContentTypes.Soap);
-                serializer.Serialize(message.AS4Message, memoryStream, cancellationToken);
-
-                return LoadEnvelopeToDocument(memoryStream);
-            }
+            return SerializeToSoapEnvelope(
+                message.AS4Message,
+                cancellationToken,
+                memoryStream => LoadEnvelopeToDocument(memoryStream));
         }
 
         private static readonly XmlWriterSettings DefaultXmlWriterSettings = new XmlWriterSettings
@@ -89,7 +87,7 @@ namespace Eu.EDelivery.AS4.Serialization
         private static XmlDocument LoadEnvelopeToDocument(Stream envelopeStream)
         {
             envelopeStream.Position = 0;
-            var envelopeXmlDocument = new XmlDocument() {PreserveWhitespace = true};
+            var envelopeXmlDocument = new XmlDocument {PreserveWhitespace = true};
 
             envelopeXmlDocument.Load(envelopeStream);
 
@@ -97,36 +95,58 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         /// <summary>
-        /// Serialize this bytes.
+        /// To the SOAP envelope bytes.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public static byte[] ToBytes(AS4Message message)
+        public static async Task<byte[]> ToSoapEnvelopeBytesAsync(AS4Message message)
         {
-            using (var messageBodyStream = new MemoryStream())
+            return await Task.Run(() => SerializeToSoapEnvelope(message, CancellationToken.None, s => s.ToArray()));
+        }
+
+        private static T SerializeToSoapEnvelope<T>(
+            AS4Message message,
+            CancellationToken cancellation,
+            Func<MemoryStream, T> handling)
+        {
+            using (var messageStream = new MemoryStream())
             {
                 var serializer = new SoapEnvelopeSerializer();
-                serializer.Serialize(message, messageBodyStream, CancellationToken.None);
+                serializer.Serialize(message, messageStream, cancellation);
 
-                return messageBodyStream.ToArray();
+                return handling(messageStream);
             }
         }
 
         /// <summary>
-        /// Deserialize a Xml stream to a Model.
+        /// Deserialize a Xml stream to a Model
         /// </summary>
-        /// <typeparam name="T">Type to which the given stream must be deserialized.</typeparam>
-        /// <param name="stream">Stream containing the Xml.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream">The stream.</param>
         /// <returns></returns>
-        public static T FromStream<T>(Stream stream) where T : class
+        public static async Task<T> FromStreamAsync<T>(Stream stream) where T : class
         {
-            using (var streamReader = new StreamReader(stream))
+            return await Task.Run(() =>
             {
-                stream.Position = 0;
+                using (var streamReader = new StreamReader(stream))
+                {
+                    stream.Position = 0;
 
-                string xml = streamReader.ReadToEnd();
-                return FromString<T>(xml);
-            }
+                    string xml = streamReader.ReadToEnd();
+                    return FromString<T>(xml);
+                }
+            });
+        }
+
+        /// <summary>
+        /// Deserialize Xml String to Model.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xml">The XML.</param>
+        /// <returns></returns>
+        public static async Task<T> FromStringAsync<T>(string xml) where T : class
+        {
+            return await Task.Run(() => FromString<T>(xml));
         }
 
         /// <summary>
@@ -155,15 +175,18 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         /// <summary>
-        /// Deserialize to Model
+        /// Deserialize to a given type from a given reader.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="reader"></param>
+        /// <param name="reader">The reader.</param>
         /// <returns></returns>
-        public static T FromReader<T>(XmlReader reader) where T : class
+        public static async Task<T> FromReaderAsync<T>(XmlReader reader) where T : class
         {
-            XmlSerializer serializer = GetSerializerForType(typeof(T));
-            return serializer.Deserialize(reader) as T;
+            return await Task.Run(() =>
+            {
+                XmlSerializer serializer = GetSerializerForType(typeof(T));
+                return serializer.Deserialize(reader) as T;
+            });
         }
 
         private static XmlSerializer GetSerializerForType(Type type)

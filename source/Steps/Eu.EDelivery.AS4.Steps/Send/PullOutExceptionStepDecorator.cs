@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (PullRequestValidationException exception)
             {
-                InsertOutException(messagingContext, exception);
+                await InsertOutException(messagingContext, exception);
 
                 AS4Message as4Message = BuildAS4Error(messagingContext, exception);
 
@@ -69,10 +69,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="exception">The exception.</param>
-        private void InsertOutException(MessagingContext context, AS4Exception exception)
+        private async Task InsertOutException(MessagingContext context, AS4Exception exception)
         {
             OutException outException = OutExceptionBuilder.ForAS4Exception(exception).Build();
-            outException.MessageBody = AS4XmlSerializer.ToBytes(context.AS4Message);
+            outException.MessageBody = await AS4XmlSerializer.ToSoapEnvelopeBytesAsync(context.AS4Message);
 
             using (DatastoreContext datastoreContext = _createContext())
             {

@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             await sut.ExerciseStep(context);
 
             // Assert
-            AssertOnOutException(context.AS4Message);
+            await AssertOnOutException(context.AS4Message);
         }
 
         private PullOutExceptionStepDecorator DecoratorWithPullRequestValidationExceptionSaboteur()
@@ -66,12 +66,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             return new MessagingContext(AS4Message.Create(new PullRequest()), MessagingContextMode.Send);
         }
 
-        private void AssertOnOutException(AS4Message as4Message)
+        private async Task AssertOnOutException(AS4Message as4Message)
         {
             OutException exception = GetFirstOutException();
 
             Assert.Null(exception.EbmsRefToMessageId);
-            Assert.Equal(AS4XmlSerializer.ToBytes(as4Message), exception.MessageBody);
+            Assert.Equal(await AS4XmlSerializer.ToSoapEnvelopeBytesAsync(as4Message), exception.MessageBody);
             Assert.NotEmpty(exception.Exception);
         }
 

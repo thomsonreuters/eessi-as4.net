@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Transformers
             return TryCreatePullRequest(receivedMessage);
         }
 
-        private static Task<MessagingContext> TryCreatePullRequest(ReceivedMessage receivedMessage)
+        private static async Task<MessagingContext> TryCreatePullRequest(ReceivedMessage receivedMessage)
         {
             try
             {
@@ -44,26 +44,26 @@ namespace Eu.EDelivery.AS4.Transformers
 
                 receivedMessage.AssignPropertiesTo(context);
                 
-                SendingProcessingMode pmode = DeserializeValidPMode(receivedMessage);
+                SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
                 context.SendingPMode = pmode;
 
                 AS4Message as4Message = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
 
-                return Task.FromResult(context.CloneWith(as4Message));
+                return context.CloneWith(as4Message);
             }
             catch (AS4Exception exception)
             {
-                return Task.FromResult(new MessagingContext(exception));
+                return new MessagingContext(exception);
             }
             catch (Exception exception)
             {
-                return Task.FromResult(new MessagingContext(CreateAS4Exception(exception.Message)));
+                return new MessagingContext(CreateAS4Exception(exception.Message));
             }
         }
 
-        private static SendingProcessingMode DeserializeValidPMode(ReceivedMessage receivedMessage)
+        private static async Task<SendingProcessingMode> DeserializeValidPMode(ReceivedMessage receivedMessage)
         {
-            var pmode = AS4XmlSerializer.FromStream<SendingProcessingMode>(receivedMessage.RequestStream);
+            var pmode = await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.RequestStream);
             var validator = new SendingProcessingModeValidator();
 
             ValidationResult result = validator.Validate(pmode);
