@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using Xunit;
 
 
-[assembly: CollectionBehavior(DisableTestParallelization = true, MaxParallelThreads = 1)]
+[assembly: CollectionBehavior(DisableTestParallelization = true, MaxParallelThreads=1)]
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
