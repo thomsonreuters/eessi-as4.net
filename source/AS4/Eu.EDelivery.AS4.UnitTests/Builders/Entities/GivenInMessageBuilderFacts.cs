@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
@@ -39,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
 
             [Fact]
-            public void ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
+            public async Task ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
             {
                 // Arrange
                 AS4Message as4Message = AS4Message.Empty;
@@ -48,13 +49,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 // Act
                 InMessage inMessage =
                     InMessageBuilder.ForSignalMessage(receipt, as4Message)
-                                    .WithPModeString(AS4XmlSerializer.ToString(new ReceivingProcessingMode()))
+                                    .WithPModeString(await AS4XmlSerializer.ToStringAsync(new ReceivingProcessingMode()))
                                     .Build(CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(inMessage);
                 Assert.Equal(as4Message.ContentType, inMessage.ContentType);
-                Assert.Equal(AS4XmlSerializer.ToString(new ReceivingProcessingMode()), inMessage.PMode);
+                Assert.Equal(await AS4XmlSerializer.ToStringAsync(new ReceivingProcessingMode()), inMessage.PMode);
                 Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
             }
         }

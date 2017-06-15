@@ -34,13 +34,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public class Serialize
         {
             [Fact]
-            public void SendingPMode()
+            public async Task SendingPMode()
             {
                 // Arrange
                 var expectedPMode = new SendingProcessingMode {Id = "expected-id"};
 
                 // Act
-                Stream actualPModeStream = AS4XmlSerializer.ToStream(expectedPMode);
+                Stream actualPModeStream = await AS4XmlSerializer.ToStreamAsync(expectedPMode);
 
                 // Assert
                 SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
@@ -67,14 +67,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
         public class Deserialize
         {
             [Fact]
-            public void FilledWithPModeData()
+            public async Task FilledWithPModeData()
             {
                 // Arrange
                 var expectedPMode = new SendingProcessingMode();
                 using (Stream pmodeStream = SerializeExpectedPMode(expectedPMode))
                 {
                     // Act
-                    var actualPMode = AS4XmlSerializer.FromStream<SendingProcessingMode>(pmodeStream);
+                    var actualPMode = await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(pmodeStream);
 
                     // Assert
                     Assert.Equal(expectedPMode.Id, actualPMode.Id);

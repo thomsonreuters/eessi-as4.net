@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.Entities
                 IsTest = userMessage.IsTest;
                 IsDuplicate = userMessage.IsDuplicate;
                 SoapEnvelope =
-                    AS4XmlSerializer.ToDocument(new MessagingContext(as4Message, MessagingContextMode.Unknown), cancellationToken).OuterXml;
+                    AS4XmlSerializer.ToSoapEnvelopeDocument(new MessagingContext(as4Message, MessagingContextMode.Unknown), cancellationToken).OuterXml;
             }
 
             if (as4Message.IsSignalMessage)

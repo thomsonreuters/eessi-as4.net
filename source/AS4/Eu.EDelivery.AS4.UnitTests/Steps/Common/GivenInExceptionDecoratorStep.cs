@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 // Arrange
                 AS4Exception as4Exception = CreateDefaultAS4Exception(sharedId);
                 var receivePMode = new ReceivingProcessingMode { ExceptionHandling = { NotifyMessageConsumer = true } };
-                as4Exception.PMode = AS4XmlSerializer.ToString(receivePMode);
+                as4Exception.PMode = await AS4XmlSerializer.ToStringAsync(receivePMode);
                 SetupMockedStep(as4Exception);
                 ResetStep();
 
