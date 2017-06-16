@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services;
@@ -16,6 +17,7 @@ using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
@@ -53,6 +55,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             Assert.Equal(expectedMpc, userMessage.Mpc);
             AssertOutMessage(userMessage.MessageId, m => Assert.True(m.Operation == Operation.Sending));
+            Assert.NotNull(result.MessagingContext.SendingPMode);
         }
 
         private async Task<StepResult> ExerciseSelection(string expectedMpc)
@@ -86,9 +89,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var service = new OutMessageService(new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
 
                 await service.InsertAS4Message(
-                    messagingContext: new MessagingContext(as4Message, MessagingContextMode.Send),
-                    operation: operation,
-                    cancellationToken: CancellationToken.None);
+                    new MessagingContext(as4Message, MessagingContextMode.Send)
+                    {
+                        SendingPMode = new SendingProcessingMode()
+                    },
+                    operation,
+                    CancellationToken.None);
 
                 context.SaveChanges();
             }

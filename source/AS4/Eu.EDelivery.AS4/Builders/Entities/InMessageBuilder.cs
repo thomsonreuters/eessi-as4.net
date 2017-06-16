@@ -79,7 +79,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 EbmsMessageType = DetermineMessageType(_messageUnit),
                 ContentType = _as4Message.ContentType,
                 PMode = _pmodeString,
-                MEP = _as4Message.Mep,
+                MEP = _as4Message.Mep.GetValueOrDefault(),
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.UtcNow,

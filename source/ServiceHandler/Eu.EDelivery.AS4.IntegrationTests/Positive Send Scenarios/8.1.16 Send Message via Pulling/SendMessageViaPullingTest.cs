@@ -8,13 +8,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._16_Se
 {
     public class SendMessageViaPullingTest : IntegrationTestTemplate
     {
-        [Fact(Skip = "Waiting for the composing of the Pull Agent (must update 'settings.xml')")]
+        [Fact]
         public void HolodeckGetsReciptForPullRequest_IfRequestMatchesMpc()
         {
             // Arrange
-            // Override 'settings.xml' file...
+            AS4Component.OverrideSettings("8.1.16-settings.xml");
+            AS4Component.Start();
+
+            File.Copy($"{AS4MessagesRootPath}\\8.1.16-sample.xml", $"{AS4FullOutputPath}\\8.1.16-sample.xml", overwrite: true);
 
             // Act
+            CopyPModeToHolodeckB("8.1.16-receive-pmode.xml");
             CopyPModeToHolodeckB("8.1.16-pmode.xml");
 
             // Assert

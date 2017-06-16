@@ -27,6 +27,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Initializes a new instance of the <see cref="PullOutExceptionStepDecorator" /> class.
         /// </summary>
         /// <param name="innerStep">The inner step.</param>
+        public PullOutExceptionStepDecorator(IStep innerStep)
+            : this(innerStep, Registry.Instance.CreateDatastoreContext) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PullOutExceptionStepDecorator" /> class.
+        /// </summary>
+        /// <param name="innerStep">The inner step.</param>
         /// <param name="createContext">The create context.</param>
         public PullOutExceptionStepDecorator(IStep innerStep, Func<DatastoreContext> createContext) : base(innerStep)
         {

@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static bool IsReceptionAwarenessEnabled(MessagingContext messagingContext)
         {
-            return messagingContext.SendingPMode.Reliability.ReceptionAwareness.IsEnabled;
+            return messagingContext.SendingPMode.Reliability?.ReceptionAwareness?.IsEnabled == true;
         }
 
         private static async Task<StepResult> ReturnSameResult(MessagingContext messagingContext, string description)

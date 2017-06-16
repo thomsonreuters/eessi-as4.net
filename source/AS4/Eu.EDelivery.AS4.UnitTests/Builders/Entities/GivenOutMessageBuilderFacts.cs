@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 {
@@ -18,6 +19,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
     {
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
+            [Theory]
+            [InlineData(MessageExchangePatternBinding.Pull, MessageExchangePattern.Pull)]
+            [InlineData(MessageExchangePatternBinding.Push, MessageExchangePattern.Push)]
+            public void BuilderUsesContextForExchangePattern(
+                MessageExchangePatternBinding binding,
+                MessageExchangePattern expected)
+            {
+                // Arrange
+                AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
+
+                // Act
+                OutMessage outMessage = BuildForUserMessage(
+                    as4Message,
+                    new SendingProcessingMode {MepBinding = binding});
+
+                // Assert
+                Assert.Equal(expected, outMessage.MEP);
+            }
+
             [Fact]
             public async Task ThenBuildOutMessageSucceedsWithAS4Message()
             {
@@ -51,8 +71,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = ExpectedPMode() })
-                                                         .Build(CancellationToken.None);
+                return BuildForUserMessage(as4Message, ExpectedPMode());
+            }
+
+            private static OutMessage BuildForUserMessage(AS4Message as4Message, SendingProcessingMode pmode)
+            {
+                return
+                    OutMessageBuilder.ForMessageUnit(
+                        as4Message.PrimaryUserMessage,
+                        new MessagingContext(as4Message, MessagingContextMode.Unknown)
+                        {
+                            SendingPMode = pmode
+                        }).Build(CancellationToken.None);
             }
 
             [Fact]
