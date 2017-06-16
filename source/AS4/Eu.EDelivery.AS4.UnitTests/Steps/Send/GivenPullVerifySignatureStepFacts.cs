@@ -14,23 +14,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
     public class GivenPullVerifySignatureStepFacts
     {
         [Fact]
-        public async Task FailsVerifySignature_ResultsInStoppedExecution()
+        public async Task SucceedsVerifySignature_ResultsInSameMessage()
         {
-            // Arrange
-            Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(as4_soap_signed_pullrequest);
-
-            // Act
-            StepResult result = await act();
-
-            // Assert
-            Assert.True(result.CanProceed);
+            await TestHappyPathVerification(as4_soap_signed_pullrequest);
         }
 
         [Fact]
         public async Task SucceedsWithUnsignedPullRequest()
         {
+            await TestHappyPathVerification(as4_soap_pullrequest);
+        }
+
+        private static async Task TestHappyPathVerification(string message)
+        {
             // Arrange
-            Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(as4_soap_pullrequest);
+            Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(message);
 
             // Act
             StepResult result = await act();
@@ -40,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         }
 
         [Fact]
-        public async Task SucceedsVerifySignature_ResultsInSameMessage()
+        public async Task FailsVerifySignature_ResultsInStoppedExecution()
         {
             // Arrange
             Func<Task<StepResult>> act = await SetupExerciseVerificationStepWith(as4_soap_wrong_signed_pullrequest);
