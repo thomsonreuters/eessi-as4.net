@@ -117,5 +117,14 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="messageId">The message identifier.</param>
         /// <param name="updateAction">The update action.</param>
         void UpdateReceptionAwareness(string messageId, Action<ReceptionAwareness> updateAction);
+
+        /// <summary>
+        /// Gets the out message data.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="where">The where.</param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        TResult GetOutMessageData<TResult>(Func<OutMessage, bool> where, Func<OutMessage, TResult> selection);
     }
 }

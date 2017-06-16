@@ -16,7 +16,6 @@ using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
-using static Eu.EDelivery.AS4.UnitTests.Extensions.AS4MessageExtensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
@@ -37,21 +36,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 IStep sut = GetCatchedCompositeSteps();
-                var internalMessage = new MessagingContext(EmptyAS4Message);
+
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
                 // Act
-                StepResult result = await sut.ExecuteAsync(internalMessage, CancellationToken.None);
+                StepResult result = await sut.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(result.MessagingContext.AS4Message);
-                Assert.Equal(internalMessage, result.MessagingContext);
+                Assert.Equal(context, result.MessagingContext);
             }
 
             [Fact]
             public async Task ThenExecuteStepSucceedsWithAS4ExceptionThrowedAsync()
             {
                 // Arrange
-                var stubStep = new SaboteurStep(CreateAS4Exception());
+                var stubStep = new SaboteurStep(await CreateAS4Exception());
                 IStep sut = GetCatchedCompositeSteps(stubStep);
 
                 // Act
@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenExecuteStepSucceedsWithInsertedInExceptionAsync(string messageId)
             {
                 // Arrange
-                var stubStep = new SaboteurStep(CreateAS4Exception(messageId));
+                var stubStep = new SaboteurStep(await CreateAS4Exception(messageId));
                 IStep sut = GetCatchedCompositeSteps(stubStep);
 
                 // Act
@@ -98,25 +98,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected ReceivingProcessingMode GetStubReceivingPMode()
         {
-            return new ReceivingProcessingMode {ReceiptHandling = {UseNNRFormat = false, SendingPMode = "pmode"}};
+            return new ReceivingProcessingMode { ReceiptHandling = { UseNNRFormat = false, SendingPMode = "pmode" } };
         }
 
         protected MessagingContext DummyMessage()
         {
-            AS4Message as4Message = new AS4MessageBuilder().WithUserMessage(new UserMessage("message-id")).Build();
 
-            return new MessagingContext(as4Message)
+            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")), MessagingContextMode.Unknown)
             {
                 ReceivingPMode = GetStubReceivingPMode(),
                 SendingPMode = new SendingProcessingMode()
             };
         }
 
-        private AS4Exception CreateAS4Exception(string messageId = "ignored-string")
+        private async Task<AS4Exception> CreateAS4Exception(string messageId = "ignored-string")
         {
             return AS4ExceptionBuilder
                 .WithDescription("Testing AS4 Exception")
-                .WithPModeString(AS4XmlSerializer.ToString(GetStubReceivingPMode()))
+                .WithPModeString(await AS4XmlSerializer.ToStringAsync(GetStubReceivingPMode()))
                 .WithMessageIds(messageId)
                 .Build();
         }

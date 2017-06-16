@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 receiver.StartReceiving(OnMessageReceived, CancellationToken.None);
 
                 // Assert
-                Assert.True(_waitHandle.WaitOne(timeout: TimeSpan.FromMinutes(1)));
+                Assert.True(_waitHandle.WaitOne(timeout: TimeSpan.FromMinutes(2)));
             }
 
             private static Setting CreateMockReceiverSetting()
@@ -119,11 +119,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 };
             }
 
-            private Task<MessagingContext> OnMessageReceived(
+            private async Task<MessagingContext> OnMessageReceived(
                 ReceivedMessage receivedMessage,
                 CancellationToken cancellationToken)
             {
-                var actualPMode = AS4XmlSerializer.FromStream<SendingProcessingMode>(receivedMessage.RequestStream);
+                var actualPMode = await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.RequestStream);
                 Assert.Equal("01-pmode", actualPMode.Id);
 
                 if (_seriewatch.TrackSerie(maxSerieCount: 3))
@@ -132,7 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return Task.FromResult((MessagingContext) new EmptyMessagingContext());
+                return (MessagingContext) new EmptyMessagingContext();
             }
 
             /// <summary>

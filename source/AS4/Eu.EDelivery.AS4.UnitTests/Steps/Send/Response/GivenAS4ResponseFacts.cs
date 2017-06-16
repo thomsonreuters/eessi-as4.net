@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
         public void GetsRequestMessageFromAS4Response()
         {
             // Arranage
-            var expectedRequest = new MessagingContext(as4Message: null);
+            var expectedRequest = new MessagingContext(as4Message: null, mode: MessagingContextMode.Unknown);
 
             // Act
             MessagingContext actualRequest = CreateAS4ResponseWith(messageRequest: expectedRequest).OriginalRequest;

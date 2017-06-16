@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -38,7 +37,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return await ReturnSameStepResult(messagingContext);
             }
 
-            return  IsReplyPatternCallback(messagingContext)
+            return IsReplyPatternCallback(messagingContext)
                 ? await CreateEmptySoapResult(messagingContext)
                 : await ReturnSameStepResult(messagingContext);
         }
@@ -52,21 +51,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             _logger.Info($"{messagingContext.Prefix} Empty SOAP Envelope will be send to requested party");
 
-            var emptyInternalMessage = new MessagingContext(CreateEmptyAS4Message(messagingContext.SendingPMode))
+
+            var emptyContext = new MessagingContext(AS4Message.Create(messagingContext.SendingPMode), MessagingContextMode.Receive)
             {
                 ReceivingPMode = messagingContext.ReceivingPMode
             };
 
-            return await StepResult.SuccessAsync(emptyInternalMessage);
-        }
-
-        private static AS4Message CreateEmptyAS4Message(SendingProcessingMode pmode)
-        {            
-            return new AS4MessageBuilder(pmode).Build();
+            return await StepResult.SuccessAsync(emptyContext);
         }
 
         private static async Task<StepResult> ReturnSameStepResult(MessagingContext messagingContext)
-        {            
+        {
             return await StepResult.SuccessAsync(messagingContext);
         }
     }

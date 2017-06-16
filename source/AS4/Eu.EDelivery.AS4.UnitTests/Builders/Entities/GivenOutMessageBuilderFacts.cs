@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using Eu.EDelivery.AS4.Builders.Core;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -20,10 +19,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
             [Fact]
-            public void ThenBuildOutMessageSucceedsWithAS4Message()
+            public async Task ThenBuildOutMessageSucceedsWithAS4Message()
             {
                 // Arrange
-                AS4Message as4Message = CreateAS4MessageWithUserMessage();
+                AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
 
                 // Act
                 OutMessage outMessage = BuildForUserMessage(as4Message);
@@ -32,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Assert.NotNull(outMessage);
                 Assert.Equal(as4Message.ContentType, outMessage.ContentType);
                 Assert.Equal(MessageType.UserMessage, outMessage.EbmsMessageType);
-                Assert.Equal(AS4XmlSerializer.ToString(ExpectedPMode()), outMessage.PMode);
+                Assert.Equal(await AS4XmlSerializer.ToStringAsync(ExpectedPMode()), outMessage.PMode);
             }
 
             [Fact]
@@ -52,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, new MessagingContext(as4Message) {SendingPMode = ExpectedPMode()})
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = ExpectedPMode() })
                                                          .Build(CancellationToken.None);
             }
 
@@ -61,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = CreateAS4MessageWithReceiptMessage(messageId);
+                AS4Message as4Message = AS4Message.Create(new Receipt(messageId), ExpectedPMode());
 
                 // Act
                 OutMessage outMessage = BuildForSignalMessage(as4Message);
@@ -76,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                AS4Message as4Message = CreateAS4MessageWithErrorMessage(messageId);
+                AS4Message as4Message = AS4Message.Create(new Error(messageId), ExpectedPMode());
 
                 // Act
                 OutMessage outMessage = BuildForSignalMessage(as4Message);
@@ -88,29 +87,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private static OutMessage BuildForSignalMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, new MessagingContext(as4Message))
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, new MessagingContext(as4Message, MessagingContextMode.Send))
                                                                          .Build(CancellationToken.None);
             }
         }
 
         protected SendingProcessingMode ExpectedPMode()
         {
-            return new SendingProcessingMode {Id = "pmode-id"};
+            return new SendingProcessingMode { Id = "pmode-id" };
         }
 
-        protected AS4Message CreateAS4MessageWithUserMessage(string messageId = "message id")
+        protected AS4Message CreateAS4MessageWithUserMessage(string messageId)
         {
-            return new AS4MessageBuilder().WithUserMessage(new UserMessage(messageId)).Build();
-        }
-
-        protected AS4Message CreateAS4MessageWithReceiptMessage(string messageId = "message-id", bool isDuplicate = false)
-        {
-            return new AS4MessageBuilder().WithSignalMessage(new Receipt(messageId) {IsDuplicated = isDuplicate}).Build();
-        }
-
-        protected AS4Message CreateAS4MessageWithErrorMessage(string messageId)
-        {
-            return new AS4MessageBuilder().WithSignalMessage(new Error(messageId)).Build();
+            return AS4Message.Create(new UserMessage(messageId), ExpectedPMode());
         }
     }
 }

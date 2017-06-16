@@ -1,8 +1,6 @@
-using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -62,9 +60,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 var receipt = new Receipt {RefToMessageId = refToMessageId};
 
-                AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+                AS4Message as4Message = AS4Message.Create(receipt);
 
-                return new MessagingContext(as4Message) {SendingPMode = GetSendingPMode()};
+                return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = GetSendingPMode()};
             }
 
             [Fact]
@@ -84,10 +82,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private void InsertReceivedOutMessage(string messageId = EbmsMessageId)
             {
-                using (DatastoreContext db = GetDataStoreContext())
+                using (DatastoreContext context = GetDataStoreContext())
                 {
-                    db.OutMessages.Add(CreateOutMessage(messageId));
-                    db.SaveChanges();
+                    context.OutMessages.Add(new OutMessage {EbmsMessageId = messageId});
+                    context.SaveChanges();
                 }
             }
         }
@@ -96,24 +94,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         {
             private const string EbmsMessageId = "some-messageid";
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="GivenUpdateReceivedMessageDatastoreFacts.GivenReceivedErrorMessage"/> class.
-            /// </summary>
-            /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-            public GivenReceivedErrorMessage()
-            {
-                using (DatastoreContext db = GetDataStoreContext())
-                {
-                    db.OutMessages.Add(CreateOutMessage(EbmsMessageId));
-                    db.SaveChanges();
-                }
-            }
-
             [Fact]
             public async Task ThenRelatedUserMessageStatusIsSetToNAck()
             {
                 // Arrange
-                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId))
+                await InsertOutMessageWith(EbmsMessageId);
+
+                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId), MessagingContextMode.Receive)
                 {
                     SendingPMode = GetSendingPMode()
                 };
@@ -129,11 +116,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Assert.Equal(OutStatus.Ack, outMessage.Status);
             }
 
+            private async Task InsertOutMessageWith(string messageId)
+            {
+                using (DatastoreContext db = GetDataStoreContext())
+                {
+                    db.OutMessages.Add(await CreateOutMessage(messageId));
+                    db.SaveChanges();
+                }
+            }
+
             private static AS4Message CreateErrorAS4Message(string refToMessageId)
             {
                 var receipt = new Receipt {RefToMessageId = refToMessageId};
 
-                return new AS4MessageBuilder().WithSignalMessage(receipt).Build();
+                return AS4Message.Create(receipt);
             }
         }
 
@@ -144,7 +140,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             await step.ExecuteAsync(context, CancellationToken.None);
         }
 
-        private static OutMessage CreateOutMessage(string messageId)
+        private static async Task<OutMessage> CreateOutMessage(string messageId)
         {
             return new OutMessage
             {
@@ -152,7 +148,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 Status = OutStatus.Sent,
                 Operation = Operation.NotApplicable,
                 EbmsMessageType = MessageType.UserMessage,
-                PMode = AS4XmlSerializer.ToString(GetSendingPMode())
+                PMode = await AS4XmlSerializer.ToStringAsync(GetSendingPMode())
             };
         }
 

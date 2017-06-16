@@ -6,7 +6,6 @@ using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -17,7 +16,6 @@ using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Xunit;
 using CryptoReference = System.Security.Cryptography.Xml.Reference;
-using Eu.EDelivery.AS4.Builders.Core;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 {
@@ -70,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
             {
                 // Arrange
                 var stream = new MemoryStream(Encoding.UTF8.GetBytes("Dummy Content"));
-                var attachment = new Attachment("earth") {Content = stream};
+                var attachment = new Attachment("earth") { Content = stream };
                 string hashFunction = Constants.HashFunctions.First();
 
                 // Act
@@ -172,7 +170,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
 
         protected SigningStrategyBuilder CreateBuilder()
         {
-            return new SigningStrategyBuilder(new MessagingContext(new AS4MessageBuilder().Build()), CancellationToken.None);
+            return new SigningStrategyBuilder(new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown), CancellationToken.None);
         }
     }
 }

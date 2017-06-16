@@ -123,9 +123,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 Sender = new Party("Sender", new PartyId())
             };
 
-            AS4Message as4Message =
-                new AS4MessageBuilder().WithUserMessage(userMessage)
-                                       .Build();
+            AS4Message as4Message = AS4Message.Create(userMessage);
 
             as4Message.ContentType = Constants.ContentTypes.Soap;
 

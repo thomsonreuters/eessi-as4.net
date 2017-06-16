@@ -177,6 +177,7 @@
       <HintPath>..\..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
@@ -192,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\InExceptionStepDecorator.cs" />
+    <Compile Include="Send\PullOutExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\MinderTestCreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />
@@ -215,6 +217,7 @@
     <Compile Include="Send\Response\IAS4ResponseHandler.cs" />
     <Compile Include="Send\Response\PullRequestResponseHandler.cs" />
     <Compile Include="Send\Response\TailResponseHandler.cs" />
+    <Compile Include="Send\SelectUserMessageToSendStep.cs" />
     <Compile Include="Send\SetReceptionAwarenessStep.cs" />
     <Compile Include="Receive\ReceiveExceptionStepDecorator.cs" />
     <Compile Include="Receive\DecompressAttachmentsStep.cs" />
@@ -230,6 +233,7 @@
     <Compile Include="Receive\CreateAS4ReceiptStep.cs" />
     <Compile Include="Receive\VerifySignatureAS4MessageStep.cs" />
     <Compile Include="Send\CompressAttachmentsStep.cs" />
+    <Compile Include="Send\VerifyPullRequestAuthorizationStep.cs" />
     <Compile Include="Submit\CreateAS4MessageStep.cs" />
     <Compile Include="Send\EncryptAS4MessageStep.cs" />
     <Compile Include="Common\OutExceptionStepDecorator.cs" />

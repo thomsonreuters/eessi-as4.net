@@ -317,7 +317,6 @@
     <Compile Include="Agents\Agent.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
     <Compile Include="Builders\Core\AS4ExceptionBuilder.cs" />
-    <Compile Include="Builders\Core\AS4MessageBuilder.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Core\NonRepudiationInformationBuilder.cs" />
     <Compile Include="Builders\Entities\InExceptionBuilder.cs" />
@@ -326,6 +325,7 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
+    <Compile Include="Exceptions\PullRequestValidationException.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />
     <Compile Include="Factories\UserMessageFactory.cs" />
     <Compile Include="Http\ReliableHttpClient.cs" />
@@ -336,12 +336,14 @@
     <Compile Include="Mappings\PMode\PModeReceiverResolver.cs" />
     <Compile Include="Mappings\PMode\PModeSenderResolver.cs" />
     <Compile Include="Mappings\PMode\PModeServiceResolver.cs" />
+    <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
     <Compile Include="Receivers\ExponentialIntervalReceiver.cs" />
     <Compile Include="Receivers\IntervalRequest.cs" />
     <Compile Include="Repositories\AS4MessageBodyFileStore.cs" />
     <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
+    <Compile Include="Services\PullAuthorizationMap.cs" />
     <Compile Include="Repositories\IAS4MessageBodyStore.cs" />
     <Compile Include="Repositories\IDatastoreRepository.cs" />
     <Compile Include="Security\Builders\EncryptedDataBuilder.cs" />
@@ -510,7 +512,6 @@
     <Compile Include="Model\Core\Attachment.cs" />
     <Compile Include="Model\Core\CollaborationInfo.cs" />
     <Compile Include="Model\Core\Error.cs" />
-    <Compile Include="Common\IMessage.cs" />
     <Compile Include="Model\Core\MessageUnit.cs" />
     <Compile Include="Model\Core\Party.cs" />
     <Compile Include="Model\Core\PartInfo.cs" />

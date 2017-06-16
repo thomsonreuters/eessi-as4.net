@@ -279,18 +279,24 @@
     <Compile Include="Common\SingleAgentConfig.cs" />
     <Compile Include="Entities\GivenEntityFacts.cs" />
     <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />
+    <Compile Include="Extensions\StepExtensions.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitConversationIdResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
     <Compile Include="Model\FilledAttachment.cs" />
     <Compile Include="Model\Internal\SaboteurReceivedMessage.cs" />
     <Compile Include="Receivers\StubReceiver.cs" />
+    <Compile Include="Repositories\InMemoryMessageBodyStore.cs" />
     <Compile Include="Repositories\StubMessageBodyRetriever.cs" />
+    <Compile Include="Services\GivenAuthorizationMapFacts.cs" />
+    <Compile Include="Services\StubAuthorizationMap.cs" />
     <Compile Include="Steps\DummyStep.cs" />
+    <Compile Include="Steps\Send\GivenSelectUserMessageToSendStepFacts.cs" />
+    <Compile Include="Steps\Send\GivenPullOutExceptionStepDecoratorFacts.cs" />
+    <Compile Include="Steps\Send\GivenVerifyPullRequestAuthorizationStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
-    <Compile Include="Builders\Core\GivenAS4MessageBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenNonRepudiationInformationBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenInExceptionBuilderFacts.cs" />
@@ -334,7 +340,6 @@
     <Compile Include="Mappings\Submit\GivenSubmitSenderPartyResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitServiceResolverFacts.cs" />
     <Compile Include="Model\Core\GivenErrorFacts.cs" />
-    <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\EmptyMessagingContext.cs" />
     <Compile Include="Model\FilledNRRReceipt.cs" />
     <Compile Include="Model\FilledUserMessage.cs" />
@@ -360,6 +365,12 @@
     </Compile>
     <Compile Include="Receivers\GivenDatastoreReceiverFacts.cs" />
     <Compile Include="Receivers\GivenIntervalRequestFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenBooleanExpressionFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenConversionFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenDatastoreSpecificationArgsFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenExpressionDatastoreSpecificationFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenSameExpressionFacts.cs" />
+    <Compile Include="Receivers\Specifications\GivenTokenFacts.cs" />
     <Compile Include="Receivers\GivenPullRequestReceiverFacts.cs" />
     <Compile Include="Receivers\Seriewatch.cs" />
     <Compile Include="Receivers\StubXmlAttribute.cs" />
@@ -542,6 +553,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\as4-encrypted-envelope.xml" />
+    <Content Include="Resources\as4-soap-signed-encrypted-message-with-extra-hashtag.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
@@ -558,7 +570,6 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

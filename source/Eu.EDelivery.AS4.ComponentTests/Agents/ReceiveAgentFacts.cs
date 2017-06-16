@@ -172,7 +172,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 var r = new Receipt {RefToMessageId = refToMessageId};
 
-                return new AS4MessageBuilder().WithSignalMessage(r).Build();
+                return AS4Message.Create(r, GetSendingPMode());
             }
 
             [Fact]
@@ -180,7 +180,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 // Arrange
                 const string expectedId = "message-id";
-                CreateExistingOutMessage(expectedId);
+                await CreateExistingOutMessage(expectedId);
 
                 AS4Message as4Message = CreateAS4ErrorMessage(expectedId);
 
@@ -192,13 +192,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 AssertIfInMessageExistsForSignalMessage(expectedId);
             }
 
-            private void CreateExistingOutMessage(string messageId)
+            private async Task CreateExistingOutMessage(string messageId)
             {
                 var outMessage = new OutMessage
                 {
                     EbmsMessageId = messageId,
                     Status = OutStatus.Sent,
-                    PMode = AS4XmlSerializer.ToString(GetSendingPMode())
+                    PMode = await AS4XmlSerializer.ToStringAsync(GetSendingPMode())
                 };
 
                 _databaseSpy.InsertOutMessage(outMessage);
@@ -224,7 +224,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
                 Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithAS4Exception(exception).Build();
 
-                return new AS4MessageBuilder().WithSignalMessage(error).Build();
+                return AS4Message.Create(error, GetSendingPMode());
             }
 
             private HttpRequestMessage CreateSendMessage(AS4Message message)
@@ -273,8 +273,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         // - Exception when the UserMessage is not valid (an InException should be present).
         protected override void Disposing(bool isDisposing)
         {
-            _as4Msh.Dispose();
-            HttpClient.Dispose();
+            _as4Msh.Dispose();            
         }
     }
 }
