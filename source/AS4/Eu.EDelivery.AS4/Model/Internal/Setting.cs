@@ -91,6 +91,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("PullReceiveAgent", IsNullable = false)]
         public SettingsAgent[] PullReceiveAgents { get; set; }
 
+        [XmlElement("PullSendAgent", IsNullable = false)]
+        public SettingsAgent[] PullSendAgents { get; set; }
+
         [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)]
         public SettingsMinderAgent[] MinderTestAgents { get; set; }
     }
