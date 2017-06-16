@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Repositories
     /// </summary>
     public class DatastoreRepository : IDatastoreRepository
     {
-        private readonly DatastoreContext _dbContext;
+        private readonly DatastoreContext _datastoreContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreRepository"/> class. 
@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </param>     
         public DatastoreRepository(DatastoreContext datastore)
         {
-            _dbContext = datastore;
+            _datastoreContext = datastore;
         }
 
         #region InMessage related functionality
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public bool InMessageExists(Func<InMessage, bool> predicate)
         {
-            return _dbContext.InMessages.Any(predicate);
+            return _datastoreContext.InMessages.Any(predicate);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Repositories
         public TResult GetInMessageData<TResult>(string messageId, Func<InMessage, TResult> selection)
         {
             return
-                _dbContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
+                _datastoreContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Repositories
         public IEnumerable<string> SelectExistingInMessageIds(IEnumerable<string> searchedMessageIds)
         {
             return
-                _dbContext.InMessages.Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
+                _datastoreContext.InMessages.Where(m => searchedMessageIds.Contains(m.EbmsMessageId))
                           .Select(m => m.EbmsMessageId);
         }
 
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public IEnumerable<string> SelectExistingRefInMessageIds(IEnumerable<string> searchedMessageIds)
         {
-            return _dbContext.InMessages
+            return _datastoreContext.InMessages
                              .Where(m => searchedMessageIds.Contains(m.EbmsRefToMessageId))
                              .Select(m => m.EbmsRefToMessageId);
         }
@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 // TODO: throw an exception.
             }
 
-            _dbContext.InMessages.Add(inMessage);
+            _datastoreContext.InMessages.Add(inMessage);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Repositories
         {
             // There might exist multiple InMessage records for the given messageId, therefore we cannot use
             // caching here.            
-            long[] inMessageIds = _dbContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(m => m.Id).ToArray();
+            long[] inMessageIds = _datastoreContext.InMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(m => m.Id).ToArray();
 
             foreach (long id in inMessageIds)
             {
@@ -121,13 +121,13 @@ namespace Eu.EDelivery.AS4.Repositories
 
             msg.InitializeIdFromDatabase(id);
 
-            if (_dbContext.IsEntityAttached(msg) == false)
+            if (_datastoreContext.IsEntityAttached(msg) == false)
             {
-                _dbContext.Attach(msg);
+                _datastoreContext.Attach(msg);
             }
             else
             {
-                msg = _dbContext.InMessages.FirstOrDefault(m => m.Id == id);
+                msg = _datastoreContext.InMessages.FirstOrDefault(m => m.Id == id);
                 if (msg == null)
                 {
                     LogManager.GetCurrentClassLogger().Error($"No InMessage found for MessageId {ebmsMessageId}");
@@ -151,8 +151,19 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <returns></returns>
         public TResult GetOutMessageData<TResult>(string messageId, Func<OutMessage, TResult> selection)
         {
-            return
-                _dbContext.OutMessages.Where(m => m.EbmsMessageId.Equals(messageId)).Select(selection).FirstOrDefault();
+            return GetOutMessageData(m => m.EbmsMessageId.Equals(messageId), selection);
+        }
+
+        /// <summary>
+        /// Gets the out message data.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="where">The where.</param>
+        /// <param name="selection">The selection.</param>
+        /// <returns></returns>
+        public TResult GetOutMessageData<TResult>(Func<OutMessage, bool> where, Func<OutMessage, TResult> selection)
+        {
+            return _datastoreContext.OutMessages.Where(where).Select(selection).FirstOrDefault();
         }
 
         /// <summary>
@@ -167,7 +178,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 // TODO: throw exception.
             }
 
-            _dbContext.OutMessages.Add(outMessage);
+            _datastoreContext.OutMessages.Add(outMessage);
 
 
         }
@@ -182,7 +193,7 @@ namespace Eu.EDelivery.AS4.Repositories
             // We need to know the Id, since Attaching only works when the Primary Key is known.
             // Still, retrieving only the PK will still be faster then retrieving the complete entity.
             // Maybe we should define the ebmsId as the PK ?            
-            Dictionary<string, long> keyMap = GetMessageIdsForEbmsMessageIds(_dbContext.OutMessages, _outMessageIdMap, messageId);
+            Dictionary<string, long> keyMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.OutMessages, _outMessageIdMap, messageId);
 
             if (keyMap.ContainsKey(messageId))
             {
@@ -193,7 +204,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
         public void UpdateOutMessages(IEnumerable<string> messageIds, Action<OutMessage> updateAction)
         {
-            Dictionary<string, long> idMap = GetMessageIdsForEbmsMessageIds(_dbContext.OutMessages, _outMessageIdMap, messageIds.ToArray());
+            Dictionary<string, long> idMap = GetMessageIdsForEbmsMessageIds(_datastoreContext.OutMessages, _outMessageIdMap, messageIds.ToArray());
 
             foreach (KeyValuePair<string, long> kvp in idMap)
             {
@@ -207,13 +218,13 @@ namespace Eu.EDelivery.AS4.Repositories
             var msg = new OutMessage { EbmsMessageId = ebmsMessageId };
             msg.InitializeIdFromDatabase(id);
 
-            if (_dbContext.IsEntityAttached(msg) == false)
+            if (_datastoreContext.IsEntityAttached(msg) == false)
             {
-                _dbContext.Attach(msg);
+                _datastoreContext.Attach(msg);
             }
             else
             {
-                msg = _dbContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId == ebmsMessageId);
+                msg = _datastoreContext.OutMessages.FirstOrDefault(m => m.EbmsMessageId == ebmsMessageId);
                 if (msg == null)
                 {
                     LogManager.GetCurrentClassLogger().Error($"No OutMessage found for MessageId {ebmsMessageId}");
@@ -243,12 +254,12 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="receptionAwareness"></param>
         public void InsertReceptionAwareness(ReceptionAwareness receptionAwareness)
         {
-            _dbContext.ReceptionAwareness.Add(receptionAwareness);
+            _datastoreContext.ReceptionAwareness.Add(receptionAwareness);
         }
 
         public IEnumerable<ReceptionAwareness> GetReceptionAwareness(IEnumerable<string> messageIds)
         {
-            ReceptionAwareness[] entities = _dbContext.ReceptionAwareness.Where(r => messageIds.Contains(r.InternalMessageId)).ToArray();
+            ReceptionAwareness[] entities = _datastoreContext.ReceptionAwareness.Where(r => messageIds.Contains(r.InternalMessageId)).ToArray();
 
             foreach (ReceptionAwareness entity in entities)
             {
@@ -265,7 +276,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction"></param>
         public void UpdateReceptionAwareness(string refToMessageId, Action<ReceptionAwareness> updateAction)
         {
-            long id = GetReceptionAwarenessIdForMessageId(_dbContext, refToMessageId);
+            long id = GetReceptionAwarenessIdForMessageId(_datastoreContext, refToMessageId);
 
             if (id == default(long))
             {
@@ -276,13 +287,13 @@ namespace Eu.EDelivery.AS4.Repositories
             var entity = new ReceptionAwareness { InternalMessageId = refToMessageId };
             entity.InitializeIdFromDatabase(id);
 
-            if (_dbContext.IsEntityAttached(entity) == false)
+            if (_datastoreContext.IsEntityAttached(entity) == false)
             {
-                _dbContext.Attach(entity);
+                _datastoreContext.Attach(entity);
             }
             else
             {
-                entity = _dbContext.ReceptionAwareness.FirstOrDefault(r => r.Id == id);
+                entity = _datastoreContext.ReceptionAwareness.FirstOrDefault(r => r.Id == id);
 
                 if (entity == null)
                 {
@@ -304,7 +315,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="outException"></param>
         public void InsertOutException(OutException outException)
         {
-            _dbContext.OutExceptions.Add(outException);
+            _datastoreContext.OutExceptions.Add(outException);
         }
 
         /// <summary>
@@ -315,7 +326,7 @@ namespace Eu.EDelivery.AS4.Repositories
         public void UpdateOutException(string refToMessageId, Action<OutException> updateAction)
         {
 
-            IEnumerable<OutException> outExceptions = _dbContext.OutExceptions
+            IEnumerable<OutException> outExceptions = _datastoreContext.OutExceptions
                 .Where(m => m.EbmsRefToMessageId.Equals(refToMessageId));
 
             foreach (OutException outException in outExceptions)
@@ -335,7 +346,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="inException"></param>
         public void InsertInException(InException inException)
         {
-            _dbContext.InExceptions.Add(inException);
+            _datastoreContext.InExceptions.Add(inException);
         }
 
         /// <summary>
@@ -345,7 +356,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="updateAction"></param>
         public void UpdateInException(string refToMessageId, Action<InException> updateAction)
         {
-            IEnumerable<InException> inExceptions = _dbContext.InExceptions
+            IEnumerable<InException> inExceptions = _datastoreContext.InExceptions
                 .Where(m => m.EbmsRefToMessageId.Equals(refToMessageId));
 
             foreach (InException inException in inExceptions)

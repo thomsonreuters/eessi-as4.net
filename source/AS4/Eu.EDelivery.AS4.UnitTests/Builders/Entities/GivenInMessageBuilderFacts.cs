@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
@@ -25,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void BuildInMessageAsPull_IfAS4MessageIsPullResponse()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message();
+                AS4Message as4Message = AS4Message.Empty;
                 as4Message.Mep = MessageExchangePattern.Pull;
 
                 Receipt receipt = CreateReceiptMessageUnit();
@@ -39,22 +40,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
 
             [Fact]
-            public void ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
+            public async Task ThenBuildInMessageSucceedsWithAS4MessageAndMessageUnit()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message();
+                AS4Message as4Message = AS4Message.Empty;
                 Receipt receipt = CreateReceiptMessageUnit();
 
                 // Act
                 InMessage inMessage =
                     InMessageBuilder.ForSignalMessage(receipt, as4Message)
-                                    .WithPModeString(AS4XmlSerializer.ToString(new ReceivingProcessingMode()))
+                                    .WithPModeString(await AS4XmlSerializer.ToStringAsync(new ReceivingProcessingMode()))
                                     .Build(CancellationToken.None);
 
                 // Assert
                 Assert.NotNull(inMessage);
                 Assert.Equal(as4Message.ContentType, inMessage.ContentType);
-                Assert.Equal(AS4XmlSerializer.ToString(new ReceivingProcessingMode()), inMessage.PMode);
+                Assert.Equal(await AS4XmlSerializer.ToStringAsync(new ReceivingProcessingMode()), inMessage.PMode);
                 Assert.Equal(MessageType.Receipt, inMessage.EbmsMessageType);
             }
         }
@@ -76,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void ThenBulidInMessageFailsWithMissingMessageUnit()
             {
                 // Arrange
-                AS4Message as4Message = CreateDefaultAS4Message();                
+                AS4Message as4Message = AS4Message.Empty;                
 
                 // Act / Assert
                 Assert.Throws<AS4Exception>(
@@ -87,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             public void FailsToBuild_IfInvalidMessageUnit()
             {
                 // Arrange
-                InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), new AS4MessageBuilder().Build());
+                InMessageBuilder sut = InMessageBuilder.ForSignalMessage(Mock.Of<SignalMessage>(), AS4Message.Empty);
 
                 // Act / Assert
                 Assert.ThrowsAny<Exception>(() => sut.Build(CancellationToken.None));
@@ -97,11 +98,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         protected Receipt CreateReceiptMessageUnit()
         {
             return new Receipt(Guid.NewGuid().ToString()) { RefToMessageId = Guid.NewGuid().ToString() };
-        }
-
-        protected AS4Message CreateDefaultAS4Message()
-        {
-            return new AS4MessageBuilder().Build();
         }
     }
 }

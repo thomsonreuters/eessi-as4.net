@@ -106,7 +106,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             catch (Exception exception)
             {
                 Console.WriteLine(exception);
-                return new AS4MessageBuilder().Build();
+                return AS4Message.Empty;
             }
         }
 
@@ -137,7 +137,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         {
             if (response.StatusCode == HttpStatusCode.Accepted)
             {
-                return new AS4MessageBuilder().Build();
+                return AS4Message.Empty;
             }
 
             string contentType = response.ContentType;

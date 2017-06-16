@@ -62,7 +62,15 @@
     <Compile Include="HttpReceiver.cs" />
     <Compile Include="Pull\PModePullRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Specifications\DatastoreSpecification.cs" />
+    <Compile Include="Specifications\DatastoreSpecificationArgs.cs" />
+    <Compile Include="Specifications\ExpressionDatastoreSpecification.cs" />
+    <Compile Include="Specifications\Expressions\BooleanExpression.cs" />
+    <Compile Include="Specifications\Expressions\Conversion.cs" />
+    <Compile Include="Specifications\Expressions\DatastoreExpressionEvaluator.cs" />
+    <Compile Include="Specifications\Expressions\EqualExpression.cs" />
+    <Compile Include="Specifications\Expressions\IExpression.cs" />
+    <Compile Include="Specifications\Expressions\Token.cs" />
+    <Compile Include="Specifications\IDatastoreSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

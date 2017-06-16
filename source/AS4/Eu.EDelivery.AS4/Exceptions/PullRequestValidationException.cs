@@ -22,5 +22,19 @@ namespace Eu.EDelivery.AS4.Exceptions
 
             return exception;
         }
+
+        /// <summary>
+        /// Missings the MPC certificate.
+        /// </summary>
+        /// <param name="messageId">The message identifier.</param>
+        /// <param name="mpc">The MPC.</param>
+        /// <returns></returns>
+        public static Exception MissingMpcCertificate(string messageId, string mpc)
+        {
+            var exception = new PullRequestValidationException($"No Certificate found for Mpc: {mpc}") { ErrorCode = ErrorCode.Ebms0101 };
+            exception.AddMessageId(messageId);
+
+            return exception;
+        }
     }
 }

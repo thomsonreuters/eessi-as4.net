@@ -29,6 +29,12 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        bool VerifySignature(VerifyConfig options);       
+        bool VerifySignature(VerifyConfig options);
+
+        /// <summary>
+        /// Gets the security token reference used to sign the <see cref="AS4Message"/>.
+        /// </summary>
+        /// <value>The security token reference.</value>
+        SecurityTokenReference SecurityTokenReference { get; }
     }
 }

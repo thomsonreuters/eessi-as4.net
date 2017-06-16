@@ -34,14 +34,14 @@ namespace Eu.EDelivery.AS4.Transformers
             // the one usermessage that should be delivered.
             AS4Message as4Message = await RetrieveAS4SignalMessage(entityMessage, cancellationToken);
 
-            return new MessagingContext(CreateNotifyMessageEnvelope(as4Message));
+            return new MessagingContext(await CreateNotifyMessageEnvelope(as4Message));
         }
 
-        protected virtual NotifyMessageEnvelope CreateNotifyMessageEnvelope(AS4Message as4Message)
+        protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
         {
             var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
 
-            var serialized = AS4XmlSerializer.ToString(notifyMessage);
+            var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage);
 
             return new NotifyMessageEnvelope(notifyMessage.MessageInfo,
                                              notifyMessage.StatusInfo.Status,

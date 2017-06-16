@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
@@ -73,7 +74,8 @@ namespace Eu.EDelivery.AS4.Transformers
             var notifyMessage = AS4Mapper.Map<NotifyMessage>(signalMessage);
 
             // The NotifyMessage that Minder expects, is an AS4Message which contains the specific UserMessage.
-            var msg = new AS4MessageBuilder().WithUserMessage(userMessage).Build();
+            var msg = AS4Message.Create(userMessage, new SendingProcessingMode());
+
 
             var serializer = Registry.Instance.SerializerProvider.Get(msg.ContentType);
 

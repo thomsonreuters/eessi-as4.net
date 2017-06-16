@@ -151,7 +151,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             _logger.Info("Handled AS4 Exception");
 
-            var internalMessage = new MessagingContext(message.AS4Message) {SendingPMode = message.SendingPMode, ReceivingPMode = message.ReceivingPMode};
+            // TODO: why do we create a new MessagingContext here ?
+            var internalMessage = new MessagingContext(message.AS4Message, MessagingContextMode.Receive) {SendingPMode = message.SendingPMode, ReceivingPMode = message.ReceivingPMode};
             return await StepResult.SuccessAsync(internalMessage);
         }
 

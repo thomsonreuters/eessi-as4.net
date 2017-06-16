@@ -53,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             var sut = new PullVerifySignatureStep();
-            var context = new MessagingContext(await content.SoapSerialize());
+            var context = new MessagingContext(await content.SoapSerialize(), MessagingContextMode.Send);
 
             // Act / Assert
             return async () => await sut.ExecuteAsync(context, CancellationToken.None);

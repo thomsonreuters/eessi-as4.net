@@ -122,10 +122,10 @@ namespace Eu.EDelivery.AS4.Receivers
         private void StartListener(HttpListener listener)
         {
             try
-            {
-                Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
-
+            {                
                 listener.Start();
+
+                Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
             }
             catch (HttpListenerException exception)
             {
@@ -451,8 +451,8 @@ namespace Eu.EDelivery.AS4.Receivers
                     }
 
                     // Ugly hack until the Transformer is refactored.
-                    // When the InternalMessage contains a non-empty SubmitMessage, we assume that a message has been submitted and we should respond accordingly.
-                    if (processorResult.SubmitMessage?.IsEmpty == false && processorResult.AS4Message?.IsEmpty == false)
+                    // When we're in SubmitMode and have an Empty AS4Message, then we should return an Accepted.
+                    if (processorResult.Mode == MessagingContextMode.Submit && processorResult.AS4Message?.IsEmpty == false)
                     {
                         return ByteContentResult.Empty(HttpStatusCode.Accepted);
                     }

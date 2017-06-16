@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Factories;
@@ -36,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task StepReturnsStopExecutionResult_IfResponseIsPullRequestError()
         {
             // Arrange
-            AS4Message as4Message = new AS4MessageBuilder().WithSignalMessage(new PullRequestError()).Build();
+            AS4Message as4Message = AS4Message.Create(new PullRequestError());
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(as4Message));
 
             MessagingContext dummyMessage = CreateAnonymousPullRequest();
@@ -87,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static AS4Message CreateAnonymousReceipt()
         {
-            return new AS4MessageBuilder().WithSignalMessage(new Receipt()).Build();
+            return AS4Message.Create(new Receipt());
         }
 
         private void AssertSentUserMessage(MessagingContext requestMessage, Action<OutMessage> assertion)
@@ -118,21 +117,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext CreateAnonymousPullRequest()
         {
-            return BuildInternalMessage(builder => builder.WithSignalMessage(new PullRequest(mpc: null, messageId: "message-id")));
+            return ContextWith(AS4Message.Create(new PullRequest(mpc: null, messageId: "message-id")));
         }
 
         private static MessagingContext CreateAnonymousMessage()
         {
-            return BuildInternalMessage(builder => builder.WithUserMessage(new UserMessage(messageId: "message-id")));
+            return ContextWith(AS4Message.Create(new UserMessage(messageId: "message-id")));
         }
 
-        private static MessagingContext BuildInternalMessage(Action<AS4MessageBuilder> assignToBuilder)
+        public static MessagingContext ContextWith(AS4Message message)
         {
-            var builder = new AS4MessageBuilder();
-
-            assignToBuilder(builder);
-
-            return new MessagingContext(builder.Build()) {SendingPMode = CreateValidSendingPMode()};
+            return new MessagingContext(message, MessagingContextMode.Unknown) {SendingPMode = CreateValidSendingPMode()};
         }
 
         private static SendingProcessingMode CreateValidSendingPMode()

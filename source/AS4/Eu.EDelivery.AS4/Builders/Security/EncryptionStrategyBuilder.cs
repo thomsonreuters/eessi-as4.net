@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
             }
 
             XmlDocument soapEnvelope = as4Message.EnvelopeDocument
-               ?? AS4XmlSerializer.ToDocument(message, default(CancellationToken));
+               ?? AS4XmlSerializer.ToSoapEnvelopeDocument(message, default(CancellationToken));
 
             return new EncryptionStrategyBuilder(soapEnvelope);
         }

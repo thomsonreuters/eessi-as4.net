@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -31,23 +30,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
             {
                 // Arrange
                 const string contentType = "image/png";
-                var internalMessage =
-                    new MessagingContext(
-                        new AS4MessageBuilder().WithAttachment(
-                            new Attachment("attachment-id") {ContentType = contentType}).Build());
+
+                AS4Message as4Message = AS4Message.Empty;
+                as4Message.AddAttachment(new Attachment("attachment-id") { ContentType = contentType });
+
+                var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
 
                 // Act
-                await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
+                await new ZipAttachmentsStep().ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
-                Assert.Equal(contentType, internalMessage.AS4Message.Attachments.First().ContentType);
+                Assert.Equal(contentType, context.AS4Message.Attachments.First().ContentType);
             }
 
             [Fact]
             public async Task ThenStepWillZipMultipleAttachments()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(AS4MessageWithTwoAttachments());
+                var internalMessage = new MessagingContext(AS4MessageWithTwoAttachments(), MessagingContextMode.Unknown);
 
                 // Act
                 await new ZipAttachmentsStep().ExecuteAsync(internalMessage, CancellationToken.None);
@@ -66,7 +66,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                     ContentType = "text/plain"
                 };
 
-                return new AS4MessageBuilder().WithAttachment(attachment).WithAttachment(attachment).Build();
+                AS4Message message = AS4Message.Empty;
+                message.AddAttachment(attachment);
+                message.AddAttachment(attachment);
+
+                return message;
             }
         }
     }

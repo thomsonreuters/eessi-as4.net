@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
@@ -111,9 +112,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         [ExcludeFromCodeCoverage]
         private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
         {
-            Func<MessagingContext, bool> isSubmitMessage =
-                m =>
-                    m.SubmitMessage.Collaboration?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false;
+            Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;                
 
             Model.Internal.Steps submitStepConfig = CreateSubmitStep();
             Model.Internal.Steps receiveStepConfig = CreateReceiveStep();

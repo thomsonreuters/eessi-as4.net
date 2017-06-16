@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
             _holodeck.AssertReceiptOnHolodeckA();
         }
 
-        private void AssertPayloads(IEnumerable<FileInfo> files)
+        private static void AssertPayloads(IEnumerable<FileInfo> files)
         {
             var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
 
