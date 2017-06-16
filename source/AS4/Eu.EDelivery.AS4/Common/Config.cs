@@ -143,10 +143,7 @@ namespace Eu.EDelivery.AS4.Common
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<AgentConfig> GetAgentSettings()
-        {
-            return _agentConfigs;
-        }
+        public IEnumerable<AgentConfig> GetAgentsConfiguration() => _agentConfigs;
 
         /// <summary>
         /// Return all the configured <see cref="ReceivingProcessingMode" />
