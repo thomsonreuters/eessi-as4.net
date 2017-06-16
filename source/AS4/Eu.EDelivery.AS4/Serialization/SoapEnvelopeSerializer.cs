@@ -350,7 +350,7 @@ namespace Eu.EDelivery.AS4.Serialization
         {
             if (signalMessage.Error != null)
             {
-                signalMessages.Add(AS4Mapper.Map<Error>(signalMessage));
+                signalMessages.Add(AS4Mapper.Map<Model.Core.Error>(signalMessage));
             }
 
             if (signalMessage.PullRequest != null)
