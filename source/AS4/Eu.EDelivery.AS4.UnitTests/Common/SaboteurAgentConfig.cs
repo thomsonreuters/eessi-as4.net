@@ -28,14 +28,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Gets the settings agents.
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<SettingsAgent> GetSettingsAgents()
+        public override IEnumerable<AgentSettings> GetSettingsAgents()
         {
             if (_exception != null)
             {
                 throw _exception;
             }
 
-            return new SettingsAgent[] {null};
+            return new AgentSettings[] {null};
         }
     }
 
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             var sut = new SaboteurAgentConfig();
 
             // Act
-            IEnumerable<SettingsAgent> agents = sut.GetSettingsAgents();
+            IEnumerable<AgentSettings> agents = sut.GetSettingsAgents();
 
             // Assert
             Assert.Collection(agents, Assert.Null);

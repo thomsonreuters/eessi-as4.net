@@ -60,7 +60,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         IEnumerable<ReceivingProcessingMode> GetReceivingPModes();
 
-        IEnumerable<SettingsAgent> GetSettingsAgents();
+        /// <summary>
+        /// Gets the settings agents.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<AgentSettings> GetSettingsAgents();
 
         /// <summary>
         /// Gets the configuration of the Minder Test-Agents that are enabled.

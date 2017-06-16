@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
                 Settings settings = GetDeserializedSettings();
 
                 // Assert
-                SettingsAgent[] agents = GetPullReceiveAgents(settings);
+                AgentSettings[] agents = GetPullReceiveAgents(settings);
                 Assert.Equal(1, agents?.Length);
             }
 
@@ -64,11 +64,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
 
         private static Setting[] GetReceiverSetting(Settings settings)
         {
-            SettingsAgent[] agents = GetPullReceiveAgents(settings);
+            AgentSettings[] agents = GetPullReceiveAgents(settings);
             return agents?[0].Receiver.Setting;
         }
 
-        private static SettingsAgent[] GetPullReceiveAgents(Settings settings)
+        private static AgentSettings[] GetPullReceiveAgents(Settings settings)
         {
             return settings?.Agents.PullReceiveAgents;
         }

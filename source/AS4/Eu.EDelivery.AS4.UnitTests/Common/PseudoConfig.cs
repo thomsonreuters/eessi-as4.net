@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// </summary>
         /// <returns></returns>
         /// <exception cref="System.NotImplementedException"></exception>
-        public virtual IEnumerable<SettingsAgent> GetSettingsAgents()
+        public virtual IEnumerable<AgentSettings> GetSettingsAgents()
         {
             throw new System.NotImplementedException();
         }

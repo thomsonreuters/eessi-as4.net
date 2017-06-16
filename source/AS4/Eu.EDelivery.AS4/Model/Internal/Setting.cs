@@ -71,25 +71,25 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class SettingsAgents
     {
         [XmlElement("SubmitAgent", IsNullable = false)]
-        public SettingsAgent[] SubmitAgents { get; set; }
+        public AgentSettings[] SubmitAgents { get; set; }
 
         [XmlElement("ReceiveAgent", IsNullable = false)]
-        public SettingsAgent[] ReceiveAgents { get; set; }
+        public AgentSettings[] ReceiveAgents { get; set; }
 
         [XmlElement("SendAgent", IsNullable = false)]
-        public SettingsAgent[] SendAgents { get; set; }
+        public AgentSettings[] SendAgents { get; set; }
 
         [XmlElement("DeliverAgent", IsNullable = false)]
-        public SettingsAgent[] DeliverAgents { get; set; }
+        public AgentSettings[] DeliverAgents { get; set; }
 
         [XmlElement("NotifyAgent", IsNullable = false)]
-        public SettingsAgent[] NotifyAgents { get; set; }
+        public AgentSettings[] NotifyAgents { get; set; }
 
         [XmlElement("ReceptionAwarenessAgent", IsNullable = false)]
-        public SettingsAgent ReceptionAwarenessAgent { get; set; }
+        public AgentSettings ReceptionAwarenessAgent { get; set; }
 
         [XmlElement("PullReceiveAgent", IsNullable = false)]
-        public SettingsAgent[] PullReceiveAgents { get; set; }
+        public AgentSettings[] PullReceiveAgents { get; set; }
 
         [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)]
         public SettingsMinderAgent[] MinderTestAgents { get; set; }
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     [Serializable]
     [DesignerCategory("code")]
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
-    public class SettingsAgent
+    public class AgentSettings
     {
         [XmlElement("Receiver")]
         public Receiver Receiver { get; set; }
@@ -153,12 +153,18 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("Steps")]
         public Steps Steps { get; set; }
 
-        // TODO: define decorator strategy for the .xml document
         [XmlElement("Decorator")]
+        [Obsolete("Property will be removed after the 'Exception-Handling' Refactoring")]
         public Decorator Decorator { get; set; }
 
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
+
+        [XmlElement("NormalPipeline")]
+        public Steps NormalPipeline { get; set; }
+
+        [XmlElement("ErrorPipeline")]
+        public Steps ErrorPipeline { get; set; }
     }
 
     [Serializable]
@@ -182,6 +188,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public string Type { get; set; }
 
         [XmlAttribute(AttributeName = "undecorated")]
+        [Obsolete("Attribute will be removed after the 'Exception-Handling' Refactoring")]
         public bool UnDecorated { get; set; }
 
         [XmlElement("Setting")]
@@ -295,14 +302,5 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         [XmlAttribute(AttributeName = "type")]
         public string Type { get; set; }
-    }
-
-    public enum AgentType
-    {
-        Submit,
-        Receive,
-        Sent,
-        Deliver,
-        Notify
     }
 }

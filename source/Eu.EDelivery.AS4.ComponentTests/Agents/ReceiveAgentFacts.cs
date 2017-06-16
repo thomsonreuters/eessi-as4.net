@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
 
-            SettingsAgent receivingAgent =
+            AgentSettings receivingAgent =
                 _as4Msh.GetConfiguration().GetSettingsAgents().FirstOrDefault(a => a.Name.Equals("Receive Agent"));
 
             Assert.True(receivingAgent != null, "The Agent with name Receive Agent could not be found");

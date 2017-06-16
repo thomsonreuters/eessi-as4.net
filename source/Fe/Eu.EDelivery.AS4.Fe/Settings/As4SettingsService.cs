@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             await settingsSource.Save(file);
         }
 
-        public async Task CreateAgent(SettingsAgent settingsAgent, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
+        public async Task CreateAgent(AgentSettings settingsAgent, Func<SettingsAgents, AgentSettings[]> getAgents, Action<SettingsAgents, AgentSettings[]> setAgents)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNull(getAgents, nameof(getAgents));
@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             await settingsSource.Save(file);
         }
 
-        public async Task UpdateAgent(SettingsAgent settingsAgent, string originalAgentName, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
+        public async Task UpdateAgent(AgentSettings settingsAgent, string originalAgentName, Func<SettingsAgents, AgentSettings[]> getAgents, Action<SettingsAgents, AgentSettings[]> setAgents)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalAgentName, nameof(originalAgentName));
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             await settingsSource.Save(file);
         }
 
-        public async Task DeleteAgent(string name, Func<SettingsAgents, SettingsAgent[]> getAgents, Action<SettingsAgents, SettingsAgent[]> setAgents)
+        public async Task DeleteAgent(string name, Func<SettingsAgents, AgentSettings[]> getAgents, Action<SettingsAgents, AgentSettings[]> setAgents)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
             EnsureArg.IsNotNull(getAgents, nameof(getAgents));
@@ -112,10 +112,10 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             return Task.FromResult(0);
         }
 
-        private IList<SettingsAgent> GetAgents(Func<SettingsAgents, SettingsAgent[]> getAgents, Model.Internal.Settings settings)
+        private IList<AgentSettings> GetAgents(Func<SettingsAgents, AgentSettings[]> getAgents, Model.Internal.Settings settings)
         {
             var get = getAgents(settings.Agents);
-            return get?.ToList() ?? Enumerable.Empty<SettingsAgent>().ToList();
+            return get?.ToList() ?? Enumerable.Empty<AgentSettings>().ToList();
         }
     }
 }
