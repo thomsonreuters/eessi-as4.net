@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
         private void MapErrorToXml()
         {
-            CreateMap<Xml.SignalMessage, Model.Core.Error>()
+            CreateMap<Xml.SignalMessage, Error>()
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(x => x.MessageInfo.MessageId))
                 .ForMember(dest => dest.RefToMessageId, src => src.MapFrom(x => x.MessageInfo.RefToMessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(x => x.MessageInfo.Timestamp))
@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
         private void MapXmlToError()
         {
-            CreateMap<Model.Core.Error, Xml.SignalMessage>()
+            CreateMap<Error, Xml.SignalMessage>()
                 .ForMember(dest => dest.MessageInfo, src => src.MapFrom(t => t))
                 .ForMember(dest => dest.Error, src => src.MapFrom(t => t.Errors))
                 .ForAllOtherMembers(x => x.Ignore());

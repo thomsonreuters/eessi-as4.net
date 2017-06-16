@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Services
             return inMessage;
         }
 
-        private static Model.Core.Error CreateError(string messageId)
+        private static Error CreateError(string messageId)
         {
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
