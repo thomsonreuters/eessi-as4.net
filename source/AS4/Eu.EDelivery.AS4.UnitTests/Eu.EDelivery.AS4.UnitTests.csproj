@@ -294,6 +294,7 @@
     <Compile Include="Steps\Send\GivenSelectUserMessageToSendStepFacts.cs" />
     <Compile Include="Steps\Send\GivenPullOutExceptionStepDecoratorFacts.cs" />
     <Compile Include="Steps\Send\GivenVerifyPullRequestAuthorizationStepFacts.cs" />
+    <Compile Include="Steps\Send\GivenPullVerifySignatureStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
     <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
@@ -555,6 +556,9 @@
     <Content Include="Resources\as4-encrypted-envelope.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message-with-extra-hashtag.xml" />
     <Content Include="Resources\as4-soap-signed-encrypted-message.xml" />
+    <Content Include="Resources\as4-soap-pullrequest.xml" />
+    <Content Include="Resources\as4-soap-wrong-signed-pullrequest.xml" />
+    <Content Include="Resources\as4-soap-signed-pullrequest.xml" />
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
     <None Include="Resources\multihopreceipt.xml" />
