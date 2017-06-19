@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
         }
 
         /// <summary>
-        /// SOAPs the serialize.
+        /// Serialize the content as a SOAP Envelope.
         /// </summary>
         /// <param name="content">The content.</param>
         /// <returns></returns>
