@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
@@ -25,13 +26,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 OutException outException = CreateDefaultOutException();
                 InsertOutException(outException);
                 MessagingContext messagingContext = CreateNotifyMessage(outException);
+
                 var step = new NotifyUpdateOutExceptionDatastoreStep();
 
                 // Act
                 await step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                AssertOutException(outException);
+                GetDataStoreContext.AssertOutException(
+                    outException.EbmsRefToMessageId,
+                    ex => Assert.Equal(Operation.Notified, ex.Operation));
             }
 
             private static OutException CreateDefaultOutException()
@@ -49,19 +53,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                         string.Empty);
 
                 return new MessagingContext(notifyMessage);
-            }
-
-            private void AssertOutException(ExceptionEntity previousOutException)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    OutException outException =
-                        context.OutExceptions.FirstOrDefault(
-                            e => e.EbmsRefToMessageId.Equals(previousOutException.EbmsRefToMessageId));
-
-                    Assert.NotNull(outException);
-                    Assert.Equal(Operation.Notified, outException.Operation);
-                }
             }
         }
 

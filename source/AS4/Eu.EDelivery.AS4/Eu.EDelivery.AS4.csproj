@@ -327,6 +327,7 @@
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
     <Compile Include="Exceptions\ErrorResult.cs" />
+    <Compile Include="Exceptions\Handlers\OutExceptionHandler.cs" />
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\PullRequestValidationException.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />

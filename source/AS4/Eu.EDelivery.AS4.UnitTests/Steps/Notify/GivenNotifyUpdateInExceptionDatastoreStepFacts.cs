@@ -18,8 +18,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
     {
         public class GivenValidArguments : GivenNotifyUpdateInExceptionDatastoreStepFacts
         {
-            
-
             [Fact]
             public async Task ThenUpdateDatastoreSucceedsWithValidNotifyMessageAsync()
             {

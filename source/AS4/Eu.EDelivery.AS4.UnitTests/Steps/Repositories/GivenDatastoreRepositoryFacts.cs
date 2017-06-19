@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
@@ -146,17 +147,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Repositories
                 }
 
                 // Assert
-                AssertOutException(outException.EbmsRefToMessageId, Assert.NotNull);
-            }
-
-            private void AssertOutException(string messageId, Action<OutException> assertAction)
-            {
-                using (var contex = new DatastoreContext(Options))
-                {
-                    OutException outException =
-                        contex.OutExceptions.FirstOrDefault(m => m.EbmsRefToMessageId.Equals(messageId));
-                    assertAction(outException);
-                }
+                GetDataStoreContext.AssertOutException(outException.EbmsRefToMessageId, Assert.NotNull);
             }
         }
 

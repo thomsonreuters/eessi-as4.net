@@ -12,6 +12,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Common;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Moq;
 using Xunit;
 
@@ -45,7 +46,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                AssertOutException(sharedId, e =>
+                GetDataStoreContext.AssertOutException(sharedId, e =>
                 {
                     Assert.NotNull(e);
                     Assert.Equal(Operation.ToBeNotified, e.Operation);
@@ -65,21 +66,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
                 // Assert
-                AssertOutException(sharedId, e =>
+                GetDataStoreContext.AssertOutException(sharedId, e =>
                 {
                     Assert.NotNull(e);
                     Assert.Equal(Operation.NotApplicable, e.Operation);
                 });
-            }
-
-            private void AssertOutException(string messageId, Action<OutException> assertAction)
-            {
-                using (var context = new DatastoreContext(base.Options))
-                {
-                    OutException outException = context.OutExceptions
-                        .FirstOrDefault(e => e.EbmsRefToMessageId.Equals(messageId));
-                    assertAction(outException);
-                }
             }
 
             [Theory, InlineData("shared-id")]

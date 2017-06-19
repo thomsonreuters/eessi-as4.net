@@ -275,6 +275,8 @@
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Exceptions\Handlers\GivenOutExceptionHandlerFacts.cs" />
+    <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />
     <Compile Include="Receivers\SpyReceiver.cs" />
