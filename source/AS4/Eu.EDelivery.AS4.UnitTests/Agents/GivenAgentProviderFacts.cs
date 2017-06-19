@@ -76,5 +76,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             return stepConfig.GetValue(agent) as T;
         }
+
+        [Fact]
+        public void AssembleAgentBaseClasses_IfTypeIsSpecified()
+        {
+            // Arrange
+            var sut = new AgentProvider(new SingleAgentBaseConfig());
+
+            // Act
+            IEnumerable<IAgent> agents = sut.GetAgents();
+
+            // Assert
+            Assert.All(agents, a => Assert.IsType<AgentBase>(a));
+        }
     }
 }

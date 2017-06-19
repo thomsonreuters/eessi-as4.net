@@ -6,6 +6,9 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Receivers;
+using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Receivers;
 using Eu.EDelivery.AS4.UnitTests.Steps;
 using Eu.EDelivery.AS4.UnitTests.Transformers;
@@ -16,6 +19,35 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 {
     public class GivenAgentBaseFacts
     {
+        [Fact]
+        public void StopReceiver_IfAgentsStopped()
+        {
+            // Arrange
+            var spyReceiver = Mock.Of<IReceiver>();
+            var sut = new AgentBase(null, spyReceiver, null, null, (null, null));
+
+            // Act
+            sut.Stop();
+
+            // Assert
+            Mock.Get(spyReceiver).Verify(r => r.StopReceiving());
+        }
+
+        [Fact]
+        public async Task NoStepsAreExecuted_IfNoStepsAreDefined()
+        {
+            // Arrange
+            var spyReceiver = new SpyReceiver();
+            var sut = new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, (null, null));
+
+            // Act
+            await sut.Start(CancellationToken.None);
+
+            // Assert
+            Assert.True(spyReceiver.IsCalled);
+            Assert.NotNull(spyReceiver.Context.SubmitMessage);
+        }
+
         [Fact]
         public async Task ReceiverGetsExpectedContext_IfHappyPath()
         {
@@ -28,12 +60,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             // Assert
             Assert.True(spyReceiver.IsCalled);
-            spyReceiver.AssertReceiverResult(context => Assert.Equal(AS4Message.Empty, context.AS4Message));
+            Assert.Equal(AS4Message.Empty, spyReceiver.Context.AS4Message);
         }
 
         private static AgentBase CreateHappyAgent(SpyReceiver spyReceiver)
         {
-            return new AgentBase(null, spyReceiver, SubmitTransformer(), null, AS4MessageStep());
+            return new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, (AS4MessageStep(), null));
         }
 
         private static AS4.Model.Internal.Steps AS4MessageStep()
@@ -60,12 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
         private static AgentBase AgentWithSaboteurTransformer(IAgentExceptionHandler spyHandler)
         {
-            return new AgentBase(null, new SpyReceiver(), SaboteurTransformer(), spyHandler, null);
-        }
-
-        private static Transformer SaboteurTransformer()
-        {
-            return new Transformer {Type = typeof(DummyTransformer).AssemblyQualifiedName};
+            return new AgentBase(null, new SpyReceiver(), Transformer<DummyTransformer>(), spyHandler, (null, null));
         }
 
         [Fact]
@@ -73,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyHandler = Mock.Of<IAgentExceptionHandler>();
-            AgentBase sut = AgentWithSabtoteurSteps(spyHandler);
+            AgentBase sut = AgentWithHappySaboteurSteps(spyHandler);
 
             // Act
             await sut.Start(CancellationToken.None);
@@ -85,22 +112,96 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             Mock.Get(spyHandler).Verify(expression, Times.Once);
         }
 
-        private static AgentBase AgentWithSabtoteurSteps(IAgentExceptionHandler spyHandler)
+        private static AgentBase AgentWithHappySaboteurSteps(IAgentExceptionHandler spyHandler)
         {
-            return new AgentBase(null, new SpyReceiver(), SubmitTransformer(), spyHandler, SaboteurSteps());
+            Transformer transformer = Transformer<StubSubmitTransformer>();
+            var pipeline = (Steps<SaboteurStep>(), (AS4.Model.Internal.Steps) null);
+
+            return new AgentBase(null, new SpyReceiver(), transformer, spyHandler, pipeline);
         }
 
-        private static Transformer SubmitTransformer()
+        [Fact]
+        public async Task HandlesFailureInUnhappyPath()
         {
-            return new Transformer {Type = typeof(StubSubmitTransformer).AssemblyQualifiedName};
+            // Arrange
+            var spyHandler = Mock.Of<IAgentExceptionHandler>();
+            AgentBase sut = AgentWithUnhappySaboteurSteps(spyHandler);
+
+            // Act
+            await sut.Start(CancellationToken.None);
+
+            // Assert
+            Mock.Get(spyHandler)
+                .Verify(h => h.HandleErrorException(It.IsAny<Exception>(), It.IsAny<MessagingContext>()), Times.Once);
         }
 
-        private static AS4.Model.Internal.Steps SaboteurSteps()
+        private static AgentBase AgentWithUnhappySaboteurSteps(IAgentExceptionHandler spyHandler)
         {
-            return new AS4.Model.Internal.Steps
+            var pipeline = (Steps<UnsuccessfulStep>(), Steps<SaboteurStep>());
+            return new AgentBase(null, new SpyReceiver(), Transformer<StubSubmitTransformer>(), spyHandler, pipeline);
+        }
+
+        [Fact]
+        public async Task RunsThroughUnhappyPath_IfAnyHappyStepIndicatesUnsuccesful()
+        {
+            // Arrange
+            var spyReceiver = new SpyReceiver();
+            AgentBase sut = AgentWithUnsuccesfulStep(spyReceiver);
+
+            // Act
+            await sut.Start(CancellationToken.None);
+
+            // Assert
+            Assert.True(spyReceiver.IsCalled);
+            Assert.IsType<UnHappyContext>(spyReceiver.Context);
+        }
+
+        private static AgentBase AgentWithUnsuccesfulStep(IReceiver spyReceiver)
+        {
+            var pipeline = (Steps<UnsuccessfulStep>(), Steps<UnhappyStep>());
+            return new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, pipeline);
+        }
+
+        private static Transformer Transformer<T>()
+        {
+            return new Transformer {Type = typeof(T).AssemblyQualifiedName};
+        }
+
+        private static AS4.Model.Internal.Steps Steps<T>()
+        {
+            return new AS4.Model.Internal.Steps {Step = new[] {new Step {Type = typeof(T).AssemblyQualifiedName}}};
+        }
+
+        public class UnsuccessfulStep : IStep
+        {
+            /// <summary>
+            /// Execute the step for a given <paramref name="messagingContext"/>.
+            /// </summary>
+            /// <param name="messagingContext">Message used during the step execution.</param>
+            /// <param name="cancellationToken"></param>
+            /// <returns></returns>
+            public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
             {
-                Step = new[] {new Step {Type = typeof(SaboteurStep).AssemblyQualifiedName}}
-            };
+                return Task.FromResult(StepResult.Failed(new ErrorResult(), new HappyContext()));
+            }
         }
+
+        public class UnhappyStep : IStep
+        {
+            /// <summary>
+            /// Execute the step for a given <paramref name="messagingContext"/>.
+            /// </summary>
+            /// <param name="messagingContext">Message used during the step execution.</param>
+            /// <param name="cancellationToken"></param>
+            /// <returns></returns>
+            public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(StepResult.Success(new UnHappyContext()));
+            }
+        }
+
+        public class HappyContext : EmptyMessagingContext {}
+
+        public class UnHappyContext : EmptyMessagingContext {}
     }
 }

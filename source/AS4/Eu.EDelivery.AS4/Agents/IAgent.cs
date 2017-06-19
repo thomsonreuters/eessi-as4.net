@@ -1,8 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-using Eu.EDelivery.AS4.Model.Internal;
-
 namespace Eu.EDelivery.AS4.Agents
 {
     /// <summary>
@@ -10,8 +8,22 @@ namespace Eu.EDelivery.AS4.Agents
     /// </summary>
     public interface IAgent
     {
-        AgentConfig AgentConfig { get; }     
+        /// <summary>
+        /// Gets the agent configuration.
+        /// </summary>
+        /// <value>The agent configuration.</value>
+        AgentConfig AgentConfig { get; }
+        
+        /// <summary>
+        /// Starts the specified agent.
+        /// </summary>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
         Task Start(CancellationToken cancellation);
+
+        /// <summary>
+        /// Stops this agent.
+        /// </summary>
         void Stop();
     }
 }

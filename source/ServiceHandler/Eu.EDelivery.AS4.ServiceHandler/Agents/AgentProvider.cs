@@ -64,12 +64,25 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
         private void AddCustomAgentsToProvider()
         {
-            foreach (AgentSettings settingAgent in _config.GetSettingsAgents())
+            foreach (AgentConfig config in _config.GetAgentsConfiguration())
             {
-                IAgent agent = GetAgentFromSettings(settingAgent);
-
-                _agents.Add(agent);
+                _agents.Add(
+                    config.Type == AgentType.Unknown
+                        ? GetAgentFromSettings(config.Settings)
+                        : CreateAgentBaseFromSettings(config));
             }
+        }
+
+        private static AgentBase CreateAgentBaseFromSettings(AgentConfig config)
+        {
+            IReceiver receiver = new ReceiverBuilder().SetSettings(config.Settings.Receiver).Build();
+
+            return new AgentBase(
+                name: config.Name,
+                receiver: receiver,
+                transformerConfig: config.Settings.Transformer,
+                exceptionHandler: null,
+                pipelineConfig: (config.Settings.NormalPipeline, config.Settings.ErrorPipeline));
         }
 
         private static IAgent GetAgentFromSettings(AgentSettings agent)

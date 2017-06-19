@@ -19,27 +19,27 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly IReceiver _receiver;
         private readonly Transformer _transformerConfig;
         private readonly IAgentExceptionHandler _exceptionHandler;
-        private readonly Model.Internal.Steps _pipelineConfiguration;
+        private readonly (Model.Internal.Steps happyPath, Model.Internal.Steps unhappyPath) _pipelineConfig;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentBase" /> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="receiver">The receiver.</param>
-        /// <param name="transformer">The transformer.</param>
+        /// <param name="transformerConfig">The transformer.</param>
         /// <param name="exceptionHandler">The exception handler.</param>
         /// <param name="pipelineConfig">The pipeline configuration.</param>
         internal AgentBase(
             string name,
             IReceiver receiver,
-            Transformer transformer,
+            Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
-            Model.Internal.Steps pipelineConfig)
+            (Model.Internal.Steps happyPath, Model.Internal.Steps unhappyPath) pipelineConfig)
         {
             _receiver = receiver;
-            _transformerConfig = transformer;
+            _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
-            _pipelineConfiguration = pipelineConfig;
+            _pipelineConfig = pipelineConfig;
 
             AgentConfig = new AgentConfig(name);
         }
@@ -79,15 +79,14 @@ namespace Eu.EDelivery.AS4.Agents
                 return await _exceptionHandler.HandleTransformationException(exception);
             }
 
-            return await TryExecuteSteps(_pipelineConfiguration, context, cancellation);
+            return await TryExecuteSteps(context, cancellation);
         }
 
         private async Task<MessagingContext> TryExecuteSteps(
-            Model.Internal.Steps pipelineConfig,
             MessagingContext currentContext,
             CancellationToken cancellation)
         {
-            if (pipelineConfig == null)
+            if (_pipelineConfig.happyPath == null)
             {
                 return currentContext;
             }
@@ -96,7 +95,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                result = await ExecuteSteps(pipelineConfig, currentContext, cancellation);
+                result = await ExecuteSteps(_pipelineConfig.happyPath, currentContext, cancellation);
             }
             catch (Exception exception)
             {
@@ -105,9 +104,9 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                if (result.Succeeded == false)
+                if (result.Succeeded == false && _pipelineConfig.unhappyPath != null)
                 {
-                    result = await ExecuteSteps(pipelineConfig, result.MessagingContext, cancellation);
+                    result = await ExecuteSteps(_pipelineConfig.unhappyPath, result.MessagingContext, cancellation);
                 }
 
                 return result.MessagingContext;

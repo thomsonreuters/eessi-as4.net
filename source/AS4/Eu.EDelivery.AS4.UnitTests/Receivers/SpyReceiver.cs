@@ -13,8 +13,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         private readonly ManualResetEvent _waitHandle = new ManualResetEvent(initialState: false);
         private MessagingContext _context;
 
-        private MessagingContext Context
+        public MessagingContext Context
         {
+            get
+            {
+                return _context;
+            }
+
             set
             {
                 _context = value;
