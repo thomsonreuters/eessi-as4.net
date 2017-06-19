@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
 
                 // Assert
                 Assert.False(actualStepResult.CanProceed);
-                Assert.False(actualStepResult.WasSuccesful);
+                Assert.False(actualStepResult.Succeeded);
             }
 
             [Fact]
@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
 
                 // Assert
                 Assert.True(actualStepResult.CanProceed);
-                Assert.True(actualStepResult.WasSuccesful);
+                Assert.True(actualStepResult.Succeeded);
             }
 
             private static MessagingContext AnonymousMessage()

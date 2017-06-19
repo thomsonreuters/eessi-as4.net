@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                if (result.WasSuccesful)
+                if (result.Succeeded == false)
                 {
                     result = await ExecuteSteps(pipelineConfig, result.MessagingContext, cancellation);
                 }
@@ -130,7 +130,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 result = await step.ExecuteAsync(context, cancellation).ConfigureAwait(false);
 
-                if (result.CanProceed == false || result.WasSuccesful == false)
+                if (result.CanProceed == false || result.Succeeded == false)
                 {
                     return result;
                 }

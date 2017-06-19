@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Agents;
@@ -20,10 +21,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = new SpyReceiver();
-            AgentBase agent = CreateHappyAgent(spyReceiver);
+            AgentBase sut = CreateHappyAgent(spyReceiver);
 
             // Act
-            await agent.Start(CancellationToken.None);
+            await sut.Start(CancellationToken.None);
 
             // Assert
             Assert.True(spyReceiver.IsCalled);
@@ -33,11 +34,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         private static AgentBase CreateHappyAgent(SpyReceiver spyReceiver)
         {
             return new AgentBase(null, spyReceiver, SubmitTransformer(), null, AS4MessageStep());
-        }
-
-        private static Transformer SubmitTransformer()
-        {
-            return new Transformer {Type = typeof(StubSubmitTransformer).AssemblyQualifiedName};
         }
 
         private static AS4.Model.Internal.Steps AS4MessageStep()
@@ -51,11 +47,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         [Fact]
         public async Task HandlesTransformFailure()
         {
+            // Arrange
             var spyHandler = Mock.Of<IAgentExceptionHandler>();
-            AgentBase agent = AgentWithSaboteurTransformer(spyHandler);
+            AgentBase sut = AgentWithSaboteurTransformer(spyHandler);
 
             // Act
-            await agent.Start(CancellationToken.None);
+            await sut.Start(CancellationToken.None);
 
             // Assert
             Mock.Get(spyHandler).Verify(h => h.HandleTransformationException(It.IsAny<Exception>()), Times.Once);
@@ -69,6 +66,41 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         private static Transformer SaboteurTransformer()
         {
             return new Transformer {Type = typeof(DummyTransformer).AssemblyQualifiedName};
+        }
+
+        [Fact]
+        public async Task HandlesFailureInHappyPath()
+        {
+            // Arrange
+            var spyHandler = Mock.Of<IAgentExceptionHandler>();
+            AgentBase sut = AgentWithSabtoteurSteps(spyHandler);
+
+            // Act
+            await sut.Start(CancellationToken.None);
+
+            // Assert
+            Expression<Action<IAgentExceptionHandler>> expression =
+                h => h.HandleExecutionException(It.IsAny<Exception>(), It.IsAny<MessagingContext>());
+
+            Mock.Get(spyHandler).Verify(expression, Times.Once);
+        }
+
+        private static AgentBase AgentWithSabtoteurSteps(IAgentExceptionHandler spyHandler)
+        {
+            return new AgentBase(null, new SpyReceiver(), SubmitTransformer(), spyHandler, SaboteurSteps());
+        }
+
+        private static Transformer SubmitTransformer()
+        {
+            return new Transformer {Type = typeof(StubSubmitTransformer).AssemblyQualifiedName};
+        }
+
+        private static AS4.Model.Internal.Steps SaboteurSteps()
+        {
+            return new AS4.Model.Internal.Steps
+            {
+                Step = new[] {new Step {Type = typeof(SaboteurStep).AssemblyQualifiedName}}
+            };
         }
     }
 }

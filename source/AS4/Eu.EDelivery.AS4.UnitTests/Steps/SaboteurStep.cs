@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps
 {
@@ -12,6 +13,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
     public class SaboteurStep : IStep
     {
         private readonly Exception _fixedException;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SaboteurStep"/> class.
+        /// </summary>
+        public SaboteurStep()
+        {
+            _fixedException = new SaboteurException("Sabotage Step Execution");
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SaboteurStep"/> class.

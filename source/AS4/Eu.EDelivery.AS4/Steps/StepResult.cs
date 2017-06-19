@@ -15,9 +15,9 @@ namespace Eu.EDelivery.AS4.Steps
             CanProceed = true;
         }
 
-        private StepResult(bool wasSuccesful)
+        private StepResult(bool succeeded)
         {
-            WasSuccesful = wasSuccesful;
+            Succeeded = succeeded;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <value>
         ///   <c>true</c> if [was succesful]; otherwise, <c>false</c>.
         /// </value>
-        public bool WasSuccesful { get; }
+        public bool Succeeded { get; }
 
         /// <summary>
         /// Promote the <see cref="StepResult"/> to stop the execution.
@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public StepResult AndStopExecution()
         {
-            return new StepResult(WasSuccesful) {MessagingContext = MessagingContext, Exception = Exception, CanProceed = false};
+            return new StepResult(Succeeded) {MessagingContext = MessagingContext, Exception = Exception, CanProceed = false};
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps
         [Obsolete]
         public static StepResult Failed(AS4Exception exception)
         {
-            return new StepResult(wasSuccesful: false) {Exception = exception};
+            return new StepResult(succeeded: false) {Exception = exception};
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps
         [Obsolete]
         public static StepResult Failed(AS4Exception exception, MessagingContext messagingContext)
         {
-            return new StepResult(wasSuccesful: false) {Exception = exception, MessagingContext = messagingContext};
+            return new StepResult(succeeded: false) {Exception = exception, MessagingContext = messagingContext};
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public static StepResult Failed(ErrorResult error, MessagingContext context)
         {
-            return new StepResult(wasSuccesful: false) {ErrorResult = error, MessagingContext = context};
+            return new StepResult(succeeded: false) {ErrorResult = error, MessagingContext = context};
         }
         
         /// <summary>
@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public static StepResult Success(MessagingContext message)
         {
-            return new StepResult(wasSuccesful: true) {MessagingContext = message, CanProceed = true};
+            return new StepResult(succeeded: true) {MessagingContext = message, CanProceed = true};
         }
 
         /// <summary>
