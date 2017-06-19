@@ -23,9 +23,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Gets the settings agents.
         /// </summary>
         /// <returns></returns>
-        public override IEnumerable<SettingsAgent> GetSettingsAgents()
+        public override IEnumerable<AgentSettings> GetSettingsAgents()
         {
-            yield return new SettingsAgent
+            yield return new AgentSettings
             {
                 Receiver = new Receiver {Type = typeof(StubReceiver).AssemblyQualifiedName},
                 Transformer = TransformerConfig,

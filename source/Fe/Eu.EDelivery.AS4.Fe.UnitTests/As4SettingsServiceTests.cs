@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private const string ReceiveAgentName = "receiveAgentName";
         private readonly Model.Internal.Settings settingsList;
 
-        private readonly SettingsAgent submitAgent = new SettingsAgent
+        private readonly AgentSettings submitAgent = new AgentSettings
         {
             Name = SubmitAgentName
         };
@@ -31,17 +31,17 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 Agents = new SettingsAgents
                 {
-                    SubmitAgents = new List<SettingsAgent>
+                    SubmitAgents = new List<AgentSettings>
                     {
                         submitAgent,
-                        new SettingsAgent
+                        new AgentSettings
                         {
                             Name = SubmitAgentName2
                         }
                     }.ToArray(),
-                    ReceiveAgents = new List<SettingsAgent>
+                    ReceiveAgents = new List<AgentSettings>
                     {
-                        new SettingsAgent
+                        new AgentSettings
                         {
                             Name = ReceiveAgentName
                         }
@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Add_Agent_When_Original_List_Is_Empty()
             {
                 // Setup
-                var newAgent = new SettingsAgent
+                var newAgent = new AgentSettings
                 {
                     Name = "newAgent"
                 };
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 // Setup
                 var newAgentName = "newAgent";
-                var newAgent = new SettingsAgent
+                var newAgent = new AgentSettings
                 {
                     Name = newAgentName
                 };
@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Throws_Exception_When_Agent_With_Name_Already_Exists()
             {
                 // Setup
-                var newAgent = new SettingsAgent { Name = SubmitAgentName };
+                var newAgent = new AgentSettings { Name = SubmitAgentName };
 
                 var service = Setup().settingsService;
 
@@ -120,8 +120,8 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 // Act & Assert
                 await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(null, null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(new SettingsAgent(), null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(new SettingsAgent(), agents => agents.SubmitAgents, null));
+                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(new AgentSettings(), null, null));
+                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.CreateAgent(new AgentSettings(), agents => agents.SubmitAgents, null));
             }
         }
 
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Throws_Exception_When_Agent_With_Name_Already_Exists()
             {
                 // Act
-                await Assert.ThrowsAsync(typeof(Exception), () => Setup().settingsService.UpdateAgent(new SettingsAgent
+                await Assert.ThrowsAsync(typeof(Exception), () => Setup().settingsService.UpdateAgent(new AgentSettings
                 {
                     Name = SubmitAgentName
                 }, SubmitAgentName2, settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
@@ -149,16 +149,16 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 // Act & Assert
                 await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(null, null, null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new SettingsAgent(), null, null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new SettingsAgent(), "test", null, null));
-                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new SettingsAgent(), "test", agents => agents.ReceiveAgents, null));
+                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new AgentSettings(), null, null, null));
+                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new AgentSettings(), "test", null, null));
+                await Assert.ThrowsAsync(typeof(ArgumentNullException), () => Setup().settingsService.UpdateAgent(new AgentSettings(), "test", agents => agents.ReceiveAgents, null));
             }
 
             [Fact]
             public async Task Updates()
             {
                 // Act
-                await Setup().settingsService.UpdateAgent(new SettingsAgent
+                await Setup().settingsService.UpdateAgent(new AgentSettings
                 {
                     Name = "NEW"
                 }, submitAgent.Name, settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);

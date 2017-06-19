@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             CreateMap<CustomSettings, Model.Internal.Settings>();
             CreateMap<CustomSettings, CustomSettings>();
             CreateMap<SettingsDatabase, SettingsDatabase>();
-            CreateMap<SettingsAgent, SettingsAgent>();
+            CreateMap<AgentSettings, AgentSettings>();
         }
     }
 }

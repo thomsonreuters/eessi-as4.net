@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -34,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
                 Settings settings = GetDeserializedSettings();
 
                 // Assert
-                SettingsAgent[] agents = GetPullReceiveAgents(settings);
+                AgentSettings[] agents = GetPullReceiveAgents(settings);
                 Assert.Equal(1, agents?.Length);
             }
 
@@ -62,13 +63,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
             }
         }
 
+        public class SendAgent
+        {
+            [Fact]
+            public void GetsExpectedPipelines()
+            {
+                // Act
+                Settings settings = GetDeserializedSettings();
+
+                // Assert
+                AgentSettings sendAgent = settings.Agents.SendAgents.First();
+                Assert.NotEmpty(sendAgent.NormalPipeline.Step);
+                Assert.NotEmpty(sendAgent.ErrorPipeline.Step);
+            }
+        }
+
         private static Setting[] GetReceiverSetting(Settings settings)
         {
-            SettingsAgent[] agents = GetPullReceiveAgents(settings);
+            AgentSettings[] agents = GetPullReceiveAgents(settings);
             return agents?[0].Receiver.Setting;
         }
 
-        private static SettingsAgent[] GetPullReceiveAgents(Settings settings)
+        private static AgentSettings[] GetPullReceiveAgents(Settings settings)
         {
             return settings?.Agents.PullReceiveAgents;
         }
@@ -92,7 +108,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
                     + "<Agents><PullReceiveAgent><Receiver Type=\"ExponentialConfiguredPModeReceiver\">"
                     + "<Setting key=\"pmode1\" tmin=\"0:00:01\" tmax=\"0:00:25\"/>"
                     + "<Setting key=\"pmode2\" tmin=\"0:00:05\" tmax=\"0:00:50\"/>"
-                    + "</Receiver><Transformer Type=\"PModeToPullMessageTransformer\"/><Steps></Steps></PullReceiveAgent></Agents></Settings>");
+                    + "</Receiver><Transformer Type=\"PModeToPullMessageTransformer\"/><Steps></Steps></PullReceiveAgent>"
+                    + "<SendAgent><Receiver/><Transformer/><NormalPipeline><Step/></NormalPipeline><ErrorPipeline><Step /></ErrorPipeline></SendAgent>" 
+                    + "</Agents></Settings>");
         }
     }
 }

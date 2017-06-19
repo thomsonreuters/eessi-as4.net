@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -22,7 +24,9 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IDictionary<string, string> _configuration;
         private readonly ILogger _logger;
 
-        private List<SettingsAgent> _agents;
+        private readonly List<AgentSettings> _agents = new List<AgentSettings>();
+        private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
+
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
         private Settings _settings;
@@ -133,7 +137,13 @@ namespace Eu.EDelivery.AS4.Common
         /// Get the configured settings agents
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<SettingsAgent> GetSettingsAgents() => _agents;
+        public IEnumerable<AgentSettings> GetSettingsAgents() => _agents;
+
+        /// <summary>
+        /// Gets the agent settings.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<AgentConfig> GetAgentsConfiguration() => _agentConfigs;
 
         /// <summary>
         /// Return all the configured <see cref="ReceivingProcessingMode" />
@@ -284,22 +294,25 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomAgents()
         {
-            _agents = new List<SettingsAgent>();
-
-            AddCustomAgentsIfNotNull(_settings.Agents.ReceptionAwarenessAgent);
-            AddCustomAgentsIfNotNull(_settings.Agents.NotifyAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.DeliverAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.SendAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.SubmitAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.ReceiveAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.PullReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.ReceptionAwarenessAgent);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.NotifyAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.DeliverAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SendAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SubmitAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.ReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.PullReceiveAgents);
         }
 
-        private void AddCustomAgentsIfNotNull(params SettingsAgent[] agents)
+        private void AddCustomAgentsIfNotNull(AgentType type, params AgentSettings[] agents)
         {
             if (agents != null)
             {
                 _agents.AddRange(agents.Where(a => a != null));
+
+                foreach (AgentSettings setting in agents)
+                {
+                    _agentConfigs.Add(new AgentConfig(setting.Name) {Type = type, Settings = setting});
+                }
             }
         }
 

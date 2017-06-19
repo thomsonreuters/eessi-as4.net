@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 
@@ -60,7 +61,11 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>
         IEnumerable<ReceivingProcessingMode> GetReceivingPModes();
 
-        IEnumerable<SettingsAgent> GetSettingsAgents();
+        /// <summary>
+        /// Gets the settings agents.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<AgentSettings> GetSettingsAgents();
 
         /// <summary>
         /// Gets the configuration of the Minder Test-Agents that are enabled.
@@ -68,6 +73,12 @@ namespace Eu.EDelivery.AS4.Common
         /// <returns></returns>        
         /// <remarks>For every SettingsMinderAgent that is returned, a special Minder-Agent will be instantiated.</remarks>
         IEnumerable<SettingsMinderAgent> GetEnabledMinderTestAgents();
+
+        /// <summary>
+        /// Gets the agent settings.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<AgentConfig> GetAgentsConfiguration();
     }
 
     public enum PropertyType
