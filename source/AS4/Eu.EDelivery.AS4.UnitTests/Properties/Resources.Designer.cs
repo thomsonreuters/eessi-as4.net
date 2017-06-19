@@ -144,6 +144,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;eb:Messaging xmlns:eb=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; wsu:Id=&quot;header-b9d43eff-cc79-4598-9516-4f5ffe7e8851&quot;&gt;&lt;eb:SignalMessage&gt;&lt;eb:MessageInfo&gt;&lt;eb:Timestamp&gt;2017-06-12T11:50:36.0562182Z&lt;/eb:Timestamp&gt;&lt;eb:MessageI [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string as4_soap_pullrequest {
+            get {
+                return ResourceManager.GetString("as4_soap_pullrequest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;Security xmlns=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;&lt;BinarySecurityToken EncodingType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary&quot; ValueType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3&quot; p4:Id=&quot;cert-c4488537-0e5a-4360-b7f0-a14ba48d52e0&quot; xmlns:p4=&quot;http:// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string as4_soap_signed_message {
@@ -166,6 +175,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         internal static string as4_soap_signed_message_with_extra_hashtag {
             get {
                 return ResourceManager.GetString("as4_soap_signed_message_with_extra_hashtag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;&lt;BinarySecurityToken xmlns=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:p4=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; EncodingType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary&quot; ValueType [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string as4_soap_signed_pullrequest {
+            get {
+                return ResourceManager.GetString("as4_soap_signed_pullrequest", resourceCulture);
             }
         }
         
@@ -194,6 +212,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Properties {
         internal static string as4_soap_wrong_signed_message {
             get {
                 return ResourceManager.GetString("as4_soap_wrong_signed_message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;s12:Envelope xmlns:s12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;&lt;s12:Header&gt;&lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot;&gt;&lt;BinarySecurityToken xmlns=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:p4=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; EncodingType=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary&quot; ValueType [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string as4_soap_wrong_signed_pullrequest {
+            get {
+                return ResourceManager.GetString("as4_soap_wrong_signed_pullrequest", resourceCulture);
             }
         }
         
