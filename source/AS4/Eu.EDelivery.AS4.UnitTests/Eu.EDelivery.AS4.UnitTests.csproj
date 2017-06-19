@@ -271,9 +271,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Agents\GivenAgentBaseFacts.cs" />
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Transformers\StubSubmitTransformer.cs" />
+    <Compile Include="Steps\StubAS4MessageStep.cs" />
+    <Compile Include="Receivers\SpyReceiver.cs" />
     <Compile Include="Builders\Entities\MessageEntityAssertion.cs" />
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />

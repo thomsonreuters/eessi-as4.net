@@ -315,6 +315,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\Agent.cs" />
+    <Compile Include="Agents\AgentBase.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
     <Compile Include="Builders\Core\AS4ExceptionBuilder.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />

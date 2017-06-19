@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public static StepResult Success(MessagingContext message)
         {
-            return new StepResult(wasSuccesful: true) {MessagingContext = message};
+            return new StepResult(wasSuccesful: true) {MessagingContext = message, CanProceed = true};
         }
 
         /// <summary>

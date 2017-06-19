@@ -45,9 +45,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         /// <summary>
         /// Starts the specified cancellation token.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <param name="cancellation">The cancellation token.</param>
         /// <returns></returns>
-        public Task Start(CancellationToken cancellationToken)
+        public Task Start(CancellationToken cancellation)
         {
             _waitHandle.Set();
             return Task.CompletedTask;

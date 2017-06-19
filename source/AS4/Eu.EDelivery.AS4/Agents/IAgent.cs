@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Agents
     public interface IAgent
     {
         AgentConfig AgentConfig { get; }     
-        Task Start(CancellationToken cancellationToken);
+        Task Start(CancellationToken cancellation);
         void Stop();
     }
 }
