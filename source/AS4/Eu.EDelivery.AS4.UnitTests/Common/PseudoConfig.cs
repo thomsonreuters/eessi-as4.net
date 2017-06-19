@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// Gets the agent settings.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<AgentConfig> GetAgentsConfiguration()
+        public virtual IEnumerable<AgentConfig> GetAgentsConfiguration()
         {
             throw new NotImplementedException();
         }

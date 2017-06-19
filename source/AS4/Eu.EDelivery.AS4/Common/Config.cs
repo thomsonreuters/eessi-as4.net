@@ -294,13 +294,13 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomAgents()
         {
-            AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents.ReceptionAwarenessAgent);
-            AddCustomAgentsIfNotNull(AgentType.Notify, _settings.Agents.NotifyAgents);
-            AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
-            AddCustomAgentsIfNotNull(AgentType.Sent, _settings.Agents.SendAgents);
-            AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
-            AddCustomAgentsIfNotNull(AgentType.Receive, _settings.Agents.ReceiveAgents);
-            AddCustomAgentsIfNotNull(AgentType.PullReceive, _settings.Agents.PullReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.ReceptionAwarenessAgent);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.NotifyAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.DeliverAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SendAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SubmitAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.ReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.PullReceiveAgents);
         }
 
         private void AddCustomAgentsIfNotNull(AgentType type, params AgentSettings[] agents)

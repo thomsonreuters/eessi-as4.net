@@ -37,12 +37,26 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 
             return new AgentSettings[] {null};
         }
+
+        /// <summary>
+        /// Gets the agent settings.
+        /// </summary>
+        /// <returns></returns>
+        public override IEnumerable<AgentConfig> GetAgentsConfiguration()
+        {
+            if (_exception != null)
+            {
+                throw _exception;
+            }
+
+            return new AgentConfig[] {null};
+        }
     }
 
     public class SaboteurAgentConfigFacts
     {
         [Fact]
-        public void ThrowsExpectedException_IfDefined()
+        public void FailsToGetAgentSettings_WithException()
         {
             // Arrange
             var expectedException = new Exception();
@@ -53,16 +67,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         }
 
         [Fact]
+        public void FailsToGetAgentConfiguration_WithException()
+        {
+            // Arrange
+            var expectedException = new Exception();
+            var sut = new SaboteurAgentConfig(expectedException);
+
+            // Act / Assert
+            Assert.Throws(expectedException.GetType(), () => sut.GetAgentsConfiguration());
+        }
+
+        [Fact]
         public void ReturnsInvalid_IfNotDefined()
         {
             // Arrange
             var sut = new SaboteurAgentConfig();
 
-            // Act
-            IEnumerable<AgentSettings> agents = sut.GetSettingsAgents();
+            // Act / Assert
+            Assert.Collection(sut.GetSettingsAgents(), Assert.Null);
+        }
 
-            // Assert
-            Assert.Collection(agents, Assert.Null);
+        [Fact]
+        public void InvalidAgentConfiguration_WithoutException()
+        {
+            // Arrange
+            var sut = new SaboteurAgentConfig();
+
+            // Act / Assert
+            Assert.All(sut.GetAgentsConfiguration(), Assert.Null);
         }
     }
 }
