@@ -276,7 +276,6 @@
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
     <Compile Include="Exceptions\Handlers\ExerciseHandler.cs" />
-    <Compile Include="Exceptions\Handlers\GivenExceptionHandlerRegistryFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenInboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
