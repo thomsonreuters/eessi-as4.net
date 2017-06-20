@@ -8,6 +8,36 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     internal static class DatastoreExtensions
     {
         /// <summary>
+        /// Asserts the in exception.
+        /// </summary>
+        /// <param name="createContext">The create context.</param>
+        /// <param name="assertion">The assertion.</param>
+        public static void AssertInException(this Func<DatastoreContext> createContext, Action<InException> assertion)
+        {
+            Func<DatastoreContext, InException> selection =
+                c => c.InExceptions.FirstOrDefault();
+
+            assertion(RetrieveEntity(createContext, selection));
+        }
+
+        /// <summary>
+        /// Asserts the in exception.
+        /// </summary>
+        /// <param name="createContext">The create context.</param>
+        /// <param name="id">The identifier.</param>
+        /// <param name="assertion">The assertion.</param>
+        public static void AssertInException(
+            this Func<DatastoreContext> createContext,
+            string id,
+            Action<InException> assertion)
+        {
+            Func<DatastoreContext, InException> selection =
+                c => c.InExceptions.FirstOrDefault(e => e.EbmsRefToMessageId.Equals(id));
+
+            assertion(RetrieveEntity(createContext, selection));
+        }
+
+        /// <summary>
         /// Asserts the out exception.
         /// </summary>
         /// <param name="createContext">The create context.</param>

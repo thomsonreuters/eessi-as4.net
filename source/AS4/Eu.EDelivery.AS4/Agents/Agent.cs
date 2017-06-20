@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.Agents
                 return null;
             }
 
-            if (messagingContext.Exception != null)
+            if (messagingContext.AS4Exception != null)
             {
                 // TODO: when Transforming a received message fails, we should log this in
                 // an exception table.

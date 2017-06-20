@@ -3,12 +3,9 @@ using System.IO;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 
-namespace Eu.EDelivery.AS4.Exceptions
+namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
-    /// <summary>
-    /// This interface defines the contract of the future classes that will be responsible for handling exceptions that are thrown in the Agent.
-    /// </summary>
-    public interface IAgentExceptionHandler
+    public class EmptyExceptionHandler : IAgentExceptionHandler
     {
         /// <summary>
         /// Handles the transformation exception.
@@ -16,7 +13,10 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <param name="contents">The contents.</param>
         /// <param name="exception">The exception.</param>
         /// <returns></returns>
-        Task<MessagingContext> HandleTransformationException(Stream contents, Exception exception);
+        public Task<MessagingContext> HandleTransformationException(Stream contents, Exception exception)
+        {
+            return Task.FromResult(new MessagingContext(exception));
+        }
 
         /// <summary>
         /// Handles the execution exception.
@@ -24,7 +24,10 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <param name="exception">The exception.</param>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context);
+        public Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
+        {
+            return Task.FromResult(new MessagingContext(exception));
+        }
 
         /// <summary>
         /// Handles the error exception.
@@ -32,6 +35,9 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <param name="exception">The exception.</param>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context);
+        public Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
+        {
+            return Task.FromResult(new MessagingContext(exception));
+        }
     }
 }

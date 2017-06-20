@@ -40,12 +40,12 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 {
                     Logger.Error($"Response with HTTP status {response.StatusCode} received.");
                     
-                    if (response.ResultedMessage?.Exception != null)
+                    if (response.ResultedMessage?.AS4Exception != null)
                     {
-                        Logger.Error($"Additional information: {response.ResultedMessage.Exception.Message}");
+                        Logger.Error($"Additional information: {response.ResultedMessage.AS4Exception.Message}");
                     }
 
-                    return StepResult.Failed(response.ResultedMessage.Exception, response.ResultedMessage).AndStopExecution();
+                    return StepResult.Failed(response.ResultedMessage.AS4Exception, response.ResultedMessage).AndStopExecution();
                 }
             }
 

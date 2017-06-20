@@ -327,7 +327,10 @@
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
     <Compile Include="Exceptions\ErrorResult.cs" />
-    <Compile Include="Exceptions\Handlers\OutExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\EmptyExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\ExceptionHandlerProvider.cs" />
+    <Compile Include="Exceptions\Handlers\InboundExceptionHanlder.cs" />
+    <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\PullRequestValidationException.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />
@@ -483,6 +486,7 @@
     <Compile Include="Strategies\Uploader\IAttachmentUploader.cs" />
     <Compile Include="Strategies\Retriever\PayloadRetrieverProvider.cs" />
     <Compile Include="Strategies\Uploader\UploadResult.cs" />
+    <Compile Include="Streaming\StreamExtensions.cs" />
     <Compile Include="Streaming\StreamPositionMover.cs" />
     <Compile Include="Transformers\ITransformer.cs" />
     <Compile Include="Common\Config.cs" />

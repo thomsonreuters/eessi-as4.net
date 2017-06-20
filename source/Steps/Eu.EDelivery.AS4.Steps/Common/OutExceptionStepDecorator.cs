@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Steps.Common
         {
             _logger.Error(exception.Message);
 
-            messagingContext.Exception = exception;
+            messagingContext.AS4Exception = exception;
             try
             {
                 using (var context = Registry.Instance.CreateDatastoreContext())

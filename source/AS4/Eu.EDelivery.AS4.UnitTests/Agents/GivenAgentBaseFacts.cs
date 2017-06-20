@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -87,7 +88,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             await sut.Start(CancellationToken.None);
 
             // Assert
-            Mock.Get(spyHandler).Verify(h => h.HandleTransformationException(It.IsAny<Exception>()), Times.Once);
+            Mock.Get(spyHandler)
+                .Verify(h => h.HandleTransformationException(It.IsAny<Stream>(), It.IsAny<Exception>()), Times.Once);
         }
 
         private static AgentBase AgentWithSaboteurTransformer(IAgentExceptionHandler spyHandler)

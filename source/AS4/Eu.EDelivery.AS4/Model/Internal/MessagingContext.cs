@@ -74,8 +74,18 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
+        /// <param name="as4Exception">The exception.</param>
+        public MessagingContext(AS4Exception as4Exception)
+        {
+            AS4Exception = as4Exception;
+            Mode = MessagingContextMode.Unknown;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessagingContext" /> class.
+        /// </summary>
         /// <param name="exception">The exception.</param>
-        public MessagingContext(AS4Exception exception)
+        public MessagingContext(Exception exception)
         {
             Exception = exception;
             Mode = MessagingContextMode.Unknown;
@@ -91,7 +101,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Mode = MessagingContextMode.Unknown;
         }
 
-
         public AS4Message AS4Message { get; }
 
         public MessagingContextMode Mode { get; private set; }
@@ -104,7 +113,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
-        public AS4Exception Exception { get; set; }
+        public AS4Exception AS4Exception { get; set; }
+
+        public Exception Exception { get; set; }
 
         public SendingProcessingMode SendingPMode { get; set; }
 
@@ -116,6 +127,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             {
                 return _receivingPMode;
             }
+
             set
             {
                 if (_receivingPMode != value)
