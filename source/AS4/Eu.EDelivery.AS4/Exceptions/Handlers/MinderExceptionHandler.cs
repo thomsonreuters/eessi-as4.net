@@ -9,16 +9,16 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     [ExcludeFromCodeCoverage]
     public class MinderExceptionHandler : IAgentExceptionHandler
     {
-        private readonly IAgentExceptionHandler _inboudHandler = new InboundExceptionHanlder();
+        private readonly IAgentExceptionHandler _inboudHandler = new InboundExceptionHandler();
         private readonly IAgentExceptionHandler _outboundHandler = new OutboundExceptionHandler();
 
         /// <summary>
         /// Handles the transformation exception.
         /// </summary>
-        /// <param name="contents">The contents.</param>
         /// <param name="exception">The exception.</param>
+        /// <param name="contents">The contents.</param>
         /// <returns></returns>
-        public Task<MessagingContext> HandleTransformationException(Stream contents, Exception exception)
+        public Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
         {
             return Task.FromResult(new MessagingContext(exception));
         }

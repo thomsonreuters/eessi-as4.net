@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             string expectedBody = Guid.NewGuid().ToString(), 
                 expectedMessage = Guid.NewGuid().ToString();
 
-            var sut = new InboundExceptionHanlder(GetDataStoreContext);
+            var sut = new InboundExceptionHandler(GetDataStoreContext);
 
             // Act
             await sut.ExerciseTransformException(GetDataStoreContext, expectedBody, new Exception(expectedMessage));
@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
 
             MessagingContext context = ContextWithAS4UserMessage(id, notifyConsumer);
 
-            var sut = new InboundExceptionHanlder(GetDataStoreContext);
+            var sut = new InboundExceptionHandler(GetDataStoreContext);
             var exercise = getExercise(sut);
 
             // Act

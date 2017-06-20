@@ -11,21 +11,21 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
-    public class InboundExceptionHanlder : IAgentExceptionHandler
+    public class InboundExceptionHandler : IAgentExceptionHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InboundExceptionHanlder"/> class.
+        /// Initializes a new instance of the <see cref="InboundExceptionHandler"/> class.
         /// </summary>
-        public InboundExceptionHanlder() : this(Registry.Instance.CreateDatastoreContext) {}
+        public InboundExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InboundExceptionHanlder" /> class.
+        /// Initializes a new instance of the <see cref="InboundExceptionHandler" /> class.
         /// </summary>
         /// <param name="createContext">The create context.</param>
-        public InboundExceptionHanlder(Func<DatastoreContext> createContext)
+        public InboundExceptionHandler(Func<DatastoreContext> createContext)
         {
             _createContext = createContext;
         }
@@ -33,10 +33,10 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <summary>
         /// Handles the transformation exception.
         /// </summary>
-        /// <param name="contents">The contents.</param>
         /// <param name="exception">The exception.</param>
+        /// <param name="contents">The contents.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> HandleTransformationException(Stream contents, Exception exception)
+        public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
         {
             Logger.Error(exception.Message);
 

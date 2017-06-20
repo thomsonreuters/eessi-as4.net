@@ -39,7 +39,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = new SpyReceiver();
-            var sut = new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, (null, null));
+            var invalidPipeline = (new AS4.Model.Internal.Steps {Step = new Step[] {null}}, (AS4.Model.Internal.Steps) null);
+            var sut = new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, invalidPipeline);
 
             // Act
             await sut.Start(CancellationToken.None);
@@ -89,7 +90,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
             // Assert
             Mock.Get(spyHandler)
-                .Verify(h => h.HandleTransformationException(It.IsAny<Stream>(), It.IsAny<Exception>()), Times.Once);
+                .Verify(h => h.HandleTransformationException(It.IsAny<Exception>(), It.IsAny<Stream>()), Times.Once);
         }
 
         private static AgentBase AgentWithSaboteurTransformer(IAgentExceptionHandler spyHandler)
@@ -184,7 +185,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             /// <returns></returns>
             public Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
             {
-                return Task.FromResult(StepResult.Failed(new ErrorResult(), new HappyContext()));
+                var result = new ErrorResult(description: null, code: default(ErrorCode), alias: default(ErrorAlias));
+
+                return Task.FromResult(StepResult.Failed(result, new HappyContext()));
             }
         }
 

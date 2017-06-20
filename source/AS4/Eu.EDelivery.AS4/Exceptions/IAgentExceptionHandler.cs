@@ -13,10 +13,10 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <summary>
         /// Handles the transformation exception.
         /// </summary>
-        /// <param name="contents">The contents.</param>
         /// <param name="exception">The exception.</param>
+        /// <param name="contents">The contents.</param>
         /// <returns></returns>
-        Task<MessagingContext> HandleTransformationException(Stream contents, Exception exception);
+        Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents);
 
         /// <summary>
         /// Handles the execution exception.

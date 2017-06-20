@@ -75,6 +75,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Initializes a new instance of the <see cref="MessagingContext"/> class.
         /// </summary>
         /// <param name="as4Exception">The exception.</param>
+        [Obsolete("'AS4 Exception will be removed from context")]
         public MessagingContext(AS4Exception as4Exception)
         {
             AS4Exception = as4Exception;
@@ -113,6 +114,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
+        [Obsolete("'AS4 Exception will be removed from context")]
         public AS4Exception AS4Exception { get; set; }
 
         public Exception Exception { get; set; }

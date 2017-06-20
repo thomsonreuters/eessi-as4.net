@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders;
@@ -76,7 +77,7 @@ namespace Eu.EDelivery.AS4.Agents
             catch (Exception exception)
             {
                 Logger.Error("Could not transform message");
-                return await _exceptionHandler.HandleTransformationException(message.RequestStream, exception);
+                return await _exceptionHandler.HandleTransformationException(exception, message.RequestStream);
             }
 
             return await TryExecuteSteps(context, cancellation);
@@ -86,7 +87,7 @@ namespace Eu.EDelivery.AS4.Agents
             MessagingContext currentContext,
             CancellationToken cancellation)
         {
-            if (_pipelineConfig.happyPath == null)
+            if (_pipelineConfig.happyPath == null || _pipelineConfig.happyPath.Step.Any(s => s == null))
             {
                 return currentContext;
             }

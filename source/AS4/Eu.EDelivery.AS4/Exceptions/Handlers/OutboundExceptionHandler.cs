@@ -33,10 +33,10 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <summary>
         /// Handles the transformation exception.
         /// </summary>
-        /// <param name="contents">The contents.</param>
         /// <param name="exception">The exception.</param>
+        /// <param name="contents">The contents.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> HandleTransformationException(Stream contents, Exception exception)
+        public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
         {
             Logger.Error(exception.Message);
             await InsertOutException(exception, outException => outException.MessageBody = contents.ToArray());

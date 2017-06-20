@@ -327,11 +327,11 @@
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
     <Compile Include="Exceptions\ErrorResult.cs" />
-    <Compile Include="Exceptions\Handlers\EmptyExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\ExceptionHandlerRegistry.cs" />
-    <Compile Include="Exceptions\Handlers\InboundExceptionHanlder.cs" />
+    <Compile Include="Exceptions\Handlers\InboundExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\MinderExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\SafeExceptionHandler.cs" />
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\PullRequestValidationException.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />

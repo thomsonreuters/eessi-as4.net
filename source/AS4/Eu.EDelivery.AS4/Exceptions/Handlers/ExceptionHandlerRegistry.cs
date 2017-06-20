@@ -14,12 +14,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             {
                 [AgentType.Submit] = () => new OutboundExceptionHandler(),
                 [AgentType.Sent] = () => new OutboundExceptionHandler(),
-                [AgentType.Receive] = () => new InboundExceptionHanlder(),
+                [AgentType.Receive] = () => new InboundExceptionHandler(),
                 [AgentType.Deliver] = () => new OutboundExceptionHandler(),
-                [AgentType.NotifyConsumer] = () => new InboundExceptionHanlder(),
+                [AgentType.NotifyConsumer] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyProducer] = () => new OutboundExceptionHandler(),
-                [AgentType.PullReceive] = () => new InboundExceptionHanlder(),
-                [AgentType.Unknown] = () => new EmptyExceptionHandler()
+                [AgentType.PullReceive] = () => new InboundExceptionHandler(),
             };
 
         /// <summary>
@@ -29,7 +28,12 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public static IAgentExceptionHandler GetHandler(AgentType type)
         {
-            return Handlers[type]();
+            if (Handlers.ContainsKey(type) == false)
+            {
+                throw new InvalidOperationException("The Agent Type 'Unknown' is not supported to have a exception handler");
+            }
+
+            return new SafeExceptionHandler(Handlers[type]());
         }
     }
 }
