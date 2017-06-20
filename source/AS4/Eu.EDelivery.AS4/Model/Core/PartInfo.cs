@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
+    [DebuggerDisplay("Href {Href}")]
     public class PartInfo
     {
         public string Href { get; set; }
