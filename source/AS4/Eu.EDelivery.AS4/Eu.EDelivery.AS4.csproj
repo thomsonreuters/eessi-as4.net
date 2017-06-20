@@ -330,6 +330,7 @@
     <Compile Include="Exceptions\Handlers\EmptyExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\ExceptionHandlerProvider.cs" />
     <Compile Include="Exceptions\Handlers\InboundExceptionHanlder.cs" />
+    <Compile Include="Exceptions\Handlers\MinderExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\PullRequestValidationException.cs" />
