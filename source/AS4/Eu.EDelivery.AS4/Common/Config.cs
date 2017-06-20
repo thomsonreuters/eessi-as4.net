@@ -298,7 +298,7 @@ namespace Eu.EDelivery.AS4.Common
             AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.NotifyAgents);
             AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.DeliverAgents);
             AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SendAgents);
-            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SubmitAgents);
+            AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
             AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.ReceiveAgents);
             AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.PullReceiveAgents);
         }
@@ -311,7 +311,10 @@ namespace Eu.EDelivery.AS4.Common
 
                 foreach (AgentSettings setting in agents)
                 {
-                    _agentConfigs.Add(new AgentConfig(setting.Name) {Type = type, Settings = setting});
+                    if (setting != null)
+                    {
+                        _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting }); 
+                    }
                 }
             }
         }
