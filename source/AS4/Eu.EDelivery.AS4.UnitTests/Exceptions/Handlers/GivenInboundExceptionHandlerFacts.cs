@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -39,16 +40,33 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [Theory]
         [InlineData(true, Operation.ToBeNotified)]
         [InlineData(false, default(Operation))]
+        public async Task InsertInException_IfErrorException(bool notifyConsumer, Operation expected)
+        {
+            await TestExecutionException(notifyConsumer, expected, sut => sut.HandleErrorException);
+        }
+
+        [Theory]
+        [InlineData(true, Operation.ToBeNotified)]
+        [InlineData(false, default(Operation))]
         public async Task InsertInException_IfExecutionException(bool notifyConsumer, Operation expected)
+        {
+            await TestExecutionException(notifyConsumer, expected, sut => sut.HandleExecutionException);
+        }
+
+        private async Task TestExecutionException(
+            bool notifyConsumer,
+            Operation expected,
+            Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Act
             string id = Guid.NewGuid().ToString();
             MessagingContext context = ContextWithAS4UserMessage(id, notifyConsumer);
 
             var sut = new InboundExceptionHanlder(GetDataStoreContext);
+            var exercise = getExercise(sut);
 
             // Act
-            await sut.HandleExecutionException(new Exception(), context);
+            await exercise(new Exception(), context);
 
             // Assert
             GetDataStoreContext.AssertInException(

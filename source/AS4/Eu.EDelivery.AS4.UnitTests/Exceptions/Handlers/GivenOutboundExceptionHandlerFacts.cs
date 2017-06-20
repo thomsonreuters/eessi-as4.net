@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -48,12 +49,29 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(false, default(Operation))]
         public async Task InsertOutException_IfStepExecutionException(bool notifyProducer, Operation expected)
         {
+            await TestHandleExecutionException(notifyProducer, expected, sut => sut.HandleExecutionException);
+        }
+
+        [Theory]
+        [InlineData(true, Operation.ToBeNotified)]
+        [InlineData(false, default(Operation))]
+        public async Task InsertOutException_IfErrorException(bool notifyProducer, Operation expected)
+        {
+            await TestHandleExecutionException(notifyProducer, expected, sut => sut.HandleErrorException);
+        }
+
+        private async Task TestHandleExecutionException(
+            bool notifyProducer,
+            Operation expected,
+            Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
+        {
             // Arrange
             MessagingContext context = ContextWithAS4UserMessage(notifyProducer, _expectedId);
             var sut = new OutboundExceptionHandler(GetDataStoreContext);
+            Func<Exception, MessagingContext, Task<MessagingContext>> exercise = getExercise(sut);
 
             // Act
-            await sut.HandleExecutionException(_expectedException, context);
+            await exercise(_expectedException, context);
 
             // Assert
             GetDataStoreContext.AssertOutException(

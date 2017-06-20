@@ -41,6 +41,17 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         }
 
         /// <summary>
+        /// Handles the error exception.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <param name="context">The context.</param>
+        /// <returns></returns>
+        public async Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
+        {
+            return await HandleExecutionException(exception, context);
+        }
+
+        /// <summary>
         /// Handles the execution exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
@@ -82,17 +93,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 repository.InsertOutException(outException);
                 await context.SaveChangesAsync();
             }
-        }
-
-        /// <summary>
-        /// Handles the error exception.
-        /// </summary>
-        /// <param name="exception">The exception.</param>
-        /// <param name="context">The context.</param>
-        /// <returns></returns>
-        public async Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
-        {
-            throw new NotImplementedException();
         }
     }
 }
