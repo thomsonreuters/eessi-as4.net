@@ -42,7 +42,8 @@ namespace Eu.EDelivery.AS4.Agents
         Receive,
         Sent,
         Deliver,
-        Notify,
+        NotifyProducer,
+        NotifyConsumer,
         ReceptionAwareness,
         PullReceive
     }

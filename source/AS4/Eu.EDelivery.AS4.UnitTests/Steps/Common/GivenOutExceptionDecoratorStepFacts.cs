@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                 SetupMockedStep(sharedId);
                 ResetStep();
                 OutMessage outMessage = CreateDefaultOutMessage(sharedId);
-                InsertOutMessage(outMessage);
+                GetDataStoreContext.InsertOutMessage(outMessage);
 
                 var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
 
@@ -102,15 +102,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Common
                     EbmsMessageId = messageId,
                     EbmsMessageType = MessageType.UserMessage
                 };
-            }
-
-            private void InsertOutMessage(OutMessage outMessage)
-            {
-                using (DatastoreContext context = GetDataStoreContext())
-                {
-                    context.OutMessages.Add(outMessage);
-                    context.SaveChanges();
-                }
             }
 
             private void AssertOutMessage(string messageId, Action<OutMessage> assertAction)

@@ -4,7 +4,10 @@ using Eu.EDelivery.AS4.Agents;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
-    public class ExceptionHandlerProvider
+    /// <summary>
+    /// Registry to defining <see cref="IAgentExceptionHandler"/> implementations based on a given <see cref="AgentType"/>.
+    /// </summary>
+    internal sealed class ExceptionHandlerRegistry
     {
         private readonly IDictionary<AgentType, Func<IAgentExceptionHandler>> _handlers =
             new Dictionary<AgentType, Func<IAgentExceptionHandler>>
@@ -13,7 +16,8 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 [AgentType.Sent] = () => new OutboundExceptionHandler(),
                 [AgentType.Receive] = () => new InboundExceptionHanlder(),
                 [AgentType.Deliver] = () => new OutboundExceptionHandler(),
-                [AgentType.Notify] = () => new OutboundExceptionHandler(),
+                [AgentType.NotifyConsumer] = () => new InboundExceptionHanlder(),
+                [AgentType.NotifyProducer] = () => new OutboundExceptionHandler(),
                 [AgentType.PullReceive] = () => new InboundExceptionHanlder(),
                 [AgentType.Unknown] = () => new EmptyExceptionHandler()
             };

@@ -5,12 +5,15 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
     public class OutboundExceptionHandler : IAgentExceptionHandler
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
@@ -35,6 +38,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleTransformationException(Stream contents, Exception exception)
         {
+            Logger.Error(exception.Message);
             await InsertOutException(exception, outException => outException.MessageBody = contents.ToArray());
 
             return new MessagingContext(exception);
@@ -48,6 +52,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
         {
+            Logger.Error(exception.Message);
             return await HandleExecutionException(exception, context);
         }
 
@@ -59,13 +64,19 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext messageContext)
         {
+            Logger.Error(exception.Message);
+            string messageId = messageContext.AS4Message?.GetPrimaryMessageId();
+
+            await SideEffectUsageRepository(
+                repository => repository.UpdateOutMessage(messageId, m => m.Status = OutStatus.Exception));
+
             await InsertOutException(
                 exception,
                 outException =>
                 {
-                    outException.EbmsRefToMessageId = 
-                        messageContext.AS4Message?.GetPrimaryMessageId();
+                    outException.EbmsRefToMessageId = messageId;
 
+                    outException.PMode = AS4XmlSerializer.ToString(messageContext.SendingPMode);
                     outException.Operation = 
                         messageContext.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true
                             ? Operation.ToBeNotified
@@ -77,20 +88,29 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
         private async Task InsertOutException(Exception exception, Action<OutException> alterException)
         {
+            await SideEffectUsageRepository(
+                repository =>
+                {
+                    var outException = new OutException
+                    {
+                        EbmsRefToMessageId = Guid.NewGuid().ToString(),
+                        Exception = exception.Message,
+                        InsertionTime = DateTimeOffset.Now,
+                        ModificationTime = DateTimeOffset.Now
+                    };
+                    alterException(outException);
+
+                    repository.InsertOutException(outException);
+                });
+        }
+
+        private async Task SideEffectUsageRepository(Action<DatastoreRepository> usage)
+        {
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
+                usage(repository);
 
-                var outException = new OutException
-                {
-                    EbmsRefToMessageId = Guid.NewGuid().ToString(),
-                    Exception = exception.Message,
-                    InsertionTime = DateTimeOffset.Now,
-                    ModificationTime = DateTimeOffset.Now
-                };
-                alterException(outException);
-
-                repository.InsertOutException(outException);
                 await context.SaveChangesAsync();
             }
         }

@@ -66,7 +66,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Arrange
+            GetDataStoreContext.InsertOutMessage(new OutMessage {EbmsMessageId = _expectedId, Status = OutStatus.Sent});
+
             MessagingContext context = ContextWithAS4UserMessage(notifyProducer, _expectedId);
+
             var sut = new OutboundExceptionHandler(GetDataStoreContext);
             Func<Exception, MessagingContext, Task<MessagingContext>> exercise = getExercise(sut);
 
@@ -74,6 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             await exercise(_expectedException, context);
 
             // Assert
+            GetDataStoreContext.AssertOutMessage(_expectedId, m => Assert.Equal(OutStatus.Exception, m.Status));
             GetDataStoreContext.AssertOutException(
                 _expectedId,
                 exception =>

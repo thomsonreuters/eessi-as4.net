@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
@@ -56,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     Operation = Operation.Notifying,
                     Status = OutStatus.Ack
                 };
-                InsertOutMessage(outMessage);
+                GetDataStoreContext.InsertOutMessage(outMessage);
             }
 
             private static NotifyMessageEnvelope CreateNotifyMessage(string id)
@@ -73,15 +74,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                     OutMessage outMessage = context.OutMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
                     assertAction(outMessage);
                 }
-            }
-        }
-
-        protected void InsertOutMessage(OutMessage outMessage)
-        {
-            using (var context = new DatastoreContext(Options))
-            {
-                context.OutMessages.Add(outMessage);
-                context.SaveChanges();
             }
         }
     }
