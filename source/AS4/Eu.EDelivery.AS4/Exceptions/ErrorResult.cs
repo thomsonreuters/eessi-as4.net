@@ -2,10 +2,23 @@
 {
     public class ErrorResult
     {
-        public string Description { get; set; }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ErrorResult" /> class.
+        /// </summary>
+        /// <param name="description">The description.</param>
+        /// <param name="code">The code.</param>
+        /// <param name="alias">The alias.</param>
+        public ErrorResult(string description, ErrorCode code, ErrorAlias alias)
+        {
+            Description = description;
+            Code = code;
+            Alias = alias;
+        }
 
-        public ErrorCode Code { get; set; }
+        public string Description { get; }
 
-        public ErrorAlias Alias { get; set; }
+        public ErrorCode Code { get; }
+
+        public ErrorAlias Alias { get; }
     }
 }
