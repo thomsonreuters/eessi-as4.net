@@ -328,7 +328,7 @@
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
     <Compile Include="Exceptions\ErrorResult.cs" />
     <Compile Include="Exceptions\Handlers\EmptyExceptionHandler.cs" />
-    <Compile Include="Exceptions\Handlers\ExceptionHandlerProvider.cs" />
+    <Compile Include="Exceptions\Handlers\ExceptionHandlerRegistry.cs" />
     <Compile Include="Exceptions\Handlers\InboundExceptionHanlder.cs" />
     <Compile Include="Exceptions\Handlers\MinderExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
