@@ -7,9 +7,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     /// <summary>
     /// Registry to defining <see cref="IAgentExceptionHandler"/> implementations based on a given <see cref="AgentType"/>.
     /// </summary>
-    internal sealed class ExceptionHandlerRegistry
+    internal static class ExceptionHandlerRegistry
     {
-        private readonly IDictionary<AgentType, Func<IAgentExceptionHandler>> _handlers =
+        private static readonly IDictionary<AgentType, Func<IAgentExceptionHandler>> Handlers =
             new Dictionary<AgentType, Func<IAgentExceptionHandler>>
             {
                 [AgentType.Submit] = () => new OutboundExceptionHandler(),
@@ -27,9 +27,9 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// </summary>
         /// <param name="type">The type.</param>
         /// <returns></returns>
-        public IAgentExceptionHandler GetHandler(AgentType type)
+        public static IAgentExceptionHandler GetHandler(AgentType type)
         {
-            return _handlers[type]();
+            return Handlers[type]();
         }
     }
 }

@@ -19,11 +19,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(AgentType.Unknown, typeof(EmptyExceptionHandler))]
         public void GetExpectedHanlder(AgentType type, Type expected)
         {
-            // Arrange
-            var sut = new ExceptionHandlerRegistry();
-            
             // Act
-            IAgentExceptionHandler actual = sut.GetHandler(type);
+            IAgentExceptionHandler actual = ExceptionHandlerRegistry.GetHandler(type);
 
             // Assert
             Assert.IsType(expected, actual);
