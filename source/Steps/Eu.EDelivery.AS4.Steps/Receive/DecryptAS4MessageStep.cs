@@ -1,8 +1,6 @@
-﻿using System;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
@@ -12,6 +10,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Security.Strategies;
 using NLog;
+using Org.BouncyCastle.Crypto;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -20,99 +19,100 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// </summary>
     public class DecryptAS4MessageStep : IStep
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly ICertificateRepository _certificateRepository;
-        private readonly ILogger _logger;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DecryptAS4MessageStep"/> class
-        /// Create a <see cref="IStep"/> implementation
-        /// to decrypt a <see cref="AS4Message"/>
+        /// Initializes a new instance of the <see cref="DecryptAS4MessageStep" /> class
+        /// Create a <see cref="IStep" /> implementation
+        /// to decrypt a <see cref="AS4Message" />
         /// </summary>
-        public DecryptAS4MessageStep()
-        {
-            _certificateRepository = Registry.Instance.CertificateRepository;
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        public DecryptAS4MessageStep() : this(Registry.Instance.CertificateRepository) {}
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DecryptAS4MessageStep"/> class.
+        /// </summary>
+        /// <param name="certificateRepository">The certificate repository.</param>
         public DecryptAS4MessageStep(ICertificateRepository certificateRepository)
         {
             _certificateRepository = certificateRepository;
-            _logger = LogManager.GetCurrentClassLogger();
         }
 
         /// <summary>
         /// Start Decrypting <see cref="AS4Message"/>
         /// </summary>
-        /// <param name="messagingContext"></param>
+        /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext context, CancellationToken cancellationToken)
         {
-            if (messagingContext.AS4Message.IsSignalMessage)
+            if (context.AS4Message.IsSignalMessage)
             {
-                return await StepResult.SuccessAsync(messagingContext);
+                return await StepResult.SuccessAsync(context);
             }
 
-            PreConditions(messagingContext);
-
-            if (IsEncryptedIgnored(messagingContext) || !messagingContext.AS4Message.IsEncrypted)
-            {
-                return await StepResult.SuccessAsync(messagingContext);
-            }
-
-            TryDecryptAS4Message(messagingContext);
-
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private void PreConditions(MessagingContext messagingContext)
-        {
-            AS4Message as4Message = messagingContext.AS4Message;
-            ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
+            AS4Message as4Message = context.AS4Message;
+            ReceivingProcessingMode pmode = context.ReceivingPMode;
             Decryption decryption = pmode.Security.Decryption;
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
-                throw ThrowCommonAS4Exception(
-                      messagingContext,
-                      $"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it",
-                      ErrorCode.Ebms0103);
+               return FailedDecryptResult($"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it", context);
             }
 
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
             {
-                throw ThrowCommonAS4Exception(
-                      messagingContext,
-                      $"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it",
-                      ErrorCode.Ebms0103);
+                return FailedDecryptResult($"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it", context);
             }
+
+            if (IsEncryptedIgnored(context) || !context.AS4Message.IsEncrypted)
+            {
+                return await StepResult.SuccessAsync(context);
+            }
+
+            return await TryDecryptAS4Message(context);
         }
 
-        private bool IsEncryptedIgnored(MessagingContext messagingContext)
+        private static StepResult FailedDecryptResult(string description, MessagingContext context)
+        {
+            context.ErrorResult = new ErrorResult(description, ErrorCode.Ebms0103, ErrorAlias.FailedDecryption);
+            return StepResult.Failed(context);
+        }
+
+        private static bool IsEncryptedIgnored(MessagingContext messagingContext)
         {
             ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             bool isIgnored = pmode.Security.Decryption.Encryption == Limit.Ignored;
 
             if (isIgnored)
             {
-                _logger.Info($"{messagingContext.Prefix} Decryption Receiving PMode {pmode.Id} is ignored");
+                Logger.Info($"{messagingContext.Prefix} Decryption Receiving PMode {pmode.Id} is ignored");
             }
 
             return isIgnored;
         }
 
-        private void TryDecryptAS4Message(MessagingContext messagingContext)
+        private async Task<StepResult> TryDecryptAS4Message(MessagingContext messagingContext)
         {
             try
             {
-                _logger.Info($"{messagingContext.Prefix} Start decrypting AS4 Message ...");
+                Logger.Info($"{messagingContext.Prefix} Start decrypting AS4 Message ...");
+
                 IEncryptionStrategy strategy = CreateDecryptStrategy(messagingContext);
                 messagingContext.AS4Message.SecurityHeader.Decrypt(strategy);
-                _logger.Info($"{messagingContext.Prefix} AS4 Message is decrypted correctly");
+
+                Logger.Info($"{messagingContext.Prefix} AS4 Message is decrypted correctly");
+
+                return await StepResult.SuccessAsync(messagingContext);
             }
-            catch (Exception exception)
+            catch (CryptoException exception)
             {
-                throw ThrowCommonAS4Exception(messagingContext, "Decryption failed", ErrorCode.Ebms0102, exception);
+                messagingContext.ErrorResult = new ErrorResult(
+                    description: $"Decryption failed: {exception.Message}",
+                    code: ErrorCode.Ebms0102,
+                    alias: ErrorAlias.FailedDecryption);
+
+                return StepResult.Failed(messagingContext);
             }
         }
 
@@ -121,12 +121,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             X509Certificate2 certificate = GetCertificate(messagingContext);
             AS4Message as4Message = messagingContext.AS4Message;
 
-            var builder = EncryptionStrategyBuilder.Create(as4Message.EnvelopeDocument)
-                                                     .WithCertificate(certificate)
-                                                     .WithAttachments(as4Message.Attachments);
-
-
-            return builder.Build();
+            return EncryptionStrategyBuilder
+                .Create(as4Message.EnvelopeDocument)
+                .WithCertificate(certificate)
+                .WithAttachments(as4Message.Attachments)
+                .Build();
         }
 
         private X509Certificate2 GetCertificate(MessagingContext messagingContext)
@@ -137,29 +136,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (!certificate.HasPrivateKey)
             {
-                throw ThrowCommonAS4Exception(messagingContext, "Decryption failed - No private key found.", ErrorCode.Ebms0102);
+                throw new CryptoException("Decryption failed - No private key found.");
             }
 
             return certificate;
-        }
-
-        private AS4Exception ThrowCommonAS4Exception(
-            MessagingContext messagingContext,
-            string description,
-            ErrorCode errorCode,
-            Exception exception = null)
-        {
-            AS4Message as4Message = messagingContext.AS4Message;
-            description = messagingContext.Prefix + description;
-            _logger.Error(description);
-
-            return
-                AS4ExceptionBuilder.WithDescription(description)
-                                   .WithInnerException(exception)
-                                   .WithMessageIds(as4Message.MessageIds)
-                                   .WithErrorCode(errorCode)
-                                   .WithReceivingPMode(messagingContext.ReceivingPMode)
-                                   .Build();
         }
     }
 }

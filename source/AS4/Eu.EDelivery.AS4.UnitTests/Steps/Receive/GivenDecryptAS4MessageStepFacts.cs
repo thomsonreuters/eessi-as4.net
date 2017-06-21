@@ -82,12 +82,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Receive) { ReceivingPMode = new ReceivingProcessingMode() };
                 internalMessage.ReceivingPMode.Security.Decryption.Encryption = Limit.NotAllowed;
 
-                // Act / Assert
-                AS4Exception as4Exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(internalMessage, CancellationToken.None));
+                // Act
+                StepResult result = await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
-                Assert.Equal(ErrorCode.Ebms0103, as4Exception.ErrorCode);
+                // Assert
+                ErrorResult error = result.MessagingContext.ErrorResult;
+                Assert.Equal(ErrorCode.Ebms0103, error.Code);
             }
 
             [Fact]
@@ -99,11 +99,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 context.ReceivingPMode.Security.Decryption.Encryption = Limit.Required;
 
                 // Act
-                AS4Exception as4Exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(context, CancellationToken.None));
+                StepResult result = await _step.ExecuteAsync(context, CancellationToken.None);
 
-                Assert.Equal(ErrorCode.Ebms0103, as4Exception.ErrorCode);
+                // Assert
+                ErrorResult error = result.MessagingContext.ErrorResult;
+                Assert.Equal(ErrorCode.Ebms0103, error.Code);
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
+using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Receive.Participant
 {
@@ -9,6 +10,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
     /// </summary>
     internal class PModeParticipant : IComparable<PModeParticipant>
     {
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
         public UserMessage UserMessage { get; set; }
         public ReceivingProcessingMode PMode { get; set; }
         public int Points { get; set; }
@@ -36,6 +39,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive.Participant
         /// <param name="visitor"></param>
         public void Accept(IPModeRuleVisitor visitor)
         {
+            Logger.Debug($"Receiving PMode: {PMode.Id} has {Points} Points");
             visitor.Visit(this);
         }
 

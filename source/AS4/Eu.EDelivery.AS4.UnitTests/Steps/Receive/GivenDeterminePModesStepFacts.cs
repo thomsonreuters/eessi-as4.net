@@ -213,12 +213,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 MessagingContext messagingContext =
                     new InternalMessageBuilder().WithServiceAction(service, action).Build();
 
-                // Act / Assert
-                AS4Exception exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(messagingContext, CancellationToken.None));
+                // Act
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
-                Assert.Equal(ErrorCode.Ebms0001, exception.ErrorCode);
+                // Assert
+                Assert.False(result.Succeeded);
+                ErrorResult errorResult = result.MessagingContext.ErrorResult;
+                Assert.Equal(ErrorCode.Ebms0001, errorResult.Code);
             }
 
             private void ArrangePModeThenServiceAndActionIsNotEnough(string action, string service)
@@ -242,12 +243,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                                                 .WithServiceAction("service", "action")
                                                 .Build();
 
-                // Act / Assert
-                AS4Exception exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(messagingContext, CancellationToken.None));
+                // Act
+                StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
 
-                Assert.Equal(ErrorCode.Ebms0001, exception.ErrorCode);
+                // Assert
+                Assert.False(result.Succeeded);
+                ErrorResult errorResult = result.MessagingContext.ErrorResult;
+                Assert.Equal(ErrorCode.Ebms0001, errorResult.Code);
             }
 
             private void ArrangePModeThenAgreementRefIsNotEnough(AgreementReference agreementRef)

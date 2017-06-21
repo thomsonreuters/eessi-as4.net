@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps.Receive.Participant;
 using NLog;
 using ReceivePMode = Eu.EDelivery.AS4.Model.PMode.ReceivingProcessingMode;
@@ -51,109 +48,85 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="AS4Exception">Throws exception when a PMode cannot be retrieved</exception>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            AS4Message as4Message = messagingContext.AS4Message;
-
-            if (as4Message.IsSignalMessage)
+            if (messagingContext.AS4Message.IsSignalMessage)
             {
-                messagingContext.SendingPMode = GetPModeFromDatastore(messagingContext.AS4Message);
+                return await DetermineSendingPModeForSignalMessage(messagingContext);
             }
-            else
+
+            return await DetermineReceivingPModeForUserMessage(messagingContext);
+        }
+
+        private static async Task<StepResult> DetermineSendingPModeForSignalMessage(MessagingContext messagingContext)
+        {
+            SendPMode pmode = GetPModeFromDatastore(messagingContext.AS4Message);
+            if (pmode == null)
             {
-                messagingContext.ReceivingPMode = GetPModeFromSettings(messagingContext.AS4Message);
-                messagingContext.SendingPMode = GetReferencedSendingPMode(messagingContext);
+                string description =
+                    $"Unable to retrieve Sending PMOde from Datastore for OutMessage with Id: {messagingContext.AS4Message.PrimarySignalMessage.RefToMessageId}";
+                return FailedStepResult(description, messagingContext);
             }
 
             return await StepResult.SuccessAsync(messagingContext);
         }
 
+        private async Task<StepResult> DetermineReceivingPModeForUserMessage(MessagingContext messagingContext)
+        {
+            IEnumerable<ReceivePMode> possibilities = GetPModeFromSettings(messagingContext.AS4Message);
+
+            if (possibilities.Any() == false)
+            {
+                return FailedStepResult(
+                    $"No Receiving PMode was found with for UserMessage with Message Id: {messagingContext.AS4Message.GetPrimaryMessageId()}",
+                    messagingContext);
+            }
+
+            if (possibilities.Count() > 1)
+            {
+                return FailedStepResult("More than one matching Receiving PMode was found", messagingContext);
+            }
+
+            ReceivePMode pmode = possibilities.First();
+            Logger.Info($"Use '{pmode.Id}' as Receiving PMode");
+
+            messagingContext.ReceivingPMode = pmode;
+            messagingContext.SendingPMode = GetReferencedSendingPMode(messagingContext);
+
+            return await StepResult.SuccessAsync(messagingContext);
+        }
+
+        private static StepResult FailedStepResult(string description, MessagingContext context)
+        {
+            context.ErrorResult = new ErrorResult(description, ErrorCode.Ebms0001, ErrorAlias.ProcessingModeMismatch);
+            return StepResult.Failed(context);
+        }
+
         private static SendPMode GetPModeFromDatastore(AS4Message as4Message)
         {
-            SignalMessage primarySignal = as4Message.PrimarySignalMessage;
             using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
 
-                SendPMode pmode = repository.GetOutMessageData(
+                return repository.GetOutMessageData(
                     as4Message.PrimarySignalMessage.RefToMessageId,
                     m => AS4XmlSerializer.FromString<SendPMode>(m.PMode));
-
-                if (pmode == null)
-                {
-                    throw ThrowAS4Exception(
-                        $"Unable to retrieve Sending PMode from Datastore for OutMessage with Id: {primarySignal.RefToMessageId}",
-                        as4Message.MessageIds);
-                }
-
-                Logger.Info($"Get Sending PMode {pmode.Id} from Datastore");
-                return pmode;
             }
         }
 
-        private ReceivePMode GetPModeFromSettings(AS4Message as4Message)
+        private IEnumerable<ReceivePMode> GetPModeFromSettings(AS4Message as4Message)
         {
             List<PModeParticipant> participants = GetPModeParticipants(as4Message.PrimaryUserMessage);
-            LetParticipantsAcceptVisitor(participants);
+            participants.ForEach(p => p.Accept(_visitor));
 
-            PModeParticipant winningParticipant = participants.Where(p => p.Points >= 10).Max();
-            PostConditionsWinningParticipant(participants, winningParticipant, as4Message);
-
-            Logger.Info($"Using Receiving PMode {winningParticipant.PMode.Id} with {winningParticipant.Points} Points");
-            return winningParticipant.PMode;
+            PModeParticipant winner = participants.Where(p => p.Points >= 10).Max();
+            return participants.Where(p => p.Points == winner?.Points).Select(p => p.PMode);
         }
 
         private List<PModeParticipant> GetPModeParticipants(UserMessage primaryUser)
         {
-            return _config.GetReceivingPModes().Select(pmode => CreateParticipant(pmode, primaryUser)).ToList();
-        }
-
-        private static PModeParticipant CreateParticipant(ReceivePMode pmode, UserMessage primaryUser)
-        {
-            return new PModeParticipant(pmode, primaryUser);
-        }
-
-        private void LetParticipantsAcceptVisitor(List<PModeParticipant> participants)
-        {
-            foreach (PModeParticipant participant in participants)
-            {
-                LetParticipantAcceptVisitor(participant);
-            }
-        }
-
-        private void LetParticipantAcceptVisitor(PModeParticipant participant)
-        {
-            participant.Accept(_visitor);
-            Logger.Debug($"Receiving PMode: {participant.PMode.Id} has {participant.Points} Points");
-        }
-
-        private static void PostConditionsWinningParticipant(List<PModeParticipant> participants, PModeParticipant winningParticipant, AS4Message message)
-        {
-            if (winningParticipant == null)
-            {
-                throw ThrowAS4Exception(
-                    $"No Receiving PMode was found with for UserMessage with Message Id: {message.GetPrimaryMessageId()}", message.MessageIds);
-            }
-
-            if (TheresMoreThanOneWinningParticipant(participants, winningParticipant))
-            {
-                throw ThrowToManyPModeFoundException(message.MessageIds);
-            }
-        }
-
-        private static bool TheresMoreThanOneWinningParticipant(IEnumerable<PModeParticipant> participants, PModeParticipant winningParticipant)
-        {
-            return participants.Count(p => p.Points == winningParticipant.Points) > 1;
-        }
-
-        private static AS4Exception ThrowToManyPModeFoundException(string[] messageIds)
-        {
-            const string description = "More than one matching PMode was found";
-            Logger.Error(description);
-
-            return AS4ExceptionBuilder.WithDescription(description).WithMessageIds(messageIds).Build();
+            return _config.GetReceivingPModes().Select(pmode => new PModeParticipant(pmode, primaryUser)).ToList();
         }
 
         private SendPMode GetReferencedSendingPMode(MessagingContext messagingContext)
@@ -165,29 +138,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
 
             string pmodeId = messagingContext.ReceivingPMode.ReceiptHandling.SendingPMode;
-
             Logger.Info("Receipt Sending PMode Id: " + pmodeId);
 
-            return TryGetSendingPMode(pmodeId, messagingContext.AS4Message.MessageIds);
-        }
-
-        private SendPMode TryGetSendingPMode(string pmodeId, string[] messageIds)
-        {
-            try
-            {
-                return _config.GetSendingPMode(pmodeId);
-            }
-            catch (Exception)
-            {
-                throw ThrowAS4Exception("Receiving PMode references a non-existing Sending PMode", messageIds);
-            }
-        }
-
-        private static AS4Exception ThrowAS4Exception(string description, string[] messageIds)
-        {
-            Logger.Error(description);
-
-            return AS4ExceptionBuilder.WithDescription(description).WithErrorCode(ErrorCode.Ebms0001).WithMessageIds(messageIds).Build();
+            return _config.GetSendingPMode(pmodeId);
         }
     }
 }
