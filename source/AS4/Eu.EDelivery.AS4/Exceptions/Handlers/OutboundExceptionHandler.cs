@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
         {
             Logger.Error(exception.Message);
-            await InsertOutException(exception, outException => outException.MessageBody = contents.ToArray());
+            await InsertOutException(exception, outException => outException.MessageBody = contents.ToBytes());
 
             return new MessagingContext(exception);
         }

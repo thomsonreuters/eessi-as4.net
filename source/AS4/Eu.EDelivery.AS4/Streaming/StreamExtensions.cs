@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Text;
 
 namespace Eu.EDelivery.AS4.Streaming
 {
@@ -10,14 +9,20 @@ namespace Eu.EDelivery.AS4.Streaming
         /// </summary>
         /// <param name="contents">The contents.</param>
         /// <returns></returns>
-        public static byte[] ToArray(this Stream contents)
+        public static byte[] ToBytes(this Stream contents)
         {
             StreamPositionMover.MovePositionToStreamStart(contents);
-            
-            using (var streamReader = new StreamReader(contents))
+
+            VirtualStream virtualStream =
+                VirtualStream.CreateVirtualStream(contents.CanSeek ? contents.Length : VirtualStream.ThresholdMax);
+
+            if (contents.CanRead)
             {
-                return Encoding.UTF8.GetBytes(streamReader.ReadToEnd());
+                contents.CopyTo(virtualStream);
+                return virtualStream.ToArray();
             }
+
+            return new byte[0];
         }
     }
 }

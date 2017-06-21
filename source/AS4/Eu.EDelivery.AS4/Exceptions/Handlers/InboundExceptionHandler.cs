@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             Logger.Error(exception.Message);
 
-            await InsertInException(exception, inException => inException.MessageBody = contents.ToArray());
+            await InsertInException(exception, inException => inException.MessageBody = contents.ToBytes());
             return new MessagingContext(exception);
         }
 

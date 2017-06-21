@@ -126,7 +126,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             attachment.ResetContentPosition();
 
             VirtualStream outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
-
             using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, leaveOpen: true))
             {
                 await gzipCompression.CopyToAsync(outputStream).ConfigureAwait(false);

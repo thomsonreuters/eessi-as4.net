@@ -14,7 +14,6 @@ using Eu.EDelivery.AS4.UnitTests.Model.Deliver;
 using Eu.EDelivery.AS4.UnitTests.Model.Notify;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
-using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
 {
