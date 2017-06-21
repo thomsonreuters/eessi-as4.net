@@ -111,7 +111,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 {
                     var inException = new InException
                     {
-                        EbmsRefToMessageId = Guid.NewGuid().ToString(),
                         Exception = exception.Message,
                         InsertionTime = DateTimeOffset.Now,
                         ModificationTime = DateTimeOffset.Now
