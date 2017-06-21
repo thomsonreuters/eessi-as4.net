@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(exception: null);
+                var internalMessage = new MessagingContext(as4Exception: null);
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -50,7 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 var internalMessage = new MessagingContext(CreateFilledAS4Message(), MessagingContextMode.Unknown)
                 {
-                    Exception = CreateFilledAS4Exception(),
+                    AS4Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 var internalMessage = new MessagingContext(CreateFilledAS4Message(), MessagingContextMode.Unknown)
                 {
-                    Exception = CreateFilledAS4Exception(),
+                    AS4Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Unknown)
                 {
-                    Exception = CreateFilledAS4Exception(),
+                    AS4Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };

@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                         // We were unable to process the received signal-message.  
                         // Make sure the InternalMessage contains an empty AS4Message so that
                         // no AS4 Message is written to the response stream.
-                        messagingContext.Exception = exception;
+                        messagingContext.AS4Exception = exception;
 
                         return StepResult.Failed(exception, messagingContext);
                     }
@@ -142,7 +142,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             inExceptionService.InsertAS4Exception(exception, as4Message);
 
             StepResult stepResult = await ReturnStepResult(_originalMessage);
-            stepResult.MessagingContext.Exception = exception;
+            stepResult.MessagingContext.AS4Exception = exception;
 
             return stepResult;
         }

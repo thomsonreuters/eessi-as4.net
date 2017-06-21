@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             receiver.Configure(DummySettings());
 
             // Act / Assert
-            StartReceiver(receiver, isCalled: false);
+            StartReceiverAsTask(receiver, isCalled: false);
         }
 
         private static IEnumerable<Setting> DummySettings()
@@ -168,13 +168,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             return settings;
         }
 
+        private static void StartReceiverAsTask(IReceiver receiver, bool isCalled)
+        {
+            Task.Run(() => StartReceiver(receiver, isCalled));
+        }
+
         private static ReceivedMessage StartReceiver(IReceiver receiver, bool isCalled = true)
         {
             var tokenSource = new CancellationTokenSource();
             var waitHandle = new ManualResetEvent(false);
             var receivedMessage = new ReceivedMessage(Stream.Null);
 
-            Task.Run(() => receiver.StartReceiving(
+            receiver.StartReceiving(
                 (message, token) =>
                 {
                     waitHandle.Set();
@@ -182,9 +187,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
                     receivedMessage = message;
 
-                    return Task.FromResult((MessagingContext)new EmptyMessagingContext());
+                    return Task.FromResult((MessagingContext) new EmptyMessagingContext());
                 },
-                tokenSource.Token), tokenSource.Token);
+                tokenSource.Token);
 
             Assert.Equal(isCalled, waitHandle.WaitOne(TimeSpan.FromSeconds(1)));
 
@@ -193,6 +198,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             return receivedMessage;
         }
+
+
 
         private void AssertOutMessageIf(Func<OutMessage, bool> where, Action<OutMessage> assertion)
         {

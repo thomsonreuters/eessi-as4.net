@@ -439,15 +439,15 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
-                    if (processorResult.Exception != null)
+                    if (processorResult.AS4Exception != null && processorResult.AS4Exception is AS4Exception exception)
                     {
                         return
                             new ByteContentResult(
-                                processorResult.Exception.ErrorCode == ErrorCode.NotApplicable
+                                exception.ErrorCode == ErrorCode.NotApplicable
                                     ? HttpStatusCode.BadRequest
                                     : HttpStatusCode.InternalServerError,
                                 "text/plain",
-                                Encoding.UTF8.GetBytes(processorResult.Exception.Message));
+                                Encoding.UTF8.GetBytes(exception.Message));
                     }
 
                     // Ugly hack until the Transformer is refactored.
@@ -477,7 +477,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 private static bool AreReceiptsOrErrorsSendInCallbackMode(MessagingContext processorResult)
                 {
                     return (processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty)
-                           && processorResult.Exception == null;
+                           && processorResult.AS4Exception == null;
                 }
 
                 private static bool AreReceiptsOrErrorsSendInResponseMode(MessagingContext processorResult)

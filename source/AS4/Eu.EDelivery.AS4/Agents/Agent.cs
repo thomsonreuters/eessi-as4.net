@@ -94,14 +94,14 @@ namespace Eu.EDelivery.AS4.Agents
         /// <summary>
         /// Start the Agent with the given Settings
         /// </summary>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public Task Start(CancellationToken cancellationToken)
+        public Task Start(CancellationToken cancellation)
         {
             Logger.Debug($"Start {AgentConfig.Name}...");
-            cancellationToken.Register(Stop);
+            cancellation.Register(Stop);
 
-            Task task = Task.Factory.StartNew(() => StartReceiver(cancellationToken), TaskCreationOptions.LongRunning);
+            Task task = Task.Factory.StartNew(() => StartReceiver(cancellation), TaskCreationOptions.LongRunning);
 
             Logger.Info($"{AgentConfig.Name} Started!");
             return task;
@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.Agents
                 return null;
             }
 
-            if (messagingContext.Exception != null)
+            if (messagingContext.AS4Exception != null)
             {
                 // TODO: when Transforming a received message fails, we should log this in
                 // an exception table.

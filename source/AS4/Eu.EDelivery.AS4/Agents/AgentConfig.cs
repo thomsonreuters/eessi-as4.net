@@ -37,12 +37,13 @@ namespace Eu.EDelivery.AS4.Agents
 
     public enum AgentType
     {
+        Unknown = 0,
         Submit,
         Receive,
         Sent,
         Deliver,
-        Notify,
-        Unknown,
+        NotifyProducer,
+        NotifyConsumer,
         ReceptionAwareness,
         PullReceive
     }

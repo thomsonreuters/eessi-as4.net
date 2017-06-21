@@ -295,8 +295,8 @@
       <HintPath>..\..\packages\System.Text.Encodings.Web.4.3.0\lib\netstandard1.0\System.Text.Encodings.Web.dll</HintPath>
     </Reference>
     <Reference Include="System.Transactions" />
-    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    <Reference Include="System.ValueTuple, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -315,6 +315,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\Agent.cs" />
+    <Compile Include="Agents\AgentBase.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
     <Compile Include="Builders\Core\AS4ExceptionBuilder.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
@@ -325,6 +326,13 @@
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
+    <Compile Include="Exceptions\ErrorResult.cs" />
+    <Compile Include="Exceptions\Handlers\ExceptionHandlerRegistry.cs" />
+    <Compile Include="Exceptions\Handlers\InboundExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\MinderExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\SafeExceptionHandler.cs" />
+    <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\PullRequestValidationException.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />
     <Compile Include="Factories\UserMessageFactory.cs" />
@@ -479,6 +487,7 @@
     <Compile Include="Strategies\Uploader\IAttachmentUploader.cs" />
     <Compile Include="Strategies\Retriever\PayloadRetrieverProvider.cs" />
     <Compile Include="Strategies\Uploader\UploadResult.cs" />
+    <Compile Include="Streaming\StreamExtensions.cs" />
     <Compile Include="Streaming\StreamPositionMover.cs" />
     <Compile Include="Transformers\ITransformer.cs" />
     <Compile Include="Common\Config.cs" />

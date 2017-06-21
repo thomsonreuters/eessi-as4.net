@@ -54,8 +54,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
 
             // Assert
-            Assert.NotNull(message.Exception);
-            Assert.NotEmpty(message.Exception.Message);
+            Assert.NotNull(message.AS4Exception);
+            Assert.NotEmpty(message.AS4Exception.Message);
         }
 
         [Fact]

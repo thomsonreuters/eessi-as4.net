@@ -17,14 +17,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             [Fact]
             public void IsFalseIfStopExecutionIsCalled()
             {
-                // Arrange
-                AS4Exception exception = AS4ExceptionBuilder.WithDescription("ignored message").Build();
-
                 // Act
-                StepResult actualStepResult = StepResult.Failed(exception).AndStopExecution();
+                StepResult actualStepResult = StepResult.Failed(error: null, context: null).AndStopExecution();
 
                 // Assert
                 Assert.False(actualStepResult.CanProceed);
+                Assert.False(actualStepResult.Succeeded);
             }
 
             [Fact]
@@ -35,6 +33,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
 
                 // Assert
                 Assert.True(actualStepResult.CanProceed);
+                Assert.True(actualStepResult.Succeeded);
             }
 
             private static MessagingContext AnonymousMessage()

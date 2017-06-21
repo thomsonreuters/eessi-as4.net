@@ -12,14 +12,13 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class StepBuilder
     {
-
         private readonly Model.Internal.Steps _settingSteps;
         private readonly ConditionalStepConfig _conditialStepConfig;
 
         private StepBuilder(Model.Internal.Steps settingSteps, ConditionalStepConfig conditionalStepConfig)
         {
-            this._settingSteps = settingSteps;
-            this._conditialStepConfig = conditionalStepConfig;
+            _settingSteps = settingSteps;
+            _conditialStepConfig = conditionalStepConfig;
         }
 
         /// <summary>
@@ -38,28 +37,49 @@ namespace Eu.EDelivery.AS4.Steps
         }
 
         /// <summary>
+        /// Builds the steps.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<IStep> BuildSteps()
+        {
+            if (_conditialStepConfig != null)
+            {
+                var step = new ConditionalStep(
+                    _conditialStepConfig.Condition,
+                    _conditialStepConfig.ThenStepConfig,
+                    _conditialStepConfig.ElseStepConfig);
+
+                return new[] {step};
+            }
+
+            return _settingSteps.Step.Select(CreateInstance);
+        }
+
+        /// <summary>
         /// Build the <see cref="IStep"/> implementation
         /// </summary>
         /// <returns></returns>
         public IStep Build()
         {
-            if (this._conditialStepConfig != null)
+            if (_conditialStepConfig != null)
             {
-                return new ConditionalStep(_conditialStepConfig.Condition,
-                    this._conditialStepConfig.ThenStepConfig,
-                    this._conditialStepConfig.ElseStepConfig);
+                return new ConditionalStep(
+                    _conditialStepConfig.Condition,
+                    _conditialStepConfig.ThenStepConfig,
+                    _conditialStepConfig.ElseStepConfig);
             }
 
-            IStep decoratedStep = CreateDecoratorStep(this._settingSteps);
-            IList<IStep> unDecoratedSteps = CreateUndecoratedSteps();
+            IStep decoratedStep = CreateDecoratorStep(_settingSteps);
+            IList<IStep> undecoratedSteps = CreateUndecoratedSteps();
 
-            if (unDecoratedSteps.Count == 0)
+            if (undecoratedSteps.Count == 0)
+            {
                 return decoratedStep;
+            }
 
-            unDecoratedSteps.Insert(0, decoratedStep);
-            return new CompositeStep(unDecoratedSteps.ToArray());
+            undecoratedSteps.Insert(0, decoratedStep);
+            return new CompositeStep(undecoratedSteps.ToArray());
         }
-
 
         private static IStep CreateDecoratorStep(Model.Internal.Steps settingsSteps)
         {
@@ -95,8 +115,8 @@ namespace Eu.EDelivery.AS4.Steps
 
         private IList<IStep> CreateUndecoratedSteps()
         {
-            return this._settingSteps.Step
-                .Where(s => s.UnDecorated == true)
+            return _settingSteps.Step
+                .Where(s => s.UnDecorated)
                 .Select(settingStep => CreateInstance<IStep>(settingStep.Type))
                 .ToList();
         }
@@ -106,12 +126,4 @@ namespace Eu.EDelivery.AS4.Steps
             return GenericTypeBuilder.FromType(typeString).SetArgs(args).Build<T>();
         }
     }
-
-    [Flags]
-    public enum StepOptions
-    {
-        UseDatastore = 2,
-        UseDefaults = 1
-    }
-    
 }

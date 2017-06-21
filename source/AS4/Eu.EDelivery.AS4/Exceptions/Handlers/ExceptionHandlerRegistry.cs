@@ -1,0 +1,39 @@
+﻿using System;
+using System.Collections.Generic;
+using Eu.EDelivery.AS4.Agents;
+
+namespace Eu.EDelivery.AS4.Exceptions.Handlers
+{
+    /// <summary>
+    /// Registry to defining <see cref="IAgentExceptionHandler"/> implementations based on a given <see cref="AgentType"/>.
+    /// </summary>
+    internal static class ExceptionHandlerRegistry
+    {
+        private static readonly IDictionary<AgentType, Func<IAgentExceptionHandler>> Handlers =
+            new Dictionary<AgentType, Func<IAgentExceptionHandler>>
+            {
+                [AgentType.Submit] = () => new OutboundExceptionHandler(),
+                [AgentType.Sent] = () => new OutboundExceptionHandler(),
+                [AgentType.Receive] = () => new InboundExceptionHandler(),
+                [AgentType.Deliver] = () => new OutboundExceptionHandler(),
+                [AgentType.NotifyConsumer] = () => new InboundExceptionHandler(),
+                [AgentType.NotifyProducer] = () => new OutboundExceptionHandler(),
+                [AgentType.PullReceive] = () => new InboundExceptionHandler(),
+            };
+
+        /// <summary>
+        /// Gets the handler.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
+        public static IAgentExceptionHandler GetHandler(AgentType type)
+        {
+            if (Handlers.ContainsKey(type) == false)
+            {
+                throw new InvalidOperationException("The Agent Type 'Unknown' is not supported to have a exception handler");
+            }
+
+            return new SafeExceptionHandler(Handlers[type]());
+        }
+    }
+}

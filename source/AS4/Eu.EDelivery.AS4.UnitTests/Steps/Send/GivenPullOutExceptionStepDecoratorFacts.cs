@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -52,7 +53,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             await sut.ExerciseStep(context);
 
             // Assert
-            await AssertOnOutException(context.AS4Message);
+            GetDataStoreContext.AssertOutException(exception =>
+            {
+                Assert.Null(exception.EbmsRefToMessageId);
+                Assert.Equal(AS4XmlSerializer.ToSoapEnvelopeBytesAsync(context.AS4Message).Result, exception.MessageBody);
+                Assert.NotEmpty(exception.Exception);
+            });
         }
 
         private PullOutExceptionStepDecorator DecoratorWithPullRequestValidationExceptionSaboteur()
@@ -64,23 +70,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static MessagingContext ContextWithPullRequest()
         {
             return new MessagingContext(AS4Message.Create(new PullRequest()), MessagingContextMode.Send);
-        }
-
-        private async Task AssertOnOutException(AS4Message as4Message)
-        {
-            OutException exception = GetFirstOutException();
-
-            Assert.Null(exception.EbmsRefToMessageId);
-            Assert.Equal(await AS4XmlSerializer.ToSoapEnvelopeBytesAsync(as4Message), exception.MessageBody);
-            Assert.NotEmpty(exception.Exception);
-        }
-
-        private OutException GetFirstOutException()
-        {
-            using (DatastoreContext context = GetDataStoreContext())
-            {
-                return context.OutExceptions.First();
-            }
         }
     }
 }

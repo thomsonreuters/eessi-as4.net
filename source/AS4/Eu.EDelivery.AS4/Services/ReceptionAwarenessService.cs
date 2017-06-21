@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Services
                 messageId,
                 m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
 
-            Error errorMessage = CreateError(messageId);
+            Model.Core.Error errorMessage = CreateError(messageId);
             AS4Message as4Message = AS4Message.Create(errorMessage, pmode);
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really

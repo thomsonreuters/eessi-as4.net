@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             foreach (UserMessage userMessage in messagingContext.AS4Message.UserMessages)
             {
-                Error error = CreateError(messagingContext.Exception, userMessage.MessageId, messagingContext);
+                Error error = CreateError(messagingContext.AS4Exception, userMessage.MessageId, messagingContext);
 
                 callback(error);
             }
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static bool ShouldCreateError(MessagingContext messagingContext)
         {
-            return messagingContext.Exception != null && (messagingContext.AS4Message?.UserMessages?.Any() ?? false);
+            return messagingContext.AS4Exception != null && (messagingContext.AS4Message?.UserMessages?.Any() ?? false);
         }
 
         private static Error CreateError(AS4Exception exception, string userMessageId, MessagingContext originalAS4Message)
