@@ -126,11 +126,4 @@ namespace Eu.EDelivery.AS4.Steps
             return GenericTypeBuilder.FromType(typeString).SetArgs(args).Build<T>();
         }
     }
-
-    [Flags]
-    public enum StepOptions
-    {
-        UseDatastore = 2,
-        UseDefaults = 1
-    }
 }
