@@ -1,8 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Settings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4">
+<Settings 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="eu:edelivery:as4">
   <IdFormat>{GUID}@{IPADDRESS}</IdFormat>
   <FeInProcess>false</FeInProcess>
-  <PayloadServiceInProcess>false</PayloadServiceInProcess> 
+  <PayloadServiceInProcess>false</PayloadServiceInProcess>
   <Database>
     <Provider>Sqlite</Provider>
     <ConnectionString>Filename=database\messages.db</ConnectionString>
@@ -13,10 +16,8 @@
   </CertificateStore>
   <Agents>
     <SubmitAgent name="FILE Submit Agent">
-      <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <Setting key="FilePath">.\messages\out</Setting>
-        <Setting key="FileMask">*.xml</Setting>
-        <Setting key="PollingInterval">5000</Setting>
+      <Receiver type="Eu.EDelivery.AS4.Receivers.HttpReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Url">http://localhost:7070/msh/</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <NormalPipeline>
