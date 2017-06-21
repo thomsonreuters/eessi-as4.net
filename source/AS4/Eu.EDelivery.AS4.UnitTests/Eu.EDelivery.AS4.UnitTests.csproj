@@ -279,12 +279,13 @@
     <Compile Include="Exceptions\Handlers\GivenInboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
     <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
+    <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
+    <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />
     <Compile Include="Receivers\SpyReceiver.cs" />
     <Compile Include="Builders\Entities\MessageEntityAssertion.cs" />
-    <Compile Include="Common\GivenConfigFacts.cs" />
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />
     <Compile Include="Entities\GivenEntityFacts.cs" />

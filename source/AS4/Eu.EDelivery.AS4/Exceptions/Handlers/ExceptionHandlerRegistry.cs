@@ -15,10 +15,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 [AgentType.Submit] = () => new OutboundExceptionHandler(),
                 [AgentType.Sent] = () => new OutboundExceptionHandler(),
                 [AgentType.Receive] = () => new InboundExceptionHandler(),
-                [AgentType.Deliver] = () => new OutboundExceptionHandler(),
+                [AgentType.Deliver] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyConsumer] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyProducer] = () => new OutboundExceptionHandler(),
                 [AgentType.PullReceive] = () => new InboundExceptionHandler(),
+                [AgentType.ReceptionAwareness] = () => new LogExceptionHandler()
             };
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             if (Handlers.ContainsKey(type) == false)
             {
-                throw new InvalidOperationException("The Agent Type 'Unknown' is not supported to have a exception handler");
+                throw new InvalidOperationException($"The Agent Type '{type}' is not supported to have a exception handler");
             }
 
             return new SafeExceptionHandler(Handlers[type]());

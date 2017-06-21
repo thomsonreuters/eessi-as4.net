@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
@@ -13,52 +14,42 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [Fact]
         public async Task CatchesTransformHandling()
         {
-            // Arrange
-            var saboteur = new Mock<IAgentExceptionHandler>();
-            saboteur.Setup(h => h.HandleTransformationException(null, null)).Throws<Exception>();
-
-            var sut = new SafeExceptionHandler(saboteur.Object);
-
-            // Act
-            MessagingContext context = await sut.HandleTransformationException(null, null);
-
-            // Assert
-            Assert.NotNull(context);
-            saboteur.Verify(h => h.HandleTransformationException(null, null), Times.Once);
+            await TestSafeHandler(
+                saboteur => saboteur.HandleTransformationException(null, null),
+                sut => sut.HandleTransformationException(null, null));
         }
 
         [Fact]
         public async Task CatchesExecutionHandling()
         {
-            // Arrange
-            var saboteur = new Mock<IAgentExceptionHandler>();
-            saboteur.Setup(h => h.HandleExecutionException(null, null)).Throws<Exception>();
-
-            var sut = new SafeExceptionHandler(saboteur.Object);
-
-            // Act
-            MessagingContext context = await sut.HandleExecutionException(null, null);
-
-            // Assert
-            Assert.NotNull(context);
-            saboteur.Verify(h => h.HandleExecutionException(null, null), Times.Once);
+            await TestSafeHandler(
+               saboteur => saboteur.HandleExecutionException(null, null),
+               sut => sut.HandleExecutionException(null, null));
         }
 
         [Fact]
         public async Task CatchesErrorHandling()
         {
-            // Arrange
+            await TestSafeHandler(
+                saboteur => saboteur.HandleErrorException(null, null), 
+                sut => sut.HandleErrorException(null, null));
+        }
+
+        private static async Task TestSafeHandler(
+            Expression<Action<IAgentExceptionHandler>> expression,
+            Func<IAgentExceptionHandler, Task<MessagingContext>> exercise)
+        {
             var saboteur = new Mock<IAgentExceptionHandler>();
-            saboteur.Setup(h => h.HandleErrorException(null, null)).Throws<Exception>();
+            saboteur.Setup(expression).Throws<Exception>();
 
             var sut = new SafeExceptionHandler(saboteur.Object);
 
             // Act
-            MessagingContext context = await sut.HandleErrorException(null, null);
+            MessagingContext context = await exercise(sut);
 
             // Assert
             Assert.NotNull(context);
-            saboteur.Verify(h => h.HandleErrorException(null, null), Times.Once);
+            saboteur.Verify(expression, Times.Once);
         }
     }
 }

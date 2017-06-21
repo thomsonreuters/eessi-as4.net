@@ -450,6 +450,18 @@ namespace Eu.EDelivery.AS4.Receivers
                                 Encoding.UTF8.GetBytes(exception.Message));
                     }
 
+                    if (processorResult.Exception != null)
+                    {
+                        return
+                            new ByteContentResult(
+                                processorResult.ErrorResult?.Code == ErrorCode.NotApplicable
+                                || processorResult.ErrorResult == null
+                                    ? HttpStatusCode.BadRequest
+                                    : HttpStatusCode.InternalServerError,
+                                "text/plain",
+                                Encoding.UTF8.GetBytes(processorResult.Exception.Message));
+                    }
+
                     // Ugly hack until the Transformer is refactored.
                     // When we're in SubmitMode and have an Empty AS4Message, then we should return an Accepted.
                     if (processorResult.Mode == MessagingContextMode.Submit && processorResult.AS4Message?.IsEmpty == false)

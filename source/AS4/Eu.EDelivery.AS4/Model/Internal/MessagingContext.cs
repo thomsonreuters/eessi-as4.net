@@ -119,6 +119,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public Exception Exception { get; set; }
 
+        public ErrorResult ErrorResult { get; set; }
+
         public SendingProcessingMode SendingPMode { get; set; }
 
         private ReceivingProcessingMode _receivingPMode;
@@ -156,6 +158,33 @@ namespace Eu.EDelivery.AS4.Model.Internal
                                          ?? DeliverMessage?.MessageInfo.MessageId ?? NotifyMessage?.MessageInfo.MessageId;
 
                 return $"[{corePrefix ?? extensionPrefix}]";
+            }
+        }
+
+        /// <summary>
+        /// Gets the message identifier.
+        /// </summary>
+        /// <value>The message identifier.</value>
+        public string EbmsMessageId
+        {
+            get
+            {
+                if (AS4Message != null)
+                {
+                    return AS4Message.GetPrimaryMessageId();
+                }
+
+                if (DeliverMessage != null)
+                {
+                    return DeliverMessage.MessageInfo.MessageId;
+                }
+
+                if (NotifyMessage != null)
+                {
+                    return NotifyMessage.MessageInfo.RefToMessageId;
+                }
+
+                return string.Empty;
             }
         }
 

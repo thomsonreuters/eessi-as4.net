@@ -19,7 +19,7 @@ using UserMessage = Eu.EDelivery.AS4.Model.Core.UserMessage;
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
     /// <summary>
-    /// Create an <see cref="Model.Core.Error"/> 
+    /// Create an <see cref="Error"/> 
     /// from a given <see cref="AS4Exception"/>
     /// </summary>
     public class CreateAS4ErrorStep : IStep
@@ -45,9 +45,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             _createDatastore = createDatastoreContext;
         }
 
-
         /// <summary>
-        /// Start creating <see cref="Model.Core.Error"/>
+        /// Start creating <see cref="Error"/>
         /// </summary>
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
