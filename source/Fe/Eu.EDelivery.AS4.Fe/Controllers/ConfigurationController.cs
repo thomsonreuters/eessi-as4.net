@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPost]
         [Route("submitagents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateSubmitAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateSubmitAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPut]
         [Route("submitagents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateSubmitAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateSubmitAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
@@ -85,7 +85,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPost]
         [Route("receiveagents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateReceiveAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateReceiveAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPut]
         [Route("receiveagents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateReceiveAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateReceiveAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPost]
         [Route("sendagents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateSendAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateSendAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.SendAgents, (settings, agents) => settings.SendAgents = agents);
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPut]
         [Route("sendagents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateSendAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateSendAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPost]
         [Route("deliveragents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateDeliverAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateDeliverAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.DeliverAgents, (settings, agents) => settings.DeliverAgents = agents);
@@ -159,7 +159,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPut]
         [Route("deliveragents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateDeliverAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateDeliverAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
@@ -169,7 +169,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPost]
         [Route("notifyagents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateNotifyAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateNotifyAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
@@ -187,7 +187,7 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPut]
         [Route("notifyagents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateNotifyAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateNotifyAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
@@ -196,10 +196,10 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         [HttpPost]
         [Route("receptionawarenessagent")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent)
+        public async Task CreateReceptionAwarenessAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.CreateAgent(settingsAgent, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
+            await settingsService.CreateAgent(settingsAgent, agents => agents.ReceptionAwarenessAgent == null ? new AgentSettings[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
         }
 
         [HttpDelete]
@@ -208,17 +208,17 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         public async Task DeleteReceptionAwarenessAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
-            await settingsService.DeleteAgent(name, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents.FirstOrDefault());
+            await settingsService.DeleteAgent(name, agents => agents.ReceptionAwarenessAgent == null ? new AgentSettings[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents.FirstOrDefault());
         }
 
         [HttpPut]
         [Route("receptionawarenessagent/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateReceptionAwarenessAgent([FromBody] SettingsAgent settingsAgent, string originalName)
+        public async Task UpdateReceptionAwarenessAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceptionAwarenessAgent == null ? new SettingsAgent[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceptionAwarenessAgent == null ? new AgentSettings[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
         }
     }
 }

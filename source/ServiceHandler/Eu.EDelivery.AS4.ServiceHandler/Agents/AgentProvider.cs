@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
         private void AddCustomAgentsToProvider()
         {
-            foreach (SettingsAgent settingAgent in _config.GetSettingsAgents())
+            foreach (AgentSettings settingAgent in _config.GetSettingsAgents())
             {
                 IAgent agent = GetAgentFromSettings(settingAgent);
 
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             }
         }
 
-        private static IAgent GetAgentFromSettings(SettingsAgent agent)
+        private static IAgent GetAgentFromSettings(AgentSettings agent)
         {
             if (agent == null)
             {
