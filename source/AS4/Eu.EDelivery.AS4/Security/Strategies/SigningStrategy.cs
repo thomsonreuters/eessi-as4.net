@@ -8,8 +8,6 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.Algorithms;
 using Eu.EDelivery.AS4.Security.References;
@@ -234,11 +232,9 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <returns></returns>
         public bool VerifySignature(VerifyConfig options)
         {
-            X509ChainStatus[] status;
-
-            if (!VerifyCertificate(SecurityTokenReference.Certificate, out status))
+            if (!VerifyCertificate(SecurityTokenReference.Certificate, out X509ChainStatus[] status))
             {
-                throw ThrowAS4SignException($"The signing certificate is not trusted: {string.Join(" ", status.Select(s => s.StatusInformation))}");
+                throw new CryptographicException($"The signing certificate is not trusted: {string.Join(" ", status.Select(s => s.StatusInformation))}");
             }
 
             LoadXml(GetSignatureElement());
@@ -253,7 +249,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
             var xmlSignature = nodeSignature as XmlElement;
             if (nodeSignature == null || xmlSignature == null)
             {
-                throw ThrowAS4SignException("Invalid Signature: Signature Tag not found");
+                throw new CryptographicException("Invalid Signature: Signature Tag not found");
             }
 
             return xmlSignature;
@@ -261,7 +257,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
         private static bool VerifyCertificate(X509Certificate2 certificate, out X509ChainStatus[] errorMessages)
         {
-            using (X509Chain chain = new X509Chain())
+            using (var chain = new X509Chain())
             {
                 chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck; // TODO: Make this configurable
                 bool isValid = chain.Build(certificate);
@@ -270,14 +266,6 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
                 return isValid;
             }
-        }
-
-        private static AS4Exception ThrowAS4SignException(string description)
-        {
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithErrorCode(ErrorCode.Ebms0101)
-                .Build();
         }
 
         private void AddUnreconizedAttachmentReferences(ICollection<Attachment> attachments)

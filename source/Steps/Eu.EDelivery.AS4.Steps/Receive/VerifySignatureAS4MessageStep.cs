@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -27,19 +27,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="AS4Exception">Throws exception when the signature cannot be verified</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            PreConditions(messagingContext);
-
-            if (MessageDoesNotNeedToBeVerified(messagingContext))
-            {
-                return await StepResult.SuccessAsync(messagingContext);
-            }
-
-            return await TryVerifyingSignature(messagingContext);
-        }
-
-        private static void PreConditions(MessagingContext messagingContext)
-        {
-
             ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
             SigningVerification verification = pmode?.Security.SigningVerification;
 
@@ -49,14 +36,21 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (isMessageFailsTheRequiredSigning)
             {
                 string description = $"Receiving PMode {pmode.Id} requires a Signed AS4 Message and the message is not";
-                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, messagingContext);
+                return InvalidSignatureResult(description, ErrorCode.Ebms0103, messagingContext);
             }
 
-            if (!isMessageFailedTheUnallowedSigning) return;
+            if (isMessageFailedTheUnallowedSigning)
             {
                 string description = $"Receiving PMode {pmode.Id} doesn't allow a signed AS4 Message and the message is";
-                throw ThrowVerifySignatureAS4Exception(description, ErrorCode.Ebms0103, messagingContext);
+                return InvalidSignatureResult(description, ErrorCode.Ebms0103, messagingContext);
             }
+
+            if (MessageDoesNotNeedToBeVerified(messagingContext))
+            {
+                return await StepResult.SuccessAsync(messagingContext);
+            }
+
+            return await TryVerifyingSignature(messagingContext);
         }
 
         private static bool MessageDoesNotNeedToBeVerified(MessagingContext message)
@@ -73,18 +67,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 return await VerifySignature(messagingContext).ConfigureAwait(false);
             }
-            catch (Exception exception)
+            catch (CryptographicException exception)
             {
-                Logger.Error(exception.Message);
-                Logger.Error(exception.StackTrace);
-
-                if (exception.InnerException != null)
-                {
-                    Logger.Error(exception.InnerException.Message);
-                    Logger.Error(exception.InnerException.StackTrace);
-                }
-
-                throw ThrowVerifySignatureAS4Exception(exception.Message, ErrorCode.Ebms0101, messagingContext, exception);
+                return InvalidSignatureResult(exception.Message, ErrorCode.Ebms0101, messagingContext);
             }
         }
 
@@ -92,7 +77,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (!IsValidSignature(messagingContext.AS4Message))
             {
-                throw ThrowVerifySignatureAS4Exception("The Signature is invalid", ErrorCode.Ebms0101, messagingContext);
+                return InvalidSignatureResult("The Signature is invalid", ErrorCode.Ebms0101, messagingContext);
             }
 
             Logger.Info($"{messagingContext.Prefix} AS4 Message has a valid Signature present");
@@ -120,19 +105,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             };
         }
 
-        private static AS4Exception ThrowVerifySignatureAS4Exception(
-            string description, ErrorCode errorCode, MessagingContext messagingContext, Exception innerException = null)
+        private static StepResult InvalidSignatureResult(string description, ErrorCode code, MessagingContext context)
         {
-            description = messagingContext.Prefix + description;
-            Logger.Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(messagingContext.AS4Message.MessageIds)
-                .WithErrorCode(errorCode)
-                .WithInnerException(innerException)
-                .WithReceivingPMode(messagingContext.ReceivingPMode)
-                .Build();
+            context.ErrorResult = new ErrorResult(description, code, ErrorAlias.FailedAuthentication);
+            return StepResult.Failed(context);
         }
     }
 }
