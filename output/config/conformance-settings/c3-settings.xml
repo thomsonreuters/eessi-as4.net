@@ -61,8 +61,9 @@
         <Setting key="Table">InMessages</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
+        <Setting key="PollingInterval">2000</Setting>
       </Receiver>
-      <Transformer type="Eu.EDelivery.AS4.Transformers.SignalMessageToNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <NormalPipeline>
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
@@ -73,8 +74,9 @@
         <Setting key="Table">OutMessages</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
+        <Setting key="PollingInterval">2000</Setting>
       </Receiver>
-      <Transformer type="Eu.EDelivery.AS4.Transformers.SignalMessageToNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <NormalPipeline>
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
@@ -85,8 +87,9 @@
         <Setting key="Table">InExceptions</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
+        <Setting key="PollingInterval">3000</Setting>
       </Receiver>
-      <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionToNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <NormalPipeline>
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
@@ -97,11 +100,12 @@
         <Setting key="Table">OutExceptions</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
+        <Setting key="PollingInterval">3000</Setting>
       </Receiver>
-      <Transformer type="Eu.EDelivery.AS4.Transformers.ExceptionToNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <Transformer type="Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers.ConformanceTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <NormalPipeline>
         <Step type="Eu.EDelivery.AS4.Steps.Notify.SendNotifyMessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
-        <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
+        <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
       </NormalPipeline>
     </NotifyAgent>
     <ReceptionAwarenessAgent name="Reception Awareness Agent">
