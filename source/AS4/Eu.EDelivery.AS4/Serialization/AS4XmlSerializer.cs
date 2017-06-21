@@ -95,6 +95,26 @@ namespace Eu.EDelivery.AS4.Serialization
         }
 
         /// <summary>
+        /// Tries to XML bytes asynchronous.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+        public static async Task<byte[]> TryToXmlBytesAsync<T>(T data)
+        {
+            try
+            {
+                string xml = await ToStringAsync(data);
+                return Encoding.UTF8.GetBytes(xml);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                return new byte[0];
+            }
+        }
+
+        /// <summary>
         /// To the SOAP envelope bytes.
         /// </summary>
         /// <param name="message">The message.</param>

@@ -90,12 +90,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [Fact]
         public async Task InsertInException_WithSubmitMessage()
         {
-            var submitMessage = new SubmitMessage {MessageInfo = new MessageInfo(_expectedId, mpc: null)};
+            // Arrange
+            var sut = new InboundExceptionHandler(GetDataStoreContext);
 
-            await TestExecutionException(
-                default(Operation),
-                new MessagingContext(submitMessage),
-                sut => sut.HandleExecutionException);
+            // Act
+            await sut.HandleErrorException(new Exception(), new MessagingContext(new SubmitMessage()));
+
+            // Assert
+            GetDataStoreContext.AssertInException(ex => Assert.NotEmpty(ex.MessageBody));
         }
 
         private async Task TestExecutionException(

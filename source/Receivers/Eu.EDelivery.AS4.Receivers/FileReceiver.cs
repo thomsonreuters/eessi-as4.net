@@ -155,7 +155,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private async Task NotifyReceivedFile(FileInfo fileInfo, MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Exception != null)
+            if (messagingContext.AS4Exception != null || messagingContext.Exception != null)
             {
                 await HandleException(fileInfo, messagingContext.AS4Exception);
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -65,25 +66,39 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext messageContext)
         {
             Logger.Error(exception.Message);
+
             string messageId = messageContext.EbmsMessageId;
+            Action<OutException> updateException = ex => { };
 
-            await SideEffectUsageRepository(
-                repository => repository.UpdateOutMessage(messageId, m => m.Status = OutStatus.Exception));
+            if (string.IsNullOrEmpty(messageId) == false)
+            {
+                await SideEffectUsageRepository(
+                    repository => repository.UpdateOutMessage(messageId, m => m.Status = OutStatus.Exception));
+                updateException = ex => ex.EbmsRefToMessageId = messageId;
+            }
+            else
+            {
+                updateException = ex => ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(messageContext.SubmitMessage).Result;
+            }
 
-            await InsertOutException(
-                exception,
-                outException =>
-                {
-                    outException.EbmsRefToMessageId = messageId;
-
-                    outException.PMode = AS4XmlSerializer.ToString(messageContext.SendingPMode);
-                    outException.Operation = 
-                        messageContext.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true
-                            ? Operation.ToBeNotified
-                            : default(Operation);
-                });
-
+            await InsertOutException(exception, messageContext, updateException);
             return new MessagingContext(exception);
+        }
+
+        private async Task InsertOutException(Exception exception, MessagingContext messageContext, Action<OutException> updateException)
+        {
+            await InsertOutException(
+                   exception,
+                   outException =>
+                   {
+                       updateException(outException);
+
+                       outException.PMode = AS4XmlSerializer.ToString(messageContext.SendingPMode);
+                       outException.Operation =
+                           messageContext.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true
+                               ? Operation.ToBeNotified
+                               : default(Operation);
+                   });
         }
 
         private async Task InsertOutException(Exception exception, Action<OutException> alterException)

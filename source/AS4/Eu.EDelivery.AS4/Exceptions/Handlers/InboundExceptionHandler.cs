@@ -66,26 +66,42 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
             Logger.Error(exception.Message);
+            bool isSubmitMessage = context.SubmitMessage != null;
 
-            string messageId = context.EbmsMessageId;
+            Action<InException> updateException = ex => { };
 
-            await SideEffectRepositoryUsage(
-                repository => repository.UpdateInMessage(messageId, m => m.Status = InStatus.Exception));
+            if (isSubmitMessage)
+            {
+                await InsertInException(exception, context, updateException);
 
+                updateException = ex => ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage).Result;
+            }
+            else
+            {
+                string messageId = context.EbmsMessageId;
+                await SideEffectRepositoryUsage(
+                   repository => repository.UpdateInMessage(messageId, m => m.Status = InStatus.Exception));
+                updateException = ex => ex.EbmsRefToMessageId = messageId;
+            }
+
+            await InsertInException(exception, context, updateException);
+            return new MessagingContext(exception);
+        }
+
+        private async Task InsertInException(Exception exception, MessagingContext context, Action<InException> updateException)
+        {
             await InsertInException(
                 exception,
                 inException =>
                 {
-                    inException.EbmsRefToMessageId = messageId;
+                    updateException(inException);
 
                     inException.PMode = AS4XmlSerializer.ToString(context.ReceivingPMode);
-                    inException.Operation = 
+                    inException.Operation =
                         context.ReceivingPMode?.ExceptionHandling?.NotifyMessageConsumer == true
                             ? Operation.ToBeNotified
                             : default(Operation);
                 });
-
-            return new MessagingContext(exception);
         }
 
         private async Task InsertInException(Exception exception, Action<InException> alterException)

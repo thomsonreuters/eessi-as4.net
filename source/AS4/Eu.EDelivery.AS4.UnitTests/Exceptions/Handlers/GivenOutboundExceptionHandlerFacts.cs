@@ -103,12 +103,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [Fact]
         public async Task InsertOutMessage_IfSubmitMessage()
         {
-            var submitMessage = new SubmitMessage {MessageInfo = new MessageInfo(_expectedId, null)};
+            // Arrange
+            var sut = new OutboundExceptionHandler(GetDataStoreContext);
 
-            await TestHandleExecutionException(
-                default(Operation),
-                new MessagingContext(submitMessage),
-                sut => sut.HandleExecutionException);
+            // Act
+            await sut.HandleExecutionException(new Exception(), new MessagingContext(new SubmitMessage()));
+
+            // Assert
+            GetDataStoreContext.AssertOutException(ex => Assert.NotNull(ex.MessageBody));
         }
 
         private async Task TestHandleExecutionException(

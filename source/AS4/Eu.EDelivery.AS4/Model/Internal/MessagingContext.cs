@@ -184,11 +184,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
                     return NotifyMessage.MessageInfo.RefToMessageId;
                 }
 
-                if (SubmitMessage != null)
-                {
-                    return SubmitMessage.MessageInfo.MessageId;
-                }
-
                 return string.Empty;
             }
         }
