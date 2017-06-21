@@ -7,10 +7,14 @@ using Eu.EDelivery.AS4.Exceptions.Handlers;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
+using Eu.EDelivery.AS4.UnitTests.Model.Deliver;
+using Eu.EDelivery.AS4.UnitTests.Model.Notify;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using MessageInfo = Eu.EDelivery.AS4.Model.Common.MessageInfo;
 
 namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
 {
@@ -49,7 +53,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(false, default(Operation))]
         public async Task InsertOutException_IfStepExecutionException(bool notifyProducer, Operation expected)
         {
-            await TestHandleExecutionException(notifyProducer, expected, sut => sut.HandleExecutionException);
+            await TestHandleExecutionException(
+                expected, 
+                ContextWithAS4UserMessage(notifyProducer, _expectedId),
+                sut => sut.HandleExecutionException);
         }
 
         [Theory]
@@ -57,18 +64,60 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         [InlineData(false, default(Operation))]
         public async Task InsertOutException_IfErrorException(bool notifyProducer, Operation expected)
         {
-            await TestHandleExecutionException(notifyProducer, expected, sut => sut.HandleErrorException);
+            await TestHandleExecutionException(
+                expected, 
+                ContextWithAS4UserMessage(notifyProducer, _expectedId),
+                sut => sut.HandleErrorException);
+        }
+
+        private static MessagingContext ContextWithAS4UserMessage(bool notifyProducer, string id)
+        {
+            return new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), default(MessagingContextMode))
+            {
+                SendingPMode = new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = notifyProducer}}
+            };
+        }
+
+        [Fact]
+        public async Task InsertOutException_IfDeliverMessage()
+        {
+            var deliverEnvelope = new EmptyDeliverEnvelope(_expectedId);
+
+            await TestHandleExecutionException(
+                default(Operation), 
+                new MessagingContext(deliverEnvelope), 
+                sut => sut.HandleExecutionException);
+        }
+
+        [Fact]
+        public async Task InsertOutException_IfNotifyMessage()
+        {
+            var notifyEnvelope = new EmptyNotifyEnvelope(_expectedId);
+
+            await TestHandleExecutionException(
+                default(Operation),
+                new MessagingContext(notifyEnvelope),
+                sut => sut.HandleExecutionException);
+        }
+
+        [Fact]
+        public async Task InsertOutMessage_IfSubmitMessage()
+        {
+            var submitMessage = new SubmitMessage {MessageInfo = new MessageInfo(_expectedId, null)};
+
+            await TestHandleExecutionException(
+                default(Operation),
+                new MessagingContext(submitMessage),
+                sut => sut.HandleExecutionException);
         }
 
         private async Task TestHandleExecutionException(
-            bool notifyProducer,
             Operation expected,
+            MessagingContext context,
             Func<IAgentExceptionHandler, Func<Exception, MessagingContext, Task<MessagingContext>>> getExercise)
         {
             // Arrange
             GetDataStoreContext.InsertOutMessage(new OutMessage {EbmsMessageId = _expectedId, Status = OutStatus.Sent});
-
-            MessagingContext context = ContextWithAS4UserMessage(notifyProducer, _expectedId);
 
             var sut = new OutboundExceptionHandler(GetDataStoreContext);
             Func<Exception, MessagingContext, Task<MessagingContext>> exercise = getExercise(sut);
@@ -86,14 +135,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                     Assert.True(expected == exception.Operation, "Not equal 'Operation' inserted");
                     Assert.True(exception.MessageBody == null, "Inserted exception body is not empty");
                 });
-        }
-
-        private static MessagingContext ContextWithAS4UserMessage(bool notifyProducer, string id)
-        {
-            return new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), default(MessagingContextMode))
-            {
-                SendingPMode = new SendingProcessingMode {ExceptionHandling = {NotifyMessageProducer = notifyProducer}}
-            };
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext messageContext)
         {
             Logger.Error(exception.Message);
-            string messageId = messageContext.AS4Message?.GetPrimaryMessageId();
+            string messageId = messageContext.EbmsMessageId;
 
             await SideEffectUsageRepository(
                 repository => repository.UpdateOutMessage(messageId, m => m.Status = OutStatus.Exception));

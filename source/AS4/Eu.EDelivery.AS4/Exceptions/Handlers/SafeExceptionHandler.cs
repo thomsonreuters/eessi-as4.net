@@ -6,6 +6,10 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
 {
+    /// <summary>
+    /// Wrapper for the <see cref="IAgentExceptionHandler"/> implementation to safeguard the exception handling.
+    /// </summary>
+    /// <seealso cref="IAgentExceptionHandler" />
     public class SafeExceptionHandler : IAgentExceptionHandler
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -53,7 +57,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             return await TryHandling(() => _innerHandler.HandleErrorException(exception, context));
         }
 
-        private async Task<MessagingContext> TryHandling(Func<Task<MessagingContext>> actionToTry)
+        private static async Task<MessagingContext> TryHandling(Func<Task<MessagingContext>> actionToTry)
         {
             try
             {

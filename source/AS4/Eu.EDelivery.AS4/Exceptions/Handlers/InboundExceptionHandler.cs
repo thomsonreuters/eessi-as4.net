@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             Logger.Error(exception.Message);
 
-            string messageId = context.AS4Message?.GetPrimaryMessageId();
+            string messageId = context.EbmsMessageId;
 
             await SideEffectRepositoryUsage(
                 repository => repository.UpdateInMessage(messageId, m => m.Status = InStatus.Exception));

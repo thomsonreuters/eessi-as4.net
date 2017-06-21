@@ -160,6 +160,38 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
+        /// Gets the message identifier.
+        /// </summary>
+        /// <value>The message identifier.</value>
+        public string EbmsMessageId
+        {
+            get
+            {
+                if (AS4Message != null)
+                {
+                    return AS4Message.GetPrimaryMessageId();
+                }
+
+                if (DeliverMessage != null)
+                {
+                    return DeliverMessage.MessageInfo.MessageId;
+                }
+
+                if (NotifyMessage != null)
+                {
+                    return NotifyMessage.MessageInfo.RefToMessageId;
+                }
+
+                if (SubmitMessage != null)
+                {
+                    return SubmitMessage.MessageInfo.MessageId;
+                }
+
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Gets the receiving p mode string.
         /// </summary>
         /// <returns></returns>
