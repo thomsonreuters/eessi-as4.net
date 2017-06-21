@@ -77,7 +77,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 UsingAllowedSigningVerification();
 
                 // Act
-                StepResult result = await  _step.ExecuteAsync(_messagingContext, CancellationToken.None);
+                StepResult result = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
 
                 // Assert
                 ErrorResult error = result.MessagingContext.ErrorResult;
