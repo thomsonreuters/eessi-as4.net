@@ -134,6 +134,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
             };
         }
 
+        [Obsolete("No exception will be used to create an 'Error' in the future")]
         public Error BuildWithOriginalAS4Exception()
         {
             _errorMessage.Timestamp = DateTimeOffset.UtcNow;

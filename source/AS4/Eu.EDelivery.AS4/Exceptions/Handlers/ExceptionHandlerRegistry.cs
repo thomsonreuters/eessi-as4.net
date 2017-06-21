@@ -31,7 +31,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             if (Handlers.ContainsKey(type) == false)
             {
-                throw new InvalidOperationException("The Agent Type 'Unknown' is not supported to have a exception handler");
+                throw new InvalidOperationException($"The Agent Type '{type}' is not supported to have a exception handler");
             }
 
             return new SafeExceptionHandler(Handlers[type]());
