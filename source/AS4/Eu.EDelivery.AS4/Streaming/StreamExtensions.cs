@@ -12,8 +12,8 @@ namespace Eu.EDelivery.AS4.Streaming
         /// <returns></returns>
         public static byte[] ToArray(this Stream contents)
         {
-            contents.Position = 0;
-
+            StreamPositionMover.MovePositionToStreamStart(contents);
+            
             using (var streamReader = new StreamReader(contents))
             {
                 return Encoding.UTF8.GetBytes(streamReader.ReadToEnd());
