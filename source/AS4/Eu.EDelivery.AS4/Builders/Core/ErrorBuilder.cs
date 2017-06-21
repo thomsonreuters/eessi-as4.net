@@ -15,6 +15,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
     public class ErrorBuilder
     {
         private readonly Error _errorMessage;
+        private ErrorResult _result;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorBuilder"/> class. 
@@ -22,7 +23,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// </summary>
         public ErrorBuilder()
         {
-            _errorMessage = new Error();
+            _errorMessage = new Error {Errors = new List<ErrorDetail>()};
         }
 
         /// <summary>
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// </param>
         public ErrorBuilder(string messageId)
         {
-            _errorMessage = new Error(messageId);
+            _errorMessage = new Error(messageId) {Errors = new List<ErrorDetail>()};
         }
 
         /// <summary>
@@ -49,11 +50,23 @@ namespace Eu.EDelivery.AS4.Builders.Core
         }
 
         /// <summary>
+        /// Add an error result.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns></returns>
+        public ErrorBuilder WithErrorResult(ErrorResult result)
+        {
+            _result = result;
+            return this;
+        }
+
+        /// <summary>
         /// Add a <see cref="AS4Exception"/> details
         /// to the <see cref="Error"/> Message
         /// </summary>
         /// <param name="exception"></param>
         /// <returns></returns>
+        [Obsolete("No exception will be used to create an 'Error' in the future")]
         public ErrorBuilder WithAS4Exception(AS4Exception exception)
         {
             _errorMessage.Exception = exception;
@@ -62,12 +75,13 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return this;
         }
 
-        private static IList<ErrorDetail> CreateErrorDetails(AS4Exception exception)
+        private IList<ErrorDetail> CreateErrorDetails(AS4Exception exception)
         {
             var errorDetails = new List<ErrorDetail>();
             foreach (string messageId in exception.MessageIds)
             {
                 ErrorDetail detail = CreateErrorDetail(exception);
+
                 detail.RefToMessageInError = messageId;
                 errorDetails.Add(detail);
             }
@@ -99,7 +113,25 @@ namespace Eu.EDelivery.AS4.Builders.Core
             }
 
             _errorMessage.Timestamp = DateTimeOffset.UtcNow;
+
+            if (_result != null)
+            {
+                _errorMessage.Errors.Add(CreateErrorDetail(_result));
+            }
+
             return _errorMessage;
+        }
+
+        private static ErrorDetail CreateErrorDetail(ErrorResult exception)
+        {
+            return new ErrorDetail
+            {
+                Detail = exception.Description,
+                Severity = Severity.FAILURE,
+                ErrorCode = $"EBMS:{(int)exception.Code:0000}",
+                Category = ErrorCodeUtils.GetCategory(exception.Code),
+                ShortDescription = ErrorCodeUtils.GetShortDescription(exception.Code)
+            };
         }
 
         public Error BuildWithOriginalAS4Exception()

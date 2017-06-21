@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps
             public void IsFalseIfStopExecutionIsCalled()
             {
                 // Act
-                StepResult actualStepResult = StepResult.Failed(error: null, context: null).AndStopExecution();
+                StepResult actualStepResult = StepResult.Failed(context: null).AndStopExecution();
 
                 // Assert
                 Assert.False(actualStepResult.CanProceed);

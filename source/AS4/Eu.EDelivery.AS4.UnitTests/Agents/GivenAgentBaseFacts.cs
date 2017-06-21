@@ -187,7 +187,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             {
                 var result = new ErrorResult(description: null, code: default(ErrorCode), alias: default(ErrorAlias));
 
-                return Task.FromResult(StepResult.Failed(result, new HappyContext()));
+                return Task.FromResult(StepResult.Failed(new HappyContext {ErrorResult = result}));
             }
         }
 

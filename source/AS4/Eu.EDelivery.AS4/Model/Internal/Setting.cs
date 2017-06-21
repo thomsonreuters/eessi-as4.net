@@ -139,6 +139,12 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public string OutMessageStoreLocation { get; set; }
     }
 
+    public enum NotifyFlow
+    {
+        Consumer,
+        Producer
+    }
+
     [Serializable]
     [DesignerCategory("code")]
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
@@ -159,6 +165,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
+
+        [XmlAttribute(AttributeName = "type")]
+        public NotifyFlow Type { get; set; }
 
         [XmlElement("NormalPipeline")]
         public Steps NormalPipeline { get; set; }
@@ -188,7 +197,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public string Type { get; set; }
 
         [XmlAttribute(AttributeName = "undecorated")]
-        [Obsolete("Attribute will be removed after the 'Exception-Handling' Refactoring")]
         public bool UnDecorated { get; set; }
 
         [XmlElement("Setting")]

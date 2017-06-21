@@ -15,10 +15,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 [AgentType.Submit] = () => new OutboundExceptionHandler(),
                 [AgentType.Sent] = () => new OutboundExceptionHandler(),
                 [AgentType.Receive] = () => new InboundExceptionHandler(),
-                [AgentType.Deliver] = () => new OutboundExceptionHandler(),
+                [AgentType.Deliver] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyConsumer] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyProducer] = () => new OutboundExceptionHandler(),
                 [AgentType.PullReceive] = () => new InboundExceptionHandler(),
+                [AgentType.ReceptionAwareness] = () => new LogExceptionHandler()
             };
 
         /// <summary>

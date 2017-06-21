@@ -26,12 +26,6 @@ namespace Eu.EDelivery.AS4.Steps
         public AS4Exception Exception { get; private set; }
 
         /// <summary>
-        /// Gets the error result.
-        /// </summary>
-        /// <value>The error result.</value>
-        public ErrorResult ErrorResult { get; private set; }
-
-        /// <summary>
         /// Gets the included <see cref="MessagingContext"/> send throughout the step execution.
         /// </summary>
         public MessagingContext MessagingContext { get; private set; }
@@ -84,12 +78,11 @@ namespace Eu.EDelivery.AS4.Steps
         /// <summary>
         /// Return a Failed <see cref="StepResult" />.
         /// </summary>
-        /// <param name="error">The error.</param>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        public static StepResult Failed(ErrorResult error, MessagingContext context)
+        public static StepResult Failed(MessagingContext context)
         {
-            return new StepResult(succeeded: false) {ErrorResult = error, MessagingContext = context};
+            return new StepResult(succeeded: false) {MessagingContext = context};
         }
         
         /// <summary>

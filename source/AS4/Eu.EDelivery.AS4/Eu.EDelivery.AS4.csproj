@@ -329,6 +329,7 @@
     <Compile Include="Exceptions\ErrorResult.cs" />
     <Compile Include="Exceptions\Handlers\ExceptionHandlerRegistry.cs" />
     <Compile Include="Exceptions\Handlers\InboundExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\LogExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\MinderExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\SafeExceptionHandler.cs" />

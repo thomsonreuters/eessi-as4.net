@@ -294,9 +294,9 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomAgents()
         {
-            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.ReceptionAwarenessAgent);
-            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.NotifyAgents);
-            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.DeliverAgents);
+            AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents.ReceptionAwarenessAgent);
+            AddCustomAgentsIfNotNull(_settings.Agents.NotifyAgents);
+            AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
             AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SendAgents);
             AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
             AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.ReceiveAgents);
@@ -314,6 +314,27 @@ namespace Eu.EDelivery.AS4.Common
                     if (setting != null)
                     {
                         _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting }); 
+                    }
+                }
+            }
+        }
+
+        private void AddCustomAgentsIfNotNull(AgentSettings[] agents)
+        {
+            if (agents != null)
+            {
+                _agents.AddRange(agents.Where(a => a != null));
+
+                foreach (AgentSettings setting in agents)
+                {
+                    if (setting != null)
+                    {
+                        AgentType type = 
+                            setting.Type == NotifyFlow.Consumer
+                                ? AgentType.NotifyConsumer
+                                : AgentType.NotifyProducer;
+
+                        _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting });
                     }
                 }
             }

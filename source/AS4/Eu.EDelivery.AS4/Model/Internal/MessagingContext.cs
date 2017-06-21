@@ -119,6 +119,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public Exception Exception { get; set; }
 
+        public ErrorResult ErrorResult { get; set; }
+
         public SendingProcessingMode SendingPMode { get; set; }
 
         private ReceivingProcessingMode _receivingPMode;
