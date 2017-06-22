@@ -1,8 +1,5 @@
 ﻿using System.Linq;
 using AutoMapper;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
@@ -37,22 +34,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
 
                         modelPartInfo.Properties = xmlPartInfo.PartProperties
                             .ToDictionary(property => property.name, property => property.Value);
-
-                        if (modelPartInfo.Href != null && !modelPartInfo.Href.StartsWith("cid:"))
-                        {
-                            throw ThrowNoExternalPayloadsSupportedException(modelPartInfo);
-                        }
                     });
-        }
-
-        private static AS4Exception ThrowNoExternalPayloadsSupportedException(Model.Core.PartInfo modelPartInfo)
-        {
-            return AS4ExceptionBuilder
-                .WithDescription($"AS4Message only support embedded Payloads and: '{modelPartInfo.Href}' was given")
-                .WithErrorCode(ErrorCode.Ebms0011)
-                .WithMessageIds(IdentifierFactory.Instance.Create())
-                .WithErrorAlias(ErrorAlias.ExternalPayloadError)
-                .Build();
         }
     }
 

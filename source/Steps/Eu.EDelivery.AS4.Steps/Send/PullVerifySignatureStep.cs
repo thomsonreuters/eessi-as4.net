@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 await _verificationStep.ExecuteAsync(messagingContext, cancellationToken);
                 return result;
             }
-            catch (AS4Exception)
+            catch (Exception)
             {
                 throw PullRequestValidationException.InvalidSignature(messagingContext.AS4Message.GetPrimaryMessageId());
             }

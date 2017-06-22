@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -60,13 +59,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             [Fact]
             public async Task ThenExecuteFailsWithMissingMimTypePartPropertyAsync()
             {
-                // Act
+                // Arrange
                 MessagingContext context = CompressedAS4Message();
                 Attachment attachment = context.AS4Message.Attachments.First();
                 attachment.Properties.Remove("MimeType");
 
+                // Act
+                StepResult result = await ExerciseDecompress(context);
+                
                 // Assert
-                await Assert.ThrowsAsync<AS4Exception>(() => ExerciseDecompress(context));
+                ErrorResult error = result.MessagingContext.ErrorResult;
+                Assert.Equal(ErrorCode.Ebms0303, error.Code);
             }
         }
 

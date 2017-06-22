@@ -169,10 +169,10 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(SendAS4ReceiptStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(SendAS4SignalMessageStep).AssemblyQualifiedName},
                         new Step {UnDecorated = true, Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
                         new Step {UnDecorated = true, Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(SendAS4ErrorStep).AssemblyQualifiedName}
+                        new Step {UnDecorated = true, Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
                     }
             };
         }

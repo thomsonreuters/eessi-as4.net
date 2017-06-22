@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// </summary>
         /// <param name="description">
         /// </param>
-        internal AS4Exception(string description) : base(description) {}
+        public AS4Exception(string description) : base(description) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4Exception" /> class.

@@ -282,6 +282,8 @@
     <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
     <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
     <Compile Include="Repositories\DatastoreExtensions.cs" />
+    <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
+    <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />
     <Compile Include="Receivers\SpyReceiver.cs" />
@@ -429,14 +431,12 @@
     <Compile Include="Steps\Notify\GivenNotifyUpdateInExceptionDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyUpdateOutExceptionDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenSendNotifyMessageStepFacts.cs" />
-    <Compile Include="Steps\Participant\FakePModeRuleVisotor.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ErrorStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecryptAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenReceiveExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenDeliverUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
-    <Compile Include="Steps\Receive\GivenSendAS4ReceiptStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenUpdateReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeAgreementRefRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeIdRuleFacts.cs" />
@@ -573,6 +573,7 @@
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
     <None Include="Resources\multihopreceipt.xml" />
+    <None Include="Resources\as4message_external_payloads.as4" />
     <Content Include="Resources\receipt.xml" />
     <Content Include="Resources\receivingprocessingmode.xml" />
     <Content Include="Resources\sendingprocessingmode.xml" />
@@ -585,6 +586,7 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Steps\Participant\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
 using NLog;
-using Exception = System.Exception;
 
 namespace Eu.EDelivery.AS4.Steps.Receive
 {
@@ -23,95 +20,78 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private const string GzipContentType = "application/gzip";
 
-        private readonly ILogger _logger;
-
-        private MessagingContext _messagingContext;
-
-        /// <summary>
-        /// Initializes a new instance of the type <see cref="DecompressAttachmentsStep"/> class
-        /// </summary>
-        public DecompressAttachmentsStep()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Decompress any Attachments
         /// </summary>
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="AS4Exception">Throws exception when AS4 Message cannot be decompressed</exception>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            _messagingContext = messagingContext;
-
-            if (!messagingContext.AS4Message.HasAttachments)
+            if (messagingContext.AS4Message.HasAttachments)
             {
-                return await ReturnSameInternalMessage(messagingContext).ConfigureAwait(false);
+                return await TryDecompressAttachments(messagingContext).ConfigureAwait(false);
             }
 
-            await TryDecompressAttachments(messagingContext).ConfigureAwait(false);
+            Logger.Debug($"[{messagingContext.AS4Message.GetPrimaryMessageId()}] AS4Message hasn't got any Attachments to decompress");
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
-        {
-            _logger.Debug($"{_messagingContext.Prefix} AS4Message hasn't got any Attachments");
-            return await StepResult.SuccessAsync(messagingContext);
-        }
-
-        private async Task TryDecompressAttachments(MessagingContext message)
+        private static async Task<StepResult> TryDecompressAttachments(MessagingContext context)
         {
             try
             {
-                AS4Message as4Message = message.AS4Message;
-                await DecompressAttachments(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), as4Message.Attachments).ConfigureAwait(false);
-                _logger.Info(
-                    $"{_messagingContext.Prefix} Try Decompress AS4 Message Attachments with GZip Compression");
+                return await DecompressAttachments(context).ConfigureAwait(false);
             }
-            catch (Exception exception)
+            catch (Exception exception) 
+            when (
+                exception is ArgumentException 
+                || exception is ObjectDisposedException 
+                || exception is InvalidDataException)
             {
-                throw ThrowAS4CannotDecompressException(exception, message);
+                return DecompressFailureResult(exception.Message, context);
             }
         }
 
-        private async Task DecompressAttachments(List<PartInfo> messagePayloadInformation, ICollection<Attachment> attachments)
+        private static async Task<StepResult> DecompressAttachments(MessagingContext context)
         {
-            foreach (Attachment attachment in attachments)
+            AS4Message as4Message = context.AS4Message;
+
+            foreach (Attachment attachment in as4Message.Attachments)
             {
                 if (IsAttachmentNotCompressed(attachment))
                 {
+                    Logger.Debug($"[{as4Message.GetPrimaryMessageId()}] Attachment {attachment.Id} is not Compressed");
                     continue;
                 }
 
                 if (HasntAttachmentMimeTypePartProperty(attachment))
                 {
-                    throw ThrowMissingMimeTypePartyPropertyException(attachment);
+                    string description = $"Attachment {attachment.Id} hasn't got a MimeType PartProperty";
+                    return DecompressFailureResult(description, context);
                 }
 
+                Logger.Debug($"[{as4Message.GetPrimaryMessageId()}] Attachment {attachment.Id} will be Decompressed");
                 await DecompressAttachment(attachment).ConfigureAwait(false);
-                AssignAttachmentProperties(messagePayloadInformation, attachment);
-            }
-        }
-
-        private static AS4Exception ThrowMissingMimeTypePartyPropertyException(Attachment attachment)
-        {
-            string description = $"Attachment {attachment.Id} hasn't got a MimeType PartProperty";
-            return AS4ExceptionBuilder.WithDescription(description).Build();
-        }
-
-        private bool IsAttachmentNotCompressed(Attachment attachment)
-        {
-            bool isNotCompressed = !attachment.ContentType.Equals(GzipContentType, StringComparison.OrdinalIgnoreCase) &&
-                                   !attachment.Properties.ContainsKey("CompressionType");
-
-            if (isNotCompressed)
-            {
-                _logger.Debug($"{_messagingContext.Prefix} Attachment {attachment.Id} is not Compressed");
+                AssignAttachmentProperties(as4Message.PrimaryUserMessage.PayloadInfo.ToList(), attachment);
             }
 
-            return isNotCompressed;
+            Logger.Info($"[{as4Message.GetPrimaryMessageId()}] Decompress AS4 Message Attachments with GZip Compression");
+            return await StepResult.SuccessAsync(context);
+        }
+
+        private static StepResult DecompressFailureResult(string description, MessagingContext context)
+        {
+            context.ErrorResult = new ErrorResult(description, ErrorCode.Ebms0303, ErrorAlias.DecompressionFailure);
+            return StepResult.Failed(context);
+        }
+
+        private static bool IsAttachmentNotCompressed(Attachment attachment)
+        {
+            return !attachment.ContentType.Equals(GzipContentType, StringComparison.OrdinalIgnoreCase) &&
+                   !attachment.Properties.ContainsKey("CompressionType");
         }
 
         private static bool HasntAttachmentMimeTypePartProperty(Attachment attachment)
@@ -119,14 +99,15 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return !attachment.Properties.ContainsKey("MimeType");
         }
 
-        private async Task DecompressAttachment(Attachment attachment)
+        private static async Task DecompressAttachment(Attachment attachment)
         {
-            _logger.Debug($"{_messagingContext.Prefix} Attachment {attachment.Id} will be Decompressed");
-
             attachment.ResetContentPosition();
 
-            VirtualStream outputStream = VirtualStream.CreateVirtualStream(expectedSize: (attachment.Content.CanSeek) ? attachment.Content.Length : VirtualStream.ThresholdMax);
-            using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, leaveOpen: true))
+            VirtualStream outputStream =
+                VirtualStream.CreateVirtualStream(
+                    attachment.Content.CanSeek ? attachment.Content.Length : VirtualStream.ThresholdMax);
+
+            using (var gzipCompression = new GZipStream(attachment.Content, CompressionMode.Decompress, true))
             {
                 await gzipCompression.CopyToAsync(outputStream).ConfigureAwait(false);
                 outputStream.Position = 0;
@@ -137,9 +118,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static void AssignAttachmentProperties(List<PartInfo> messagePayloadInfo, Attachment attachment)
         {
             attachment.Properties["CompressionType"] = GzipContentType;
-            string mimeType = GetMimeType(messagePayloadInfo, attachment);
+            string mimeType = messagePayloadInfo.Find(attachment.Matches).Properties["MimeType"];
 
-            if (String.IsNullOrWhiteSpace(mimeType))
+            if (string.IsNullOrWhiteSpace(mimeType))
             {
                 throw new InvalidDataException($"MimeType is not specified for attachment {attachment.Id}");
             }
@@ -151,26 +132,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             attachment.Properties["MimeType"] = mimeType;
             attachment.ContentType = mimeType;
-        }
-
-        private static string GetMimeType(List<PartInfo> messagePayloadInfo, Attachment attachment)
-        {
-            return messagePayloadInfo.Find(i => attachment.Matches(i)).Properties["MimeType"];
-        }
-
-        private static AS4Exception ThrowAS4CannotDecompressException(Exception exception, MessagingContext message)
-        {
-            AS4Message as4Message = message.AS4Message;
-            string description = $"Cannot decompress the message: {exception.Message}";
-            LogManager.GetCurrentClassLogger().Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(as4Message.MessageIds)
-                .WithErrorCode(ErrorCode.Ebms0303)
-                .WithInnerException(exception)
-                .WithReceivingPMode(message.ReceivingPMode)
-                .Build();
         }
     }
 }

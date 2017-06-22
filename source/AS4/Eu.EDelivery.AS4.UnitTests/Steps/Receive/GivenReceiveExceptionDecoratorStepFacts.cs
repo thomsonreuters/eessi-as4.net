@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             return new CompositeStep(
                 new ReceiveExceptionStepDecorator(catchedStep ?? new SinkStep()),
                 new CreateAS4ErrorStep(new StubMessageBodyStore(), () => new DatastoreContext(Options)),
-                new SendAS4ErrorStep());
+                new SendAS4SignalMessageStep());
         }
 
         protected ReceivingProcessingMode GetStubReceivingPMode()

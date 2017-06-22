@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,12 +73,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 InsertReceivedOutMessage("other message id");
                 MessagingContext message = ReceiptAS4MessageWithSendingPMode(EbmsMessageId);
                 
-                // Act
-                await Step.ExecuteAsync(message, CancellationToken.None);
-
-                // Assert
-                Assert.Null(GetOutMessage(EbmsMessageId));
-                Assert.Null(GetInMessageWithRefToMessageId(EbmsMessageId));
+                // Act / Assert
+                await Assert.ThrowsAnyAsync<Exception>(
+                    () => Step.ExecuteAsync(message, CancellationToken.None));
             }
 
             private void InsertReceivedOutMessage(string messageId = EbmsMessageId)

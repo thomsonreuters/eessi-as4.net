@@ -162,10 +162,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Strategies
                 SigningStrategy signStrategy = ConfigureDefaultSignStrategy(xmlDocument);
 
                 // Act / Assert
-                var as4Exception = Assert.Throws<AS4Exception>(
+                Assert.Throws<System.Security.Cryptography.CryptographicException>(
                     () => signStrategy.VerifySignature(EmptyVerifyConfig()));
-
-                Assert.Equal(ErrorCode.Ebms0101, as4Exception.ErrorCode);
             }
 
             private static SigningStrategy ConfigureDefaultSignStrategy(XmlDocument document)

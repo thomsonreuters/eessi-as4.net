@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Xml;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Signing;
 

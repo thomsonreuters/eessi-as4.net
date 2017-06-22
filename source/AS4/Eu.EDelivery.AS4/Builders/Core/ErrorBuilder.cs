@@ -5,6 +5,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
+using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 
 namespace Eu.EDelivery.AS4.Builders.Core
@@ -122,15 +123,17 @@ namespace Eu.EDelivery.AS4.Builders.Core
             return _errorMessage;
         }
 
-        private static ErrorDetail CreateErrorDetail(ErrorResult exception)
+        private static ErrorDetail CreateErrorDetail(ErrorResult error)
         {
+            LogManager.GetCurrentClassLogger().Debug("Adds detail: " + error.Description);
+
             return new ErrorDetail
             {
-                Detail = exception.Description,
+                Detail = error.Description,
                 Severity = Severity.FAILURE,
-                ErrorCode = $"EBMS:{(int)exception.Code:0000}",
-                Category = ErrorCodeUtils.GetCategory(exception.Code),
-                ShortDescription = ErrorCodeUtils.GetShortDescription(exception.Code)
+                ErrorCode = $"EBMS:{(int)error.Code:0000}",
+                Category = ErrorCodeUtils.GetCategory(error.Code),
+                ShortDescription = ErrorCodeUtils.GetShortDescription(error.Code)
             };
         }
 

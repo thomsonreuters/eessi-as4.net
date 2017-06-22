@@ -43,6 +43,9 @@
       <HintPath>..\..\packages\AutoMapper.5.0.2\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.1.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\..\packages\BouncyCastle.1.8.1\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
     <Reference Include="FluentValidation, Version=6.2.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FluentValidation.6.2.1.0\lib\Net45\FluentValidation.dll</HintPath>
       <Private>True</Private>
@@ -193,6 +196,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\InExceptionStepDecorator.cs" />
+    <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
+    <Compile Include="Receive\ValidateAS4MessageStep.cs" />
     <Compile Include="Send\PullOutExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\MinderTestCreateDeliverEnvelopeStep.cs" />
@@ -207,8 +212,6 @@
     <Compile Include="Notify\NotifyUpdateInMessageDatastoreStep.cs" />
     <Compile Include="Receive\CreateAS4ErrorStep.cs" />
     <Compile Include="Receive\DecryptAS4MessageStep.cs" />
-    <Compile Include="Receive\SendAS4ErrorStep.cs" />
-    <Compile Include="Receive\SendAS4ReceiptStep.cs" />
     <Compile Include="Receive\StoreAS4ReceiptStep.cs" />
     <Compile Include="Receive\UpdateReceivedAS4MessageBodyStep.cs" />
     <Compile Include="ReceptionAwareness\ReceptionAwarenessUpdateDatastoreStep.cs" />

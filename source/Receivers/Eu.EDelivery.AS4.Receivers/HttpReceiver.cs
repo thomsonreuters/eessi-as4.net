@@ -625,10 +625,10 @@ namespace Eu.EDelivery.AS4.Receivers
                         {
                             ISerializer serializer = SerializerProvider.Get(_messagingContext.AS4Message.ContentType);
 
-                            await serializer.SerializeAsync(
+                            serializer.Serialize(
                                 _messagingContext.AS4Message,
                                 responseStream,
-                                CancellationToken.None).ConfigureAwait(false);
+                                CancellationToken.None);
                         }
                     }
                 }

@@ -156,7 +156,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 // Arrange
                 const string expectedId = "message-id";
-                CreateExistingOutMessage(expectedId);
+                await CreateExistingOutMessage(expectedId);
 
                 AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 

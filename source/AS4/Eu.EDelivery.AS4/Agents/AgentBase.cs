@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                result = await ExecuteSteps(_pipelineConfig.happyPath, currentContext, cancellation);
+                result = await ExecuteSteps(_pipelineConfig.happyPath, currentContext, cancellation); 
             }
             catch (Exception exception)
             {
