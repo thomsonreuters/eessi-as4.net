@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Newtonsoft.Json;
@@ -25,8 +23,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public SendingProcessingMode()
         {
             AllowOverride = false;
-            PushConfiguration = new PushConfiguration();
-            PullConfiguration = new PullConfiguration();
             Reliability = new SendReliability();
             ReceiptHandling = new SendHandling();
             ErrorHandling = new SendHandling();
@@ -45,6 +41,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public PullConfiguration PullConfiguration { get; set; }
 
+        public DynamicDiscoveryConfiguration DynamicDiscovery { get; set; }
+
         public SendReliability Reliability { get; set; }
 
         public SendHandling ReceiptHandling { get; set; }
@@ -59,6 +57,25 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         [Info("The id of the sending pmode")]
         public string Id { get; set; }
+
+        #region Serialization-control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool PushConfigurationSpecified => PushConfiguration != null;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool PullConfigurationSpecified => PullConfiguration != null;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool DynamicDiscoverySpecified => DynamicDiscovery != null;
+
+        #endregion
     }
 
     public class Security
@@ -87,6 +104,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             KeyTransport = new KeyEncryption();
             AlgorithmKeySize = 128;
+            PublicKeyType = PublicKeyChoiceType.FindCriteria;
         }
 
         public bool IsEnabled { get; set; }
@@ -95,10 +113,20 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public int AlgorithmKeySize { get; set; }
 
-        public X509FindType PublicKeyFindType { get; set; }
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public PublicKeyChoiceType PublicKeyType { get; set; }
 
-        public string PublicKeyFindValue { get; set; }
+        [XmlChoiceIdentifier(nameof(PublicKeyType))]
+        [XmlElement("PublicKeyFindCriteria", typeof(PublicKeyFindCriteria))]
+        [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
+        public object PublicKeyInformation { get; set; }
 
+        ////public X509FindType PublicKeyFindType { get; set; }
+
+        ////public string PublicKeyFindValue { get; set; }
+        
         public KeyEncryption KeyTransport { get; set; }
 
         #region Properties that control serialization
@@ -113,6 +141,42 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [ScriptIgnore]
         public bool AlgorithmKeySizeSpecified => AlgorithmKeySize > 0;
 
+        ////[XmlIgnore]
+        ////[JsonIgnore]
+        ////[ScriptIgnore]
+        ////public bool PublicKeyFindTypeSpecified { get; set; }
+
+        ////[XmlIgnore]
+        ////[JsonIgnore]
+        ////[ScriptIgnore]
+        ////public bool PublicKeyFindValueSpecified => !string.IsNullOrWhiteSpace(PublicKeyFindValue);
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool KeyTransportSpecified => KeyTransport != null;
+
+        #endregion
+    }
+
+    [XmlType(IncludeInSchema = false)]
+    public enum PublicKeyChoiceType
+    {
+        Certificate,
+        FindCriteria
+    }
+
+    public class PublicKeyCertificate
+    {
+        public string Certificate { get; set; }
+    }
+
+    public class PublicKeyFindCriteria
+    {
+        public X509FindType PublicKeyFindType { get; set; }
+
+        public string PublicKeyFindValue { get; set; }
+
         [XmlIgnore]
         [JsonIgnore]
         [ScriptIgnore]
@@ -122,13 +186,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonIgnore]
         [ScriptIgnore]
         public bool PublicKeyFindValueSpecified => !string.IsNullOrWhiteSpace(PublicKeyFindValue);
-
-        [XmlIgnore]
-        [JsonIgnore]
-        [ScriptIgnore]
-        public bool KeyTransportSpecified => KeyTransport != null;
-
-        #endregion
     }
 
     public class KeyEncryption
@@ -302,6 +359,27 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Protocol Protocol { get; set; }
 
         public TlsConfiguration TlsConfiguration { get; set; }
+    }
+
+    public class DynamicDiscoveryConfiguration
+    {
+        public string SmlScheme { get; set; }
+
+        public string SmpServerDomainName { get; set; }
+
+        public string DocumentIdentifier { get; set; }
+        public string DocumentIdentifierScheme { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicDiscoveryConfiguration"/> class.
+        /// </summary>
+        public DynamicDiscoveryConfiguration()
+        {
+            SmlScheme = "iso6523-actorid-upis";
+            DocumentIdentifier = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1";
+            DocumentIdentifierScheme = "busdox-docid-qns";
+            SmpServerDomainName = string.Empty;
+        }
     }
 
     public class Protocol

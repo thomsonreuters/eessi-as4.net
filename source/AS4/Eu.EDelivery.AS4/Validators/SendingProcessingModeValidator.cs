@@ -21,6 +21,7 @@ namespace Eu.EDelivery.AS4.Validators
         {
             RuleFor(pmode => pmode.Id).NotEmpty();
 
+            RulesForDynamicDiscoveryConfiguration();
             RulesForPullConfiguration();
             RulesForPushConfiguration();
             RulesForReceiptHandling();
@@ -30,22 +31,38 @@ namespace Eu.EDelivery.AS4.Validators
             RulesForEncryption();
         }
 
+        private void RulesForDynamicDiscoveryConfiguration()
+        {
+            RuleFor(pmode => pmode.DynamicDiscovery).NotNull()
+                                                    .When(pmode => pmode.PullConfigurationSpecified == false &&
+                                                                   pmode.PushConfigurationSpecified == false)
+                                                    .WithMessage("The DynamicDiscovery, PullConfiguration or PushConfiguration element must be specified.");
+        }
+
         private void RulesForPullConfiguration()
         {
             Func<SendingProcessingMode, bool> isPulling =
-                pmode => pmode.MepBinding == MessageExchangePatternBinding.Pull;
+                pmode => pmode.MepBinding == MessageExchangePatternBinding.Pull && pmode.DynamicDiscoverySpecified == false;
 
-            RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull().When(isPulling);
-            RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty().When(isPulling);
+            When(p => isPulling(p), delegate
+            {
+                RuleFor(pmode => pmode.PullConfiguration).NotNull().WithMessage("PullConfiguration element must be present when MEP = Pull")
+                  .DependentRules(r => r.RuleFor(pmode => pmode.PullConfiguration.Protocol).NotNull().WithMessage("PullConfiguration/Protocol element must be present")
+                  .DependentRules(x => x.RuleFor(pmode => pmode.PullConfiguration.Protocol.Url).NotEmpty().WithMessage("PullConfiguration/Protocol/Url must not be empty")));
+            });
         }
 
         private void RulesForPushConfiguration()
         {
             Func<SendingProcessingMode, bool> isPushing =
-                pmode => pmode.MepBinding == MessageExchangePatternBinding.Push;
+                pmode => pmode.MepBinding == MessageExchangePatternBinding.Push && pmode.DynamicDiscoverySpecified == false;
 
-            RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull().When(isPushing);
-            RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty().When(isPushing);
+            When(p => isPushing(p), delegate
+            {
+                RuleFor(pmode => pmode.PushConfiguration).NotNull().WithMessage("PushConfiguration element must be present when MEP = Push")
+                  .DependentRules(r => r.RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull().WithMessage("PushConfiguration/Protocol element must be present")
+                  .DependentRules(x => x.RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty().WithMessage("PushConfiguration/Protocol/Url must not be empty")));
+            });           
         }
 
         private void RulesForReceiptHandling()
@@ -139,7 +156,7 @@ namespace Eu.EDelivery.AS4.Validators
                 return;
             }
 
-            var keysizes = new[] {128, 192, 256};
+            var keysizes = new[] { 128, 192, 256 };
             int actualKeySize = model.Security.Encryption.AlgorithmKeySize;
 
             if (!keysizes.Contains(actualKeySize) && model.Security?.Encryption != null)

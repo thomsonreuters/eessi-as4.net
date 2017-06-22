@@ -98,7 +98,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
 
-            return _certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
+            if (encryption.PublicKeyType == PublicKeyChoiceType.FindCriteria)
+            {
+
+            }
+            else if (encryption.PublicKeyType == PublicKeyChoiceType.Certificate) { }
+
+            throw new NotImplementedException();
+           // return _certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
         }
 
         private static Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
