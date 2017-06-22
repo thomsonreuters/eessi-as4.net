@@ -162,7 +162,7 @@ namespace Eu.EDelivery.AS4.Services
                 throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
             }
 
-            if (as4Message.UserMessages.Any())
+            if (as4Message.IsUserMessage)
             {
                 await messageBodyStore.UpdateAS4MessageAsync(messageLocation, as4Message, cancellationToken);
                 UpdateUserMessagesForDeliveryAndNotification(messageContext);
@@ -399,7 +399,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private static bool ReceiptMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return sendingPMode.ReceiptHandling.NotifyMessageProducer;
+            return sendingPMode.ReceiptHandling.NotifyMessageProducer == true;
         }
 
         private static async Task<InMessage> CreateErrorInMessage(
@@ -419,7 +419,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private static bool ErrorMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return sendingPMode.ErrorHandling.NotifyMessageProducer;
+            return sendingPMode.ErrorHandling.NotifyMessageProducer == true;
         }
 
         private void UpdateRefUserMessageStatus(MessageUnit signalMessage, OutStatus status)

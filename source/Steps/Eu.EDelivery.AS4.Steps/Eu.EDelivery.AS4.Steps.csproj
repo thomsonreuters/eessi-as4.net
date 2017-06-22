@@ -196,6 +196,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\InExceptionStepDecorator.cs" />
+    <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
+    <Compile Include="Receive\ValidateAS4MessageStep.cs" />
     <Compile Include="Send\PullOutExceptionStepDecorator.cs" />
     <Compile Include="Deliver\CreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\MinderTestCreateDeliverEnvelopeStep.cs" />
@@ -210,8 +212,6 @@
     <Compile Include="Notify\NotifyUpdateInMessageDatastoreStep.cs" />
     <Compile Include="Receive\CreateAS4ErrorStep.cs" />
     <Compile Include="Receive\DecryptAS4MessageStep.cs" />
-    <Compile Include="Receive\SendAS4ErrorStep.cs" />
-    <Compile Include="Receive\SendAS4ReceiptStep.cs" />
     <Compile Include="Receive\StoreAS4ReceiptStep.cs" />
     <Compile Include="Receive\UpdateReceivedAS4MessageBodyStep.cs" />
     <Compile Include="ReceptionAwareness\ReceptionAwarenessUpdateDatastoreStep.cs" />

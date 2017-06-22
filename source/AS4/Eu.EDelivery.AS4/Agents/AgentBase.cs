@@ -93,10 +93,14 @@ namespace Eu.EDelivery.AS4.Agents
             }
 
             StepResult result = StepResult.Success(currentContext);
+            bool hasAlreadyBeFailed = currentContext.ErrorResult != null;
 
             try
             {
-                result = await ExecuteSteps(_pipelineConfig.happyPath, currentContext, cancellation);
+                if (hasAlreadyBeFailed == false)
+                {
+                    result = await ExecuteSteps(_pipelineConfig.happyPath, currentContext, cancellation); 
+                }
             }
             catch (Exception exception)
             {
@@ -105,7 +109,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                if (result.Succeeded == false && _pipelineConfig.unhappyPath != null)
+                if ((result.Succeeded == false && _pipelineConfig.unhappyPath != null) || hasAlreadyBeFailed == true)
                 {
                     result = await ExecuteSteps(_pipelineConfig.unhappyPath, result.MessagingContext, cancellation);
                 }

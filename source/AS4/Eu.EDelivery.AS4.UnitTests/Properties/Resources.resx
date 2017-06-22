@@ -408,4 +408,7 @@
   <data name="as4_soap_signed_message_with_extra_hashtag" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\as4-soap-signed-encrypted-message-with-extra-hashtag.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="as4message_external_payloads" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\as4message_external_payloads.as4;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Services;
@@ -43,6 +44,8 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
+            Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message for delivery and notifycation");
+
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
                 await UpdateReceivedMessage(messagingContext, datastoreContext, cancellationToken);
@@ -57,20 +60,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             DatastoreContext datastoreContext,
             CancellationToken cancellationToken)
         {
-            try
-            {
-                var repository = new DatastoreRepository(datastoreContext);
-                var service = new InMessageService(repository);
+            var repository = new DatastoreRepository(datastoreContext);
+            var service = new InMessageService(repository);
 
-                await service.UpdateAS4MessageForDeliveryAndNotification(
-                    messageContext: messagingContext,
-                    messageBodyStore: _messageBodyStore,
-                    cancellationToken: cancellationToken);
-            }
-            catch (InvalidDataException exception)
-            {
-                Logger.Error(exception);
-            }
+            await service.UpdateAS4MessageForDeliveryAndNotification(
+                messagingContext,
+                _messageBodyStore,
+                cancellationToken);
         }
     }
 }

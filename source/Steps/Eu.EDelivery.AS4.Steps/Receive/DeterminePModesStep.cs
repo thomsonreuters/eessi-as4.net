@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,25 +23,23 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IConfig _config;        
-        private readonly IPModeRuleVisitor _visitor;
+        private readonly IConfig _config;
+        private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DeterminePModesStep" /> class
         /// </summary>
-        public DeterminePModesStep() : this(Config.Instance, new PModeRuleVisitor()) {}
+        public DeterminePModesStep() : this(Config.Instance, Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeterminePModesStep" /> class
-        /// Create a Determine Receiving PMode Step
-        /// with a given Data store
+        /// Initializes a new instance of the <see cref="DeterminePModesStep" /> class.
         /// </summary>
-        /// <param name="config"> </param>
-        /// <param name="visitor"> </param>
-        internal DeterminePModesStep(IConfig config, IPModeRuleVisitor visitor)
+        /// <param name="config">The configuration.</param>
+        /// <param name="createContext">The create context.</param>
+        public DeterminePModesStep(IConfig config, Func<DatastoreContext> createContext)
         {
             _config = config;
-            _visitor = visitor;
+            _createContext = createContext;
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await DetermineReceivingPModeForUserMessage(messagingContext);
         }
 
-        private static async Task<StepResult> DetermineSendingPModeForSignalMessage(MessagingContext messagingContext)
+        private async Task<StepResult> DetermineSendingPModeForSignalMessage(MessagingContext messagingContext)
         {
             SendPMode pmode = GetPModeFromDatastore(messagingContext.AS4Message);
             if (pmode == null)
@@ -69,7 +68,20 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 return FailedStepResult(description, messagingContext);
             }
 
+            messagingContext.SendingPMode = pmode;
             return await StepResult.SuccessAsync(messagingContext);
+        }
+
+        private SendPMode GetPModeFromDatastore(AS4Message as4Message)
+        {
+            using (DatastoreContext context = _createContext())
+            {
+                var repository = new DatastoreRepository(context);
+
+                return repository.GetOutMessageData(
+                    as4Message.PrimarySignalMessage.RefToMessageId,
+                    m => AS4XmlSerializer.FromString<SendPMode>(m.PMode));
+            }
         }
 
         private async Task<StepResult> DetermineReceivingPModeForUserMessage(MessagingContext messagingContext)
@@ -103,22 +115,10 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return StepResult.Failed(context);
         }
 
-        private static SendPMode GetPModeFromDatastore(AS4Message as4Message)
-        {
-            using (DatastoreContext context = Registry.Instance.CreateDatastoreContext())
-            {
-                var repository = new DatastoreRepository(context);
-
-                return repository.GetOutMessageData(
-                    as4Message.PrimarySignalMessage.RefToMessageId,
-                    m => AS4XmlSerializer.FromString<SendPMode>(m.PMode));
-            }
-        }
-
         private IEnumerable<ReceivePMode> GetPModeFromSettings(AS4Message as4Message)
         {
             List<PModeParticipant> participants = GetPModeParticipants(as4Message.PrimaryUserMessage);
-            participants.ForEach(p => p.Accept(_visitor));
+            participants.ForEach(p => p.Accept(new PModeRuleVisitor()));
 
             PModeParticipant winner = participants.Where(p => p.Points >= 10).Max();
             return participants.Where(p => p.Points == winner?.Points).Select(p => p.PMode);

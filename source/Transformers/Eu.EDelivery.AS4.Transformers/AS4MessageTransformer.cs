@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Linq;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
@@ -24,18 +21,16 @@ namespace Eu.EDelivery.AS4.Transformers
         private readonly ISerializerProvider _provider;
 
         /// <summary>
-        /// Initializes a new intance of the <see cref="AS4MessageTransformer"/> class
+        /// Initializes a new instance of the <see cref="AS4MessageTransformer" /> class.
         /// </summary>
-        public AS4MessageTransformer()
-        {
-            _provider = Registry.Instance.SerializerProvider;
-        }
+        public AS4MessageTransformer() : this(Registry.Instance.SerializerProvider) {}
 
         /// <summary>
-        /// Iniitializes a new instance of the <see cref="AS4MessageTransformer"/> class
-        /// with a given <paramref name="provider"/>
+        /// Initializes a new instance of the <see cref="AS4MessageTransformer" /> class.
+        /// with a given <paramref name="provider" />
         /// </summary>
-        /// <param name="provider"></param>
+        /// <param name="provider">The provider.</param>
+        /// <exception cref="ArgumentNullException">provider</exception>
         public AS4MessageTransformer(ISerializerProvider provider)
         {
             if (provider == null)
@@ -53,31 +48,24 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
-        {           
-            try
-            {
-                Logger.Debug("Transform AS4 Message to Internal Message");
-                PreConditions(message);
+        {
+            Logger.Debug("Transform AS4 Message to Internal Message");
+            PreConditions(message);
 
-                return await TransformMessage(message, cancellationToken);
-            }
-            catch (AS4Exception exception)
-            {
-                Error error = CreateError(exception);
-                return new MessagingContext(CreateErrorMessage(error), MessagingContextMode.Unknown);
-            }
+            return await TransformMessage(message, cancellationToken);
         }
 
-        private static Error CreateError(AS4Exception exception)
+        private void PreConditions(ReceivedMessage message)
         {
-            return new ErrorBuilder()
-                .WithAS4Exception(exception)
-                .BuildWithOriginalAS4Exception();
-        }
+            if (message.RequestStream == null)
+            {
+                throw new InvalidDataException("The incoming stream is not an ebMS Message");
+            }
 
-        private static AS4Message CreateErrorMessage(SignalMessage errorMessage)
-        {
-            return AS4Message.Create(errorMessage);
+            if (!ContentTypeSupporter.IsContentTypeSupported(message.ContentType))
+            {
+                throw new InvalidDataException($"ContentType is not supported {nameof(message.ContentType)}");
+            }
         }
 
         private async Task<MessagingContext> TransformMessage(ReceivedMessage receivedMessage,
@@ -91,29 +79,6 @@ namespace Eu.EDelivery.AS4.Transformers
             receivedMessage.AssignPropertiesTo(message);
 
             return message;
-        }
-
-        private void PreConditions(ReceivedMessage message)
-        {
-            if (message.RequestStream == null)
-            {
-                throw ThrowAS4TransformException("The incoming stream is not an ebMS Message");
-            }
-
-            if (!ContentTypeSupporter.IsContentTypeSupported(message.ContentType))
-            {
-                throw ThrowAS4TransformException($"ContentType is not supported {nameof(message.ContentType)}");
-            }
-        }
-
-        private static AS4Exception ThrowAS4TransformException(string description)
-        {
-            Logger.Error(description);
-
-            throw AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithErrorCode(ErrorCode.Ebms0009)
-                .Build();
         }
     }
 }

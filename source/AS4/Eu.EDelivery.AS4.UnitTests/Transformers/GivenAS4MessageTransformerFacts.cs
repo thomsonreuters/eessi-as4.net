@@ -37,17 +37,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransfromSuceedsWithSoapdAS4StreamAsync()
             {
                 // Arrange
-                MemoryStream memoryStream = CreateAS4MessageWithAttachment().ToStream();
-                var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);
+                const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
                 // Act
-                MessagingContext messagingContext = await Transform(receivedMessage);
-
+                MessagingContext context = await ExerciseTransform(Properties.Resources.as4_single_payload, contentType);
+                
                 // Assert
-                Assert.NotNull(messagingContext);
-                Assert.NotNull(messagingContext.AS4Message);
+                Assert.NotNull(context);
+                Assert.NotNull(context.AS4Message);
             }
-            
+
+            private async Task<MessagingContext> ExerciseTransform(byte[] contents, string contentType)
+            {
+                using (var stream = new MemoryStream(contents))
+                {
+                    var receivedMessage = new ReceivedMessage(stream, contentType);
+
+                    return await Transform(receivedMessage);
+                }
+            }
         }
 
         /// <summary>
@@ -74,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AutoMapperMappingException>(() => Transform(receivedMessage));
+                await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
             }
 
             [Fact]
@@ -83,7 +91,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var saboteurMessage = new ReceivedMessage(Stream.Null, "not-supported-content-type");
 
-                await VerifyIfTheTranformReturnsErrorMessage(saboteurMessage);
+                // Act / Assert
+                await Assert.ThrowsAnyAsync<Exception>(() => Transform(saboteurMessage));
             }
 
             [Fact]
@@ -92,16 +101,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var saboteurMessage = new ReceivedMessage(requestStream: null);
 
-                await VerifyIfTheTranformReturnsErrorMessage(saboteurMessage);
-            }
-
-            private async Task VerifyIfTheTranformReturnsErrorMessage(ReceivedMessage saboteurMessage)
-            {
-                // Act
-                MessagingContext actualMessage = await Transform(saboteurMessage);
-
-                // Assert
-                Assert.IsType<Error>(actualMessage.AS4Message.PrimarySignalMessage);
+                // Act / Assert
+                await Assert.ThrowsAnyAsync<Exception>(() => Transform(saboteurMessage));
             }
         }
 

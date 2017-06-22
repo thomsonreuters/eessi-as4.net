@@ -237,6 +237,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             context.SendingPMode = SendingPMode;
             context.ReceivingPMode = ReceivingPMode;
             context.Mode = Mode;
+            context.ErrorResult = ErrorResult;
 
             return context;
         }
