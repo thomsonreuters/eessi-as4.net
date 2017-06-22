@@ -274,11 +274,14 @@ namespace Eu.EDelivery.AS4.Security.Strategies
                 .References.Cast<CryptoReference>().Where(ReferenceIsCidReference()).ToArray();
 
             foreach (CryptoReference reference in references)
-            {
+            {                
                 var attachment = attachments.FirstOrDefault(a => a.Matches(reference));
                 
-                SetReferenceStream(reference, attachment);
-                SetAttachmentTransformContentType(reference, attachment);
+                if (attachment != null)
+                {
+                    SetReferenceStream(reference, attachment);
+                    SetAttachmentTransformContentType(reference, attachment);
+                }
             }
         }
 
