@@ -45,15 +45,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 return await DecompressAttachments(context).ConfigureAwait(false);
             }
-            catch (ArgumentException exception)
-            {
-                return DecompressFailureResult(exception.Message, context);
-            }
-            catch (ObjectDisposedException exception)
-            {
-                return DecompressFailureResult(exception.Message, context);
-            }
-            catch (InvalidDataException exception)
+            catch (Exception exception) 
+            when (
+                exception is ArgumentException 
+                || exception is ObjectDisposedException 
+                || exception is InvalidDataException)
             {
                 return DecompressFailureResult(exception.Message, context);
             }

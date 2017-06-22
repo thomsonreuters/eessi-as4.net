@@ -85,17 +85,17 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return errorMessage;
         }
 
-        private static Error CreateError(string userMessageId, MessagingContext originalContex)
+        private static Error CreateError(string userMessageId, MessagingContext originalContext)
         {
             Error error = new ErrorBuilder()
                 .WithRefToEbmsMessageId(userMessageId)
-                .WithErrorResult(originalContex.ErrorResult)
+                .WithErrorResult(originalContext.ErrorResult)
                 .Build();
 
-            if (originalContex.SendingPMode?.MessagePackaging.IsMultiHop == true)
+            if (originalContext.SendingPMode?.MessagePackaging.IsMultiHop == true)
             {
                 error.MultiHopRouting =
-                    AS4Mapper.Map<RoutingInputUserMessage>(originalContex.AS4Message?.PrimaryUserMessage);
+                    AS4Mapper.Map<RoutingInputUserMessage>(originalContext.AS4Message?.PrimaryUserMessage);
             }
 
             return error;
