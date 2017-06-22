@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             IEnumerable<PartInfo> invalidPartInfos =
                context.AS4Message.UserMessages.SelectMany(
-                   message => message.PayloadInfo.Where(payload => payload.Href?.StartsWith("cid:") == false));
+                   message => message.PayloadInfo.Where(payload => payload.Href == null || payload.Href.StartsWith("cid:") == false));
 
             if (invalidPartInfos.Any())
             {

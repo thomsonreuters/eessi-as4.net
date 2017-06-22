@@ -21,6 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             // Arrange
             const string contentType = "multipart/related; boundary=\"=-M9awlqbs/xWAPxlvpSWrAg==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
             AS4Message message = await BuildMessageFor(as4message_external_payloads, contentType);
+            message.PrimaryUserMessage.PayloadInfo.First().Href = null;
 
             // Act
             StepResult result = await ExerciseValidation(message);
