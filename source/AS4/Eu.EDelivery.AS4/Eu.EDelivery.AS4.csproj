@@ -320,7 +320,6 @@
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Core\NonRepudiationInformationBuilder.cs" />
     <Compile Include="Builders\Entities\InMessageBuilder.cs" />
-    <Compile Include="Builders\Entities\OutExceptionBuilder.cs" />
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
