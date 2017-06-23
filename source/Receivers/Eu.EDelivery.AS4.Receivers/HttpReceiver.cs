@@ -478,7 +478,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 private static bool AreReceiptsOrErrorsSendInCallbackMode(MessagingContext processorResult)
                 {
                     return (processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty)
-                           && processorResult.AS4Exception == null;
+                           && processorResult.Exception == null;
                 }
 
                 private static bool AreReceiptsOrErrorsSendInResponseMode(MessagingContext processorResult)

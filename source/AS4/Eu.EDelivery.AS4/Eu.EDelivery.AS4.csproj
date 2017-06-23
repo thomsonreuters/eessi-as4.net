@@ -398,7 +398,6 @@
     <Compile Include="Entities\MessageEntity.cs" />
     <Compile Include="Entities\OutException.cs" />
     <Compile Include="Entities\OutMessage.cs" />
-    <Compile Include="Exceptions\AS4Exception.cs" />
     <Compile Include="Exceptions\ErrorCode.cs" />
     <Compile Include="Exceptions\ErrorAlias.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />

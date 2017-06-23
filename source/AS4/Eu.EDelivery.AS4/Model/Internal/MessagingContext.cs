@@ -103,9 +103,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
-        [Obsolete("'AS4 Exception will be removed from context")]
-        public AS4Exception AS4Exception { get; set; }
-
         public Exception Exception { get; set; }
 
         public ErrorResult ErrorResult { get; set; }

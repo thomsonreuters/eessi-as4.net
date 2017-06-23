@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Exceptions;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -18,9 +17,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// </summary>
         /// <param name="messageId"></param>
         public Error(string messageId) : base(messageId) {}
-
-        [XmlIgnore]
-        public AS4Exception Exception { get; set; }
 
         public IList<ErrorDetail> Errors { get; set; }
 

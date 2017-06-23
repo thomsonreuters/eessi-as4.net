@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
+﻿using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Steps
@@ -14,10 +12,6 @@ namespace Eu.EDelivery.AS4.Steps
         {
             Succeeded = succeeded;
         }
-
-        /// <summary>
-        /// </summary>
-        public AS4Exception Exception { get; private set; }
 
         /// <summary>
         /// Gets the included <see cref="MessagingContext"/> send throughout the step execution.
