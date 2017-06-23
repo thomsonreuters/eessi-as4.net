@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
+﻿using System;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Submit;
 
 namespace Eu.EDelivery.AS4.Mappings.Submit
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         public string Resolve(SubmitMessage submitMessage)
         {
             if (DoesSubmitMessageTriesToOverridePModeMpc(submitMessage))
-                throw new AS4Exception($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Mpc");
+                throw new NotSupportedException($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Mpc");
 
             if (submitMessage.PMode.AllowOverride && submitMessage.MessageInfo.Mpc != null)
                 return submitMessage.MessageInfo.Mpc;

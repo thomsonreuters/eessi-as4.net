@@ -237,9 +237,7 @@ namespace Eu.EDelivery.AS4.Builders.Security
                 }
             }
 
-            throw AS4ExceptionBuilder.WithDescription("No Security Token Reference element found in given Xml Document")
-                                     .WithErrorCode(ErrorCode.Ebms0101)
-                                     .Build();
+            throw new XmlException("No Security Token Reference element found in given Xml Document");
         }
     }
 }

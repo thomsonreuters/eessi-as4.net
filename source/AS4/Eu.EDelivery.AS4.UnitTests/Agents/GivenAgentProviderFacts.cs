@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Eu.EDelivery.AS4.Agents;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Agents;
@@ -16,17 +15,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
     public class GivenAgentProviderFacts
     {
         [Fact]
-        public void DontCatchesWrongAgentConfig()
-        {
-            // Act / Assert
-            Assert.ThrowsAny<Exception>(() => new AgentProvider(new SaboteurAgentConfig()));
-        }
-
-        [Fact]
-        public void CatchesAS4Exceptions()
+        public void CatchesExceptionsWhenBuildingAgents()
         {
             // Arrange
-            var expectedException = new AS4Exception("ignored string");
+            var expectedException = new Exception("ignored string");
             var sut = new AgentProvider(new SaboteurAgentConfig(expectedException));
 
             // Act

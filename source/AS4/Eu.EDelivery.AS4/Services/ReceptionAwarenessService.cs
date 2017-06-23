@@ -97,16 +97,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
-                .WithAS4Exception(CreateAS4Exception(messageId))
-                .Build();
-        }
-
-        private static AS4Exception CreateAS4Exception(string messageId)
-        {
-            return AS4ExceptionBuilder
-                .WithDescription($"[{messageId}] Missing Receipt")
-                .WithMessageIds(messageId)
-                .WithErrorCode(ErrorCode.Ebms0301)
+                .WithErrorResult(new ErrorResult($"[{messageId}] Missing Receipt", ErrorCode.Ebms0301, ErrorAlias.MissingReceipt))
                 .Build();
         }
 

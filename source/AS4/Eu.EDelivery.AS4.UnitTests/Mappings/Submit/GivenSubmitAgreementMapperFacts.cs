@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
+﻿using System;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -85,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
             }
 
             [Fact]
@@ -99,7 +100,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
             }
 
             [Fact]
@@ -113,7 +114,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var userMessage = new UserMessage("message-id");
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
+                Assert.ThrowsAny<Exception>(() => new SubmitMessageAgreementMapper().Map(submitMessage, userMessage));
             }
         }
 

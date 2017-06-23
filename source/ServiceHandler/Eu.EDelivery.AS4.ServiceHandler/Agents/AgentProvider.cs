@@ -6,11 +6,9 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
-using Eu.EDelivery.AS4.Steps.Common;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.Steps.Submit;
@@ -57,7 +55,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 AddCustomAgentsToProvider();
                 AddMinderAgentsToProvider();
             }
-            catch (AS4Exception exception)
+            catch (Exception exception)
             {
                 _logger.Error(exception.Message);
             }
@@ -137,18 +135,15 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         [ExcludeFromCodeCoverage]
         private static Model.Internal.Steps CreateSubmitStep()
         {
-            var s = new Model.Internal.Steps
+            return new Model.Internal.Steps
             {
-                Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
                 Step =
                     new[]
                     {
                         new Step {Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName}
                     }
             };
-
-            return s;
         }
 
         [ExcludeFromCodeCoverage]
@@ -156,7 +151,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             return new Model.Internal.Steps
             {
-                Decorator = typeof(ReceiveExceptionStepDecorator).AssemblyQualifiedName,
                 Step =
                     new[]
                     {
@@ -170,9 +164,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SendAS4SignalMessageStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
+                        new Step {Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
                     }
             };
         }

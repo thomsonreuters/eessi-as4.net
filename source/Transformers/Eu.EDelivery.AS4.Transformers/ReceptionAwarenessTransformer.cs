@@ -1,29 +1,19 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Transformers
 {
     /// <summary>
-    /// Transform the given <see cref="ReceptionAwareness"/> Model
-    /// to a <see cref="MessagingContext"/> Model
+    /// Transform the given <see cref="ReceptionAwareness" /> Model
+    /// to a <see cref="MessagingContext" /> Model
     /// </summary>
     public class ReceptionAwarenessTransformer : ITransformer
     {
-        private readonly ILogger _logger;
-
-        /// <summary>
-        /// Create a new <see cref="ITransformer"/> implementation
-        /// to transform to <see cref="ReceptionAwareness"/>
-        /// </summary>
-        public ReceptionAwarenessTransformer()
-        {
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Transform the given Message
@@ -37,11 +27,11 @@ namespace Eu.EDelivery.AS4.Transformers
             ReceptionAwareness awareness = RetrieveReceptionAwareness(entityMessage);
             var internalMessage = new MessagingContext(awareness);
 
-            _logger.Info($"[{awareness.InternalMessageId}] Reception Awareness is successfully transformed");
+            Logger.Info($"[{awareness.InternalMessageId}] Reception Awareness is successfully transformed");
             return await Task.FromResult(internalMessage);
         }
 
-        private ReceptionAwareness RetrieveReceptionAwareness(ReceivedEntityMessage messageEntity)
+        private static ReceptionAwareness RetrieveReceptionAwareness(ReceivedEntityMessage messageEntity)
         {
             var receptionAwareness = messageEntity.Entity as ReceptionAwareness;
             if (receptionAwareness == null)
@@ -52,21 +42,25 @@ namespace Eu.EDelivery.AS4.Transformers
             return receptionAwareness;
         }
 
-        private ReceivedEntityMessage RetrieveEntityMessage(ReceivedMessage message)
+        private static ReceivedEntityMessage RetrieveEntityMessage(ReceivedMessage message)
         {
             var entityMessage = message as ReceivedEntityMessage;
-            if (entityMessage == null) throw ThrowNotSupportedAS4Exception();
+            if (entityMessage == null)
+            {
+                throw ThrowNotSupportedAS4Exception();
+            }
 
             return entityMessage;
         }
 
-        private AS4Exception ThrowNotSupportedAS4Exception()
+        private static NotSupportedException ThrowNotSupportedAS4Exception()
         {
             const string description =
                 "Current Transformer cannot be used for the given Received Message, expecting type of ReceivedEntityMessage";
-            this._logger.Error(description);
 
-            return AS4ExceptionBuilder.WithDescription(description).Build();
+            Logger.Error(description);
+
+            return new NotSupportedException(description);
         }
     }
 }

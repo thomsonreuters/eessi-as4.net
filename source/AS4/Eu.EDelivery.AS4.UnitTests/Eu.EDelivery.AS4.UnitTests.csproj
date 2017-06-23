@@ -310,12 +310,9 @@
     <Compile Include="Steps\Send\GivenPullVerifySignatureStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
-    <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenNonRepudiationInformationBuilderFacts.cs" />
-    <Compile Include="Builders\Entities\GivenInExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenInMessageBuilderFacts.cs" />
-    <Compile Include="Builders\Entities\GivenOutExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenOutMessageBuilderFacts.cs" />
     <Compile Include="Builders\Security\GivenSigningStrategyBuilderFacts.cs" />
     <Compile Include="Builders\Internal\GivenSoapEnvelopeBuilderFacts.cs" />
@@ -419,8 +416,6 @@
     <Compile Include="Servicehandler\Builder\GivenReceiverBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenStepBuilderFacts.cs" />
     <Compile Include="Servicehandler\GivenKernelFacts.cs" />
-    <Compile Include="Steps\Common\GivenInExceptionDecoratorStep.cs" />
-    <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
@@ -433,7 +428,6 @@
     <Compile Include="Steps\Notify\GivenSendNotifyMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ErrorStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecryptAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\Receive\GivenReceiveExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenDeliverUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
@@ -458,7 +452,6 @@
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />
     <Compile Include="Steps\Send\Response\GivenAS4ResponseFacts.cs" />
     <Compile Include="Steps\Send\Response\GivenResponseHandlerFacts.cs" />
-    <Compile Include="Steps\Services\GivenInExceptionServiceFacts.cs" />
     <Compile Include="Steps\Services\GivenReceptionAwarenessServiceFacts.cs" />
     <Compile Include="Steps\SinkStep.cs" />
     <Compile Include="Steps\Services\GivenInMessageServiceFacts.cs" />

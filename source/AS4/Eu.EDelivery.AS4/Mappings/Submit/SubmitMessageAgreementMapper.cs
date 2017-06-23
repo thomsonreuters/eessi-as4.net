@@ -1,4 +1,5 @@
-﻿using Castle.Core.Internal;
+﻿using System;
+using Castle.Core.Internal;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -43,11 +44,11 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             AgreementReference pmodeRef = this._pmode.MessagePackaging.CollaborationInfo?.AgreementReference;
 
             if (DoesSubmitMessageTriesToOverridePModeValues(submitMessageRef.Value, pmodeRef?.Value))
-                throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +
+                throw new NotSupportedException(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +
                                        " to override Agreement Ref Value");
 
             if (DoesSubmitMessageTriesToOverridePModeValues(submitMessageRef.RefType, pmodeRef?.Type))
-                throw new AS4Exception(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +
+                throw new NotSupportedException(NotAllowedByTheSendingPMode + submitMessage.PMode.Id +
                                        " to override Agreement Ref Type");
         }
 

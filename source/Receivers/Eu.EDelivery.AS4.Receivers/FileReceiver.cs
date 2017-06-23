@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -165,13 +163,13 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private async Task HandleException(FileInfo fileInfo, AS4Exception as4Exception)
+        private async Task HandleException(FileInfo fileInfo, Exception as4Exception)
         {
             MoveFile(fileInfo, "exception");
             await CreateExceptionFile(fileInfo, as4Exception);
         }
 
-        private async Task CreateExceptionFile(FileSystemInfo fileInfo, AS4Exception as4Exception)
+        private async Task CreateExceptionFile(FileSystemInfo fileInfo, Exception as4Exception)
         {
             string fileName = fileInfo.FullName + ".details";
             Logger.Info($"Exception Details are stored at: {fileName}");

@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 
@@ -62,7 +59,6 @@ namespace Eu.EDelivery.AS4.Builders.Core
         }
 
         /// <summary>
-        /// Add a <see cref="AS4Exception"/> details
         /// to the <see cref="Error"/> Message
         /// </summary>
         /// <param name="exception"></param>

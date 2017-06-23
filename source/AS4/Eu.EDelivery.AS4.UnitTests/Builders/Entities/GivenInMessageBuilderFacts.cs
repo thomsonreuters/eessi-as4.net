@@ -69,7 +69,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Receipt messageUnit = CreateReceiptMessageUnit();
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(
+                Assert.ThrowsAny<Exception>(
                     () => InMessageBuilder.ForSignalMessage(messageUnit, belongsToAS4Message: null).Build(CancellationToken.None));
             }
 
@@ -80,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 AS4Message as4Message = AS4Message.Empty;                
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(
+                Assert.ThrowsAny<Exception>(
                     () => InMessageBuilder.ForUserMessage(null, as4Message).Build(CancellationToken.None));
             }
 

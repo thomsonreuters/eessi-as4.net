@@ -22,9 +22,6 @@ namespace Eu.EDelivery.AS4.Model.Core
         [XmlIgnore]
         public AS4Exception Exception { get; set; }
 
-        [XmlIgnore]
-        public bool IsFormedByException => Exception != null;
-
         public IList<ErrorDetail> Errors { get; set; }
 
         /// <summary>

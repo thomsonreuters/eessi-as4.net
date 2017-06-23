@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Xml;
@@ -35,17 +36,9 @@ namespace Eu.EDelivery.AS4.Security.Repositories
             XmlNode nodeSignature = this._document.SelectSingleNode("//*[local-name()='Signature'] ");
             var xmlSignature = nodeSignature as XmlElement;
             if (nodeSignature == null || xmlSignature == null)
-                throw ThrowAS4SignException("Invalid Signature: Signature Tag not found");
+                throw new CryptographicException("Invalid Signature: Signature Tag not found");
 
             return xmlSignature;
-        }
-
-        private static AS4Exception ThrowAS4SignException(string description)
-        {
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithErrorCode(ErrorCode.Ebms0101)
-                .Build();
         }
 
         /// <summary>

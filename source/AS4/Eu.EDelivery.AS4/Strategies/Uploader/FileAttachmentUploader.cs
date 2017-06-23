@@ -74,14 +74,10 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             catch (SystemException ex)
             {
                 Logger.Error($"An error occured while uploading the attachment: {ex.Message}");
-                throw ThrowAS4UploadException($"Unable to upload attachment {attachment.Id} to {attachment.Location}");
-            }
-        }
+                string description = $"Unable to upload attachment {attachment.Id} to {attachment.Location}";
 
-        private static AS4Exception ThrowAS4UploadException(string description)
-        {
-            Logger.Info(description);
-            return new AS4Exception(description);
+                throw new IOException(description);
+            }
         }
 
         private static async Task UploadAttachment(Attachment attachment, string attachmentFilePath)

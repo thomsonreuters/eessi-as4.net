@@ -195,7 +195,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\InExceptionStepDecorator.cs" />
     <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
     <Compile Include="Receive\ValidateAS4MessageStep.cs" />
     <Compile Include="Send\PullOutExceptionStepDecorator.cs" />
@@ -223,7 +222,6 @@
     <Compile Include="Send\Response\TailResponseHandler.cs" />
     <Compile Include="Send\SelectUserMessageToSendStep.cs" />
     <Compile Include="Send\SetReceptionAwarenessStep.cs" />
-    <Compile Include="Receive\ReceiveExceptionStepDecorator.cs" />
     <Compile Include="Receive\DecompressAttachmentsStep.cs" />
     <Compile Include="Receive\Participant\PModeParticipant.cs" />
     <Compile Include="Receive\SaveReceivedMessageStep.cs" />
@@ -240,7 +238,6 @@
     <Compile Include="Send\VerifyPullRequestAuthorizationStep.cs" />
     <Compile Include="Submit\CreateAS4MessageStep.cs" />
     <Compile Include="Send\EncryptAS4MessageStep.cs" />
-    <Compile Include="Common\OutExceptionStepDecorator.cs" />
     <Compile Include="Receive\DeterminePModesStep.cs" />
     <Compile Include="Submit\CreateDefaultAS4MessageStep.cs" />
     <Compile Include="Submit\RetrieveSendingPModeStep.cs" />

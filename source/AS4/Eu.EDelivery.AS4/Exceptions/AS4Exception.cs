@@ -12,24 +12,7 @@ namespace Eu.EDelivery.AS4.Exceptions
     {
         private readonly List<string> _messageIds = new List<string>();
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AS4Exception" /> class.
-        /// Create a new <see cref="AS4Exception" />
-        /// </summary>
-        /// <param name="description">
-        /// </param>
         public AS4Exception(string description) : base(description) {}
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AS4Exception" /> class.
-        /// Create a new <see cref="AS4Exception" />
-        /// with a given <paramref name="message" /> and <paramref name="innerException" />
-        /// </summary>
-        /// <param name="message">
-        /// </param>
-        /// <param name="innerException">
-        /// </param>
-        internal AS4Exception(string message, Exception innerException) : base(message, innerException) {}
 
         public ErrorCode ErrorCode { get; internal set; }
 

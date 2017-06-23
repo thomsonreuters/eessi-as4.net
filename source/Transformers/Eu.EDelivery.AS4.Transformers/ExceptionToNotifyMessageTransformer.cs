@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,12 +76,12 @@ namespace Eu.EDelivery.AS4.Transformers
             return exceptionEntity;
         }
 
-        private static AS4Exception ThrowNotSupportedTypeException()
+        private static NotSupportedException ThrowNotSupportedTypeException()
         {
             const string description = "Exception Transformer only supports Exception Entities";
             Logger.Error(description);
 
-            return AS4ExceptionBuilder.WithDescription(description).Build();
+            return new NotSupportedException(description);
         }
 
         private async Task<AS4Message> CreateErrorAS4Message(ExceptionEntity exceptionEntity, CancellationToken cancellationTokken)
@@ -95,21 +96,9 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
         {
-            AS4Exception as4Exception = CreateAS4Exception(exceptionEntity);
-
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(exceptionEntity.EbmsRefToMessageId)
-                .WithAS4Exception(as4Exception)
-                .Build();
-        }
-
-        private static AS4Exception CreateAS4Exception(ExceptionEntity exceptionEntity)
-        {
-            return AS4ExceptionBuilder
-                .WithDescription(exceptionEntity.Exception)
-                .WithMessageIds(exceptionEntity.EbmsRefToMessageId)
-                .WithPModeString(exceptionEntity.PMode)
-                .WithErrorCode(ErrorCode.Ebms0004)
+                .WithErrorResult(new ErrorResult(exceptionEntity.Exception, ErrorCode.Ebms0004, ErrorAlias.Other))
                 .Build();
         }
 
@@ -136,6 +125,11 @@ namespace Eu.EDelivery.AS4.Transformers
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
         {
             var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
+
+            if (notifyMessage?.StatusInfo != null)
+            {
+                notifyMessage.StatusInfo.Status = Status.Exception;
+            }
 
             var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage);
 

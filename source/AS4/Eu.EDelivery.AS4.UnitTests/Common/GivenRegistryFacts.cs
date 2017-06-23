@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             IPayloadRetrieverProvider provider = Registry.PayloadRetrieverProvider;
 
             // Assert
-            Assert.Throws<AS4Exception>(() => provider.Get(new Payload("not-supported-location")));
+            Assert.ThrowsAny<Exception>(() => provider.Get(new Payload("not-supported-location")));
         }
     }
 }

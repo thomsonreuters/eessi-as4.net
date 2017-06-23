@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         {
             if (submitMessage.PMode.AllowOverride == false && DoesSubmitMessageTriesToOverridePModeValues(submitMessage))
             {
-                throw new AS4Exception($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Action");
+                throw new NotSupportedException($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Action");
             }
 
             if (!string.IsNullOrEmpty(submitMessage.Collaboration.Action))

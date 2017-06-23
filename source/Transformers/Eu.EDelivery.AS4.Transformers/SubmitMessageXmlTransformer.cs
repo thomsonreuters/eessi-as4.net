@@ -67,15 +67,12 @@ namespace Eu.EDelivery.AS4.Transformers
             return serializer.Deserialize(stream) as SubmitMessage;
         }
 
-        private static AS4Exception ThrowDeserializeAS4Exception(Exception exception)
+        private static ApplicationException ThrowDeserializeAS4Exception(Exception exception)
         {
             const string description = "Deserialize Submit Message Fails";
             Logger.Error(description);
 
-            AS4ExceptionBuilder builder =
-                AS4ExceptionBuilder.WithDescription(description, exception).WithInnerException(exception);
-
-            return builder.Build();
+            return new ApplicationException(description, exception);
         }
 
         private void ValidateSubmitMessage(SubmitMessage submitMessage)
@@ -90,15 +87,12 @@ namespace Eu.EDelivery.AS4.Transformers
                           });
         }
 
-        private static AS4Exception ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
+        private static ApplicationException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
         {
             string description = $"Submit Message {submitMessage.MessageInfo.MessageId} was invalid, see logging";
             Logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(submitMessage.MessageInfo.MessageId)
-                .Build();
+            return new ApplicationException(description);
         }
     }
 }

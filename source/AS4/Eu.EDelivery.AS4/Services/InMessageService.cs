@@ -280,7 +280,10 @@ namespace Eu.EDelivery.AS4.Services
             }
             catch (Exception ex)
             {
-                ThrowAS4Exception($"Unable to update UserMessage {userMessage.MessageId}", message, ex);
+                string description = $"Unable to update UserMessage {userMessage.MessageId}";
+                Logger.Error(description);
+
+                throw new ApplicationException(description, ex);
             }
         }
 
@@ -337,7 +340,10 @@ namespace Eu.EDelivery.AS4.Services
             }
             catch (Exception exception)
             {
-                ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", message, exception);
+                string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
+                Logger.Error(description);
+
+                throw new ApplicationException(description, exception);
             }
         }
 
@@ -437,17 +443,6 @@ namespace Eu.EDelivery.AS4.Services
         private static bool UserMessageNeedsToBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
-        }
-
-        private static void ThrowAS4Exception(string description, MessagingContext message, Exception exception)
-        {
-            Logger.Error(description);
-
-            throw AS4ExceptionBuilder.WithDescription(description)
-                                     .WithMessageIds(message.AS4Message.MessageIds)
-                                     .WithInnerException(exception)
-                                     .WithReceivingPMode(message.ReceivingPMode)
-                                     .Build();
         }
     }
 }

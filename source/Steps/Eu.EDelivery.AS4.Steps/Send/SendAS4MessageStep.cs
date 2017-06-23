@@ -93,30 +93,29 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 Logger.Error(
                     $"{messagingContext.Prefix} An error occured while trying to send the message: {exception.Message}");
 
-                return HandleSendAS4Exception(messagingContext, exception);
+                return await HandleSendAS4ExceptionAsync(messagingContext, exception);
             }
         }
 
-        protected virtual StepResult HandleSendAS4Exception(MessagingContext messagingContext, Exception exception)
+        private async Task<StepResult> HandleSendAS4ExceptionAsync(MessagingContext messagingContext, Exception exception)
         {
             if (messagingContext.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
                 // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateMessageStatus(_originalMessage.AS4Message, Operation.Undetermined, OutStatus.Exception);               
+                UpdateMessageStatus(_originalMessage.AS4Message, Operation.Undetermined, OutStatus.Exception);
             }
 
-            AS4Exception as4Exception = CreateFailedSendAS4Exception(messagingContext, exception);
+            messagingContext.ErrorResult = CreateConnectionFailureResult(exception, messagingContext);
 
-            // Insert the exception in the OutException table.
-            using (var context = _createDatastore())
+            using (DatastoreContext context = _createDatastore())
             {
                 var service = new OutExceptionService(context);
-                service.InsertAS4Exception(as4Exception, _originalMessage);
+                await service.InsertError(messagingContext.ErrorResult, _originalMessage);
 
                 context.SaveChanges();
             }
 
-            return StepResult.Failed(as4Exception, messagingContext).AndStopExecution();
+            return StepResult.Failed(messagingContext).AndStopExecution();
         }
 
         private HttpWebRequest CreateWebRequest(MessagingContext message)
@@ -248,9 +247,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        protected AS4Exception CreateFailedSendAS4Exception(MessagingContext messagingContext, Exception exception)
+        private static WebException CreateFailedSendAS4Exception(MessagingContext messagingContext, Exception exception)
         {
             string protocolUrl = GetSendConfigurationFrom(messagingContext).Protocol.Url;
+            string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
+
+            return new WebException(description);
+        }
+
+        private static ErrorResult CreateConnectionFailureResult(Exception exception, MessagingContext context)
+        {
+            string protocolUrl = GetSendConfigurationFrom(context).Protocol.Url;
             string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
 
             Logger.Error(description);
@@ -260,14 +267,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 Logger.Error(exception.InnerException.Message);
             }
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithErrorCode(ErrorCode.Ebms0005)
-                .WithErrorAlias(ErrorAlias.ConnectionFailure)
-                .WithMessageIds(messagingContext.AS4Message.MessageIds)
-                .WithSendingPMode(messagingContext.SendingPMode)
-                .WithInnerException(exception)
-                .Build();
+            return new ErrorResult(description, ErrorCode.Ebms0005, ErrorAlias.ConnectionFailure);
         }
 
         private static ISendConfiguration GetSendConfigurationFrom(MessagingContext message)

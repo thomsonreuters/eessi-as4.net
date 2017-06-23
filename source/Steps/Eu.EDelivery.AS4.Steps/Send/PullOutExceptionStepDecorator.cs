@@ -10,15 +10,13 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Steps.Common;
 
 namespace Eu.EDelivery.AS4.Steps.Send
 {
     /// <summary>
     /// TODO: temporary solution for handling different 'unhappy' paths
     /// </summary>
-    /// <seealso cref="OutExceptionStepDecorator" />
-    public class PullOutExceptionStepDecorator : OutExceptionStepDecorator
+    public class PullOutExceptionStepDecorator : IStep
     {
         private readonly IStep _innerStep;
         private readonly Func<DatastoreContext> _createContext;
@@ -28,7 +26,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="innerStep">The inner step.</param>
         /// <param name="createContext">The create context.</param>
-        public PullOutExceptionStepDecorator(IStep innerStep, Func<DatastoreContext> createContext) : base(innerStep)
+        public PullOutExceptionStepDecorator(IStep innerStep, Func<DatastoreContext> createContext)
         {
             _innerStep = innerStep;
             _createContext = createContext;
@@ -40,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <param name="messagingContext">Message used during the step execution.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public override async Task<StepResult> ExecuteAsync(
+        public async Task<StepResult> ExecuteAsync(
             MessagingContext messagingContext,
             CancellationToken cancellationToken)
         {
@@ -58,17 +56,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var pmode = new ReceivingProcessingMode {ErrorHandling = {ResponseHttpCode = 403}};
                 return StepResult.Success(new MessagingContext(as4Message, MessagingContextMode.Send) {ReceivingPMode = pmode});
             }
-            catch (AS4Exception exception)
-            {
-                return await HandleAS4Exception(messagingContext, exception, cancellationToken);
-            }
         }
 
-        /// <summary>
-        /// Inserts the out exception.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="exception">The exception.</param>
         private async Task InsertOutException(MessagingContext context, AS4Exception exception)
         {
             OutException outException = OutExceptionBuilder.ForAS4Exception(exception).Build();

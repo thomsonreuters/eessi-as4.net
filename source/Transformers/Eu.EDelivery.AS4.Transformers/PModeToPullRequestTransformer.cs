@@ -1,8 +1,6 @@
-﻿using System;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -14,56 +12,49 @@ using NLog;
 namespace Eu.EDelivery.AS4.Transformers
 {
     /// <summary>
-    /// <see cref="ITransformer"/> implementation that's responsible for transformation PMode models to Pull Messages instances.
+    /// <see cref="ITransformer" /> implementation that's responsible for transformation PMode models to Pull Messages
+    /// instances.
     /// </summary>
     public class PModeToPullRequestTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
+        /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.
         /// </summary>
         /// <param name="receivedMessage">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
         /// <returns></returns>
-        public Task<MessagingContext> TransformAsync(ReceivedMessage receivedMessage, CancellationToken cancellationToken)
+        public Task<MessagingContext> TransformAsync(
+            ReceivedMessage receivedMessage,
+            CancellationToken cancellationToken)
         {
             if (receivedMessage.RequestStream == null)
             {
-                return Task.FromResult(new MessagingContext(CreateAS4Exception("Invalid incoming request stream.")));
+                throw new InvalidDataException("Invalid incoming request stream.");
             }
 
-            return TryCreatePullRequest(receivedMessage);
+            return CreatePullRequest(receivedMessage);
         }
 
-        private static async Task<MessagingContext> TryCreatePullRequest(ReceivedMessage receivedMessage)
+        private static async Task<MessagingContext> CreatePullRequest(ReceivedMessage receivedMessage)
         {
-            try
-            {
-                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
+            var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
-                receivedMessage.AssignPropertiesTo(context);
-                
-                SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
-                context.SendingPMode = pmode;
+            receivedMessage.AssignPropertiesTo(context);
 
-                AS4Message as4Message = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
+            SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
+            context.SendingPMode = pmode;
 
-                return context.CloneWith(as4Message);
-            }
-            catch (AS4Exception exception)
-            {
-                return new MessagingContext(exception);
-            }
-            catch (Exception exception)
-            {
-                return new MessagingContext(CreateAS4Exception(exception.Message));
-            }
+            AS4Message as4Message = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
+
+            return context.CloneWith(as4Message);
         }
 
         private static async Task<SendingProcessingMode> DeserializeValidPMode(ReceivedMessage receivedMessage)
         {
-            var pmode = await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.RequestStream);
+            SendingProcessingMode pmode =
+                await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.RequestStream);
             var validator = new SendingProcessingModeValidator();
 
             ValidationResult result = validator.Validate(pmode);
@@ -76,7 +67,7 @@ namespace Eu.EDelivery.AS4.Transformers
             throw ThrowHandleInvalidPModeException(pmode, result);
         }
 
-        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
+        private static InvalidDataException ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
         {
             foreach (ValidationFailure error in result.Errors)
             {
@@ -86,16 +77,7 @@ namespace Eu.EDelivery.AS4.Transformers
             string description = $"Sending PMode {pmode.Id} was invalid, see logging";
             Logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(Guid.NewGuid().ToString())
-                .Build();
-        }
-
-        private static AS4Exception CreateAS4Exception(string description)
-        {
-            Logger.Error(description);
-            return AS4ExceptionBuilder.WithDescription(description).Build();
+            return new InvalidDataException(description);
         }
     }
 }

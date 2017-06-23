@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.Common
 
             if (!_providers.ContainsKey(providerKey))
             {
-                throw new AS4Exception($"No Database provider found for key: {providerKey}");
+                throw new KeyNotFoundException($"No Database provider found for key: {providerKey}");
             }
 
             _providers[providerKey](connectionString);
@@ -318,7 +318,7 @@ namespace Eu.EDelivery.AS4.Common
             return policyResult.Result;
         }
 
-        private static AS4Exception ThrowDatastoreUnavailableException(Exception innerException = null)
+        private static ApplicationException ThrowDatastoreUnavailableException(Exception innerException = null)
         {
             Exception mostInnerException = null;
 
@@ -333,11 +333,7 @@ namespace Eu.EDelivery.AS4.Common
                 innerException = innerException.InnerException;
             }
 
-            return AS4ExceptionBuilder
-                .WithDescription("Datastore unavailable")
-                .WithInnerException(mostInnerException)
-                .WithErrorCode(ErrorCode.Ebms0004)
-                .Build();
+            return new ApplicationException("Datastore unavailable", innerException);
         }
     }
 }

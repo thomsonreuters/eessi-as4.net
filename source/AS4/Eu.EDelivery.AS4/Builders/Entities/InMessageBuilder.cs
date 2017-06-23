@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
@@ -64,12 +65,12 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         {
             if (_as4Message == null)
             {
-                throw new AS4Exception("Builder needs a AS4Message for building an InMessage");
+                throw new InvalidDataException("Builder needs a AS4Message for building an InMessage");
             }
 
             if (_messageUnit == null)
             {
-                throw new AS4Exception("Builder needs a Message Unit for building an InMessage");
+                throw new InvalidDataException("Builder needs a Message Unit for building an InMessage");
             }
 
             var inMessage = new InMessage

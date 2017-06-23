@@ -14,10 +14,6 @@ namespace Eu.EDelivery.AS4.Mappings.Notify
                 {
                     notifyMessage.MessageInfo.MessageId = error.MessageId;
                     notifyMessage.MessageInfo.RefToMessageId = error.RefToMessageId;
-
-                    notifyMessage.StatusInfo.Status = error.IsFormedByException
-                        ? Model.Notify.Status.Exception
-                        : Model.Notify.Status.Error;
                 })
                 .ForAllOtherMembers(x => x.Ignore());
         }

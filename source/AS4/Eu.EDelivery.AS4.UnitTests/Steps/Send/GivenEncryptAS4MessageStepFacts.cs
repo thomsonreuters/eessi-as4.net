@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(
+                await Assert.ThrowsAnyAsync<Exception>(
                     () => _step.ExecuteAsync(CreateEncryptedAS4Message(), CancellationToken.None));
             }
 
