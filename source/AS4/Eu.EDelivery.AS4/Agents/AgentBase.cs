@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly Transformer _transformerConfig;
         private readonly IAgentExceptionHandler _exceptionHandler;
         private readonly (Model.Internal.Steps happyPath, Model.Internal.Steps unhappyPath) _pipelineConfig;
+        private readonly (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) _conditionalPipeline;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentBase" /> class.
@@ -41,6 +43,22 @@ namespace Eu.EDelivery.AS4.Agents
             _transformerConfig = transformerConfig;
             _exceptionHandler = exceptionHandler;
             _pipelineConfig = pipelineConfig;
+
+            AgentConfig = new AgentConfig(name);
+        }
+
+        [ExcludeFromCodeCoverage]
+        internal AgentBase(
+            string name,
+            IReceiver receiver,
+            Transformer transformerConfig,
+            IAgentExceptionHandler exceptionHandler,
+            (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) pipelineConfig)
+        {
+            _receiver = receiver;
+            _transformerConfig = transformerConfig;
+            _exceptionHandler = exceptionHandler;
+            _conditionalPipeline = pipelineConfig;
 
             AgentConfig = new AgentConfig(name);
         }
@@ -96,7 +114,8 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                result = await ExecuteSteps(_pipelineConfig.happyPath, currentContext, cancellation); 
+                IEnumerable<IStep> steps = CreateSteps(_pipelineConfig.happyPath, _conditionalPipeline.happyPath);
+                result = await ExecuteSteps(steps, currentContext, cancellation);
             }
             catch (Exception exception)
             {
@@ -107,7 +126,8 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 if (result.Succeeded == false && _pipelineConfig.unhappyPath != null)
                 {
-                    result = await ExecuteSteps(_pipelineConfig.unhappyPath, result.MessagingContext, cancellation);
+                    IEnumerable<IStep> steps = CreateSteps(_pipelineConfig.unhappyPath, _conditionalPipeline.unhappyPath);
+                    result = await ExecuteSteps(steps, result.MessagingContext, cancellation);
                 }
 
                 return result.MessagingContext;
@@ -118,12 +138,26 @@ namespace Eu.EDelivery.AS4.Agents
             }
         }
 
+        private static IEnumerable<IStep> CreateSteps(Model.Internal.Steps pipelineConfig, ConditionalStepConfig conditionalConfig)
+        {
+            if (pipelineConfig != null)
+            {
+                return StepBuilder.FromSettings(pipelineConfig).BuildSteps();
+            }
+
+            if (conditionalConfig != null)
+            {
+                return StepBuilder.FromConditionalConfig(conditionalConfig).BuildSteps();
+            }
+
+            return Enumerable.Empty<IStep>();
+        }
+
         private static async Task<StepResult> ExecuteSteps(
-            Model.Internal.Steps pipelineConfig,
+            IEnumerable<IStep> steps,
             MessagingContext context,
             CancellationToken cancellation)
         {
-            IEnumerable<IStep> steps = StepBuilder.FromSettings(pipelineConfig).BuildSteps();
             StepResult result = StepResult.Success(context);
 
             foreach (IStep step in steps)

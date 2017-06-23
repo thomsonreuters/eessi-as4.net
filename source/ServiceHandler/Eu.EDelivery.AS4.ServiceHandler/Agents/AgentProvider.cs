@@ -103,31 +103,42 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             foreach (SettingsMinderAgent agent in minderTestAgents)
             {
-                _agents.Add(CreateMinderTestAgent(agent.Url, agent.UseLogging, agent.Transformer));
+                _agents.Add(CreateMinderTestAgen(agent.Url, agent.UseLogging, agent.Transformer));
             }
         }
 
         [ExcludeFromCodeCoverage]
-        private static Agent CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
+        private static AgentBase CreateMinderTestAgen(string url, bool useLogging, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
 
             receiver.Configure(new[] { new Setting("Url", url), new Setting("UseLogging", useLogging.ToString()) });
 
-            return new Agent(
-                new AgentConfig("Minder Submit/Receive Agent"),
+            return new AgentBase(
+                "Minder Submit/Receive Agent",
                 receiver,
                 transformerConfig,
-                CreateMinderSubmitReceiveStepConfig());
+                new MinderExceptionHandler(), 
+                (CreateMinderHappyFlow(), CreateReceiveUnhappyFlow()));
         }
 
         [ExcludeFromCodeCoverage]
-        private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
+        private static ConditionalStepConfig CreateMinderHappyFlow()
         {
             Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;                
 
             Model.Internal.Steps submitStepConfig = CreateSubmitStep();
-            Model.Internal.Steps receiveStepConfig = CreateReceiveStep();
+            Model.Internal.Steps receiveStepConfig = CreateReveiveHappyFlow();
+
+            return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
+        }
+
+        private static ConditionalStepConfig CreateReceiveUnhappyFlow()
+        {
+            Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;
+
+            var submitStepConfig = new Model.Internal.Steps { Step = new Step[0] };
+            Model.Internal.Steps receiveStepConfig = CreateUnhappyReceiveFlow();
 
             return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
         }
@@ -147,13 +158,14 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         }
 
         [ExcludeFromCodeCoverage]
-        private static Model.Internal.Steps CreateReceiveStep()
+        private static Model.Internal.Steps CreateReveiveHappyFlow()
         {
             return new Model.Internal.Steps
             {
                 Step =
                     new[]
                     {
+                        new Step {Type = typeof(ValidateAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
@@ -164,6 +176,18 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SendAS4SignalMessageStep).AssemblyQualifiedName},
+                        
+                    }
+            };
+        }
+
+        private static Model.Internal.Steps CreateUnhappyReceiveFlow()
+        {
+            return new Model.Internal.Steps
+            {
+                Step =
+                    new[]
+                    {
                         new Step {Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
