@@ -122,7 +122,9 @@ namespace Eu.EDelivery.AS4.Validators
         private void RulesForEncryption()
         {
             Func<SendingProcessingMode, bool> isEncryptionEnabled = pmode => pmode.Security.Encryption.IsEnabled;
-            RuleFor(pmode => pmode.Security.Encryption.PublicKeyFindValue).NotNull().When(isEncryptionEnabled);
+
+            RuleFor(pmode => pmode.Security.Encryption.PublicKeyInformation).NotNull().When(isEncryptionEnabled)
+                                                                            .WithMessage("PublicKeyInformation must be specified when encryption is enabled");
         }
 
         /// <summary>

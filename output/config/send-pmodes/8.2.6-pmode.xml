@@ -55,8 +55,10 @@
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>NonExisting</PublicKeyFindValue>
-      <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+      <PublicKeyFindCriteria>
+        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+        <PublicKeyFindValue>NonExisting</PublicKeyFindValue>
+      </PublicKeyFindCriteria>
     </Encryption>
   </Security>
   <MessagePackaging>

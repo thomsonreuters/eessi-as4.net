@@ -86,9 +86,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
 
             private static OutMessage BuildForSignalMessage(AS4Message as4Message)
-            {
+            {           
                 return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, new MessagingContext(as4Message, MessagingContextMode.Send))
-                                                                         .Build(CancellationToken.None);
+                                                                        .Build(CancellationToken.None);
             }
         }
 

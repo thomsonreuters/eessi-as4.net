@@ -90,12 +90,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public Encryption Encryption { get; set; }
     }
-
+    
     public class Encryption
     {
         /// <summary>
         /// An Encryption instance which contains the default settings.
         /// </summary>
+        [XmlIgnore]
         public static readonly Encryption Default = new Encryption();
 
         public Encryption()
@@ -104,7 +105,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
             Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
             KeyTransport = new KeyEncryption();
             AlgorithmKeySize = 128;
-            PublicKeyType = PublicKeyChoiceType.FindCriteria;
+            PublicKeyType = PublicKeyChoiceType.None;
         }
 
         public bool IsEnabled { get; set; }
@@ -123,10 +124,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
         public object PublicKeyInformation { get; set; }
 
-        ////public X509FindType PublicKeyFindType { get; set; }
-
-        ////public string PublicKeyFindValue { get; set; }
-        
         public KeyEncryption KeyTransport { get; set; }
 
         #region Properties that control serialization
@@ -141,15 +138,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [ScriptIgnore]
         public bool AlgorithmKeySizeSpecified => AlgorithmKeySize > 0;
 
-        ////[XmlIgnore]
-        ////[JsonIgnore]
-        ////[ScriptIgnore]
-        ////public bool PublicKeyFindTypeSpecified { get; set; }
-
-        ////[XmlIgnore]
-        ////[JsonIgnore]
-        ////[ScriptIgnore]
-        ////public bool PublicKeyFindValueSpecified => !string.IsNullOrWhiteSpace(PublicKeyFindValue);
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool PublicKeyInformationSpecified => PublicKeyInformation != null;
 
         [XmlIgnore]
         [JsonIgnore]
@@ -159,11 +151,12 @@ namespace Eu.EDelivery.AS4.Model.PMode
         #endregion
     }
 
-    [XmlType(IncludeInSchema = false)]
+    [XmlType(IncludeInSchema = true)]
     public enum PublicKeyChoiceType
     {
-        Certificate,
-        FindCriteria
+        None,
+        PublicKeyCertificate,
+        PublicKeyFindCriteria
     }
 
     public class PublicKeyCertificate
@@ -175,17 +168,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public X509FindType PublicKeyFindType { get; set; }
 
-        public string PublicKeyFindValue { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        [ScriptIgnore]
-        public bool PublicKeyFindTypeSpecified { get; set; }
-
-        [XmlIgnore]
-        [JsonIgnore]
-        [ScriptIgnore]
-        public bool PublicKeyFindValueSpecified => !string.IsNullOrWhiteSpace(PublicKeyFindValue);
+        public string PublicKeyFindValue { get; set; }        
     }
 
     public class KeyEncryption
