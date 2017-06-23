@@ -272,7 +272,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Agents\GivenAgentBaseFacts.cs" />
-    <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
     <Compile Include="Exceptions\Handlers\ExerciseHandler.cs" />
