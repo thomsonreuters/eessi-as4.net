@@ -295,7 +295,7 @@ namespace Eu.EDelivery.AS4.Common
             AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents.ReceptionAwarenessAgent);
             AddCustomAgentsIfNotNull(_settings.Agents.NotifyAgents);
             AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
-            AddCustomAgentsIfNotNull(AgentType.Unknown, _settings.Agents.SendAgents);
+            AddCustomAgentsIfNotNull(AgentType.Sent, _settings.Agents.SendAgents);
             AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
             AddCustomAgentsIfNotNull(AgentType.Receive, _settings.Agents.ReceiveAgents);
             AddCustomAgentsIfNotNull(AgentType.PullReceive, _settings.Agents.PullReceiveAgents);

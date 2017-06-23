@@ -65,10 +65,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             foreach (AgentConfig config in _config.GetAgentsConfiguration())
             {
-                _agents.Add(
-                    config.Type == AgentType.Unknown
-                        ? GetAgentFromSettings(config.Settings)
-                        : CreateAgentBaseFromSettings(config));
+                _agents.Add(CreateAgentBaseFromSettings(config));
             }
         }
 
@@ -82,18 +79,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 transformerConfig: config.Settings.Transformer,
                 exceptionHandler: ExceptionHandlerRegistry.GetHandler(config.Type),
                 pipelineConfig: (config.Settings.NormalPipeline, config.Settings.ErrorPipeline));
-        }
-
-        private static IAgent GetAgentFromSettings(AgentSettings agent)
-        {
-            if (agent == null)
-            {
-                throw new ArgumentNullException(nameof(agent));
-            }
-
-            IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
-
-            return new Agent(new AgentConfig(agent.Name), receiver, agent.Transformer, agent.Steps);
         }
 
         [ExcludeFromCodeCoverage]
