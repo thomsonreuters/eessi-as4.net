@@ -332,9 +332,9 @@
     <Compile Include="Exceptions\Handlers\LogExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\MinderExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\OutboundExceptionHandler.cs" />
+    <Compile Include="Exceptions\Handlers\PullSendAgentExceptionHandler.cs" />
     <Compile Include="Exceptions\Handlers\SafeExceptionHandler.cs" />
     <Compile Include="Exceptions\IAgentExceptionHandler.cs" />
-    <Compile Include="Exceptions\PullRequestValidationException.cs" />
     <Compile Include="Extensions\XmlAttributeExtensions.cs" />
     <Compile Include="Factories\UserMessageFactory.cs" />
     <Compile Include="Http\ReliableHttpClient.cs" />
