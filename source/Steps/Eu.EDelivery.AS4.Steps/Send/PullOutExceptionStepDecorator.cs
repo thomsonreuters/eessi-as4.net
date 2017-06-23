@@ -60,8 +60,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private async Task InsertOutException(MessagingContext context, AS4Exception exception)
         {
-            OutException outException = OutExceptionBuilder.ForAS4Exception(exception).Build();
-            outException.MessageBody = await AS4XmlSerializer.ToSoapEnvelopeBytesAsync(context.AS4Message);
+            var outException = new OutException
+            {
+                Exception = exception.Message,
+                PMode = exception.PMode,
+                InsertionTime = DateTimeOffset.Now,
+                ModificationTime = DateTimeOffset.Now,
+                MessageBody = await AS4XmlSerializer.ToSoapEnvelopeBytesAsync(context.AS4Message)
+            };
 
             using (DatastoreContext datastoreContext = _createContext())
             {
