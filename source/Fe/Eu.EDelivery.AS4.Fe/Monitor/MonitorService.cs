@@ -6,9 +6,12 @@ using Eu.EDelivery.AS4.Fe.Pmodes;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Monitor.Model;
+using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
@@ -16,11 +19,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     {
         private readonly DatastoreContext context;
         private readonly IAs4PmodeSource pmodeSource;
+        private readonly IDatastoreRepository datastoreRepository;
 
-        public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource)
+        public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource, IDatastoreRepository datastoreRepository)
         {
             this.context = context;
             this.pmodeSource = pmodeSource;
+            this.datastoreRepository = datastoreRepository;
         }
 
         public async Task<MessageResult<ExceptionMessage>> GetExceptions(ExceptionFilter filter)
@@ -145,33 +150,23 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             return result;
         }
 
-        private IEnumerable<Message> ConvertPmodeXmlToNumbers(IEnumerable<Message> result)
-        {
-            foreach (var message in result) message.PMode = GetPmodeNumber(message.PMode);
-            return result;
-        }
-
         private MessageResult<ExceptionMessage> ConvertPmodeXmlToNumbers(MessageResult<ExceptionMessage> result)
         {
             foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
             return result;
         }
 
-        public async Task<byte[]> DownloadMessageBody(Direction direction, string messageId)
+        public async Task<Stream> DownloadMessageBody(Direction direction, string messageId)
         {
             if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
+            if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int) direction, typeof(Direction));
+
             if (direction == Direction.Inbound)
             {
-                return await context.InMessages
-                    .Where(msg => msg.EbmsMessageId == messageId)
-                    .Select(msg => msg.MessageBody)
-                    .FirstOrDefaultAsync();
+                return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
             }
 
-            return await context.OutMessages
-                .Where(msg => msg.EbmsMessageId == messageId)
-                .Select(msg => msg.MessageBody)
-                .FirstOrDefaultAsync();
+            return await datastoreRepository.GetOutMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
         }
 
         public async Task<byte[]> DownloadExceptionBody(Direction direction, string messageId)
