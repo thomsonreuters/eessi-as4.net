@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PMode 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>03-sample-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
@@ -60,19 +57,21 @@
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
-	  <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>      
+      <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-	  <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
-      <PublicKeyFindValue>AccessPointA</PublicKeyFindValue>      
+      <PublicKeyFindCriteria>
+        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+        <PublicKeyFindValue>AccessPointA</PublicKeyFindValue>
+      </PublicKeyFindCriteria>
     </Encryption>
   </Security>
   <MessagePackaging>
-	<PartyInfo>
+    <PartyInfo>
       <FromParty>
         <PartyIds>
           <PartyId>
@@ -90,18 +89,17 @@
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
-	<CollaborationInfo>
-		<ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
-		<AgreementReference>
-			<Value>http://agreements.europa.org/agreement</Value>
-		</AgreementReference>		
-		<Action>eu:sample:03</Action>
-		<Service>
-			<Value>getting:started</Value>
-			<Type>org:europa:services</Type>
-		</Service>
+    <CollaborationInfo>
+      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+      <AgreementReference>
+        <Value>http://agreements.europa.org/agreement</Value>
+      </AgreementReference>
+      <Action>eu:sample:03</Action>
+      <Service>
+        <Value>getting:started</Value>
+        <Type>org:europa:services</Type>
+      </Service>
     </CollaborationInfo>
-    
     <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>

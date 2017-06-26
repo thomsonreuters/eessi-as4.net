@@ -51,7 +51,7 @@ export class DialogService {
                 dlg.showCancel = false;
             });
     }
-    public error(message: string, stackTrace?: string | Response) {
+    public error(message: string, stackTrace?: string | Response, unexpected: boolean = false) {
         this.modalService
             .show('error', (dlg) => {
                 dlg.type = 'modal-danger';
@@ -59,10 +59,14 @@ export class DialogService {
                 dlg.showCancel = false;
                 dlg.buttonOk = 'Ok';
                 dlg.title = 'Error';
+                if (unexpected) {
+                    dlg.showOk = false;
+                    dlg.showClose = false;
+                }
                 if (stackTrace instanceof Response) {
                     try {
                         dlg.payload = stackTrace.json().Exception;
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             });
     }

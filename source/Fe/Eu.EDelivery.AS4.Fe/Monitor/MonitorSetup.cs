@@ -1,5 +1,6 @@
 ﻿using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Fe.Database;
+using Eu.EDelivery.AS4.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,6 +16,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
             services.AddDbContext<DatastoreContext>(options => SqlConnectionBuilder.Build(settings.Provider, settings.ConnectionString, options));
             services.AddTransient<IMonitorService, MonitorService>();
+            services.AddTransient<IDatastoreRepository, DatastoreRepository>();
         }
 
         public void Run(IConfigurationBuilder configBuilder, IServiceCollection services, IConfigurationRoot localConfig)

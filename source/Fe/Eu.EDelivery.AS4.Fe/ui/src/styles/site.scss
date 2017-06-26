@@ -4,14 +4,11 @@
 @import 'modal.scss';
 @import 'tabs.scss';
 @import 'datepicker.scss';
+@import './tooltip.scss';
 @import '../app/common/multiselect/multiselect.directive.scss';
 
 .clickable {
     cursor: pointer;
-}
-
-.as4-tooltip {
-    color: $primary;
 }
 
 table {

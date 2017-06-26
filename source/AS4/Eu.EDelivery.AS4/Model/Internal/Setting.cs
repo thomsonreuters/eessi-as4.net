@@ -83,7 +83,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public AgentSettings[] DeliverAgents { get; set; }
 
         [XmlElement("NotifyAgent", IsNullable = false)]
+        [Obsolete("We will use concrete notify agents 'NotifyConsumerAgent' and 'NotifyProducerAgent'")]
         public AgentSettings[] NotifyAgents { get; set; }
+
+        [XmlElement("NotifyConsumerAgent", IsNullable = false)]
+        public AgentSettings[] NotifyConsumerAgents { get; set; }
+
+        [XmlElement("NotifyProducerAgent", IsNullable = false)]
+        public AgentSettings[] NotifyProducerAgents { get; set; }
 
         [XmlElement("ReceptionAwarenessAgent", IsNullable = false)]
         public AgentSettings ReceptionAwarenessAgent { get; set; }

@@ -16,9 +16,7 @@ import '../theme/js/app.js';
 @Component({
     selector: 'as4-app',
     encapsulation: ViewEncapsulation.None,
-    styles: [
-        './app.component.scss'
-    ],
+    styleUrls: ['./app.component.scss'],
     template: `    
         <as4-modal name="default"></as4-modal>
         <as4-modal name="prompt" #promptDialog (shown)="input.focus(); promptDialog.result = ''">
@@ -26,41 +24,35 @@ import '../theme/js/app.js';
         </as4-modal>
         <as4-modal name="error" showDefaultButtons="false" #errorDialog>
             <div *ngIf="isShowDetails && !!errorDialog.payload" [class.stack-trace]="isShowDetails">
-                <h3>Stack trace</h3>
-                <button type="button" class="btn btn-outline" [ngxClipboard]="payload" (cbOnSuccess)="copiedToClipboard()">Copy</button>
+                <h4>Stack trace</h4>
+                <i class="fa fa-clipboard clickable" [ngxClipboard]="payload" (cbOnSuccess)="tooltip.show()" as4-tooltip="Copied to clipboard" as4-tooltip-manual="true" #tooltip="as4-tooltip"></i>
                 <p #payload>{{errorDialog.payload}}</p>
             </div>
             <div buttons>
-                <button type="button" class="btn btn-outline"     *ngIf="!!errorDialog.payload" (click)="showDetails()">Details</button>
-                <button type="button" class="btn btn-outline" (click)="errorDialog.ok()">Ok</button>
+                <button type="button" class="btn" *ngIf="!!errorDialog.payload" (click)="isShowDetails = !!!isShowDetails ? true : isShowDetails">DETAILS</button>
+                <button type="button" class="btn" *ngIf="showOk" (click)="errorDialog.ok()">OK</button>
             </div>
         </as4-modal>
         <as4-spinner></as4-spinner>
-        <router-outlet></router-outlet>      
+        <router-outlet></router-outlet>
   `
 })
 export class AppComponent {
     public isLoggedIn: boolean;
-    public isShowDetails: boolean = false;
     @ViewChild('modal') public modal: ElementRef;
-    constructor(public appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService,
-    private settingsService: SettingsService) {
+    // tslint:disable-next-line:max-line-length
+    constructor(private appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService,
+        private settingsService: SettingsService) {
         this.authenticationStore
-        .changes
-        .subscribe((result) => {
-            this.isLoggedIn = result.loggedin;
-            if (this.isLoggedIn) {
-                this.settingsService.getSettings();
-                this.runtimeService.getAll();
-                this.sendingPmodeService.getAll();
-                this.receivingPmodeService.getAll();
-            }
-        });
-    }
-    public showDetails() {
-        this.isShowDetails = !this.isShowDetails;
-    }
-    public copiedToClipboard() {
-        this.dialogService.message('Copied to clipboard');
+            .changes
+            .subscribe((result) => {
+                this.isLoggedIn = result.loggedin;
+                if (this.isLoggedIn) {
+                    this.settingsService.getSettings();
+                    this.runtimeService.getAll();
+                    this.sendingPmodeService.getAll();
+                    this.receivingPmodeService.getAll();
+                }
+            });
     }
 }

@@ -197,6 +197,7 @@
   <ItemGroup>
     <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
     <Compile Include="Receive\ValidateAS4MessageStep.cs" />
+    <Compile Include="Send\LogReceivedProcessingErrorStep.cs" />
     <Compile Include="Deliver\CreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\MinderTestCreateDeliverEnvelopeStep.cs" />
     <Compile Include="Deliver\DeliverUpdateDatastoreStep.cs" />

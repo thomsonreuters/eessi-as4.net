@@ -1,15 +1,39 @@
-import { Directive, Input, ElementRef, Renderer, OnInit } from '@angular/core';
+import { Directive, Input, ElementRef, Renderer, OnInit, OnDestroy } from '@angular/core';
+import * as $ from 'jquery';
 
 @Directive({
-    selector: '[as4-tooltip]'
+    selector: '[as4-tooltip]',
+    exportAs: 'as4-tooltip'
 })
-export class TooltipDirective implements OnInit {
+export class TooltipDirective implements OnInit, OnDestroy {
+    // tslint:disable-next-line:no-input-rename
     @Input('as4-tooltip') public input: string;
-    constructor(private renderer: Renderer, private elementRef: ElementRef) {
-        renderer.setElementAttribute(elementRef.nativeElement, 'data-toggle', 'tooltip');
-        renderer.setElementClass(elementRef.nativeElement, 'as4-tooltip', true);
-    }
+    // tslint:disable-next-line:no-input-rename
+    @Input('as4-tooltip-manual') public manual: boolean = false;
+    // tslint:disable-next-line:no-input-rename
+    @Input('as4-tooltip-placement') public placement: string = 'bottom';
+    private custom: string | null;
+    constructor(private renderer: Renderer, private elementRef: ElementRef) { }
     public ngOnInit() {
-        this.renderer.setElementAttribute(this.elementRef.nativeElement, 'title', this.input);
+        (<any>$(this.elementRef.nativeElement)).tooltip({
+            placement: this.placement,
+            title: () => !!!this.custom ? this.input : this.custom,
+            trigger: this.manual ? 'manual' : 'hover'
+        });
+    }
+    public show(message: string | null = null) {
+        let element = <any>$(this.elementRef.nativeElement);
+        if (!!message) {
+            this.custom = message;
+        }
+        element.tooltip('show');
+        setTimeout(() => element.tooltip('hide'), 2000);
+        this.custom = null;
+    }
+    public hide() {
+        (<any>$(this.elementRef.nativeElement)).tooltip('hide');
+    }
+    public ngOnDestroy() {
+        (<any>$(this.elementRef.nativeElement)).tooltip('destroy');
     }
 }
