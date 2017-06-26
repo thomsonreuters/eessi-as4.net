@@ -17,8 +17,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
             return new SendingProcessingMode
             {
                 Id = id,
-                PushConfiguration = new PushConfiguration {Protocol = new Protocol {Url = "http://127.0.0.1/msh"}},
-                PullConfiguration = new PullConfiguration {Protocol = new Protocol {Url = "http://127.0.0.1/msh"}},
+                PushConfiguration = new PushConfiguration { Protocol = new Protocol { Url = "http://127.0.0.1/msh" } },
+                PullConfiguration = new PullConfiguration { Protocol = new Protocol { Url = "http://127.0.0.1/msh" } },
                 Security =
                     new AS4.Model.PMode.Security
                     {
@@ -30,9 +30,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.PMode
                                 Algorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
                                 HashFunction = "http://www.w3.org/2001/04/xmlenc#sha256"
                             },
-                        Encryption = new Encryption
+                        Encryption = new Encryption()
                         {
-                            PublicKeyFindValue = "Ignored"
+                            IsEnabled = false
                         }
                     }
             };

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -40,7 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.SuccessAsync(messagingContext);
             }
 
-            throw new ApplicationException($"No Certificate found for Mpc: {pullRequest?.Mpc}");
+            throw new SecurityException($"No Certificate found for Mpc: {pullRequest?.Mpc}");
         }
     }
 }

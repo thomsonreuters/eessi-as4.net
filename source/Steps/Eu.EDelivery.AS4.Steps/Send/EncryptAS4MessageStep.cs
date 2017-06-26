@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -99,7 +100,26 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             Encryption encryption = messagingContext.SendingPMode.Security.Encryption;
 
-            return _certificateRepository.GetCertificate(encryption.PublicKeyFindType, encryption.PublicKeyFindValue);
+            if (encryption.PublicKeyInformation == null)
+            {
+                throw new ConfigurationErrorsException("No PublicKey information found in PMode to perform encryption");
+            }
+
+            var publicKeyFindCriteria = encryption.PublicKeyInformation as PublicKeyFindCriteria;
+
+            if (publicKeyFindCriteria != null)
+            {
+                return _certificateRepository.GetCertificate(publicKeyFindCriteria.PublicKeyFindType, publicKeyFindCriteria.PublicKeyFindValue);
+            }
+
+            var publicKeyCertificate = encryption.PublicKeyInformation as PublicKeyCertificate;
+
+            if (publicKeyCertificate != null)
+            {
+                return new X509Certificate2(Convert.FromBase64String(publicKeyCertificate.Certificate), string.Empty);
+            }
+
+            throw new NotSupportedException("The PublicKeyInformation specified in the PMode could not be used to retrieve the certificate");            
         }
 
         private static Task<StepResult> ReturnSameInternalMessage(MessagingContext messagingContext)
