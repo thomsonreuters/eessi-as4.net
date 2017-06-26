@@ -141,8 +141,7 @@ namespace Eu.EDelivery.AS4.Agents
         private bool AgentHasNoStepsToExecute()
         {
             return _conditionalPipeline.happyPath == null 
-                && _pipelineConfig.happyPath.Step.Any(s => s == null)
-                && _pipelineConfig.happyPath == null;
+                && (_pipelineConfig.happyPath.Step.Any(s => s == null) || _pipelineConfig.happyPath == null);
         }
 
         private static IEnumerable<IStep> CreateSteps(Model.Internal.Steps pipelineConfig, ConditionalStepConfig conditionalConfig)
