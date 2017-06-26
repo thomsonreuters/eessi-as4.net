@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -74,7 +75,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (userMessage == null)
             {
-                throw new InvalidOperationException(
+                throw new DataException(
                     $"The UserMessage with ID {userMessageId} could not be found in the referenced AS4Message.");
             }
 
