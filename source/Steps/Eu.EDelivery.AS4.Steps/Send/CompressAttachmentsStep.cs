@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
@@ -93,7 +94,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             const string description = "Attachments cannot be compressed";
             Logger.Error(description);
 
-            return new ApplicationException(description, innerException);
+            return new DataException(description, innerException);
         }
     }
 }
