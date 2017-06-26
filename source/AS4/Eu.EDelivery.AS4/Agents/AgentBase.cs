@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                if (result.Succeeded == false && _pipelineConfig.unhappyPath != null)
+                if (result.Succeeded == false && (_pipelineConfig.unhappyPath != null || _conditionalPipeline.unhappyPath != null))
                 {
                     IEnumerable<IStep> steps = CreateSteps(_pipelineConfig.unhappyPath, _conditionalPipeline.unhappyPath);
                     result = await ExecuteSteps(steps, result.MessagingContext, cancellation);
@@ -142,9 +142,7 @@ namespace Eu.EDelivery.AS4.Agents
         {
             return _conditionalPipeline.happyPath == null 
                 && _pipelineConfig.happyPath.Step.Any(s => s == null)
-                && _conditionalPipeline.unhappyPath == null 
-                && _pipelineConfig.happyPath == null
-                && _pipelineConfig.unhappyPath == null;
+                && _pipelineConfig.happyPath == null;
         }
 
         private static IEnumerable<IStep> CreateSteps(Model.Internal.Steps pipelineConfig, ConditionalStepConfig conditionalConfig)

@@ -150,9 +150,9 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 Step =
                     new[]
                     {
-                        new Step {Type = typeof(ValidateAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(ValidateAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName},
