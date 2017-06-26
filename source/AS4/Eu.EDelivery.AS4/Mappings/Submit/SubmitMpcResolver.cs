@@ -21,10 +21,14 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         public string Resolve(SubmitMessage submitMessage)
         {
             if (DoesSubmitMessageTriesToOverridePModeMpc(submitMessage))
+            {
                 throw new InvalidOperationException($"Submit Message is not allowed by PMode {submitMessage.PMode.Id} to override Mpc");
+            }
 
             if (submitMessage.PMode.AllowOverride && submitMessage.MessageInfo.Mpc != null)
+            {
                 return submitMessage.MessageInfo.Mpc;
+            }
 
             return submitMessage.PMode.MessagePackaging.Mpc;
         }
