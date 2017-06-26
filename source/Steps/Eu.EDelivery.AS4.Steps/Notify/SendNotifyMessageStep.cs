@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
             }
 
-            await TrySendNotifyMessage(messagingContext).ConfigureAwait(false);
+            await SendNotifyMessage(messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
         }
 
@@ -84,21 +84,15 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private async Task TrySendNotifyMessage(MessagingContext message)
+        private async Task SendNotifyMessage(MessagingContext message)
         {
-            try
-            {
-                NotifyMessageEnvelope notifyMessage = message.NotifyMessage;
-                Method notifyMethod = GetNotifyMethod(message);
-                await SendNotifyMessage(notifyMessage, notifyMethod).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                const string description = "Notify Message was not send correctly";
-                Logger.Error(description);
+            NotifyMessageEnvelope notifyMessage = message.NotifyMessage;
+            Method notifyMethod = GetNotifyMethod(message);
 
-                throw new ApplicationException(description, exception);
-            }
+            INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
+            sender.Configure(notifyMethod);
+
+            await sender.SendAsync(notifyMessage).ConfigureAwait(false);
         }
 
         private static Method GetNotifyMethod(MessagingContext messagingContext)
@@ -119,13 +113,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static Method DetermineMethod(IPMode sendPMode, SendHandling sendHandling, Receivehandling receivehandling)
         {
             return IsNotifyMessageFormedBySending(sendPMode) ? sendHandling?.NotifyMethod : receivehandling?.NotifyMethod;
-        }
-
-        private async Task SendNotifyMessage(NotifyMessageEnvelope notifyMessage, Method notifyMethod)
-        {
-            INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
-            sender.Configure(notifyMethod);
-            await sender.SendAsync(notifyMessage).ConfigureAwait(false);
         }
 
         private static bool IsNotifyMessageFormedBySending(IPMode pmode)

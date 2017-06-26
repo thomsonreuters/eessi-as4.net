@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -283,7 +283,7 @@ namespace Eu.EDelivery.AS4.Services
                 string description = $"Unable to update UserMessage {userMessage.MessageId}";
                 Logger.Error(description);
 
-                throw new ApplicationException(description, ex);
+                throw new DataException(description, ex);
             }
         }
 
@@ -343,7 +343,7 @@ namespace Eu.EDelivery.AS4.Services
                 string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
                 Logger.Error(description);
 
-                throw new ApplicationException(description, exception);
+                throw new DataException(description, exception);
             }
         }
 
@@ -375,7 +375,7 @@ namespace Eu.EDelivery.AS4.Services
 
                 if (errorSignalMessage != null)
                 {
-                    foreach (var error in errorSignalMessage.Errors)
+                    foreach (ErrorDetail error in errorSignalMessage.Errors)
                     {
                         Logger.Warn(
                             $"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");

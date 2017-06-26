@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -71,7 +70,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 string description = $"{messagingContext.Prefix} Problems with Encrypting AS4 Message: {exception.Message}";
                 Logger.Error(description);
 
-                throw new ApplicationException(description, exception);
+                throw new CryptographicException(description, exception);
             }
         }
 

@@ -318,7 +318,7 @@ namespace Eu.EDelivery.AS4.Common
             return policyResult.Result;
         }
 
-        private static ApplicationException ThrowDatastoreUnavailableException(Exception innerException = null)
+        private static DataException ThrowDatastoreUnavailableException(Exception innerException = null)
         {
             Exception mostInnerException = null;
 
@@ -333,7 +333,7 @@ namespace Eu.EDelivery.AS4.Common
                 innerException = innerException.InnerException;
             }
 
-            return new ApplicationException("Datastore unavailable", innerException);
+            return new DataException("Datastore unavailable", innerException);
         }
     }
 }

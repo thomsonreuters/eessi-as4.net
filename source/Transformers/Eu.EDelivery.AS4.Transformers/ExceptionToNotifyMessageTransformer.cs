@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -18,20 +19,10 @@ namespace Eu.EDelivery.AS4.Transformers
 {
     public class ExceptionToNotifyMessageTransformer : ITransformer
     {
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
-        private readonly ISerializerProvider _provider;
-        
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExceptionToNotifyMessageTransformer"/> class.
-        /// </summary>
-        public ExceptionToNotifyMessageTransformer()
-        {
-            _provider = Registry.Instance.SerializerProvider;
-        }
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Transform a given <see cref="ReceivedMessage"/> to a Canonical <see cref="MessagingContext"/> instance.
+        /// Transform a given <see cref="ReceivedMessage" /> to a Canonical <see cref="MessagingContext" /> instance.
         /// </summary>
         /// <param name="message">Given message to transform.</param>
         /// <param name="cancellationToken">Cancellation which stops the transforming.</param>
@@ -46,7 +37,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var internalMessage = new MessagingContext(await CreateNotifyMessageEnvelope(as4Message))
             {
                 SendingPMode = await GetPMode<SendingProcessingMode>(exceptionEntity.PMode),
-                ReceivingPMode = await GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode),
+                ReceivingPMode = await GetPMode<ReceivingProcessingMode>(exceptionEntity.PMode)
             };
 
             Logger.Info($"[{exceptionEntity.EbmsRefToMessageId}] Exception AS4 Message is successfully transformed");
@@ -59,7 +50,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var entityMessage = message as ReceivedEntityMessage;
             if (entityMessage == null)
             {
-                throw ThrowNotSupportedTypeException();
+                throw new NotSupportedException($"Exception Transformer only supportes '{nameof(ReceivedEntityMessage)}'");
             }
 
             return entityMessage;
@@ -70,21 +61,15 @@ namespace Eu.EDelivery.AS4.Transformers
             var exceptionEntity = messageEntity.Entity as ExceptionEntity;
             if (exceptionEntity == null)
             {
-                throw ThrowNotSupportedTypeException();
+                throw new NotSupportedException($"Exception Transformer only supports '{nameof(ExceptionEntity)}'");
             }
 
             return exceptionEntity;
         }
 
-        private static NotSupportedException ThrowNotSupportedTypeException()
-        {
-            const string description = "Exception Transformer only supports Exception Entities";
-            Logger.Error(description);
-
-            return new NotSupportedException(description);
-        }
-
-        private async Task<AS4Message> CreateErrorAS4Message(ExceptionEntity exceptionEntity, CancellationToken cancellationTokken)
+        private static async Task<AS4Message> CreateErrorAS4Message(
+            ExceptionEntity exceptionEntity,
+            CancellationToken cancellationTokken)
         {
             Error error = CreateSignalErrorMessage(exceptionEntity);
 
@@ -96,9 +81,11 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static Error CreateSignalErrorMessage(ExceptionEntity exceptionEntity)
         {
+            var errorResult = new ErrorResult(exceptionEntity.Exception, ErrorCode.Ebms0004, ErrorAlias.Other);
+
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(exceptionEntity.EbmsRefToMessageId)
-                .WithErrorResult(new ErrorResult(exceptionEntity.Exception, ErrorCode.Ebms0004, ErrorAlias.Other))
+                .WithErrorResult(errorResult)
                 .Build();
         }
 
@@ -107,14 +94,16 @@ namespace Eu.EDelivery.AS4.Transformers
             return AS4XmlSerializer.FromStringAsync<T>(pmode);
         }
 
-        private async Task<XmlDocument> GetEnvelopeDocument(AS4Message as4Message, CancellationToken cancellationToken)
+        private static async Task<XmlDocument> GetEnvelopeDocument(
+            AS4Message as4Message,
+            CancellationToken cancellationToken)
         {
             using (var memoryStream = new MemoryStream())
             {
-                ISerializer serializer = _provider.Get(Constants.ContentTypes.Soap);
+                ISerializer serializer = Registry.Instance.SerializerProvider.Get(Constants.ContentTypes.Soap);
                 await serializer.SerializeAsync(as4Message, memoryStream, cancellationToken);
 
-                var xmlDocument = new XmlDocument() { PreserveWhitespace = true };
+                var xmlDocument = new XmlDocument {PreserveWhitespace = true};
                 memoryStream.Position = 0;
                 xmlDocument.Load(memoryStream);
 
@@ -124,19 +113,20 @@ namespace Eu.EDelivery.AS4.Transformers
 
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
         {
-            var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
+            NotifyMessage notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
 
             if (notifyMessage?.StatusInfo != null)
             {
                 notifyMessage.StatusInfo.Status = Status.Exception;
             }
 
-            var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage);
+            string serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage);
 
-            return new NotifyMessageEnvelope(notifyMessage.MessageInfo,
-                                             notifyMessage.StatusInfo.Status,
-                                             System.Text.Encoding.UTF8.GetBytes(serialized),
-                                             "application/xml");
+            return new NotifyMessageEnvelope(
+                notifyMessage.MessageInfo,
+                notifyMessage.StatusInfo.Status,
+                Encoding.UTF8.GetBytes(serialized),
+                "application/xml");
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Transformers
             var receptionAwareness = messageEntity.Entity as ReceptionAwareness;
             if (receptionAwareness == null)
             {
-                throw ThrowNotSupportedAS4Exception();
+                throw new NotSupportedException($"Reception Awareness Transformer only supports '{nameof(ReceptionAwareness)}'");
             }
 
             return receptionAwareness;
@@ -47,20 +47,10 @@ namespace Eu.EDelivery.AS4.Transformers
             var entityMessage = message as ReceivedEntityMessage;
             if (entityMessage == null)
             {
-                throw ThrowNotSupportedAS4Exception();
+                throw new NotSupportedException($"Reception Awareness Transformer only supports '{nameof(ReceivedEntityMessage)}'");
             }
 
             return entityMessage;
-        }
-
-        private static NotSupportedException ThrowNotSupportedAS4Exception()
-        {
-            const string description =
-                "Current Transformer cannot be used for the given Received Message, expecting type of ReceivedEntityMessage";
-
-            Logger.Error(description);
-
-            return new NotSupportedException(description);
         }
     }
 }
