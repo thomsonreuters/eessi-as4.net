@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 receiver: receiver,
                 transformerConfig: config.Settings.Transformer,
                 exceptionHandler: ExceptionHandlerRegistry.GetHandler(config.Type),
-                pipelineConfig: (config.Settings.NormalPipeline, config.Settings.ErrorPipeline));
+                stepConfiguration: config.Settings.StepConfiguration);
         }
 
         [ExcludeFromCodeCoverage]
@@ -112,8 +112,8 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;                
 
-            Model.Internal.Steps submitStepConfig = CreateSubmitStep();
-            Model.Internal.Steps receiveStepConfig = CreateReveiveHappyFlow();
+            Step[] submitStepConfig = CreateSubmitSteps();
+            Step[] receiveStepConfig = CreateReceiveHappyFlowSteps();
 
             return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
         }
@@ -122,61 +122,48 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;
 
-            var submitStepConfig = new Model.Internal.Steps { Step = new Step[0] };
-            Model.Internal.Steps receiveStepConfig = CreateUnhappyReceiveFlow();
+            var submitStepConfig = new Step[0];
+            Step[] receiveStepConfig = CreateReceiveUnhappyFlowSteps();
 
             return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
         }
 
         [ExcludeFromCodeCoverage]
-        private static Model.Internal.Steps CreateSubmitStep()
+        private static Step[] CreateSubmitSteps()
         {
-            return new Model.Internal.Steps
+            return new[]
             {
-                Step =
-                    new[]
-                    {
-                        new Step {Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName}
-                    }
+                new Step {Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName},
+                new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName}
             };
         }
 
         [ExcludeFromCodeCoverage]
-        private static Model.Internal.Steps CreateReveiveHappyFlow()
+        private static Step[] CreateReceiveHappyFlowSteps()
         {
-            return new Model.Internal.Steps
+            return new[]
             {
-                Step =
-                    new[]
-                    {
-                        new Step {Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(ValidateAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(UpdateReceivedAS4MessageBodyStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(SendAS4SignalMessageStep).AssemblyQualifiedName},
-                        
-                    }
+                new Step {Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
+                new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
+                new Step {Type = typeof(ValidateAS4MessageStep).AssemblyQualifiedName},
+                new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
+                new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName},
+                new Step {Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName},
+                new Step {Type = typeof(UpdateReceivedAS4MessageBodyStep).AssemblyQualifiedName},
+                new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
+                new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
+                new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
+                new Step {Type = typeof(SendAS4SignalMessageStep).AssemblyQualifiedName},
             };
         }
 
-        private static Model.Internal.Steps CreateUnhappyReceiveFlow()
+        private static Step[] CreateReceiveUnhappyFlowSteps()
         {
-            return new Model.Internal.Steps
+            return new[]
             {
-                Step =
-                    new[]
-                    {
-                        new Step {Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
-                    }
+                new Step {Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
+                new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
+                new Step {Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
             };
         }
     }

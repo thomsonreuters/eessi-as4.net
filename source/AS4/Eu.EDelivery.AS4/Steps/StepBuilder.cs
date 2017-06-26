@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Builders;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -12,47 +11,33 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class StepBuilder
     {
-        private readonly Model.Internal.Steps _settingSteps;
+        private readonly Step[] _stepConfiguration;
         private readonly ConditionalStepConfig _conditialStepConfig;
 
-        private StepBuilder(Model.Internal.Steps settingSteps, ConditionalStepConfig conditionalStepConfig)
+        private StepBuilder(Step[] stepConfiguration, ConditionalStepConfig conditionalStepConfig)
         {
-            _settingSteps = settingSteps;
+            _stepConfiguration = stepConfiguration;
             _conditialStepConfig = conditionalStepConfig;
         }
 
         /// <summary>
-        /// Set the configured <see cref="Model.Internal.Steps"/> settings
+        /// Set the configured <see cref="Step"/> settings
         /// </summary>
         /// <param name="settingSteps"></param>
         /// <returns></returns>
-        public static StepBuilder FromSettings(Model.Internal.Steps settingSteps)
+        public static StepBuilder FromSettings(Step[] settingSteps)
         {
             return new StepBuilder(settingSteps, null);
         }
 
+        /// <summary>
+        /// Set the configured <see cref="Step"/> settings.
+        /// </summary>
+        /// <param name="conditionalStepConfig">The conditional step configuration.</param>
+        /// <returns></returns>
         public static StepBuilder FromConditionalConfig(ConditionalStepConfig conditionalStepConfig)
         {
-            return new StepBuilder(null, conditionalStepConfig);
-        }
-
-        /// <summary>
-        /// Builds the steps.
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<IStep> BuildSteps()
-        {
-            if (_conditialStepConfig != null)
-            {
-                var step = new ConditionalStep(
-                    _conditialStepConfig.Condition,
-                    _conditialStepConfig.ThenStepConfig,
-                    _conditialStepConfig.ElseStepConfig);
-
-                return new[] {step};
-            }
-
-            return _settingSteps.Step.Select(CreateInstance);
+            return new StepBuilder(stepConfiguration: null, conditionalStepConfig: conditionalStepConfig);
         }
 
         /// <summary>
@@ -65,33 +50,31 @@ namespace Eu.EDelivery.AS4.Steps
             {
                 return new ConditionalStep(
                     _conditialStepConfig.Condition,
-                    _conditialStepConfig.ThenStepConfig,
-                    _conditialStepConfig.ElseStepConfig);
+                    _conditialStepConfig.ThenSteps,
+                    _conditialStepConfig.ElseSteps);
             }
 
-            IStep decoratedStep = CreateDecoratorStep(_settingSteps);
-            IList<IStep> undecoratedSteps = CreateUndecoratedSteps();
-
-            if (undecoratedSteps.Count == 0)
-            {
-                return decoratedStep;
-            }
-
-            undecoratedSteps.Insert(0, decoratedStep);
-            return new CompositeStep(undecoratedSteps.ToArray());
+            IStep[] steps = _stepConfiguration.Select(CreateInstance).ToArray();
+            return new CompositeStep(steps);
         }
 
-        private static IStep CreateDecoratorStep(Model.Internal.Steps settingsSteps)
+        /// <summary>
+        /// Builds the steps.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<IStep> BuildSteps()
         {
-            IStep[] decoratedSteps = settingsSteps.Step
-                .Where(s => s.UnDecorated == false)
-                .Select(CreateInstance)
-                .ToArray();
+            if (_conditialStepConfig != null)
+            {
+                var step = new ConditionalStep(
+                    _conditialStepConfig.Condition,
+                    _conditialStepConfig.ThenSteps,
+                    _conditialStepConfig.ElseSteps);
 
-            var compositeStep = new CompositeStep(decoratedSteps);
-            return settingsSteps.Decorator != null
-                ? CreateInstance<IStep>(settingsSteps.Decorator, compositeStep)
-                : compositeStep;
+                return new[] {step};
+            }
+
+            return _stepConfiguration.Select(CreateInstance);
         }
 
         private static IStep CreateInstance(Step settingStep)
@@ -111,14 +94,6 @@ namespace Eu.EDelivery.AS4.Steps
             step.Configure(dictionary);
 
             return step;
-        }
-
-        private IList<IStep> CreateUndecoratedSteps()
-        {
-            return _settingSteps.Step
-                .Where(s => s.UnDecorated)
-                .Select(settingStep => CreateInstance<IStep>(settingStep.Type))
-                .ToList();
         }
 
         private static T CreateInstance<T>(string typeString, params object[] args) where T : class

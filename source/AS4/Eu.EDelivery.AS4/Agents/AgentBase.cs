@@ -21,30 +21,38 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly IReceiver _receiver;
         private readonly Transformer _transformerConfig;
         private readonly IAgentExceptionHandler _exceptionHandler;
-        private readonly (Model.Internal.Steps happyPath, Model.Internal.Steps unhappyPath) _pipelineConfig;
         private readonly (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) _conditionalPipeline;
+        private readonly StepConfiguration _stepConfiguration;
+
+        private AgentBase(
+            string name,
+            IReceiver receiver,
+            Transformer transformerConfig,
+            IAgentExceptionHandler exceptionHandler)
+        {
+            _receiver = receiver;
+            _transformerConfig = transformerConfig;
+            _exceptionHandler = exceptionHandler;
+
+            AgentConfig = new AgentConfig(name);
+        }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AgentBase" /> class.
+        /// Initializes a new instance of the <see cref="AgentBase"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="receiver">The receiver.</param>
-        /// <param name="transformerConfig">The transformer.</param>
+        /// <param name="transformerConfig">The transformer configuration.</param>
         /// <param name="exceptionHandler">The exception handler.</param>
-        /// <param name="pipelineConfig">The pipeline configuration.</param>
+        /// <param name="stepConfiguration">The step configuration.</param>
         internal AgentBase(
             string name,
             IReceiver receiver,
             Transformer transformerConfig,
             IAgentExceptionHandler exceptionHandler,
-            (Model.Internal.Steps happyPath, Model.Internal.Steps unhappyPath) pipelineConfig)
+            StepConfiguration stepConfiguration) : this(name, receiver, transformerConfig, exceptionHandler)
         {
-            _receiver = receiver;
-            _transformerConfig = transformerConfig;
-            _exceptionHandler = exceptionHandler;
-            _pipelineConfig = pipelineConfig;
-
-            AgentConfig = new AgentConfig(name);
+            _stepConfiguration = stepConfiguration;
         }
 
         [ExcludeFromCodeCoverage]
@@ -114,7 +122,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                IEnumerable<IStep> steps = CreateSteps(_pipelineConfig.happyPath, _conditionalPipeline.happyPath);
+                IEnumerable<IStep> steps = CreateSteps(_stepConfiguration.NormalPipeline, _conditionalPipeline.happyPath);
                 result = await ExecuteSteps(steps, currentContext, cancellation);
             }
             catch (Exception exception)
@@ -124,9 +132,10 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                if (result.Succeeded == false && (_pipelineConfig.unhappyPath != null || _conditionalPipeline.unhappyPath != null))
+                bool weHaveAnyUnhappyPath = _stepConfiguration.ErrorPipeline != null || _conditionalPipeline.unhappyPath != null;
+                if (result.Succeeded == false && weHaveAnyUnhappyPath)
                 {
-                    IEnumerable<IStep> steps = CreateSteps(_pipelineConfig.unhappyPath, _conditionalPipeline.unhappyPath);
+                    IEnumerable<IStep> steps = CreateSteps(_stepConfiguration.ErrorPipeline, _conditionalPipeline.unhappyPath);
                     result = await ExecuteSteps(steps, result.MessagingContext, cancellation);
                 }
 
@@ -141,14 +150,14 @@ namespace Eu.EDelivery.AS4.Agents
         private bool AgentHasNoStepsToExecute()
         {
             return _conditionalPipeline.happyPath == null 
-                && (_pipelineConfig.happyPath.Step.Any(s => s == null) || _pipelineConfig.happyPath == null);
+                && (_stepConfiguration.NormalPipeline.Any(s => s == null) || _stepConfiguration.NormalPipeline == null);
         }
 
-        private static IEnumerable<IStep> CreateSteps(Model.Internal.Steps pipelineConfig, ConditionalStepConfig conditionalConfig)
+        private static IEnumerable<IStep> CreateSteps(Step[] pipeline, ConditionalStepConfig conditionalConfig)
         {
-            if (pipelineConfig != null)
+            if (pipeline != null)
             {
-                return StepBuilder.FromSettings(pipelineConfig).BuildSteps();
+                return StepBuilder.FromSettings(pipeline).BuildSteps();
             }
 
             if (conditionalConfig != null)

@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = Mock.Of<IReceiver>();
-            var sut = new AgentBase(null, spyReceiver, null, null, ((AS4.Model.Internal.Steps) null, (AS4.Model.Internal.Steps) null));
+            var sut = new AgentBase(null, spyReceiver, null, null, null);
 
             // Act
             sut.Stop();
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = new SpyReceiver();
-            var invalidPipeline = (new AS4.Model.Internal.Steps {Step = new Step[] {null}}, (AS4.Model.Internal.Steps) null);
+            var invalidPipeline = new StepConfiguration {NormalPipeline = new Step[] {null}, ErrorPipeline = null};
             var sut = new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, invalidPipeline);
 
             // Act
@@ -65,17 +65,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             Assert.Equal(AS4Message.Empty, spyReceiver.Context.AS4Message);
         }
 
-        private static AgentBase CreateHappyAgent(SpyReceiver spyReceiver)
+        private static AgentBase CreateHappyAgent(IReceiver spyReceiver)
         {
-            return new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, (AS4MessageStep(), null));
+            var steps = new StepConfiguration {NormalPipeline = AS4MessageSteps(), ErrorPipeline = null};
+            return new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, steps);
         }
 
-        private static AS4.Model.Internal.Steps AS4MessageStep()
+        private static Step[] AS4MessageSteps()
         {
-            return new AS4.Model.Internal.Steps
-            {
-                Step = new[] {new Step {Type = typeof(StubAS4MessageStep).AssemblyQualifiedName}}
-            };
+            return new[] {new Step {Type = typeof(StubAS4MessageStep).AssemblyQualifiedName}};
         }
 
         [Fact]
@@ -100,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
                 new SpyReceiver(),
                 Transformer<DummyTransformer>(),
                 spyHandler,
-                ((AS4.Model.Internal.Steps) null, (AS4.Model.Internal.Steps) null));
+                new StepConfiguration());
         }
 
         [Fact]
@@ -123,9 +121,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         private static AgentBase AgentWithHappySaboteurSteps(IAgentExceptionHandler spyHandler)
         {
             Transformer transformer = Transformer<StubSubmitTransformer>();
-            var pipeline = (Steps<SaboteurStep>(), (AS4.Model.Internal.Steps) null);
+            var pipelines = new StepConfiguration
+            {
+                NormalPipeline = Step<SaboteurStep>(),
+                ErrorPipeline = null
+            };
 
-            return new AgentBase(null, new SpyReceiver(), transformer, spyHandler, pipeline);
+            return new AgentBase(null, new SpyReceiver(), transformer, spyHandler, pipelines);
         }
 
         [Fact]
@@ -145,8 +147,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
         private static AgentBase AgentWithUnhappySaboteurSteps(IAgentExceptionHandler spyHandler)
         {
-            var pipeline = (Steps<UnsuccessfulStep>(), Steps<SaboteurStep>());
-            return new AgentBase(null, new SpyReceiver(), Transformer<StubSubmitTransformer>(), spyHandler, pipeline);
+            var pipelines = new StepConfiguration {NormalPipeline = Step<UnsuccessfulStep>(), ErrorPipeline = Step<SaboteurStep>()};
+            return new AgentBase(null, new SpyReceiver(), Transformer<StubSubmitTransformer>(), spyHandler, pipelines);
         }
 
         [Fact]
@@ -166,8 +168,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
         private static AgentBase AgentWithUnsuccesfulStep(IReceiver spyReceiver)
         {
-            var pipeline = (Steps<UnsuccessfulStep>(), Steps<UnhappyStep>());
-            return new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, pipeline);
+            var pipelines = new StepConfiguration
+            {
+                NormalPipeline = Step<UnsuccessfulStep>(),
+                ErrorPipeline = Step<UnhappyStep>()
+            };
+
+            return new AgentBase(null, spyReceiver, Transformer<StubSubmitTransformer>(), null, pipelines);
         }
 
         private static Transformer Transformer<T>()
@@ -175,9 +182,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             return new Transformer {Type = typeof(T).AssemblyQualifiedName};
         }
 
-        private static AS4.Model.Internal.Steps Steps<T>()
+        private static Step[] Step<T>()
         {
-            return new AS4.Model.Internal.Steps {Step = new[] {new Step {Type = typeof(T).AssemblyQualifiedName}}};
+            return new[] {new Step {Type = typeof(T).AssemblyQualifiedName}};
         }
 
         public class UnsuccessfulStep : IStep

@@ -10,15 +10,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
 {
     public class SingleAgentConfig : PseudoConfig
     {
-        public static Transformer TransformerConfig { get; } = new Transformer
+        private static Transformer TransformerConfig { get; } = new Transformer
         {
             Type = typeof(DummyTransformer).AssemblyQualifiedName
         };
 
-        public static AS4.Model.Internal.Steps ExpectedSteps { get; } = new AS4.Model.Internal.Steps
-        {
-            Step = new[] {new Step {Type = typeof(DummyStep).AssemblyQualifiedName}}
-        };
+        private static Step[] ExpectedStep { get; } = {new Step {Type = typeof(DummyStep).AssemblyQualifiedName}};
 
         /// <summary>
         /// Gets the settings agents.
@@ -31,7 +28,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
                 {
                     Receiver = new Receiver {Type = typeof(StubReceiver).AssemblyQualifiedName},
                     Transformer = TransformerConfig,
-                    Steps = ExpectedSteps
+                    StepConfiguration = new StepConfiguration
+                    {
+                        NormalPipeline = ExpectedStep,
+                        ErrorPipeline = ExpectedStep
+                    }
                 };
         }
 
