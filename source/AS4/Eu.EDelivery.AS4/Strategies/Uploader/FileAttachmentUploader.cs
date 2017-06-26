@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
@@ -71,12 +70,12 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             {
                 await UploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
             }
-            catch (SystemException ex)
+            catch (Exception ex)
             {
                 Logger.Error($"An error occured while uploading the attachment: {ex.Message}");
                 string description = $"Unable to upload attachment {attachment.Id} to {attachment.Location}";
 
-                throw new IOException(description);
+                throw new IOException(description, ex);
             }
         }
 

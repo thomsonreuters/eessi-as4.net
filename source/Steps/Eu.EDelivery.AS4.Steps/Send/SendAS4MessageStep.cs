@@ -5,7 +5,6 @@ using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
