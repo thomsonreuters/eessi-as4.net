@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Validators;
-using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -21,9 +18,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     public class RetrieveSendingPModeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly IConfig _config;
-        private readonly SendingProcessingModeValidator _validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
@@ -39,7 +34,6 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public RetrieveSendingPModeStep(IConfig config)
         {
             _config = config;
-            _validator = new SendingProcessingModeValidator();
         }
 
         /// <summary>
@@ -50,17 +44,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext message, CancellationToken cancellationToken)
         {
-            try
-            {
-                message.SubmitMessage.PMode = RetrieveSendPMode(message);
-                message.SendingPMode = message.SubmitMessage.PMode;
+            message.SubmitMessage.PMode = RetrieveSendPMode(message);
+            message.SendingPMode = message.SubmitMessage.PMode;
 
-                return await StepResult.SuccessAsync(message);
-            }
-            catch (Exception exception)
-            {
-                throw new ApplicationException($"[generated: {Guid.NewGuid()}] Cannot retrieve Sending PMode", exception);
-            }
+            return await StepResult.SuccessAsync(message);
         }
 
         private SendingProcessingMode RetrieveSendPMode(MessagingContext message)
@@ -92,9 +79,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             return collaborationInfo.AgreementRef?.PModeId;
         }
 
-        private void ValidatePMode(SendingProcessingMode pmode)
+        private static void ValidatePMode(SendingProcessingMode pmode)
         {
-            _validator.Validate(pmode).Result(
+            var validator = new SendingProcessingModeValidator();
+
+            validator.Validate(pmode).Result(
                 happyPath: result => Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message"),
                 unhappyPath: result =>
                 {
