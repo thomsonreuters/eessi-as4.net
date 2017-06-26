@@ -95,7 +95,7 @@
         </NormalPipeline>
       </StepConfiguration>
     </DeliverAgent>
-    <NotifyAgent type="Consumer" name="InMessages Notify Agent">
+    <NotifyConsumerAgent name="InMessages Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
@@ -108,8 +108,8 @@
           <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
-    </NotifyAgent>
-    <NotifyAgent type="Producer" name="OutMessages Notify Agent">
+    </NotifyConsumerAgent>
+    <NotifyProducerAgent name="OutMessages Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutMessages</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
@@ -122,8 +122,8 @@
           <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutMessageDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
-    </NotifyAgent>
-    <NotifyAgent type="Consumer" name="InExceptions Notify Agent">
+    </NotifyProducerAgent>
+    <NotifyConsumerAgent name="InExceptions Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InExceptions</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
@@ -136,8 +136,8 @@
           <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateInExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
-    </NotifyAgent>
-    <NotifyAgent type="Producer" name="OutExceptions Notify Agent">
+    </NotifyConsumerAgent>
+    <NotifyProducerAgent name="OutExceptions Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutExceptions</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
@@ -150,7 +150,7 @@
           <Step type="Eu.EDelivery.AS4.Steps.Notify.NotifyUpdateOutExceptionDatastoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" undecorated="false" />
         </NormalPipeline>
       </StepConfiguration>
-    </NotifyAgent>
+    </NotifyProducerAgent>
     <ReceptionAwarenessAgent name="Reception Awareness Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">ReceptionAwareness</Setting>

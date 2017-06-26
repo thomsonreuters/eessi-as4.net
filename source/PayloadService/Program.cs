@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.PayloadService
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            const string hostUrl = "http://localhost:4000/";
+            const string hostUrl = "http://localhost:3000/";
 
             IWebHost host =
                 new WebHostBuilder()

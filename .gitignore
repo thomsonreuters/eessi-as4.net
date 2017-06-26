@@ -301,6 +301,8 @@ __pycache__/
 /source/Fe/src/Eu.EDelivery.AS4.Fe/ui/dist
 
 # FE
+**/ui/dll/**
+**/dist/**
 *.ts.html
 /source/.axoCover
 /source/.axoCover

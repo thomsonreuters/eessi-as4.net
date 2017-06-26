@@ -57,9 +57,6 @@ namespace Eu.EDelivery.AS4.Entities
         [MaxLength(512)]
         public string MessageLocation { get; internal set; }
 
-        [Obsolete("The Message Body is no longer stored in the Datastore")]
-        public byte[] MessageBody { get; set; }
-
         [NotMapped]
         public Operation Operation { get; set; }
 

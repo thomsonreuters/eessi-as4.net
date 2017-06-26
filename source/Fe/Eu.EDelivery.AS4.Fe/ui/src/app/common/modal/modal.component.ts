@@ -59,6 +59,7 @@ export class ModalComponent implements OnDestroy {
     @Input() public okAction: () => void | null;
     @Input() public noReset: boolean = false;
     @Input() public showClose: boolean = true;
+    @Input() public canClose: boolean = true;
     @Output() public shown = new EventEmitter();
     @ViewChild('body') public bodyEl: ElementRef;
     private obs: Subject<boolean>;
@@ -67,7 +68,7 @@ export class ModalComponent implements OnDestroy {
     }
     @HostListener('document:keydown', ['$event'])
     public keyDown(event: KeyboardEvent): void {
-        if (!this.isVisible) {
+        if (!this.isVisible || !this.canClose) {
             return;
         }
         if (event.keyCode === 27) {
