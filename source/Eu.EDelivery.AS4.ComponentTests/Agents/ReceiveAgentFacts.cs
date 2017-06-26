@@ -216,13 +216,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             private static AS4Message CreateAS4ErrorMessage(string refToMessageId)
             {
-                AS4Exception exception =
-                    AS4ExceptionBuilder.WithDescription("An error occurred")
-                                       .WithMessageIds(refToMessageId)
-                                       .WithErrorCode(ErrorCode.Ebms0010)
-                                       .Build();
-
-                Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithAS4Exception(exception).Build();
+                var result = new ErrorResult("An error occurred", ErrorCode.Ebms0010, ErrorAlias.NonApplicable);
+                Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithErrorResult(result).Build();
 
                 return AS4Message.Create(error, GetSendingPMode());
             }

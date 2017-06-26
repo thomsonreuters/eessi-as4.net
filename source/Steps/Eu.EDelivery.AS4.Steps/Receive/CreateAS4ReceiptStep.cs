@@ -26,10 +26,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// </summary>
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="AS4Exception">Throws exception when AS4 Receipt cannot be created</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            AS4Message receiptMessage = TryCreateAS4ReceiptMessage(messagingContext);
+            AS4Message receiptMessage = CreateReceiptAS4MessageFor(messagingContext);
 
             var message = new MessagingContext(receiptMessage, MessagingContextMode.Receive)
             {
@@ -38,20 +37,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             };
 
             return await StepResult.SuccessAsync(message);
-        }
-
-        private static AS4Message TryCreateAS4ReceiptMessage(MessagingContext messagingContext)
-        {
-            try
-            {
-                AS4Message receiptMessage = CreateReceiptAS4MessageFor(messagingContext);
-
-                return receiptMessage;
-            }
-            catch (AS4Exception exception)
-            {
-                throw ThrowCommonAS4Exception(exception, messagingContext);
-            }
         }
 
         private static AS4Message CreateReceiptAS4MessageFor(MessagingContext messagingContext)
@@ -104,19 +89,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             return new NonRepudiationInformationBuilder()
                 .WithSignedReferences(references).Build();
-        }
-
-        private static AS4Exception ThrowCommonAS4Exception(AS4Exception exception, MessagingContext messagingContext)
-        {
-            AS4Message as4Message = messagingContext.AS4Message;
-
-            return AS4ExceptionBuilder
-                .WithDescription("An error occured while receiving a message.")
-                .WithExistingAS4Exception(exception)
-                .WithPModeString(messagingContext.GetReceivingPModeString())
-                .WithMessageIds(as4Message.MessageIds)
-                .WithReceivingPMode(messagingContext.ReceivingPMode)
-                .Build();
         }
     }
 }

@@ -50,16 +50,8 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
         /// <returns></returns>
         public async Task<UploadResult> UploadAsync(Attachment attachment)
         {
-            try
-            {
-                HttpResponseMessage response = await PostAttachmentAsMultipart(attachment).ConfigureAwait(false);
-                return await DeserializeResponseAsUploadResult(response).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                Logger.Error(exception);
-                throw new AS4Exception(exception.Message);
-            }
+            HttpResponseMessage response = await PostAttachmentAsMultipart(attachment).ConfigureAwait(false);
+            return await DeserializeResponseAsUploadResult(response).ConfigureAwait(false);
         }
 
         private async Task<HttpResponseMessage> PostAttachmentAsMultipart(Attachment attachment)

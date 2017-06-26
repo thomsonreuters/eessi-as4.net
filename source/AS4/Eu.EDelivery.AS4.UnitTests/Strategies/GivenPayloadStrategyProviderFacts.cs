@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
+﻿using System;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Moq;
@@ -52,7 +53,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies
 
                 // Act / Assert
                 _provider.Accept(payload => payload.Location.StartsWith(prefix), null);
-                Assert.Throws<AS4Exception>(() => _provider.Get(new Payload(prefix)));
+                Assert.ThrowsAny<Exception>(() => _provider.Get(new Payload(prefix)));
             }
         }
     }

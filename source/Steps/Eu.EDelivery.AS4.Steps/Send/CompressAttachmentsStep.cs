@@ -90,17 +90,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
             attachment.ContentType = "application/gzip";
         }
 
-        private AS4Exception ThrowAS4CompressingException(Exception innerException)
+        private static Exception ThrowAS4CompressingException(Exception innerException)
         {
-            string description = $"{_messagingContext.Prefix} Attachments cannot be compressed";
+            const string description = "Attachments cannot be compressed";
             Logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .WithMessageIds(_messagingContext.AS4Message.MessageIds)
-                .WithSendingPMode(_messagingContext.SendingPMode)
-                .Build();
+            return new ApplicationException(description, innerException);
         }
     }
 }

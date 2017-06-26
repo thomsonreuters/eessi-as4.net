@@ -29,7 +29,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="AS4Exception">Throws exception when data store is unavailable</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             var notifyMessage = messagingContext.NotifyMessage;

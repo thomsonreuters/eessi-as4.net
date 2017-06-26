@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Exceptions;
@@ -106,20 +107,19 @@ namespace Eu.EDelivery.AS4.Common
         /// Retrieve the PMode from the Global Settings
         /// </summary>
         /// <param name="id"></param>
-        /// <exception cref="AS4Exception"></exception>
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
-                throw new AS4Exception("Given Sending PMode key is null");
+                throw new KeyNotFoundException("Given Sending PMode key is null");
             }
 
             IPMode pmode = _sendingPModeWatcher.GetPMode(id);
 
             if (pmode == null)
             {
-                throw new AS4Exception($"No Sending Processing Mode found for {id}");
+                throw new KeyNotFoundException($"No Sending Processing Mode found for {id}");
             }
 
             return pmode as SendingProcessingMode;
@@ -173,12 +173,10 @@ namespace Eu.EDelivery.AS4.Common
         private static void LoadExternalAssemblies()
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
-            if (externalDictionary == null)
+            if (externalDictionary != null)
             {
-                return;
+                LoadExternalAssemblies(externalDictionary);
             }
-
-            LoadExternalAssemblies(externalDictionary);
         }
 
         private static DirectoryInfo GetExternalDirectory()
@@ -227,7 +225,7 @@ namespace Eu.EDelivery.AS4.Common
             _settings = TryDeserialize<Settings>(path);
             if (_settings == null)
             {
-                throw new AS4Exception("Invalid Settings file");
+                throw new XmlException("Invalid Settings file");
             }
 
             AssignSettingsToGlobalConfiguration();
@@ -305,16 +303,18 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomAgentsIfNotNull(AgentType type, params AgentSettings[] agents)
         {
-            if (agents != null)
+            if (agents == null)
             {
-                _agents.AddRange(agents.Where(a => a != null));
+                return;
+            }
 
-                foreach (AgentSettings setting in agents)
+            _agents.AddRange(agents.Where(a => a != null));
+
+            foreach (AgentSettings setting in agents)
+            {
+                if (setting != null)
                 {
-                    if (setting != null)
-                    {
-                        _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting }); 
-                    }
+                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting }); 
                 }
             }
         }

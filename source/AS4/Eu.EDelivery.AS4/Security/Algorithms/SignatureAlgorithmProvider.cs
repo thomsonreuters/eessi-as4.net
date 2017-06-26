@@ -6,36 +6,36 @@ using Eu.EDelivery.AS4.Extensions;
 namespace Eu.EDelivery.AS4.Security.Algorithms
 {
     /// <summary>
-    /// Class to provide <see cref="SignatureAlgorithm"/> implementations
+    /// Class to provide <see cref="SignatureAlgorithm" /> implementations
     /// </summary>
     public class SignatureAlgorithmProvider : ISignatureAlgorithmProvider
     {
         private readonly IDictionary<string, SignatureAlgorithm> _algorithms;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SignatureAlgorithmProvider"/> class. 
+        /// Initializes a new instance of the <see cref="SignatureAlgorithmProvider" /> class.
         /// Create a new Signature Algorithm provider
         /// with Defaults registered
         /// </summary>
         public SignatureAlgorithmProvider()
         {
-            this._algorithms = new Dictionary<string, SignatureAlgorithm>
+            _algorithms = new Dictionary<string, SignatureAlgorithm>
             {
                 ["http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"] = new RsaPkCs1Sha256SignatureAlgorithm(),
                 ["http://www.w3.org/2001/04/xmldsig-more#rsa-sha384"] = new RsaPkCs1Sha384SignatureDescription(),
-                ["http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"] = new RsaPkCs1Sha512SignatureAlgorithm(),
+                ["http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"] = new RsaPkCs1Sha512SignatureAlgorithm()
             };
         }
 
         /// <summary>
-        /// Get a <see cref="SignatureAlgorithm"/> implementation
+        /// Get a <see cref="SignatureAlgorithm" /> implementation
         /// based on a algorithm namespace
         /// </summary>
         /// <param name="algorithmNamespace"></param>
         /// <returns></returns>
         public SignatureAlgorithm Get(string algorithmNamespace)
         {
-            return this._algorithms.ReadMandatoryProperty(algorithmNamespace);
+            return _algorithms.ReadMandatoryProperty(algorithmNamespace);
         }
 
         public SignatureAlgorithm Get(XmlDocument envelopeDocument)
@@ -43,16 +43,18 @@ namespace Eu.EDelivery.AS4.Security.Algorithms
             XmlElement xmlSignatureElement = GetSignatureElement(envelopeDocument);
             string algorithmAttribute = GetSignatureAlgorithm(xmlSignatureElement);
 
-            return this._algorithms[algorithmAttribute];
+            return _algorithms[algorithmAttribute];
         }
 
-        private XmlElement GetSignatureElement(XmlDocument envelopeDocument)
+        private static XmlElement GetSignatureElement(XmlNode envelopeDocument)
         {
-            var xmlSignatureElement = envelopeDocument
-                .SelectSingleNode("//*[local-name()='SignatureMethod']") as XmlElement;
+            var xmlSignatureElement =
+                envelopeDocument.SelectSingleNode("//*[local-name()='SignatureMethod']") as XmlElement;
 
             if (xmlSignatureElement == null)
-                throw new AS4Exception("No SignatureMethod XmlElement found in given Envelope Document");
+            {
+                throw new XmlException("No SignatureMethod XmlElement found in given Envelope Document");
+            }
 
             return xmlSignatureElement;
         }
@@ -61,8 +63,10 @@ namespace Eu.EDelivery.AS4.Security.Algorithms
         {
             string algorithmAttribute = xmlSignatureElement.GetAttribute("Algorithm");
 
-            if (!this._algorithms.ContainsKey(algorithmAttribute))
-                throw new AS4Exception($"No given Signature Algorithm found for: {algorithmAttribute}");
+            if (!_algorithms.ContainsKey(algorithmAttribute))
+            {
+                throw new KeyNotFoundException($"No given Signature Algorithm found for: {algorithmAttribute}");
+            }
 
             return algorithmAttribute;
         }
@@ -74,6 +78,7 @@ namespace Eu.EDelivery.AS4.Security.Algorithms
     public interface ISignatureAlgorithmProvider
     {
         SignatureAlgorithm Get(string algorithmNamespace);
+
         SignatureAlgorithm Get(XmlDocument envelopeDocument);
     }
 }

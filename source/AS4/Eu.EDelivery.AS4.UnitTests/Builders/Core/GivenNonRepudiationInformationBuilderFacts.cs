@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
             public void ThenBuildNonRepudiationInformationFailsWithMissingSignedReferences()
             {
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => new NonRepudiationInformationBuilder().Build());
+                Assert.ThrowsAny<Exception>(() => new NonRepudiationInformationBuilder().Build());
             }
         }
 

@@ -16,18 +16,17 @@ namespace Eu.EDelivery.AS4.Extensions
         /// <typeparam name="TValue"></typeparam>
         /// <param name="dictionary"></param>
         /// <param name="key"></param>
-        /// <exception cref="AS4Exception"></exception>
         /// <returns></returns>
         public static TValue ReadMandatoryProperty<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
         {
             if (!dictionary.ContainsKey(key))
             {
-                throw new AS4Exception($"Dictionary doesn't contain key: {key}");
+                throw new KeyNotFoundException($"Dictionary doesn't contain key: {key}");
             }
 
             if (dictionary[key] == null)
             {
-                throw new AS4Exception($"Dictionary contains empty value for key: {key}");
+                throw new KeyNotFoundException($"Dictionary contains empty value for key: {key}");
             }
 
             return dictionary[key];

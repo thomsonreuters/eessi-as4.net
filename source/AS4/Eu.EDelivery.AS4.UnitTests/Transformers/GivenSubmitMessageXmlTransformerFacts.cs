@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             ReceivedMessage receivedMessage = CreateMessageFrom(submitMessage);
 
             // Act / Assert
-            await Assert.ThrowsAsync<AS4Exception>(() => Transform(receivedMessage));
+            await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
 
             receivedMessage.RequestStream.Dispose();
         }
@@ -86,9 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var receivedMessage = new ReceivedMessage(messageStream);
 
             // Act / Assert
-            AS4Exception actualException = await Assert.ThrowsAsync<AS4Exception>(() => Transform(receivedMessage));
-
-            Assert.IsType<InvalidOperationException>(actualException.InnerException);
+            await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
         }
 
         [Fact]

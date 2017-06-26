@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Security.References
             var xmlKeyIdentifier = element.SelectSingleNode(".//*[local-name()='KeyIdentifier']") as XmlElement;
             if (xmlKeyIdentifier == null)
             {
-                throw new AS4Exception("No KeyIdentifier tag found in given XmlElement");
+                throw new XmlException("No KeyIdentifier tag found in given XmlElement");
             }
 
             SoapHexBinary soapHexBinary = RetrieveHexBinaryFromKeyIdentifier(xmlKeyIdentifier);

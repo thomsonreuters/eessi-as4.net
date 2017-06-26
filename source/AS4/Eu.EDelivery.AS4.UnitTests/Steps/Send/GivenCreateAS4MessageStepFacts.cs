@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -255,10 +256,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 var internalMessage = new MessagingContext(submitMessage);
 
                 // Act / Assert
-                AS4Exception as4Exception =
-                    await Assert.ThrowsAsync<AS4Exception>(() => ExerciseCreateAS4Message(internalMessage));
-
-                Assert.NotEmpty(as4Exception.MessageIds);
+                await Assert.ThrowsAnyAsync<Exception>(() => ExerciseCreateAS4Message(internalMessage));
             }
 
             private static PartyInfo CreatePopulatedSubmitPartyInfo()

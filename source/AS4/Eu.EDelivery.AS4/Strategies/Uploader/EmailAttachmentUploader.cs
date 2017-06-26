@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             AddEMailAttachmentToMail(attachment, mail);
             AddSecurityToSmtpServer(smtpServer);
 
-            TrySendEmail(mail, smtpServer);
+            smtpServer.Send(mail);
 
             LogUploadInformation(attachment);
         }
@@ -117,29 +117,6 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             var emailAttachment = new System.Net.Mail.Attachment(attachment.Content, attachment.Id + extension);
 
             mail.Attachments.Add(emailAttachment);
-        }
-
-        private void TrySendEmail(MailMessage mail, SmtpClient smtpServer)
-        {
-            try
-            {
-                smtpServer.Send(mail);
-            }
-            catch (Exception exception)
-            {
-                throw ThrowUnableToSendAS4Exception(exception);
-            }
-        }
-
-        private AS4Exception ThrowUnableToSendAS4Exception(Exception innerException)
-        {
-            const string description = "Unable to Send E-Mail";
-            _logger.Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .Build();
         }
 
         private void LogUploadInformation(Attachment attachment)

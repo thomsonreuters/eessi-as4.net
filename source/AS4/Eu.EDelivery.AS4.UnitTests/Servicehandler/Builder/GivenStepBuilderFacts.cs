@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Steps;
-using Eu.EDelivery.AS4.Steps.Common;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Steps;
@@ -43,34 +42,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
             }
 
             [Fact]
-            public void ThenBuilderCreatesComplexStep()
-            {
-                // Arrange
-                AS4.Model.Internal.Steps settings = CreateComplexStepSettings();
-
-                // Act
-                IStep step = StepBuilder.FromSettings(settings).Build();
-
-                // Assert
-                Assert.NotNull(step);
-                Assert.IsType<CompositeStep>(step);
-            }
-
-            [Fact]
-            public void ThenBuilderCreatesDecoratedCompositeStep()
-            {
-                // Arrange
-                AS4.Model.Internal.Steps settings = CreateDecoratedCompositeStepSettings();
-
-                // Act
-                IStep step = StepBuilder.FromSettings(settings).Build();
-
-                // Assert
-                Assert.NotNull(step);
-                Assert.IsType<OutExceptionStepDecorator>(step);
-            }
-
-            [Fact]
             public void ThenBuilderCreatesValidStep()
             {
                 // Arrange
@@ -88,43 +59,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 return new AS4.Model.Internal.Steps
                 {
                     Step = new[] {new Step {Type = typeof(EncryptAS4MessageStep).AssemblyQualifiedName}}
-                };
-            }
-
-            private static AS4.Model.Internal.Steps CreateDecoratedCompositeStepSettings()
-            {
-                return new AS4.Model.Internal.Steps
-                {
-                    Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
-                    Step =
-                        new[]
-                        {
-                            new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName}
-                        }
-                };
-            }
-
-            private static AS4.Model.Internal.Steps CreateComplexStepSettings()
-            {
-                return new AS4.Model.Internal.Steps
-                {
-                    Decorator = typeof(ReceiveExceptionStepDecorator).AssemblyQualifiedName,
-                    Step =
-                        new[]
-                        {
-                            new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(DecompressAttachmentsStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                            new Step {Type = typeof(SendAS4MessageStep).AssemblyQualifiedName},
-                            new Step {UnDecorated = true, Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
-                            new Step {UnDecorated = true, Type = typeof(SignAS4MessageStep).AssemblyQualifiedName}
-                        }
                 };
             }
         }

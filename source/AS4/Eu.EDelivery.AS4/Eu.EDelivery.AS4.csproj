@@ -314,15 +314,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Agents\Agent.cs" />
     <Compile Include="Agents\AgentBase.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
-    <Compile Include="Builders\Core\AS4ExceptionBuilder.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Core\NonRepudiationInformationBuilder.cs" />
-    <Compile Include="Builders\Entities\InExceptionBuilder.cs" />
     <Compile Include="Builders\Entities\InMessageBuilder.cs" />
-    <Compile Include="Builders\Entities\OutExceptionBuilder.cs" />
     <Compile Include="Builders\Entities\OutMessageBuilder.cs" />
     <Compile Include="Builders\GenericTypeBuilder.cs" />
     <Compile Include="Builders\Internal\SoapEnvelopeBuilder.cs" />
@@ -402,7 +398,6 @@
     <Compile Include="Entities\MessageEntity.cs" />
     <Compile Include="Entities\OutException.cs" />
     <Compile Include="Entities\OutMessage.cs" />
-    <Compile Include="Exceptions\AS4Exception.cs" />
     <Compile Include="Exceptions\ErrorCode.cs" />
     <Compile Include="Exceptions\ErrorAlias.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
@@ -457,7 +452,6 @@
     <Compile Include="Security\References\IssuerSecurityTokenReference.cs" />
     <Compile Include="Security\References\KeyIdentifierSecurityTokenReference.cs" />
     <Compile Include="Services\IInMessageService.cs" />
-    <Compile Include="Services\InExceptionService.cs" />
     <Compile Include="Services\InMessageService.cs" />
     <Compile Include="Services\IReceptionAwarenessService.cs" />
     <Compile Include="Services\OutExceptionService.cs" />

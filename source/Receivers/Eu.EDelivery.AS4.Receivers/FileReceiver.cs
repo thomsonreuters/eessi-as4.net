@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -155,9 +153,9 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private async Task NotifyReceivedFile(FileInfo fileInfo, MessagingContext messagingContext)
         {
-            if (messagingContext.AS4Exception != null || messagingContext.Exception != null)
+            if (messagingContext.Exception != null)
             {
-                await HandleException(fileInfo, messagingContext.AS4Exception);
+                await HandleException(fileInfo, messagingContext.Exception);
             }
             else
             {
@@ -165,20 +163,20 @@ namespace Eu.EDelivery.AS4.Receivers
             }
         }
 
-        private async Task HandleException(FileInfo fileInfo, AS4Exception as4Exception)
+        private async Task HandleException(FileInfo fileInfo, Exception exception)
         {
             MoveFile(fileInfo, "exception");
-            await CreateExceptionFile(fileInfo, as4Exception);
+            await CreateExceptionFile(fileInfo, exception);
         }
 
-        private async Task CreateExceptionFile(FileSystemInfo fileInfo, AS4Exception as4Exception)
+        private async Task CreateExceptionFile(FileSystemInfo fileInfo, Exception exception)
         {
             string fileName = fileInfo.FullName + ".details";
             Logger.Info($"Exception Details are stored at: {fileName}");
 
             using (var streamWriter = new StreamWriter(fileName))
             {
-                await streamWriter.WriteLineAsync(as4Exception.ToString()).ConfigureAwait(false);
+                await streamWriter.WriteLineAsync(exception.ToString()).ConfigureAwait(false);
             }
         }
 

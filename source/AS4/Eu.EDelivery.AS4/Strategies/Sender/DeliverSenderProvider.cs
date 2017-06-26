@@ -41,14 +41,13 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         /// <param name="operationMethod"></param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        /// <exception cref="AS4Exception"></exception>
         public IDeliverSender GetDeliverSender(string operationMethod)
         {
             DeliverSenderEntry entry = _senders.FirstOrDefault(s => s.Condition(operationMethod));
 
             if (entry?.Sender == null)
             {
-                throw new AS4Exception($"No Deliver Sender found for a given {operationMethod} Operation Method");
+                throw new KeyNotFoundException($"No Deliver Sender found for a given {operationMethod} Operation Method");
             }
 
             return entry.Sender;

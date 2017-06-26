@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
@@ -103,15 +102,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 Assert.Equal(as4Message.SigningId, result.MessagingContext.AS4Message.SigningId);
-            }
-
-            private static AS4Exception CreateFilledAS4Exception()
-            {
-                return
-                    AS4ExceptionBuilder.WithDescription("Testing AS4 Exception")
-                                       .WithErrorCode(ErrorCode.Ebms0001)
-                                       .WithMessageIds("message-id")
-                                       .Build();
             }
 
             private static AS4Message CreateFilledAS4Message()

@@ -24,7 +24,6 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="AS4Exception">Throws exception when the signature cannot be verified</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
             ReceivingProcessingMode pmode = messagingContext.ReceivingPMode;
