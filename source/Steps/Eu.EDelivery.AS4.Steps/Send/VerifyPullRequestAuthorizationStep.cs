@@ -1,6 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Security;
+using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Services;
@@ -14,10 +15,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifyPullRequestAuthorizationStep"/> class.
         /// </summary>
-        public VerifyPullRequestAuthorizationStep()
-        {
-            _authorizationMap = new PullAuthorizationMap();
-        }
+        public VerifyPullRequestAuthorizationStep() : this(new PullAuthorizationMap()) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VerifyPullRequestAuthorizationStep" /> class.
@@ -43,7 +41,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 return StepResult.SuccessAsync(messagingContext);
             }
 
-            throw PullRequestValidationException.MissingMpcCertificate(pullRequest.MessageId, pullRequest.Mpc);
+            throw new SecurityException($"No Certificate found for Mpc: {pullRequest?.Mpc}");
         }
     }
 }
