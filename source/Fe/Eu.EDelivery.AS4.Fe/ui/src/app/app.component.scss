@@ -8,9 +8,14 @@ span.active {
 }
 
 .stack-trace {
+    margin-top: 10px;
     p {
         height: 100px;
         overflow: hidden;
         overflow-y: scroll;
+    }
+    h4 {
+        display: inline;
+        font-weight: bold;
     }
 }

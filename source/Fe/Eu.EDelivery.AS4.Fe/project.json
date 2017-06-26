@@ -50,7 +50,7 @@
     "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.1",
     "Microsoft.Extensions.PlatformAbstractions": "1.1.0",
     "Microsoft.Extensions.Primitives": "1.1.0",
-    "Microsoft.Net.Http": "2.2.29",
+    "Microsoft.Net.Http": "2.0.20710",
     "Mono.Cecil": "0.10.0-beta2",
     "NLog.Extensions.Logging": "1.0.0-rtm-alpha4",
     "SQLite": "3.13.0",

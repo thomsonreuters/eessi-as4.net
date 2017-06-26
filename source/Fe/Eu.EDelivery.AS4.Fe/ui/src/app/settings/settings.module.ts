@@ -22,24 +22,30 @@ import { ROUTES } from './settings.routes';
 import { SortablejsModule } from 'angular-sortablejs';
 import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
 
+const components: any = [
+    SettingsComponent,
+    BaseSettingsComponent,
+    CommonSettingsComponent,
+    DatabaseSettingsComponent,
+    AgentSettingsComponent,
+    ReceiverComponent,
+    StepSettingsComponent,
+    ReceptionAwarenessAgentComponent
+];
+
+const services: any = [
+    SettingsService,
+    RuntimeService,
+    SettingsStore,
+    RuntimeStore
+];
+
 @NgModule({
     declarations: [
-        SettingsComponent,
-        BaseSettingsComponent,
-        CommonSettingsComponent,
-        DatabaseSettingsComponent,
-        AgentSettingsComponent,
-        ReceiverComponent,
-        StepSettingsComponent,
-        ReceptionAwarenessAgentComponent
+        ...components
     ],
     providers: [
-        SettingsService,
-        RuntimeService,
-
-        SettingsStore,
-
-        RuntimeStore
+        ...services
     ],
     imports: [
         CommonModule,

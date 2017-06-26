@@ -15,25 +15,35 @@ export function jwtHelperFactory() {
     return new JwtHelper();
 }
 
+const components: any = [
+    LoginComponent
+];
+
+const directives: any = [
+    HasAuthDirective
+];
+
+const services: any = [
+    { provide: JwtHelper, useFactory: jwtHelperFactory },
+    AuthenticationService,
+    AuthenticationStore
+];
+
 @NgModule({
     imports: [
         RouterModule.forChild(routes),
         FormsModule
     ],
     declarations: [
-        LoginComponent,
-        HasAuthDirective
+        ...components,
+        ...directives
     ],
     providers: [
-        { provide: JwtHelper, useFactory: jwtHelperFactory },
-        AuthenticationService,
-        AuthenticationStore
+        ...services
     ],
     exports: [
         LoginComponent,
         HasAuthDirective
     ]
 })
-export class AuthenticationModule {
-
-}
+export class AuthenticationModule { }

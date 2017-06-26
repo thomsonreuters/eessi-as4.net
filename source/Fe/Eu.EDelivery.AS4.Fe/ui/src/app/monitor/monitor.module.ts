@@ -25,18 +25,29 @@ import { RelatedMessagesComponent } from './relatedmessages/relatedmessages.comp
 import { Select2Module } from 'ng2-select2';
 import { DownloadMessageBodyComponent } from './downloadmessagebody/downloadmessagebody.component';
 
+const components: any = [
+    ExceptionComponent,
+    FilterComponent,
+    PagerComponent,
+    MessageComponent,
+    ErrorMessageComponent,
+    RelatedMessagesComponent, DownloadMessageBodyComponent
+];
+
+const directives: any = [
+    SortDirective
+];
+
+const pipes: any = [
+    ToNumberArrayPipe,
+    ToDirectionPipe
+];
+
 @NgModule({
     declarations: [
-        ExceptionComponent,
-        FilterComponent,
-        ToNumberArrayPipe,
-        PagerComponent,
-        SortDirective,
-        MessageComponent,
-        ErrorMessageComponent,
-        RelatedMessagesComponent,
-        ToDirectionPipe,
-        DownloadMessageBodyComponent
+        ...components,
+        ...directives,
+        ...pipes
     ],
     imports: [
         AuthenticationModule,
@@ -54,6 +65,4 @@ import { DownloadMessageBodyComponent } from './downloadmessagebody/downloadmess
         ExceptionService
     ]
 })
-export class MonitorModule {
-
-}
+export class MonitorModule { }

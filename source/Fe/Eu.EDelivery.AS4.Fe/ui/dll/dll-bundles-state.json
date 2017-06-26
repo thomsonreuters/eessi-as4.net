@@ -13,31 +13,31 @@
   },
   "@angular/platform-browser": {
     "bundle": "vendor",
-    "version": "4.0.1"
+    "version": "4.0.0"
   },
   "@angular/platform-browser-dynamic": {
     "bundle": "vendor",
-    "version": "4.0.1"
+    "version": "4.0.0"
   },
   "@angular/core": {
     "bundle": "vendor",
-    "version": "4.0.1"
+    "version": "4.0.0"
   },
   "@angular/common": {
     "bundle": "vendor",
-    "version": "4.0.1"
+    "version": "4.0.0"
   },
   "@angular/forms": {
     "bundle": "vendor",
-    "version": "4.0.1"
+    "version": "4.0.0"
   },
   "@angular/http": {
     "bundle": "vendor",
-    "version": "4.0.1"
+    "version": "4.0.0"
   },
   "@angular/router": {
     "bundle": "vendor",
-    "version": "4.0.1"
+    "version": "4.0.0"
   },
   "@angularclass/hmr": {
     "bundle": "vendor",

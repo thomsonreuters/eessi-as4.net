@@ -1,5 +1,4 @@
-import { MonitorModule } from './monitor/monitor.module';
-import { AuthenticationStore } from './authentication/authentication.store';
+import { Http, RequestOptions } from '@angular/http';
 import { AuthConfig } from 'angular2-jwt';
 import { ClipboardModule } from 'ngx-clipboard';
 import { CommonModule } from '@angular/common';
@@ -11,19 +10,22 @@ import { RouterModule } from '@angular/router';
 import { removeNgStyles, createNewHosts, createInputTransfer } from '@angularclass/hmr';
 import { JwtHelper } from 'angular2-jwt';
 
-import { ENV_PROVIDERS } from './environment';
-import { ROUTES } from './app.routes';
-import { AppComponent } from './app.component';
-import { AppState, InternalStateType } from './app.service';
-import { NoContentComponent } from './no-content';
 import { SettingsModule } from './settings';
 import { PmodesModule } from './pmodes/pmodes.module';
+import { MonitorModule } from './monitor/monitor.module';
+
+import { ENV_PROVIDERS } from './environment';
+import { ROUTES } from './app.routes';
+import { AppState, InternalStateType } from './app.service';
+import { AuthenticationStore } from './authentication/authentication.store';
+
+import { NoContentComponent } from './no-content';
+import { AppComponent } from './app.component';
 
 import { As4ComponentsModule } from './common';
 import { AuthenticationModule } from './authentication';
-import { Http, RequestOptions } from '@angular/http';
 import { AuthHttp } from 'angular2-jwt';
-import { authHttpServiceFactory } from '../app/common/as4components.module';
+import { authHttpServiceFactory, errorHandlingServices } from '../app/common/as4components.module';
 
 import '../styles/external.scss';
 
@@ -33,16 +35,13 @@ type StoreType = {
     disposeOldHosts: () => void
 };
 
-/**
- * `AppModule` is the main entry point into Angular2's bootstraping process
- */
 @NgModule({
     bootstrap: [AppComponent],
     declarations: [
         AppComponent,
         NoContentComponent,
     ],
-    imports: [ // import Angular's modules
+    imports: [
         BrowserModule,
         FormsModule,
         HttpModule,
@@ -57,7 +56,8 @@ type StoreType = {
         ClipboardModule
     ],
     providers: [ // expose our Services and Providers into Angular's dependency injection
-        AppState
+        AppState,
+        ...errorHandlingServices
     ]
 })
 export class AppModule {
