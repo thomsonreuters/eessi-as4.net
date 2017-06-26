@@ -88,12 +88,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             foreach (SettingsMinderAgent agent in minderTestAgents)
             {
-                _agents.Add(CreateMinderTestAgen(agent.Url, agent.UseLogging, agent.Transformer));
+                _agents.Add(CreateMinderTestAgent(agent.Url, agent.UseLogging, agent.Transformer));
             }
         }
 
         [ExcludeFromCodeCoverage]
-        private static AgentBase CreateMinderTestAgen(string url, bool useLogging, Transformer transformerConfig)
+        private static AgentBase CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
 
@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;                
 
             Model.Internal.Steps submitStepConfig = CreateSubmitStep();
-            Model.Internal.Steps receiveStepConfig = CreateReveiveHappyFlow();
+            Model.Internal.Steps receiveStepConfig = CreateReceiveHappyFlow();
 
             return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
         }
@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         }
 
         [ExcludeFromCodeCoverage]
-        private static Model.Internal.Steps CreateReveiveHappyFlow()
+        private static Model.Internal.Steps CreateReceiveHappyFlow()
         {
             return new Model.Internal.Steps
             {
