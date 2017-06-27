@@ -11,6 +11,7 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -127,7 +128,18 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message Create(SendingProcessingMode pmode)
         {
-            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true);
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {Mep = DetermineMepOf(pmode)};
+        }
+
+        private static MessageExchangePattern DetermineMepOf(SendingProcessingMode pmode)
+        {
+            switch (pmode?.MepBinding)
+            {
+                case MessageExchangePatternBinding.Pull:
+                    return MessageExchangePattern.Pull;
+                default:
+                    return MessageExchangePattern.Push;
+            }
         }
 
         /// <summary>
@@ -138,7 +150,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message Create(SignalMessage message, SendingProcessingMode pmode = null)
         {
-            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {SignalMessages = {message}};
+            AS4Message as4Message = Create(pmode);
+            as4Message.SignalMessages.Add(message);
+
+            return as4Message;
         }
 
         /// <summary>
@@ -149,7 +164,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message Create(UserMessage message, SendingProcessingMode pmode = null)
         {
-            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {UserMessages = {message}};
+            AS4Message as4Message = Create(pmode);
+            as4Message.UserMessages.Add(message);
+
+            return as4Message;
         }
 
         /// <summary>

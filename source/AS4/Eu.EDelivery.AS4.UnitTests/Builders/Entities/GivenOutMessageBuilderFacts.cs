@@ -21,17 +21,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
             [Theory]
-            [InlineData(MessageExchangePatternBinding.Push, MessageExchangePattern.Push)]
-            [InlineData(MessageExchangePatternBinding.Pull, MessageExchangePattern.Pull)]
-            public void BuilderTakesPModeAsMEPBinding(
-                MessageExchangePatternBinding pmodeMep,
-                MessageExchangePattern expected)
+            [InlineData(MessageExchangePattern.Push)]
+            [InlineData(MessageExchangePattern.Pull)]
+            public void BuilderTakesPModeAsMEPBinding(MessageExchangePattern expected)
             {
                 // Arrange
-                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Send)
-                {
-                    SendingPMode = new SendingProcessingMode {MepBinding = pmodeMep}
-                };
+                AS4Message as4Message = AS4Message.Empty;
+                as4Message.Mep = expected;
+
+                var context = new MessagingContext(as4Message, MessagingContextMode.Send);
 
                 // Act
                 OutMessage message = OutMessageBuilder.ForMessageUnit(new FilledUserMessage(), context).Build(CancellationToken.None);
