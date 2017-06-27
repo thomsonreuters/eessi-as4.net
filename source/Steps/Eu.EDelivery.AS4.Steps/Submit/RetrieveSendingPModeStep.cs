@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -92,7 +93,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                     string description = $"Sending PMode {((IPMode) pmode).Id} was invalid, see logging";
                     Logger.Error(description);
 
-                    throw new ApplicationException(description);
+                    throw new ConfigurationErrorsException(description);
                 });
         }
     }

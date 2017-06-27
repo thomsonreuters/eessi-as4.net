@@ -23,20 +23,28 @@ import { AuthHttp } from 'angular2-jwt';
 import { Http, RequestOptions } from '@angular/http';
 import { authHttpServiceFactory } from '../common/as4components.module';
 
+const components: any = [
+    ReceivingPmodeComponent,
+    SendingPmodeComponent,
+    PmodeSelectComponent,
+    MethodComponent,
+    PartyComponent,
+    MessagePackagingComponent,
+    CrudComponent
+];
+
+const services: any = [
+    PmodeStore,
+    SendingPmodeService,
+    ReceivingPmodeService
+];
+
 @NgModule({
     declarations: [
-        ReceivingPmodeComponent,
-        SendingPmodeComponent,
-        PmodeSelectComponent,
-        MethodComponent,
-        PartyComponent,
-        MessagePackagingComponent,
-        CrudComponent
+        ...components
     ],
     providers: [
-        PmodeStore,
-        SendingPmodeService,
-        ReceivingPmodeService
+        ...services
     ],
     imports: [
         CommonModule,

@@ -1,3 +1,31 @@
 button:focus {
     border: 1px solid orangered;
 }
+
+.show-modal {
+    display: block;
+    padding-right: 17px;
+}
+
+.modal {
+    &-dialog {
+        width: 80%;
+        .modal-body {
+            max-height: 75vh;
+            overflow: auto;
+        }
+        .modal-footer {
+            .btn {
+                margin-left: 5px !important;
+            }
+        }
+    }
+}
+
+.zIndexTop {
+    z-index: 100000000000;
+}
+
+.zIndexNormal {
+    z-index: 2000000;
+}
