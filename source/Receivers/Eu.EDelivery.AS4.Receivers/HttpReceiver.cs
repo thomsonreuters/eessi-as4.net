@@ -439,17 +439,6 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
-                    if (processorResult.AS4Exception != null && processorResult.AS4Exception is AS4Exception exception)
-                    {
-                        return
-                            new ByteContentResult(
-                                exception.ErrorCode == ErrorCode.NotApplicable
-                                    ? HttpStatusCode.BadRequest
-                                    : HttpStatusCode.InternalServerError,
-                                "text/plain",
-                                Encoding.UTF8.GetBytes(exception.Message));
-                    }
-
                     if (processorResult.Exception != null)
                     {
                         return
@@ -489,7 +478,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 private static bool AreReceiptsOrErrorsSendInCallbackMode(MessagingContext processorResult)
                 {
                     return (processorResult.AS4Message == null || processorResult.AS4Message.IsEmpty)
-                           && processorResult.AS4Exception == null;
+                           && processorResult.Exception == null;
                 }
 
                 private static bool AreReceiptsOrErrorsSendInResponseMode(MessagingContext processorResult)

@@ -51,10 +51,7 @@ namespace Eu.EDelivery.AS4.Serialization
             }
             catch (Exception exception)
             {
-                throw AS4ExceptionBuilder
-                    .WithDescription("An error occured while serializing the MIME message")
-                    .WithInnerException(exception)
-                    .WithMessageIds(message.MessageIds).Build();
+                throw new FormatException("An error occured while serializing the MIME message", exception);
             }
         }
 
@@ -241,7 +238,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 List<MimePart> bodyParts = mimeMessage.BodyParts.OfType<MimePart>().ToList();
                 if (bodyParts.Count <= 0)
                 {
-                    throw new AS4Exception("MIME Body Parts are empty");
+                    throw new FormatException("MIME Body Parts are empty");
                 }
 
                 return bodyParts;
@@ -252,14 +249,10 @@ namespace Eu.EDelivery.AS4.Serialization
             }
         }
 
-        private static AS4Exception ThrowAS4MimeInconsistencyException(Exception exception)
+        private static FormatException ThrowAS4MimeInconsistencyException(Exception exception)
         {
-            return AS4ExceptionBuilder
-                .WithDescription("The use of MIME is not consistent with the required usage in this specification")
-                .WithInnerException(exception)
-                .WithErrorCode(ErrorCode.Ebms0007)
-                .WithErrorAlias(ErrorAlias.MimeInconsistency)
-                .Build();
+            return new FormatException(
+                "The use of MIME is not consistent with the required usage in this specification");
         }
 
         private static void AddBodyPartsAsAttachmentsToMessage(IReadOnlyList<MimePart> bodyParts, AS4Message message)

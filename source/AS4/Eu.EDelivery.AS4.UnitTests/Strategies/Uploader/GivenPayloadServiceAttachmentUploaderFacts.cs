@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Uploader
             var uploader = new PayloadServiceAttachmentUploader();
             uploader.Configure(new LocationMethod(null));
 
-            await Assert.ThrowsAsync<AS4Exception>(() => uploader.UploadAsync(CreateAnonymousAttachment()));
+            await Assert.ThrowsAnyAsync<Exception>(() => uploader.UploadAsync(CreateAnonymousAttachment()));
         }
 
         private static UploadResult CreateAnonymousUploadResult()

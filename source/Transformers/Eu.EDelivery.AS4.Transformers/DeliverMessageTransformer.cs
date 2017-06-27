@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,10 +26,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (entityMessage == null)
             {
-                throw AS4ExceptionBuilder.WithDescription(
-                                             "The message that must be transformed should be of type ReceivedMessageEntityMessage")
-                                         .WithErrorCode(ErrorCode.Ebms0009)
-                                         .Build();
+                throw new InvalidDataException(
+                    "The message that must be transformed should be of type ReceivedMessageEntityMessage");
             }
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (userMessage == null)
             {
-                throw new InvalidOperationException(
+                throw new DataException(
                     $"The UserMessage with ID {userMessageId} could not be found in the referenced AS4Message.");
             }
 

@@ -8,10 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Internal;
 using Eu.EDelivery.AS4.Builders.Security;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Resources;
@@ -20,7 +18,6 @@ using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
-using Exception = System.Exception;
 using PartInfo = Eu.EDelivery.AS4.Model.Core.PartInfo;
 using PullRequest = Eu.EDelivery.AS4.Model.Core.PullRequest;
 using Receipt = Eu.EDelivery.AS4.Model.Core.Receipt;
@@ -212,7 +209,8 @@ namespace Eu.EDelivery.AS4.Serialization
             schemas.Add(schema);
             envelopeDocument.Schemas = schemas;
 
-            TryValidateEnvelopeDocument(envelopeDocument);
+            envelopeDocument.Validate(
+                (sender, args) => LogManager.GetCurrentClassLogger().Error($"Invalid ebMS Envelope Document: {args.Message}"));
 
             Logger.Debug("Valid ebMS Envelope Document");
         }
@@ -230,29 +228,6 @@ namespace Eu.EDelivery.AS4.Serialization
             }
 
             return __envelopeSchema;
-        }
-
-        private static void TryValidateEnvelopeDocument(XmlDocument envelopeDocument)
-        {
-            try
-            {
-                envelopeDocument.Validate(
-                    (sender, args) => LogManager.GetCurrentClassLogger().Error($"Invalid ebMS Envelope Document: {args.Message}"));
-            }
-            catch (XmlSchemaValidationException exception)
-            {
-                throw ThrowAS4InvalidEnvelopeException(exception);
-            }
-        }
-
-        private static AS4Exception ThrowAS4InvalidEnvelopeException(Exception exception)
-        {
-            return
-                AS4ExceptionBuilder.WithDescription("Invalid ebMS Envelope Document")
-                                   .WithInnerException(exception)
-                                   .WithErrorCode(ErrorCode.Ebms0009)
-                                   .WithErrorAlias(ErrorAlias.InvalidHeader)
-                                   .Build();
         }
 
         private static XmlDocument LoadXmlDocument(Stream stream)

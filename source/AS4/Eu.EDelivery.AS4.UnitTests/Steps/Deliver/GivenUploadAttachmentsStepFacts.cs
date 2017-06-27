@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,12 +51,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
                 // Arrange
                 var saboteurProvider = new Mock<IAttachmentUploaderProvider>();
                 saboteurProvider.Setup(p => p.Get(It.IsAny<string>()))
-                                .Throws(new AS4Exception("Failed to get Uploader"));
+                                .Throws(new Exception("Failed to get Uploader"));
 
                 var step = new UploadAttachmentsStep(saboteurProvider.Object);
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(
+                await Assert.ThrowsAnyAsync<Exception>(
                     () => step.ExecuteAsync(CreateAS4MessageWithAttachment(), CancellationToken.None));
             }
         }

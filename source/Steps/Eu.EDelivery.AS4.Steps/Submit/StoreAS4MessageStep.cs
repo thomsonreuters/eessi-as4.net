@@ -54,24 +54,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private async Task TryStoreOutMessagesAsync(MessagingContext message, CancellationToken token)
         {
-            try
-            {
-                await StoreOutMessagesAsync(message, token).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                throw ThrowAS4ExceptionWithInnerException(message, exception);
-            }
-        }
-
-        private static AS4Exception ThrowAS4ExceptionWithInnerException(MessagingContext message, Exception exception)
-        {
-            return AS4ExceptionBuilder
-                .WithDescription("Unable to store AS4 Messages")
-                .WithInnerException(exception)
-                .WithSendingPMode(message.SendingPMode)
-                .WithMessageIds(message.AS4Message.MessageIds)
-                .Build();
+            await StoreOutMessagesAsync(message, token).ConfigureAwait(false);
         }
 
         private async Task StoreOutMessagesAsync(MessagingContext message, CancellationToken token)

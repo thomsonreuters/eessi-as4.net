@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Xunit;
@@ -60,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Extensions
                 const string doesntExistedKey = "$doesn't existed key$";
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => _dictionary.ReadMandatoryProperty(doesntExistedKey));
+                Assert.ThrowsAny<Exception>(() => _dictionary.ReadMandatoryProperty(doesntExistedKey));
             }
         }
     }

@@ -6,11 +6,9 @@ using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Exceptions.Handlers;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.ServiceHandler.Builder;
-using Eu.EDelivery.AS4.Steps.Common;
 using Eu.EDelivery.AS4.Steps.Receive;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.Steps.Submit;
@@ -57,7 +55,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 AddCustomAgentsToProvider();
                 AddMinderAgentsToProvider();
             }
-            catch (AS4Exception exception)
+            catch (Exception exception)
             {
                 _logger.Error(exception.Message);
             }
@@ -67,10 +65,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         {
             foreach (AgentConfig config in _config.GetAgentsConfiguration())
             {
-                _agents.Add(
-                    config.Type == AgentType.Unknown
-                        ? GetAgentFromSettings(config.Settings)
-                        : CreateAgentBaseFromSettings(config));
+                _agents.Add(CreateAgentBaseFromSettings(config));
             }
         }
 
@@ -86,18 +81,6 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                 pipelineConfig: (config.Settings.NormalPipeline, config.Settings.ErrorPipeline));
         }
 
-        private static IAgent GetAgentFromSettings(AgentSettings agent)
-        {
-            if (agent == null)
-            {
-                throw new ArgumentNullException(nameof(agent));
-            }
-
-            IReceiver receiver = new ReceiverBuilder().SetSettings(agent.Receiver).Build();
-
-            return new Agent(new AgentConfig(agent.Name), receiver, agent.Transformer, agent.Steps);
-        }
-
         [ExcludeFromCodeCoverage]
         private void AddMinderAgentsToProvider()
         {
@@ -105,31 +88,42 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             foreach (SettingsMinderAgent agent in minderTestAgents)
             {
-                _agents.Add(CreateMinderTestAgent(agent.Url, agent.UseLogging, agent.Transformer));
+                _agents.Add(CreateMinderTestAgen(agent.Url, agent.UseLogging, agent.Transformer));
             }
         }
 
         [ExcludeFromCodeCoverage]
-        private static Agent CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
+        private static AgentBase CreateMinderTestAgen(string url, bool useLogging, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
 
             receiver.Configure(new[] { new Setting("Url", url), new Setting("UseLogging", useLogging.ToString()) });
 
-            return new Agent(
-                new AgentConfig("Minder Submit/Receive Agent"),
+            return new AgentBase(
+                "Minder Submit/Receive Agent",
                 receiver,
                 transformerConfig,
-                CreateMinderSubmitReceiveStepConfig());
+                new MinderExceptionHandler(), 
+                (CreateMinderHappyFlow(), CreateReceiveUnhappyFlow()));
         }
 
         [ExcludeFromCodeCoverage]
-        private static ConditionalStepConfig CreateMinderSubmitReceiveStepConfig()
+        private static ConditionalStepConfig CreateMinderHappyFlow()
         {
             Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;                
 
             Model.Internal.Steps submitStepConfig = CreateSubmitStep();
-            Model.Internal.Steps receiveStepConfig = CreateReceiveStep();
+            Model.Internal.Steps receiveStepConfig = CreateReveiveHappyFlow();
+
+            return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
+        }
+
+        private static ConditionalStepConfig CreateReceiveUnhappyFlow()
+        {
+            Func<MessagingContext, bool> isSubmitMessage = m => m.Mode == MessagingContextMode.Submit;
+
+            var submitStepConfig = new Model.Internal.Steps { Step = new Step[0] };
+            Model.Internal.Steps receiveStepConfig = CreateUnhappyReceiveFlow();
 
             return new ConditionalStepConfig(isSubmitMessage, submitStepConfig, receiveStepConfig);
         }
@@ -137,29 +131,26 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         [ExcludeFromCodeCoverage]
         private static Model.Internal.Steps CreateSubmitStep()
         {
-            var s = new Model.Internal.Steps
+            return new Model.Internal.Steps
             {
-                Decorator = typeof(OutExceptionStepDecorator).AssemblyQualifiedName,
                 Step =
                     new[]
                     {
                         new Step {Type = typeof(StoreAS4MessageStep).AssemblyQualifiedName},
-                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(CreateAS4ReceiptStep).AssemblyQualifiedName}
                     }
             };
-
-            return s;
         }
 
         [ExcludeFromCodeCoverage]
-        private static Model.Internal.Steps CreateReceiveStep()
+        private static Model.Internal.Steps CreateReveiveHappyFlow()
         {
             return new Model.Internal.Steps
             {
-                Decorator = typeof(ReceiveExceptionStepDecorator).AssemblyQualifiedName,
                 Step =
                     new[]
                     {
+                        new Step {Type = typeof(ValidateAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SaveReceivedMessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName},
                         new Step {Type = typeof(DecryptAS4MessageStep).AssemblyQualifiedName},
@@ -170,9 +161,21 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
                         new Step {Type = typeof(StoreAS4ReceiptStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
                         new Step {Type = typeof(SendAS4SignalMessageStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                        new Step {UnDecorated = true, Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
+                        
+                    }
+            };
+        }
+
+        private static Model.Internal.Steps CreateUnhappyReceiveFlow()
+        {
+            return new Model.Internal.Steps
+            {
+                Step =
+                    new[]
+                    {
+                        new Step {Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
+                        new Step {Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
                     }
             };
         }

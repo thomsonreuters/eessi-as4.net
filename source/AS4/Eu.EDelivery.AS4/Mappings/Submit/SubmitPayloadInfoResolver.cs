@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using AutoMapper;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
@@ -65,7 +66,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
                 var schema = AS4Mapper.Map<Model.Core.Schema>(submitSchema);
                 if (string.IsNullOrEmpty(schema.Location))
                 {
-                    throw new AS4Exception("Invalid Schema: Schema needs a location");
+                    throw new InvalidDataException("Invalid Schema: Schema needs a location");
                 }
 
                 returnPartInfo.Schemas.Add(schema);
@@ -93,7 +94,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
             {
                 if (string.IsNullOrEmpty(payloadProperty.Name))
                 {
-                    throw new AS4Exception("Invalid Payload Property: Property requires name");
+                    throw new InvalidDataException("Invalid Payload Property: Property requires name");
                 }
 
                 returnPartInfo.Properties[payloadProperty.Name] = payloadProperty.Value;

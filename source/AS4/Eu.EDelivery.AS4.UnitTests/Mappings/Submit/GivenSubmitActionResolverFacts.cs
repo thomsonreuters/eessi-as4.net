@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
+﻿using System;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -85,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var resolver = new SubmitActionResolver();
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => resolver.Resolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
             }
         }
     }

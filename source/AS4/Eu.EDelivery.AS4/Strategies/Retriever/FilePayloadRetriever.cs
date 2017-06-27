@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Strategies.Retriever
@@ -35,28 +33,7 @@ namespace Eu.EDelivery.AS4.Strategies.Retriever
 
         private static Stream TryRetrievePayload(string location)
         {
-            try
-            {
-                return RetrievePayloadAtlocation(location);
-            }
-            catch (Exception exception)
-            {
-                throw ThrowAS4PayloadException(location, exception);
-            }
-        }
-
-        private static AS4Exception ThrowAS4PayloadException(string location, Exception exception)
-        {
-            string description = $"Unable to retrieve Payload at location: {location}";
-
-            Logger.Error(description);
-            
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(exception)                
-                .WithErrorCode(ErrorCode.Ebms0011)
-                .WithErrorAlias(ErrorAlias.ExternalPayloadError)
-                .Build();
+            return RetrievePayloadAtlocation(location);
         }
 
         private static Stream RetrievePayloadAtlocation(string location)

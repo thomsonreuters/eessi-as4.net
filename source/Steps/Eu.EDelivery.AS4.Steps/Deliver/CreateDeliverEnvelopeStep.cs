@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -98,12 +99,12 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 });
         }
 
-        private static AS4Exception ThrowInvalidDeliverMessage(DeliverMessage deliverMessage)
+        private static InvalidDataException ThrowInvalidDeliverMessage(DeliverMessage deliverMessage)
         {
             string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
             Logger.Error(description);
 
-            return AS4ExceptionBuilder.WithDescription(description).Build();
+            return new InvalidDataException(description);
         }
     }
 }

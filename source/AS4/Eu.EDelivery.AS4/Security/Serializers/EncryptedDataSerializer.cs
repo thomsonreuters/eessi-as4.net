@@ -46,7 +46,7 @@ namespace Eu.EDelivery.AS4.Security.Serializers
 
             if (encryptedDataElements == null)
             {
-                throw new AS4Exception("No EncryptedData elements found to decrypt");
+                throw new XmlException("No EncryptedData elements found to decrypt");
             }
 
             foreach (var e in encryptedDataElements)

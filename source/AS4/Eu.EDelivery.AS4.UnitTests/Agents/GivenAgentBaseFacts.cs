@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
         {
             // Arrange
             var spyReceiver = Mock.Of<IReceiver>();
-            var sut = new AgentBase(null, spyReceiver, null, null, (null, null));
+            var sut = new AgentBase(null, spyReceiver, null, null, ((AS4.Model.Internal.Steps) null, (AS4.Model.Internal.Steps) null));
 
             // Act
             sut.Stop();
@@ -95,7 +95,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
 
         private static AgentBase AgentWithSaboteurTransformer(IAgentExceptionHandler spyHandler)
         {
-            return new AgentBase(null, new SpyReceiver(), Transformer<DummyTransformer>(), spyHandler, (null, null));
+            return new AgentBase(
+                null,
+                new SpyReceiver(),
+                Transformer<DummyTransformer>(),
+                spyHandler,
+                ((AS4.Model.Internal.Steps) null, (AS4.Model.Internal.Steps) null));
         }
 
         [Fact]

@@ -46,7 +46,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="AS4Exception">Thrown when Signing Fails</exception>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
@@ -82,7 +81,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                     Logger.Error(exception.InnerException.Message);
                 }
                 Logger.Debug(exception.StackTrace);
-                throw ThrowCommonSigningException(message, exception.Message, exception);
+                throw ThrowCommonSigningException(exception.Message, exception);
             }
         }
 
@@ -92,9 +91,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             if (!certificate.HasPrivateKey)
             {
-                throw ThrowCommonSigningException(
-                    message,
-                    $"{message.Prefix} Certificate hasn't a private key");
+                throw ThrowCommonSigningException($"{message.Prefix} Certificate hasn't a private key");
             }
 
             ISigningStrategy signingStrategy = CreateSignStrategy(message, certificate, cancellationToken);
@@ -110,16 +107,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return certificate;
         }
 
-        private static AS4Exception ThrowCommonSigningException(MessagingContext message, string description, Exception innerException = null)
+        private static ApplicationException ThrowCommonSigningException(string description, Exception innerException = null)
         {
             Logger.Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .WithMessageIds(message.AS4Message.MessageIds)
-                .WithSendingPMode(message.SendingPMode)
-                .Build();
+            return new ApplicationException(description, innerException);
         }
 
         private static ISigningStrategy CreateSignStrategy(MessagingContext messagingContext, X509Certificate2 certificate, CancellationToken cancellationToken)

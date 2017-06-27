@@ -82,9 +82,7 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
                     Logger.Error(ex.InnerException.Message);
                 }
 
-                throw AS4ExceptionBuilder
-                    .WithDescription(description)
-                    .WithInnerException(ex).Build();
+                throw;
             }
         }
     }

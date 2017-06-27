@@ -25,9 +25,8 @@ namespace Eu.EDelivery.AS4.Transformers
 
             if (entityMessage == null)
             {
-                throw AS4ExceptionBuilder.WithDescription("The message that must be transformed should be of type ReceivedMessageEntityMessage")
-                                         .WithErrorCode(ErrorCode.Ebms0009)
-                                         .Build();
+                throw new NotSupportedException(
+                    "The message that must be transformed should be of type ReceivedMessageEntityMessage");
             }
 
             // Get the AS4Message that is referred to by this entityMessage and modify it so that it just contains
@@ -40,6 +39,14 @@ namespace Eu.EDelivery.AS4.Transformers
         protected virtual async Task<NotifyMessageEnvelope> CreateNotifyMessageEnvelope(AS4Message as4Message)
         {
             var notifyMessage = AS4MessageToNotifyMessageMapper.Convert(as4Message);
+
+            if (notifyMessage?.StatusInfo != null)
+            {
+                notifyMessage.StatusInfo.Status = 
+                    as4Message.PrimarySignalMessage is Receipt
+                        ? Status.Delivered
+                        : Status.Error;
+            }
 
             var serialized = await AS4XmlSerializer.ToStringAsync(notifyMessage);
 

@@ -1,12 +1,11 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Security;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -70,7 +69,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             catch (Exception exception)
             {
                 string description = $"{messagingContext.Prefix} Problems with Encrypting AS4 Message: {exception.Message}";
-                throw ThrowCommonEncryptionException(messagingContext, description, exception);
+                Logger.Error(description);
+
+                throw new CryptographicException(description, exception);
             }
         }
 
@@ -125,18 +126,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             Logger.Debug($"Sending PMode {messagingContext.SendingPMode.Id} Encryption is disabled");
             return StepResult.SuccessAsync(messagingContext);
-        }
-
-        private static AS4Exception ThrowCommonEncryptionException(MessagingContext messagingContext, string description, Exception innerException = null)
-        {
-            Logger.Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .WithMessageIds(messagingContext.AS4Message.MessageIds)
-                .WithSendingPMode(messagingContext.SendingPMode)
-                .Build();
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.Serialization
                 }
             }
 
-            throw new AS4Exception($"No given Serializer found for a given Content Type: {contentType}");
+            throw new KeyNotFoundException($"No given Serializer found for a given Content Type: {contentType}");
         }
 
         private static bool KeyMatchesContentType(string contentType, string key)

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Xunit;
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Retriever
                 const string location = "invalid-location";
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(() => _retriever.RetrievePayloadAsync(location));
+                await Assert.ThrowsAnyAsync<Exception>(() => _retriever.RetrievePayloadAsync(location));
             }
         }
     }

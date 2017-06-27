@@ -75,11 +75,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Security.Repositories
                 var document = new XmlDocument();
                 var repository = new SignedXmlRepository(document);
 
-                // Act
-                var as4Exception = Assert.Throws<AS4Exception>(() => repository.GetSignatureElement());
-
-                // Assert
-                Assert.Equal(ErrorCode.Ebms0101, as4Exception.ErrorCode);
+                // Act / Assert
+                Assert.ThrowsAny<Exception>(() => repository.GetSignatureElement());
             }
 
             [Fact]
