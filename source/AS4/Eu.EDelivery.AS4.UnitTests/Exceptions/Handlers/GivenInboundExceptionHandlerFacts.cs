@@ -124,23 +124,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
                 });
         }
 
-        private static MessagingContext ContextWithReceivingPMode(Func<MessagingContext> createContext, bool notifyConsumer)
-        {
-            MessagingContext context = createContext();
-            context.ReceivingPMode = new ReceivingProcessingMode
-            {
-                ExceptionHandling = {NotifyMessageConsumer = notifyConsumer}
-            };
-
-            return context;
-        }
-
         private static MessagingContext ContextWithAS4UserMessage(string id, bool notifyConsumer)
         {
-            var message = new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), MessagingContextMode.Receive);
-            message.ReceivingPMode = new ReceivingProcessingMode {ExceptionHandling = {NotifyMessageConsumer = notifyConsumer}};
-
-            return message;
+            return new MessagingContext(
+                AS4Message.Create(new FilledUserMessage(id)),
+                MessagingContextMode.Receive)
+            {
+                ReceivingPMode =
+                    new ReceivingProcessingMode {ExceptionHandling = {NotifyMessageConsumer = notifyConsumer}}
+            };
         }
     }
 }
