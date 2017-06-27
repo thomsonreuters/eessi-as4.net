@@ -88,12 +88,12 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
 
             foreach (SettingsMinderAgent agent in minderTestAgents)
             {
-                _agents.Add(CreateMinderTestAgen(agent.Url, agent.UseLogging, agent.Transformer));
+                _agents.Add(CreateMinderTestAgent(agent.Url, agent.UseLogging, agent.Transformer));
             }
         }
 
         [ExcludeFromCodeCoverage]
-        private static AgentBase CreateMinderTestAgen(string url, bool useLogging, Transformer transformerConfig)
+        private static AgentBase CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
 

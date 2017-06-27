@@ -2,14 +2,10 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using AutoMapper;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
@@ -106,16 +102,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             }
         }
 
-        private static AS4Message CreateAS4MessageWithAttachment()
-        {
-            AS4Message as4Message = CreateAS4MessageWithoutAttachments();
-
-            as4Message.ContentType = Constants.ContentTypes.Mime;
-            as4Message.AddAttachment(CreateAttachment());
-
-            return as4Message;
-        }
-
         private static AS4Message CreateAS4MessageWithoutAttachments()
         {
             var userMessage = new UserMessage("message-id")
@@ -129,17 +115,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             as4Message.ContentType = Constants.ContentTypes.Soap;
 
             return as4Message;
-        }
-
-        private static Attachment CreateAttachment()
-        {
-            var attachment = new Attachment("attachment-id") { Content = new MemoryStream(), ContentType = "application/xml" };
-
-            var xmlSerializer = new XmlSerializer(typeof(string));
-            xmlSerializer.Serialize(attachment.Content, "<?xml version=\"1.0\"?><Root></Root>");
-            attachment.Content.Position = 0;
-
-            return attachment;
         }
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)

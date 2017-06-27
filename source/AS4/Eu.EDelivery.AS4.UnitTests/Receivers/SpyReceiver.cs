@@ -51,15 +51,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
         }
 
         /// <summary>
-        /// Asserts the receiver result.
-        /// </summary>
-        /// <param name="assertion">The assertion.</param>
-        public void AssertReceiverResult(Action<MessagingContext> assertion)
-        {
-            assertion(_context);
-        }
-
-        /// <summary>
         /// Stop the <see cref="IReceiver"/> instance from receiving.
         /// </summary>
         public void StopReceiving()

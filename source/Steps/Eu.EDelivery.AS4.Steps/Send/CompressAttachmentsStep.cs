@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             const string description = "Attachments cannot be compressed";
             Logger.Error(description);
 
-            return new ApplicationException(description, innerException);
+            return new InvalidDataException(description, innerException);
         }
     }
 }
