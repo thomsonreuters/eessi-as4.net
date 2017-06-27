@@ -5,6 +5,7 @@ using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
+using Eu.EDelivery.AS4.Serialization;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -15,7 +16,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     [XmlType(Namespace = "eu:edelivery:as4:pmode")]
     [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
     [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
-    public class SendingProcessingMode : IPMode
+    public class SendingProcessingMode : IPMode, ICloneable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="SendingProcessingMode" /> class.
@@ -74,6 +75,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonIgnore]
         [ScriptIgnore]
         public bool DynamicDiscoverySpecified => DynamicDiscovery != null;
+
+        /// <summary>Creates a new object that is a copy of the current instance.</summary>
+        /// <returns>A new object that is a copy of this instance.</returns>
+        public object Clone()
+        {
+            // Create an exact copy of this instance by serializing and deserializing it.
+            var pmodeString = AS4XmlSerializer.ToString(this);
+            return AS4XmlSerializer.FromString<SendingProcessingMode>(pmodeString);
+        }
 
         #endregion
     }
@@ -151,15 +161,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         #endregion
     }
 
-    [XmlType(IncludeInSchema = true)]
+    [XmlType(IncludeInSchema = false)]
     public enum PublicKeyChoiceType
     {
-        None,
+        None = 0,
         PublicKeyCertificate,
         PublicKeyFindCriteria
     }
-
-    public class PublicKeyCertificate
+    
+    public class PublicKeyCertificate 
     {
         public string Certificate { get; set; }
     }
@@ -168,7 +178,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public X509FindType PublicKeyFindType { get; set; }
 
-        public string PublicKeyFindValue { get; set; }        
+        public string PublicKeyFindValue { get; set; }
     }
 
     public class KeyEncryption
@@ -347,7 +357,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class DynamicDiscoveryConfiguration
     {
         public string SmlScheme { get; set; }
-
         public string SmpServerDomainName { get; set; }
 
         public string DocumentIdentifier { get; set; }

@@ -6,6 +6,7 @@ namespace Eu.EDelivery.AS4.Model.Core
     {
         public string Name { get; set; }
         public string Value { get; set; }
+        public string Type { get; set; }
 
         public MessageProperty() : this(null, null)
         {
@@ -26,7 +27,8 @@ namespace Eu.EDelivery.AS4.Model.Core
             }
 
             return StringComparer.OrdinalIgnoreCase.Equals(Name, other.Name) &&
-                   StringComparer.OrdinalIgnoreCase.Equals(Value, other.Value);
+                   StringComparer.OrdinalIgnoreCase.Equals(Value, other.Value) &&
+                   StringComparer.OrdinalIgnoreCase.Equals(Type, other.Type);
         }
 
         public override bool Equals(object obj)
@@ -44,7 +46,8 @@ namespace Eu.EDelivery.AS4.Model.Core
         public override int GetHashCode()
         {
             return (Name ?? "").GetHashCode() ^ 42 +
-                   (Value ?? "").GetHashCode() ^ 23;
+                   (Type ?? "").GetHashCode() ^ 23 +
+                   (Value ?? "").GetHashCode() ^ 17;
         }
     }
 }

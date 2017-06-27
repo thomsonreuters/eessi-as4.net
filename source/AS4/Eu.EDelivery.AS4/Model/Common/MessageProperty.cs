@@ -8,6 +8,8 @@ namespace Eu.EDelivery.AS4.Model.Common
 
         public string Value { get; set; }
 
+        public string Type { get; set; }
+
         public MessageProperty() : this(string.Empty, string.Empty)
         {
             // Default constructor is necessary for serialization.
@@ -40,7 +42,8 @@ namespace Eu.EDelivery.AS4.Model.Common
 
             return
                 string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
+                string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(Type, other.Type, StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -69,7 +72,10 @@ namespace Eu.EDelivery.AS4.Model.Common
             unchecked
             {
                 int hashCode = Name != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Name) : 0;
-                hashCode = (hashCode * 397) ^ (Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0);
+                hashCode = (hashCode * 397) ^
+                           (Type != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Type) : 0);
+                hashCode = (hashCode * 397) ^
+                           (Value != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(Value) : 0);
                 return hashCode;
             }
         }

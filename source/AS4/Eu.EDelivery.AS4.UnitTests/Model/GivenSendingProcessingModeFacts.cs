@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void ThenPushConfigurationIsDefault()
             {
                 // Assert
-                Assert.Equal(MessageExchangePatternBinding.Push, DefaultEmptyPMode.MepBinding);                
+                Assert.Equal(MessageExchangePatternBinding.Push, DefaultEmptyPMode.MepBinding);
             }
 
             [Fact]
@@ -138,6 +138,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 // Assert
                 Assert.NotNull(DefaultEmptyPMode.PushConfiguration.TlsConfiguration);
             }
+        }
+
+        [Fact]
+        public void CanCloneSendingProcessingMode()
+        {
+            var pmode = new SendingProcessingMode()
+            {
+                Id = "CloneableTest",
+                Security = new AS4.Model.PMode.Security()
+                {
+                    Encryption = new Encryption
+                    {
+                        IsEnabled = true,
+                        PublicKeyInformation = new PublicKeyCertificate() { Certificate = "ABCDEFGH" },
+                        PublicKeyType = PublicKeyChoiceType.PublicKeyCertificate
+                    }
+                }
+            };
+
+            var clone = pmode.Clone() as SendingProcessingMode;
+
+            Assert.NotNull(clone);
+
+            Assert.Equal(pmode.Id, clone.Id);
+            Assert.Equal(pmode.Security.Encryption.IsEnabled, clone.Security.Encryption.IsEnabled);
+            Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)clone.Security.Encryption.PublicKeyInformation).Certificate);
         }
     }
 }
