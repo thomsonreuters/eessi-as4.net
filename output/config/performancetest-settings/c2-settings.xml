@@ -95,7 +95,7 @@
         </NormalPipeline>
       </StepConfiguration>
     </DeliverAgent>
-   <NotifyConsumerAgent name="InMessages Notify Agent">
+    <NotifyConsumerAgent name="InMessages Notify Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">InMessages</Setting>
         <Setting key="Field">Operation = ToBeNotified</Setting>
