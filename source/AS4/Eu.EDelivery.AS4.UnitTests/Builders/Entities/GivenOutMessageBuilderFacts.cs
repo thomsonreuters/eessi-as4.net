@@ -7,7 +7,9 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 {
@@ -18,6 +20,27 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
     {
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
+            [Theory]
+            [InlineData(MessageExchangePatternBinding.Push, MessageExchangePattern.Push)]
+            [InlineData(MessageExchangePatternBinding.Pull, MessageExchangePattern.Pull)]
+            public void BuilderTakesPModeAsMEPBinding(
+                MessageExchangePatternBinding pmodeMep,
+                MessageExchangePattern expected)
+            {
+                // Arrange
+                var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Send)
+                {
+                    SendingPMode = new SendingProcessingMode {MepBinding = pmodeMep}
+                };
+
+                // Act
+                OutMessage message = OutMessageBuilder.ForMessageUnit(new FilledUserMessage(), context).Build(CancellationToken.None);
+
+                // Assert
+                MessageExchangePattern actual = message.MEP;
+                Assert.Equal(expected, actual);
+            }
+
             [Fact]
             public async Task ThenBuildOutMessageSucceedsWithAS4Message()
             {

@@ -53,6 +53,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         {
             MessageType messageType = DetermineSignalMessageType(_messageUnitUnit);
 
+            SendingProcessingMode sendingPMode = GetSendingPMode(messageType);
+
             var outMessage = new OutMessage
             {
                 EbmsMessageId = _messageUnitUnit.MessageId,
@@ -60,9 +62,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
-                MEP = (MessageExchangePattern) _messagingContext.AS4Message?.Mep,
+                MEP = DetermineMepBinding(sendingPMode),
                 EbmsMessageType = messageType,
-                PMode = AS4XmlSerializer.ToString(GetSendingPMode(messageType)),
+                PMode = AS4XmlSerializer.ToString(sendingPMode),
             };
 
             if (string.IsNullOrWhiteSpace(_messageUnitUnit.RefToMessageId) == false)
@@ -73,6 +75,17 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             outMessage.AssignAS4Properties(_messagingContext.AS4Message, cancellationToken);
 
             return outMessage;
+        }
+
+        private static MessageExchangePattern DetermineMepBinding(SendingProcessingMode pmode)
+        {
+            switch (pmode?.MepBinding)
+            {
+                case MessageExchangePatternBinding.Pull:
+                    return MessageExchangePattern.Pull;
+                default:
+                    return MessageExchangePattern.Push;
+            }
         }
 
         private SendingProcessingMode GetSendingPMode(MessageType messageType)

@@ -8,6 +8,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Services;
@@ -16,6 +17,7 @@ using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
@@ -41,9 +43,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             const string expectedMpc = "message-mpc";
-            await InsertUserMessage(expectedMpc, MessageExchangePattern.Push, Operation.ToBeSent);
-            await InsertUserMessage("yet-another-mpc", MessageExchangePattern.Pull, Operation.DeadLettered);
-            await InsertUserMessage(expectedMpc, MessageExchangePattern.Pull, Operation.ToBeSent);
+            await InsertUserMessage(expectedMpc, MessageExchangePatternBinding.Push, Operation.ToBeSent);
+            await InsertUserMessage("yet-another-mpc", MessageExchangePatternBinding.Pull, Operation.DeadLettered);
+            await InsertUserMessage(expectedMpc, MessageExchangePatternBinding.Pull, Operation.ToBeSent);
 
             // Act
             StepResult result = await ExerciseSelection(expectedMpc);
@@ -64,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             return await sut.ExecuteAsync(context, CancellationToken.None);
         }
 
-        private async Task InsertUserMessage(string mpc, MessageExchangePattern pattern, Operation operation)
+        private async Task InsertUserMessage(string mpc, MessageExchangePatternBinding pattern, Operation operation)
         {
             using (var messageStream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.as4_encrypted_envelope)))
             {
@@ -73,20 +75,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     .DeserializeAsync(messageStream, Constants.ContentTypes.Soap, CancellationToken.None);
 
                 message.PrimaryUserMessage.Mpc = mpc;
-                message.Mep = pattern;
 
-                await InsertOutMessage(message, operation);
+                await InsertOutMessage(message, operation, pattern);
             }
         }
 
-        private async Task InsertOutMessage(AS4Message as4Message, Operation operation)
+        private async Task InsertOutMessage(AS4Message as4Message, Operation operation, MessageExchangePatternBinding mep)
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
                 var service = new OutMessageService(new DatastoreRepository(context), InMemoryMessageBodyStore.Default);
 
+                var messagingContext = new MessagingContext(as4Message, MessagingContextMode.Send)
+                {
+                    SendingPMode = new SendingProcessingMode {MepBinding = mep}
+                };
+
                 await service.InsertAS4Message(
-                    messagingContext: new MessagingContext(as4Message, MessagingContextMode.Send),
+                    messagingContext: messagingContext,
                     operation: operation,
                     cancellationToken: CancellationToken.None);
 
