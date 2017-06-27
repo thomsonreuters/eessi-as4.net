@@ -34,18 +34,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 Assert.All(steps, s => Assert.Equal(expectedType, s.GetType()));
             }
 
-            private static AS4.Model.Internal.Steps CreatePipelineSteps(int amount, Type type)
+            private static Step[] CreatePipelineSteps(int amount, Type type)
             {
                 var stubStep = new Step {Type = type.AssemblyQualifiedName};
 
-                return new AS4.Model.Internal.Steps {Step = Enumerable.Repeat(stubStep, amount).ToArray()};
+                return Enumerable.Repeat(stubStep, amount).ToArray();
             }
 
             [Fact]
             public void ThenBuilderCreatesValidStep()
             {
                 // Arrange
-                AS4.Model.Internal.Steps settingSteps = CreateDefaultSettingSteps();
+                Step[] settingSteps = CreateDefaultSettingSteps();
 
                 // Act
                 IStep step = StepBuilder.FromSettings(settingSteps).Build();
@@ -54,12 +54,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
                 Assert.IsType<CompositeStep>(step);
             }
 
-            private static AS4.Model.Internal.Steps CreateDefaultSettingSteps()
+            private static Step[] CreateDefaultSettingSteps()
             {
-                return new AS4.Model.Internal.Steps
-                {
-                    Step = new[] {new Step {Type = typeof(EncryptAS4MessageStep).AssemblyQualifiedName}}
-                };
+                return new[] {new Step {Type = typeof(EncryptAS4MessageStep).AssemblyQualifiedName}};
             }
         }
 
@@ -100,15 +97,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Servicehandler.Builder
 
             private static ConditionalStepConfig CreateSimpleConditationStepConfig()
             {
-                var thenStep = new AS4.Model.Internal.Steps
-                {
-                    Step = new[] {new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName}}
-                };
-
-                var elseStep = new AS4.Model.Internal.Steps
-                {
-                    Step = new[] {new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName}}
-                };
+                var thenStep = new[] {new Step {Type = typeof(DeterminePModesStep).AssemblyQualifiedName}};
+                var elseStep = new[] {new Step {Type = typeof(VerifySignatureAS4MessageStep).AssemblyQualifiedName}};
 
                 return new ConditionalStepConfig(null, thenStep, elseStep);
             }

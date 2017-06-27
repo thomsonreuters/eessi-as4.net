@@ -73,8 +73,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
 
                 // Assert
                 AgentSettings sendAgent = settings.Agents.SendAgents.First();
-                Assert.NotEmpty(sendAgent.NormalPipeline.Step);
-                Assert.NotEmpty(sendAgent.ErrorPipeline.Step);
+                Assert.NotEmpty(sendAgent.StepConfiguration.NormalPipeline);
+                Assert.NotEmpty(sendAgent.StepConfiguration.ErrorPipeline);
             }
         }
 
@@ -108,8 +108,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
                     + "<Agents><PullReceiveAgent><Receiver Type=\"ExponentialConfiguredPModeReceiver\">"
                     + "<Setting key=\"pmode1\" tmin=\"0:00:01\" tmax=\"0:00:25\"/>"
                     + "<Setting key=\"pmode2\" tmin=\"0:00:05\" tmax=\"0:00:50\"/>"
-                    + "</Receiver><Transformer Type=\"PModeToPullMessageTransformer\"/><Steps></Steps></PullReceiveAgent>"
-                    + "<SendAgent><Receiver/><Transformer/><NormalPipeline><Step/></NormalPipeline><ErrorPipeline><Step /></ErrorPipeline></SendAgent>" 
+                    + "</Receiver><Transformer Type=\"PModeToPullMessageTransformer\"/><StepConfiguration></StepConfiguration></PullReceiveAgent>"
+                    + "<SendAgent><Receiver/><Transformer/><StepConfiguration><NormalPipeline><Step/></NormalPipeline><ErrorPipeline><Step /></ErrorPipeline></StepConfiguration></SendAgent>" 
                     + "</Agents></Settings>");
         }
     }

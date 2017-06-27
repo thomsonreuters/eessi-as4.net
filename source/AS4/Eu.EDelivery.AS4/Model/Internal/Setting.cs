@@ -146,12 +146,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public string OutMessageStoreLocation { get; set; }
     }
 
-    public enum NotifyFlow
-    {
-        Consumer,
-        Producer
-    }
-
     [Serializable]
     [DesignerCategory("code")]
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
@@ -163,36 +157,25 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("Transformer")]
         public Transformer Transformer { get; set; }
 
-        [XmlElement("Steps")]
-        public Steps Steps { get; set; }
-
-        [XmlElement("Decorator")]
-        [Obsolete("Property will be removed after the 'Exception-Handling' Refactoring")]
-        public Decorator Decorator { get; set; }
-
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
 
-        [XmlAttribute(AttributeName = "type")]
-        public NotifyFlow Type { get; set; }
-
-        [XmlElement("NormalPipeline")]
-        public Steps NormalPipeline { get; set; }
-
-        [XmlElement("ErrorPipeline")]
-        public Steps ErrorPipeline { get; set; }
+        [XmlElement("StepConfiguration")]
+        public StepConfiguration StepConfiguration { get; set; }
     }
 
     [Serializable]
     [DesignerCategory("code")]
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
-    public class Steps
+    public class StepConfiguration
     {
-        [XmlAttribute(AttributeName = "decorator")]
-        public string Decorator { get; set; }
+        [XmlArray("NormalPipeline")]
+        [XmlArrayItem("Step")]
+        public Step[] NormalPipeline { get; set; }
 
-        [XmlElement("Step")]
-        public Step[] Step { get; set; }
+        [XmlArray("ErrorPipeline")]
+        [XmlArrayItem("Step")]
+        public Step[] ErrorPipeline { get; set; }
     }
 
     [Serializable]
@@ -202,9 +185,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         [XmlAttribute(AttributeName = "type")]
         public string Type { get; set; }
-
-        [XmlAttribute(AttributeName = "undecorated")]
-        public bool UnDecorated { get; set; }
 
         [XmlElement("Setting")]
         public Setting[] Setting { get; set; }
@@ -216,30 +196,24 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// <remarks>This class is not serializable.  Only used programmatically for conformonce-testing.</remarks>
     public class ConditionalStepConfig
     {
-        public ConditionalStepConfig(Func<MessagingContext, bool> condition, Steps thenStepConfig, Steps elseStepConfig)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConditionalStepConfig" /> class.
+        /// </summary>
+        /// <param name="condition">The condition.</param>
+        /// <param name="thenSteps">The then steps.</param>
+        /// <param name="elseSteps">The else steps.</param>
+        public ConditionalStepConfig(Func<MessagingContext, bool> condition, Step[] thenSteps, Step[] elseSteps)
         {
             Condition = condition;
-            ThenStepConfig = thenStepConfig;
-            ElseStepConfig = elseStepConfig;
+            ThenSteps = thenSteps;
+            ElseSteps = elseSteps;
         }
 
         public Func<MessagingContext, bool> Condition { get; }
 
-        public Steps ThenStepConfig { get; }
+        public Step[] ThenSteps { get; }
 
-        public Steps ElseStepConfig { get; }
-    }
-
-    [Serializable]
-    [DesignerCategory("code")]
-    [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
-    public class Decorator
-    {
-        [XmlAttribute(AttributeName = "type")]
-        public string Type { get; set; }
-
-        [XmlElement("Steps")]
-        public Steps Steps { get; set; }
+        public Step[] ElseSteps { get; }
     }
 
     [Serializable]
