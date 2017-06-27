@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             public const string PollingInterval = "PollingInterval";
             public const string Table = "Table";
-            public const string Filter = "Field";
+            public const string Filter = "Filter";
             public const string TakeRows = "BatchSize";
         }
 

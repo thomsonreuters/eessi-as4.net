@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -153,7 +152,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             var settings = new List<Setting>
             {
                 new Setting("Table", "OutMessages"),
-                new Setting("Field", filter),
+                new Setting("Filter", filter),
             };
 
             for (var index = 0; index < updates.Count; index++)
@@ -198,8 +197,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
 
             return receivedMessage;
         }
-
-
 
         private void AssertOutMessageIf(Func<OutMessage, bool> where, Action<OutMessage> assertion)
         {
