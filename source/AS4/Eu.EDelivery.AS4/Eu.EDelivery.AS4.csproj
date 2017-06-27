@@ -314,7 +314,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Agents\AgentBase.cs" />
+    <Compile Include="Agents\Agent.cs" />
     <Compile Include="Agents\AgentConfig.cs" />
     <Compile Include="Builders\Core\ErrorBuilder.cs" />
     <Compile Include="Builders\Core\NonRepudiationInformationBuilder.cs" />

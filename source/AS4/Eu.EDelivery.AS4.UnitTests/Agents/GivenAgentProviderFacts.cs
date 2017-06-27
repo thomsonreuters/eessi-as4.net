@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Agents
             IEnumerable<IAgent> agents = sut.GetAgents();
 
             // Assert
-            Assert.All(agents, a => Assert.IsType<AgentBase>(a));
+            Assert.All(agents, a => Assert.IsType<Agent>(a));
         }
     }
 }

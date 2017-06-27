@@ -69,11 +69,11 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             }
         }
 
-        private static AgentBase CreateAgentBaseFromSettings(AgentConfig config)
+        private static Agent CreateAgentBaseFromSettings(AgentConfig config)
         {
             IReceiver receiver = new ReceiverBuilder().SetSettings(config.Settings.Receiver).Build();
 
-            return new AgentBase(
+            return new Agent(
                 name: config.Name,
                 receiver: receiver,
                 transformerConfig: config.Settings.Transformer,
@@ -93,13 +93,13 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
         }
 
         [ExcludeFromCodeCoverage]
-        private static AgentBase CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
+        private static Agent CreateMinderTestAgent(string url, bool useLogging, Transformer transformerConfig)
         {
             var receiver = new HttpReceiver();
 
             receiver.Configure(new[] { new Setting("Url", url), new Setting("UseLogging", useLogging.ToString()) });
 
-            return new AgentBase(
+            return new Agent(
                 "Minder Submit/Receive Agent",
                 receiver,
                 transformerConfig,
