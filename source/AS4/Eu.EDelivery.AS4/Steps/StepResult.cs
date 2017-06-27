@@ -47,7 +47,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public static StepResult Failed(MessagingContext context)
         {
-            return new StepResult(succeeded: false) {MessagingContext = context};
+            return new StepResult(succeeded: false) {MessagingContext = context, CanProceed = false};
         }
         
         /// <summary>

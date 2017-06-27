@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Agents
             MessagingContext currentContext,
             CancellationToken cancellation)
         {
-            if (_pipelineConfig.happyPath == null || _pipelineConfig.happyPath.Step.Any(s => s == null))
+            if (AgentHasNoStepsToExecute())
             {
                 return currentContext;
             }
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                if (result.Succeeded == false && _pipelineConfig.unhappyPath != null)
+                if (result.Succeeded == false && (_pipelineConfig.unhappyPath != null || _conditionalPipeline.unhappyPath != null))
                 {
                     IEnumerable<IStep> steps = CreateSteps(_pipelineConfig.unhappyPath, _conditionalPipeline.unhappyPath);
                     result = await ExecuteSteps(steps, result.MessagingContext, cancellation);
@@ -136,6 +136,12 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 return await _exceptionHandler.HandleErrorException(exception, result.MessagingContext);
             }
+        }
+
+        private bool AgentHasNoStepsToExecute()
+        {
+            return _conditionalPipeline.happyPath == null 
+                && (_pipelineConfig.happyPath.Step.Any(s => s == null) || _pipelineConfig.happyPath == null);
         }
 
         private static IEnumerable<IStep> CreateSteps(Model.Internal.Steps pipelineConfig, ConditionalStepConfig conditionalConfig)

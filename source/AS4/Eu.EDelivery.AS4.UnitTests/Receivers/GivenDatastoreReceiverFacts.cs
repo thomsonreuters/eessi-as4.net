@@ -190,7 +190,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                 },
                 tokenSource.Token);
 
-            Assert.Equal(isCalled, waitHandle.WaitOne(TimeSpan.FromSeconds(1)));
+            Assert.Equal(isCalled, waitHandle.WaitOne(TimeSpan.FromSeconds(5)));
 
             tokenSource.Cancel();
             receiver.StopReceiving();

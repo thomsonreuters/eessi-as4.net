@@ -14,6 +14,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="LogReceivedProcessingErrorStep"/> class.
+        /// </summary>
+        public LogReceivedProcessingErrorStep() : this(Registry.Instance.CreateDatastoreContext) {}
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LogReceivedProcessingErrorStep" /> class.
         /// </summary>
         /// <param name="createContext">The create context.</param>
