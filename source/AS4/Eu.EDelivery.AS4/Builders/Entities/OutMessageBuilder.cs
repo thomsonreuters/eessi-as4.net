@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;

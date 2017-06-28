@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -68,7 +67,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
                 }
             }
 
-            await TrySendNotifyMessage(messagingContext).ConfigureAwait(false);
+            await SendNotifyMessage(messagingContext).ConfigureAwait(false);
             return await StepResult.SuccessAsync(messagingContext);
         }
 
@@ -85,18 +84,15 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private async Task TrySendNotifyMessage(MessagingContext message)
+        private async Task SendNotifyMessage(MessagingContext message)
         {
-            try
-            {
-                NotifyMessageEnvelope notifyMessage = message.NotifyMessage;
-                Method notifyMethod = GetNotifyMethod(message);
-                await SendNotifyMessage(notifyMessage, notifyMethod).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                throw ThrowAS4SendException(exception, message);
-            }
+            NotifyMessageEnvelope notifyMessage = message.NotifyMessage;
+            Method notifyMethod = GetNotifyMethod(message);
+
+            INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
+            sender.Configure(notifyMethod);
+
+            await sender.SendAsync(notifyMessage).ConfigureAwait(false);
         }
 
         private static Method GetNotifyMethod(MessagingContext messagingContext)
@@ -117,41 +113,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static Method DetermineMethod(IPMode sendPMode, SendHandling sendHandling, Receivehandling receivehandling)
         {
             return IsNotifyMessageFormedBySending(sendPMode) ? sendHandling?.NotifyMethod : receivehandling?.NotifyMethod;
-        }
-
-        private async Task SendNotifyMessage(NotifyMessageEnvelope notifyMessage, Method notifyMethod)
-        {
-            INotifySender sender = _provider.GetNotifySender(notifyMethod.Type);
-            sender.Configure(notifyMethod);
-            await sender.SendAsync(notifyMessage).ConfigureAwait(false);
-        }
-
-        private static AS4Exception ThrowAS4SendException(Exception innerException, MessagingContext message)
-        {
-            const string description = "Notify Message was not send correctly";
-            Logger.Error(description);
-
-            AS4ExceptionBuilder builder = AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .WithMessageIds(message.NotifyMessage.MessageInfo.MessageId)
-                .WithErrorAlias(ErrorAlias.ConnectionFailure);
-
-            AddPModeToBuilder(message, builder);
-
-            return builder.Build();
-        }
-
-        private static void AddPModeToBuilder(MessagingContext message, AS4ExceptionBuilder builder)
-        {
-            if (IsNotifyMessageFormedBySending(message?.SendingPMode))
-            {
-                builder.WithSendingPMode(message?.SendingPMode);
-            }
-            else
-            {
-                builder.WithReceivingPMode(message?.ReceivingPMode);
-            }
         }
 
         private static bool IsNotifyMessageFormedBySending(IPMode pmode)

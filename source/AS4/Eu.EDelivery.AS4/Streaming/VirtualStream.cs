@@ -272,6 +272,32 @@ namespace Eu.EDelivery.AS4.Streaming
         {
             public const int FiftyMegabytes = 52_428_800;
         }
+
+        /// <summary>
+        /// To a series of bytes.
+        /// </summary>
+        /// <returns></returns>
+        public byte[] ToArray()
+        {
+            byte[] bytes = GetUnderlyingBytes();
+            StreamPositionMover.MovePositionToStreamStart(UnderlyingStream);
+
+            return bytes;
+        }
+
+        private byte[] GetUnderlyingBytes()
+        {
+            if (_isInMemory)
+            {
+                return (UnderlyingStream as MemoryStream)?.ToArray();
+            }
+
+            using (Stream fs = UnderlyingStream)
+            {
+                var binaryReader = new BinaryReader(fs);
+                return binaryReader.ReadBytes((int)fs.Length);
+            }
+        }
     }
 
 }

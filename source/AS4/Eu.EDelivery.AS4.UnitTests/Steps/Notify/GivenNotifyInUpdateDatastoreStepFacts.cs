@@ -1,13 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Steps.Notify;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
@@ -44,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 await _step.ExecuteAsync(internalMessage, CancellationToken.None);
 
                 // Assert
-                AssertInMessage(
+                GetDataStoreContext.AssertInMessage(
                     notifyMessage.MessageInfo.MessageId,
                     m =>
                     {
@@ -58,7 +56,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 InMessage inMessage = CreateInMessage(sharedId);
                 inMessage.Operation = Operation.Notifying;
                 inMessage.Status = InStatus.Delivered;
-                InsertInMessage(inMessage);
+
+                GetDataStoreContext.InsertInMessage(inMessage);
             }
 
             private static NotifyMessageEnvelope CreateNotifyMessage(string id)
@@ -66,24 +65,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
                 var msgInfo = new MessageInfo {MessageId = id};
 
                 return new NotifyMessageEnvelope(msgInfo, Status.Delivered, null, string.Empty);
-            }
-
-            private void AssertInMessage(string messageId, Action<InMessage> assertAction)
-            {
-                using (var context = new DatastoreContext(Options))
-                {
-                    InMessage inMessage = context.InMessages.FirstOrDefault(m => m.EbmsMessageId.Equals(messageId));
-                    assertAction(inMessage);
-                }
-            }
-        }
-
-        protected void InsertInMessage(InMessage inMessage)
-        {
-            using (var context = new DatastoreContext(Options))
-            {
-                context.InMessages.Add(inMessage);
-                context.SaveChanges();
             }
         }
     }

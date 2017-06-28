@@ -50,12 +50,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Arrange
             var transformer = new PModeToPullRequestTransformer();
 
-            // Act
-            MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
-
-            // Assert
-            Assert.NotNull(message.Exception);
-            Assert.NotEmpty(message.Exception.Message);
+            // Act / Assert
+            await Assert.ThrowsAnyAsync<Exception>(
+                () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
         }
 
         [Fact]

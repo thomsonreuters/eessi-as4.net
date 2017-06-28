@@ -2,14 +2,10 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using AutoMapper;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
@@ -37,17 +33,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransfromSuceedsWithSoapdAS4StreamAsync()
             {
                 // Arrange
-                MemoryStream memoryStream = CreateAS4MessageWithAttachment().ToStream();
-                var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);
+                const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
                 // Act
-                MessagingContext messagingContext = await Transform(receivedMessage);
-
+                MessagingContext context = await ExerciseTransform(Properties.Resources.as4_single_payload, contentType);
+                
                 // Assert
-                Assert.NotNull(messagingContext);
-                Assert.NotNull(messagingContext.AS4Message);
+                Assert.NotNull(context);
+                Assert.NotNull(context.AS4Message);
             }
-            
+
+            private async Task<MessagingContext> ExerciseTransform(byte[] contents, string contentType)
+            {
+                using (var stream = new MemoryStream(contents))
+                {
+                    var receivedMessage = new ReceivedMessage(stream, contentType);
+
+                    return await Transform(receivedMessage);
+                }
+            }
         }
 
         /// <summary>
@@ -74,7 +78,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AutoMapperMappingException>(() => Transform(receivedMessage));
+                await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
             }
 
             [Fact]
@@ -83,7 +87,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var saboteurMessage = new ReceivedMessage(Stream.Null, "not-supported-content-type");
 
-                await VerifyIfTheTranformReturnsErrorMessage(saboteurMessage);
+                // Act / Assert
+                await Assert.ThrowsAnyAsync<Exception>(() => Transform(saboteurMessage));
             }
 
             [Fact]
@@ -92,27 +97,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Arrange
                 var saboteurMessage = new ReceivedMessage(requestStream: null);
 
-                await VerifyIfTheTranformReturnsErrorMessage(saboteurMessage);
+                // Act / Assert
+                await Assert.ThrowsAnyAsync<Exception>(() => Transform(saboteurMessage));
             }
-
-            private async Task VerifyIfTheTranformReturnsErrorMessage(ReceivedMessage saboteurMessage)
-            {
-                // Act
-                MessagingContext actualMessage = await Transform(saboteurMessage);
-
-                // Assert
-                Assert.IsType<Error>(actualMessage.AS4Message.PrimarySignalMessage);
-            }
-        }
-
-        private static AS4Message CreateAS4MessageWithAttachment()
-        {
-            AS4Message as4Message = CreateAS4MessageWithoutAttachments();
-
-            as4Message.ContentType = Constants.ContentTypes.Mime;
-            as4Message.AddAttachment(CreateAttachment());
-
-            return as4Message;
         }
 
         private static AS4Message CreateAS4MessageWithoutAttachments()
@@ -128,17 +115,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             as4Message.ContentType = Constants.ContentTypes.Soap;
 
             return as4Message;
-        }
-
-        private static Attachment CreateAttachment()
-        {
-            var attachment = new Attachment("attachment-id") { Content = new MemoryStream(), ContentType = "application/xml" };
-
-            var xmlSerializer = new XmlSerializer(typeof(string));
-            xmlSerializer.Serialize(attachment.Content, "<?xml version=\"1.0\"?><Root></Root>");
-            attachment.Content.Position = 0;
-
-            return attachment;
         }
 
         protected async Task<MessagingContext> Transform(ReceivedMessage message)

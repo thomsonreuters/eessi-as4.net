@@ -37,16 +37,16 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
 
         [HttpGet]
         [Route("messagebody")]
-        public async Task<FileContentResult> GetMessageBody(Direction direction, string messageId)
+        public async Task<FileStreamResult> GetMessageBody(Direction direction, string messageId)
         {
-            return File(await monitorService.DownloadMessageBody(direction, messageId), "application/txt");
+            return File(await monitorService.DownloadMessageBody(direction, messageId), "application/xml");
         }
 
         [HttpGet]
         [Route("exceptionbody")]
         public async Task<FileContentResult> GetExceptionBody(Direction direction, string messageId)
         {
-            return File(await monitorService.DownloadExceptionBody(direction, messageId), "application/txt");
+            return File(await monitorService.DownloadExceptionBody(direction, messageId), "application/xml");
         }
     }
 }

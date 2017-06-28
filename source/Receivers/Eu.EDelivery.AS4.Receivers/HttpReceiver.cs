@@ -443,7 +443,8 @@ namespace Eu.EDelivery.AS4.Receivers
                     {
                         return
                             new ByteContentResult(
-                                processorResult.Exception.ErrorCode == ErrorCode.NotApplicable
+                                processorResult.ErrorResult?.Code == ErrorCode.NotApplicable
+                                || processorResult.ErrorResult == null
                                     ? HttpStatusCode.BadRequest
                                     : HttpStatusCode.InternalServerError,
                                 "text/plain",
@@ -613,10 +614,10 @@ namespace Eu.EDelivery.AS4.Receivers
                         {
                             ISerializer serializer = SerializerProvider.Get(_messagingContext.AS4Message.ContentType);
 
-                            await serializer.SerializeAsync(
+                            serializer.Serialize(
                                 _messagingContext.AS4Message,
                                 responseStream,
-                                CancellationToken.None).ConfigureAwait(false);
+                                CancellationToken.None);
                         }
                     }
                 }

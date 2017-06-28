@@ -36,17 +36,15 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 {
                     return StepResult.Success(response.ResultedMessage).AndStopExecution();
                 }
-                else
-                {
-                    Logger.Error($"Response with HTTP status {response.StatusCode} received.");
-                    
-                    if (response.ResultedMessage?.Exception != null)
-                    {
-                        Logger.Error($"Additional information: {response.ResultedMessage.Exception.Message}");
-                    }
 
-                    return StepResult.Failed(response.ResultedMessage.Exception, response.ResultedMessage).AndStopExecution();
+                Logger.Error($"Response with HTTP status {response.StatusCode} received.");
+                    
+                if (response.ResultedMessage?.Exception != null)
+                {
+                    Logger.Error($"Additional information: {response.ResultedMessage.Exception.Message}");
                 }
+
+                return StepResult.Failed(response.ResultedMessage).AndStopExecution();
             }
 
             return await _nextHandler.HandleResponse(response);

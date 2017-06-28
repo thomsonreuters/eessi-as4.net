@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (string.IsNullOrWhiteSpace(messageId))
             {
-                throw new AS4Exception("The AS4Message to store has no Primary Message Id");
+                throw new InvalidDataException("The AS4Message to store has no Primary Message Id");
             }
 
             string fileName = FilenameSanitizer.EnsureValidFilename(messageId);

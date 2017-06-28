@@ -39,10 +39,11 @@ namespace Eu.EDelivery.AS4.Steps
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {            
             MessagingContext messageToSend = messagingContext;
+            StepResult result = StepResult.Success(messageToSend);
 
             foreach (IStep step in _steps)
             {
-                StepResult result = await step.ExecuteAsync(messageToSend, cancellationToken).ConfigureAwait(false);
+                result = await step.ExecuteAsync(messageToSend, cancellationToken).ConfigureAwait(false);
 
                 if (result.MessagingContext != null)
                 {
@@ -55,7 +56,7 @@ namespace Eu.EDelivery.AS4.Steps
                 }
             }
 
-            return await StepResult.SuccessAsync(messageToSend);
+            return result;
         }        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -37,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             public async Task SendingPMode()
             {
                 // Arrange
-                var expectedPMode = new SendingProcessingMode {Id = "expected-id"};
+                var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
 
                 // Act
                 Stream actualPModeStream = await AS4XmlSerializer.ToStreamAsync(expectedPMode);
@@ -45,6 +46,54 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 // Assert
                 SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
                 Assert.Equal(expectedPMode.Id, actualPMode.Id);
+            }
+
+            [Fact]
+            public async Task SendingPModeWithEncryptionFindCriteria()
+            {
+                // Arrange
+                var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
+                expectedPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
+                expectedPMode.Security.Encryption.PublicKeyInformation = new PublicKeyFindCriteria()
+                {
+                    PublicKeyFindType = X509FindType.FindByCertificatePolicy,
+                    PublicKeyFindValue = "SomeValue"
+                };
+
+                // Act
+                Stream actualPModeStream = await AS4XmlSerializer.ToStreamAsync(expectedPMode);
+
+                // Assert
+                SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
+                Assert.Equal(expectedPMode.Id, actualPMode.Id);
+                Assert.Equal(expectedPMode.Security.Encryption.PublicKeyType, actualPMode.Security.Encryption.PublicKeyType);
+
+                var expectedPublicKeyCriteria = (PublicKeyFindCriteria)expectedPMode.Security.Encryption.PublicKeyInformation;
+                var actualPublicKeyCriteria = (PublicKeyFindCriteria)actualPMode.Security.Encryption.PublicKeyInformation;
+
+                Assert.Equal(expectedPublicKeyCriteria.PublicKeyFindType, actualPublicKeyCriteria.PublicKeyFindType);
+                Assert.Equal(expectedPublicKeyCriteria.PublicKeyFindValue, actualPublicKeyCriteria.PublicKeyFindValue);
+            }
+
+            [Fact]
+            public async Task SendingPModeWithEncryptionCertificate()
+            {
+                // Arrange
+                var expectedPMode = new SendingProcessingMode { Id = "expected-id" };
+                expectedPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyCertificate;
+                expectedPMode.Security.Encryption.PublicKeyInformation = new PublicKeyCertificate()
+                {
+                    Certificate = "ABCDEFGH"
+                };
+
+                // Act
+                Stream actualPModeStream = await AS4XmlSerializer.ToStreamAsync(expectedPMode);
+
+                // Assert
+                SendingProcessingMode actualPMode = DeserializeExpectedPMode(actualPModeStream);
+                Assert.Equal(expectedPMode.Id, actualPMode.Id);
+                Assert.Equal(expectedPMode.Security.Encryption.PublicKeyType, PublicKeyChoiceType.PublicKeyCertificate);
+                Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)actualPMode.Security.Encryption.PublicKeyInformation).Certificate);
             }
 
             private static SendingProcessingMode DeserializeExpectedPMode(Stream actualPModeStream)

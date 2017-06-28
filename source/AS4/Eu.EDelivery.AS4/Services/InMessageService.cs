@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -162,7 +162,7 @@ namespace Eu.EDelivery.AS4.Services
                 throw new InvalidDataException($"Unable to find an InMessage for {as4Message.GetPrimaryMessageId()}");
             }
 
-            if (as4Message.UserMessages.Any())
+            if (as4Message.IsUserMessage)
             {
                 await messageBodyStore.UpdateAS4MessageAsync(messageLocation, as4Message, cancellationToken);
                 UpdateUserMessagesForDeliveryAndNotification(messageContext);
@@ -280,7 +280,10 @@ namespace Eu.EDelivery.AS4.Services
             }
             catch (Exception ex)
             {
-                ThrowAS4Exception($"Unable to update UserMessage {userMessage.MessageId}", message, ex);
+                string description = $"Unable to update UserMessage {userMessage.MessageId}";
+                Logger.Error(description);
+
+                throw new DataException(description, ex);
             }
         }
 
@@ -337,7 +340,10 @@ namespace Eu.EDelivery.AS4.Services
             }
             catch (Exception exception)
             {
-                ThrowAS4Exception($"Unable to update SignalMessage {signalMessage.MessageId}", message, exception);
+                string description = $"Unable to update SignalMessage {signalMessage.MessageId}";
+                Logger.Error(description);
+
+                throw new DataException(description, exception);
             }
         }
 
@@ -369,7 +375,7 @@ namespace Eu.EDelivery.AS4.Services
 
                 if (errorSignalMessage != null)
                 {
-                    foreach (var error in errorSignalMessage.Errors)
+                    foreach (ErrorDetail error in errorSignalMessage.Errors)
                     {
                         Logger.Warn(
                             $"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");
@@ -399,7 +405,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private static bool ReceiptMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return sendingPMode.ReceiptHandling.NotifyMessageProducer;
+            return sendingPMode.ReceiptHandling.NotifyMessageProducer == true;
         }
 
         private static async Task<InMessage> CreateErrorInMessage(
@@ -419,7 +425,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private static bool ErrorMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return sendingPMode.ErrorHandling.NotifyMessageProducer;
+            return sendingPMode.ErrorHandling.NotifyMessageProducer == true;
         }
 
         private void UpdateRefUserMessageStatus(MessageUnit signalMessage, OutStatus status)
@@ -437,17 +443,6 @@ namespace Eu.EDelivery.AS4.Services
         private static bool UserMessageNeedsToBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
             return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
-        }
-
-        private static void ThrowAS4Exception(string description, MessagingContext message, Exception exception)
-        {
-            Logger.Error(description);
-
-            throw AS4ExceptionBuilder.WithDescription(description)
-                                     .WithMessageIds(message.AS4Message.MessageIds)
-                                     .WithInnerException(exception)
-                                     .WithReceivingPMode(message.ReceivingPMode)
-                                     .Build();
         }
     }
 }

@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Validators;
-using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -21,9 +19,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     public class RetrieveSendingPModeStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
         private readonly IConfig _config;
-        private readonly SendingProcessingModeValidator _validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
@@ -39,7 +35,6 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         public RetrieveSendingPModeStep(IConfig config)
         {
             _config = config;
-            _validator = new SendingProcessingModeValidator();
         }
 
         /// <summary>
@@ -47,21 +42,13 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
-        /// <exception cref="AS4Exception">Thrown when PMode doesn't get retrieved</exception>
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext message, CancellationToken cancellationToken)
         {
-            try
-            {
-                message.SubmitMessage.PMode = RetrieveSendPMode(message);
-                message.SendingPMode = message.SubmitMessage.PMode;
+            message.SubmitMessage.PMode = RetrieveSendPMode(message);
+            message.SendingPMode = message.SubmitMessage.PMode;
 
-                return await StepResult.SuccessAsync(message);
-            }
-            catch (Exception exception)
-            {
-                throw ThrowAS4CannotRetrieveSendPModeException(message, exception);
-            }
+            return await StepResult.SuccessAsync(message);
         }
 
         private SendingProcessingMode RetrieveSendPMode(MessagingContext message)
@@ -93,40 +80,21 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             return collaborationInfo.AgreementRef?.PModeId;
         }
 
-        private void ValidatePMode(SendingProcessingMode pmode)
+        private static void ValidatePMode(SendingProcessingMode pmode)
         {
-            _validator.Validate(pmode).Result(
+            var validator = new SendingProcessingModeValidator();
+
+            validator.Validate(pmode).Result(
                 happyPath: result => Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message"),
                 unhappyPath: result =>
                 {
                     result.LogErrors(Logger);
-                    throw ThrowHandleInvalidPModeException(pmode);
+
+                    string description = $"Sending PMode {((IPMode) pmode).Id} was invalid, see logging";
+                    Logger.Error(description);
+
+                    throw new ConfigurationErrorsException(description);
                 });
-        }
-
-        private static AS4Exception ThrowHandleInvalidPModeException(IPMode pmode)
-        {
-            string description = $"Sending PMode {pmode.Id} was invalid, see logging";
-            Logger.Error(description);
-
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithMessageIds(Guid.NewGuid().ToString())
-                .Build();
-        }
-
-        private static AS4Exception ThrowAS4CannotRetrieveSendPModeException(
-            MessagingContext messagingContext,
-            Exception exception)
-        {
-            string generatedMessageId = Guid.NewGuid().ToString();
-
-            return AS4ExceptionBuilder
-                .WithDescription($"[generated: {generatedMessageId}] Cannot retrieve Sending PMode", exception)
-                .WithInnerException(exception)
-                .WithSendingPMode(messagingContext?.SendingPMode)
-                .WithMessageIds(generatedMessageId)
-                .Build();
         }
     }
 }

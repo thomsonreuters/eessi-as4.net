@@ -236,8 +236,8 @@
       <HintPath>..\..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    <Reference Include="System.ValueTuple, Version=4.0.1.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.3.1\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
@@ -274,12 +274,25 @@
     <Compile Include="Agents\GivenAgentFacts.cs" />
     <Compile Include="Agents\GivenAgentProviderFacts.cs" />
     <Compile Include="Agents\SpyAgent.cs" />
+    <Compile Include="Exceptions\Handlers\ExerciseHandler.cs" />
+    <Compile Include="Exceptions\Handlers\GivenInboundExceptionHandlerFacts.cs" />
+    <Compile Include="Exceptions\Handlers\GivenOutboundExceptionHandlerFacts.cs" />
+    <Compile Include="Exceptions\Handlers\GivenPullSendAgentExceptionHandlerFacts.cs" />
+    <Compile Include="Exceptions\Handlers\GivenSafeExceptionHandlerFacts.cs" />
+    <Compile Include="Model\Deliver\EmptyDeliverEnvelope.cs" />
+    <Compile Include="Model\Notify\EmptyNotifyEnvelope.cs" />
+    <Compile Include="Repositories\DatastoreExtensions.cs" />
+    <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
+    <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
+    <Compile Include="Steps\Send\GivenLogReceivedProcessingErrorStepFacts.cs" />
+    <Compile Include="Transformers\StubSubmitTransformer.cs" />
+    <Compile Include="Steps\StubAS4MessageStep.cs" />
+    <Compile Include="Receivers\SpyReceiver.cs" />
     <Compile Include="Builders\Entities\MessageEntityAssertion.cs" />
     <Compile Include="Common\SaboteurAgentConfig.cs" />
     <Compile Include="Common\SingleAgentConfig.cs" />
     <Compile Include="Entities\GivenEntityFacts.cs" />
     <Compile Include="Extensions\GivenXmlAttributeExtensionsFacts.cs" />
-    <Compile Include="Extensions\StepExtensions.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitConversationIdResolverFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMessageFacts.cs" />
     <Compile Include="Mappings\Submit\GivenSubmitMpcResolverFacts.cs" />
@@ -292,17 +305,12 @@
     <Compile Include="Services\StubAuthorizationMap.cs" />
     <Compile Include="Steps\DummyStep.cs" />
     <Compile Include="Steps\Send\GivenSelectUserMessageToSendStepFacts.cs" />
-    <Compile Include="Steps\Send\GivenPullOutExceptionStepDecoratorFacts.cs" />
     <Compile Include="Steps\Send\GivenVerifyPullRequestAuthorizationStepFacts.cs" />
-    <Compile Include="Steps\Send\GivenPullVerifySignatureStepFacts.cs" />
     <Compile Include="Steps\Submit\GivenCreateDefaultAS4MessageStepFacts.cs" />
     <Compile Include="Transformers\DummyTransformer.cs" />
-    <Compile Include="Builders\Core\GivenAS4ExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenErrorBuilderFacts.cs" />
     <Compile Include="Builders\Core\GivenNonRepudiationInformationBuilderFacts.cs" />
-    <Compile Include="Builders\Entities\GivenInExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenInMessageBuilderFacts.cs" />
-    <Compile Include="Builders\Entities\GivenOutExceptionBuilderFacts.cs" />
     <Compile Include="Builders\Entities\GivenOutMessageBuilderFacts.cs" />
     <Compile Include="Builders\Security\GivenSigningStrategyBuilderFacts.cs" />
     <Compile Include="Builders\Internal\GivenSoapEnvelopeBuilderFacts.cs" />
@@ -406,8 +414,6 @@
     <Compile Include="Servicehandler\Builder\GivenReceiverBuilderFacts.cs" />
     <Compile Include="Servicehandler\Builder\GivenStepBuilderFacts.cs" />
     <Compile Include="Servicehandler\GivenKernelFacts.cs" />
-    <Compile Include="Steps\Common\GivenInExceptionDecoratorStep.cs" />
-    <Compile Include="Steps\Common\GivenOutExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenCreateDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenSendDeliverMessageStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenUploadAttachmentsStepFacts.cs" />
@@ -418,14 +424,11 @@
     <Compile Include="Steps\Notify\GivenNotifyUpdateInExceptionDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenNotifyUpdateOutExceptionDatastoreStepFacts.cs" />
     <Compile Include="Steps\Notify\GivenSendNotifyMessageStepFacts.cs" />
-    <Compile Include="Steps\Participant\FakePModeRuleVisotor.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ErrorStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenDecryptAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\Receive\GivenReceiveExceptionDecoratorStepFacts.cs" />
     <Compile Include="Steps\Deliver\GivenDeliverUpdateDatastoreStepFacts.cs" />
     <Compile Include="Steps\GivenCompositeStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenCreateAS4ReceiptStepFacts.cs" />
-    <Compile Include="Steps\Receive\GivenSendAS4ReceiptStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenUpdateReceivedMessageDatastoreFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeAgreementRefRuleFacts.cs" />
     <Compile Include="Steps\Receive\Rules\GivenPModeIdRuleFacts.cs" />
@@ -447,7 +450,6 @@
     <Compile Include="Steps\Send\Response\SpyAS4ResponseHandler.cs" />
     <Compile Include="Steps\Send\Response\GivenAS4ResponseFacts.cs" />
     <Compile Include="Steps\Send\Response\GivenResponseHandlerFacts.cs" />
-    <Compile Include="Steps\Services\GivenInExceptionServiceFacts.cs" />
     <Compile Include="Steps\Services\GivenReceptionAwarenessServiceFacts.cs" />
     <Compile Include="Steps\SinkStep.cs" />
     <Compile Include="Steps\Services\GivenInMessageServiceFacts.cs" />
@@ -562,6 +564,7 @@
     <Content Include="Resources\as4-soap-untrusted-signed-message.txt" />
     <None Include="Resources\EncryptedKeyWithMGFSpec.txt" />
     <None Include="Resources\multihopreceipt.xml" />
+    <None Include="Resources\as4message_external_payloads.as4" />
     <Content Include="Resources\receipt.xml" />
     <Content Include="Resources\receivingprocessingmode.xml" />
     <Content Include="Resources\sendingprocessingmode.xml" />
@@ -574,6 +577,7 @@
     <Content Include="Resources\holodeck-as4message.xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Steps\Participant\" />
     <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -29,9 +29,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             _step = new VerifySignatureAS4MessageStep();
         }
 
-        /// <summary>
-        /// Testing the Step with valid arguments
-        /// </summary>
         public class GivenValidArguments : GivenVerifySignatureAS4MessageStepFacts
         {
             [Fact]
@@ -51,9 +48,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
         }
 
-        /// <summary>
-        /// Testing the Step with invalid arguments
-        /// </summary>
         public class GivenInvalidArguments : GivenVerifySignatureAS4MessageStepFacts
         {
             [Fact]
@@ -65,11 +59,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 UsingAllowedSigningVerification();
 
-                // Act / Assert
-                AS4Exception exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(_messagingContext, CancellationToken.None));
-                Assert.Equal(ErrorCode.Ebms0101, exception.ErrorCode);
+                // Act
+                StepResult result = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
+
+                // Assert
+                ErrorResult error = result.MessagingContext.ErrorResult;
+                Assert.Equal(ErrorCode.Ebms0101, error.Code);
             }
 
             [Fact]
@@ -81,11 +76,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 UsingAllowedSigningVerification();
 
-                // Act / Assert
-                AS4Exception exception =
-                    await Assert.ThrowsAsync<AS4Exception>(
-                        () => _step.ExecuteAsync(_messagingContext, CancellationToken.None));
-                Assert.Equal(ErrorCode.Ebms0101, exception.ErrorCode);
+                // Act
+                StepResult result = await _step.ExecuteAsync(_messagingContext, CancellationToken.None);
+
+                // Assert
+                ErrorResult error = result.MessagingContext.ErrorResult;
+                Assert.Equal(ErrorCode.Ebms0101, error.Code);
             }
         }
 

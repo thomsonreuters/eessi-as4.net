@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -134,7 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     const string notCompleteContentType = Constants.ContentTypes.Mime;
 
                     // Act / Assert
-                    await Assert.ThrowsAsync<AS4Exception>(
+                    await Assert.ThrowsAnyAsync<Exception>(
                         () => ExerciseMimeDeserialize(messageStream, notCompleteContentType));
                 }
             }

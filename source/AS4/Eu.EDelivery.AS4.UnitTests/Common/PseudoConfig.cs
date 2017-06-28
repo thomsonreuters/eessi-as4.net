@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -69,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         /// </summary>
         /// <returns></returns>
         /// <exception cref="System.NotImplementedException"></exception>
-        public virtual IEnumerable<SettingsAgent> GetSettingsAgents()
+        public virtual IEnumerable<AgentSettings> GetSettingsAgents()
         {
             throw new System.NotImplementedException();
         }
@@ -101,6 +102,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             get { throw new NotImplementedException(); }
         }
+
+        /// <summary>
+        /// Gets the agent settings.
+        /// </summary>
+        /// <returns></returns>
+        public virtual IEnumerable<AgentConfig> GetAgentsConfiguration()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class PseudeConfigFacts : PseudoConfig
@@ -117,6 +127,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
         {
             Assert.ThrowsAny<Exception>(GetSettingsAgents);
             Assert.ThrowsAny<Exception>(GetEnabledMinderTestAgents);
+            Assert.ThrowsAny<Exception>(GetAgentsConfiguration);
         }
 
         [Fact]

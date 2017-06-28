@@ -37,7 +37,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             _databaseSpy = new DatabaseSpy(_as4Msh.GetConfiguration());
 
-            SettingsAgent receivingAgent =
+            AgentSettings receivingAgent =
                 _as4Msh.GetConfiguration().GetSettingsAgents().FirstOrDefault(a => a.Name.Equals("Receive Agent"));
 
             Assert.True(receivingAgent != null, "The Agent with name Receive Agent could not be found");
@@ -156,7 +156,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             {
                 // Arrange
                 const string expectedId = "message-id";
-                CreateExistingOutMessage(expectedId);
+                await CreateExistingOutMessage(expectedId);
 
                 AS4Message as4Message = CreateAS4ReceiptMessage(expectedId);
 
@@ -216,13 +216,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
             private static AS4Message CreateAS4ErrorMessage(string refToMessageId)
             {
-                AS4Exception exception =
-                    AS4ExceptionBuilder.WithDescription("An error occurred")
-                                       .WithMessageIds(refToMessageId)
-                                       .WithErrorCode(ErrorCode.Ebms0010)
-                                       .Build();
-
-                Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithAS4Exception(exception).Build();
+                var result = new ErrorResult("An error occurred", ErrorCode.Ebms0010, ErrorAlias.NonApplicable);
+                Error error = new ErrorBuilder().WithRefToEbmsMessageId(refToMessageId).WithErrorResult(result).Build();
 
                 return AS4Message.Create(error, GetSendingPMode());
             }

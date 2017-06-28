@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Streaming;
@@ -90,17 +90,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
             attachment.ContentType = "application/gzip";
         }
 
-        private AS4Exception ThrowAS4CompressingException(Exception innerException)
+        private static Exception ThrowAS4CompressingException(Exception innerException)
         {
-            string description = $"{_messagingContext.Prefix} Attachments cannot be compressed";
+            const string description = "Attachments cannot be compressed";
             Logger.Error(description);
 
-            return AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(innerException)
-                .WithMessageIds(_messagingContext.AS4Message.MessageIds)
-                .WithSendingPMode(_messagingContext.SendingPMode)
-                .Build();
+            return new InvalidDataException(description, innerException);
         }
     }
 }

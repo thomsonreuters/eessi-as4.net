@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.Submit;
@@ -94,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var resolver = new SubmitReceiverResolver();
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => resolver.Resolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
             }
         }
 

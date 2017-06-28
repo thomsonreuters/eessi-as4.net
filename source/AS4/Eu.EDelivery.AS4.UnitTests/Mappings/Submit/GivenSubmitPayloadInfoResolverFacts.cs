@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
@@ -97,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act
-                Assert.Throws<AS4Exception>(() => ExerciseResolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => ExerciseResolve(submitMessage));
             }
 
             [Fact]
@@ -109,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 submitMessage.PMode = CreatePopulatedSendingPMode();
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => ExerciseResolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => ExerciseResolve(submitMessage));
             }
         }
 

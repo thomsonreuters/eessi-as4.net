@@ -72,10 +72,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MessagingContext"/> class.
+        /// Initializes a new instance of the <see cref="MessagingContext" /> class.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        public MessagingContext(AS4Exception exception)
+        public MessagingContext(Exception exception)
         {
             Exception = exception;
             Mode = MessagingContextMode.Unknown;
@@ -91,7 +91,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Mode = MessagingContextMode.Unknown;
         }
 
-
         public AS4Message AS4Message { get; }
 
         public MessagingContextMode Mode { get; private set; }
@@ -104,7 +103,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         public ReceptionAwareness ReceptionAwareness { get; }
 
-        public AS4Exception Exception { get; set; }
+        public Exception Exception { get; set; }
+
+        public ErrorResult ErrorResult { get; set; }
 
         public SendingProcessingMode SendingPMode { get; set; }
 
@@ -116,6 +117,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             {
                 return _receivingPMode;
             }
+
             set
             {
                 if (_receivingPMode != value)
@@ -142,6 +144,33 @@ namespace Eu.EDelivery.AS4.Model.Internal
                                          ?? DeliverMessage?.MessageInfo.MessageId ?? NotifyMessage?.MessageInfo.MessageId;
 
                 return $"[{corePrefix ?? extensionPrefix}]";
+            }
+        }
+
+        /// <summary>
+        /// Gets the message identifier.
+        /// </summary>
+        /// <value>The message identifier.</value>
+        public string EbmsMessageId
+        {
+            get
+            {
+                if (AS4Message != null)
+                {
+                    return AS4Message.GetPrimaryMessageId();
+                }
+
+                if (DeliverMessage != null)
+                {
+                    return DeliverMessage.MessageInfo.MessageId;
+                }
+
+                if (NotifyMessage != null)
+                {
+                    return NotifyMessage.MessageInfo.RefToMessageId;
+                }
+
+                return string.Empty;
             }
         }
 
@@ -194,6 +223,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             context.SendingPMode = SendingPMode;
             context.ReceivingPMode = ReceivingPMode;
             context.Mode = Mode;
+            context.ErrorResult = ErrorResult;
 
             return context;
         }

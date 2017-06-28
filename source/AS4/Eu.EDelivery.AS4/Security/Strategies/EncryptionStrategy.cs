@@ -346,33 +346,18 @@ namespace Eu.EDelivery.AS4.Security.Strategies
 
             foreach (EncryptedData encryptedData in encryptedDatas)
             {
-                TryDecryptEncryptedData(encryptedData, key);
+                DecryptEncryptedData(encryptedData, key);
             }
 
             _as4EncryptedKey = as4EncryptedKey;
         }
 
-        private void TryDecryptEncryptedData(EncryptedData encryptedData, byte[] key)
+        private void DecryptEncryptedData(EncryptedData encryptedData, byte[] key)
         {
-            try
+            using (SymmetricAlgorithm decryptAlgorithm =
+                    CreateSymmetricAlgorithm(encryptedData.EncryptionMethod.KeyAlgorithm, key))
             {
-                using (SymmetricAlgorithm decryptAlgorithm =
-                                CreateSymmetricAlgorithm(encryptedData.EncryptionMethod.KeyAlgorithm, key))
-                {
-                    DecryptAttachment(encryptedData, decryptAlgorithm);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger logger = LogManager.GetCurrentClassLogger();
-                logger.Error($"Failed to decrypt data element {ex.Message}");
-
-                if (ex.InnerException != null)
-                {
-                    logger.Error(ex.InnerException.Message);
-                }
-
-                throw new AS4Exception("Failed to decrypt data element", ex);
+                DecryptAttachment(encryptedData, decryptAlgorithm);
             }
         }
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>ACT_SIMPLE_TWOWAY_FROM_AS4.NET-C2_TO_IBMGW-C3</Id>
   <AllowOverride>false</AllowOverride>
@@ -13,7 +13,7 @@
     <TlsConfiguration>
       <IsEnabled>false</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference/>
+      <ClientCertificateReference />
     </TlsConfiguration>
   </PushConfiguration>
   <PullConfiguration>
@@ -60,8 +60,10 @@
     <Encryption>
       <IsEnabled>true</IsEnabled>
       <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
-      <PublicKeyFindValue>ibmgw-c3</PublicKeyFindValue>
-      <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+      <PublicKeyFindCriteria>
+        <PublicKeyFindType>FindBySubjectName</PublicKeyFindType>
+        <PublicKeyFindValue>ibmgw-c3</PublicKeyFindValue>
+      </PublicKeyFindCriteria>
       <KeyTransport>
         <TransportAlgorithm>http://www.w3.org/2009/xmlenc11#rsa-oaep</TransportAlgorithm>
       </KeyTransport>
@@ -77,23 +79,23 @@
         <Value>SRV_SIMPLE_TWOWAY</Value>
       </Service>
     </CollaborationInfo>
-	<PartyInfo>
-			<FromParty>
-				<PartyIds>
-					<PartyId>
-						<Id>as4.net-c2</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Sender</Role>
-			</FromParty>
-			<ToParty>
-				<PartyIds>
-					<PartyId>
-						<Id>ibmgw-c3</Id>
-					</PartyId>
-				</PartyIds>
-				<Role>Receiver</Role>
-			</ToParty>
-		</PartyInfo>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>as4.net-c2</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>ibmgw-c3</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
   </MessagePackaging>
 </PMode>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -164,7 +165,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Security
                 xmlDocument.LoadXml(xml);
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => _builder = new SigningStrategyBuilder(xmlDocument));
+                Assert.ThrowsAny<Exception>(() => _builder = new SigningStrategyBuilder(xmlDocument));
             }
         }
 

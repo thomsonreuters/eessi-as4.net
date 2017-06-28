@@ -1,4 +1,5 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
+﻿using System;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Mappings.Notify;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Notify;
@@ -39,20 +40,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Notify
 
                 // Assert
                 Assert.Equal(Status.Error, notifyMessage.StatusInfo.Status);
-            }
-
-            [Fact]
-            public void ThenNotifyMessageHasStatusException()
-            {
-                // Arrange
-                var as4Exception = new AS4Exception("Dummy Exception!");
-                var error = new Error("mesage-id") {Exception = as4Exception};
-
-                // Act
-                var notifyMessage = AS4Mapper.Map<NotifyMessage>(error);
-
-                // Assert
-                Assert.Equal(Status.Exception, notifyMessage.StatusInfo.Status);
             }
         }
     }

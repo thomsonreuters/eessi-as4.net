@@ -47,13 +47,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
         public class Send
         {
             [Fact]
-            public void SenderCatchesAndRetrowsAS4Exception_IfDeliverMessage()
+            public async Task SenderCatchesAndRetrowsAS4Exception_IfDeliverMessage()
             {
                 // Arrange
                 var sut = new ReliableSender(deliverSender: new SaboteurSender());
 
                 // Act / Assert
-                AssertReliableSenderOn(async () => await sut.SendAsync(DummyDeliverMessage()));
+                await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(DummyDeliverMessage()));
             }
 
             private static DeliverMessageEnvelope DummyDeliverMessage()
@@ -62,19 +62,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Strategies.Sender
             }
 
             [Fact]
-            public void SenderCatchesAndRethrowsAS4Exception_IfNotifyMesage()
+            public async Task SenderCatchesAndRethrowsAS4Exception_IfNotifyMesage()
             {
                 // Arrange
                 var sut = new ReliableSender(notifySender: new SaboteurSender());
 
                 // Act / Assert
-                AssertReliableSenderOn(async () => await sut.SendAsync(DummyNotifyMessage()));
-            }
-
-            private static async void AssertReliableSenderOn(Func<Task> actAction)
-            {
-                var as4Exception = await Assert.ThrowsAsync<AS4Exception>(actAction);
-                Assert.IsType<SaboteurException>(as4Exception.InnerException);
+                await Assert.ThrowsAnyAsync<Exception>(() => sut.SendAsync(DummyNotifyMessage()));
             }
 
             private static NotifyMessageEnvelope DummyNotifyMessage()

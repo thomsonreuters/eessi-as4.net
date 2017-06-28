@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Entities;
@@ -44,7 +45,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var transformer = new ReceptionAwarenessTransformer();
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(
+                await Assert.ThrowsAnyAsync<Exception>(
                     () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
             }
 
@@ -57,7 +58,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var transformer = new ReceptionAwarenessTransformer();
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(
+                await Assert.ThrowsAnyAsync<Exception>(
                     () => transformer.TransformAsync(receivedMessage, CancellationToken.None));
             }
         }

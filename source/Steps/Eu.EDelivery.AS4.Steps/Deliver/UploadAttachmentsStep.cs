@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -82,7 +83,10 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
             catch (Exception exception)
             {
-                throw ThrowUploadAS4Exception("Attachments cannot be uploaded", exception);
+                const string description = "Attachments cannot be uploaded";
+                _logger.Error(description);
+
+                throw new ApplicationException(description, exception);
             }
         }
 
@@ -113,29 +117,8 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
                 string description = $"Invalid configured Payload Reference Method in receive PMode {pmode.Id}";
                 _logger.Error(description);
 
-                throw AS4ExceptionBuilder.WithDescription(description).Build();
+                throw new InvalidDataException(description);
             }
-        }
-
-        private AS4Exception ThrowUploadAS4Exception(string description, Exception exception = null)
-        {
-            _logger.Error(description);
-
-            AS4ExceptionBuilder builder = AS4ExceptionBuilder
-                .WithDescription(description)
-                .WithInnerException(exception)
-                .WithReceivingPMode(_messagingContext.ReceivingPMode);
-
-            if (_messagingContext.DeliverMessage != null)
-            {
-                builder.WithMessageIds(_messagingContext.DeliverMessage.MessageInfo.MessageId);
-            }
-            else if (_messagingContext.AS4Message?.PrimaryUserMessage != null)
-            {
-                builder.WithMessageIds(_messagingContext.AS4Message.PrimaryUserMessage.MessageId);
-            }
-
-            return builder.Build();
         }
     }
 }

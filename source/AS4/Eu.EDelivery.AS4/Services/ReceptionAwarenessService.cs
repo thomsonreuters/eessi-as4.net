@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Services
                 messageId,
                 m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
 
-            Error errorMessage = CreateError(messageId);
+            Model.Core.Error errorMessage = CreateError(messageId);
             AS4Message as4Message = AS4Message.Create(errorMessage, pmode);
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
@@ -97,16 +97,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
-                .WithAS4Exception(CreateAS4Exception(messageId))
-                .Build();
-        }
-
-        private static AS4Exception CreateAS4Exception(string messageId)
-        {
-            return AS4ExceptionBuilder
-                .WithDescription($"[{messageId}] Missing Receipt")
-                .WithMessageIds(messageId)
-                .WithErrorCode(ErrorCode.Ebms0301)
+                .WithErrorResult(new ErrorResult($"[{messageId}] Missing Receipt", ErrorCode.Ebms0301, ErrorAlias.MissingReceipt))
                 .Build();
         }
 

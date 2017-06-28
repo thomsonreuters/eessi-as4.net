@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Agents;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -22,7 +25,9 @@ namespace Eu.EDelivery.AS4.Common
         private readonly IDictionary<string, string> _configuration;
         private readonly ILogger _logger;
 
-        private List<SettingsAgent> _agents;
+        private readonly List<AgentSettings> _agents = new List<AgentSettings>();
+        private readonly Collection<AgentConfig> _agentConfigs = new Collection<AgentConfig>();
+
         private PModeWatcher<ReceivingProcessingMode> _receivingPModeWatcher;
         private PModeWatcher<SendingProcessingMode> _sendingPModeWatcher;
         private Settings _settings;
@@ -102,20 +107,19 @@ namespace Eu.EDelivery.AS4.Common
         /// Retrieve the PMode from the Global Settings
         /// </summary>
         /// <param name="id"></param>
-        /// <exception cref="AS4Exception"></exception>
         /// <returns></returns>
         public SendingProcessingMode GetSendingPMode(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
-                throw new AS4Exception("Given Sending PMode key is null");
+                throw new KeyNotFoundException("Given Sending PMode key is null");
             }
 
             IPMode pmode = _sendingPModeWatcher.GetPMode(id);
 
             if (pmode == null)
             {
-                throw new AS4Exception($"No Sending Processing Mode found for {id}");
+                throw new KeyNotFoundException($"No Sending Processing Mode found for {id}");
             }
 
             return pmode as SendingProcessingMode;
@@ -133,7 +137,13 @@ namespace Eu.EDelivery.AS4.Common
         /// Get the configured settings agents
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<SettingsAgent> GetSettingsAgents() => _agents;
+        public IEnumerable<AgentSettings> GetSettingsAgents() => _agents;
+
+        /// <summary>
+        /// Gets the agent settings.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<AgentConfig> GetAgentsConfiguration() => _agentConfigs;
 
         /// <summary>
         /// Return all the configured <see cref="ReceivingProcessingMode" />
@@ -163,12 +173,10 @@ namespace Eu.EDelivery.AS4.Common
         private static void LoadExternalAssemblies()
         {
             DirectoryInfo externalDictionary = GetExternalDirectory();
-            if (externalDictionary == null)
+            if (externalDictionary != null)
             {
-                return;
+                LoadExternalAssemblies(externalDictionary);
             }
-
-            LoadExternalAssemblies(externalDictionary);
         }
 
         private static DirectoryInfo GetExternalDirectory()
@@ -217,7 +225,7 @@ namespace Eu.EDelivery.AS4.Common
             _settings = TryDeserialize<Settings>(path);
             if (_settings == null)
             {
-                throw new AS4Exception("Invalid Settings file");
+                throw new XmlException("Invalid Settings file");
             }
 
             AssignSettingsToGlobalConfiguration();
@@ -284,23 +292,31 @@ namespace Eu.EDelivery.AS4.Common
 
         private void AddCustomAgents()
         {
-            _agents = new List<SettingsAgent>();
-
-            AddCustomAgentsIfNotNull(_settings.Agents.ReceptionAwarenessAgent);
-            AddCustomAgentsIfNotNull(_settings.Agents.NotifyAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.DeliverAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.SendAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.SubmitAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.ReceiveAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.PullReceiveAgents);
-            AddCustomAgentsIfNotNull(_settings.Agents.PullSendAgents);
+            AddCustomAgentsIfNotNull(AgentType.ReceptionAwareness, _settings.Agents.ReceptionAwarenessAgent);
+            AddCustomAgentsIfNotNull(AgentType.NotifyConsumer, _settings.Agents.NotifyConsumerAgents);
+            AddCustomAgentsIfNotNull(AgentType.NotifyProducer, _settings.Agents.NotifyProducerAgents);
+            AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
+            AddCustomAgentsIfNotNull(AgentType.Sent, _settings.Agents.SendAgents);
+            AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
+            AddCustomAgentsIfNotNull(AgentType.Receive, _settings.Agents.ReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.PullReceive, _settings.Agents.PullReceiveAgents);
         }
 
-        private void AddCustomAgentsIfNotNull(params SettingsAgent[] agents)
+        private void AddCustomAgentsIfNotNull(AgentType type, params AgentSettings[] agents)
         {
-            if (agents != null)
+            if (agents == null)
             {
-                _agents.AddRange(agents.Where(a => a != null));
+                return;
+            }
+
+            _agents.AddRange(agents.Where(a => a != null));
+
+            foreach (AgentSettings setting in agents)
+            {
+                if (setting != null)
+                {
+                    _agentConfigs.Add(new AgentConfig(setting.Name) { Type = type, Settings = setting }); 
+                }
             }
         }
 

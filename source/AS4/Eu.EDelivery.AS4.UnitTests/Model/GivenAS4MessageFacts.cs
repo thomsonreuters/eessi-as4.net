@@ -4,11 +4,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Serialization;
@@ -16,6 +14,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using MimeKit;
 using Xunit;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Model
 {
@@ -24,10 +23,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
     /// </summary>
     public class GivenAS4MessageFacts
     {
-
         public GivenAS4MessageFacts()
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
+        }
+
+        public class Create
+        {
+            [Theory]
+            [InlineData(MessageExchangePatternBinding.Push, MessageExchangePattern.Push)]
+            [InlineData(MessageExchangePatternBinding.Pull, MessageExchangePattern.Pull)]
+            public void UseMepFromPMode(MessageExchangePatternBinding pmodeMep, MessageExchangePattern expected)
+            {
+                // Act
+                AS4Message message = AS4Message.Create(new SendingProcessingMode {MepBinding = pmodeMep});
+
+                // Assert
+                Assert.Equal(expected, message.Mep);
+            }
         }
 
         public class Empty

@@ -15,20 +15,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         public class GivenValidArguments : GivenErrorBuilderFacts
         {
             [Fact]
-            public void ThenBuildErrorSucceedsWithAS4Exception()
+            public void BuildsWithErrorResult()
             {
                 // Arrange
-                AS4Exception as4Exception = CreateDefaultAS4Exception();
-                as4Exception.ErrorCode = ErrorCode.Ebms0001;
+                var result = new ErrorResult(
+                    Guid.NewGuid().ToString(),
+                    ErrorCode.Ebms0001,
+                    default(ErrorAlias));
                 string messageId = Guid.NewGuid().ToString();
 
                 // Act
-                Error error = new ErrorBuilder(messageId).WithAS4Exception(as4Exception).Build();
+                Error error = new ErrorBuilder(messageId).WithErrorResult(result).Build();
 
                 // Assert
-                Assert.Equal(as4Exception, error.Exception);
-                Assert.Equal(2, error.Exception.MessageIds.Length);
-                AssertErrorDetails(as4Exception, error);
+                ErrorDetail firstDetail = error.Errors.First();
+                Assert.Equal(result.Description, firstDetail.Detail);
+                Assert.Equal($"EBMS:{(int) result.Code:0000}", firstDetail.ErrorCode);
             }
 
             [Fact]
@@ -44,41 +46,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
                 // Assert
                 Assert.Equal(refToMessageId, error.RefToMessageId);
             }
-
-            [Fact]
-            public void ThenBuildErrorSucceedsWithOriginalAS4Exception()
-            {
-                // Arrange
-                AS4Exception as4Exception = CreateDefaultAS4Exception();
-                as4Exception.ErrorCode = ErrorCode.Ebms0001;
-                string messageId = Guid.NewGuid().ToString();
-
-                // Act
-                Error error = new ErrorBuilder(messageId).WithAS4Exception(as4Exception).BuildWithOriginalAS4Exception();
-
-                // Assert
-                Assert.Equal(as4Exception, error.Exception);
-                Assert.Equal(1, error.Exception.MessageIds.Length);
-                AssertErrorDetails(as4Exception, error);
-            }
-
-            private static void AssertErrorDetails(AS4Exception as4Exception, Error error)
-            {
-                string errorCodeString = $"EBMS:{(int)as4Exception.ErrorCode:0000}";
-                ErrorDetail firstErrorDetail = error.Errors.First();
-
-                Assert.Equal(errorCodeString, firstErrorDetail.ErrorCode);
-                Assert.Equal(as4Exception.Message, firstErrorDetail.Detail);
-                Assert.Equal(Severity.FAILURE, firstErrorDetail.Severity);
-            }
-        }
-
-        protected AS4Exception CreateDefaultAS4Exception()
-        {
-            return AS4ExceptionBuilder
-                .WithDescription("Test AS4 Exception")
-                .WithMessageIds(Guid.NewGuid().ToString())
-                .Build();
         }
     }
 }

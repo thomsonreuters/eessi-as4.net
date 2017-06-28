@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Steps
@@ -9,15 +8,10 @@ namespace Eu.EDelivery.AS4.Steps
     /// </summary>
     public class StepResult
     {
-        private StepResult()
+        private StepResult(bool succeeded)
         {
-            CanProceed = true;
+            Succeeded = succeeded;
         }
-
-        /// <summary>
-        /// Gets the included <see cref="AS4Exception"/> occurred during the step execution.
-        /// </summary>
-        public AS4Exception Exception { get; private set; }
 
         /// <summary>
         /// Gets the included <see cref="MessagingContext"/> send throughout the step execution.
@@ -30,35 +24,32 @@ namespace Eu.EDelivery.AS4.Steps
         public bool CanProceed { get; private set; }
 
         /// <summary>
+        /// Gets a value indicating whether [was succesful].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [was succesful]; otherwise, <c>false</c>.
+        /// </value>
+        public bool Succeeded { get; }
+
+        /// <summary>
         /// Promote the <see cref="StepResult"/> to stop the execution.
         /// </summary>
         /// <returns></returns>
         public StepResult AndStopExecution()
         {
-            return new StepResult {MessagingContext = MessagingContext, Exception = Exception, CanProceed = false};
+            return new StepResult(Succeeded) {MessagingContext = MessagingContext, CanProceed = false};
         }
 
         /// <summary>
         /// Return a Failed <see cref="StepResult" />.
         /// </summary>
-        /// <param name="exception">Included <see cref="AS4Exception" /></param>
+        /// <param name="context">The context.</param>
         /// <returns></returns>
-        public static StepResult Failed(AS4Exception exception)
+        public static StepResult Failed(MessagingContext context)
         {
-            return new StepResult {Exception = exception};
+            return new StepResult(succeeded: false) {MessagingContext = context, CanProceed = false};
         }
-
-        /// <summary>
-        /// Return a Failed <see cref="StepResult"/>.
-        /// </summary>
-        /// <param name="exception">Included <see cref="AS4Exception"/>.</param>
-        /// <param name="messagingContext">Included failed <see cref="MessagingContext"/>.</param>
-        /// <returns></returns>
-        public static StepResult Failed(AS4Exception exception, MessagingContext messagingContext)
-        {
-            return new StepResult {Exception = exception, MessagingContext = messagingContext};
-        }
-
+        
         /// <summary>
         /// Return a Successful <see cref="StepResult" />
         /// </summary>
@@ -66,7 +57,7 @@ namespace Eu.EDelivery.AS4.Steps
         /// <returns></returns>
         public static StepResult Success(MessagingContext message)
         {
-            return new StepResult {MessagingContext = message};
+            return new StepResult(succeeded: true) {MessagingContext = message, CanProceed = true};
         }
 
         /// <summary>

@@ -98,7 +98,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 _step = new EncryptAS4MessageStep(certificateRepositoryMock.Object);
 
                 // Act / Assert
-                await Assert.ThrowsAsync<AS4Exception>(
+                await Assert.ThrowsAnyAsync<Exception>(
                     () => _step.ExecuteAsync(CreateEncryptedAS4Message(), CancellationToken.None));
             }
 
@@ -128,6 +128,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             message.SendingPMode.Security.Encryption.IsEnabled = true;
             message.SendingPMode.Security.Encryption.Algorithm = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+            message.SendingPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
+            message.SendingPMode.Security.Encryption.PublicKeyInformation = new PublicKeyFindCriteria()
+            {
+                PublicKeyFindType = X509FindType.FindBySerialNumber,
+                PublicKeyFindValue = "some dummy value"
+            };
 
             return message;
         }

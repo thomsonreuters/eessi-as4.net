@@ -1,11 +1,11 @@
-﻿using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Mappings.Submit;
-using Eu.EDelivery.AS4.Model.Core;
+﻿using Eu.EDelivery.AS4.Mappings.Submit;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using Xunit;
+using CollaborationInfo = Eu.EDelivery.AS4.Model.Core.CollaborationInfo;
 using CommonService = Eu.EDelivery.AS4.Model.Common.Service;
 using CoreService = Eu.EDelivery.AS4.Model.Core.Service;
+using Exception = System.Exception;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 {
@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
                 var resolver = new SubmitServiceResolver();
 
                 // Act / Assert
-                Assert.Throws<AS4Exception>(() => resolver.Resolve(submitMessage));
+                Assert.ThrowsAny<Exception>(() => resolver.Resolve(submitMessage));
             }
         }
 

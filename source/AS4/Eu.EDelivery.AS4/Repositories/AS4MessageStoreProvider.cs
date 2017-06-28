@@ -71,7 +71,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (entry.Value == null)
             {
-                throw new AS4Exception($"No registered '{nameof(IAS4MessageBodyStore)}' found for {key}");
+                throw new KeyNotFoundException($"No registered '{nameof(IAS4MessageBodyStore)}' found for {key}");
             }
 
             return entry.Value;

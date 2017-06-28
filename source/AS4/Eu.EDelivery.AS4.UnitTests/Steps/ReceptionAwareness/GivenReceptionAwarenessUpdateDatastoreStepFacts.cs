@@ -161,15 +161,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
 
         protected async Task InsertOutMessage(string messageId)
         {
-            using (DatastoreContext context = GetDataStoreContext())
-            {
-                var pmode = new SendingProcessingMode();
-                string pmodeString = await AS4XmlSerializer.ToStringAsync(pmode);
-                var outMessage = new OutMessage {EbmsMessageId = messageId, PMode = pmodeString};
+            var pmode = new SendingProcessingMode();
+            string pmodeString = await AS4XmlSerializer.ToStringAsync(pmode);
+            var outMessage = new OutMessage { EbmsMessageId = messageId, PMode = pmodeString };
 
-                context.OutMessages.Add(outMessage);
-                context.SaveChanges();
-            }
+            GetDataStoreContext.InsertOutMessage(outMessage);
         }
 
         protected EntityReceptionAwareness CreateDefaultReceptionAwareness()

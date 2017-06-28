@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -30,11 +31,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Notify
             var internalMessage = new MessagingContext(notifyMessage);
 
             // Act / Assert
-            AS4Exception exception =
-                await Assert.ThrowsAsync<AS4Exception>(
+            await Assert.ThrowsAnyAsync<Exception>(
                     () => sut.ExecuteAsync(internalMessage, CancellationToken.None));
-
-            Assert.Equal(ErrorAlias.ConnectionFailure, exception.ErrorAlias);
         }
 
         [Fact]

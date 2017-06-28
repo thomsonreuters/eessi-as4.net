@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -38,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var sut = new VerifyPullRequestAuthorizationStep(new StubAuthorizationMap((r, c) => false));
 
             // Act / Assert
-            await Assert.ThrowsAnyAsync<PullRequestValidationException>(
+            await Assert.ThrowsAnyAsync<Exception>(
                 () => sut.ExecuteAsync(context, CancellationToken.None));
         }
 

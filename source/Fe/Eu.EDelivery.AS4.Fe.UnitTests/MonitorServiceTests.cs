@@ -14,6 +14,7 @@ using Xunit;
 using System;
 using System.Text;
 using Eu.EDelivery.AS4.Fe.Monitor.Model;
+using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private DatastoreContext datastoreContext;
         private MonitorService monitorService;
         private DbContextOptions<DatastoreContext> options;
-
+        protected IDatastoreRepository DatastoreRepository;
         public MonitorServiceTests()
         {
             pmodeString = File.ReadAllText(@"receivingpmode.xml");
@@ -58,7 +59,8 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 cfg.AddProfile(new SettingsAutoMapper());
                 cfg.AddProfile(new MonitorAutoMapper());
             });
-            monitorService = new MonitorService(datastoreContext, SetupPmodeSource());
+            DatastoreRepository = Substitute.For<IDatastoreRepository>();
+            monitorService = new MonitorService(datastoreContext, SetupPmodeSource(), DatastoreRepository);
 
             return this;
         }
@@ -85,32 +87,28 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                     EbmsMessageId = InEbmsMessageId1,
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Status = InStatus.Created,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    Status = InStatus.Created
                 });
                 datastoreContext.InMessages.Add(new InMessage
                 {
                     EbmsMessageId = InEbmsMessageId2,
                     EbmsRefToMessageId = InEbmsRefToMessageId2,
                     PMode = pmodeString,
-                    Status = InStatus.Received,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    Status = InStatus.Received
                 });
                 datastoreContext.OutMessages.Add(new OutMessage
                 {
                     EbmsMessageId = OutEbmsMessageId1,
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Status = OutStatus.Created,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody2)
+                    Status = OutStatus.Created
                 });
                 datastoreContext.OutMessages.Add(new OutMessage
                 {
                     EbmsMessageId = OutEbmsMessageId2,
                     EbmsRefToMessageId = OutEbmsRefToMessageId2,
                     PMode = pmodeString,
-                    Status = OutStatus.Created,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    Status = OutStatus.Created
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {

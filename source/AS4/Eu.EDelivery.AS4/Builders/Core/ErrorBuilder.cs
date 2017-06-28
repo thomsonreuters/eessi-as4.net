@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Singletons;
-using Eu.EDelivery.AS4.Xml;
+using NLog;
 using Error = Eu.EDelivery.AS4.Model.Core.Error;
 
 namespace Eu.EDelivery.AS4.Builders.Core
@@ -15,6 +13,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
     public class ErrorBuilder
     {
         private readonly Error _errorMessage;
+        private ErrorResult _result;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorBuilder"/> class. 
@@ -22,7 +21,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// </summary>
         public ErrorBuilder()
         {
-            _errorMessage = new Error();
+            _errorMessage = new Error {Errors = new List<ErrorDetail>()};
         }
 
         /// <summary>
@@ -33,7 +32,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// </param>
         public ErrorBuilder(string messageId)
         {
-            _errorMessage = new Error(messageId);
+            _errorMessage = new Error(messageId) {Errors = new List<ErrorDetail>()};
         }
 
         /// <summary>
@@ -49,42 +48,14 @@ namespace Eu.EDelivery.AS4.Builders.Core
         }
 
         /// <summary>
-        /// Add a <see cref="AS4Exception"/> details
-        /// to the <see cref="Error"/> Message
+        /// Add an error result.
         /// </summary>
-        /// <param name="exception"></param>
+        /// <param name="result">The result.</param>
         /// <returns></returns>
-        public ErrorBuilder WithAS4Exception(AS4Exception exception)
+        public ErrorBuilder WithErrorResult(ErrorResult result)
         {
-            _errorMessage.Exception = exception;
-            _errorMessage.Errors = CreateErrorDetails(exception);
-
+            _result = result;
             return this;
-        }
-
-        private static IList<ErrorDetail> CreateErrorDetails(AS4Exception exception)
-        {
-            var errorDetails = new List<ErrorDetail>();
-            foreach (string messageId in exception.MessageIds)
-            {
-                ErrorDetail detail = CreateErrorDetail(exception);
-                detail.RefToMessageInError = messageId;
-                errorDetails.Add(detail);
-            }
-
-            return errorDetails;
-        }
-
-        private static ErrorDetail CreateErrorDetail(AS4Exception exception)
-        {
-            return new ErrorDetail
-            {
-                Detail = exception.Message,
-                Severity = Severity.FAILURE,
-                ErrorCode = $"EBMS:{(int)exception.ErrorCode:0000}",
-                Category = ErrorCodeUtils.GetCategory(exception.ErrorCode),
-                ShortDescription = ErrorCodeUtils.GetShortDescription(exception.ErrorCode)
-            };
         }
 
         /// <summary>
@@ -93,15 +64,31 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public Error Build()
         {
-            if (!string.IsNullOrEmpty(_errorMessage.MessageId))
+            _errorMessage.Timestamp = DateTimeOffset.UtcNow;
+
+            if (_result != null)
             {
-                _errorMessage.Exception?.AddMessageId(_errorMessage.MessageId);
+                _errorMessage.Errors.Add(CreateErrorDetail(_result));
             }
 
-            _errorMessage.Timestamp = DateTimeOffset.UtcNow;
             return _errorMessage;
         }
 
+        private static ErrorDetail CreateErrorDetail(ErrorResult error)
+        {
+            LogManager.GetCurrentClassLogger().Debug("Adds detail: " + error.Description);
+
+            return new ErrorDetail
+            {
+                Detail = error.Description,
+                Severity = Severity.FAILURE,
+                ErrorCode = $"EBMS:{(int)error.Code:0000}",
+                Category = ErrorCodeUtils.GetCategory(error.Code),
+                ShortDescription = ErrorCodeUtils.GetShortDescription(error.Code)
+            };
+        }
+
+        [Obsolete("No exception will be used to create an 'Error' in the future")]
         public Error BuildWithOriginalAS4Exception()
         {
             _errorMessage.Timestamp = DateTimeOffset.UtcNow;

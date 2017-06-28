@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Numerics;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 using Eu.EDelivery.AS4.Repositories;
@@ -154,7 +156,13 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             try
             {
-                return Convert.ToUInt64($"0x{certificate.SerialNumber}", 16).ToString();
+                BigInteger.TryParse(
+                    value: certificate.SerialNumber,
+                    style: NumberStyles.AllowHexSpecifier,
+                    provider: CultureInfo.InvariantCulture,
+                    result: out var serialNumber);
+
+                return serialNumber.ToString();
             }
             catch (Exception ex)
             {

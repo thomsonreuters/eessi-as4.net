@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Security.Cryptography.Xml;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -54,13 +55,11 @@ namespace Eu.EDelivery.AS4.Builders.Core
 
         private void PreConditionsBuilder()
         {
-            if (_references != null)
+            if (_references == null)
             {
-                return;
+                throw new InvalidDataException(
+                    "Builder needs signed references to create NonRepudiationInformation models");
             }
-
-            const string description = "Builder needs signed references to create NonRepudiationInformation models";
-            throw new AS4Exception(description);
         }
 
         private static CoreReference CreateReferenceFromCryptoRef(CryptoReference reference)

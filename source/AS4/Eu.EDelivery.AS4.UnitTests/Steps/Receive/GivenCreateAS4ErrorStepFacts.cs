@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Factories;
@@ -35,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenNotApplicableIfMessageIsEmptySoapBodyAsync()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(exception: null);
+                var internalMessage = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
                 // Act
                 StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
@@ -48,9 +47,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenErrorIsCreatedWithAS4ExceptionAsync()
             {
                 // Arrange
+                const ErrorCode code = ErrorCode.Ebms0001;
                 var internalMessage = new MessagingContext(CreateFilledAS4Message(), MessagingContextMode.Unknown)
                 {
-                    Exception = CreateFilledAS4Exception(),
+                    ErrorResult = new ErrorResult(string.Empty, code, ErrorAlias.ConnectionFailure),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -60,9 +60,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 var error = result.MessagingContext.AS4Message.PrimarySignalMessage as Error;
+
                 Assert.NotNull(error);
-                Assert.Equal("message-id", error.Exception.MessageIds.FirstOrDefault());
-                Assert.Equal(ErrorCode.Ebms0001, error.Exception.ErrorCode);
+                Assert.Equal("message-id", error.RefToMessageId);
+                Assert.Equal("EBMS:0001", error.Errors.First().ErrorCode);
             }
 
             [Fact]
@@ -71,7 +72,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 var internalMessage = new MessagingContext(CreateFilledAS4Message(), MessagingContextMode.Unknown)
                 {
-                    Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -93,7 +93,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 var internalMessage = new MessagingContext(as4Message, MessagingContextMode.Unknown)
                 {
-                    Exception = CreateFilledAS4Exception(),
                     SendingPMode = new SendingProcessingMode(),
                     ReceivingPMode = new ReceivingProcessingMode()
                 };
@@ -103,15 +102,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
                 // Assert
                 Assert.Equal(as4Message.SigningId, result.MessagingContext.AS4Message.SigningId);
-            }
-
-            private static AS4Exception CreateFilledAS4Exception()
-            {
-                return
-                    AS4ExceptionBuilder.WithDescription("Testing AS4 Exception")
-                                       .WithErrorCode(ErrorCode.Ebms0001)
-                                       .WithMessageIds("message-id")
-                                       .Build();
             }
 
             private static AS4Message CreateFilledAS4Message()

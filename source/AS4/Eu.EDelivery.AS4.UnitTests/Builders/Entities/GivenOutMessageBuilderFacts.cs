@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
 using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
@@ -20,22 +21,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         public class GivenValidArguments : GivenOutMessageBuilderFacts
         {
             [Theory]
-            [InlineData(MessageExchangePatternBinding.Pull, MessageExchangePattern.Pull)]
-            [InlineData(MessageExchangePatternBinding.Push, MessageExchangePattern.Push)]
-            public void BuilderUsesContextForExchangePattern(
-                MessageExchangePatternBinding binding,
-                MessageExchangePattern expected)
+            [InlineData(MessageExchangePattern.Push)]
+            [InlineData(MessageExchangePattern.Pull)]
+            public void BuilderTakesPModeAsMEPBinding(MessageExchangePattern expected)
             {
                 // Arrange
-                AS4Message as4Message = CreateAS4MessageWithUserMessage(Guid.NewGuid().ToString());
+                AS4Message as4Message = AS4Message.Empty;
+                as4Message.Mep = expected;
+
+                var context = new MessagingContext(as4Message, MessagingContextMode.Send);
 
                 // Act
-                OutMessage outMessage = BuildForUserMessage(
-                    as4Message,
-                    new SendingProcessingMode {MepBinding = binding});
+                OutMessage message = OutMessageBuilder.ForMessageUnit(new FilledUserMessage(), context).Build(CancellationToken.None);
 
                 // Assert
-                Assert.Equal(expected, outMessage.MEP);
+                MessageExchangePattern actual = message.MEP;
+                Assert.Equal(expected, actual);
             }
 
             [Fact]
@@ -71,18 +72,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return BuildForUserMessage(as4Message, ExpectedPMode());
-            }
-
-            private static OutMessage BuildForUserMessage(AS4Message as4Message, SendingProcessingMode pmode)
-            {
-                return
-                    OutMessageBuilder.ForMessageUnit(
-                        as4Message.PrimaryUserMessage,
-                        new MessagingContext(as4Message, MessagingContextMode.Unknown)
-                        {
-                            SendingPMode = pmode
-                        }).Build(CancellationToken.None);
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = ExpectedPMode() })
+                                                         .Build(CancellationToken.None);
             }
 
             [Fact]
@@ -116,9 +107,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
             }
 
             private static OutMessage BuildForSignalMessage(AS4Message as4Message)
-            {
+            {           
                 return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, new MessagingContext(as4Message, MessagingContextMode.Send))
-                                                                         .Build(CancellationToken.None);
+                                                                        .Build(CancellationToken.None);
             }
         }
 
