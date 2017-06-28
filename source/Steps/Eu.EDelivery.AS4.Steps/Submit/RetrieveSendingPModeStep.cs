@@ -40,15 +40,29 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Start retrieving the PMode for the <see cref="SubmitMessage" />
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext message, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
+<<<<<<< HEAD
             message.SubmitMessage.PMode = RetrieveSendPMode(message);
             message.SendingPMode = message.SubmitMessage.PMode;
 
             return await StepResult.SuccessAsync(message);
+=======
+            try
+            {
+                messagingContext.SubmitMessage.PMode = RetrieveSendPMode(messagingContext);
+                messagingContext.SendingPMode = messagingContext.SubmitMessage.PMode;
+
+                return await StepResult.SuccessAsync(messagingContext);
+            }
+            catch (Exception exception)
+            {
+                throw ThrowAS4CannotRetrieveSendPModeException(messagingContext, exception);
+            }
+>>>>>>> DynamicDiscovery Step & IDynamicDiscoveryProfile
         }
 
         private SendingProcessingMode RetrieveSendPMode(MessagingContext message)

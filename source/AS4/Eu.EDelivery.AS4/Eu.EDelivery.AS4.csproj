@@ -355,6 +355,8 @@
     <Compile Include="Receivers\IntervalRequest.cs" />
     <Compile Include="Repositories\AS4MessageBodyFileStore.cs" />
     <Compile Include="Repositories\AS4MessageStoreProvider.cs" />
+    <Compile Include="Services\DynamicDiscovery\ESensDynamicDiscoveryProfile.cs" />
+    <Compile Include="Services\DynamicDiscovery\IDynamicDiscoveryProfile.cs" />
     <Compile Include="Services\PullAuthorizationMap.cs" />
     <Compile Include="Repositories\IAS4MessageBodyStore.cs" />
     <Compile Include="Repositories\IDatastoreRepository.cs" />
