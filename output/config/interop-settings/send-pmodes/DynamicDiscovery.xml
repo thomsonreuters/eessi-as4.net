@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+  <Id>DynamicDiscoveryTest</Id>
+  <AllowOverride>true</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Push</MepBinding>  
+  <DynamicDiscovery>
+    <SmpServerDomainName>isaitb.acc.edelivery.tech.ec.europa.eu</SmpServerDomainName>
+  </DynamicDiscovery>      
+  <ReceiptHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\receipts\" />
+      </Parameters>
+    </NotifyMethod>
+  </ReceiptHandling>
+  <ErrorHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\errors\" />
+      </Parameters>
+    </NotifyMethod>
+  </ErrorHandling>
+  <ExceptionHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\exceptions\" />
+      </Parameters>
+    </NotifyMethod>
+  </ExceptionHandling>
+  <Security>
+    <Signing>
+      <IsEnabled>true</IsEnabled>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <PrivateKeyFindValue>as4-net-c2</PrivateKeyFindValue>
+      <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
+      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+    </Signing>
+    <Encryption>
+      <IsEnabled>true</IsEnabled>
+      <Algorithm>http://www.w3.org/2009/xmlenc11#aes128-gcm</Algorithm>
+    </Encryption>
+  </Security>
+  <MessagePackaging>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>as4.net-c2</Id>
+            <Type>urn:oasis:names:tc:ebcore:partyid-type:unregistered</Type>
+          </PartyId>
+        </PartyIds>
+        <Role>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>0007:9340033829test1</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>    
+    <UseAS4Compression>true</UseAS4Compression>
+    <IsMultiHop>false</IsMultiHop>
+    <IncludePModeId>false</IncludePModeId>
+  </MessagePackaging>
+</PMode>

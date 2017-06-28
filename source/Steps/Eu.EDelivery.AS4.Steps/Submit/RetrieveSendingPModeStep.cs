@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
         /// </summary>
-        public RetrieveSendingPModeStep() : this(Config.Instance) {}
+        public RetrieveSendingPModeStep() : this(Config.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
@@ -40,15 +40,15 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Start retrieving the PMode for the <see cref="SubmitMessage" />
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="messagingContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext message, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            message.SubmitMessage.PMode = RetrieveSendPMode(message);
-            message.SendingPMode = message.SubmitMessage.PMode;
+            messagingContext.SubmitMessage.PMode = RetrieveSendPMode(messagingContext);
+            messagingContext.SendingPMode = messagingContext.SubmitMessage.PMode;
 
-            return await StepResult.SuccessAsync(message);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private SendingProcessingMode RetrieveSendPMode(MessagingContext message)
@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 {
                     result.LogErrors(Logger);
 
-                    string description = $"Sending PMode {((IPMode) pmode).Id} was invalid, see logging";
+                    string description = $"Sending PMode {((IPMode)pmode).Id} was invalid, see logging";
                     Logger.Error(description);
 
                     throw new ConfigurationErrorsException(description);
