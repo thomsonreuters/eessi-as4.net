@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
         /// </summary>
-        public RetrieveSendingPModeStep() : this(Config.Instance) {}
+        public RetrieveSendingPModeStep() : this(Config.Instance) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetrieveSendingPModeStep" /> class
@@ -45,24 +45,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-<<<<<<< HEAD
-            message.SubmitMessage.PMode = RetrieveSendPMode(message);
-            message.SendingPMode = message.SubmitMessage.PMode;
+            messagingContext.SubmitMessage.PMode = RetrieveSendPMode(messagingContext);
+            messagingContext.SendingPMode = messagingContext.SubmitMessage.PMode;
 
-            return await StepResult.SuccessAsync(message);
-=======
-            try
-            {
-                messagingContext.SubmitMessage.PMode = RetrieveSendPMode(messagingContext);
-                messagingContext.SendingPMode = messagingContext.SubmitMessage.PMode;
-
-                return await StepResult.SuccessAsync(messagingContext);
-            }
-            catch (Exception exception)
-            {
-                throw ThrowAS4CannotRetrieveSendPModeException(messagingContext, exception);
-            }
->>>>>>> DynamicDiscovery Step & IDynamicDiscoveryProfile
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private SendingProcessingMode RetrieveSendPMode(MessagingContext message)
@@ -104,7 +90,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 {
                     result.LogErrors(Logger);
 
-                    string description = $"Sending PMode {((IPMode) pmode).Id} was invalid, see logging";
+                    string description = $"Sending PMode {((IPMode)pmode).Id} was invalid, see logging";
                     Logger.Error(description);
 
                     throw new ConfigurationErrorsException(description);
