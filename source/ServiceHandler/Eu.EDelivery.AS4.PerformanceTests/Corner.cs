@@ -87,7 +87,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
 
         private FileInfo[] GetDeliveredFiles(string searchPattern = "*")
         {
-            return GetMessageDirectory(subDirectory: "in").GetFiles(searchPattern);
+            return GetDirectory(rootDirectory: "messages", subDirectory: "in").GetFiles(searchPattern);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <returns></returns>
         public int CountReceivedReceipts()
         {
-            return GetMessageDirectory(subDirectory: "receipts").GetFiles().Length;
+            return GetDirectory(rootDirectory: "messages", subDirectory: "receipts").GetFiles().Length;
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <returns>True if the specified number of receipts is received; otherwise false.</returns>
         public bool ExecuteWhenNumberOfReceiptsAreReceived(int numberOfReceipts, Action action, TimeSpan timeout)
         {
-            string receiptDirectory = GetMessageDirectory(subDirectory: "receipts").FullName;
+            string receiptDirectory = GetDirectory(rootDirectory: "messages", subDirectory: "receipts").FullName;
 
             return ExecuteWhenNumberOfFilesAreFoundInDirectory(receiptDirectory, "*.xml", numberOfReceipts, action, timeout);
         }
@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// <returns>True if the specified number of messages are delivered; otherwise false.</returns>
         public bool ExecuteWhenNumberOfMessagesAreDelivered(int numberOfMessages, Action action, TimeSpan timeout, string searchPattern = "*.*")
         {
-            string deliverDirectoryName = GetMessageDirectory(subDirectory: "in").FullName;
+            string deliverDirectoryName = GetDirectory(rootDirectory: "messages", subDirectory: "in").FullName;
 
             return ExecuteWhenNumberOfFilesAreFoundInDirectory(deliverDirectoryName, searchPattern, numberOfMessages, action, timeout);
         }
@@ -165,16 +165,19 @@ namespace Eu.EDelivery.AS4.PerformanceTests
         /// </summary>
         public void CleanupMessages()
         {
-            CleanUpMessageDirectory("in");
-            CleanUpMessageDirectory("out");
-            CleanUpMessageDirectory("receipts");
-            CleanUpMessageDirectory("errors");
-            CleanUpMessageDirectory("exceptions");
+            CleanupDirectory(GetDirectory("messages", "in"));
+            CleanupDirectory(GetDirectory("messages", "out"));
+            CleanupDirectory(GetDirectory("messages", "receipts"));
+            CleanupDirectory(GetDirectory("messages", "errors"));
+            CleanupDirectory(GetDirectory("messages", "exceptions"));
+
+            CleanupDirectory(GetDirectory("database", "as4messages\\out"));
+            CleanupDirectory(GetDirectory("database", "as4messages\\in"));
         }
 
-        private void CleanUpMessageDirectory(string subDirectory)
+        private static void CleanupDirectory(DirectoryInfo directory)
         {
-            DirectoryInfo messageDirectory = GetMessageDirectory(subDirectory);
+            DirectoryInfo messageDirectory = directory;
 
             foreach (FileInfo deliveredMessage in messageDirectory.GetFiles())
             {
@@ -182,9 +185,9 @@ namespace Eu.EDelivery.AS4.PerformanceTests
             }
         }
 
-        private DirectoryInfo GetMessageDirectory(string subDirectory)
+        private DirectoryInfo GetDirectory(string rootDirectory, string subDirectory)
         {
-            string deliverPath = Path.Combine(_cornerDirectory.FullName, "messages", subDirectory);
+            string deliverPath = Path.Combine(_cornerDirectory.FullName, rootDirectory, subDirectory);
 
             if (!Directory.Exists(deliverPath))
             {
