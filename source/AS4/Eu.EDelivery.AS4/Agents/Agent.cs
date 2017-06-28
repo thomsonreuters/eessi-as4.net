@@ -14,7 +14,7 @@ using NLog;
 
 namespace Eu.EDelivery.AS4.Agents
 {
-    public class AgentBase : IAgent
+    public class Agent : IAgent
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Agents
         private readonly (ConditionalStepConfig happyPath, ConditionalStepConfig unhappyPath) _conditionalPipeline;
         private readonly StepConfiguration _stepConfiguration;
 
-        private AgentBase(
+        private Agent(
             string name,
             IReceiver receiver,
             Transformer transformerConfig,
@@ -38,14 +38,14 @@ namespace Eu.EDelivery.AS4.Agents
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AgentBase"/> class.
+        /// Initializes a new instance of the <see cref="Agent"/> class.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="receiver">The receiver.</param>
         /// <param name="transformerConfig">The transformer configuration.</param>
         /// <param name="exceptionHandler">The exception handler.</param>
         /// <param name="stepConfiguration">The step configuration.</param>
-        internal AgentBase(
+        internal Agent(
             string name,
             IReceiver receiver,
             Transformer transformerConfig,
@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Agents
         }
 
         [ExcludeFromCodeCoverage]
-        internal AgentBase(
+        internal Agent(
             string name,
             IReceiver receiver,
             Transformer transformerConfig,
