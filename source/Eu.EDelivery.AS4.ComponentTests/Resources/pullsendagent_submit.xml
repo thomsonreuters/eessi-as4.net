@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <SubmitMessage xmlns="urn:cef:edelivery:eu:as4:messages">
   <MessageInfo>
-    <Mpc>http://example.holodeckb2b.org/mpc/1</Mpc>
   </MessageInfo>
   <Collaboration>
     <AgreementRef>
-      <PModeId>8.1.16-pmode</PModeId>
+      <PModeId>8.1.17-pmode</PModeId>
       <Value>http://agreements.holodeckb2b.org/examples/agreement0</Value>
     </AgreementRef>
     <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>

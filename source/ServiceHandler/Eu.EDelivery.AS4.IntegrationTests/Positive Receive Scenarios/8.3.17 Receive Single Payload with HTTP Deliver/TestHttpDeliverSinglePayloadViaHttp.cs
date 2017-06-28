@@ -10,14 +10,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
         public void RunIntegrationTest()
         {
             // Before
-            CleanUpFiles(AS4FullInputPath);
-
             const string location = "http://localhost:4001/";
             using (SpyHttpDeliverTarget deliverTarget = SpyHttpDeliverTarget.AtLocation(location))
             {
                 // Arrange
-                CopyPModeToHolodeckA("8.3.17-pmode.xml");
-                CopyMessageToHolodeckA("8.3.17-sample.mmd");
+                Holodeck.CopyPModeToHolodeckA("8.3.17-pmode.xml");
+                Holodeck.CopyMessageToHolodeckA("8.3.17-sample.mmd");
 
                 // Act
                 AS4Component.Start();

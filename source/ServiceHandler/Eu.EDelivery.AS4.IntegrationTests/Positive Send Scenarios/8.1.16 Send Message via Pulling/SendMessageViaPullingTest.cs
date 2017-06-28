@@ -2,7 +2,6 @@
 using System.IO;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
-using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._16_Send_Message_via_Pulling
 {
@@ -15,14 +14,14 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._16_Se
             AS4Component.OverrideSettings("8.1.16-settings.xml");
             AS4Component.Start();
 
-            File.Copy($"{AS4MessagesRootPath}\\8.1.16-sample.xml", $"{AS4FullOutputPath}\\8.1.16-sample.xml", overwrite: true);
+            AS4Component.PlaceMessage("8.1.16-sample.xml");
 
             // Act
-            CopyPModeToHolodeckB("8.1.16-receive-pmode.xml");
-            CopyPModeToHolodeckB("8.1.16-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.16-receive-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.16-pmode.xml");
 
             // Assert
-            Assert.True(PollingAt(holodeck_B_input_path));
+            Assert.True(PollingAt(AS4ReceiptsPath));
         }
 
         /// <summary>
@@ -31,7 +30,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._16_Se
         /// <param name="files">The files.</param>
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
-            Holodeck.AssertReceiptOnHolodeckB(files);
+            Holodeck.AssertDeliverMessageOnHolodeckB();
+            AS4Component.AssertReceipt();
         }
     }
 }

@@ -15,16 +15,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
         public void ThenSendingPullRequestSucceeds()
         {
             // Setup
-            CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(AS4FullInputPath);
-            
             AS4Component.OverrideSettings("8.1.14-settings.xml");
             AS4Component.Start();
 
-            CopyPModeToHolodeckB("8.1.14-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.14-pmode.xml");
 
             // Act
-            CopyMessageToHolodeckB("8.1.14-sample.mmd");
+            Holodeck.CopyMessageToHolodeckB("8.1.14-sample.mmd");
 
             // Assert
             bool areFilesFound = PollingAt(AS4FullInputPath);

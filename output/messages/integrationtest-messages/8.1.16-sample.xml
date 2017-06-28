@@ -27,7 +27,7 @@
       <Value>Test</Value>
     </MessageProperty>
   </MessageProperties>
-  <Payloads>
+  <!--<Payloads>
     <Payload>
       <Id>earth2</Id>
       <MimeType>image/jpeg</MimeType>
@@ -39,5 +39,5 @@
         </PayloadProperty>
       </PayloadProperties>
     </Payload>
-  </Payloads>
+  </Payloads>-->
 </SubmitMessage>

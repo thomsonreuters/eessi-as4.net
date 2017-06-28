@@ -27,10 +27,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._1_
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullInputPath);
 
             // Arrange
-            CopyPModeToHolodeckA("8.3.1-pmode.xml");
+            Holodeck.CopyPModeToHolodeckA("8.3.1-pmode.xml");
 
             // Act
             File.Copy(_holodeckMessagesPath, _destFileName);
@@ -43,7 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._1_
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
         {
             // Assert
-            _holodeck.AssertDandelionPayload();
+            _holodeck.AssertDandelionPayloadOnHolodeckA();
             _holodeck.AssertReceiptOnHolodeckA();
         }
     }

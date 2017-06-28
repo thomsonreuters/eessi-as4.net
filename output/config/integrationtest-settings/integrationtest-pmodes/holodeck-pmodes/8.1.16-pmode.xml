@@ -7,9 +7,9 @@ The PullRequest will use a WS-Security Username Token to authenticate itself at 
 This P-Mode file should be combined with "ex-pm-pull-ut-resp.xml" on the other instance so message can be prepared for pulling. If you set up a test 
 environment based on the "Getting Started" page from the web site you should install this P-Mode on instance A. 
 -->
-<PMode xmlns="http://holodeck-b2b.org/schemas/2014/10/pmode"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://holodeck-b2b.org/schemas/2014/10/pmode ../../repository/xsd/pmode.xsd">
+<PMode 
+    xmlns="http://holodeck-b2b.org/schemas/2014/10/pmode" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://holodeck-b2b.org/schemas/2014/10/pmode ../../repository/xsd/pmode.xsd">
     <id>8.1.16-pull-pmode</id>
     <mep>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay</mep>
     <mepBinding>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull</mepBinding>

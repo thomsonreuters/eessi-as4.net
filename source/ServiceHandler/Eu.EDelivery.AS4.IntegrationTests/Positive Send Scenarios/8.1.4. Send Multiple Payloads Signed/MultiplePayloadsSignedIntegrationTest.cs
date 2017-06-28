@@ -20,11 +20,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            CopyPModeToHolodeckB("8.1.4-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.4-pmode.xml");
 
             // Act
             File.Copy(_as4MessagesPath, _as4OutputPath);

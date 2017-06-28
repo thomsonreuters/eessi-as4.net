@@ -71,8 +71,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private async Task<AS4Message> RetrieveAS4UserMessage(MessageEntity selection, CancellationToken cancellationToken)
         {
             // TODO: Attachment Contents are disposed?
-            using (Stream messageStream = await selection.RetrieveMessagesBody(_messageBodyStore))
-            {
+            using (Stream messageStream = await selection.RetrieveMessagesBody(_messageBodyStore)) {
                 ISerializer serializer = Registry.Instance.SerializerProvider.Get(selection.ContentType);
                 return await serializer.DeserializeAsync(messageStream, selection.ContentType, cancellationToken);
             }

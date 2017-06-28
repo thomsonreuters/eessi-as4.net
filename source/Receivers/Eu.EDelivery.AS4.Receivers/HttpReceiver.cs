@@ -252,7 +252,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
                 finally
                 {
-                    processorResult?.Dispose();
+                   processorResult?.Dispose();
                 }
             }
 

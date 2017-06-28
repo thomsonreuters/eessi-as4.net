@@ -17,13 +17,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._1_
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullInputPath);
 
             // Arrange
-            CopyPModeToHolodeckA("8.4.1-pmode.xml");
+            Holodeck.CopyPModeToHolodeckA("8.4.1-pmode.xml");
 
             // Act
-            CopyMessageToHolodeckA("8.4.1-sample.mmd");
+            Holodeck.CopyMessageToHolodeckA("8.4.1-sample.mmd");
 
             // Assert
             Assert.True(PollingAt(Properties.Resources.holodeck_A_input_path, "*.xml"), "Receive Message with not linked PMode Integration Test failed");

@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
-                MEP = DetermineExchangePattern(),
+                MEP = (MessageExchangePattern) _messagingContext.AS4Message?.Mep.GetValueOrDefault(),
                 EbmsMessageType = messageType,
                 PMode = AS4XmlSerializer.ToString(GetSendingPMode(messageType)),
             };
@@ -72,17 +72,6 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             outMessage.AssignAS4Properties(_messagingContext.AS4Message, cancellationToken);
 
             return outMessage;
-        }
-
-        private MessageExchangePattern DetermineExchangePattern()
-        {
-            switch (_messagingContext.SendingPMode?.MepBinding)
-            {
-                case MessageExchangePatternBinding.Pull:
-                    return MessageExchangePattern.Pull;
-                default:
-                    return MessageExchangePattern.Push;
-            }
         }
 
         private SendingProcessingMode GetSendingPMode(MessageType messageType)

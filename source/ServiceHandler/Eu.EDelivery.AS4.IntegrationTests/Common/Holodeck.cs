@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 using Eu.EDelivery.AS4.Exceptions;
 using Xunit;
@@ -13,25 +14,95 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     /// </summary>
     public class Holodeck
     {
-        private readonly DirectoryInfo _holodeckAInputDirectory;
+        private readonly DirectoryInfo _holodeckAInputDirectory =
+            new DirectoryInfo(Properties.Resources.holodeck_A_input_path);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Holodeck"/> class.
+        /// Copy the right PMode configuration to Holodeck B
         /// </summary>
-        public Holodeck()
+        /// <param name="pmodeFilename"></param>
+        public void CopyPModeToHolodeckB(string pmodeFilename)
         {
-            _holodeckAInputDirectory = new DirectoryInfo(Properties.Resources.holodeck_A_input_path);
+            Console.WriteLine($@"Copy PMode {pmodeFilename} to Holodeck B");
+            CopyPModeToHolodeck(pmodeFilename, Properties.Resources.holodeck_B_pmodes);
+            WaitForHolodeckToPickUp();
+        }
+
+        /// <summary>
+        /// Copy the right PMode configuration to Holodeck A
+        /// </summary>
+        /// <param name="pmodeFilename"></param>
+        public void CopyPModeToHolodeckA(string pmodeFilename)
+        {
+            Console.WriteLine($@"Copy PMode {pmodeFilename} to Holodeck A");
+            CopyPModeToHolodeck(pmodeFilename, Properties.Resources.holodeck_A_pmodes);
+            WaitForHolodeckToPickUp();
+        }
+
+        private static void CopyPModeToHolodeck(string fileName, string directory)
+        {
+            File.Copy(
+                sourceFileName: $".{Properties.Resources.holodeck_test_pmodes}\\{fileName}",
+                destFileName: $"{directory}\\{fileName}",
+                overwrite: true);
+        }
+
+        /// <summary>
+        /// Copy the right message to Holodeck B
+        /// </summary>
+        /// <param name="messageFileName"></param>
+        public void CopyMessageToHolodeckB(string messageFileName)
+        {
+            Console.WriteLine($@"Copy Message {messageFileName} to Holodeck B");
+
+            File.Copy(
+                sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"),
+                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_B_output_path}\{messageFileName}"));
+
+            WaitForHolodeckToPickUp();
+        }
+
+        /// <summary>
+        /// Copy the right message to Holodeck A
+        /// </summary>
+        /// <param name="messageFileName"></param>
+        public void CopyMessageToHolodeckA(string messageFileName)
+        {
+            Console.WriteLine($@"Copy Message {messageFileName} to Holodeck A");
+
+            File.Copy(
+                sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"),
+                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_A_output_path}\{messageFileName}"));
+
+            WaitForHolodeckToPickUp();
+        }
+
+        private static void WaitForHolodeckToPickUp()
+        {
+            Console.WriteLine(@"Wait for Holodeck to pick-up the new PMode");
+            Thread.Sleep(1000);
         }
 
         /// <summary>
         /// Assert the image payload on Holodeck
         /// </summary>
-        public void AssertDandelionPayload()
+        public void AssertDandelionPayloadOnHolodeckA()
         {
             FileInfo receivedPayload = new DirectoryInfo(IntegrationTestTemplate.AS4FullInputPath).GetFiles("*.jpg").FirstOrDefault();
             var sendPayload = new FileInfo(Properties.Resources.holodeck_payload_path);
 
             Assert.Equal(sendPayload.Length, receivedPayload?.Length);
+        }
+
+        /// <summary>
+        /// Asserts the deliver message on holodeck b.
+        /// </summary>
+        public void AssertDeliverMessageOnHolodeckB()
+        {
+            FileInfo deliveredMessage =
+                new DirectoryInfo(Properties.Resources.holodeck_B_input_path).GetFiles("*.xml").FirstOrDefault();
+
+            Assert.NotNull(deliveredMessage);
         }
 
         /// <summary>
@@ -42,18 +113,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             FileInfo receivedPayload =
                 new DirectoryInfo(Properties.Resources.holodeck_B_input_path).GetFiles("*.jpg").FirstOrDefault();
             FileInfo sendPayload = AS4Component.SubmitSinglePayloadImage;
-
-            Assert.NotNull(receivedPayload);
-            Assert.Equal(sendPayload.Length, receivedPayload.Length);
-        }
-
-        /// <summary>
-        /// Assert if the given <paramref name="receivedPayload" /> matches the 'Earth' payload.
-        /// </summary>
-        /// <param name="receivedPayload"></param>
-        public void AssertEarthPayload(FileInfo receivedPayload)
-        {
-            var sendPayload = new FileInfo(Path.GetFullPath($".\\{Properties.Resources.submitmessage_single_payload_path}"));
 
             Assert.NotNull(receivedPayload);
             Assert.Equal(sendPayload.Length, receivedPayload.Length);

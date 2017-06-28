@@ -25,7 +25,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._1_Sub
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullOutputPath);
 
             // Act
             File.Copy(_as4MessagesPath, _as4OutputPath);

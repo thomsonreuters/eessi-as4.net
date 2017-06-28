@@ -14,15 +14,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._6_
         public void ThenReceiveMultiplePayloadsCompressedSignedSucceeds()
         {
             // Before
-            CleanUpFiles(AS4FullInputPath);
-
             AS4Component.Start();
 
             // Arrange
-            CopyPModeToHolodeckA("8.3.6-pmode.xml");
+            Holodeck.CopyPModeToHolodeckA("8.3.6-pmode.xml");
 
             // Act
-            CopyMessageToHolodeckA("8.3.6-sample.mmd");
+            Holodeck.CopyMessageToHolodeckA("8.3.6-sample.mmd");
 
             // Assert
             Assert.True(PollingAt(AS4FullInputPath));

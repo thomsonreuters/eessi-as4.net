@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.IntegrationTests.Fixture;
@@ -14,16 +13,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
     [Collection(HolodeckCollection.CollectionId)]
     public class IntegrationTestTemplate : IDisposable
     {
+        public static readonly string AS4MessagesRootPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}");
+        public static readonly string AS4FullOutputPath = Path.GetFullPath($@".\{Properties.Resources.submit_output_path}");
+        public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
+
         protected static readonly string AS4IntegrationMessagesPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}\integrationtest-messages");
-        protected static readonly string AS4MessagesRootPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}");
-        protected static readonly string AS4FullOutputPath = Path.GetFullPath($@".\{Properties.Resources.submit_output_path}");
         protected static readonly string AS4ReceiptsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
         protected static readonly string AS4ErrorsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_errors_path}");
         protected static readonly string AS4ExceptionsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_exceptions_path}");
 
         protected readonly string HolodeckBInputPath = Properties.Resources.holodeck_B_input_path;
         protected static readonly string HolodeckMessagesPath = Path.GetFullPath(@".\messages\holodeck-messages");
-        public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
 
         protected AS4Component AS4Component { get; } = new AS4Component();
 
@@ -41,7 +41,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
             CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
 
-            CleanUpFiles(Path.GetFullPath(@".\database"));
+            CleanUpFiles(@".\database");
+            CleanUpFiles(AS4FullInputPath);
+            CleanUpFiles(AS4FullOutputPath);
+            CleanUpFiles(AS4ReceiptsPath);
+            CleanUpFiles(AS4ErrorsPath);
+            CleanUpFiles(AS4ExceptionsPath);
+
             CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
         }
 
@@ -138,7 +144,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
 
             Console.WriteLine($@"Deleting files at location: {directory}");
             
-            foreach (string file in Directory.EnumerateFiles(directory))
+            foreach (string file in Directory.EnumerateFiles(Path.GetFullPath(directory)))
             {
                 if (predicateFile == null || predicateFile(file))
                 {
@@ -166,72 +172,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
                     Thread.Sleep(TimeSpan.FromSeconds(3));
                 }
             }
-        }
-
-        /// <summary>
-        /// Copy the right PMode configuration to Holodeck B
-        /// </summary>
-        /// <param name="pmodeFilename"></param>
-        protected void CopyPModeToHolodeckB(string pmodeFilename)
-        {
-            Console.WriteLine($@"Copy PMode {pmodeFilename} to Holodeck B");
-            CopyPModeToHolodeck(pmodeFilename, Properties.Resources.holodeck_B_pmodes);
-            WaitForHolodeckToPickUp();
-        }
-
-        /// <summary>
-        /// Copy the right PMode configuration to Holodeck A
-        /// </summary>
-        /// <param name="pmodeFilename"></param>
-        protected void CopyPModeToHolodeckA(string pmodeFilename)
-        {
-            Console.WriteLine($@"Copy PMode {pmodeFilename} to Holodeck A");
-            CopyPModeToHolodeck(pmodeFilename, Properties.Resources.holodeck_A_pmodes);
-            WaitForHolodeckToPickUp();
-        }
-
-        private static void CopyPModeToHolodeck(string fileName, string directory)
-        {
-            File.Copy(
-                sourceFileName: $".{Properties.Resources.holodeck_test_pmodes}\\{fileName}",
-                destFileName: $"{directory}\\{fileName}",
-                overwrite: true);
-        }
-
-        /// <summary>
-        /// Copy the right message to Holodeck B
-        /// </summary>
-        /// <param name="messageFileName"></param>
-        public void CopyMessageToHolodeckB(string messageFileName)
-        {
-            Console.WriteLine($@"Copy Message {messageFileName} to Holodeck B");
-
-            File.Copy(
-                sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"), 
-                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_B_output_path}\{messageFileName}"));
-
-            WaitForHolodeckToPickUp();
-        }
-
-        /// <summary>
-        /// Copy the right message to Holodeck A
-        /// </summary>
-        /// <param name="messageFileName"></param>
-        public void CopyMessageToHolodeckA(string messageFileName)
-        {
-            Console.WriteLine($@"Copy Message {messageFileName} to Holodeck A");
-
-            File.Copy(
-                sourceFileName: Path.GetFullPath($@".\messages\holodeck-messages\{messageFileName}"),
-                destFileName: Path.GetFullPath($@"{Properties.Resources.holodeck_A_output_path}\{messageFileName}"));
-
-            WaitForHolodeckToPickUp();
-        }
-
-        private static void WaitForHolodeckToPickUp()
-        {
-            Console.WriteLine(@"Wait for Holodeck to pick-up the new PMode");
-            Thread.Sleep(1000);
         }
 
         /// <summary>

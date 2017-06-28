@@ -263,7 +263,6 @@
     <Compile Include="Positive Send Scenarios\8.1.14 Send Pull Request result in User Message\SendPullRequestResultInUserMessageTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.15 Send Single Payload with HTTP Submit\SendSinglePayloadHttpSubmitTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.16 Send Message via Pulling\SendMessageViaPullingTest.cs" />
-    <Compile Include="Positive Send Scenarios\8.1.17 Send Message via Pulling without MPC\SendMessageViaPullingWithoutMpcTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.18 Send Message via Pulling result in Error\SendMessageViaPullingResultInErrorTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.2. Send Multiple Payloads with FILE Submit\MultiplePayloadIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.3. Send Multiple Payloads Compressed\MultiplePayloadsCompressedIntegrationTest.cs" />

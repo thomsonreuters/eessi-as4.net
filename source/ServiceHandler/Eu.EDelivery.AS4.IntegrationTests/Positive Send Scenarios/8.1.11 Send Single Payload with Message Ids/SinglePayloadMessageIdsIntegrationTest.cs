@@ -17,14 +17,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
 
         private readonly string _as4MessagesPath;
         private readonly string _as4OutputPath;
-        private readonly Holodeck _holodeck;
 
         public SinglePayloadMessageIdsIntegrationTest()
         {
             _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
             _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-
-            _holodeck = new Holodeck();
         }
 
         [Fact]
@@ -35,7 +32,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
             CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            CopyPModeToHolodeckB("8.1.11-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.11-pmode.xml");
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Act
@@ -59,7 +56,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._11_Se
         {
             IEnumerable<FileInfo> files = new DirectoryInfo(HolodeckBInputPath).GetFiles();
 
-            _holodeck.AssertEarthPayload(files.FirstOrDefault(f => f.Extension.Equals(".jpg")));
+            AS4Component.AssertEarthPayload(files.FirstOrDefault(f => f.Extension.Equals(".jpg")));
 
             FileInfo receipt = files.FirstOrDefault(f => f.Extension.Equals(".xml"));
             if (receipt != null)

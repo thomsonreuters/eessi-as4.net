@@ -19,7 +19,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._3_
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullInputPath);
 
             // Act
             string messageMissingMimeProperty = Properties.Resources.as4message_missing_mime_property;

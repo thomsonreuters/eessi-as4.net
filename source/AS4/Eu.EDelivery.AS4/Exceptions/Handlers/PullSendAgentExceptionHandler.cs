@@ -17,6 +17,11 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="PullSendAgentExceptionHandler"/> class.
+        /// </summary>
+        public PullSendAgentExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) {}
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PullSendAgentExceptionHandler" /> class.
         /// </summary>
         /// <param name="createContext">The create context.</param>

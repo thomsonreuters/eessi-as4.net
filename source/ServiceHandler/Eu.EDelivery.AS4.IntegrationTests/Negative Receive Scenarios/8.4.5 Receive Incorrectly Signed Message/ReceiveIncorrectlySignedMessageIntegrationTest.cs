@@ -17,7 +17,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Receive_Scenarios._8._4._5_
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullInputPath);
 
             // Act
             string messageWrongSigned = Properties.Resources.as4_soap_wrong_signed_message;

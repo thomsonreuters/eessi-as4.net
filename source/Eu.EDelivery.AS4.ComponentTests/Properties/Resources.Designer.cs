@@ -91,6 +91,36 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to  &lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot;&gt;&lt;soapenv:Header&gt;&lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; soapenv:mustUnderstand=&quot;true&quot; soapenv:rol [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string pullsendagent_pullrequest {
+            get {
+                return ResourceManager.GetString("pullsendagent_pullrequest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot;?&gt;
+        ///&lt;SubmitMessage xmlns=&quot;urn:cef:edelivery:eu:as4:messages&quot;&gt;
+        ///  &lt;MessageInfo&gt;
+        ///  &lt;/MessageInfo&gt;
+        ///  &lt;Collaboration&gt;
+        ///    &lt;AgreementRef&gt;
+        ///      &lt;PModeId&gt;8.1.17-pmode&lt;/PModeId&gt;
+        ///      &lt;Value&gt;http://agreements.holodeckb2b.org/examples/agreement0&lt;/Value&gt;
+        ///    &lt;/AgreementRef&gt;
+        ///    &lt;ConversationId&gt;eu:edelivery:as4:sampleconversation&lt;/ConversationId&gt;
+        ///    &lt;Action&gt;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test&lt;/Action&gt;
+        ///    &lt;Service&gt;
+        ///      &lt;Value&gt;http://docs.oasis-open.org/eb [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string pullsendagent_submit {
+            get {
+                return ResourceManager.GetString("pullsendagent_submit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         internal static byte[] receiveagent_message {
@@ -103,9 +133,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] receiveagent_wrong_encrypted_message {
+        internal static byte[] receiveagent_message_nonexist_attachment {
             get {
-                object obj = ResourceManager.GetObject("receiveagent_wrong_encrypted_message", resourceCulture);
+                object obj = ResourceManager.GetObject("receiveagent_message_nonexist_attachment", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -113,9 +143,9 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] receiveagent_message_nonexist_attachment {
+        internal static byte[] receiveagent_wrong_encrypted_message {
             get {
-                object obj = ResourceManager.GetObject("receiveagent_message_nonexist_attachment", resourceCulture);
+                object obj = ResourceManager.GetObject("receiveagent_wrong_encrypted_message", resourceCulture);
                 return ((byte[])(obj));
             }
         }

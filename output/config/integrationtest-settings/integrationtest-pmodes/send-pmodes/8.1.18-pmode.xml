@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
-  <Id>8.1.16-pmode</Id>
+  <Id>8.1.18-pmode</Id>
   <AllowOverride>true</AllowOverride>
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>

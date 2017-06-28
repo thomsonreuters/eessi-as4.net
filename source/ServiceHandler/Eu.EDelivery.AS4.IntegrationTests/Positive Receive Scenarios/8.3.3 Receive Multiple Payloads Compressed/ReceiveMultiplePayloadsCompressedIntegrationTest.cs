@@ -17,13 +17,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._3_
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullInputPath);
 
             // Arrange
-            CopyPModeToHolodeckA("8.3.3-pmode.xml");
+            Holodeck.CopyPModeToHolodeckA("8.3.3-pmode.xml");
 
             // Act
-            CopyMessageToHolodeckA("8.3.3-sample.mmd");
+            Holodeck.CopyMessageToHolodeckA("8.3.3-sample.mmd");
 
             // Assert
             Assert.True(PollingAt(AS4FullInputPath));
