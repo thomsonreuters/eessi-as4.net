@@ -94,7 +94,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
 
-        public Entities.MessageExchangePattern? Mep { get; set; }
+        public Entities.MessageExchangePattern Mep { get; set; }
 
         public bool IsSignalMessage => SignalMessages.Count > 0;
 

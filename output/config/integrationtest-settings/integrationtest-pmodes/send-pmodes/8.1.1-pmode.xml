@@ -6,7 +6,7 @@
   <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
-      <Url>http://10.124.29.152:9090/msh</Url>
+      <Url>http://localhost:9090/msh</Url>
       <UseChunking>false</UseChunking>
       <UseHttpCompression>false</UseHttpCompression>
     </Protocol>

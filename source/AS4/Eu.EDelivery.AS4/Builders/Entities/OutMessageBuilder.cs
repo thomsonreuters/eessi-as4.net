@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
-                MEP = (MessageExchangePattern) _messagingContext.AS4Message?.Mep.GetValueOrDefault(),
+                MEP = (MessageExchangePattern) _messagingContext.AS4Message?.Mep,
                 EbmsMessageType = messageType,
                 PMode = AS4XmlSerializer.ToString(GetSendingPMode(messageType)),
             };
