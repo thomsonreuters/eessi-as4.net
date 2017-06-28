@@ -48,6 +48,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CleanUpFiles(AS4ErrorsPath);
             CleanUpFiles(AS4ExceptionsPath);
 
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
+
+            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
+            CleanUpFiles(Properties.Resources.holodeck_B_input_path);
+
+            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
+            CleanUpFiles(Properties.Resources.holodeck_B_output_path);
+
             CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
         }
 
