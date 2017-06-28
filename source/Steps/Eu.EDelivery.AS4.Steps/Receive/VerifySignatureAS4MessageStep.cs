@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     public class VerifySignatureAS4MessageStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        
+
         /// <summary>
         /// Start verifying the Signature of the <see cref="AS4Message"/>
         /// </summary>
@@ -68,6 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             }
             catch (CryptographicException exception)
             {
+                Logger.Error($"An exception occured while validating the signature: {exception.Message}");
                 return InvalidSignatureResult(exception.Message, ErrorCode.Ebms0101, messagingContext);
             }
         }
@@ -76,7 +77,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             if (!IsValidSignature(messagingContext.AS4Message))
             {
-                return InvalidSignatureResult("The Signature is invalid", ErrorCode.Ebms0101, messagingContext);
+                string description = "The signature is invalid";
+                Logger.Error(description);
+                return InvalidSignatureResult(description, ErrorCode.Ebms0101, messagingContext);
             }
 
             Logger.Info($"{messagingContext.Prefix} AS4 Message has a valid Signature present");
