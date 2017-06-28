@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -9,7 +10,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
     public class StubMessageBodyStore : IAS4MessageBodyStore
     {
+        private readonly string _messageLocation;
+
         internal static StubMessageBodyStore Default => new StubMessageBodyStore();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubMessageBodyStore" /> class.
+        /// </summary>
+        public StubMessageBodyStore() : this(string.Empty) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubMessageBodyStore"/> class.
+        /// </summary>
+        /// <param name="messageLocation">The message location.</param>
+        public StubMessageBodyStore(string messageLocation)
+        {
+            _messageLocation = messageLocation;
+        }
 
         /// <summary>
         /// Updates an existing AS4 Message body.
@@ -34,7 +51,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </returns>
         public Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
         {
-            return Task.FromResult(string.Empty);
+            return Task.FromResult(_messageLocation);
         }
 
         /// <summary>

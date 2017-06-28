@@ -1,4 +1,3 @@
-  
 <!-- Sample Global Settings File -->
 <Settings 
   xmlns="eu:edelivery:as4">
@@ -22,6 +21,23 @@
   <!-- Specify the agents -->
   <!-- Each Agent has a "Receiver", "Transformer" and one or many "Steps" which are decorated by a Exception Handling Step -->
   <Agents>
+    <OutboundProcessingAgent name="OutBound Processing Agent">
+      <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+        <Setting key="Table">OutMessages</Setting>
+        <Setting key="Filter">Operation = ToBeProcessed</Setting>
+        <Setting key="Update" field="Operation">Processing</Setting>
+      </Receiver>
+      <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+      <StepConfiguration>
+        <NormalPipeline>
+          <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Step type="Eu.EDelivery.AS4.Steps.Send.SetMessageToBeSentStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+        </NormalPipeline>
+      </StepConfiguration>
+    </OutboundProcessingAgent>
     <SendAgent name="Send Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.DatastoreReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="Table">OutMessages</Setting>
@@ -31,10 +47,6 @@
       <Transformer type="Eu.EDelivery.AS4.Transformers.AS4MessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
         <NormalPipeline>
-          <Step type="Eu.EDelivery.AS4.Steps.Send.SetReceptionAwarenessStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Send.CompressAttachmentsStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Send.SignAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-          <Step type="Eu.EDelivery.AS4.Steps.Send.EncryptAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Step type="Eu.EDelivery.AS4.Steps.Send.SendAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Step type="Eu.EDelivery.AS4.Steps.Send.SendUpdateDataStoreStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Step type="Eu.EDelivery.AS4.Steps.Receive.VerifySignatureAS4MessageStep, Eu.EDelivery.AS4.Steps, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />

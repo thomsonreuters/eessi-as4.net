@@ -8,6 +8,9 @@
         NotApplicable,
         Undetermined,
 
+        ToBeProcessed,
+        Processing,
+
         ToBeSent,
         Sending,
         Sent,

@@ -285,6 +285,7 @@
     <Compile Include="Steps\Receive\GivenSendSignalMessageStepFacts.cs" />
     <Compile Include="Steps\Receive\GivenValidateAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenLogReceivedProcessingErrorStepFacts.cs" />
+    <Compile Include="Steps\Send\GivenSetMessageToBeSentStepFacts.cs" />
     <Compile Include="Transformers\StubSubmitTransformer.cs" />
     <Compile Include="Steps\StubAS4MessageStep.cs" />
     <Compile Include="Receivers\SpyReceiver.cs" />

@@ -300,6 +300,7 @@ namespace Eu.EDelivery.AS4.Common
             AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
             AddCustomAgentsIfNotNull(AgentType.Receive, _settings.Agents.ReceiveAgents);
             AddCustomAgentsIfNotNull(AgentType.PullReceive, _settings.Agents.PullReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.OutboundProcessing, _settings.Agents.OutboundProcessingAgents);
         }
 
         private void AddCustomAgentsIfNotNull(AgentType type, params AgentSettings[] agents)

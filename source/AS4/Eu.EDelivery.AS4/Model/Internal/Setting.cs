@@ -73,11 +73,14 @@ namespace Eu.EDelivery.AS4.Model.Internal
         [XmlElement("SubmitAgent", IsNullable = false)]
         public AgentSettings[] SubmitAgents { get; set; }
 
-        [XmlElement("ReceiveAgent", IsNullable = false)]
-        public AgentSettings[] ReceiveAgents { get; set; }
+        [XmlElement("OutboundProcessingAgent", IsNullable = false)]
+        public AgentSettings[] OutboundProcessingAgents { get; set; }
 
         [XmlElement("SendAgent", IsNullable = false)]
         public AgentSettings[] SendAgents { get; set; }
+
+        [XmlElement("ReceiveAgent", IsNullable = false)]
+        public AgentSettings[] ReceiveAgents { get; set; }
 
         [XmlElement("DeliverAgent", IsNullable = false)]
         public AgentSettings[] DeliverAgents { get; set; }

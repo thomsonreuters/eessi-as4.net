@@ -136,6 +136,29 @@ namespace Eu.EDelivery.AS4.Services
         {
             return message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
+
+        /// <summary>
+        /// Updates a <see cref="AS4Message"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        public async Task UpdateAS4MessageToBeSent(AS4Message message, CancellationToken cancellation)
+        {
+            string messageBodyLocation =
+               await _messageBodyStore.SaveAS4MessageAsync(
+                   location: _configuration.OutMessageStoreLocation,
+                   message: message,
+                   cancellation: cancellation);
+
+            _repository.UpdateOutMessage(
+                message.GetPrimaryMessageId(),
+                m =>
+                {
+                    m.Operation = Operation.ToBeSent;
+                    m.MessageLocation = messageBodyLocation;
+                });
+        }
     }
 
     public interface IOutMessageService
@@ -148,5 +171,13 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="cancellation">The cancellation.</param>
         /// <returns></returns>
         Task InsertAS4Message(MessagingContext message, Operation operation, CancellationToken cancellation);
+
+        /// <summary>
+        /// Updates a <see cref="AS4Message"/>.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="cancellation">The cancellation.</param>
+        /// <returns></returns>
+        Task UpdateAS4MessageToBeSent(AS4Message message, CancellationToken cancellation);
     }
 }

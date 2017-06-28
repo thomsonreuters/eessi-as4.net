@@ -14,6 +14,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             {
                 [AgentType.Submit] = () => new OutboundExceptionHandler(),
                 [AgentType.Sent] = () => new OutboundExceptionHandler(),
+                [AgentType.OutboundProcessing] = () => new OutboundExceptionHandler(),
                 [AgentType.Receive] = () => new InboundExceptionHandler(),
                 [AgentType.Deliver] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyConsumer] = () => new InboundExceptionHandler(),
