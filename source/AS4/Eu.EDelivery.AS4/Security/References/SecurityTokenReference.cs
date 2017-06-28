@@ -12,11 +12,27 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     public abstract class SecurityTokenReference : KeyInfoClause
     {
+        private X509Certificate2 _certificate;
+
         /// <summary>
         /// Gets or sets the referenced <see cref="X509Certificate2"/>.
         /// </summary>
-        public X509Certificate2 Certificate { get; set; }
-        
+        public X509Certificate2 Certificate
+        {
+            get
+            {
+                if (_certificate == null)
+                {
+                    _certificate = LoadCertificate();
+                }
+                return _certificate;
+            }
+            set
+            {
+                _certificate = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the reference id.
         /// </summary>
@@ -26,6 +42,8 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             return element;
         }
+
+        protected abstract X509Certificate2 LoadCertificate();
 
         public abstract override XmlElement GetXml();
 

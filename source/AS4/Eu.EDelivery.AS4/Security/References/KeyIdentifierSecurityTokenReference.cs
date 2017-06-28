@@ -3,7 +3,6 @@ using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Security.References
@@ -15,6 +14,8 @@ namespace Eu.EDelivery.AS4.Security.References
     {
         private readonly string _keyInfoId;
         private readonly ICertificateRepository _certificateReposistory;
+
+        private string _certificateSubjectKeyIdentifier;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyIdentifierSecurityTokenReference"/> class. 
@@ -37,6 +38,17 @@ namespace Eu.EDelivery.AS4.Security.References
             LoadXml(envelope);
         }
 
+        protected override X509Certificate2 LoadCertificate()
+        {
+            if (String.IsNullOrWhiteSpace(_certificateSubjectKeyIdentifier))
+            {
+                throw new InvalidOperationException("Unable to retrieve Certificate: No SubjectKeyIdentifier available.");
+            }
+
+            return _certificateReposistory.GetCertificate(
+                X509FindType.FindBySubjectKeyIdentifier, _certificateSubjectKeyIdentifier);
+        }
+
         /// <summary>
         /// Load the <see cref="X509Certificate2" />
         /// from the given <paramref name="element" />
@@ -51,20 +63,13 @@ namespace Eu.EDelivery.AS4.Security.References
             }
 
             SoapHexBinary soapHexBinary = RetrieveHexBinaryFromKeyIdentifier(xmlKeyIdentifier);
-            SaveCertificateWithHexBinary(soapHexBinary);
+            _certificateSubjectKeyIdentifier = soapHexBinary.ToString();
         }
 
         private static SoapHexBinary RetrieveHexBinaryFromKeyIdentifier(XmlNode xmlKeyIdentifier)
         {
             byte[] base64Bytes = Convert.FromBase64String(xmlKeyIdentifier.InnerText);
             return new SoapHexBinary(base64Bytes);
-        }
-
-        private void SaveCertificateWithHexBinary(SoapHexBinary soapHexBinary)
-        {
-            Certificate = _certificateReposistory.GetCertificate(
-                X509FindType.FindBySubjectKeyIdentifier,
-                soapHexBinary.ToString());
         }
 
         /// <summary>
@@ -76,7 +81,7 @@ namespace Eu.EDelivery.AS4.Security.References
         public override XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {
             var nodeKeyInfo = (XmlElement)element.SelectSingleNode("//*[local-name()='KeyInfo']");
-            nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, this._keyInfoId);
+            nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, _keyInfoId);
 
             return element;
         }
@@ -87,7 +92,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <returns></returns>
         public override XmlElement GetXml()
         {
-            var xmlDocument = new XmlDocument {PreserveWhitespace = true};
+            var xmlDocument = new XmlDocument { PreserveWhitespace = true };
 
             XmlElement securityTokenReferenceElement = xmlDocument.CreateElement(
                 prefix: "wsse",
@@ -114,6 +119,11 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private string GetSubjectKeyIdentifier()
         {
+            if (!String.IsNullOrWhiteSpace(_certificateSubjectKeyIdentifier))
+            {
+                return _certificateSubjectKeyIdentifier;
+            }
+
             foreach (X509Extension extension in Certificate.Extensions)
             {
                 if (IsExtensionNotSubjectKeyIdentifier(extension))
@@ -139,5 +149,6 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             return !string.Equals(extension.Oid.FriendlyName, "Subject Key Identifier");
         }
+
     }
 }

@@ -10,10 +10,13 @@ namespace Eu.EDelivery.AS4.Security.References
     /// </summary>
     internal sealed class BinarySecurityTokenReference : SecurityTokenReference
     {
+
+        private byte[] _certificateBytes;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
         /// </summary>
-        public BinarySecurityTokenReference() {}
+        public BinarySecurityTokenReference() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BinarySecurityTokenReference"/> class.
@@ -22,6 +25,16 @@ namespace Eu.EDelivery.AS4.Security.References
         public BinarySecurityTokenReference(XmlElement securityTokenElement)
         {
             LoadXml(securityTokenElement);
+        }
+
+        protected override X509Certificate2 LoadCertificate()
+        {
+            if (_certificateBytes == null || _certificateBytes.Any() == false)
+            {
+                return null;
+            }
+
+            return new X509Certificate2(_certificateBytes);
         }
 
         /// <summary>
@@ -40,7 +53,7 @@ namespace Eu.EDelivery.AS4.Security.References
             XmlElement binarySecurityTokenElement = GetBinarySecurityTokenElementFrom(element);
             if (binarySecurityTokenElement != null)
             {
-                AssignCertificate(binarySecurityTokenElement);
+                _certificateBytes = Convert.FromBase64String(binarySecurityTokenElement.InnerText);
             }
         }
 
@@ -86,12 +99,6 @@ namespace Eu.EDelivery.AS4.Security.References
                    && x.NamespaceURI == Constants.Namespaces.WssSecuritySecExt;
         }
 
-        private void AssignCertificate(XmlNode binarySecurityTokenElement)
-        {
-            byte[] base64String = Convert.FromBase64String(binarySecurityTokenElement.InnerText);
-            Certificate = new X509Certificate2(base64String);
-        }
-
         /// <summary>
         /// Append the Security Token Reference for the Binary Security Token
         /// </summary>
@@ -127,9 +134,19 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private void AppendCertificate(XmlDocument document, XmlElement binarySecurityToken)
         {
-            if (Certificate != null)
+            string rawData = null;
+
+            if (_certificateBytes != null && _certificateBytes.Length > 0)
             {
-                string rawData = Convert.ToBase64String(Certificate.GetRawCertData());
+                rawData = Convert.ToBase64String(_certificateBytes);
+            }
+            else
+            {
+                rawData = Convert.ToBase64String(Certificate.GetRawCertData());
+            }
+
+            if (!String.IsNullOrWhiteSpace(rawData))
+            {                
                 XmlNode rawDataNode = document.CreateTextNode(rawData);
                 binarySecurityToken.AppendChild(rawDataNode);
             }
