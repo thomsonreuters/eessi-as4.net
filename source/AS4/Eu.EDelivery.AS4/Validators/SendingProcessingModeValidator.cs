@@ -62,7 +62,7 @@ namespace Eu.EDelivery.AS4.Validators
                 RuleFor(pmode => pmode.PushConfiguration).NotNull().WithMessage("PushConfiguration element must be present when MEP = Push")
                   .DependentRules(r => r.RuleFor(pmode => pmode.PushConfiguration.Protocol).NotNull().WithMessage("PushConfiguration/Protocol element must be present")
                   .DependentRules(x => x.RuleFor(pmode => pmode.PushConfiguration.Protocol.Url).NotEmpty().WithMessage("PushConfiguration/Protocol/Url must not be empty")));
-            });           
+            });
         }
 
         private void RulesForReceiptHandling()
@@ -121,10 +121,14 @@ namespace Eu.EDelivery.AS4.Validators
 
         private void RulesForEncryption()
         {
-            Func<SendingProcessingMode, bool> isEncryptionEnabled = pmode => pmode.Security.Encryption.IsEnabled;
+            Func<SendingProcessingMode, bool> isEncryptionEnabled = pmode => pmode.Security.Encryption.IsEnabled && pmode.DynamicDiscoverySpecified == false;
 
-            RuleFor(pmode => pmode.Security.Encryption.PublicKeyInformation).NotNull().When(isEncryptionEnabled)
-                                                                            .WithMessage("PublicKeyInformation must be specified when encryption is enabled");
+            When(isEncryptionEnabled, delegate
+            {
+                RuleFor(pmode => pmode.Security.Encryption.PublicKeyInformation).NotNull()
+                                         .WithMessage("PublicKeyInformation must be specified when encryption is enabled");
+            });
+
         }
 
         /// <summary>

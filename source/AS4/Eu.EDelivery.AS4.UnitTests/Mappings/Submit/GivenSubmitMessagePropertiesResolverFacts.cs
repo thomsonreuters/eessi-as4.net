@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Submit
 
             private static MessageProperty CreatePopulatedMessageProperty()
             {
-                return new MessageProperty("pmode-name", "pmode-value");
+                return new MessageProperty("pmode-name", "pmode-value") { Type = "pmode-type" };
             }
 
             [Fact]

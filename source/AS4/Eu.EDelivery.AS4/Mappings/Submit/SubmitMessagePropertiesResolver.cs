@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         private static void MoveSubmitPropertyToCoreProperty(
             ICollection<CoreMessageProperty> returnProperties, SubmitMessageProperty current)
         {
-            var messageProperty = new CoreMessageProperty(current.Name, current.Value);
+            var messageProperty = new CoreMessageProperty(current.Name, current.Value) { Type = current.Type };
 
             returnProperties.Add(messageProperty);
         }

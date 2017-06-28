@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             Receiver = CreateParty("Receiver", "org:eu:europa:as4:example");
             Sender = CreateParty("Sender", "org:holodeckb2b:example:company:A");
             MessageProperties = CreateMessageProperties();
-            PayloadInfo = new List<PartInfo> {new PartInfo(href: $"cid:{attachmentId}")};
+            PayloadInfo = new List<PartInfo> { new PartInfo(href: $"cid:{attachmentId}") };
         }
 
         private static CollaborationInfo CreateCollaborationInfo()
@@ -45,13 +45,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
         private static Party CreateParty(string role, string partyId)
         {
-            var partyIds = new List<PartyId> {new PartyId(partyId)};
-            return new Party {Role = role, PartyIds = partyIds};
+            var partyIds = new List<PartyId> { new PartyId(partyId) };
+            return new Party { Role = role, PartyIds = partyIds };
         }
 
         private static List<MessageProperty> CreateMessageProperties()
         {
-            return new List<MessageProperty> {new MessageProperty("Name", "Value")};
+            return new List<MessageProperty> { new MessageProperty("Name", "Value") { Type = "Type" } };
         }
     }
 }
