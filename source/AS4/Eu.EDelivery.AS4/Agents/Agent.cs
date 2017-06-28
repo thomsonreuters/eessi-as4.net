@@ -122,7 +122,7 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                IEnumerable<IStep> steps = CreateSteps(_stepConfiguration.NormalPipeline, _conditionalPipeline.happyPath);
+                IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.NormalPipeline, _conditionalPipeline.happyPath);
                 result = await ExecuteSteps(steps, currentContext, cancellation);
             }
             catch (Exception exception)
@@ -132,10 +132,10 @@ namespace Eu.EDelivery.AS4.Agents
 
             try
             {
-                bool weHaveAnyUnhappyPath = _stepConfiguration.ErrorPipeline != null || _conditionalPipeline.unhappyPath != null;
+                bool weHaveAnyUnhappyPath = _stepConfiguration?.ErrorPipeline != null || _conditionalPipeline.unhappyPath != null;
                 if (result.Succeeded == false && weHaveAnyUnhappyPath)
                 {
-                    IEnumerable<IStep> steps = CreateSteps(_stepConfiguration.ErrorPipeline, _conditionalPipeline.unhappyPath);
+                    IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.ErrorPipeline, _conditionalPipeline.unhappyPath);
                     result = await ExecuteSteps(steps, result.MessagingContext, cancellation);
                 }
 

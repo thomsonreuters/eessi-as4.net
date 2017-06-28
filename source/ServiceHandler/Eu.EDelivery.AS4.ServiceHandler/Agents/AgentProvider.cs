@@ -163,7 +163,7 @@ namespace Eu.EDelivery.AS4.ServiceHandler.Agents
             {
                 new Step {Type = typeof(CreateAS4ErrorStep).AssemblyQualifiedName},
                 new Step {Type = typeof(SignAS4MessageStep).AssemblyQualifiedName},
-                new Step {Type = typeof(SendAS4MessageStep).AssemblyQualifiedName}
+                new Step {Type = typeof(SendAS4SignalMessageStep).AssemblyQualifiedName}
             };
         }
     }
