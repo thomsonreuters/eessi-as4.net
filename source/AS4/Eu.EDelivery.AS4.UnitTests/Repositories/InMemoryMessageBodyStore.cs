@@ -19,11 +19,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         public static IAS4MessageBodyStore Default => DefaultInstance;
 
         /// <summary>
+        /// Gets the stored message location.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
+        {
+            return Task.FromResult(string.Empty);
+        }
+
+        /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public async Task<Stream> LoadMessagesBody(string location)
+        public async Task<Stream> LoadMessageBodyAsync(string location)
         {
             var messageStream = new MemoryStream();
 

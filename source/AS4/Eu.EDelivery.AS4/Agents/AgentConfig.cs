@@ -45,6 +45,7 @@ namespace Eu.EDelivery.AS4.Agents
         NotifyConsumer,
         ReceptionAwareness,
         PullReceive,
-        PullSend
+        PullSend,
+        OutboundProcessing
     }
 }

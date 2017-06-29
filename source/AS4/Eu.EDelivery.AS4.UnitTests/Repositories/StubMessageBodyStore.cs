@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -9,7 +10,34 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
 {
     public class StubMessageBodyStore : IAS4MessageBodyStore
     {
+        private readonly string _messageLocation;
+
         internal static StubMessageBodyStore Default => new StubMessageBodyStore();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubMessageBodyStore" /> class.
+        /// </summary>
+        public StubMessageBodyStore() : this(string.Empty) {}
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StubMessageBodyStore"/> class.
+        /// </summary>
+        /// <param name="messageLocation">The message location.</param>
+        public StubMessageBodyStore(string messageLocation)
+        {
+            _messageLocation = messageLocation;
+        }
+
+        /// <summary>
+        /// Gets the stored message location.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
+        {
+            return Task.FromResult(_messageLocation);
+        }
 
         /// <summary>
         /// Updates an existing AS4 Message body.
@@ -34,7 +62,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </returns>
         public Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation)
         {
-            return Task.FromResult(string.Empty);
+            return Task.FromResult(_messageLocation);
         }
 
         /// <summary>
@@ -42,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public virtual Task<Stream> LoadMessagesBody(string location)
+        public virtual Task<Stream> LoadMessageBodyAsync(string location)
         {
             return Task.FromResult(Stream.Null);
         }
@@ -65,7 +93,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         [Fact]
         public async Task LoadsEmpty()
         {
-            Assert.Equal(Stream.Null, await StubMessageBodyStore.Default.LoadMessagesBody(null));
+            Assert.Equal(Stream.Null, await StubMessageBodyStore.Default.LoadMessageBodyAsync(null));
+        }
+
+        [Fact]
+        public async Task GetsConfiguredLocation()
+        {
+            // Arrange
+            string expected = Guid.NewGuid().ToString();
+
+            // Act
+            string actual = await new StubMessageBodyStore(expected).GetMessageLocationAsync(null, null);
+
+            // Assert
+            Assert.Equal(expected, actual);
         }
     }
 }

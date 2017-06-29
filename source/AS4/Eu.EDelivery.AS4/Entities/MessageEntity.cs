@@ -55,7 +55,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// Gets to the location where the AS4Message body can be found.
         /// </summary>
         [MaxLength(512)]
-        public string MessageLocation { get; internal set; }
+        public string MessageLocation { get; set; }
 
         [NotMapped]
         public Operation Operation { get; set; }
@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             try
             {
-                return await store.LoadMessagesBody(MessageLocation);
+                return await store.LoadMessageBodyAsync(MessageLocation);
             }
             catch (Exception exception)
             {

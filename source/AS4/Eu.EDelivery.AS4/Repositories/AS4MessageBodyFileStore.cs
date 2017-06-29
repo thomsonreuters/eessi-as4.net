@@ -2,9 +2,9 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Repositories
@@ -20,6 +20,20 @@ namespace Eu.EDelivery.AS4.Repositories
         public AS4MessageBodyFileStore(ISerializerProvider provider)
         {
             _provider = provider;
+        }
+
+        /// <summary>
+        /// Gets the stored message location.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
+        {
+            string storeLocation = EnsureStoreLocation(location);
+            string fileName = AssembleUniqueMessageLocation(storeLocation, message);
+
+            return Task.FromResult($"file:///{fileName}");
         }
 
         /// <summary>
@@ -124,12 +138,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public async Task<Stream> LoadMessagesBody(string location)
-        {
-            return await Task.Run(() => OpenFileStreamAtLocation(location));
-        }
-
-        public Stream OpenFileStreamAtLocation(string location)
+        public async Task<Stream> LoadMessageBodyAsync(string location)
         {
             string fileLocation = SubstringWithoutFileUri(location);
 
@@ -140,7 +149,16 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (File.Exists(fileLocation))
             {
-                return File.OpenRead(fileLocation);
+                FileStream fileStream = File.OpenRead(fileLocation);
+
+                VirtualStream virtualStream = VirtualStream.CreateVirtualStream(
+                    fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax);
+
+                await fileStream.CopyToAsync(virtualStream);
+                virtualStream.Position = 0;
+                fileStream.Close();
+
+                return virtualStream;
             }
 
             return null;

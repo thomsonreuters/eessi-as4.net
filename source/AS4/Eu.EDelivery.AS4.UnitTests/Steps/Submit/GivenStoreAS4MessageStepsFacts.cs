@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
-using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Xunit;
 
@@ -16,56 +17,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Submit
     /// </summary>
     public class GivenStoreAS4MessageStepsFacts : GivenDatastoreFacts
     {
-        private readonly StoreAS4MessageStep _module;
-
-        public GivenStoreAS4MessageStepsFacts()
+        [Fact]
+        public async Task MessageGetsSavedWithOperationToBeProcessed()
         {
-            _module = new StoreAS4MessageStep(StubMessageBodyStore.Default);
-        }
+            // Arrange
+            string id = Guid.NewGuid().ToString(), 
+                expected = Guid.NewGuid().ToString();
 
-        /// <summary>
-        /// Testing if the module succeeds
-        /// </summary>
-        public class GivenStoreAs4MessageStepsSucceeds : GivenStoreAS4MessageStepsFacts
-        {
-            [Fact]
-            public async Task ThenTransmitMessageSucceedsAsync()
-            {
-                // Act
-                StepResult result = await _module.ExecuteAsync(AS4UserMessage(), CancellationToken.None);
+            var sut = new StoreAS4MessageStep(GetDataStoreContext, new StubMessageBodyStore(expected));
 
-                // Assert
-                Assert.NotNull(result);
-            }
-        }
+            // Act
+            await sut.ExecuteAsync(
+                new MessagingContext(AS4Message.Create(new FilledUserMessage(id)), MessagingContextMode.Submit),
+                CancellationToken.None);
 
-        /// <summary>
-        /// Testing if the module fails
-        /// </summary>
-        public class GivenStoreAs4MessageStepsFails : GivenStoreAS4MessageStepsFacts
-        {
-            [Fact]
-            public async Task StoreMessageFails_IfInvalidBodyPersister()
-            {
-                // Arrange
-                var sut = new StoreAS4MessageStep(null);
-
-                // Act / Assert
-                await Assert.ThrowsAnyAsync<Exception>(() => sut.ExecuteAsync(AS4UserMessage(), CancellationToken.None));
-            }
-
-            [Fact]
-            public async Task ThenTransmitMessageFailsWithNullAS4MessageAsync()
-            {
-                // Act / Assert
-                await Assert.ThrowsAsync<NullReferenceException>(
-                    () => _module.ExecuteAsync(null, CancellationToken.None));
-            }
-        }
-
-        protected static MessagingContext AS4UserMessage()
-        {
-            return new MessagingContext(AS4Message.Create(new UserMessage("message-id")), MessagingContextMode.Unknown);
+            // Assert
+            GetDataStoreContext.AssertOutMessage(
+                id,
+                m =>
+                {
+                    Assert.Equal(Operation.ToBeProcessed, m.Operation);
+                    Assert.Equal(expected, m.MessageLocation);
+                });
         }
     }
 }

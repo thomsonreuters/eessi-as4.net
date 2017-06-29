@@ -16,12 +16,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     public class SaboteurMessageBodyStore : IAS4MessageBodyStore
     {
         /// <summary>
+        /// Gets the stored message location.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
+        {
+            throw new SaboteurException("Sabotage the already saved check");
+        }
+
+        /// <summary>
         /// Loads a <see cref="T:System.IO.Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
         /// <exception cref="SaboteurException">Sabotage the load of AS4 Messages</exception>
-        public Task<Stream> LoadMessagesBody(string location)
+        public Task<Stream> LoadMessageBodyAsync(string location)
         {
             throw new SaboteurException("Sabotage the load of AS4 Messages");
         }
@@ -57,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         [Fact]
         public async Task FailsToLoad()
         {
-            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().LoadMessagesBody(null));
+            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().LoadMessageBodyAsync(null));
         }
 
         [Fact]
@@ -72,6 +83,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         {
             await Assert.ThrowsAnyAsync<Exception>(
                 () => new SaboteurMessageBodyStore().UpdateAS4MessageAsync(null, null, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task FailsToGetLocation()
+        {
+            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().GetMessageLocationAsync(null, null));
         }
     }
 }

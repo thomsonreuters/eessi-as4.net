@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Repositories
@@ -25,13 +24,24 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Gets the stored message location.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public async Task<string> GetMessageLocationAsync(string location, AS4Message message)
+        {
+            return await For(location).GetMessageLocationAsync(location, message);
+        }
+
+        /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public async Task<Stream> LoadMessagesBody(string location)
+        public async Task<Stream> LoadMessageBodyAsync(string location)
         {
-            return await For(location).LoadMessagesBody(location);
+            return await For(location).LoadMessageBodyAsync(location);
         }
 
         /// <summary>

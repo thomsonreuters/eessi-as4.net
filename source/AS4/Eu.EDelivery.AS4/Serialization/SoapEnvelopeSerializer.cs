@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -252,7 +251,7 @@ namespace Eu.EDelivery.AS4.Serialization
 
             DeserializeSecurityHeader(reader, envelopeDocument, as4Message);
 
-            await DeserializeBody(reader, as4Message);
+            DeserializeBody(reader, as4Message);
         }
 
         private static void DeserializeSecurityHeader(XmlReader reader, XmlDocument envelopeDocument, AS4Message as4Message)
@@ -293,7 +292,8 @@ namespace Eu.EDelivery.AS4.Serialization
         private static async Task DeserializeMessagingHeader(XmlReader reader, AS4Message as4Message)
         {
             bool isReadersNameMessaging = StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Messaging")
-                                          && IsReadersNamespace(reader) && reader.IsStartElement();
+                                          && reader.NamespaceURI.Equals(Constants.Namespaces.EbmsXmlCore)
+                                          && reader.IsStartElement();
 
             if (!isReadersNameMessaging)
             {
@@ -348,39 +348,16 @@ namespace Eu.EDelivery.AS4.Serialization
                 : AS4Mapper.Map<IEnumerable<UserMessage>>(header.UserMessage).ToList();
         }
 
-        private static async Task DeserializeBody(XmlReader reader, AS4Message as4Message)
+        private static void DeserializeBody(XmlReader reader, AS4Message as4Message)
         {
             bool isReadersNameBody = StringComparer.OrdinalIgnoreCase.Equals(reader.LocalName, "Body")
-                                     && IsReadersNamespace(reader) && reader.IsStartElement();
+                                     && reader.NamespaceURI.Equals(Constants.Namespaces.Soap12)
+                                     && reader.IsStartElement();
 
             if (isReadersNameBody)
             {
-                var body = await AS4XmlSerializer.FromReaderAsync<Body>(reader);
-                as4Message.SigningId.BodySecurityId = GetBodySecurityId(body);
+                as4Message.SigningId.BodySecurityId = reader.GetAttribute("Id", Constants.Namespaces.WssSecurityUtility);
             }
-        }
-
-        private static bool IsReadersNamespace(XmlReader reader) => reader.NamespaceURI.Equals(Constants.Namespaces.EbmsXmlCore);
-
-        private static string GetBodySecurityId(Body body)
-        {
-            string securityId = $"body-{Guid.NewGuid()}";
-            if (body == null)
-            {
-                return securityId;
-            }
-
-            IEnumerator enumerator = body.AnyAttr.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                var attribute = (XmlAttribute)enumerator.Current;
-                if (attribute.LocalName.Equals("Id"))
-                {
-                    return attribute.Value;
-                }
-            }
-
-            return securityId;
         }
     }
 }
