@@ -160,7 +160,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             try
             {
-                await SerializeHttpRequest(request, messagingContext, cancellationToken);
+                await SerializeHttpRequest(request, messagingContext);
             }
             catch (WebException exception)
             {
@@ -168,7 +168,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private static async Task SerializeHttpRequest(HttpWebRequest request, MessagingContext messagingContext, CancellationToken cancellationToken)
+        private static async Task SerializeHttpRequest(HttpWebRequest request, MessagingContext messagingContext)
         {
             AS4Message as4Message = messagingContext.AS4Message;
 
@@ -186,9 +186,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
             {
-                ISerializer serializer = provider.Get(as4Message.ContentType);
-
-                await serializer.SerializeAsync(as4Message, requestStream, cancellationToken).ConfigureAwait(false);
+                await messagingContext.MessageStream.CopyToAsync(requestStream);
             }
         }
 

@@ -12,8 +12,8 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Http;
-using Eu.EDelivery.AS4.UnitTests.Model.Core;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
@@ -75,6 +75,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 });
         }
 
+        private static MessagingContext CreateAnonymousMessage()
+        {
+            MessagingContext context = ContextWith(AS4Message.Create(new UserMessage(messageId: "message-id")));
+            context.MessageStream = context.AS4Message.ToStream();
+
+            return context;
+        }
+
         private void InsertToBeSentUserMessage(MessagingContext requestMessage)
         {
             using (var context = new DatastoreContext(Options))
@@ -117,12 +125,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private static MessagingContext CreateAnonymousPullRequest()
         {
-            return ContextWith(AS4Message.Create(new PullRequest(mpc: null, messageId: "message-id")));
-        }
+            MessagingContext context = ContextWith(AS4Message.Create(new PullRequest(mpc: null, messageId: "message-id")));
+            context.MessageStream = context.AS4Message.ToStream();
 
-        private static MessagingContext CreateAnonymousMessage()
-        {
-            return ContextWith(AS4Message.Create(new UserMessage(messageId: "message-id")));
+            return context;
         }
 
         public static MessagingContext ContextWith(AS4Message message)

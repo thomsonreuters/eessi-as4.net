@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -91,9 +92,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Mode = MessagingContextMode.Unknown;
         }
 
-        public AS4Message AS4Message { get; }
+        public Stream MessageStream { get; set; }
 
-        public MessagingContextMode Mode { get; private set; }
+        public AS4Message AS4Message { get; }
 
         public SubmitMessage SubmitMessage { get; }
 
@@ -102,6 +103,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public NotifyMessageEnvelope NotifyMessage { get; }
 
         public ReceptionAwareness ReceptionAwareness { get; }
+
+        public MessagingContextMode Mode { get; private set; }
 
         public Exception Exception { get; set; }
 

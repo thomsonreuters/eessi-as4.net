@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -10,6 +11,7 @@ using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Xunit;
+using static Eu.EDelivery.AS4.UnitTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -36,20 +38,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
                 // Act
-                MessagingContext context = await ExerciseTransform(Properties.Resources.as4_single_payload, contentType);
+                MessagingContext context = await ExerciseTransform(as4_single_payload, contentType);
                 
                 // Assert
-                Assert.NotNull(context);
-                Assert.NotNull(context.AS4Message);
+                Assert.NotNull(context?.AS4Message);
+
+                string expected = Encoding.UTF8.GetString(as4_single_payload);
+                string actual = ReadToEnd(context.MessageStream);
+                Assert.Equal(expected, actual);
+
+                // TearDown
+                context.MessageStream.Close();
             }
 
             private async Task<MessagingContext> ExerciseTransform(byte[] contents, string contentType)
             {
-                using (var stream = new MemoryStream(contents))
-                {
-                    var receivedMessage = new ReceivedMessage(stream, contentType);
+                var stream = new MemoryStream(contents);
+                var receivedMessage = new ReceivedMessage(stream, contentType);
 
-                    return await Transform(receivedMessage);
+                return await Transform(receivedMessage);
+            }
+
+            private string ReadToEnd(Stream stream)
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
                 }
             }
         }
