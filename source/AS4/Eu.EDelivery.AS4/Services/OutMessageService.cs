@@ -145,11 +145,8 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns></returns>
         public async Task UpdateAS4MessageToBeSent(AS4Message message, CancellationToken cancellation)
         {
-            string messageBodyLocation =
-               await _messageBodyStore.SaveAS4MessageAsync(
-                   location: _configuration.OutMessageStoreLocation,
-                   message: message,
-                   cancellation: cancellation);
+            string messageBodyLocation = await _messageBodyStore.GetMessageLocation(_configuration.OutMessageStoreLocation, message);
+            await _messageBodyStore.UpdateAS4MessageAsync(messageBodyLocation, message, cancellation);
 
             _repository.UpdateOutMessage(
                 message.GetPrimaryMessageId(),

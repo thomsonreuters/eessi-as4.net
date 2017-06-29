@@ -34,6 +34,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
                 spy => spy.UpdateAS4MessageAsync(It.IsAny<string>(), null, CancellationToken.None));
         }
 
+        [Fact]
+        public async Task SpyStoreGetsCalled_IfBeingAskedForMessageLocation()
+        {
+            await TestProviderWithAcceptedPersister(
+                sut => sut.GetMessageLocation("ignored string", null),
+                spy => spy.GetMessageLocation(It.IsAny<string>(), null));
+        }
+
         private static async Task TestProviderWithAcceptedPersister(
             Func<MessageBodyStore, Task> act,
             Expression<Action<IAS4MessageBodyStore>> assertion)

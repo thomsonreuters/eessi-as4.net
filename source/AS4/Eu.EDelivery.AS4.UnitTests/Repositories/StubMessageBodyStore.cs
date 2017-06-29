@@ -29,6 +29,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         /// <summary>
+        /// Determines whether [is message already saved] [the specified location].
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public Task<string> GetMessageLocation(string location, AS4Message message)
+        {
+            return Task.FromResult(_messageLocation);
+        }
+
+        /// <summary>
         /// Updates an existing AS4 Message body.
         /// </summary>
         /// <param name="location">The location.</param>
@@ -83,6 +94,19 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         public async Task LoadsEmpty()
         {
             Assert.Equal(Stream.Null, await StubMessageBodyStore.Default.LoadMessagesBody(null));
+        }
+
+        [Fact]
+        public async Task GetsConfiguredLocation()
+        {
+            // Arrange
+            string expected = Guid.NewGuid().ToString();
+
+            // Act
+            string actual = await new StubMessageBodyStore(expected).GetMessageLocation(null, null);
+
+            // Assert
+            Assert.Equal(expected, actual);
         }
     }
 }

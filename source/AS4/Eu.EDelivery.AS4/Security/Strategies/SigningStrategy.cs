@@ -137,11 +137,24 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         /// <param name="securityElement"></param>
         public void AppendSignature(XmlElement securityElement)
         {
-            LoadSignature();
+            XmlNode possibleAlreadySignedDocument = _document.SelectSingleNode("//*[local-name()='Security']");
 
-            AddSecurityTokenReferenceToKeyInfo();
-            AppendSecurityTokenElements(securityElement);
-            AppendSignatureElement(securityElement);
+            if (possibleAlreadySignedDocument != null)
+            {
+                foreach (XmlNode node in possibleAlreadySignedDocument.ChildNodes)
+                {
+                    XmlNode importNode = securityElement.OwnerDocument.ImportNode(node, deep: true);
+                    securityElement.AppendChild(importNode);
+                }
+            }
+            else
+            {
+                LoadSignature();
+
+                AddSecurityTokenReferenceToKeyInfo();
+                AppendSecurityTokenElements(securityElement);
+                AppendSignatureElement(securityElement);
+            }
         }
 
         private void LoadSignature()

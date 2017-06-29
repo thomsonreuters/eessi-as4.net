@@ -16,6 +16,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
     public class SaboteurMessageBodyStore : IAS4MessageBodyStore
     {
         /// <summary>
+        /// Determines whether [is message already saved] [the specified location].
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public Task<string> GetMessageLocation(string location, AS4Message message)
+        {
+            throw new SaboteurException("Sabotage the already saved check");
+        }
+
+        /// <summary>
         /// Loads a <see cref="T:System.IO.Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
         /// <param name="location">The location.</param>
@@ -72,6 +83,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         {
             await Assert.ThrowsAnyAsync<Exception>(
                 () => new SaboteurMessageBodyStore().UpdateAS4MessageAsync(null, null, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task FailsToGetLocation()
+        {
+            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().GetMessageLocation(null, null));
         }
     }
 }

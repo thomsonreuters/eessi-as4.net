@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Repositories
@@ -22,6 +21,17 @@ namespace Eu.EDelivery.AS4.Repositories
         public void Accept(Func<string, bool> condition, IAS4MessageBodyStore persister)
         {
             _stores[condition] = persister;
+        }
+
+        /// <summary>
+        /// Determines whether [is message already saved] [the specified location].
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public async Task<string> GetMessageLocation(string location, AS4Message message)
+        {
+            return await For(location).GetMessageLocation(location, message);
         }
 
         /// <summary>

@@ -33,5 +33,13 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Determines whether [is message already saved] [the specified location].
+        /// </summary>
+        /// <param name="location">The location.</param>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        Task<string> GetMessageLocation(string location, AS4Message message);
     }
 }
