@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
             var sut = new SetMessageToBeSentStep(GetDataStoreContext, new StubMessageBodyStore(expected));
 
-            InsertOutMessageWith(messageId, Operation.Processing, "not updated message location");
+            InsertOutMessageWith(messageId, Operation.Processing, expected);
 
             // Act
             await ExerciseSetToBeSent(messageId, sut);
