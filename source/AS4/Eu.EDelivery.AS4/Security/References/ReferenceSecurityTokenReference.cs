@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Xml;
 
 namespace Eu.EDelivery.AS4.Security.References
@@ -15,6 +16,11 @@ namespace Eu.EDelivery.AS4.Security.References
         public ReferenceSecurityTokenReference(string referenceId)
         {
             ReferenceId = referenceId;
+        }
+
+        protected override X509Certificate2 LoadCertificate()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

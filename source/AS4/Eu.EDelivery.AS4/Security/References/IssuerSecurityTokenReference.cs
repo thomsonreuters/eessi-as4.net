@@ -17,6 +17,8 @@ namespace Eu.EDelivery.AS4.Security.References
         private readonly string _keyInfoId;
         private readonly string _securityTokenReferenceId;
 
+        private string _certificateSerialNr;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="IssuerSecurityTokenReference" /> class.
         /// to handle <see cref="X509ReferenceType.IssuerSerial" /> configuration
@@ -31,10 +33,18 @@ namespace Eu.EDelivery.AS4.Security.References
 
         public IssuerSecurityTokenReference(XmlElement envelope, ICertificateRepository certifcateRepository)
         {
-            // First assign _certificateRepository since LoadXml will use this member.            
             _certifcateRepository = certifcateRepository;
-
             LoadXml(envelope);
+        }
+
+        protected override X509Certificate2 LoadCertificate()
+        {
+            if (String.IsNullOrWhiteSpace(_certificateSerialNr))
+            {
+                throw new InvalidOperationException("Unable to retrieve Certificate: No X509SerialNumber available.");
+            }
+
+            return _certifcateRepository.GetCertificate(X509FindType.FindBySerialNumber, _certificateSerialNr);
         }
 
         /// <summary>
@@ -46,9 +56,7 @@ namespace Eu.EDelivery.AS4.Security.References
         {
             var xmlIssuerSerial = (XmlElement)element.SelectSingleNode(".//*[local-name()='X509SerialNumber']");
 
-            Certificate = _certifcateRepository.GetCertificate(
-                X509FindType.FindBySerialNumber,
-                xmlIssuerSerial?.InnerText);
+            _certificateSerialNr = xmlIssuerSerial?.InnerText;
         }
 
         /// <summary>
@@ -59,7 +67,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <returns></returns>
         public override XmlElement AppendSecurityTokenTo(XmlElement element, XmlDocument document)
         {
-            var nodeKeyInfo = (XmlElement) element.SelectSingleNode("//*[local-name()='KeyInfo']");
+            var nodeKeyInfo = (XmlElement)element.SelectSingleNode("//*[local-name()='KeyInfo']");
             nodeKeyInfo?.SetAttribute("Id", Constants.Namespaces.WssSecurityUtility, _keyInfoId);
 
             return element;
@@ -72,7 +80,7 @@ namespace Eu.EDelivery.AS4.Security.References
         /// <returns>An XML representation of the <see cref="T:System.Security.Cryptography.Xml.KeyInfoClause" />.</returns>
         public override XmlElement GetXml()
         {
-            var xmlDocument = new XmlDocument {PreserveWhitespace = true};
+            var xmlDocument = new XmlDocument { PreserveWhitespace = true };
 
             XmlElement securityTokenReferenceElement = CreateSecurityTokenReferenceElement(xmlDocument);
 
@@ -104,8 +112,8 @@ namespace Eu.EDelivery.AS4.Security.References
             XmlNode securityTokenReferenceElement)
         {
             XmlElement x509DataElement = xmlDocument.CreateElement(
-                prefix: "ds", 
-                localName: "X509Data", 
+                prefix: "ds",
+                localName: "X509Data",
                 namespaceURI: Constants.Namespaces.XmlDsig);
 
             securityTokenReferenceElement.AppendChild(x509DataElement);
@@ -116,8 +124,8 @@ namespace Eu.EDelivery.AS4.Security.References
         private static XmlElement CreateX509IssuerSerialElement(XmlDocument xmlDocument, XmlElement x509DataElement)
         {
             XmlElement x509IssuerSerialElement = xmlDocument.CreateElement(
-                prefix: "ds", 
-                localName: "X509IssuerSerial", 
+                prefix: "ds",
+                localName: "X509IssuerSerial",
                 namespaceURI: Constants.Namespaces.XmlDsig);
 
             x509DataElement.AppendChild(x509IssuerSerialElement);
@@ -127,29 +135,40 @@ namespace Eu.EDelivery.AS4.Security.References
 
         private void CreateX509IssuerNameElement(XmlDocument xmlDocument, XmlElement x509IssuerSerialElement)
         {
-            XmlElement x509IssuerNameElement = xmlDocument.CreateElement(
-                prefix: "ds", 
-                localName: "X509IssuerName", 
+            if (Certificate != null)
+            {
+                XmlElement x509IssuerNameElement = xmlDocument.CreateElement(
+                prefix: "ds",
+                localName: "X509IssuerName",
                 namespaceURI: Constants.Namespaces.XmlDsig);
 
-            x509IssuerSerialElement.AppendChild(x509IssuerNameElement);
+                x509IssuerSerialElement.AppendChild(x509IssuerNameElement);
 
-            string issuerNameName = Certificate.IssuerName.Name;
-            if (issuerNameName != null)
-            {
-                x509IssuerNameElement.InnerText = issuerNameName;
+                string issuerNameName = Certificate.IssuerName.Name;
+                if (issuerNameName != null)
+                {
+                    x509IssuerNameElement.InnerText = issuerNameName;
+                }
             }
         }
 
         private void CreateX509SerialNumberElement(XmlDocument xmlDocument, XmlNode x509IssuerSerialElement)
         {
             XmlElement x509SerialNumberElement = xmlDocument.CreateElement(
-                prefix: "ds", 
-                localName: "X509SerialNumber", 
+                prefix: "ds",
+                localName: "X509SerialNumber",
                 namespaceURI: Constants.Namespaces.XmlDsig);
 
-            x509IssuerSerialElement.AppendChild(x509SerialNumberElement);
-            x509SerialNumberElement.InnerText = TryGetIssuerSerialNumber(Certificate);
+            if (!String.IsNullOrWhiteSpace(_certificateSerialNr))
+            {
+                x509SerialNumberElement.InnerText = _certificateSerialNr;
+            }
+            else
+            {
+                x509SerialNumberElement.InnerText = TryGetIssuerSerialNumber(Certificate);
+            }
+
+            x509IssuerSerialElement.AppendChild(x509SerialNumberElement);            
         }
 
         private static string TryGetIssuerSerialNumber(X509Certificate2 certificate)

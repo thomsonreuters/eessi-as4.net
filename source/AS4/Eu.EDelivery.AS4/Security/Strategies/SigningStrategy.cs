@@ -174,11 +174,7 @@ namespace Eu.EDelivery.AS4.Security.Strategies
         private void AppendSecurityTokenElements(XmlElement securityElement)
         {
             foreach (SecurityTokenReference reference in KeyInfo.OfType<SecurityTokenReference>())
-            {
-                if (reference.Certificate == null)
-                {
-                    throw new InvalidOperationException("SecurityTokenReference does not contain certificate information");
-                }
+            {                
                 reference.AppendSecurityTokenTo(securityElement, securityElement.OwnerDocument);
             }
         }
