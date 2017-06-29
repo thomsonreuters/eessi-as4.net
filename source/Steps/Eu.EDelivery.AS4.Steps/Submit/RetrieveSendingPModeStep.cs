@@ -85,12 +85,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             var validator = new SendingProcessingModeValidator();
 
             validator.Validate(pmode).Result(
-                happyPath: result => Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message"),
-                unhappyPath: result =>
+                onValidationSuccess: result => Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message"),
+                onValidationFailed: result =>
                 {
-                    result.LogErrors(Logger);
-
-                    string description = $"Sending PMode {((IPMode)pmode).Id} was invalid, see logging";
+                    string description = result.AppendValidationErrorsToErrorMessage($"Sending PMode {pmode.Id} was invalid:");
+                    
                     Logger.Error(description);
 
                     throw new ConfigurationErrorsException(description);

@@ -13,6 +13,7 @@ using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Services.DynamicDiscovery;
+using Eu.EDelivery.AS4.Validators;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Submit
@@ -53,9 +54,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
             Logger.Info("Sending PMode completed with SMP metadata");
 
+            ValidatePMode(sendingPMode);
+
             messagingContext.SendingPMode = sendingPMode;
             messagingContext.SubmitMessage.PMode = sendingPMode;
-            
+
             return StepResult.Success(messagingContext);
         }
 
@@ -96,6 +99,22 @@ namespace Eu.EDelivery.AS4.Steps.Submit
             result.Load(await response.Content.ReadAsStreamAsync());
 
             return result;
+        }
+
+        private static void ValidatePMode(SendingProcessingMode pmode)
+        {
+            var validator = new SendingProcessingModeValidator();
+
+            validator.Validate(pmode).Result(
+                onValidationSuccess: result => Logger.Info($"Dynamically completed PMode {pmode.Id} is valid"),
+                onValidationFailed: result =>
+                {
+                    string errorMessage = result.AppendValidationErrorsToErrorMessage($"Dynamically completed PMode {pmode.Id} was invalid:");
+
+                    Logger.Error(errorMessage);
+
+                    throw new ConfigurationErrorsException(errorMessage);
+                });
         }
 
         /// <summary>

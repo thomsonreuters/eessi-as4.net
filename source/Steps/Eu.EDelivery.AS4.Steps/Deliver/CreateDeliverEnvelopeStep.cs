@@ -3,8 +3,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Deliver;
@@ -13,7 +11,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Validators;
-using FluentValidation.Results;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
@@ -85,26 +82,21 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
         private void ValidateDeliverMessage(DeliverMessage deliverMessage)
         {
             _validator.Validate(deliverMessage).Result(
-                happyPath: result =>
+                onValidationSuccess: result =>
                 {
                     string messageId = deliverMessage.MessageInfo.MessageId;
                     string message = $"Deliver Message {messageId} was valid";
 
                     Logger.Debug(message);
                 },
-                unhappyPath: result =>
+                onValidationFailed: result =>
                 {
-                    result.LogErrors(Logger);
-                    throw ThrowInvalidDeliverMessage(deliverMessage);
+                    string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid:";
+
+                    string errorMessage = result.AppendValidationErrorsToErrorMessage(description);
+
+                    throw new InvalidDataException(errorMessage);                    
                 });
-        }
-
-        private static InvalidDataException ThrowInvalidDeliverMessage(DeliverMessage deliverMessage)
-        {
-            string description = $"Deliver Message {deliverMessage.MessageInfo.MessageId} was invalid, see logging";
-            Logger.Error(description);
-
-            return new InvalidDataException(description);
-        }
+        }       
     }
 }

@@ -102,6 +102,26 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 sendingPMode.MessagePackaging.MessageProperties = new List<MessageProperty>();
             }
 
+            SetFinalRecipient(sendingPMode, smpMetaData);
+
+            SetOriginalSender(sendingPMode);
+        }
+
+        private static void SetOriginalSender(SendingProcessingMode sendingPMode)
+        {
+            var existingOriginalSender =
+                sendingPMode.MessagePackaging?.MessageProperties?.FirstOrDefault(
+                    p => p.Name.Equals("originalSender", StringComparison.OrdinalIgnoreCase));
+
+            if (existingOriginalSender == null)
+            {
+                var originalSender = new MessageProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
+                sendingPMode.MessagePackaging.MessageProperties.Add(originalSender);
+            }
+        }
+
+        private static void SetFinalRecipient(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
+        {
             var finalRecipient = GetFinalRecipient(smpMetaData);
 
             var existingFinalRecipient =
@@ -114,16 +134,6 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             }
 
             sendingPMode.MessagePackaging.MessageProperties.Add(finalRecipient);
-
-            var existingOriginalSender =
-                sendingPMode.MessagePackaging?.MessageProperties?.FirstOrDefault(
-                    p => p.Name.Equals("originalSender", StringComparison.OrdinalIgnoreCase));
-
-            if (existingOriginalSender == null)
-            {
-                var originalSender = new MessageProperty("originalSender", "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1");
-                sendingPMode.MessagePackaging.MessageProperties.Add(originalSender);
-            }
         }
 
         private static MessageProperty GetFinalRecipient(XmlDocument smpMetaData)
@@ -155,6 +165,13 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 sendingPMode.MessagePackaging.CollaborationInfo = new CollaborationInfo();
             }
 
+            SetCollaborationService(sendingPMode, smpMetaData);
+
+            SetCollaborationAction(sendingPMode, smpMetaData);
+        }
+        
+        private static void SetCollaborationService(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
+        {
             var processIdentifier =
                 smpMetaData.SelectSingleNode("//*[local-name()='ProcessList']/*[local-name()='Process']/*[local-name()='ProcessIdentifier']");
 
@@ -180,7 +197,10 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 Value = serviceValue,
                 Type = serviceType
             };
+        }
 
+        private static void SetCollaborationAction(SendingProcessingMode sendingPMode, XmlDocument smpMetaData)
+        {
             var documentIdentifier =
                 smpMetaData.SelectSingleNode("//*[local-name()='ServiceInformation']/*[local-name()='DocumentIdentifier']");
 
@@ -201,6 +221,13 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 throw new InvalidDataException("No ServiceEndpointList/Endpoint element found in SMP meta-data");
             }
 
+            CompletePushConfiguration(sendingPMode, endPoint);
+
+            AddCertificateInformation(sendingPMode, endPoint);
+        }
+
+        private static void CompletePushConfiguration(SendingProcessingMode sendingPMode, XmlNode endPoint)
+        {
             var address = endPoint.SelectSingleNode("*[local-name()='EndpointReference']/*[local-name()='Address']");
 
             if (address == null)
@@ -217,7 +244,10 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
             {
                 Url = address.InnerText
             };
+        }
 
+        private static void AddCertificateInformation(SendingProcessingMode sendingPMode, XmlNode endPoint)
+        {
             var certificateNode = endPoint.SelectSingleNode("*[local-name()='Certificate']");
 
             if (certificateNode != null)
@@ -228,7 +258,7 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 };
                 sendingPMode.Security.Encryption.PublicKeyType = PublicKeyChoiceType.PublicKeyCertificate;
 
-                X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(certificateNode.InnerText), (string)null);
+                X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(certificateNode.InnerText), (string) null);
 
                 sendingPMode.MessagePackaging.PartyInfo.ToParty = new Party();
                 sendingPMode.MessagePackaging.PartyInfo.ToParty.Role = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder";
@@ -236,8 +266,8 @@ namespace Eu.EDelivery.AS4.Services.DynamicDiscovery
                 {
                     Id = cert.GetNameInfo(X509NameType.SimpleName, false),
                     Type = "urn:oasis:names:tc:ebcore:partyid-type:unregistered"
-                });                
+                });
             }
-        }
+        }       
     }
 }
