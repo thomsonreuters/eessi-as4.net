@@ -176,7 +176,7 @@ namespace Eu.EDelivery.AS4.Entities
         {
             try
             {
-                return await store.LoadMessagesBody(MessageLocation);
+                return await store.LoadMessageBodyAsync(MessageLocation);
             }
             catch (Exception exception)
             {

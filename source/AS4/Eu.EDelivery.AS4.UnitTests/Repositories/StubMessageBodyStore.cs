@@ -29,12 +29,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         }
 
         /// <summary>
-        /// Determines whether [is message already saved] [the specified location].
+        /// Gets the stored message location.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public Task<string> GetMessageLocation(string location, AS4Message message)
+        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
         {
             return Task.FromResult(_messageLocation);
         }
@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public virtual Task<Stream> LoadMessagesBody(string location)
+        public virtual Task<Stream> LoadMessageBodyAsync(string location)
         {
             return Task.FromResult(Stream.Null);
         }
@@ -93,7 +93,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         [Fact]
         public async Task LoadsEmpty()
         {
-            Assert.Equal(Stream.Null, await StubMessageBodyStore.Default.LoadMessagesBody(null));
+            Assert.Equal(Stream.Null, await StubMessageBodyStore.Default.LoadMessageBodyAsync(null));
         }
 
         [Fact]
@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             string expected = Guid.NewGuid().ToString();
 
             // Act
-            string actual = await new StubMessageBodyStore(expected).GetMessageLocation(null, null);
+            string actual = await new StubMessageBodyStore(expected).GetMessageLocationAsync(null, null);
 
             // Assert
             Assert.Equal(expected, actual);

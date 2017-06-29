@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Determines whether [is message already saved] [the specified location].
+        /// Gets the stored message location.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message.</param>

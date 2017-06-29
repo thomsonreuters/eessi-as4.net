@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <param name="location">The location.</param>
         /// <returns></returns>
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
-        public override Task<Stream> LoadMessagesBody(string location)
+        public override Task<Stream> LoadMessageBodyAsync(string location)
         {
             return Task.FromResult(_createStream());
         }
@@ -40,7 +40,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             var sut = new StubMessageBodyRetriever(() => expectedStream);
 
             // Act
-            Stream actualStream = await sut.LoadMessagesBody(location: null);
+            Stream actualStream = await sut.LoadMessageBodyAsync(location: null);
 
             // Assert
             Assert.Equal(expectedStream, actualStream);

@@ -27,10 +27,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Common
             Registry.MessageBodyStore.Accept(s => s.Equals(acceptedString), spyStore);
 
             // Act
-            await Registry.MessageBodyStore.LoadMessagesBody(acceptedString);
+            await Registry.MessageBodyStore.LoadMessageBodyAsync(acceptedString);
 
             // Assert
-            Mock.Get(spyStore).Verify(s => s.LoadMessagesBody(It.IsAny<string>()), Times.Once);
+            Mock.Get(spyStore).Verify(s => s.LoadMessageBodyAsync(It.IsAny<string>()), Times.Once);
         }
 
         [Theory]

@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.Repositories
         Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken);
 
         /// <summary>
-        /// Determines whether [is message already saved] [the specified location].
+        /// Gets the stored message location.
         /// </summary>
         /// <param name="location">The location.</param>
         /// <param name="message">The message.</param>
