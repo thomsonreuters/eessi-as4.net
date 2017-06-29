@@ -140,13 +140,13 @@ namespace Eu.EDelivery.AS4.Security.References
             {
                 rawData = Convert.ToBase64String(_certificateBytes);
             }
-            else
+            else if (Certificate != null)
             {
                 rawData = Convert.ToBase64String(Certificate.GetRawCertData());
             }
 
             if (!String.IsNullOrWhiteSpace(rawData))
-            {                
+            {
                 XmlNode rawDataNode = document.CreateTextNode(rawData);
                 binarySecurityToken.AppendChild(rawDataNode);
             }
