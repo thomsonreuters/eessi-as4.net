@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <param name="location">The location.</param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public Task<string> GetMessageLocation(string location, AS4Message message)
+        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
         {
             throw new SaboteurException("Sabotage the already saved check");
         }
@@ -32,7 +32,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         /// <param name="location">The location.</param>
         /// <returns></returns>
         /// <exception cref="SaboteurException">Sabotage the load of AS4 Messages</exception>
-        public Task<Stream> LoadMessagesBody(string location)
+        public Task<Stream> LoadMessageBodyAsync(string location)
         {
             throw new SaboteurException("Sabotage the load of AS4 Messages");
         }
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         [Fact]
         public async Task FailsToLoad()
         {
-            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().LoadMessagesBody(null));
+            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().LoadMessageBodyAsync(null));
         }
 
         [Fact]
@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         [Fact]
         public async Task FailsToGetLocation()
         {
-            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().GetMessageLocation(null, null));
+            await Assert.ThrowsAnyAsync<Exception>(() => new SaboteurMessageBodyStore().GetMessageLocationAsync(null, null));
         }
     }
 }

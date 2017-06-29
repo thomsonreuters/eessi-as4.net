@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="location">The location.</param>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public Task<string> GetMessageLocation(string location, AS4Message message)
+        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
         {
             string storeLocation = EnsureStoreLocation(location);
             string fileName = AssembleUniqueMessageLocation(storeLocation, message);
@@ -138,7 +138,7 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </summary>
         /// <param name="location">The location.</param>
         /// <returns></returns>
-        public async Task<Stream> LoadMessagesBody(string location)
+        public async Task<Stream> LoadMessageBodyAsync(string location)
         {
             string fileLocation = SubstringWithoutFileUri(location);
 
