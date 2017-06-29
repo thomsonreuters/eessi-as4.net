@@ -41,7 +41,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
 
             // Act
             sut.Validate(testInstance)
-               .Result(happyPath: result => happyPathCalled = true, unhappyPath: result => unhappyPathCalled = true);
+               .Result(onValidationSuccess: result => happyPathCalled = true, onValidationFailed: result => unhappyPathCalled = true);
 
             // Assert
             Assert.Equal(expectedHappyPath, happyPathCalled);
