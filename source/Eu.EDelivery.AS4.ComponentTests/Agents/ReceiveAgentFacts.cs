@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.ComponentTests.Common;
+using Eu.EDelivery.AS4.ComponentTests.Extensions;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -61,7 +62,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 HttpResponseMessage response = await HttpClient.SendAsync(CreateSendAS4Message(content));
 
                 // Assert
-                AS4Message as4Message = await DeserializeToAS4Message(response);
+                AS4Message as4Message = await response.DeserializeToAS4Message();
                 Assert.True(as4Message.IsSignalMessage);
                 Assert.True(as4Message.PrimarySignalMessage is Error);
             }
@@ -78,7 +79,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 // Assert
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-                AS4Message receivedAS4Message = await DeserializeToAS4Message(response);
+                AS4Message receivedAS4Message = await response.DeserializeToAS4Message();
                 Assert.True(receivedAS4Message.IsSignalMessage);
                 Assert.True(receivedAS4Message.PrimarySignalMessage is Receipt);
 
@@ -99,16 +100,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                     "multipart/related; boundary=\"=-C3oBZDXCy4W2LpjPUhC4rw==\"; type=\"application/soap+xml\"; charset=\"utf-8\"");
 
                 return message;
-            }
-
-            private static async Task<AS4Message> DeserializeToAS4Message(HttpResponseMessage response)
-            {
-                ISerializer serializer = SerializerProvider.Default.Get(response.Content.Headers.ContentType.MediaType);
-
-                return await serializer.DeserializeAsync(
-                           await response.Content.ReadAsStreamAsync(),
-                           response.Content.Headers.ContentType.MediaType,
-                           CancellationToken.None);
             }
 
             [Fact]

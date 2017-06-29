@@ -12,18 +12,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._15_Se
         public async Task RunIntegrationTest()
         {
             // Before
-            CleanUpFiles(HolodeckBInputPath);
-            
-            CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            CleanUpFiles(AS4ReceiptsPath);
-
             AS4Component.OverrideSettings("8.1.15-settings.xml");
             AS4Component.Start();
             var stubSender = new StubSender {Url = "http://localhost:5001/"};
 
             // Arrange
-            CopyPModeToHolodeckB("8.1.15-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.15-pmode.xml");
 
             // Act
             await stubSender.SendMessage(Properties.Resources.submitmessage_8_1_15_xml, "application/xml");

@@ -1,6 +1,7 @@
 ﻿using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
 using Eu.EDelivery.AS4.Validators;
+using FluentValidation.Results;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Validators
@@ -17,15 +18,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [InlineData(200, 128)]
         public void ValidSendingPMode_IfKeySizeIs(int beforeKeySize, int afterKeySize)
         {
-            // Arrange
-            var sut = new SendingProcessingModeValidator();
-
+            
             SendingProcessingMode pmode = new ValidSendingPModeFactory().Create();
             pmode.Security.Encryption.IsEnabled = true;
             pmode.Security.Encryption.AlgorithmKeySize = beforeKeySize;
 
             // Act
-            sut.Validate(pmode);
+            ExerciseValidation(pmode);
 
             // Assert
             Assert.True(pmode.Security.Encryption.AlgorithmKeySize == afterKeySize);
@@ -43,8 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 DynamicDiscovery = null
             };
 
-            var validator = new SendingProcessingModeValidator();
-            var result = validator.Validate(pmode);
+            var result = ExerciseValidation(pmode);
 
             Assert.False(result.IsValid);
             Assert.Equal(2, result.Errors.Count);
@@ -53,8 +51,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void PullConfigurationMustBeComplete_WhenMepBindingIsPull()
         {            
-            var validator = new SendingProcessingModeValidator();
-
             SendingProcessingMode pmode = new SendingProcessingMode
             {
                 Id = "Test",
@@ -64,16 +60,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 DynamicDiscovery = null
             };
 
-            var result = validator.Validate(pmode);
+            var result = ExerciseValidation(pmode);
 
-            Assert.False(result.IsValid);            
+            Assert.False(result.IsValid);
         }
 
         [Fact]
         public void SendConfigurationMayBeIncomplete_WhenDynamicDiscovery()
-        {
-            var validator = new SendingProcessingModeValidator();
-
+        {         
             SendingProcessingMode pmode = new SendingProcessingMode
             {
                 Id = "Test",
@@ -83,16 +77,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 DynamicDiscovery = new DynamicDiscoveryConfiguration()
             };
 
-            var result = validator.Validate(pmode);
+            var result = ExerciseValidation(pmode);
 
             Assert.True(result.IsValid);
 
             pmode.PullConfiguration = null;
             pmode.MepBinding = MessageExchangePatternBinding.Push;
 
-            result = validator.Validate(pmode);
+            result = ExerciseValidation(pmode);
 
             Assert.True(result.IsValid);
+        }
+
+        private static ValidationResult ExerciseValidation(SendingProcessingMode pmode)
+        {
+            var sut = new SendingProcessingModeValidator();
+            return sut.Validate(pmode);
         }
     }
 }

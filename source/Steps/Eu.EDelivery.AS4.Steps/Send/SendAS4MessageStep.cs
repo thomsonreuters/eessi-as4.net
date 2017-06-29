@@ -153,7 +153,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             request.ClientCertificates.Add(certificate);
         }
 
-        private async Task TryHandleHttpRequestAsync(
+        private static async Task TryHandleHttpRequestAsync(
             HttpWebRequest request,
             MessagingContext messagingContext,
             CancellationToken cancellationToken)

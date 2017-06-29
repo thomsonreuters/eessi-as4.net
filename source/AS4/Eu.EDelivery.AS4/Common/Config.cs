@@ -296,10 +296,11 @@ namespace Eu.EDelivery.AS4.Common
             AddCustomAgentsIfNotNull(AgentType.NotifyConsumer, _settings.Agents.NotifyConsumerAgents);
             AddCustomAgentsIfNotNull(AgentType.NotifyProducer, _settings.Agents.NotifyProducerAgents);
             AddCustomAgentsIfNotNull(AgentType.Deliver, _settings.Agents.DeliverAgents);
-            AddCustomAgentsIfNotNull(AgentType.Sent, _settings.Agents.SendAgents);
+            AddCustomAgentsIfNotNull(AgentType.PushSend, _settings.Agents.SendAgents);
             AddCustomAgentsIfNotNull(AgentType.Submit, _settings.Agents.SubmitAgents);
             AddCustomAgentsIfNotNull(AgentType.Receive, _settings.Agents.ReceiveAgents);
             AddCustomAgentsIfNotNull(AgentType.PullReceive, _settings.Agents.PullReceiveAgents);
+            AddCustomAgentsIfNotNull(AgentType.PullSend, _settings.Agents.PullSendAgents);
             AddCustomAgentsIfNotNull(AgentType.OutboundProcessing, _settings.Agents.OutboundProcessingAgents);
         }
 

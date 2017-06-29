@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
+using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;
 
 namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
 {
@@ -16,6 +19,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
         /// </summary>
         public HolodeckFixture()
         {
+            var service = new FileSystemService();
+            service.CleanUpFiles(holodeck_A_input_path);
+            service.CleanUpFiles(holodeck_B_input_path);
+
+            service.CleanUpFiles(holodeck_A_pmodes);
+            service.CleanUpFiles(holodeck_B_pmodes);
+
+            service.CleanUpFiles(holodeck_A_output_path);
+            service.CleanUpFiles(holodeck_B_output_path);
+
             Process holodeckA = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
             Process holodeckB = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
 

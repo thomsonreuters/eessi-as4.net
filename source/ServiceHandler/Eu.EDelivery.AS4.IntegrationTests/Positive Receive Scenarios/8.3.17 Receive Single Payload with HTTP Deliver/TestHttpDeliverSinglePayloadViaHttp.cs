@@ -10,14 +10,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
         public void RunIntegrationTest()
         {
             // Before
-            CleanupFiles();
-
             const string location = "http://localhost:4001/";
             using (SpyHttpDeliverTarget deliverTarget = SpyHttpDeliverTarget.AtLocation(location))
             {
                 // Arrange
-                CopyPModeToHolodeckA("8.3.17-pmode.xml");
-                CopyMessageToHolodeckA("8.3.17-sample.mmd");
+                Holodeck.CopyPModeToHolodeckA("8.3.17-pmode.xml");
+                Holodeck.CopyMessageToHolodeckA("8.3.17-sample.mmd");
 
                 // Act
                 AS4Component.Start();
@@ -26,15 +24,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17
                 Assert.True(deliverTarget.IsCalled, "Receive Single Payload Deliver HTTP Integration Test failed");
                 AssertOnDeliverContent(deliverTarget.DeliveredMessage);
             }
-        }
-
-        private void CleanupFiles()
-        {
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            CleanUpFiles(AS4FullInputPath);
-            CleanUpFiles(Properties.Resources.holodeck_A_pmodes);
-            CleanUpFiles(Properties.Resources.holodeck_A_output_path);
-            CleanUpFiles(Properties.Resources.holodeck_A_input_path);
         }
 
         private static void AssertOnDeliverContent(string deliverContent)

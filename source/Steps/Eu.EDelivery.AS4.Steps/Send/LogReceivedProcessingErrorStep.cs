@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 
@@ -16,7 +15,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="LogReceivedProcessingErrorStep"/> class.
         /// </summary>
-        public LogReceivedProcessingErrorStep() : this(Registry.Instance.CreateDatastoreContext) {}
+        public LogReceivedProcessingErrorStep() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogReceivedProcessingErrorStep" /> class.
@@ -35,8 +34,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellation)
         {
-            var as4Error = messagingContext.AS4Message?.PrimarySignalMessage as Error;
-            if (messagingContext.ErrorResult == null || as4Error == null)
+            if (messagingContext.ErrorResult == null)
             {
                 return StepResult.Success(messagingContext);
             }

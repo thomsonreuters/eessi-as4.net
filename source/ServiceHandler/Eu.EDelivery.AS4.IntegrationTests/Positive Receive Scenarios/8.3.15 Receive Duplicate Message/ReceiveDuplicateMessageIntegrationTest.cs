@@ -26,7 +26,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._15
         {
             // Before
             AS4Component.Start();
-            CleanUpFiles(AS4FullInputPath);
 
             // Act
             Task send1 = _sender.SendMessage(Properties.Resources.duplicated_as4message, ContentType);
