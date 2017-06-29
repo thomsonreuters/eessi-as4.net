@@ -44,21 +44,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             // Assert
             GetDataStoreContext.AssertInException(id, Assert.Null);
         }
-
-        [Fact]
-        public async Task NoExceptionGetsLogged_IfNoAS4ErrorWasFound()
-        {
-            // Arrange
-            string id = Guid.NewGuid().ToString();
-            AS4Message as4Message = AS4Message.Create(new FilledNRRReceipt {RefToMessageId = id});
-
-            // Act
-            await ExerciseLog(as4Message, error: new ErrorResult(null, default(ErrorCode), default(ErrorAlias)));
-
-            // Assert
-            GetDataStoreContext.AssertInException(id, Assert.Null);
-        }
-
+        
         private async Task ExerciseLog(AS4Message as4Message, ErrorResult error)
         {
             var sut = new LogReceivedProcessingErrorStep(GetDataStoreContext);
