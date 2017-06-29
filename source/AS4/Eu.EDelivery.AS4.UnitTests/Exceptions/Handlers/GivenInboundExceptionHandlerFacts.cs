@@ -96,7 +96,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             await sut.HandleErrorException(new Exception(), new MessagingContext(new SubmitMessage()));
 
             // Assert
-            GetDataStoreContext.AssertInException(ex => Assert.Null(ex.MessageBody));
+            GetDataStoreContext.AssertInException(ex => Assert.NotEmpty(ex.MessageBody));
         }
 
         private async Task TestExecutionException(

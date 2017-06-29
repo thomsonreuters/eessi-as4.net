@@ -40,8 +40,25 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         {
             Logger.Error(exception.Message);
 
-            await InsertInException(exception, inException => inException.MessageBody = contents.ToBytes());
+            await SideEffectRepositoryUsage(
+                repository =>
+                {
+                    InException ex = CreateMinimumInException(exception);
+                    ex.MessageBody = contents.ToBytes();
+                    repository.InsertInException(ex);
+                });
+
             return new MessagingContext(exception);
+        }
+
+        private static InException CreateMinimumInException(Exception exception)
+        {
+            return new InException
+            {
+                Exception = exception.Message,
+                InsertionTime = DateTimeOffset.Now,
+                ModificationTime = DateTimeOffset.Now
+            };
         }
 
         /// <summary>
@@ -68,57 +85,48 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             Logger.Error(exception.Message);
             bool isSubmitMessage = context.SubmitMessage != null;
 
-            Action<InException> updateException = ex => { };
-
             if (isSubmitMessage)
             {
-                await InsertInException(exception, context, updateException);
+                await SideEffectRepositoryUsage(
+                    repository =>
+                    {
+                        InException ex = CreateInExceptionWithContextInfo(exception, context);
+                        ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage).Result;
 
-                updateException = ex => ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage).Result;
+                        repository.InsertInException(ex);
+                    });
             }
             else
             {
-                string messageId = context.EbmsMessageId;
                 await SideEffectRepositoryUsage(
-                   repository => repository.UpdateInMessage(messageId, m => m.Status = InStatus.Exception));
-                updateException = ex => ex.EbmsRefToMessageId = messageId;
-            }
+                    repository =>
+                    {
+                        repository.UpdateInMessage(context.EbmsMessageId, m => m.Status = InStatus.Exception);
 
-            await InsertInException(exception, context, updateException);
+                        InException ex = CreateInExceptionWithContextInfo(exception, context);
+                        ex.EbmsRefToMessageId = context.EbmsMessageId;
+
+                        repository.InsertInException(ex);
+                    });
+            }
+           
             return new MessagingContext(exception);
         }
 
-        private async Task InsertInException(Exception exception, MessagingContext context, Action<InException> updateException)
+        private static InException CreateInExceptionWithContextInfo(Exception exception, MessagingContext context)
         {
-            await InsertInException(
-                exception,
-                inException =>
-                {
-                    updateException(inException);
+            InException inException = CreateMinimumInException(exception);
 
-                    inException.PMode = AS4XmlSerializer.ToString(context.ReceivingPMode);
-                    inException.Operation =
-                        context.ReceivingPMode?.ExceptionHandling?.NotifyMessageConsumer == true
-                            ? Operation.ToBeNotified
-                            : default(Operation);
-                });
-        }
+            if (context != null)
+            {
+                inException.PMode = AS4XmlSerializer.ToString(context.ReceivingPMode);
+                inException.Operation = 
+                    context.ReceivingPMode?.ExceptionHandling?.NotifyMessageConsumer == true
+                        ? Operation.ToBeNotified
+                        : default(Operation);
+            }
 
-        private async Task InsertInException(Exception exception, Action<InException> alterException)
-        {
-            await SideEffectRepositoryUsage(
-                repository =>
-                {
-                    var inException = new InException
-                    {
-                        Exception = exception.Message,
-                        InsertionTime = DateTimeOffset.Now,
-                        ModificationTime = DateTimeOffset.Now
-                    };
-                    alterException(inException);
-
-                    repository.InsertInException(inException);
-                });
+            return inException;
         }
 
         private async Task SideEffectRepositoryUsage(Action<DatastoreRepository> usage)

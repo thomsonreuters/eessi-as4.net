@@ -40,9 +40,27 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
         {
             Logger.Error(exception.Message);
-            await InsertOutException(exception, outException => outException.MessageBody = contents.ToBytes());
+
+            await SideEffectUsageRepository(
+                repository =>
+                {
+                    OutException outException = CreateMinimumOutException(exception);
+                    outException.MessageBody = contents.ToBytes();
+
+                    repository.InsertOutException(outException);
+                });
 
             return new MessagingContext(exception);
+        }
+
+        private static OutException CreateMinimumOutException(Exception exception)
+        {
+            return new OutException
+            {
+                Exception = exception.Message,
+                InsertionTime = DateTimeOffset.Now,
+                ModificationTime = DateTimeOffset.Now
+            };
         }
 
         /// <summary>
@@ -61,62 +79,51 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// Handles the execution exception.
         /// </summary>
         /// <param name="exception">The exception.</param>
-        /// <param name="messageContext">The message context.</param>
+        /// <param name="context">The message context.</param>
         /// <returns></returns>
-        public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext messageContext)
+        public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
             Logger.Error(exception.Message);
 
-            string messageId = messageContext.EbmsMessageId;
-            Action<OutException> updateException = ex => { };
-
-            if (string.IsNullOrEmpty(messageId) == false)
+            if (string.IsNullOrEmpty(context.EbmsMessageId) == false)
             {
                 await SideEffectUsageRepository(
-                    repository => repository.UpdateOutMessage(messageId, m => m.Status = OutStatus.Exception));
-                updateException = ex => ex.EbmsRefToMessageId = messageId;
+                    repository =>
+                    {
+                        repository.UpdateOutMessage(context.EbmsMessageId, m => m.Status = OutStatus.Exception);
+
+                        OutException outException = CreateOutExceptionWithContextInfo(exception, context);
+                        outException.EbmsRefToMessageId = context.EbmsMessageId;
+
+                        repository.InsertOutException(outException);
+                    });
             }
             else
             {
-                updateException = ex => ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(messageContext.SubmitMessage).Result;
+                await SideEffectUsageRepository(
+                    repository =>
+                    {
+                        OutException ex = CreateOutExceptionWithContextInfo(exception, context);
+                        ex.MessageBody = AS4XmlSerializer.TryToXmlBytesAsync(context.SubmitMessage).Result;
+
+                        repository.InsertOutException(ex);
+                    });
             }
 
-            await InsertOutException(exception, messageContext, updateException);
             return new MessagingContext(exception);
         }
 
-        private async Task InsertOutException(Exception exception, MessagingContext messageContext, Action<OutException> updateException)
+        private static OutException CreateOutExceptionWithContextInfo(Exception exception, MessagingContext context)
         {
-            await InsertOutException(
-                   exception,
-                   outException =>
-                   {
-                       updateException(outException);
+            OutException outException = CreateMinimumOutException(exception);
 
-                       outException.PMode = AS4XmlSerializer.ToString(messageContext.SendingPMode);
-                       outException.Operation =
-                           messageContext.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true
-                               ? Operation.ToBeNotified
-                               : default(Operation);
-                   });
-        }
+            outException.PMode = AS4XmlSerializer.ToString(context.SendingPMode);
+            outException.Operation = 
+                context.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true
+                    ? Operation.ToBeNotified
+                    : default(Operation);
 
-        private async Task InsertOutException(Exception exception, Action<OutException> alterException)
-        {
-            await SideEffectUsageRepository(
-                repository =>
-                {
-                    var outException = new OutException
-                    {
-                        EbmsRefToMessageId = Guid.NewGuid().ToString(),
-                        Exception = exception.Message,
-                        InsertionTime = DateTimeOffset.Now,
-                        ModificationTime = DateTimeOffset.Now
-                    };
-                    alterException(outException);
-
-                    repository.InsertOutException(outException);
-                });
+            return outException;
         }
 
         private async Task SideEffectUsageRepository(Action<DatastoreRepository> usage)
