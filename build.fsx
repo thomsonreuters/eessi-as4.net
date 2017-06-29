@@ -56,7 +56,7 @@ let unitTestsParams p = { p with ShadowCopy = false; Parallel = ParallelMode.All
 /// </summary>
 Target "UnitTests" (fun _ -> unitTestAssemblies |> xUnit2 unitTestsParams)
 
-let longRunningTestsParams p = { p with ShadowCopy = false; Parallel = NoParallelization; TimeOut = TimeSpan.FromMinutes 30.0 }
+let longRunningTestsParams p = { p with ShadowCopy = false; Parallel = NoParallelization; TimeOut = TimeSpan.FromMinutes 30.0; XmlOutputPath = Some "./output/testResults.xml" }
 
 /// <summary>
 /// Test the 'Integration Test' assemblies.

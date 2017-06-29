@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
@@ -20,22 +19,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
         public void ThenSendingMultiplePayloadSignedSucceeds()
         {
             // Before
-            CleanUpFiles(HolodeckBInputPath);
             AS4Component.Start();
-            CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            CleanUpFiles(AS4ReceiptsPath);
 
             // Arrange
-            CopyPModeToHolodeckB("8.1.4-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.4-pmode.xml");
 
             // Act
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = PollingAt(AS4ReceiptsPath);
-            if (areFilesFound) Console.WriteLine(@"Multiple Payloads Signed Integration Test succeeded!");
-            Assert.True(areFilesFound, "Multiple Payloads Signed failed");
+            Assert.True(PollingAt(AS4ReceiptsPath), "Multiple Payloads Signed failed");
         }
 
         protected override void ValidatePolledFiles(IEnumerable<FileInfo> files)
@@ -53,8 +46,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._4._Se
             FileInfo sentXml = AS4Component.SubmitSecondPayloadXml;
 
             // Earth attachment
-            FileInfo receivedEarth = receivedPayloads.SingleOrDefault(x => x.Extension == ".jpg");
-            FileInfo receivedXml = receivedPayloads.SingleOrDefault(x => x.Name.Contains("sample"));
+            FileInfo receivedEarth = receivedPayloads.FirstOrDefault(x => x.Extension == ".jpg");
+            FileInfo receivedXml = receivedPayloads.FirstOrDefault(x => x.Name.Contains("sample"));
 
             Assert.NotNull(receivedEarth);
             Assert.NotNull(receivedXml);

@@ -39,11 +39,12 @@ namespace Eu.EDelivery.AS4.Agents
     {
         Submit,
         Receive,
-        Sent,
+        PushSend,
         Deliver,
         NotifyProducer,
         NotifyConsumer,
         ReceptionAwareness,
-        PullReceive
+        PullReceive,
+        PullSend
     }
 }

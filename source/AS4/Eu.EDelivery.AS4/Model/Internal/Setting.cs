@@ -34,7 +34,6 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public CustomSettings CustomSettings { get; set; }
 
         public SettingsAgents Agents { get; set; }
-
     }
 
     [Serializable]
@@ -97,6 +96,9 @@ namespace Eu.EDelivery.AS4.Model.Internal
 
         [XmlElement("PullReceiveAgent", IsNullable = false)]
         public AgentSettings[] PullReceiveAgents { get; set; }
+
+        [XmlElement("PullSendAgent", IsNullable = false)]
+        public AgentSettings[] PullSendAgents { get; set; }
 
         [XmlElement("MinderSubmitReceiveAgent", IsNullable = true)]
         public SettingsMinderAgent[] MinderTestAgents { get; set; }

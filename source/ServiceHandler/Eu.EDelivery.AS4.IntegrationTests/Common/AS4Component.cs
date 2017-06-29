@@ -75,6 +75,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
+        /// Puts the message.
+        /// </summary>
+        /// <param name="messageName">Name of the message.</param>
+        public void PutMessage(string messageName)
+        {
+            File.Copy(
+                sourceFileName: $"{IntegrationTestTemplate.AS4MessagesRootPath}\\{messageName}",
+                destFileName: $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}",
+                overwrite: true);
+        }
+
+        /// <summary>
         ///  Assert on a received Receipt on the AS4 Component.
         /// </summary>
         public void AssertReceipt()
@@ -83,6 +95,18 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             FileInfo receipt = new DirectoryInfo(receiptPath).GetFiles("*.xml").FirstOrDefault();
 
             Assert.NotNull(receipt);
+        }
+
+        /// <summary>
+        /// Assert if the given <paramref name="receivedPayload" /> matches the 'Earth' payload.
+        /// </summary>
+        /// <param name="receivedPayload"></param>
+        public void AssertEarthPayload(FileInfo receivedPayload)
+        {
+            var sendPayload = new FileInfo(Path.GetFullPath($".\\{Properties.Resources.submitmessage_single_payload_path}"));
+
+            Assert.NotNull(receivedPayload);
+            Assert.Equal(sendPayload.Length, receivedPayload.Length);
         }
 
         /// <summary>

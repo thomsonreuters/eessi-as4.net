@@ -16,33 +16,28 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._1_Sub
 
         public SubmitMessageOverrideNotAllowedIntegrationTest()
         {
-            this._as4MessagesPath = $"{IntegrationTestTemplate.AS4MessagesRootPath}{SubmitMessageFilename}";
-            this._as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
+            _as4MessagesPath = $"{IntegrationTestTemplate.AS4MessagesRootPath}{SubmitMessageFilename}";
+            _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 
         [Fact]
         public void ThenSendingSubmitMessageFails()
         {
             // Before
-            base.CleanUpFiles(base.HolodeckBInputPath);
-            this.AS4Component.Start();
-            base.CleanUpFiles(AS4FullOutputPath);
-            base.CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
+            AS4Component.Start();
 
             // Act
-            File.Copy( this._as4MessagesPath, this._as4OutputPath);
+            File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Assert
-            bool areFilesFound = AreExceptionFilesFound();
-            if (areFilesFound) Console.WriteLine(@"Submit Message override not allowed Integration Test succeeded!");
-            Assert.True(areFilesFound);
+            Assert.True(AreExceptionFilesFound());
         }
 
         private bool AreExceptionFilesFound()
         {
-            return 
-                base.PollingAt(AS4FullOutputPath, "*.exception") && 
-                base.PollingAt(AS4FullOutputPath, "*.exception.details");
+            return
+                PollingAt(AS4FullOutputPath, "*.exception") &&
+                PollingAt(AS4FullOutputPath, "*.exception.details");
         }
     }
 }

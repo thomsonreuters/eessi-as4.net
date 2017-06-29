@@ -13,12 +13,13 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             new Dictionary<AgentType, Func<IAgentExceptionHandler>>
             {
                 [AgentType.Submit] = () => new OutboundExceptionHandler(),
-                [AgentType.Sent] = () => new OutboundExceptionHandler(),
+                [AgentType.PushSend] = () => new OutboundExceptionHandler(),
                 [AgentType.Receive] = () => new InboundExceptionHandler(),
                 [AgentType.Deliver] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyConsumer] = () => new InboundExceptionHandler(),
                 [AgentType.NotifyProducer] = () => new OutboundExceptionHandler(),
                 [AgentType.PullReceive] = () => new InboundExceptionHandler(),
+                [AgentType.PullSend] = () => new PullSendAgentExceptionHandler(),
                 [AgentType.ReceptionAwareness] = () => new LogExceptionHandler()
             };
 

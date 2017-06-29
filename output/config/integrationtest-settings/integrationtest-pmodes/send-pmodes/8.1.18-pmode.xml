@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
+  <Id>8.1.18-pmode</Id>
+  <AllowOverride>true</AllowOverride>
+  <Mep>OneWay</Mep>
+  <MepBinding>Pull</MepBinding>
+  <PullConfiguration>
+    <Mpc>http://example.holodeckb2b.org/mpc/1</Mpc>
+    <SubChannel />
+    <Protocol>
+      <Url>http://localhost:9090/msh</Url>
+    </Protocol>
+  </PullConfiguration>
+  <ReceiptHandling>
+    <NotifyMessageProducer>true</NotifyMessageProducer>
+    <NotifyMethod>
+      <Type>FILE</Type>
+      <Parameters>
+        <Parameter name="location" value=".\messages\receipts\" />
+      </Parameters>
+    </NotifyMethod>
+  </ReceiptHandling>
+  <MessagePackaging>
+    <UseAS4Compression>false</UseAS4Compression>
+    <IsMultiHop>false</IsMultiHop>
+    <IncludePModeId>true</IncludePModeId>
+    <PartyInfo>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:holodeckb2b:example:company:B</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+  </MessagePackaging>
+</PMode>

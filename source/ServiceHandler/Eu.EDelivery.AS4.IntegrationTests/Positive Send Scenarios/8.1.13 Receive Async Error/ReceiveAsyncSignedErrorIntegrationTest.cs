@@ -30,15 +30,11 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
         {
             // Before
             string sharedMessageId = UpdateSubmitMessageId();
-            CleanUpFiles(HolodeckBInputPath);
-            CleanUpFiles(AS4FullOutputPath);
-            CleanUpFiles(Properties.Resources.holodeck_B_pmodes);
-            CleanUpFiles(AS4ErrorsPath);
 
             AS4Component.Start();
 
             // Arrange
-            CopyPModeToHolodeckB("8.1.13-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.1.13-pmode.xml");
             File.Copy(_as4MessagesPath, _as4OutputPath);
 
             // Act
@@ -46,13 +42,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             await _sender.SendMessage(messageWrongSigned, Constants.ContentTypes.Soap);
 
             // Assert
-            bool areFilesFound = PollingAt(AS4ErrorsPath, "*.xml");
-            if (areFilesFound)
-            {
-                Console.WriteLine(@"Receive Async Error Integration Test succeeded!");
-            }
-
-            Assert.True(areFilesFound, "Send Async Error failed");
+            Assert.True(PollingAt(AS4ErrorsPath, "*.xml"), "Send Async Error failed");
         }
 
         private string UpdateSubmitMessageId()

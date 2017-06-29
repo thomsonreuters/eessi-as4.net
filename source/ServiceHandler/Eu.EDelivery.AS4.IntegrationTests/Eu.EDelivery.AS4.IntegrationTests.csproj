@@ -215,6 +215,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\AS4Component.cs" />
+    <Compile Include="Common\FileSystemService.cs" />
     <Compile Include="Common\Holodeck.cs" />
     <Compile Include="Common\StubSender.cs" />
     <Compile Include="Fixture\HolodeckFixture.cs" />
@@ -261,6 +262,8 @@
     <Compile Include="Positive Send Scenarios\8.1.13 Receive Async Error\ReceiveAsyncSignedErrorIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.14 Send Pull Request result in User Message\SendPullRequestResultInUserMessageTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.15 Send Single Payload with HTTP Submit\SendSinglePayloadHttpSubmitTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.16 Send Message via Pulling\SendMessageViaPullingTest.cs" />
+    <Compile Include="Positive Send Scenarios\8.1.18 Send Message via Pulling result in Error\SendMessageViaPullingResultInErrorTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.2. Send Multiple Payloads with FILE Submit\MultiplePayloadIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.3. Send Multiple Payloads Compressed\MultiplePayloadsCompressedIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.4. Send Multiple Payloads Signed\MultiplePayloadsSignedIntegrationTest.cs" />
