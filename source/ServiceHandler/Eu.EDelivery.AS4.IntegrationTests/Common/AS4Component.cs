@@ -75,10 +75,10 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         }
 
         /// <summary>
-        /// Places the message.
+        /// Puts the message.
         /// </summary>
         /// <param name="messageName">Name of the message.</param>
-        public void PlaceMessage(string messageName)
+        public void PutMessage(string messageName)
         {
             File.Copy(
                 sourceFileName: $"{IntegrationTestTemplate.AS4MessagesRootPath}\\{messageName}",

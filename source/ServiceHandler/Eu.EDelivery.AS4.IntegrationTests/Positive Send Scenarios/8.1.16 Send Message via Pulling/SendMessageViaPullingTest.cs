@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._16_Se
             AS4Component.OverrideSettings("8.1.16-settings.xml");
             AS4Component.Start();
 
-            AS4Component.PlaceMessage("8.1.16-sample.xml");
+            AS4Component.PutMessage("8.1.16-sample.xml");
 
             // Act
             Holodeck.CopyPModeToHolodeckB("8.1.16-receive-pmode.xml");

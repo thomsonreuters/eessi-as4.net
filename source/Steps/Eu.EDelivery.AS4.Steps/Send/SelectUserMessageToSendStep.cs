@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             MessagingContext messagingContext,
             CancellationToken cancellationToken)
         {
-            (bool hasMatch, OutMessage match) selection = SelectUserMessageFor(messagingContext);
+            (bool hasMatch, OutMessage match) selection = ConcurrentSelectUserMessage(messagingContext);
 
             if (selection.hasMatch)
             {
@@ -68,32 +68,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return SuccessStepResult(pullRequestWarning, messagingContext).AndStopExecution();
         }
 
-        private async Task<AS4Message> RetrieveAS4UserMessage(MessageEntity selection, CancellationToken cancellationToken)
-        {
-            // TODO: Attachment Contents are disposed?
-            using (Stream messageStream = await selection.RetrieveMessagesBody(_messageBodyStore)) {
-                ISerializer serializer = Registry.Instance.SerializerProvider.Get(selection.ContentType);
-                return await serializer.DeserializeAsync(messageStream, selection.ContentType, cancellationToken);
-            }
-        }
-
-        private (bool, OutMessage) SelectUserMessageFor(MessagingContext messagingContext)
-        {
-            var options = new TransactionOptions {IsolationLevel = IsolationLevel.RepeatableRead};
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
-            {
-                (bool, OutMessage) outMessage = ConcurrentSelectUserMessage(messagingContext);
-
-                scope.Complete();
-                return outMessage;
-            }
-        }
-
         private (bool, OutMessage) ConcurrentSelectUserMessage(MessagingContext messagingContext)
         {
+            var options = new TransactionOptions {IsolationLevel = IsolationLevel.RepeatableRead};
+
+            using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
             using (DatastoreContext context = _createContext())
             {
                 var repository = new DatastoreRepository(context);
+
                 OutMessage message =
                     repository.GetOutMessageData(
                         m => PullRequestQuery(m, messagingContext.AS4Message.PrimarySignalMessage as PullRequest),
@@ -106,6 +89,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 repository.UpdateOutMessage(message.EbmsMessageId, m => m.Operation = Operation.Sending);
                 context.SaveChanges();
+                scope.Complete();
 
                 return (true, message);
             }
@@ -116,6 +100,16 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return userMessage.Mpc == pullRequest.Mpc 
                    && userMessage.Operation == Operation.ToBeSent
                    && userMessage.MEP == MessageExchangePattern.Pull;
+        }
+
+        private async Task<AS4Message> RetrieveAS4UserMessage(MessageEntity selection, CancellationToken cancellationToken)
+        {
+            // TODO: Attachment Contents are disposed?
+            using (Stream messageStream = await selection.RetrieveMessagesBody(_messageBodyStore))
+            {
+                ISerializer serializer = Registry.Instance.SerializerProvider.Get(selection.ContentType);
+                return await serializer.DeserializeAsync(messageStream, selection.ContentType, cancellationToken);
+            }
         }
 
         private static StepResult SuccessStepResult(AS4Message message, MessagingContext context)

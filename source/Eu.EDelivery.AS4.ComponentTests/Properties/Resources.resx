@@ -124,7 +124,7 @@
   <data name="deliveragent_pmode" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\deliveragent-pmode.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="pullsendagent_pullrequest" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="pullrequest_without_mpc" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\pullsendagent_pullrequest.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
   <data name="pullsendagent_submit" type="System.Resources.ResXFileRef, System.Windows.Forms">
