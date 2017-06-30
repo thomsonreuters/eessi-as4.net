@@ -15,8 +15,8 @@
       <IsEnabled>true</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
       <ClientCertificateReference>
-        <ClientCertificateFindValue>[Add the serial number of your Institution's TLS client certificate here]</ClientCertificateFindValue>
         <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
+        <ClientCertificateFindValue>[Add the serial number of your Institution's TLS client certificate here]</ClientCertificateFindValue>
       </ClientCertificateReference>
     </TlsConfiguration>
   </PullConfiguration>
@@ -24,8 +24,8 @@
     <Signing>
       <IsEnabled>true</IsEnabled>
       <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-      <PrivateKeyFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</PrivateKeyFindValue>
       <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
+      <PrivateKeyFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</PrivateKeyFindValue>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>

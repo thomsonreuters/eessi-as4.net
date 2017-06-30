@@ -62,11 +62,11 @@
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>
-      <Action>eu:sample:02</Action>
       <Service>
         <Value>getting:started</Value>
         <Type>eu:europa:services</Type>
       </Service>
+	  <Action>eu:sample:02</Action>
     </CollaborationInfo>
   </MessagePackaging>
   <Deliver>
