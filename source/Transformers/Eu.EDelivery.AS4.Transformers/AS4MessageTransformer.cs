@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             messageStream.Position = 0;
 
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown) {MessageStream = messageStream};
+            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown) { MessageStream = messageStream };
             receivedMessage.AssignPropertiesTo(context);
 
             return context;
