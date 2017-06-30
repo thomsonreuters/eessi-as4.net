@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.Core;
@@ -76,7 +78,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void OverrideMessageWithAS4Message()
             {
                 // Arrange
-
                 var expected = new MessagingContext(AS4MessageWithEbmsMessageId(), MessagingContextMode.Unknown)
                 {
                     ReceivingPMode = new ReceivingProcessingMode(),
@@ -204,6 +205,22 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
 
                 // Assert
                 Assert.Equal($"[{userMessage.MessageId}]", prefix);
+            }
+
+            [Fact]
+            public void ContextDisposesGivenStream_WhenCallingDispose()
+            {
+                // Arrange
+                var sut = new MessagingContext(null, default(MessagingContextMode))
+                {
+                    MessageStream = new MemoryStream(Encoding.UTF8.GetBytes("dispose me"))
+                };
+               
+                // Act
+                sut.Dispose();
+
+                // Assert
+                Assert.False(sut.MessageStream.CanSeek);
             }
         }
 

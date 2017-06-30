@@ -28,8 +28,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly ICertificateRepository _repository;
-        private readonly IAS4ResponseHandler _responseHandler;
         private readonly Func<DatastoreContext> _createDatastore;
         private readonly IHttpClient _httpClient;
 
@@ -38,7 +36,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
-        public SendAS4MessageStep() : this(Registry.Instance.CreateDatastoreContext) { }
+        public SendAS4MessageStep() : this(Registry.Instance.CreateDatastoreContext) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -47,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="createDatastore"></param>
         public SendAS4MessageStep(Func<DatastoreContext> createDatastore)
-            : this(createDatastore, new ReliableHttpClient()) { }
+            : this(createDatastore, new ReliableHttpClient()) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -58,34 +56,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             _createDatastore = createDatastore;
             _httpClient = client;
-
-            _responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
-            _repository = Registry.Instance.CertificateRepository;
         }
 
         /// <summary>
         /// Send the <see cref="AS4Message" />
         /// </summary>
         /// <param name="messagingContext"></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellation"></param>
         /// <returns></returns>
-        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
+        public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellation)
         {
             _originalMessage = messagingContext;
 
-            return await TrySendAS4MessageAsync(messagingContext, cancellationToken).ConfigureAwait(false);
-        }
-
-        private async Task<StepResult> TrySendAS4MessageAsync(
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
-        {
             try
             {
                 HttpWebRequest request = CreateWebRequest(messagingContext);
-                await TryHandleHttpRequestAsync(request, messagingContext, cancellationToken).ConfigureAwait(false);
+                await TryHandleHttpRequestAsync(request, messagingContext).ConfigureAwait(false);
 
-                return await TryHandleHttpResponseAsync(request, messagingContext, cancellationToken).ConfigureAwait(false);
+               return await TryHandleHttpResponseAsync(request, messagingContext, cancellation).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -96,7 +84,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
-        private async Task<StepResult> HandleSendAS4ExceptionAsync(MessagingContext messagingContext, Exception exception)
+        private async Task<StepResult> HandleSendAS4ExceptionAsync(
+            MessagingContext messagingContext,
+            Exception exception)
         {
             if (messagingContext.SendingPMode.Reliability.ReceptionAwareness.IsEnabled)
             {
@@ -129,7 +119,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return request;
         }
 
-        private void AssignClientCertificate(TlsConfiguration configuration, HttpWebRequest request)
+        private static void AssignClientCertificate(TlsConfiguration configuration, HttpWebRequest request)
         {
             if (!configuration.IsEnabled || configuration.ClientCertificateReference == null)
             {
@@ -139,9 +129,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
             Logger.Info("Adding Client TLS Certificate to Http Request.");
 
             ClientCertificateReference certReference = configuration.ClientCertificateReference;
-            X509Certificate2 certificate = _repository.GetCertificate(
-                certReference.ClientCertificateFindType,
-                certReference.ClientCertificateFindValue);
+            X509Certificate2 certificate =
+                Registry.Instance.CertificateRepository.GetCertificate(
+                    certReference.ClientCertificateFindType,
+                    certReference.ClientCertificateFindValue);
 
             if (certificate == null)
             {
@@ -153,10 +144,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             request.ClientCertificates.Add(certificate);
         }
 
-        private static async Task TryHandleHttpRequestAsync(
-            HttpWebRequest request,
-            MessagingContext messagingContext,
-            CancellationToken cancellationToken)
+        private static async Task TryHandleHttpRequestAsync(HttpWebRequest request, MessagingContext messagingContext)
         {
             try
             {
@@ -170,12 +158,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static async Task SerializeHttpRequest(HttpWebRequest request, MessagingContext messagingContext)
         {
-            AS4Message as4Message = messagingContext.AS4Message;
-
             Logger.Info($"Send AS4 Message to: {GetSendConfigurationFrom(messagingContext).Protocol.Url}");
 
-            ISerializerProvider provider = Registry.Instance.SerializerProvider;
-            long messageSize = as4Message.DetermineMessageSize(provider);
+            long messageSize = TryGetMessageSize(messagingContext);
             const int threshold = 209_715_200;
 
             if (messageSize > threshold)
@@ -190,13 +175,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
         }
 
+        private static long TryGetMessageSize(MessagingContext messagingContext)
+        {
+            try
+            {
+                return messagingContext.MessageStream.Length;
+            }
+            catch (Exception)
+            {
+                return 0L;
+            }
+        }
+
         private async Task<StepResult> TryHandleHttpResponseAsync(
             HttpWebRequest request,
             MessagingContext messagingContext,
             CancellationToken cancellationToken)
         {
-            Logger.Debug(
-                $"AS4 Message received from: {GetSendConfigurationFrom(messagingContext).Protocol.Url}");
+            Logger.Debug($"AS4 Message received from: {GetSendConfigurationFrom(messagingContext).Protocol.Url}");
 
             // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
             // we've sent the message, so update the status to sent.
@@ -204,9 +200,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request);
 
-            if (response.webResponse != null && ContentTypeSupporter.IsContentTypeSupported(response.webResponse.ContentType))
+            if (response.webResponse != null
+                && ContentTypeSupporter.IsContentTypeSupported(response.webResponse.ContentType))
             {
-                return await HandleAS4Response(messagingContext, response.webResponse, cancellationToken).ConfigureAwait(false);
+                return
+                    await HandleAS4Response(messagingContext, response.webResponse, cancellationToken)
+                        .ConfigureAwait(false);
             }
 
             throw CreateFailedSendAS4Exception(messagingContext, response.exception);
@@ -231,16 +230,24 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         outMessage.Status = status;
                     });
 
-
                 context.SaveChanges();
             }
         }
 
-        private async Task<StepResult> HandleAS4Response(MessagingContext originalMessage, WebResponse webResponse, CancellationToken cancellation)
+        private static async Task<StepResult> HandleAS4Response(
+            MessagingContext originalMessage,
+            WebResponse webResponse,
+            CancellationToken cancellation)
         {
-            using (AS4Response as4Response = await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation))
+            using (
+                AS4Response as4Response = await AS4Response.Create(
+                                              originalMessage,
+                                              webResponse as HttpWebResponse,
+                                              cancellation))
             {
-                return await _responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
+                var responseHandler =
+                    new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
+                return await responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
             }
         }
 
@@ -270,7 +277,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static ISendConfiguration GetSendConfigurationFrom(MessagingContext message)
         {
             return message.AS4Message.IsPullRequest
-                       ? (ISendConfiguration)message.SendingPMode?.PullConfiguration
+                       ? (ISendConfiguration) message.SendingPMode?.PullConfiguration
                        : message.SendingPMode?.PushConfiguration;
         }
     }
