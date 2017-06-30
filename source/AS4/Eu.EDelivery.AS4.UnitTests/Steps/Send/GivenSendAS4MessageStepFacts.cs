@@ -14,7 +14,8 @@ using Eu.EDelivery.AS4.Steps.Send;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Http;
-using Xunit;
+using Eu.EDelivery.AS4.UnitTests.Model;
+using Xunit;    
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
@@ -47,40 +48,48 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Assert.False(actualResult.CanProceed);
         }
 
-        [Theory]
-        [InlineData(Constants.ContentTypes.Soap, Operation.Sent, OutStatus.Sent)]
-        [InlineData(null, Operation.Undetermined, OutStatus.Exception)]
-        public async Task StepUpdatesRequestOperationAndStatus_IfResponseIs(
-            string contentType,
-            Operation expectedOperation,
+        [Fact]
+        public async Task StepUpdatesRequestOperationAndStatus_IfRequestFailsToSend()
+        {
+            // Arrange
+            MessagingContext context = ContextWith(AS4Message.Create(new FilledUserMessage()));
+
+            // Act / Assert
+            await TestStepUpdatesRequestOperationAndStatus(context, Operation.Undetermined, OutStatus.Exception);
+        }
+
+        [Fact]
+        public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
+        {
+            // Arrange
+            MessagingContext context = ContextWith(AS4Message.Create(new FilledUserMessage()));
+            context.MessageStream = context.AS4Message.ToStream();
+
+            // Act / Assert
+            await TestStepUpdatesRequestOperationAndStatus(context, Operation.Sent, OutStatus.Sent);
+        }
+
+        private async Task TestStepUpdatesRequestOperationAndStatus(
+            MessagingContext context,
+            Operation expectedOperation, 
             OutStatus expectedStatus)
         {
             // Arrange
-            MessagingContext stubMessage = CreateAnonymousMessage();
-            stubMessage.AS4Message.ContentType = contentType;
-            InsertToBeSentUserMessage(stubMessage);
+            InsertToBeSentUserMessage(context);
 
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));
 
             // Act
-            await step.ExecuteAsync(stubMessage, CancellationToken.None);
+            await step.ExecuteAsync(context, CancellationToken.None);
 
             // Assert
             AssertSentUserMessage(
-                stubMessage,
+                context,
                 message =>
                 {
                     Assert.Equal(expectedOperation, message.Operation);
                     Assert.Equal(expectedStatus, message.Status);
                 });
-        }
-
-        private static MessagingContext CreateAnonymousMessage()
-        {
-            MessagingContext context = ContextWith(AS4Message.Create(new UserMessage(messageId: "message-id")));
-            context.MessageStream = context.AS4Message.ToStream();
-
-            return context;
         }
 
         private void InsertToBeSentUserMessage(MessagingContext requestMessage)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -132,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return (MessagingContext) new EmptyMessagingContext();
+                return new EmptyMessagingContext {MessageStream = Stream.Null};
             }
 
             /// <summary>

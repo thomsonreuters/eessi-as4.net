@@ -80,11 +80,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 Logger.Error(
                     $"{messagingContext.Prefix} An error occured while trying to send the message: {exception.Message}");
 
-                return await HandleSendAS4ExceptionAsync(messagingContext, exception);
+                return await HandleSendExceptionAsync(messagingContext, exception);
             }
         }
 
-        private async Task<StepResult> HandleSendAS4ExceptionAsync(
+        private async Task<StepResult> HandleSendExceptionAsync(
             MessagingContext messagingContext,
             Exception exception)
         {
@@ -152,7 +152,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
             catch (WebException exception)
             {
-                throw CreateFailedSendAS4Exception(messagingContext, exception);
+                throw CreateFailedSendException(messagingContext, exception);
             }
         }
 
@@ -208,7 +208,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         .ConfigureAwait(false);
             }
 
-            throw CreateFailedSendAS4Exception(messagingContext, response.exception);
+            throw CreateFailedSendException(messagingContext, response.exception);
         }
 
         private void UpdateMessageStatus(AS4Message as4Message, Operation operation, OutStatus status)
@@ -239,24 +239,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
             WebResponse webResponse,
             CancellationToken cancellation)
         {
-            using (
-                AS4Response as4Response = await AS4Response.Create(
-                                              originalMessage,
-                                              webResponse as HttpWebResponse,
-                                              cancellation))
+            using (AS4Response as4Response = 
+                await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation))
             {
-                var responseHandler =
-                    new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
+                var responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
                 return await responseHandler.HandleResponse(as4Response).ConfigureAwait(false);
             }
         }
 
-        private static WebException CreateFailedSendAS4Exception(MessagingContext messagingContext, Exception exception)
+        private static WebException CreateFailedSendException(MessagingContext messagingContext, Exception exception)
         {
             string protocolUrl = GetSendConfigurationFrom(messagingContext).Protocol.Url;
             string description = $"Failed to Send AS4 Message to Url: {protocolUrl}.";
 
-            return new WebException(description);
+            return new WebException(description, exception);
         }
 
         private static ErrorResult CreateConnectionFailureResult(Exception exception, MessagingContext context)
