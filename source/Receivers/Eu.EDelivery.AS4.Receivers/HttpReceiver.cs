@@ -614,7 +614,7 @@ namespace Eu.EDelivery.AS4.Receivers
                         {
                             ISerializer serializer = SerializerProvider.Get(_messagingContext.AS4Message.ContentType);
 
-                            serializer.Serialize(
+                            await serializer.SerializeAsync(
                                 _messagingContext.AS4Message,
                                 responseStream,
                                 CancellationToken.None);
