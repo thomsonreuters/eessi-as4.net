@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
 using System.Web.Script.Serialization;
@@ -13,8 +14,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     /// <summary>
     /// Sending PMode configuration
     /// </summary>
-    [XmlType(Namespace = "eu:edelivery:as4:pmode")]
-    [XmlRoot("PMode", Namespace = "eu:edelivery:as4:pmode", IsNullable = false)]
+    [XmlType(Namespace = Constants.Namespaces.ProcessingMode)]
+    [XmlRoot("PMode", Namespace = Constants.Namespaces.ProcessingMode, IsNullable = false)]
     [DebuggerDisplay("PMode Id = {" + nameof(Id) + "}")]
     public class SendingProcessingMode : IPMode, ICloneable
     {
@@ -32,6 +33,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
             MessagePackaging = new SendMessagePackaging();
         }
 
+        [Info("The id of the sending pmode")]
+        [XmlElement(IsNullable = true)]
+        public string Id { get; set; }
+
+        [DefaultValue(false)]
         public bool AllowOverride { get; set; }
 
         public MessageExchangePattern Mep { get; set; }
@@ -45,7 +51,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public DynamicDiscoveryConfiguration DynamicDiscovery { get; set; }
 
         public SendReliability Reliability { get; set; }
-
+                        
         public SendHandling ReceiptHandling { get; set; }
 
         public SendHandling ErrorHandling { get; set; }
@@ -55,9 +61,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Security Security { get; set; }
 
         public SendMessagePackaging MessagePackaging { get; set; }
-
-        [Info("The id of the sending pmode")]
-        public string Id { get; set; }
 
         #region Serialization-control properties
 
@@ -100,7 +103,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public Encryption Encryption { get; set; }
     }
-    
+
     public class Encryption
     {
         /// <summary>
@@ -168,8 +171,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         PublicKeyCertificate,
         PublicKeyFindCriteria
     }
-    
-    public class PublicKeyCertificate 
+
+    public class PublicKeyCertificate
     {
         public string Certificate { get; set; }
     }
@@ -230,11 +233,11 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public bool IsEnabled { get; set; }
 
-        public X509ReferenceType KeyReferenceMethod { get; set; }
-
         public X509FindType PrivateKeyFindType { get; set; }
 
         public string PrivateKeyFindValue { get; set; }
+
+        public X509ReferenceType KeyReferenceMethod { get; set; }
 
         public string Algorithm { get; set; }
 
@@ -384,8 +387,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public string Url { get; set; }
 
+        [DefaultValue(false)]
         public bool UseChunking { get; set; }
 
+        [DefaultValue(false)]
         public bool UseHttpCompression { get; set; }
     }
 
@@ -397,8 +402,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
             TlsVersion = TlsVersion.Tls12;
         }
 
+        [DefaultValue(false)]
         public bool IsEnabled { get; set; }
 
+        [DefaultValue(TlsVersion.Tls12)]
         public TlsVersion TlsVersion { get; set; }
 
         public ClientCertificateReference ClientCertificateReference { get; set; }
@@ -422,10 +429,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public string Mpc { get; set; }
 
+        [DefaultValue(true)]
         public bool UseAS4Compression { get; set; }
 
+        [DefaultValue(false)]
         public bool IsMultiHop { get; set; }
 
+        [DefaultValue(false)]
         public bool IncludePModeId { get; set; }
     }
 

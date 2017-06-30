@@ -196,6 +196,11 @@
       <HintPath>..\..\packages\System.IO.FileSystem.Primitives.4.3.0\lib\net46\System.IO.FileSystem.Primitives.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Management.Automation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Management.Automation.6.1.7601.17515\lib\net45\System.Management.Automation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Net.Http.4.3.0\lib\net46\System.Net.Http.dll</HintPath>
@@ -488,11 +493,13 @@
     <Compile Include="Transformers\GivenSignalToNotifyMessageTransformerFacts.cs" />
     <Compile Include="Transformers\GivenSubmitMessageXmlTransformerFacts.cs" />
     <Compile Include="Factories\GivenIdentifierFactoryFacts.cs" />
+    <Compile Include="Utilities\Computer.cs" />
     <Compile Include="Validators\GivenDeliverMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenReceivingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSendingProcessingModeValidatorFacts.cs" />
     <Compile Include="Validators\GivenSubmitMessageValidatorFacts.cs" />
     <Compile Include="Validators\GivenValidationResultFacts.cs" />
+    <Compile Include="Xml\XsdValidationFacts.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -580,7 +587,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Steps\Participant\" />
-    <Folder Include="Utilities\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

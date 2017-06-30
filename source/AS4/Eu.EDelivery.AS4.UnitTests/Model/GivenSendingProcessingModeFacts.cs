@@ -164,6 +164,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             Assert.Equal(pmode.Id, clone.Id);
             Assert.Equal(pmode.Security.Encryption.IsEnabled, clone.Security.Encryption.IsEnabled);
             Assert.Equal("ABCDEFGH", ((PublicKeyCertificate)clone.Security.Encryption.PublicKeyInformation).Certificate);
-        }
+        }        
     }
 }
