@@ -24,17 +24,6 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Gets the stored message location.
-        /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        public async Task<string> GetMessageLocationAsync(string location, AS4Message message)
-        {
-            return await For(location).GetMessageLocationAsync(location, message);
-        }
-
-        /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
         /// <param name="location">The location.</param>

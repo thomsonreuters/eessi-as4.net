@@ -23,20 +23,6 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
-        /// Gets the stored message location.
-        /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
-        {
-            string storeLocation = EnsureStoreLocation(location);
-            string fileName = AssembleUniqueMessageLocation(storeLocation, message);
-
-            return Task.FromResult($"file:///{fileName}");
-        }
-
-        /// <summary>
         /// Saves a given <see cref="AS4Message" /> to a given location.
         /// </summary>
         /// <param name="location">The location.</param>

@@ -33,13 +33,5 @@ namespace Eu.EDelivery.AS4.Repositories
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task UpdateAS4MessageAsync(string location, AS4Message message, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the stored message location.
-        /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        Task<string> GetMessageLocationAsync(string location, AS4Message message);
     }
 }
