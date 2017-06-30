@@ -15,8 +15,6 @@
     </Protocol>
     <TlsConfiguration>
       <IsEnabled>false</IsEnabled>
-      <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference/>
     </TlsConfiguration>
   </PushConfiguration>
   <Security>
