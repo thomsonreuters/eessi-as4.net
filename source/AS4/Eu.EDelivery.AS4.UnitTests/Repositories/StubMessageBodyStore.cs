@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -26,17 +25,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         public StubMessageBodyStore(string messageLocation)
         {
             _messageLocation = messageLocation;
-        }
-
-        /// <summary>
-        /// Gets the stored message location.
-        /// </summary>
-        /// <param name="location">The location.</param>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        public Task<string> GetMessageLocationAsync(string location, AS4Message message)
-        {
-            return Task.FromResult(_messageLocation);
         }
 
         /// <summary>
@@ -94,19 +82,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         public async Task LoadsEmpty()
         {
             Assert.Equal(Stream.Null, await StubMessageBodyStore.Default.LoadMessageBodyAsync(null));
-        }
-
-        [Fact]
-        public async Task GetsConfiguredLocation()
-        {
-            // Arrange
-            string expected = Guid.NewGuid().ToString();
-
-            // Act
-            string actual = await new StubMessageBodyStore(expected).GetMessageLocationAsync(null, null);
-
-            // Assert
-            Assert.Equal(expected, actual);
         }
     }
 }
