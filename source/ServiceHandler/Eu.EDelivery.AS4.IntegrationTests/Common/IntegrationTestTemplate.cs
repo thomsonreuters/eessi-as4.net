@@ -57,6 +57,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CleanUpFiles(Properties.Resources.holodeck_A_output_path);
             CleanUpFiles(Properties.Resources.holodeck_B_output_path);
 
+            CleanUpDirectory(Properties.Resources.holodeck_A_db_path);
+            CleanUpDirectory(Properties.Resources.holodeck_B_db_path);
+
             CleanUpDirectory(Path.GetFullPath(@".\database\as4messages"));
         }
 

@@ -93,6 +93,16 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
+        private void SendWebRequest(WebRequest webRequest, byte[] content)
+        {
+            Console.WriteLine($@"Send Web Request to: {Url}");
+            using (Stream requestStream = webRequest.GetRequestStream())
+            {                
+                var memoryStream = new MemoryStream(content);
+                memoryStream.WriteTo(requestStream);
+            }
+        }
+
         private async Task<AS4Message> TryHandleWebResponse(HttpWebRequest webRequest)
         {
             try
