@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
-using Eu.EDelivery.AS4.Utilities;
 
 namespace Eu.EDelivery.AS4.Repositories
 {
@@ -43,11 +42,32 @@ namespace Eu.EDelivery.AS4.Repositories
             }
 
             string storeLocation = EnsureStoreLocation(location);
-            string fileName = AssembleUniqueMessageLocation(storeLocation, message);
+            string fileName = AssembleUniqueMessageLocation(storeLocation);
 
             if (!File.Exists(fileName))
             {
                 await SaveMessageToFile(message, fileName, cancellation);
+            }
+
+            return $"file:///{fileName}";
+        }
+
+        public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        {
+            if (as4MessageStream == null)
+            {
+                throw new ArgumentNullException(nameof(as4MessageStream));
+            }
+
+            string storeLocation = EnsureStoreLocation(location);
+            string fileName = AssembleUniqueMessageLocation(storeLocation);
+
+            if (!File.Exists(fileName))
+            {
+                using (FileStream fs = new FileStream(fileName, FileMode.Create))
+                {
+                    await as4MessageStream.CopyToAsync(fs);
+                }
             }
 
             return $"file:///{fileName}";
@@ -65,20 +85,9 @@ namespace Eu.EDelivery.AS4.Repositories
             return location;
         }
 
-        private static string AssembleUniqueMessageLocation(string storeLocation, AS4Message message)
+        private static string AssembleUniqueMessageLocation(string storeLocation)
         {
-#if DEBUG
-            string messageId = message.GetPrimaryMessageId();
-
-            if (string.IsNullOrWhiteSpace(messageId))
-            {
-                throw new InvalidDataException("The AS4Message to store has no Primary Message Id");
-            }
-
-            string fileName = FilenameSanitizer.EnsureValidFilename(messageId);
-#else
             string fileName = Guid.NewGuid().ToString();
-#endif
 
             return Path.Combine(storeLocation, $"{fileName}.as4");
         }

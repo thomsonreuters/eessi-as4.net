@@ -193,6 +193,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\db.
+        /// </summary>
+        internal static string holodeck_A_db_path {
+            get {
+                return ResourceManager.GetString("holodeck_A_db_path", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-A\data\msg_in.
         /// </summary>
         internal static string holodeck_A_input_path {
@@ -216,6 +225,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
         internal static string holodeck_A_pmodes {
             get {
                 return ResourceManager.GetString("holodeck_A_pmodes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C:\Program Files\Java\holodeck\holodeck-b2b-B\db.
+        /// </summary>
+        internal static string holodeck_B_db_path {
+            get {
+                return ResourceManager.GetString("holodeck_B_db_path", resourceCulture);
             }
         }
         
@@ -281,17 +299,17 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Properties {
                 return ResourceManager.GetString("notify_error_path", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static string pdf_document {
+        internal static byte[] pdf_document {
             get {
                 object obj = ResourceManager.GetObject("pdf_document", resourceCulture);
-                return System.Text.Encoding.UTF8.GetString((byte[])(obj));
+                return ((byte[])(obj));
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;PMode xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns=&quot;eu:edelivery:as4:pmode&quot;&gt;

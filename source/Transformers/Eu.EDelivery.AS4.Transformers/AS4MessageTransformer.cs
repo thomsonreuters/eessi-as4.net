@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4MessageTransformer" /> class.
         /// </summary>
-        public AS4MessageTransformer() : this(Registry.Instance.SerializerProvider) {}
+        public AS4MessageTransformer() : this(Registry.Instance.SerializerProvider) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AS4MessageTransformer" /> class.
@@ -76,9 +76,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(receivedMessage);
 
-            messageStream.Position = 0;
-
-            AS4Message as4Message = await DeserializeMessage(receivedMessage, messageStream, cancellation);
+            AS4Message as4Message = await DeserializeMessage(receivedMessage.ContentType, messageStream, cancellation);
 
             messageStream.Position = 0;
 
@@ -98,16 +96,18 @@ namespace Eu.EDelivery.AS4.Transformers
 
             await receivedMessage.RequestStream.CopyToAsync(messageStream);
 
+            messageStream.Position = 0;
+
             return messageStream;
         }
 
         private async Task<AS4Message> DeserializeMessage(
-            ReceivedMessage message,
+            string contentType,
             Stream virtualStream,
             CancellationToken cancellation)
         {
-            ISerializer serializer = _provider.Get(message.ContentType);
-            return await serializer.DeserializeAsync(virtualStream, message.ContentType, cancellation);
+            ISerializer serializer = _provider.Get(contentType);
+            return await serializer.DeserializeAsync(virtualStream, contentType, cancellation);
         }
     }
 }

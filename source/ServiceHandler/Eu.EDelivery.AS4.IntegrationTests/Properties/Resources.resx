@@ -408,4 +408,10 @@
   &lt;/Payloads&gt;
 &lt;/SubmitMessage&gt;</value>
   </data>
+  <data name="holodeck_A_db_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-A\db</value>
+  </data>
+  <data name="holodeck_B_db_path" xml:space="preserve">
+    <value>C:\Program Files\Java\holodeck\holodeck-b2b-B\db</value>
+  </data>
 </root>
