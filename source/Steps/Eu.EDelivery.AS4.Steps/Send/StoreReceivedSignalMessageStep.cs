@@ -11,22 +11,22 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Updates the DataStore with the response that was received synchronously after sending an AS4Message.
     /// </summary>
-    public class SendUpdateDataStoreStep : IStep
+    public class StoreReceivedSignalMessageStep : IStep
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;
         private readonly IAS4MessageBodyStore _messageBodyStore;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep" /> class
+        /// Initializes a new instance of the <see cref="StoreReceivedSignalMessageStep" /> class
         /// </summary>
-        public SendUpdateDataStoreStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
+        public StoreReceivedSignalMessageStep() : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SendUpdateDataStoreStep"/> class.
+        /// Initializes a new instance of the <see cref="StoreReceivedSignalMessageStep"/> class.
         /// </summary>
         /// <param name="createDatastoreContext">The create Datastore Context.</param>
         /// <param name="messageBodyStore"></param>
-        public SendUpdateDataStoreStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyStore messageBodyStore)
+        public StoreReceivedSignalMessageStep(Func<DatastoreContext> createDatastoreContext, IAS4MessageBodyStore messageBodyStore)
         {
             _createDatastoreContext = createDatastoreContext;
             _messageBodyStore = messageBodyStore;

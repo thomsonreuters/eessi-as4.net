@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
         /// </summary>
-        public SendAS4MessageStep() : this(Registry.Instance.CreateDatastoreContext) {}
+        public SendAS4MessageStep() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// </summary>
         /// <param name="createDatastore"></param>
         public SendAS4MessageStep(Func<DatastoreContext> createDatastore)
-            : this(createDatastore, new ReliableHttpClient()) {}
+            : this(createDatastore, new ReliableHttpClient()) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class.
@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 HttpWebRequest request = CreateWebRequest(messagingContext);
                 await TryHandleHttpRequestAsync(request, messagingContext).ConfigureAwait(false);
 
-               return await TryHandleHttpResponseAsync(request, messagingContext, cancellation).ConfigureAwait(false);
+                return await TryHandleHttpResponseAsync(request, messagingContext, cancellation).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -177,14 +177,12 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static long TryGetMessageSize(MessagingContext messagingContext)
         {
-            try
+            if (messagingContext.MessageStream.CanSeek)
             {
                 return messagingContext.MessageStream.Length;
             }
-            catch (Exception)
-            {
-                return 0L;
-            }
+
+            return messagingContext.AS4Message.DetermineMessageSize(SerializerProvider.Default);
         }
 
         private async Task<StepResult> TryHandleHttpResponseAsync(
@@ -239,7 +237,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             WebResponse webResponse,
             CancellationToken cancellation)
         {
-            using (AS4Response as4Response = 
+            using (AS4Response as4Response =
                 await AS4Response.Create(originalMessage, webResponse as HttpWebResponse, cancellation))
             {
                 var responseHandler = new EmptyBodyResponseHandler(new PullRequestResponseHandler(new TailResponseHandler()));
@@ -273,7 +271,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static ISendConfiguration GetSendConfigurationFrom(MessagingContext message)
         {
             return message.AS4Message.IsPullRequest
-                       ? (ISendConfiguration) message.SendingPMode?.PullConfiguration
+                       ? (ISendConfiguration)message.SendingPMode?.PullConfiguration
                        : message.SendingPMode?.PushConfiguration;
         }
     }

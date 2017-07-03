@@ -11,13 +11,13 @@ using Xunit;
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
     /// <summary>
-    /// Testing <see cref="SendUpdateDataStoreStep" />
+    /// Testing <see cref="StoreReceivedSignalMessageStep" />
     /// </summary>
-    public class GivenSendUpdateDatastoreFacts : GivenDatastoreStepFacts
+    public class GivenStoreReceivedSignalMessageFacts : GivenDatastoreStepFacts
     {
-        public GivenSendUpdateDatastoreFacts()
+        public GivenStoreReceivedSignalMessageFacts()
         {
-            Step = new SendUpdateDataStoreStep(GetDataStoreContext, StubMessageBodyStore.Default);
+            Step = new StoreReceivedSignalMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
         }
 
         /// <summary>
