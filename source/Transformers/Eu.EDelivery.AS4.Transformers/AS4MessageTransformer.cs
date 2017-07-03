@@ -6,6 +6,7 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
 
@@ -37,12 +38,13 @@ namespace Eu.EDelivery.AS4.Transformers
             {
                 throw new ArgumentNullException(nameof(provider));
             }
-            _provider = provider;            
+
+            _provider = provider;
         }
 
         /// <summary>
-        /// Transform to a <see cref="MessagingContext"/>
-        /// with a <see cref="AS4Message"/> included
+        /// Transform to a <see cref="MessagingContext" />
+        /// with a <see cref="AS4Message" /> included
         /// </summary>
         /// <param name="message"></param>
         /// <param name="cancellationToken"></param>
@@ -68,17 +70,44 @@ namespace Eu.EDelivery.AS4.Transformers
             }
         }
 
-        private async Task<MessagingContext> TransformMessage(ReceivedMessage receivedMessage,
-            CancellationToken cancellationToken)
+        private async Task<MessagingContext> TransformMessage(
+            ReceivedMessage receivedMessage,
+            CancellationToken cancellation)
         {
-            ISerializer serializer = _provider.Get(receivedMessage.ContentType);
-            AS4Message as4Message = await serializer
-                .DeserializeAsync(receivedMessage.RequestStream, receivedMessage.ContentType, cancellationToken);
+            VirtualStream messageStream = await CopyIncomingStreamToVirtualStream(receivedMessage);
 
-            var message = new MessagingContext(as4Message, MessagingContextMode.Unknown);
-            receivedMessage.AssignPropertiesTo(message);
+            messageStream.Position = 0;
 
-            return message;
+            AS4Message as4Message = await DeserializeMessage(receivedMessage, messageStream, cancellation);
+
+            messageStream.Position = 0;
+
+            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown) { MessageStream = messageStream };
+            receivedMessage.AssignPropertiesTo(context);
+
+            return context;
+        }
+
+        private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)
+        {
+            VirtualStream messageStream =
+                VirtualStream.CreateVirtualStream(
+                    receivedMessage.RequestStream.CanSeek
+                        ? receivedMessage.RequestStream.Length
+                        : VirtualStream.ThresholdMax);
+
+            await receivedMessage.RequestStream.CopyToAsync(messageStream);
+
+            return messageStream;
+        }
+
+        private async Task<AS4Message> DeserializeMessage(
+            ReceivedMessage message,
+            Stream virtualStream,
+            CancellationToken cancellation)
+        {
+            ISerializer serializer = _provider.Get(message.ContentType);
+            return await serializer.DeserializeAsync(virtualStream, message.ContentType, cancellation);
         }
     }
 }

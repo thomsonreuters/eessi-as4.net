@@ -135,16 +135,17 @@ namespace Eu.EDelivery.AS4.Repositories
 
             if (File.Exists(fileLocation))
             {
-                FileStream fileStream = File.OpenRead(fileLocation);
+                using (FileStream fileStream = File.OpenRead(fileLocation))
+                {
+                    VirtualStream virtualStream =
+                        VirtualStream.CreateVirtualStream(
+                            fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax);
 
-                VirtualStream virtualStream = VirtualStream.CreateVirtualStream(
-                    fileStream.CanSeek ? fileStream.Length : VirtualStream.ThresholdMax);
+                    await fileStream.CopyToAsync(virtualStream);
+                    virtualStream.Position = 0;
 
-                await fileStream.CopyToAsync(virtualStream);
-                virtualStream.Position = 0;
-                fileStream.Close();
-
-                return virtualStream;
+                    return virtualStream;
+                }
             }
 
             return null;
