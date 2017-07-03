@@ -47,6 +47,12 @@ namespace Eu.EDelivery.AS4.Repositories
             return await For(location).SaveAS4MessageAsync(location, message, cancellation);
         }
 
+        public async Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        {
+            return await For(location).SaveAS4MessageStreamAsync(location, as4MessageStream, cancellation);
+        }
+
+
         /// <summary>
         /// Updates an existing AS4 Message body.
         /// </summary>
@@ -75,7 +81,7 @@ namespace Eu.EDelivery.AS4.Repositories
 
             return entry.Value;
         }
-
+        
         private sealed class AS4MessageRepositoryEntry
         {
             /// <summary>

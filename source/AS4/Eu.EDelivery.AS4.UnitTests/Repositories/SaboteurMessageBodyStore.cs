@@ -54,6 +54,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             throw new NotImplementedException();
         }
 
+        public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
         [Fact]
         public async Task FailsToLoad()
         {

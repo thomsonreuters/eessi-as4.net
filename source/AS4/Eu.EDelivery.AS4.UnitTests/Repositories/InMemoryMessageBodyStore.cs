@@ -50,6 +50,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             return Task.FromResult("not empty location");
         }
 
+        public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        {
+            throw new System.NotImplementedException();
+        }
+
         /// <summary>
         /// Updates an existing AS4 Message body.
         /// </summary>
@@ -61,5 +66,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         {
             return Task.CompletedTask;
         }
+       
     }
 }

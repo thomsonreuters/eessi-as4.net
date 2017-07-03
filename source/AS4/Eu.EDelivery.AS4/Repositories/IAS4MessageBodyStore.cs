@@ -25,6 +25,8 @@ namespace Eu.EDelivery.AS4.Repositories
         /// </returns>
         Task<string> SaveAS4MessageAsync(string location, AS4Message message, CancellationToken cancellation);
 
+        Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation);
+
         /// <summary>
         /// Updates an existing AS4 Message body.
         /// </summary>

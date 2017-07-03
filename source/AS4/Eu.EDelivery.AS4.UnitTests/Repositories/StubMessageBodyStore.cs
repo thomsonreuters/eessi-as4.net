@@ -53,6 +53,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
             return Task.FromResult(_messageLocation);
         }
 
+        public Task<string> SaveAS4MessageStreamAsync(string location, Stream as4MessageStream, CancellationToken cancellation)
+        {
+            return Task.FromResult(_messageLocation);
+        }
+
         /// <summary>
         /// Loads a <see cref="Stream" /> at a given stored <paramref name="location" />.
         /// </summary>
@@ -61,7 +66,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Repositories
         public virtual Task<Stream> LoadMessageBodyAsync(string location)
         {
             return Task.FromResult(Stream.Null);
-        }
+        }       
     }
 
     public class StubMessageBodyStoreFacts
