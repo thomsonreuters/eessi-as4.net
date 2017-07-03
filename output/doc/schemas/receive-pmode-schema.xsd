@@ -156,10 +156,10 @@
   </xs:complexType>
   <xs:complexType name="CollaborationInfo">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="ConversationId" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="AgreementReference" type="tns:AgreementReference" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Service" type="tns:Service" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Action" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="ConversationId" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="AgreementReference">
@@ -183,8 +183,8 @@
   <xs:complexType name="MessageProperty">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Name" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Value" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Type" type="xs:string" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="Deliver">
