@@ -1,5 +1,6 @@
 ﻿using Eu.EDelivery.AS4.Mappings.Core;
 using Eu.EDelivery.AS4.Singletons;
+using Eu.EDelivery.AS4.Xml;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
@@ -14,9 +15,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
         {
             // Arrange
             const string expectedRef = "http://agreements.holodeckb2b.org/examples/agreement1";
-            var expectedInfo = new Xml.CollaborationInfo
+            var expectedInfo = new CollaborationInfo
             {
-                AgreementRef = new Xml.AgreementRef {Value = expectedRef}
+                AgreementRef = new AgreementRef {Value = expectedRef}
             };
 
             // Act
@@ -30,7 +31,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
         public void SucceedsFromXmlToCore_IfActionIsFilled()
         {
             // Arrange
-            var expectedInfo = new Xml.CollaborationInfo {Action = "StoreMessage"};
+            var expectedInfo = new CollaborationInfo {Action = "StoreMessage"};
 
             // Act
             var actualInfo = AS4Mapper.Map<AS4.Model.Core.CollaborationInfo>(expectedInfo);
@@ -43,13 +44,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
         public void SucceedsFromXmlToCore_IfServiceIsFilled()
         {
             // Arrange
-            var expectedInfo = new Xml.CollaborationInfo {Service = new Xml.Service {type = "org:holodeckb2b:services", Value = "Examples"}};
+            var expectedInfo = new CollaborationInfo {Service = new Service {type = "org:holodeckb2b:services", Value = "Examples"}};
 
             // Act
             var actualInfo = AS4Mapper.Map<AS4.Model.Core.CollaborationInfo>(expectedInfo);
 
             // Assert
-            Xml.Service expectedService = expectedInfo.Service;
+            Service expectedService = expectedInfo.Service;
             AS4.Model.Core.Service actualService = actualInfo.Service;
 
             Assert.Equal(expectedService.type, actualService.Type);
@@ -60,7 +61,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Mappings.Core
         public void SucceedsFromXmlToCore_IfConversationId()
         {
             // Arrange
-            var expectedInfo = new Xml.CollaborationInfo {ConversationId = "org:holodeckb2b:example:conversation"};
+            var expectedInfo = new CollaborationInfo {ConversationId = "org:holodeckb2b:example:conversation"};
 
             // Act
             var actualInfo = AS4Mapper.Map<AS4.Model.Core.CollaborationInfo>(expectedInfo);

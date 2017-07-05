@@ -7,8 +7,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class MessagePackaging
     {
         public PartyInfo PartyInfo { get; set; }
-        public CollaborationInfo CollaborationInfo { get; set; }
 
+        public CollaborationInfo CollaborationInfo { get; set; }        
+        
         [XmlArray("MessageProperties")]
         [XmlArrayItem("MessageProperty")]
         public List<MessageProperty> MessageProperties { get; set; }

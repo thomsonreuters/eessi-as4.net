@@ -16,7 +16,7 @@
     </TlsConfiguration>
   </PushConfiguration>
   <PullConfiguration>
-    <SubChannel />
+    <Mpc />
   </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
@@ -93,12 +93,12 @@
       <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>
-      </AgreementReference>
-      <Action>eu:sample:03</Action>
+      </AgreementReference>      
       <Service>
         <Value>getting:started</Value>
         <Type>org:europa:services</Type>
       </Service>
+      <Action>eu:sample:03</Action>
     </CollaborationInfo>
     <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>

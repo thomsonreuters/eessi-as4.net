@@ -3,81 +3,81 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
-  <Id>eessi-push-send-pmode</Id>
-  <Mep>OneWay</Mep>
-  <MepBinding>Push</MepBinding>
-  <PushConfiguration>
-    <Protocol>
-      <Url>[Add the URL of the AP Outbox Service here]</Url>
-    </Protocol>
-    <TlsConfiguration>
-      <IsEnabled>true</IsEnabled>
-      <TlsVersion>Tls12</TlsVersion>
-      <ClientCertificateReference>
-		<ClientCertificateFindValue>[Add the serial number of your Institution's TLS client certificate here]</ClientCertificateFindValue>
-        <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
-      </ClientCertificateReference>
-    </TlsConfiguration>
-  </PushConfiguration>
-  <Security>
-    <Signing>
-      <IsEnabled>true</IsEnabled>
-      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
-       <PrivateKeyFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</PrivateKeyFindValue>
-      <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
-      <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
-      <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
-    </Signing>
-  </Security>
-  <MessagePackaging>
-	<IsMultiHop>true</IsMultiHop>
-    <CollaborationInfo>
-      <Service>
-        <Type>urn:eu:europa:ec:dgempl:eessi</Type>
-        <Value>BusinessMessaging</Value>
-      </Service>
-      <Action>Send</Action>
-    </CollaborationInfo>
-    <PartyInfo>
-      <FromParty>
-        <PartyIds>
-          <PartyId>
-            <Id>[Add the EESSI InstitutionId of your Institution here]</Id>
-            <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
-          </PartyId>
-        </PartyIds>
-        <Role>urn:eu:europa:ec:dgempl:eessi:ir:institution</Role>
-      </FromParty>
-	  <!--It's advised to remove the ToParty from this PMode and 
-	  provide it dynamically as part of the Subit operation, 
-	  so you can reuse this PMode to send to all EESSI participants-->
-      <ToParty>
-        <PartyIds>
-          <PartyId>
-            <Id>[Add the EESSI InstitutionId of the counterpary Institution here]</Id>
-            <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
-          </PartyId>
-        </PartyIds>
-        <Role>urn:eu:europa:ec:dgempl:eessi:ir:institution</Role>
-      </ToParty>
-    </PartyInfo>
-  </MessagePackaging>
-  <ReceiptHandling>
-    <NotifyMessageProducer>true</NotifyMessageProducer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\receipts\" />
-      </Parameters>
-    </NotifyMethod>
-  </ReceiptHandling>
+    <Id>eessi-push-send-pmode</Id>
+    <Mep>OneWay</Mep>
+    <MepBinding>Push</MepBinding>
+    <PushConfiguration>
+        <Protocol>
+            <Url>[Add the URL of the AP Outbox Service here]</Url>
+        </Protocol>
+        <TlsConfiguration>
+            <IsEnabled>true</IsEnabled>
+            <TlsVersion>Tls12</TlsVersion>
+            <ClientCertificateReference>
+                <ClientCertificateFindType>FindBySerialNumber</ClientCertificateFindType>
+                <ClientCertificateFindValue>[Add the serial number of your Institution's TLS client certificate here]</ClientCertificateFindValue>
+            </ClientCertificateReference>
+        </TlsConfiguration>
+    </PushConfiguration>
+    <ReceiptHandling>
+        <NotifyMessageProducer>true</NotifyMessageProducer>
+        <NotifyMethod>
+            <Type>FILE</Type>
+            <Parameters>
+                <Parameter name="location" value=".\messages\receipts\" />
+            </Parameters>
+        </NotifyMethod>
+    </ReceiptHandling>
     <ErrorHandling>
-    <NotifyMessageProducer>true</NotifyMessageProducer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\errors\" />
-      </Parameters>
-    </NotifyMethod>
-  </ErrorHandling>
+        <NotifyMessageProducer>true</NotifyMessageProducer>
+        <NotifyMethod>
+            <Type>FILE</Type>
+            <Parameters>
+                <Parameter name="location" value=".\messages\errors\" />
+            </Parameters>
+        </NotifyMethod>
+    </ErrorHandling>
+    <Security>
+        <Signing>
+            <IsEnabled>true</IsEnabled>
+            <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+            <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
+            <PrivateKeyFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</PrivateKeyFindValue>
+            <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
+            <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
+        </Signing>
+    </Security>
+    <MessagePackaging>        
+        <PartyInfo> 
+            <FromParty>
+                <PartyIds>
+                    <PartyId>
+                        <Id>[Add the EESSI InstitutionId of your Institution here]</Id>
+                        <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
+                    </PartyId>
+                </PartyIds>
+                <Role>urn:eu:europa:ec:dgempl:eessi:ir:institution</Role>
+            </FromParty>
+            <!--It's advised to remove the ToParty from this PMode and 
+      provide it dynamically as part of the Subit operation, 
+      so you can reuse this PMode to send to all EESSI participants-->
+            <ToParty>
+                <PartyIds>
+                    <PartyId>
+                        <Id>[Add the EESSI InstitutionId of the counterpary Institution here]</Id>
+                        <Type>urn:eu:europa:ec:dgempl:eessi:ir</Type>
+                    </PartyId>
+                </PartyIds>
+                <Role>urn:eu:europa:ec:dgempl:eessi:ir:institution</Role>
+            </ToParty>
+        </PartyInfo>
+        <CollaborationInfo>
+            <Service>
+                <Value>BusinessMessaging</Value>
+                <Type>urn:eu:europa:ec:dgempl:eessi</Type>        
+            </Service>
+            <Action>Send</Action>
+        </CollaborationInfo>
+        <IsMultiHop>true</IsMultiHop>
+    </MessagePackaging>
 </PMode>

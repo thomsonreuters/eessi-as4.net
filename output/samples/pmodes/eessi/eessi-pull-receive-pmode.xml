@@ -20,8 +20,8 @@
   <MessagePackaging>
    <CollaborationInfo>
       <Service>
-        <Type>urn:eu:europa:ec:dgempl:eessi</Type>
         <Value>BusinessMessaging</Value>
+        <Type>urn:eu:europa:ec:dgempl:eessi</Type>
       </Service>
       <Action>Send</Action>
     </CollaborationInfo>
@@ -41,22 +41,4 @@
         </Parameters>
     </DeliverMethod>
   </Deliver>
-    <ReceiptHandling>
-    <NotifyMessageProducer>true</NotifyMessageProducer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\receipts\" />
-      </Parameters>
-    </NotifyMethod>
-  </ReceiptHandling>
-    <ErrorHandling>
-    <NotifyMessageProducer>true</NotifyMessageProducer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\errors\" />
-      </Parameters>
-    </NotifyMethod>
-  </ErrorHandling>
 </PMode>

@@ -97,6 +97,9 @@ namespace Eu.EDelivery.AS4
 
             public const string SubjectKeyIdentifier =
                 "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509SubjectKeyIdentifier";
+
+            // Eu.EDelivery Constants
+            public const string ProcessingMode = "eu:edelivery:as4:pmode";
         }
     }
 }

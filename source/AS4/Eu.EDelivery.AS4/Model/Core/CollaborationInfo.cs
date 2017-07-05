@@ -2,21 +2,21 @@
 {
     public class CollaborationInfo
     {
-        public string ConversationId { get; set; }
-        public AgreementReference AgreementReference { get; set; }
-        public string Action { get; set; }
+        public AgreementReference AgreementReference { get; set; }        
         public Service Service { get; set; }
-                
+        public string Action { get; set; }
+        public string ConversationId { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CollaborationInfo"/> class. 
         /// Create a basic <see cref="CollaborationInfo"/> Model
         /// </summary>
         public CollaborationInfo()
         {
-            this.AgreementReference = new AgreementReference();
-            this.Service = new Service();
-            this.Action = "http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test";
-            this.ConversationId = "1";
+            AgreementReference = new AgreementReference();
+            Service = new Service();
+            Action = "http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test";
+            ConversationId = "1";
         }
 
         /// <summary>
