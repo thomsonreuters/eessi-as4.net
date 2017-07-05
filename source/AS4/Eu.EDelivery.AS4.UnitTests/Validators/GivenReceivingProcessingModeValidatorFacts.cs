@@ -15,13 +15,13 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [Fact]
         public void PModeIsValid()
         {
-           TestReceivingPModeValidation(pmode => { }, expected: true);
+            TestReceivingPModeValidation(pmode => { }, expected: true);
         }
 
         [Fact]
         public void PModeIsNotValid_IfNoReceiptHandlingIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ReceiptHandling = null);
+            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.ReceiptHandling = null);
         }
 
         [Fact]
@@ -31,21 +31,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void PModeIsNotValid_IfNoErrorHandlignIsPresent()
+        public void PModeIsNotValid_IfNoErrorHandlingIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ErrorHandling = null);
+            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.ErrorHandling = null);
         }
 
         [Fact]
         public void PModeIsNotValid_IfNoReceiptHandlingSendingPModeIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ReceiptHandling.SendingPMode = null);
+            TestReceivingPModeValidation(pmode => pmode.ReplyHandling.SendingPMode = null);
         }
 
         [Fact]
-        public void PModeIsNotValid_IfNoErrorHandlignSendingPModeisPresent()
+        public void PModeIsNotValid_IfNoReplyHandlingIsPresent()
         {
-            TestReceivingPModeValidation(pmode => pmode.ErrorHandling.SendingPMode = null);
+            TestReceivingPModeValidation(pmode => pmode.ReplyHandling = null);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 pmode =>
                 {
                     pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.DeliverMethod.Parameters.Add(new Parameter {Name = null, Value = null});
+                    pmode.Deliver.DeliverMethod.Parameters.Add(new Parameter { Name = null, Value = null });
                 });
         }
 
@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 pmode =>
                 {
                     pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.PayloadReferenceMethod.Parameters.Add(new Parameter {Name = null, Value = null});
+                    pmode.Deliver.PayloadReferenceMethod.Parameters.Add(new Parameter { Name = null, Value = null });
                 });
         }
 
@@ -134,15 +134,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             var method = new Method
             {
                 Type = "deliver-type",
-                Parameters = new List<Parameter> {new Parameter {Name = "parameter-name", Value = "parameter-value"}}
+                Parameters = new List<Parameter> { new Parameter { Name = "parameter-name", Value = "parameter-value" } }
             };
 
             return new ReceivingProcessingMode
             {
                 Id = "pmode-id",
-                ReceiptHandling = new ReceiveReceiptHandling {SendingPMode = "send-pmode"},
-                ErrorHandling = new ReceiveErrorHandling {SendingPMode = "send-pmode"},
-                Deliver = new Deliver {IsEnabled = true, DeliverMethod = method, PayloadReferenceMethod = method}
+                ReplyHandling = new ReplyHandlingSetting() { SendingPMode = "send-pmode" },
+                Deliver = new Deliver { IsEnabled = true, DeliverMethod = method, PayloadReferenceMethod = method }
             };
         }
     }

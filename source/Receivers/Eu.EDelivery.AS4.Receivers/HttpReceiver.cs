@@ -485,7 +485,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     if (processorResult?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
                     {
-                        int errorHttpCode = processorResult.ReceivingPMode.ErrorHandling.ResponseHttpCode;
+                        int errorHttpCode = processorResult.ReceivingPMode.ReplyHandling.ErrorHandling.ResponseHttpCode;
 
                         if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                         {

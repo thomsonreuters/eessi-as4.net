@@ -31,12 +31,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static bool IsReplyPatternCallback(MessagingContext message)
         {
-            if (message.AS4Message.PrimarySignalMessage is Receipt)
-            {
-                return message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
-            }
-
-            return message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
+            return message.ReceivingPMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
         private static async Task<StepResult> CreateEmptySoapResult(MessagingContext messagingContext)

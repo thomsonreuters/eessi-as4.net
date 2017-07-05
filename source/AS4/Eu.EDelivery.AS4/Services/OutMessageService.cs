@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.Services
 
             foreach (var messageUnit in messageUnits)
             {
-                var sendingPMode = GetSendingPMode(messagingContext, DetermineSignalMessageType(messageUnit));
+                var sendingPMode = GetSendingPMode(messageUnit is SignalMessage, messagingContext);
 
                 OutMessage outMessage =
                     CreateOutMessageForMessageUnit(
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Services
             else
             {
                 (OutStatus status, Operation operation) replyPattern =
-                    DetermineCorrectReplyPattern(outMessage.EbmsMessageType, messageContext);
+                    DetermineCorrectReplyPattern(messageContext.ReceivingPMode);
 
                 outMessage.Status = replyPattern.status;
                 outMessage.Operation = replyPattern.operation;
@@ -112,27 +112,8 @@ namespace Eu.EDelivery.AS4.Services
 
             return outMessage;
         }
-        private static MessageType DetermineSignalMessageType(MessageUnit messageUnit)
-        {
-            if (messageUnit is UserMessage)
-            {
-                return MessageType.UserMessage;
-            }
 
-            if (messageUnit is Receipt)
-            {
-                return MessageType.Receipt;
-            }
-
-            if (messageUnit is Error)
-            {
-                return MessageType.Error;
-            }
-
-            throw new NotSupportedException($"There exists no MessageType mapping for the specified MessageUnit type {typeof(MessageUnit)}");
-        }
-
-        private static SendingProcessingMode GetSendingPMode(MessagingContext context, MessageType messageType)
+        private static SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
         {
             if (context.SendingPMode?.Id != null)
             {
@@ -140,43 +121,23 @@ namespace Eu.EDelivery.AS4.Services
             }
 
             ReceivingProcessingMode receivePMode = context.ReceivingPMode;
-            // TODO: review this, needs to be modified: ReceiptHandling & ErrorHandling will not have seperate replypatterns.
-            // we can check on 'is SignalMessage' instead; and than the messageType argument is no longer needed here.
-            if (messageType == MessageType.Receipt && receivePMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback)
-            {
-                return Config.Instance.GetSendingPMode(receivePMode.ReceiptHandling.SendingPMode);
-            }
 
-            if (messageType == MessageType.Error && receivePMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback)
+            if (isSignalMessage && receivePMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
             {
-                return Config.Instance.GetSendingPMode(receivePMode.ErrorHandling.SendingPMode);
+                return Config.Instance.GetSendingPMode(receivePMode.ReplyHandling.SendingPMode);
             }
 
             return null;
         }
 
-        private static (OutStatus, Operation) DetermineCorrectReplyPattern(
-            MessageType outMessageType,
-            MessagingContext message)
+        private static (OutStatus, Operation) DetermineCorrectReplyPattern(ReceivingProcessingMode receivingPMode)
         {
-            bool isCallback = outMessageType == MessageType.Error
-                                  ? IsErrorReplyPatternCallback(message)
-                                  : IsReceiptReplyPatternCallback(message);
+            bool isCallback = receivingPMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback;
 
             Operation operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
             OutStatus status = isCallback ? OutStatus.Created : OutStatus.Sent;
 
             return (status, operation);
-        }
-
-        private static bool IsErrorReplyPatternCallback(MessagingContext message)
-        {
-            return message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
-        }
-
-        private static bool IsReceiptReplyPatternCallback(MessagingContext message)
-        {
-            return message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
         /// <summary>
