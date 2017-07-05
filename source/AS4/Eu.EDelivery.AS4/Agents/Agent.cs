@@ -103,7 +103,7 @@ namespace Eu.EDelivery.AS4.Agents
             catch (Exception exception)
             {
                 Logger.Error("Could not transform message");
-                return await _exceptionHandler.HandleTransformationException(exception, message.RequestStream);
+                return await _exceptionHandler.HandleTransformationException(exception, message.UnderlyingStream);
             }
 
             return await TryExecuteSteps(context, cancellation);

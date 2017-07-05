@@ -259,7 +259,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public void Dispose()
         {
             AS4Message?.CloseAttachments();
-            ReceivedMessage?.RequestStream?.Dispose();
+            ReceivedMessage?.UnderlyingStream?.Dispose();
         }
     }
 

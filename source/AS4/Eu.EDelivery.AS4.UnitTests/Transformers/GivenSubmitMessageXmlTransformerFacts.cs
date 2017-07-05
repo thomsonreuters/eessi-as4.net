@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Assert
                 Assert.Null(messagingContext.SubmitMessage.PMode);
 
-            receivedmessage.RequestStream.Dispose();
+            receivedmessage.UnderlyingStream.Dispose();
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Assert
                 Assert.Equal(expectedPModeId, messagingContext.SubmitMessage.Collaboration.AgreementRef.PModeId);
 
-            receivedMessage.RequestStream.Dispose();
+            receivedMessage.UnderlyingStream.Dispose();
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             // Act / Assert
             await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
 
-            receivedMessage.RequestStream.Dispose();
+            receivedMessage.UnderlyingStream.Dispose();
         }
 
         [Fact]

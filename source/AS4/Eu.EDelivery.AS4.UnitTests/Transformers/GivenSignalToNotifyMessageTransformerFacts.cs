@@ -70,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
 
             // Assert: check if the original Receipt is a part of the NotifyMessage.
             var document = new XmlDocument {PreserveWhitespace = true};
-            document.LoadXml(Encoding.UTF8.GetString(((MemoryStream) receivedSignal.RequestStream).ToArray()));
+            document.LoadXml(Encoding.UTF8.GetString(((MemoryStream) receivedSignal.UnderlyingStream).ToArray()));
 
             Assert.Equal(
                 Canonicalize(document.SelectSingleNode("//*[local-name()='SignalMessage']")),
@@ -125,11 +125,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             receiptContent.Position = 0;
             InMessage receiptInMessage = CreateInMessageFor(receiptMessage);
 
-            var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage)
-            {
-                ContentType = receiptInMessage.ContentType,
-                RequestStream = receiptContent
-            };
+            var receivedMessage = new ReceivedMessageEntityMessage(receiptInMessage, receiptContent, receiptInMessage.ContentType);
 
             return receivedMessage;
         }

@@ -30,7 +30,7 @@ namespace Eu.EDelivery.AS4.Transformers
             ReceivedMessage receivedMessage,
             CancellationToken cancellationToken)
         {
-            if (receivedMessage.RequestStream == null)
+            if (receivedMessage.UnderlyingStream == null)
             {
                 throw new InvalidDataException("Invalid incoming request stream.");
             }
@@ -58,7 +58,7 @@ namespace Eu.EDelivery.AS4.Transformers
         private static async Task<SendingProcessingMode> DeserializeValidPMode(ReceivedMessage receivedMessage)
         {
             SendingProcessingMode pmode =
-                await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.RequestStream);
+                await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.UnderlyingStream);
             var validator = new SendingProcessingModeValidator();
 
             ValidationResult result = validator.Validate(pmode);

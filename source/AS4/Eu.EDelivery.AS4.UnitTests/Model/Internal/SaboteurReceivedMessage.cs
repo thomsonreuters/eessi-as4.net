@@ -10,9 +10,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model.Internal
         /// <summary>
         /// Initializes a new instance of the <see cref="SaboteurReceivedMessage"/> class.
         /// </summary>
-        public SaboteurReceivedMessage()
+        public SaboteurReceivedMessage() : base(Stream.Null)
         {
-            RequestStream = Stream.Null;
         }
 
         /// <summary>

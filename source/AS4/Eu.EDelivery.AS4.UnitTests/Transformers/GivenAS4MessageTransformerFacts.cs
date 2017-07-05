@@ -110,7 +110,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             public async Task ThenTransformFails_IfRequestStreamIsNull()
             {
                 // Arrange
-                var saboteurMessage = new ReceivedMessage(requestStream: null);
+                var saboteurMessage = new ReceivedMessage(underlyingStream: null);
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<Exception>(() => Transform(saboteurMessage));

@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             Logger.Info("Transforming ReceivedMessage to InternalMessage");
 
-            SubmitMessage submitMessage = DeserializeSubmitMessage(message.RequestStream);
+            SubmitMessage submitMessage = DeserializeSubmitMessage(message.UnderlyingStream);
             ValidateSubmitMessage(submitMessage);
 
             return await Task.FromResult(new MessagingContext(submitMessage));

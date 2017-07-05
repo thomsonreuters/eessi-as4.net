@@ -169,8 +169,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 var sentStream = messagingContext.ReceivedMessage;
                 var serializer = SerializerProvider.Default.Get(sentStream.ContentType);
 
-                sentStream.RequestStream.Position = 0;
-                return await serializer.DeserializeAsync(sentStream.RequestStream, sentStream.ContentType,
+                sentStream.UnderlyingStream.Position = 0;
+                return await serializer.DeserializeAsync(sentStream.UnderlyingStream, sentStream.ContentType,
                                                    CancellationToken.None);
             }
             catch (WebException exception)
@@ -194,15 +194,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
             {
-                await messagingContext.ReceivedMessage.RequestStream.CopyToAsync(requestStream);
+                await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);
             }
         }
 
         private static long TryGetMessageSize(MessagingContext messagingContext)
         {
-            if (messagingContext.ReceivedMessage.RequestStream.CanSeek)
+            if (messagingContext.ReceivedMessage.UnderlyingStream.CanSeek)
             {
-                return messagingContext.ReceivedMessage.RequestStream.Length;
+                return messagingContext.ReceivedMessage.UnderlyingStream.Length;
             }
 
             if (messagingContext.AS4Message != null)

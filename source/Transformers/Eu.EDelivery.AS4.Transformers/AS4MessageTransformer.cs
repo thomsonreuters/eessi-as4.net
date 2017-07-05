@@ -59,7 +59,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private void PreConditions(ReceivedMessage message)
         {
-            if (message.RequestStream == null)
+            if (message.UnderlyingStream == null)
             {
                 throw new InvalidDataException("The incoming stream is not an ebMS Message");
             }
@@ -88,11 +88,11 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             VirtualStream messageStream =
                 VirtualStream.CreateVirtualStream(
-                    receivedMessage.RequestStream.CanSeek
-                        ? receivedMessage.RequestStream.Length
+                    receivedMessage.UnderlyingStream.CanSeek
+                        ? receivedMessage.UnderlyingStream.Length
                         : VirtualStream.ThresholdMax);
 
-            await receivedMessage.RequestStream.CopyToAsync(messageStream);
+            await receivedMessage.UnderlyingStream.CopyToAsync(messageStream);
 
             messageStream.Position = 0;
 

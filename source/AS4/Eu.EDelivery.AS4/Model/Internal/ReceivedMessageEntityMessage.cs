@@ -1,3 +1,4 @@
+using System.IO;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -12,7 +13,8 @@ namespace Eu.EDelivery.AS4.Model.Internal
     {
         public MessageEntity MessageEntity { get; }
 
-        public ReceivedMessageEntityMessage(MessageEntity messageEntity)
+        public ReceivedMessageEntityMessage(MessageEntity messageEntity, Stream underlyingStream, string contentType) 
+            : base(underlyingStream, contentType)
         {
             MessageEntity = messageEntity;
         }

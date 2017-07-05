@@ -55,7 +55,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             var as4Message = AS4Message.Create(new FilledUserMessage());
             InsertToBeSentUserMessage(as4Message);
             MessagingContext context = CreateSendMessagingContext(as4Message);
-            context.ReceivedMessage.ContentType = null;
 
             // Act / Assert
             // Act 
@@ -81,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             MessagingContext context = CreateSendMessagingContext(as4Message);
 
             // Act 
-            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));            
+            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));
             await step.ExecuteAsync(context, CancellationToken.None);
 
             // Assert
@@ -93,7 +92,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     Assert.Equal(OutStatus.Sent, message.Status);
                 });
         }
-        
+
         private void InsertToBeSentUserMessage(AS4Message as4Message)
         {
             using (var context = new DatastoreContext(Options))

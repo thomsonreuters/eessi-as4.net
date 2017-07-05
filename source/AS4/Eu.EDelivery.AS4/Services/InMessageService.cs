@@ -104,16 +104,16 @@ namespace Eu.EDelivery.AS4.Services
             string location =
                 await messageBodyStore.SaveAS4MessageStreamAsync(
                     location: _configuration.InMessageStoreLocation,
-                    as4MessageStream: context.ReceivedMessage.RequestStream,
+                    as4MessageStream: context.ReceivedMessage.UnderlyingStream,
                     cancellation: cancellationToken);
 
             try
             {
-                context.ReceivedMessage.RequestStream.Position = 0;
+                context.ReceivedMessage.UnderlyingStream.Position = 0;
 
                 var deserializer = SerializerProvider.Default.Get(context.ReceivedMessage.ContentType);
 
-                var as4Message = await deserializer.DeserializeAsync(context.ReceivedMessage.RequestStream, context.ReceivedMessage.ContentType,
+                var as4Message = await deserializer.DeserializeAsync(context.ReceivedMessage.UnderlyingStream, context.ReceivedMessage.ContentType,
                                                                      cancellationToken);
 
 

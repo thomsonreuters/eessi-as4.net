@@ -104,11 +104,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var inMessage = new InMessage();
             updateInMessage(inMessage);
 
-            return new ReceivedMessageEntityMessage(inMessage)
-            {
-                RequestStream = as4Message.ToStream(),
-                ContentType = as4Message.ContentType
-            };
+            return new ReceivedMessageEntityMessage(inMessage, as4Message.ToStream(), as4Message.ContentType);
         }
     }
 }

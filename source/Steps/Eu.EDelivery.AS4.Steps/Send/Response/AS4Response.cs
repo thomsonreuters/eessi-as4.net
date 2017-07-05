@@ -82,7 +82,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                     {
                         Logger.Info("No ContentType set - returning an empty AS4 response.");
 
-                        var streamReader = new StreamReader(receivedStream.RequestStream);
+                        var streamReader = new StreamReader(receivedStream.UnderlyingStream);
                         string responseContent = await streamReader.ReadToEndAsync();
 
                         Logger.Info(responseContent);
@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 }
 
                 var serializer = SerializerProvider.Default.Get(receivedStream.ContentType);
-                return await serializer.DeserializeAsync(receivedStream.RequestStream, receivedStream.ContentType, cancellation);
+                return await serializer.DeserializeAsync(receivedStream.UnderlyingStream, receivedStream.ContentType, cancellation);
             }
             catch (Exception exception)
             {
@@ -101,7 +101,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             }
             finally
             {
-                receivedStream.RequestStream.Position = 0;
+                receivedStream.UnderlyingStream.Position = 0;
             }
         }
 

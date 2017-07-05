@@ -244,7 +244,7 @@ namespace Eu.EDelivery.AS4.Receivers
                         }
                         finally
                         {
-                            receivedMessage.RequestStream.Dispose();
+                            receivedMessage.UnderlyingStream.Dispose();
                         }
                     }
 
@@ -301,10 +301,10 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
                 {
-                    await message.RequestStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                    await message.UnderlyingStream.CopyToAsync(destinationStream).ConfigureAwait(false);
                 }
 
-                message.RequestStream.Position = 0;
+                message.UnderlyingStream.Position = 0;
             }
 
             /// <summary>

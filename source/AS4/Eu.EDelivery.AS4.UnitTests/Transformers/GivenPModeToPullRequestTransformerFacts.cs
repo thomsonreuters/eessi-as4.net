@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         {
             get
             {
-                yield return new object[] { new ReceivedMessage(requestStream: null) };
+                yield return new object[] { new ReceivedMessage(underlyingStream: null) };
 
                 SendingProcessingMode invalidSendingPMode = new ValidSendingPModeFactory().Create("my id");
                 invalidSendingPMode.MepBinding = MessageExchangePatternBinding.Pull;
@@ -72,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 // Deserialize the ReceivedMessage so that we can verify the content.
                 var serializer = SerializerProvider.Default.Get(message.ReceivedMessage.ContentType);
 
-                var as4Message = await serializer.DeserializeAsync(message.ReceivedMessage.RequestStream, message.ReceivedMessage.ContentType, CancellationToken.None);
+                var as4Message = await serializer.DeserializeAsync(message.ReceivedMessage.UnderlyingStream, message.ReceivedMessage.ContentType, CancellationToken.None);
 
                 var actualSignalMessage = as4Message.PrimarySignalMessage as PullRequest;
                 Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
