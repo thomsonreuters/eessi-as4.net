@@ -30,11 +30,11 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            if (response.ReceivedMessageHeader.IsEmpty)
+            if (response.ReceivedAS4Message.IsEmpty)
             {
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    return StepResult.Success(new MessagingContext(response.ReceivedMessageHeader, MessagingContextMode.Send)).AndStopExecution();
+                    return StepResult.Success(new MessagingContext(response.ReceivedAS4Message, MessagingContextMode.Send)).AndStopExecution();
                 }
 
                 Logger.Error($"Response with HTTP status {response.StatusCode} received.");

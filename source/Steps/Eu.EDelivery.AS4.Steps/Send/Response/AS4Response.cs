@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
@@ -39,7 +38,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <summary>
         /// Gets the Message from the AS4 response.
         /// </summary>
-        public AS4Message ReceivedMessageHeader { get; private set; }
+        public AS4Message ReceivedAS4Message { get; private set; }
 
         public ReceivedMessage ReceivedStream { get; private set; }
 
@@ -67,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
             contentStream.Position = 0;
 
             response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);
-            response.ReceivedMessageHeader = await TryDeserializeReceivedStream(response.ReceivedStream, cancellation);
+            response.ReceivedAS4Message = await TryDeserializeReceivedStream(response.ReceivedStream, cancellation);
 
             return response;
         }
@@ -124,12 +123,12 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         HttpStatusCode StatusCode { get; }
 
         /// <summary>
-        /// Gets the Message from the AS4 response.
+        /// Gets the an AS4Message representation of the response.
         /// </summary>
-        AS4Message ReceivedMessageHeader { get; }
+        AS4Message ReceivedAS4Message { get; }
 
         /// <summary>
-        /// Gets the received stream
+        /// Gets a Stream that contains the response like it has been received.
         /// </summary>
         ReceivedMessage ReceivedStream { get; }
 
