@@ -57,7 +57,7 @@ export class CrudComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = new Array<Subscription>();
     constructor(private _dialogService: DialogService, @Inject(PMODECRUD_SERVICE) private _crudService: ICrudPmodeService, private _modalService: ModalService, private _activatedRoute: ActivatedRoute,
         private _router: Router, private _routerService: RouterService) {
-        this.form = this._crudService.getForm(null);
+        this.form = this._crudService.getForm(null).build();
     }
     public ngOnInit() {
         if (!!!this._activatedRoute.snapshot.params['pmode']) {
@@ -87,7 +87,7 @@ export class CrudComponent implements OnInit, OnDestroy {
         this.subscriptions
             .push(this._crudService.obsGet().subscribe((result) => {
                 this.currentPmode = result;
-                this._crudService.patchForm(this.form, result);
+                this.form = this._crudService.getForm(result).build();
                 this.form.markAsPristine();
                 if (!!!result) {
                     return;
@@ -131,7 +131,7 @@ export class CrudComponent implements OnInit, OnDestroy {
             this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode.name);
             this.currentPmode = undefined;
         }
-        this._crudService.patchForm(this.form, this.currentPmode);
+        this.form = this._crudService.getForm(this.currentPmode).build();
         this.form.markAsPristine();
     }
     public delete() {
@@ -214,7 +214,7 @@ export class CrudComponent implements OnInit, OnDestroy {
     private afterAdd() {
         this.pmodes.push(this.newName);
         this.isNewMode = true;
-        this._crudService.patchForm(this.form, this.currentPmode);
+        this.form = this._crudService.getForm(this.currentPmode).build();
         this.form.markAsDirty();
     }
 }

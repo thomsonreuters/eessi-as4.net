@@ -12,4 +12,8 @@ export class MessageFilter extends BaseFilter {
     public mep: string;
     public ebmsMessageType: string;
     public exceptionType: string;
+    public fromParty: string;
+    public toparty: string;
+    public showTestMessages: boolean;
+    public showDuplicates: boolean;
 }

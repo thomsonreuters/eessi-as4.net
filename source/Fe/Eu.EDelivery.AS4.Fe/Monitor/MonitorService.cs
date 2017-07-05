@@ -125,6 +125,48 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             });
         }
 
+        public async Task<Stream> DownloadMessageBody(Direction direction, string messageId)
+        {
+            if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
+            if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
+
+            if (direction == Direction.Inbound)
+            {
+                return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
+            }
+
+            return await datastoreRepository.GetOutMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
+        }
+
+        public async Task<byte[]> DownloadExceptionBody(Direction direction, string messageId)
+        {
+            if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
+            if (direction == Direction.Inbound)
+            {
+                return await context.InExceptions
+                    .Where(msg => msg.EbmsRefToMessageId == messageId)
+                    .Select(msg => msg.MessageBody)
+                    .FirstOrDefaultAsync();
+            }
+
+            return await context.OutExceptions
+                .Where(msg => msg.EbmsRefToMessageId == messageId)
+                .Select(msg => msg.MessageBody)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<MessageDetails> GetMessageDetails(Direction direction, string messageId)
+        {
+            if (messageId == null) throw new ArgumentNullException(nameof(messageId));
+            if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
+
+            var data = await GetMessage(direction).Where(x => x.EbmsMessageId == messageId).Select(x => x.SoapEnvelope).FirstOrDefaultAsync();
+            return new MessageDetails
+            {
+                SoapEnvelope = data
+            };
+        }
+
         private static void UpdateHasExceptions(MessageResult<Message> returnValue, List<string> exceptionIds)
         {
             returnValue.Messages = returnValue.Messages.Select(x =>
@@ -156,34 +198,10 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             return result;
         }
 
-        public async Task<Stream> DownloadMessageBody(Direction direction, string messageId)
+        private IQueryable<MessageEntity> GetMessage(Direction direction)
         {
-            if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
-            if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int) direction, typeof(Direction));
-
-            if (direction == Direction.Inbound)
-            {
-                return await datastoreRepository.GetInMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
-            }
-
-            return await datastoreRepository.GetOutMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
-        }
-
-        public async Task<byte[]> DownloadExceptionBody(Direction direction, string messageId)
-        {
-            if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
-            if (direction == Direction.Inbound)
-            {
-                return await context.InExceptions
-                    .Where(msg => msg.EbmsRefToMessageId == messageId)
-                    .Select(msg => msg.MessageBody)
-                    .FirstOrDefaultAsync();
-            }
-
-            return await context.OutExceptions
-                .Where(msg => msg.EbmsRefToMessageId == messageId)
-                .Select(msg => msg.MessageBody)
-                .FirstOrDefaultAsync();
+            if (direction == Direction.Inbound) return context.InMessages;
+            return context.OutMessages;
         }
     }
 }

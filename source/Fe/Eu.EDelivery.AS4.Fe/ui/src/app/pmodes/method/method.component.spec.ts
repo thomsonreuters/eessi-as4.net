@@ -1,3 +1,4 @@
+import { FormBuilderExtended } from './../../common/form.service';
 import { ReactiveFormsModule, FormArray, FormBuilder } from '@angular/forms';
 import { By } from '@angular/platform-browser/src/dom/debug/by';
 import { MethodComponent } from './method.component';
@@ -71,8 +72,8 @@ describe('Notify method', () => {
     });
     afterEach(() => fixture.destroy());
     describe('typechanged', () => {
-        it('should set the parameters form value', inject([FormBuilder], (formBuilder: FormBuilder) => {
-            instance.group = MethodForm.getForm(formBuilder, method);
+        it('should set the parameters form value', inject([FormBuilder], (formBuilder: FormBuilderExtended) => {
+            instance.group = MethodForm.getForm(formBuilder.get(), method).build();
             instance.types = types;
             instance.typeChanged(itemType1.name);
 

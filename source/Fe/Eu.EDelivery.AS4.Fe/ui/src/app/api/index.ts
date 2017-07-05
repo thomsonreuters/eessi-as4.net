@@ -11,3 +11,4 @@ export { Steps } from './Steps';
 export { Step } from './Step';
 export { BaseSettings } from './BaseSettings';
 export * from './ErrorResponse';
+export * from './Messages';

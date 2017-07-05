@@ -12,5 +12,6 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         Task<MessageResult<Message>> GetMessages(MessageFilter filter);
         Task<Stream> DownloadMessageBody(Direction direction, string messageId);
         Task<byte[]> DownloadExceptionBody(Direction direction, string messageId);
+        Task<MessageDetails> GetMessageDetails(Direction direction, string messageId);
     }
 }

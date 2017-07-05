@@ -4,11 +4,10 @@ import {
     AbstractControl,
     ControlValueAccessor,
     NG_VALUE_ACCESSOR,
-    NgControl,
     FormControlName,
     FormGroup,
-    NgForm
-
+    NgForm,
+    NgControl
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
@@ -25,7 +24,9 @@ import {
     forwardRef,
     OnChanges,
     Self,
-    AfterViewChecked
+    AfterViewChecked,
+    ViewChildren,
+    QueryList
 } from '@angular/core';
 
 import { AuthenticationStore } from './../authentication.store';
@@ -46,7 +47,7 @@ export class HasAuthDirective implements OnDestroy, AfterViewChecked {
     private _isReadOnly: boolean = false;
     private _enabled: boolean;
     constructor(private _elementRef: ElementRef, private _authenticationStore: AuthenticationStore, private _renderer: Renderer, private _activeRoute: ActivatedRoute,
-        @Optional() @Self() @Inject(NG_VALUE_ACCESSOR) private valueAccessors: ControlValueAccessor[]) {
+        @Optional() @Self() @Inject(NG_VALUE_ACCESSOR) private valueAccessors: ControlValueAccessor[], @Self() @Optional() private ngControl: NgControl) {
         this._enabled = (<IAuthCheck>this._activeRoute.snapshot.data).isAuthCheck === undefined;
         if (this._enabled === false) {
             return;
@@ -69,18 +70,26 @@ export class HasAuthDirective implements OnDestroy, AfterViewChecked {
         this._subscription.unsubscribe();
     }
     public ngAfterViewChecked() {
-        if (this._enabled && this._isReadOnly) {
-            this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', 'true');
-            this._renderer.setElementAttribute(this._elementRef.nativeElement, 'readonly', 'true');
-            if (!!this.valueAccessors) {
-                this.valueAccessors.forEach((ac) => ac.setDisabledState(true));
-            }
-        } else {
-            // this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', this.disabled ? 'true' : null);
-            // this._renderer.setElementAttribute(this._elementRef.nativeElement, 'readonly', this.disabled ? 'true' : null);
-            if (!!this.valueAccessors && this.disabled) {
-                this.valueAccessors.forEach((ac) => ac.setDisabledState(this.disabled));
-            }
-        }
+        // if (!!this.ngControl) {
+        //     this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', this.ngControl.disabled + '');
+        // }
+        // if (!!!this.valueAccessors) {
+        //     this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', this.disabled ? 'true' : null);
+        //     return;
+        // }
+
+        // if (this._enabled && this._isReadOnly) {
+        //     this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', 'true');
+        //     this._renderer.setElementAttribute(this._elementRef.nativeElement, 'readonly', 'true');
+        //     if (!!this.valueAccessors) {
+        //         this.valueAccessors.forEach((ac) => ac.setDisabledState(true));
+        //     }
+        // } else {
+        //     // this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', this.disabled ? 'true' : null);
+        //     // this._renderer.setElementAttribute(this._elementRef.nativeElement, 'readonly', this.disabled ? 'true' : null);
+        //     if (!!this.valueAccessors) {
+        //         this.valueAccessors.forEach((ac) => ac.setDisabledState(!!!this.disabled ? false : this.disabled));
+        //     }
+        // }
     }
 }

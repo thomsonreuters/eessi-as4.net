@@ -12,11 +12,4 @@ export class CollaborationInfoForm {
             [CollaborationInfo.FIELD_service]: ServiceForm.getForm(formBuilder, current && current.service),
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: CollaborationInfo) {
-        form.get(CollaborationInfo.FIELD_action).reset({ value: current && current.action, disabled: !!!current && form.parent.disabled });
-        form.get(CollaborationInfo.FIELD_conversationId).reset({ value: current && current.conversationId, disabled: !!!current && form.parent.disabled });
-        AgreementForm.patchForm(formBuilder, <FormGroup>form.get(CollaborationInfo.FIELD_agreementReference), current && current.agreementReference);
-        ServiceForm.patchForm(formBuilder, <FormGroup>form.get(CollaborationInfo.FIELD_service), current && current.service);
-    }
 }

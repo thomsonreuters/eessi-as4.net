@@ -45,7 +45,7 @@ export class ThumbprintInputComponent implements ControlValueAccessor {
     }
     public name: EventEmitter<string>;
     public get errors() {
-        return this.formControl.control.get(this.formControlName).errors;
+        return !!!this.formControl.control ? null : this.formControl.control.get(this.formControlName).errors;
     }
     @Input() public formControlName: string;
     private _input: string;

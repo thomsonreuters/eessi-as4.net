@@ -7,10 +7,10 @@ import { URLSearchParams, RequestOptions } from '@angular/http';
 import { Store } from './../../common/store';
 import { MessageResult } from './../messageresult';
 import { MessageStore } from './message.store';
-import { Message } from '../../api/Messages/Message';
 import { Exception } from '../../api/Messages/Exception';
 import { MessageFilter } from './message.filter';
 import { ExceptionService } from '../exception/exception.service';
+import * as api from '../../api/Messages';
 
 @Injectable()
 export class MessageService {
@@ -25,7 +25,7 @@ export class MessageService {
         this._http
             .get(this.getUrl(), options)
             .map((result) => result.json())
-            .subscribe((messages: MessageResult<Message>) => {
+            .subscribe((messages: MessageResult<api.Message>) => {
                 this._store.setState({
                     messages: messages.messages,
                     filter,
@@ -35,7 +35,7 @@ export class MessageService {
                 });
             });
     }
-    public getExceptions(direction: number, message: Message) {
+    public getExceptions(direction: number, message: api.Message) {
         if (!!!message.ebmsRefToMessageId) {
             this._exceptionService.reset();
             return;
@@ -54,7 +54,7 @@ export class MessageService {
         this._http
             .get(`/api/monitor/relatedmessages`, options)
             .map((result) => result.json())
-            .subscribe((messages: MessageResult<Message>) => {
+            .subscribe((messages: MessageResult<api.Message>) => {
                 this._store.update('relatedMessages', messages.messages);
             });
     }
@@ -65,7 +65,16 @@ export class MessageService {
         requestOptions.search.append('messageId', messageId);
         return this._http.get('/api/monitor/messagebody', requestOptions).map((data) => data.text());
     }
-    private getUrl(): string {
-        return `/api/monitor/messages/`;
+    public getMessageDetail(direction: number, messageId: string): Observable<api.MessageDetail> {
+        let params = new URLSearchParams();
+        params.append('direction', direction + '');
+        params.append('messageId', messageId);
+        return this
+            ._http
+            .get(this.getUrl('detail'), { search: params })
+            .map((result) => result.json());
+    }
+    private getUrl(action: string = 'messages'): string {
+        return `/api/monitor/` + (!!!action ? '' : action);
     }
 }

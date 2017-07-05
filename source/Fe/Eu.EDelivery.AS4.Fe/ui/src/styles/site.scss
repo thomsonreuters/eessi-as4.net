@@ -6,13 +6,12 @@
 @import 'datepicker.scss';
 @import './tooltip.scss';
 @import '../app/common/multiselect/multiselect.directive.scss';
-
 .clickable {
     cursor: pointer;
 }
 
 table {
-    tr > td.action {
+    tr>td.action {
         width: 1%;
     }
 }
@@ -25,10 +24,13 @@ i.active {
     i {
         font-size: 15px;
     }
-
     margin-top: -4px;
 }
 
 .col-small {
     width: 2px;
+}
+
+input[type="checkbox"] {
+    margin-top: 9px;
 }

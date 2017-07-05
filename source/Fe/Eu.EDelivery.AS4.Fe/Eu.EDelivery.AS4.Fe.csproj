@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
-	<TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
+    <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -25,7 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-	<TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
+    <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -36,7 +36,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-	<TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
+    <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -88,10 +88,11 @@
     <Compile Include="Monitor\IMonitorSetup.cs" />
     <Compile Include="Monitor\Model\Message.cs" />
     <Compile Include="Monitor\MessageEntityExtension.cs" />
+    <Compile Include="Monitor\Model\MessageDetails.cs" />
     <Compile Include="Monitor\Model\MessageFilter.cs" />
     <Compile Include="Monitor\Model\MessageResult.cs" />
+    <Compile Include="Monitor\Model\MonitorController.cs" />
     <Compile Include="Monitor\MonitorAutoMapper.cs" />
-    <Compile Include="Monitor\MonitorController.cs" />
     <Compile Include="Monitor\MonitorService.cs" />
     <Compile Include="Monitor\MonitorSettings.cs" />
     <Compile Include="Monitor\MonitorSetup.cs" />

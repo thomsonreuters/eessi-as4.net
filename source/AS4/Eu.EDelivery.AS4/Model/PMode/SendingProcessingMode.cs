@@ -7,6 +7,7 @@ using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.Model.PMode
 {
@@ -100,7 +101,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public Encryption Encryption { get; set; }
     }
-    
+
     public class Encryption
     {
         /// <summary>
@@ -108,6 +109,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         [XmlIgnore]
         public static readonly Encryption Default = new Encryption();
+
+        private object publicKeyInformation;
 
         public Encryption()
         {
@@ -132,7 +135,17 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlChoiceIdentifier(nameof(PublicKeyType))]
         [XmlElement("PublicKeyFindCriteria", typeof(PublicKeyFindCriteria))]
         [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
-        public object PublicKeyInformation { get; set; }
+        public object PublicKeyInformation
+        {
+            get { return publicKeyInformation; }
+            set
+            {
+                publicKeyInformation = value;
+                if (value is PublicKeyFindCriteria) PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
+                else if (value is PublicKeyCertificate) PublicKeyType= PublicKeyChoiceType.PublicKeyCertificate;
+                else PublicKeyType = PublicKeyChoiceType.None;
+            }
+        }
 
         public KeyEncryption KeyTransport { get; set; }
 

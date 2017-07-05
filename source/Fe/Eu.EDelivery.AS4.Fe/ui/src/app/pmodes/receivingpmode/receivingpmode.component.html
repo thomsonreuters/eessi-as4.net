@@ -1,4 +1,4 @@
-<form [formGroup]="pmode.form" class="form-horizontal" disabled>
+﻿<form [formGroup]="pmode.form" class="form-horizontal" disabled>
     <div formGroupName="pmode">
         <as4-box>
             <div content>
@@ -89,9 +89,6 @@
                         <option value="1">Callback</option>
                     </select>
                 </as4-input>
-                <as4-input label="Callback url" *ngIf="pmode.form.get('pmode.receiptHandling.callbackUrl').enabled" runtimeTooltip="receivereceipthandling.callbackurl">
-                    <input type="text" formControlName="callbackUrl" />
-                </as4-input>
                 <as4-input label="Sending PMode" runtimeTooltip="receivereceipthandling.sendingpmode">
                     <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
                 </as4-input>
@@ -105,9 +102,6 @@
                         <option value="0">Response</option>
                         <option value="1">Callback</option>
                     </select>
-                </as4-input>
-                <as4-input label="Callback url" runtimeTooltip="receiveerrorhandling.callbackurl">
-                    <input type="text" formControlName="callbackUrl">
                 </as4-input>
                 <as4-input label="Response http code" runtimeTooltip="receiveerrorhandling.responsehttpcode">
                     <input type="text" formControlName="responseHttpCode">

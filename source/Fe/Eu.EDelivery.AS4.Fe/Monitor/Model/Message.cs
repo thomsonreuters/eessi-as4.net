@@ -16,7 +16,12 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public DateTimeOffset InsertionTime { get; set; }
         public string ExceptionType { get; set; }
         public string Status { get; set; }
+        public string FromParty { get; set; }
+        public string ToParty { get; set; }
+        public string Action { get; set; }
         public Direction Direction { get; set; }
+        public bool IsDuplicate { get; set; }
+        public bool IsTest { get; set; }
 
         public string PMode
         {

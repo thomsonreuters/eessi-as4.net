@@ -18,6 +18,10 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public MessageExchangePattern[] MEP { get; set; }
         public MessageType[] EbmsMessageType { get; set; }
         public StatusEnum[] Status { get; set; }
+        public string FromParty { get; set; }
+        public string ToParty { get; set; }
+        public bool ShowDuplicates { get; set; }
+        public bool ShowTests { get; set; }
         public override IQueryable<MessageEntity> ApplyFilter(IQueryable<MessageEntity> query)
         {
             if (!string.IsNullOrEmpty(EbmsMessageId))
@@ -70,7 +74,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             if (Status != null && Status.Any())
             {
                 var statusStrings = Status.Select(status => status.ToString()).ToList();
+                query = query.Where(qr => statusStrings.Contains(qr.StatusString));
             }
+
+            if (!string.IsNullOrEmpty(FromParty)) query = query.Where(x => x.FromParty == FromParty);
+            if (!string.IsNullOrEmpty(ToParty)) query = query.Where(x => x.ToParty == ToParty);
+            if (!ShowDuplicates) query = query.Where(x => !x.IsDuplicate);
+            if (!ShowTests) query = query.Where(x => !x.IsTest);
 
             return query;
         }

@@ -9,9 +9,4 @@ export class BaseSettingsForm {
             certificateStore: CertificateStoreForm.getForm(formBuilder, current && current.certificateStore),
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: BaseSettings) {
-        form.get(BaseSettings.FIELD_idFormat).reset({ value: current && current.idFormat });
-        CertificateStoreForm.patchForm(formBuilder, <FormGroup>form.get(BaseSettings.FIELD_certificateStore), current && current.certificateStore);
-    }
 }

@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Fe.Monitor.Model;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Eu.EDelivery.AS4.Fe.Monitor
+namespace Eu.EDelivery.AS4.Fe.Monitor.Model
 {
     [Route("api/[controller]")]
     public class MonitorController : Controller
@@ -47,6 +46,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         public async Task<FileContentResult> GetExceptionBody(Direction direction, string messageId)
         {
             return File(await monitorService.DownloadExceptionBody(direction, messageId), "application/xml");
+        }
+
+        [HttpGet]
+        [Route("detail")]
+        public async Task<IActionResult> GetDetails(Direction direction, string messageId)
+        {
+            return new OkObjectResult(await monitorService.GetMessageDetails(direction, messageId));
         }
     }
 }

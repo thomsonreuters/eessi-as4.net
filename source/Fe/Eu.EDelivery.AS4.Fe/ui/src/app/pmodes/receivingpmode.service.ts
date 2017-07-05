@@ -1,4 +1,3 @@
-import { SendingProcessingMode } from './../api/SendingProcessingMode';
 import { Http } from '@angular/http';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Observer } from 'rxjs/Observer';
@@ -15,13 +14,14 @@ import { ReceivingPmodeForm } from './../api/ReceivingPmodeForm';
 import { IPmode } from './../api/Pmode.interface';
 import { ReceivingProcessingMode } from './../api/ReceivingProcessingMode';
 import { ICrudPmodeService } from './crudpmode.service.interface';
+import { FormWrapper, FormBuilderExtended } from './../common/form.service';
+import { SendingProcessingMode } from './../api/SendingProcessingMode';
 
 @Injectable()
 export class ReceivingPmodeService implements ICrudPmodeService {
     private _baseUrl = 'api/pmode/receiving';
-    constructor(private http: AuthHttp, private pmodeStore: PmodeStore, private formBuilder: FormBuilder) {
-
-    }
+    private _form: FormWrapper;
+    constructor(private http: AuthHttp, private pmodeStore: PmodeStore, private formBuilder: FormBuilderExtended) { }
     public getAll() {
         this.http
             .get(this.getBaseUrl())
@@ -91,11 +91,18 @@ export class ReceivingPmodeService implements ICrudPmodeService {
             });
         return obs.asObservable();
     }
-    public patchForm(form: FormGroup, pmode: IPmode) {
-        ReceivingPmodeForm.patchForm(this.formBuilder, form, <ReceivingPmode>pmode);
-    }
-    public getForm(pmode: IPmode): FormGroup {
-        return ReceivingPmodeForm.getForm(this.formBuilder, <ReceivingPmode>pmode);
+    public getForm(pmode: IPmode): FormWrapper {
+        if (!!!this._form) {
+            this._form = this.formBuilder.get();
+        }
+        const form = ReceivingPmodeForm.getForm(this._form, <ReceivingPmode>pmode);
+        if (!!!pmode) {
+            form.disable();
+        } else {
+            form.enable();
+        }
+        
+        return form;
     }
     public patchName(form: FormGroup, name: string) {
         form.setValue({ [ReceivingPmode.FIELD_name]: name });

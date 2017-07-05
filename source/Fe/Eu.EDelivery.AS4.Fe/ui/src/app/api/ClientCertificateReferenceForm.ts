@@ -11,11 +11,6 @@ export class ClientCertificateReferenceForm {
         this.setupForm(form);
         return form;
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: ClientCertificateReference) {
-        form.get(ClientCertificateReference.FIELD_clientCertificateFindType).reset({ value: current && current.clientCertificateFindType, disabled: !!!current });
-        form.get(ClientCertificateReference.FIELD_clientCertificateFindValue).reset({ value: current && current.clientCertificateFindValue, disabled: !!!current });
-    }
     static setupForm(form: FormGroup) {
         let findValue = form.get(ClientCertificateReference.FIELD_clientCertificateFindValue);
         form.get(ClientCertificateReference.FIELD_clientCertificateFindType)

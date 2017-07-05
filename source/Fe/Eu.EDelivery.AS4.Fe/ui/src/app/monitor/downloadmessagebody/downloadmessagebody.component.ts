@@ -7,15 +7,14 @@ import * as fileSaver from 'file-saver';
 @Component({
     selector: 'downloadmessagebody',
     template: `
-        <a (click)="download()" class="clickable">Download&nbsp;<i class="fa fa-download clickable"></i></a>
+        <i class="fa fa-download clickable" (click)="download()" as4-tooltip="Download message body"></i>
     `
 })
 export class DownloadMessageBodyComponent {
     @Input() public direction: number;
     @Input() public messageId: string;
     @Input() public type: string = 'message';
-    constructor(private _messageService: MessageService, private _exceptionService: ExceptionService) {
-    }
+    constructor(private _messageService: MessageService, private _exceptionService: ExceptionService) { }
     public download() {
         let service;
         if (this.type === 'exception') {
@@ -25,8 +24,8 @@ export class DownloadMessageBodyComponent {
         }
 
         service.subscribe((result) => {
-            let blob: Blob = new Blob([result], { type: 'application/text' });
-            fileSaver.saveAs(blob, `${this.messageId}.txt`);
+            let blob: Blob = new Blob([result], { type: 'application/xml' });
+            fileSaver.saveAs(blob, `${this.messageId}.xml`);
         });
     }
 }

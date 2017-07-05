@@ -9,5 +9,12 @@ export class Message {
     public exceptionType: string;
     public status: string;
     public hasExceptions: boolean;
+    public fromParty: string;
+    public toParty: string;
+    public action: string;
+    public conversationId: string;
+    public isDuplicate: boolean;
+    public isTest: boolean;
     public hash: string;
+    public direction: number;
 }

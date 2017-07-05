@@ -1,6 +1,6 @@
 import { SendingProcessingMode } from './../api/SendingProcessingMode';
 import { Http } from '@angular/http';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { Observer } from 'rxjs/Observer';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Subject } from 'rxjs/Subject';
@@ -8,6 +8,7 @@ import { Injectable, OpaqueToken } from '@angular/core';
 import { AuthHttp } from 'angular2-jwt';
 import { Observable } from 'rxjs/Observable';
 
+import { FormBuilderExtended, FormWrapper } from './../common/form.service';
 import { PmodeStore } from './pmode.store';
 import { SendingPmode } from './../api/SendingPmode';
 import { SendingPmodeForm } from './../api/SendingPmodeForm';
@@ -18,9 +19,8 @@ import { ICrudPmodeService } from './crudpmode.service.interface';
 @Injectable()
 export class SendingPmodeService implements ICrudPmodeService {
     private _baseUrl = 'api/pmode/sending';
-    constructor(private http: AuthHttp, private pmodeStore: PmodeStore, private formBuilder: FormBuilder) {
-
-    }
+    private _form: FormWrapper;
+    constructor(private http: AuthHttp, private pmodeStore: PmodeStore, private formBuilder: FormBuilderExtended) { }
     public getAll() {
         this.http
             .get(this.getBaseUrl())
@@ -90,11 +90,17 @@ export class SendingPmodeService implements ICrudPmodeService {
             });
         return obs.asObservable();
     }
-    public patchForm(form: FormGroup, pmode: IPmode) {
-        SendingPmodeForm.patchForm(this.formBuilder, form, <SendingPmode>pmode);
-    }
-    public getForm(pmode: IPmode): FormGroup {
-        return SendingPmodeForm.getForm(this.formBuilder, <SendingPmode>pmode);
+    public getForm(pmode: IPmode): FormWrapper {
+        if (!!!this._form) {
+            this._form = this.formBuilder.get();
+        }
+        const form = SendingPmodeForm.getForm(this._form, <SendingPmode>pmode);
+        if (!!!pmode) {
+            form.disable();
+        } else {
+            form.enable();
+        }
+        return form;
     }
     public patchName(form: FormGroup, name: string) {
         form.setValue({ [SendingPmode.FIELD_name]: name });

@@ -10,10 +10,4 @@ export class AgreementForm {
             [Agreement.FIELD_pModeId]: [current && current.pModeId],
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Agreement) {
-        form.get(Agreement.FIELD_value).reset({ value: current && current.value, disabled: !!!current && form.parent.disabled });
-        form.get(Agreement.FIELD_type).reset({ value: current && current.type, disabled: !!!current && form.parent.disabled });
-        form.get(Agreement.FIELD_pModeId).reset({ value: current && current.pModeId, disabled: !!!current && form.parent.disabled });
-    }
 }

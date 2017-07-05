@@ -1,7 +1,7 @@
 import { ClipboardModule } from 'ngx-clipboard';
 import { Http, RequestOptions, RequestOptionsArgs, Response, XHRBackend, Request } from '@angular/http';
 import { NgModule, ModuleWithProviders, ErrorHandler } from '@angular/core';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthHttp, AuthConfig, JwtHelper } from 'angular2-jwt';
@@ -43,6 +43,7 @@ import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directi
 import { ToNumberPipe } from './tonumber.pipe';
 import { MultiSelectDirective } from './multiselect/multiselect.directive';
 import { ContainsPipe } from './contains.pipe';
+import { FormBuilderExtended } from './form.service';
 
 import { Select2Module } from 'ng2-select2';
 
@@ -73,7 +74,7 @@ const components: any = [
     ColumnsComponent,
     SpinnerComponent,
     ThumbprintInputComponent,
-    ClipboardComponent,
+    ClipboardComponent
 ];
 
 const directives: any = [
@@ -83,7 +84,7 @@ const directives: any = [
     SelectDirective,
     TooltipDirective,
     DateTimePickerDirective,
-    MultiSelectDirective,
+    MultiSelectDirective
 ];
 
 const pipes: any = [
@@ -100,6 +101,7 @@ const services: any = [
     SpinnerService,
     RolesService,
     RouterService,
+    FormBuilderExtended,
     {
         provide: Http,
         useFactory: spinnerHttpServiceFactory,

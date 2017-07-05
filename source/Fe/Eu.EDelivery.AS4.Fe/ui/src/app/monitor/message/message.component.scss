@@ -1,11 +1,42 @@
 .time-range {
     .col-md-5 {
         width: 48.5%;
-    }   
+    }
     .col-md-2 {
         width: 3%;
         padding-right: 5px;
         padding-left: 5px;
         padding-top: 5px;
     }
+}
+
+.legend {
+    list-style: none;
+    padding-top: 5px;
+}
+
+.legend li {
+    float: left;
+    margin-right: 10px;
+    color: #CCC;
+}
+
+.legend span {
+    float: left;
+    width: 12px;
+    height: 5px;
+    margin: 2px;
+    margin-top: 7px;
+}
+
+.error {
+    background-color: #f2dede !important;
+}
+
+.duplicate {
+    background-color: #ffd966 !important;
+}
+
+.test {
+    background-color: #c2c2a3 !important;
 }

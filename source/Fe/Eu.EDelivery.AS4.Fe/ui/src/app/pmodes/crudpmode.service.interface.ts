@@ -1,6 +1,8 @@
-import { IPmode } from './../api/Pmode.interface';
 import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
+
+import { FormWrapper } from './../common/form.service';
+import { IPmode } from './../api/Pmode.interface';
 
 export interface ICrudPmodeService {
     obsGet(): Observable<IPmode>;
@@ -9,9 +11,8 @@ export interface ICrudPmodeService {
     delete(name: string);
     getNew(name: string): IPmode;
     create(pmode: IPmode): Observable<boolean>;
-    getForm(pmode: IPmode): FormGroup;
+    getForm(pmode: IPmode): FormWrapper;
     getByName(name: string): Observable<IPmode>;
-    patchForm(form: FormGroup, pmode: IPmode);
     patchName(form: FormGroup, name: string);
     update(pmode: IPmode, originalName: string): Observable<boolean>;
     getAll();

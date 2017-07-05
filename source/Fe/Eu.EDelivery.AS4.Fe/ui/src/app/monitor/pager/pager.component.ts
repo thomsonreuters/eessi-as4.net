@@ -1,11 +1,11 @@
 import { Component, Input, ChangeDetectionStrategy, EventEmitter, Output, OnChanges } from '@angular/core';
 
 @Component({
-    selector: 'as4-pager',
+    selector: 'as4-pager, [as4-pager]',
     template: `
         <div class="row">
-            <div *ngIf="!!pageTotal && !!total" class="col-xs-6 summary text-right">{{pageTotal}} of {{total}}</div>
-            <div *ngIf="!!pageTotal && !!total" class="col-xs-6 text-right">
+            <div *ngIf="!!pageTotal && !!total" class="col-xs-4 summary text-right">{{pageTotal}} of {{total}}</div>
+            <div *ngIf="!!pageTotal && !!total" class="col-xs-6 text-right pull-right">
                 <ul *ngIf="pager.pages && pager.pages.length" class="pagination">
                     <li [ngClass]="{disabled:pager.currentPage === 1}">
                         <a (click)="!(pager.currentPage === 1) && onChangePage.emit(1)" class="hover">First</a>

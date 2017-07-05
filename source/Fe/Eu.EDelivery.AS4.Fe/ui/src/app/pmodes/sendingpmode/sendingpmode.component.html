@@ -1,4 +1,4 @@
-<form [formGroup]="pmode.form" class="form-horizontal">
+﻿<form [formGroup]="pmode.form" class="form-horizontal">
     <div formGroupName="pmode">
         <as4-box>
             <div content>
@@ -94,7 +94,7 @@
             <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid">
                 <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')"></as4-message-packaging>
             </div>
-            <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security.signing').valid">
+            <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid">
                 <div formGroupName="signing">
                     <h5>Signing</h5>
                     <as4-input label="Enabled" runtimeTooltip="security.signing.isenabled">
@@ -144,28 +144,45 @@
                     <as4-input label="Algorithm">
                         <input type="text" formControlName="algorithm" />
                     </as4-input>
-                    <as4-input label="Public key find type" runtimeTooltip="security.encryption.publickeyfindtype">
-                        <select formControlName="publicKeyFindType">
-                            <option value="0">Find by thumbprint</option>
-                            <option value="1">Find by subject name</option>
-                            <option value="2">Find by subject distinguished name</option>
-                            <option value="3">Find by issuer name</option>
-                            <option value="4">Find by issuer distinguished name</option>
-                            <option value="5">Find by serial number</option>
-                            <option value="6">Find by time valid</option>
-                            <option value="7">Find by time not yet valid</option>
-                            <option value="8">Find by time expired</option>
-                            <option value="9">Find by template name</option>
-                            <option value="10">Find by application policy</option>
-                            <option value="11">Find by certificate policy</option>
-                            <option value="12">Find by extension</option>
-                            <option value="13">Find by key usage</option>
-                            <option value="14">Find by subject key identifier</option>
+                    <as4-input label="AlgorithmKeySize">
+                        <input type="number" formControlName="algorithmKeySize" />
+                    </as4-input>
+                    <as4-input label="PublicKeyType">
+                        <select formControlName="publicKeyType" test #keyInfo>
+                            <option value="0">None</option>                            
+                            <option value="1">Certificate</option>                            
+                            <option value="2">Criteria</option>                            
                         </select>
                     </as4-input>
-                    <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyfindvalue">
-                        <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
-                    </as4-input>
+                    <ng-container *ngIf="keyInfo.value === '1'" formGroupName="publicKeyInformation">
+                        <as4-input label="Certificate" runtimeTooltip="security.encryption.publickeyinformation.certificate">
+                            <input type="text" formControlName="certificate" />
+                        </as4-input>
+                    </ng-container>
+                    <ng-container *ngIf="keyInfo.value === '2'" formGroupName="publicKeyInformation">
+                        <as4-input label="Public key find type" runtimeTooltip="security.encryption.publickeyinformation.publickeyfindtype">
+                            <select formControlName="publicKeyFindType">
+                                <option value="0">Find by thumbprint</option>
+                                <option value="1">Find by subject name</option>
+                                <option value="2">Find by subject distinguished name</option>
+                                <option value="3">Find by issuer name</option>
+                                <option value="4">Find by issuer distinguished name</option>
+                                <option value="5">Find by serial number</option>
+                                <option value="6">Find by time valid</option>
+                                <option value="7">Find by time not yet valid</option>
+                                <option value="8">Find by time expired</option>
+                                <option value="9">Find by template name</option>
+                                <option value="10">Find by application policy</option>
+                                <option value="11">Find by certificate policy</option>
+                                <option value="12">Find by extension</option>
+                                <option value="13">Find by key usage</option>
+                                <option value="14">Find by subject key identifier</option>
+                            </select>
+                        </as4-input>
+                        <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyinformation.publickeyfindvalue">
+                            <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
+                        </as4-input>
+                    </ng-container>
                     <div formGroupName="keyTransport">
                         <as4-input label="Key Transport algorithm" runtimeTooltip="security.encryption.keytransport.transportAlgorithm">
                             <input type="text" formControlName="transportAlgorithm">
@@ -174,7 +191,7 @@
                             <input type="text" formControlName="digestAlgorithm">
                         </as4-input>
                         <as4-input label="Key Mgf algorithm" runtimeTooltip="security.encryption.keytransport.mgfAlgorithm">
-                            <input type="text" formControlName="digestAlgorithm">
+                            <input type="text" formControlName="mgfAlgorithm">
                         </as4-input>
                     </div>
                 </div>
@@ -196,19 +213,19 @@
                 <as4-input label="Notify message producer" runtimeTooltip="receipthandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]=" pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
             </div>
             <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid">
                 <as4-input label="Notify message producer" runtimeTooltip="errorhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]=" pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
             </div>
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
                 <as4-input label="Notify message producer" runtimeTooltip="exceptionhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
-                <as4-method label="Notify method" [group]=" pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders "></as4-method>
+                <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
             </div>
         </as4-tab>
     </div>
