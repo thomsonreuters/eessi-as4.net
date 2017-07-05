@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.UnitTests.Model;
@@ -29,10 +28,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 AS4Message as4Message = AS4Message.Empty;
                 as4Message.Mep = expected;
 
-                var context = new MessagingContext(as4Message, MessagingContextMode.Send);
-
                 // Act
-                OutMessage message = OutMessageBuilder.ForMessageUnit(new FilledUserMessage(), context).Build(CancellationToken.None);
+                OutMessage message = OutMessageBuilder.ForMessageUnit(new FilledUserMessage(), as4Message).Build(CancellationToken.None);
 
                 // Assert
                 MessageExchangePattern actual = message.MEP;
@@ -72,8 +69,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = ExpectedPMode() })
-                                                         .Build(CancellationToken.None);
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message)
+                                        .WithSendingPMode(ExpectedPMode())
+                                        .Build(CancellationToken.None);
             }
 
             [Fact]
@@ -108,8 +106,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private static OutMessage BuildForSignalMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, new MessagingContext(as4Message, MessagingContextMode.Send))
-                                                                        .Build(CancellationToken.None);
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message)
+                                        .Build(CancellationToken.None);
             }
         }
 

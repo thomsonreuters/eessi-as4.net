@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
     /// </summary>
     public class GivenAS4ResponseFacts
     {
-        [Fact]
+        [Fact(Skip="useless")]
         public void GetsRequestMessageFromAS4Response()
         {
             // Arranage
@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             Assert.Equal(expectedRequest, actualRequest);
         }
 
-        [Fact]
+        [Fact(Skip="WebResponse should never be null")]
         public void GetsInternalErrorStatus_IfInvalidHttpResponse()
         {
             Assert.Equal(HttpStatusCode.InternalServerError, CreateAS4ResponseWith(webResponse: null).StatusCode);
@@ -38,10 +38,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             HttpWebResponse response = CreateWebResponseWithContentType(string.Empty);
 
             // Act
-            MessagingContext result = CreateAS4ResponseWith(webResponse: response).ResultedMessage;
+            var result = CreateAS4ResponseWith(webResponse: response).ReceivedMessageHeader;
 
             // Assert
-            Assert.True(result.AS4Message.IsEmpty);
+            Assert.True(result.IsEmpty);
         }
 
         [Fact]

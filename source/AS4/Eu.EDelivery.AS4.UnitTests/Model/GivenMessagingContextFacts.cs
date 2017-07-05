@@ -207,21 +207,6 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.Equal($"[{userMessage.MessageId}]", prefix);
             }
 
-            [Fact]
-            public void ContextDisposesGivenStream_WhenCallingDispose()
-            {
-                // Arrange
-                var sut = new MessagingContext(null, default(MessagingContextMode))
-                {
-                    MessageStream = new MemoryStream(Encoding.UTF8.GetBytes("dispose me"))
-                };
-               
-                // Act
-                sut.Dispose();
-
-                // Assert
-                Assert.False(sut.MessageStream.CanSeek);
-            }
         }
 
         /// <summary>

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -10,9 +9,7 @@ using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Transformers;
 using Eu.EDelivery.AS4.UnitTests.Model.Internal;
 using Eu.EDelivery.AS4.UnitTests.Model.PMode;
-using Moq;
 using Xunit;
-using Xunit.Extensions;
 
 namespace Eu.EDelivery.AS4.UnitTests.Transformers
 {
@@ -66,12 +63,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new PModeToPullRequestTransformer();
 
             // Act
-            MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None);
+            using (MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None))
+            {
 
-            // Assert
-            var actualSignalMessage = message.AS4Message.PrimarySignalMessage as PullRequest;
-            Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
-            Assert.Equal(expectedSendingPMode.Id, message.SendingPMode.Id);
+                // Assert
+                Assert.NotNull(message.ReceivedMessage);
+
+                // Deserialize the ReceivedMessage so that we can verify the content.
+                var serializer = SerializerProvider.Default.Get(message.ReceivedMessage.ContentType);
+
+                var as4Message = await serializer.DeserializeAsync(message.ReceivedMessage.RequestStream, message.ReceivedMessage.ContentType, CancellationToken.None);
+
+                var actualSignalMessage = as4Message.PrimarySignalMessage as PullRequest;
+                Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
+                Assert.Equal(expectedSendingPMode.Id, message.SendingPMode.Id);
+            }
         }
 
         private static SendingProcessingMode CreateAnonymousSendingPModeWith(string expectedMpc)

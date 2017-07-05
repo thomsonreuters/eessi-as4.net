@@ -33,7 +33,7 @@ namespace Eu.EDelivery.AS4.Services
         /// Create a new Data store Repository
         /// </summary>
         /// <param name="repository"></param>
-        public InMessageService(IDatastoreRepository repository) : this(Config.Instance, repository) {}
+        public InMessageService(IDatastoreRepository repository) : this(Config.Instance, repository) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InMessageService"/> class.
@@ -79,34 +79,64 @@ namespace Eu.EDelivery.AS4.Services
                                   .ToDictionary(k => k.Key, v => v.Value);
         }
 
+
         /// <summary>
-        /// Inserts an <see cref="AS4Message" />.
+        /// Inserts a received Message in the DataStore.
+        /// For each message-unit that exists in the AS4Message,an InMessage record is created.
+        /// The AS4 Message Body is persisted as it has been received.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="messageBodyStore">The message body store.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task InsertAS4Message(
-            MessagingContext message,
+        /// <remarks>The received Message is parsed to an AS4 Message instance.</remarks>
+        /// <param name="context"></param>
+        /// <param name="messageBodyStore"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
+        public async Task<MessagingContext> InsertAS4Message(
+            MessagingContext context,
             IAS4MessageBodyStore messageBodyStore,
             CancellationToken cancellationToken)
         {
-            AS4Message as4Message = message.AS4Message;
+            if (context.ReceivedMessage == null)
+            {
+                throw new InvalidOperationException("The MessagingContext must contain a Received Message");
+            }
 
             // TODO: should we start the transaction here.
-            string location = 
-                await messageBodyStore.SaveAS4MessageAsync(
+            string location =
+                await messageBodyStore.SaveAS4MessageStreamAsync(
                     location: _configuration.InMessageStoreLocation,
-                    message: as4Message,
+                    as4MessageStream: context.ReceivedMessage.RequestStream,
                     cancellation: cancellationToken);
 
-            InsertUserMessages(message, location, cancellationToken);
-            await InsertSignalMessages(message, location, cancellationToken);
+            try
+            {
+                context.ReceivedMessage.RequestStream.Position = 0;
+
+                var deserializer = SerializerProvider.Default.Get(context.ReceivedMessage.ContentType);
+
+                var as4Message = await deserializer.DeserializeAsync(context.ReceivedMessage.RequestStream, context.ReceivedMessage.ContentType,
+                                                                     cancellationToken);
+
+
+                InsertUserMessages(as4Message, location, cancellationToken);
+                await InsertSignalMessages(as4Message, context.SendingPMode, location, cancellationToken);
+
+                return context.CloneWith(as4Message);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message);
+
+                InException inException = new InException();
+                inException.Exception = ex.Message;
+                inException.MessageBody = System.Text.Encoding.UTF8.GetBytes(location);
+                _repository.InsertInException(inException);
+                
+                return new MessagingContext(ex);
+            }
         }
 
-        private void InsertUserMessages(MessagingContext message, string location, CancellationToken cancellationToken)
+        private void InsertUserMessages(AS4Message as4Message, string location, CancellationToken cancellationToken)
         {
-            AS4Message as4Message = message.AS4Message;
             IDictionary<string, bool> duplicateUserMessages =
                 DetermineDuplicateUserMessageIds(as4Message.UserMessages.Select(m => m.MessageId));
 
@@ -115,16 +145,17 @@ namespace Eu.EDelivery.AS4.Services
                 userMessage.IsTest = IsUserMessageTest(userMessage);
                 userMessage.IsDuplicate = IsUserMessageDuplicate(userMessage, duplicateUserMessages);
 
-                AttemptToInsertUserMessage(userMessage, message, location, cancellationToken);
+                AttemptToInsertUserMessage(userMessage, as4Message, location, cancellationToken);
             }
         }
 
         private async Task InsertSignalMessages(
-            MessagingContext message,
+
+          AS4Message as4Message,
+          SendingProcessingMode sendingPMode,
             string location,
             CancellationToken cancellationToken)
         {
-            AS4Message as4Message = message.AS4Message;
             if (as4Message.SignalMessages.Any())
             {
                 IEnumerable<string> relatedUserMessageIds = as4Message.SignalMessages.Select(m => m.RefToMessageId);
@@ -134,9 +165,9 @@ namespace Eu.EDelivery.AS4.Services
 
                 foreach (SignalMessage signalMessage in as4Message.SignalMessages)
                 {
-                    signalMessage.IsDuplicated = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
+                    signalMessage.IsDuplicate = IsSignalMessageDuplicate(signalMessage, duplicateSignalMessages);
 
-                    await AttemptToInsertSignalMessage(signalMessage, message, location, cancellationToken);
+                    await AttemptToInsertSignalMessage(signalMessage, as4Message, sendingPMode, location, cancellationToken);
                 }
             }
         }
@@ -217,7 +248,7 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (signalMessage is Receipt)
                 {
-                    if (ReceiptMustBeNotified(messagingContext.SendingPMode) && signalMessage.IsDuplicated == false)
+                    if (ReceiptMustBeNotified(messagingContext.SendingPMode) && signalMessage.IsDuplicate == false)
                     {
                         _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
                     }
@@ -226,7 +257,7 @@ namespace Eu.EDelivery.AS4.Services
                 }
                 else if (signalMessage is Error)
                 {
-                    if (ErrorMustBeNotified(messagingContext.SendingPMode) && signalMessage.IsDuplicated == false)
+                    if (ErrorMustBeNotified(messagingContext.SendingPMode) && signalMessage.IsDuplicate == false)
                     {
                         _repository.UpdateInMessage(signalMessage.MessageId, r => r.Operation = Operation.ToBeNotified);
                     }
@@ -269,13 +300,13 @@ namespace Eu.EDelivery.AS4.Services
 
         private void AttemptToInsertUserMessage(
             UserMessage userMessage,
-            MessagingContext message,
+            AS4Message belongsToAS4Message,
             string location,
             CancellationToken cancellationToken)
         {
             try
             {
-                InMessage inMessage = CreateUserInMessage(userMessage, message, location, cancellationToken);
+                InMessage inMessage = CreateUserInMessage(userMessage, belongsToAS4Message, location, cancellationToken);
                 _repository.InsertInMessage(inMessage);
             }
             catch (Exception ex)
@@ -289,13 +320,12 @@ namespace Eu.EDelivery.AS4.Services
 
         private static InMessage CreateUserInMessage(
             UserMessage userMessage,
-            MessagingContext message,
+            AS4Message belongsToAS4Message,
             string messageLocation,
             CancellationToken cancellationToken)
         {
             InMessage inMessage =
-                InMessageBuilder.ForUserMessage(userMessage, message.AS4Message)
-                                .WithPModeString(message.GetReceivingPModeString())
+                InMessageBuilder.ForUserMessage(userMessage, belongsToAS4Message)
                                 .Build(cancellationToken);
 
             inMessage.MessageLocation = messageLocation;
@@ -323,7 +353,8 @@ namespace Eu.EDelivery.AS4.Services
 
         private async Task AttemptToInsertSignalMessage(
             SignalMessage signalMessage,
-            MessagingContext message,
+            AS4Message as4Message,
+            SendingProcessingMode sendingPMode,
             string location,
             CancellationToken token)
         {
@@ -331,11 +362,11 @@ namespace Eu.EDelivery.AS4.Services
             {
                 if (signalMessage is Receipt)
                 {
-                    await InsertReceipt(signalMessage, message, location, token);
+                    await InsertReceipt(signalMessage, as4Message, sendingPMode, location, token);
                 }
                 else if (signalMessage is Error)
                 {
-                    await InsertError(signalMessage, message, location, token);
+                    await InsertError(signalMessage, as4Message, sendingPMode, location, token);
                 }
             }
             catch (Exception exception)
@@ -349,19 +380,21 @@ namespace Eu.EDelivery.AS4.Services
 
         private async Task InsertReceipt(
             SignalMessage signalMessage,
-            MessagingContext message,
+            AS4Message belongsToAS4Message,
+            SendingProcessingMode sendingPMode,
             string location,
             CancellationToken token)
         {
             Logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
-            InMessage inMessage = await CreateReceiptInMessage(signalMessage, message, location, token);
+            InMessage inMessage = await CreateReceiptInMessage(signalMessage, belongsToAS4Message, sendingPMode, location, token);
 
             _repository.InsertInMessage(inMessage);
         }
 
         private async Task InsertError(
             SignalMessage signalMessage,
-            MessagingContext message,
+            AS4Message belongsToAS4Message,
+            SendingProcessingMode sendingPMode,
             string location,
             CancellationToken cancellationToken)
         {
@@ -383,20 +416,21 @@ namespace Eu.EDelivery.AS4.Services
                 }
             }
 
-            InMessage inMessage = await CreateErrorInMessage(signalMessage, message, location, cancellationToken);
+            InMessage inMessage = await CreateErrorInMessage(signalMessage, belongsToAS4Message, sendingPMode, location, cancellationToken);
 
             _repository.InsertInMessage(inMessage);
         }
 
         private static async Task<InMessage> CreateReceiptInMessage(
             SignalMessage signalMessage,
-            MessagingContext message,
+            AS4Message as4Message,
+            SendingProcessingMode sendingPMode,
             string location,
             CancellationToken cancellationToken)
         {
             InMessage inMessage =
-                InMessageBuilder.ForSignalMessage(signalMessage, message.AS4Message)
-                                .WithPModeString(await AS4XmlSerializer.ToStringAsync(message.SendingPMode))
+                InMessageBuilder.ForSignalMessage(signalMessage, as4Message)
+                                .WithPModeString(await AS4XmlSerializer.ToStringAsync(sendingPMode))
                                 .Build(cancellationToken);
             inMessage.MessageLocation = location;
 
@@ -410,13 +444,14 @@ namespace Eu.EDelivery.AS4.Services
 
         private static async Task<InMessage> CreateErrorInMessage(
             SignalMessage signalMessage,
-            MessagingContext message,
+            AS4Message belongsToAS4Message,
+            SendingProcessingMode sendingPMode,
             string location,
             CancellationToken cancellationToken)
         {
             InMessage inMessage =
-                InMessageBuilder.ForSignalMessage(signalMessage, message.AS4Message)
-                                .WithPModeString(await AS4XmlSerializer.ToStringAsync(message.SendingPMode))
+                InMessageBuilder.ForSignalMessage(signalMessage, belongsToAS4Message)
+                                .WithPModeString(await AS4XmlSerializer.ToStringAsync(sendingPMode))
                                 .Build(cancellationToken);
             inMessage.MessageLocation = location;
 

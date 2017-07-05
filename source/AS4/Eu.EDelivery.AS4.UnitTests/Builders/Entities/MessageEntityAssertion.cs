@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         /// <param name="actual">The actual.</param>
         public static void AssertSignalMessageMetaInfo(AS4Message expected, MessageEntity actual)
         {
-            Assert.Equal(expected.PrimarySignalMessage.IsDuplicated, actual.IsDuplicate);
+            Assert.Equal(expected.PrimarySignalMessage.IsDuplicate, actual.IsDuplicate);
         }
 
         /// <summary>

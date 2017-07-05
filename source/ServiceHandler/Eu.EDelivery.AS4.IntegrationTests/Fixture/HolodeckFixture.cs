@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 using static Eu.EDelivery.AS4.IntegrationTests.Properties.Resources;

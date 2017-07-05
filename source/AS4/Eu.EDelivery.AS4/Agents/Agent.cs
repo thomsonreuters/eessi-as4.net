@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.Agents
             try
             {
                 bool weHaveAnyUnhappyPath = _stepConfiguration?.ErrorPipeline != null || _conditionalPipeline.unhappyPath != null;
-                if (result.Succeeded == false && weHaveAnyUnhappyPath)
+                if (result.Succeeded == false && weHaveAnyUnhappyPath && result.MessagingContext.Exception == null)
                 {
                     IEnumerable<IStep> steps = CreateSteps(_stepConfiguration?.ErrorPipeline, _conditionalPipeline.unhappyPath);
                     result = await ExecuteSteps(steps, result.MessagingContext, cancellation);
@@ -149,7 +149,7 @@ namespace Eu.EDelivery.AS4.Agents
 
         private bool AgentHasNoStepsToExecute()
         {
-            return _conditionalPipeline.happyPath == null 
+            return _conditionalPipeline.happyPath == null
                 && (_stepConfiguration.NormalPipeline.Any(s => s == null) || _stepConfiguration.NormalPipeline == null);
         }
 
@@ -179,7 +179,7 @@ namespace Eu.EDelivery.AS4.Agents
             {
                 result = await step.ExecuteAsync(context, cancellation).ConfigureAwait(false);
 
-                if (result.CanProceed == false || result.Succeeded == false)
+                if (result.CanProceed == false || result.Succeeded == false || result.MessagingContext?.Exception != null)
                 {
                     return result;
                 }

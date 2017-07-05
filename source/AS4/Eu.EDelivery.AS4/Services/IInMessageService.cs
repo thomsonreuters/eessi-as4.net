@@ -24,6 +24,21 @@ namespace Eu.EDelivery.AS4.Services
         IDictionary<string, bool> DetermineDuplicateSignalMessageIds(IEnumerable<string> searchedMessageIds);
 
         /// <summary>
+        /// Inserts a received Message in the DataStore.
+        /// For each message-unit that exists in the AS4Message,an InMessage record is created.
+        /// The AS4 Message Body is persisted as it has been received.
+        /// </summary>
+        /// <remarks>The received Message is parsed to an AS4 Message instance.</remarks>
+        /// <param name="context"></param>
+        /// <param name="as4MessageBodyPersister"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
+        Task<MessagingContext> InsertAS4Message(
+            MessagingContext context,
+            IAS4MessageBodyStore as4MessageBodyPersister,
+            CancellationToken cancellationToken);
+
+        /// <summary>
         /// Update the given message for delivery and notification.
         /// </summary>
         /// <param name="messagingContext"></param>
@@ -35,16 +50,6 @@ namespace Eu.EDelivery.AS4.Services
             IAS4MessageBodyStore as4MessageBodyPersister,
             CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Insert the given message.
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="as4MessageBodyPersister"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task InsertAS4Message(
-            MessagingContext message,
-            IAS4MessageBodyStore as4MessageBodyPersister,
-            CancellationToken cancellationToken);
+        
     }
 }

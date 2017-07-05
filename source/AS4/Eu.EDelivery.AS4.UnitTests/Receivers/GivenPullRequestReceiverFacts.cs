@@ -133,7 +133,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
                     _waitHandle.Set();
                 }
 
-                return new EmptyMessagingContext {MessageStream = Stream.Null};
+                return new EmptyMessagingContext();
             }
 
             /// <summary>

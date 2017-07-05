@@ -7,12 +7,13 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
 {
     /// <summary>
-    /// <see cref="IAS4Response" /> HTTP Web Response implementation.
+    /// 
     /// </summary>
     internal class AS4Response : IAS4Response
     {
@@ -38,7 +39,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <summary>
         /// Gets the Message from the AS4 response.
         /// </summary>
-        public MessagingContext ResultedMessage { get; private set; }
+        public AS4Message ReceivedMessageHeader { get; private set; }
+
+        public ReceivedMessage ReceivedStream { get; private set; }
 
         /// <summary>
         /// Gets the Original Request from this response.
@@ -54,54 +57,53 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public static async Task<AS4Response> Create(MessagingContext requestMessage, HttpWebResponse webResponse, CancellationToken cancellation)
         {
-            var response = new AS4Response(requestMessage, webResponse)
-            {
-                ResultedMessage = await TryDeserializeHttpResponse(webResponse, cancellation).ConfigureAwait(false)
-            };
+            var response = new AS4Response(requestMessage, webResponse);
 
-            response.ResultedMessage.SendingPMode = response.OriginalRequest?.SendingPMode;
+            var responseStream = webResponse.GetResponseStream() ?? Stream.Null;
+
+            var contentStream = VirtualStream.CreateVirtualStream(webResponse.ContentLength);
+
+            await responseStream.CopyToAsync(contentStream);
+            contentStream.Position = 0;
+
+            response.ReceivedStream = new ReceivedMessage(contentStream, webResponse.ContentType);
+            response.ReceivedMessageHeader = await TryDeserializeReceivedStream(response.ReceivedStream, cancellation);
 
             return response;
         }
 
-        private static async Task<MessagingContext> TryDeserializeHttpResponse(WebResponse webResponse, CancellationToken cancellation)
-        {            
-            AS4Message deserializedResponse;
-
+        private static async Task<AS4Message> TryDeserializeReceivedStream(ReceivedMessage receivedStream, CancellationToken cancellation)
+        {
             try
             {
-                if (webResponse == null)
-                {
-                    throw new ArgumentNullException(nameof(webResponse));
-                }
 
-                if (string.IsNullOrWhiteSpace(webResponse.ContentType))
+                if (string.IsNullOrWhiteSpace(receivedStream.ContentType))
                 {
                     if (Logger.IsInfoEnabled)
                     {
                         Logger.Info("No ContentType set - returning an empty AS4 response.");
 
-                        var streamReader = new StreamReader(webResponse.GetResponseStream());
+                        var streamReader = new StreamReader(receivedStream.RequestStream);
                         string responseContent = await streamReader.ReadToEndAsync();
 
                         Logger.Info(responseContent);
                     }
 
-                    return new MessagingContext(AS4Message.Empty, MessagingContextMode.Send);
+                    return AS4Message.Empty;
                 }
 
-                ISerializer serializer = Registry.Instance.SerializerProvider.Get(webResponse.ContentType);
-
-                deserializedResponse = await serializer
-                    .DeserializeAsync(webResponse.GetResponseStream(), webResponse.ContentType, cancellation).ConfigureAwait(false);
+                var serializer = SerializerProvider.Default.Get(receivedStream.ContentType);
+                return await serializer.DeserializeAsync(receivedStream.RequestStream, receivedStream.ContentType, cancellation);
             }
             catch (Exception exception)
             {
                 Logger.Error(exception.Message);
-                deserializedResponse = AS4Message.Empty;
+                return AS4Message.Empty;
             }
-
-            return new MessagingContext(deserializedResponse, MessagingContextMode.Send);
+            finally
+            {
+                receivedStream.RequestStream.Position = 0;
+            }
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
@@ -124,7 +126,12 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <summary>
         /// Gets the Message from the AS4 response.
         /// </summary>
-        MessagingContext ResultedMessage { get; }
+        AS4Message ReceivedMessageHeader { get; }
+
+        /// <summary>
+        /// Gets the received stream
+        /// </summary>
+        ReceivedMessage ReceivedStream { get; }
 
         /// <summary>
         /// Gets the Original Request from this response.

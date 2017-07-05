@@ -80,6 +80,7 @@
     <Compile Include="InteropTestTransformers\InteropTestingSubmitReceiveMessageTransformer.cs" />
     <Compile Include="ConformanceTestTransformers\ConformanceTestingSubmitReceiveMessageTransformer.cs" />
     <Compile Include="MinderNotifyMessageTransformer.cs" />
+    <Compile Include="ReceiveMessageTransformer.cs" />
     <Compile Include="SignalMessageToNotifyMessageTransformer.cs" />
     <Compile Include="PayloadTransformer.cs" />
     <Compile Include="PModeToPullRequestTransformer.cs" />

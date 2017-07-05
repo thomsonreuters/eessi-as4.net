@@ -45,16 +45,28 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Logger.Info($"{messagingContext.Prefix} Update Datastore with AS4 received message");
 
+            if (messagingContext.ReceivedMessage == null)
+            {
+                throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
+            }
+
             using (DatastoreContext context = _createDatastoreContext())
             {
                 var repository = new DatastoreRepository(context);
                 var service = new InMessageService(repository);
 
-                await service.InsertAS4Message(messagingContext, _messageBodyStore, token).ConfigureAwait(false);
+                var resultContext = await service.InsertAS4Message(messagingContext, _messageBodyStore, token).ConfigureAwait(false);
                 await context.SaveChangesAsync(token).ConfigureAwait(false);
-            }
 
-            return StepResult.Success(messagingContext);
+                if (resultContext != null)
+                {
+                    return StepResult.Success(resultContext);
+                }
+                else
+                {
+                    return StepResult.Failed(null);
+                }
+            }            
         }
     }
 }

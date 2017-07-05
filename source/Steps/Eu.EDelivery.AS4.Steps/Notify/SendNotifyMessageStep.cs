@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Notify;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Strategies.Sender;
 using NLog;
 
@@ -24,7 +20,6 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
         private readonly INotifySenderProvider _provider;
-        private readonly IOutMessageService _messageService;
         private readonly Func<DatastoreContext> _createContext;
 
         /// <summary>
@@ -58,7 +53,7 @@ namespace Eu.EDelivery.AS4.Steps.Notify
         {
             Logger.Info($"{messagingContext.Prefix} Start sending Notify Message...");
 
-            if (messagingContext?.SendingPMode == null)
+            if (messagingContext.SendingPMode == null)
             {
                 SendingProcessingMode pmode = RetrieveSendingPMode(messagingContext);
                 if (pmode != null)

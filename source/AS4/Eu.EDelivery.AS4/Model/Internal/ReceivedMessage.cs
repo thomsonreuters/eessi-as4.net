@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class ReceivedMessage
     {
-        protected ReceivedMessage() {}
+        protected ReceivedMessage() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         {
             RequestStream = requestStream;
             ContentType = contentType;
-        }        
+        }
 
         public string ContentType { get; set; }
 
@@ -48,7 +48,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="message"></param>
         public virtual void AssignPropertiesTo(MessagingContext message)
         {
-            message.AS4Message.ContentType = ContentType;
+            if (message.AS4Message != null)
+            {
+                message.AS4Message.ContentType = ContentType;
+            }
         }
     }
 }

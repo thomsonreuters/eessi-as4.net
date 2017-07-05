@@ -15,7 +15,7 @@ using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Extensions;
 using Eu.EDelivery.AS4.UnitTests.Http;
 using Eu.EDelivery.AS4.UnitTests.Model;
-using Xunit;    
+using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 {
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             AS4Message as4Message = AS4Message.Create(new PullRequestError());
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(as4Message));
 
-            MessagingContext dummyMessage = CreateAnonymousPullRequest();
+            MessagingContext dummyMessage = CreateDefaultPullRequest();
 
             // Act
             StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
@@ -52,51 +52,53 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         public async Task StepUpdatesRequestOperationAndStatus_IfRequestFailsToSend()
         {
             // Arrange
-            MessagingContext context = ContextWith(AS4Message.Create(new FilledUserMessage()));
+            var as4Message = AS4Message.Create(new FilledUserMessage());
+            InsertToBeSentUserMessage(as4Message);
+            MessagingContext context = CreateSendMessagingContext(as4Message);
+            context.ReceivedMessage.ContentType = null;
 
             // Act / Assert
-            await TestStepUpdatesRequestOperationAndStatus(context, Operation.Undetermined, OutStatus.Exception);
+            // Act 
+            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatThrows(new WebException()));
+            await step.ExecuteAsync(context, CancellationToken.None);
+
+            // Assert
+            AssertSentUserMessage(
+                as4Message,
+                message =>
+                {
+                    Assert.Equal(Operation.Undetermined, message.Operation);
+                    Assert.Equal(OutStatus.Exception, message.Status);
+                });
         }
 
         [Fact]
         public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
         {
             // Arrange
-            MessagingContext context = ContextWith(AS4Message.Create(new FilledUserMessage()));
-            context.MessageStream = context.AS4Message.ToStream();
+            var as4Message = AS4Message.Create(new FilledUserMessage());
+            InsertToBeSentUserMessage(as4Message);
+            MessagingContext context = CreateSendMessagingContext(as4Message);
 
-            // Act / Assert
-            await TestStepUpdatesRequestOperationAndStatus(context, Operation.Sent, OutStatus.Sent);
-        }
-
-        private async Task TestStepUpdatesRequestOperationAndStatus(
-            MessagingContext context,
-            Operation expectedOperation, 
-            OutStatus expectedStatus)
-        {
-            // Arrange
-            InsertToBeSentUserMessage(context);
-
-            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));
-
-            // Act
+            // Act 
+            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(CreateAnonymousReceipt()));            
             await step.ExecuteAsync(context, CancellationToken.None);
 
             // Assert
             AssertSentUserMessage(
-                context,
+                as4Message,
                 message =>
                 {
-                    Assert.Equal(expectedOperation, message.Operation);
-                    Assert.Equal(expectedStatus, message.Status);
+                    Assert.Equal(Operation.Sent, message.Operation);
+                    Assert.Equal(OutStatus.Sent, message.Status);
                 });
         }
-
-        private void InsertToBeSentUserMessage(MessagingContext requestMessage)
+        
+        private void InsertToBeSentUserMessage(AS4Message as4Message)
         {
             using (var context = new DatastoreContext(Options))
             {
-                context.OutMessages.Add(new OutMessage {EbmsMessageId = requestMessage.AS4Message.PrimaryUserMessage.MessageId});
+                context.OutMessages.Add(new OutMessage { EbmsMessageId = as4Message.PrimaryUserMessage.MessageId });
                 context.SaveChanges();
             }
         }
@@ -106,12 +108,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             return AS4Message.Create(new Receipt());
         }
 
-        private void AssertSentUserMessage(MessagingContext requestMessage, Action<OutMessage> assertion)
+        private void AssertSentUserMessage(AS4Message as4Message, Action<OutMessage> assertion)
         {
             using (var context = new DatastoreContext(Options))
             {
                 OutMessage outMessage = context.OutMessages.FirstOrDefault(
-                    m => m.EbmsMessageId.Equals(requestMessage.AS4Message.PrimaryUserMessage.MessageId));
+                    m => m.EbmsMessageId.Equals(as4Message.PrimaryUserMessage.MessageId));
 
                 assertion(outMessage);
             }
@@ -122,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         {
             // Arrange
             var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatReturns(HttpStatusCode.Accepted));
-            MessagingContext dummyMessage = CreateAnonymousPullRequest();
+            MessagingContext dummyMessage = CreateDefaultPullRequest();
 
             // Act
             StepResult actualResult = await step.ExecuteAsync(dummyMessage, CancellationToken.None);
@@ -132,26 +134,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Assert.False(actualResult.CanProceed);
         }
 
-        private static MessagingContext CreateAnonymousPullRequest()
+        private static MessagingContext CreateDefaultPullRequest()
         {
-            MessagingContext context = ContextWith(AS4Message.Create(new PullRequest(mpc: null, messageId: "message-id")));
-            context.MessageStream = context.AS4Message.ToStream();
+            var pullRequest = AS4Message.Create(new PullRequest(mpc: null, messageId: "message-id"));
+
+            var ms = pullRequest.ToStream();
+
+            MessagingContext context = new MessagingContext(new ReceivedMessage(ms, pullRequest.ContentType), MessagingContextMode.Receive);
+            context.SendingPMode = CreateValidSendingPMode();
 
             return context;
         }
 
-        public static MessagingContext ContextWith(AS4Message message)
+        public static MessagingContext CreateSendMessagingContext(AS4Message message)
         {
-            return new MessagingContext(message, MessagingContextMode.Unknown) {SendingPMode = CreateValidSendingPMode()};
+            var receivedMessage = new ReceivedMessage(message.ToStream(), message.ContentType);
+
+            return new MessagingContext(receivedMessage, MessagingContextMode.Send) { SendingPMode = CreateValidSendingPMode() };
         }
 
         private static SendingProcessingMode CreateValidSendingPMode()
         {
             return new SendingProcessingMode
             {
-                PullConfiguration = new PullConfiguration {Protocol = {Url = "http://ignored/path"}},
-                PushConfiguration = new PushConfiguration { Protocol = {Url = "http://ignored/path"}},
-                Reliability = {ReceptionAwareness = {IsEnabled = true}}
+                PullConfiguration = new PullConfiguration { Protocol = { Url = "http://ignored/path" } },
+                PushConfiguration = new PushConfiguration { Protocol = { Url = "http://ignored/path" } },
+                Reliability = { ReceptionAwareness = { IsEnabled = true } }
             };
         }
     }

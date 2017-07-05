@@ -11,6 +11,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
     /// <summary>
     /// Updates the DataStore with the response that was received synchronously after sending an AS4Message.
     /// </summary>
+    [Obsolete("This Step can be replaced by the regular SaveReceivedMessageStep")]
     public class StoreReceivedSignalMessageStep : IStep
     {
         private readonly Func<DatastoreContext> _createDatastoreContext;

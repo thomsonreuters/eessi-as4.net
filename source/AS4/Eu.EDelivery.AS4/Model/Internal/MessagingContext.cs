@@ -17,6 +17,19 @@ namespace Eu.EDelivery.AS4.Model.Internal
     public class MessagingContext : IDisposable
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="MessagingContext"/> class.
+        /// </summary>
+        public MessagingContext(ReceivedMessage receivedMessage, MessagingContextMode mode)
+        {
+            SubmitMessage = null;
+            ReceivedMessage = receivedMessage;
+            AS4Message = null;
+            DeliverMessage = null;
+            NotifyMessage = null;
+            Mode = mode;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MessagingContext" /> class.
         /// Create an Internal Message with a given <see cref="Core.AS4Message" />
         /// </summary>
@@ -25,6 +38,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(AS4Message as4Message, MessagingContextMode mode)
         {
             SubmitMessage = null;
+            ReceivedMessage = null;
             AS4Message = as4Message;
             DeliverMessage = null;
             NotifyMessage = null;
@@ -40,6 +54,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(SubmitMessage submitMessage)
         {
             SubmitMessage = submitMessage;
+            ReceivedMessage = null;
             AS4Message = null;
             DeliverMessage = null;
             NotifyMessage = null;
@@ -53,6 +68,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(DeliverMessageEnvelope deliverMessage)
         {
             SubmitMessage = null;
+            ReceivedMessage = null;
             AS4Message = null;
             DeliverMessage = deliverMessage;
             NotifyMessage = null;
@@ -66,6 +82,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public MessagingContext(NotifyMessageEnvelope notifyMessage)
         {
             SubmitMessage = null;
+            ReceivedMessage = null;
             AS4Message = null;
             DeliverMessage = null;
             NotifyMessage = notifyMessage;
@@ -92,7 +109,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
             Mode = MessagingContextMode.Unknown;
         }
 
-        public Stream MessageStream { get; set; }
+        public ReceivedMessage ReceivedMessage { get; }
 
         public AS4Message AS4Message { get; }
 
@@ -201,6 +218,11 @@ namespace Eu.EDelivery.AS4.Model.Internal
             return CopyContextInfoTo(new MessagingContext(as4Message, Mode));
         }
 
+        public MessagingContext CloneWith(ReceivedMessage receivedMessage)
+        {
+            return CopyContextInfoTo(new MessagingContext(receivedMessage, Mode));
+        }
+
         /// <summary>
         /// Clones the message.
         /// </summary>
@@ -237,7 +259,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public void Dispose()
         {
             AS4Message?.CloseAttachments();
-            MessageStream?.Dispose();
+            ReceivedMessage?.RequestStream?.Dispose();
         }
     }
 

@@ -31,24 +31,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         /// </summary>
         public class GivenValidReceivedMessageToTransformer : GivenAS4MessageTransformerFacts
         {
-            [Fact]
+            [Fact(Skip = "NotIMplemented anymore")]
             public async Task ThenTransfromSuceedsWithSoapdAS4StreamAsync()
             {
-                // Arrange
-                const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
+                ////// Arrange
+                ////const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
-                // Act
-                MessagingContext context = await ExerciseTransform(as4_single_payload, contentType);
-                
-                // Assert
-                Assert.NotNull(context?.AS4Message);
+                ////// Act
+                ////MessagingContext context = await ExerciseTransform(as4_single_payload, contentType);
 
-                string expected = Encoding.UTF8.GetString(as4_single_payload);
-                string actual = ReadToEnd(context.MessageStream);
-                Assert.Equal(expected, actual);
+                ////// Assert
+                ////Assert.NotNull(context?.AS4Message);
 
-                // TearDown
-                context.MessageStream.Close();
+                ////string expected = Encoding.UTF8.GetString(as4_single_payload);
+                ////string actual = ReadToEnd(context.MessageStream);
+                ////Assert.Equal(expected, actual);
+
+                ////// TearDown
+                ////context.MessageStream.Close();
+                throw new NotImplementedException();
             }
 
             private async Task<MessagingContext> ExerciseTransform(byte[] contents, string contentType)
@@ -81,7 +82,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 Assert.ThrowsAny<Exception>(() => new AS4MessageTransformer(provider: null));
             }
 
-            [Fact]
+            [Fact(Skip="AS4 Message Transformer will become obsolete")]
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {
                 // Arrange

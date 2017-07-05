@@ -272,11 +272,6 @@ namespace Eu.EDelivery.AS4.Receivers
                     return message;
                 }
 
-                if (requestValue.ContentLength64 > VirtualStream.ThresholdMax)
-                {
-                    return await RequestAsVirtualStreamMessage(requestValue, VirtualStream.MemoryFlag.OnlyToDisk);
-                }
-
                 return new ReceivedMessage(requestValue.InputStream, requestValue.ContentType);
             }
 

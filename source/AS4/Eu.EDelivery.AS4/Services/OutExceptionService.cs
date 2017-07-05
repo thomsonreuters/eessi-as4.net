@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Exceptions;
-using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
@@ -31,15 +31,15 @@ namespace Eu.EDelivery.AS4.Services
         /// </summary>
         /// <param name="error">The error.</param>
         /// <param name="context">The context.</param>
-        public async Task InsertError(ErrorResult error, MessagingContext context)
+        public async Task InsertException(ErrorResult error, AS4Message as4Message, SendingProcessingMode sendingPMode)
         {
             var repository = new DatastoreRepository(_context);
 
-            foreach (string id in context.AS4Message.MessageIds)
+            foreach (string id in as4Message.MessageIds)
             {
                 try
                 {
-                    OutException outException = await CreateOutException(error, context, id);
+                    OutException outException = await CreateOutException(error, sendingPMode, id);
 
                     repository.InsertOutException(outException);
                 }
@@ -56,7 +56,7 @@ namespace Eu.EDelivery.AS4.Services
             return sendPMode?.ExceptionHandling?.NotifyMessageProducer == true;
         }
 
-        private static async Task<OutException> CreateOutException(ErrorResult error, MessagingContext context, string id)
+        private static async Task<OutException> CreateOutException(ErrorResult error, SendingProcessingMode sendingPMode, string id)
         {
             return new OutException
             {
@@ -64,9 +64,9 @@ namespace Eu.EDelivery.AS4.Services
                 Exception = error.Description,
                 InsertionTime = DateTimeOffset.Now,
                 ModificationTime = DateTimeOffset.Now,
-                PMode = await AS4XmlSerializer.ToStringAsync(context.SendingPMode),
+                PMode = await AS4XmlSerializer.ToStringAsync(sendingPMode),
                 Operation =
-                    NeedsOutExceptionBeNotified(context.SendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable
+                    NeedsOutExceptionBeNotified(sendingPMode) ? Operation.ToBeNotified : Operation.NotApplicable
             };
         }
     }

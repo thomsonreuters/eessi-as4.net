@@ -7,9 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -114,13 +112,14 @@ namespace Eu.EDelivery.AS4.Entities
         /// <summary>
         /// Assigns the parent properties.
         /// </summary>
-        /// <param name="as4Message">The as4 message.</param>
+        /// <param name="messageUnit">The MessageUnit from which the properties must be retrieved..</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        public void AssignAS4Properties(AS4Message as4Message, CancellationToken cancellationToken)
-        {
-            if (as4Message.IsUserMessage)
+        public void AssignAS4Properties(MessageUnit messageUnit, CancellationToken cancellationToken)
+        {            
+            var userMessage = messageUnit as UserMessage;
+
+            if (userMessage != null)
             {
-                UserMessage userMessage = as4Message.PrimaryUserMessage;
                 FromParty = userMessage.Sender.PartyIds.First().Id;
                 ToParty = userMessage.Receiver.PartyIds.First().Id;
                 Action = userMessage.CollaborationInfo.Action;
@@ -129,13 +128,18 @@ namespace Eu.EDelivery.AS4.Entities
                 Mpc = userMessage.Mpc;
                 IsTest = userMessage.IsTest;
                 IsDuplicate = userMessage.IsDuplicate;
-                SoapEnvelope =
-                    AS4XmlSerializer.ToSoapEnvelopeDocument(new MessagingContext(as4Message, MessagingContextMode.Unknown), cancellationToken).OuterXml;
+                // TODO: fill out the soap-envelope
+                // map to xml messageunit and serialize ?
+                //    SoapEnvelope = AS4XmlSerializer.ToString(userMessage);
+                //AS4XmlSerializer.ToSoapEnvelopeDocument(new MessagingContext(as4Message, MessagingContextMode.Unknown), cancellationToken).OuterXml;
             }
-
-            if (as4Message.IsSignalMessage)
+            else
             {
-                IsDuplicate = as4Message.PrimarySignalMessage.IsDuplicated;
+                var signalMessage = messageUnit as SignalMessage;
+                if (signalMessage != null)
+                {
+                    IsDuplicate = signalMessage.IsDuplicate;
+                }
             }
         }
 

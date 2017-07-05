@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForAS4Message(expected);
+                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertPartyInfo(expected, actual);
@@ -39,7 +39,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForAS4Message(expected);
+                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertCollaborationInfo(expected, actual);
@@ -52,7 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForAS4Message(expected);
+                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertUserMessageMetaInfo(expected, actual);
@@ -67,21 +67,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 AS4Message expected = CreateAS4MessageWithReceiptMessage(isDuplicate: isDuplicate);
 
                 // Act
-                MessageEntity actual = BuildForAS4Message(expected);
+                MessageEntity actual = BuildForMessageUnit(expected.PrimarySignalMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertSignalMessageMetaInfo(expected, actual);
 
             }
 
-            [Fact]
+            [Fact(Skip="Soap envelope no longer saved atm")]
             public void GetsSoapEnvelope()
             {
                 // Arrange
                 AS4Message expected = CreateAS4MessageWithUserMessage();
 
                 // Act
-                MessageEntity actual = BuildForAS4Message(expected);
+                MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
 
                 // Assert
                 MessageEntityAssertion.AssertSoapEnvelope(expected, actual);
@@ -94,10 +94,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             private static AS4Message CreateAS4MessageWithReceiptMessage(bool isDuplicate)
             {
-                return AS4Message.Create(new FilledNRRReceipt {IsDuplicated = isDuplicate});
+                return AS4Message.Create(new FilledNRRReceipt {IsDuplicate = isDuplicate});
             }
 
-            private static MessageEntity BuildForAS4Message(AS4Message expected)
+            private static MessageEntity BuildForMessageUnit(MessageUnit expected)
             {
                 var message = new StubMessageEntity();
                 message.AssignAS4Properties(expected, CancellationToken.None);

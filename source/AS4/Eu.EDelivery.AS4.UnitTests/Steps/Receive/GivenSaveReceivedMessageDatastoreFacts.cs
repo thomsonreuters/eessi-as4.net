@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -7,9 +8,9 @@ using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
+using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
-using Eu.EDelivery.AS4.UnitTests.Builders.Core;
 using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -82,17 +83,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
                 AddTestableDataToUserMessage(userMessage);
-                MessagingContext messagingContext = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
+
+                var as4Message = AS4Message.Create(userMessage, null);
 
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
-                messagingContext.ReceivingPMode = pmode;
 
-                // Act
-                await Step.ExecuteAsync(messagingContext, CancellationToken.None);
+                using (var messagingContext = CreateReceivedMessagingContext(as4Message, pmode))
+                {
+                    // Act
+                    await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
-                // Assert
-                await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
+                    // Assert
+                    await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
+                }
             }
 
             [Fact]
@@ -100,19 +104,23 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 SignalMessage signalMessage = new Receipt("message-id") { RefToMessageId = "ref-to-message-id" };
-                signalMessage.IsDuplicated = false;
+                signalMessage.IsDuplicate = false;
 
-                MessagingContext messagingContext = new InternalMessageBuilder().WithSignalMessage(signalMessage).Build();
+                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage, null), null))
+                {
+                    // Act           
+                    // Execute the step twice.     
+                    StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
+                    Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
+                }
 
-                // Act           
-                // Execute the step twice.     
-                StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
-                Assert.False(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicated);
+                using (var messagingContext = CreateReceivedMessagingContext(AS4Message.Create(signalMessage, null), null))
+                {
+                    StepResult stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
 
-                stepResult = await Step.ExecuteAsync(messagingContext, CancellationToken.None);
-
-                // Assert
-                Assert.True(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicated);
+                    // Assert
+                    Assert.True(stepResult.MessagingContext.AS4Message.PrimarySignalMessage.IsDuplicate);
+                }
             }
 
             [Fact]
@@ -121,30 +129,32 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 UserMessage userMessage = CreateUserMessage();
                 await InsertDuplicateUserMessage(userMessage);
-                MessagingContext messagingContext = new InternalMessageBuilder().WithUserMessage(userMessage).Build();
 
                 var pmode = new ReceivingProcessingMode();
                 pmode.Reliability.DuplicateElimination.IsEnabled = true;
-                messagingContext.ReceivingPMode = pmode;
 
-                // Act
-                await Step.ExecuteAsync(messagingContext, CancellationToken.None);
+                using (var context = CreateReceivedMessagingContext(AS4Message.Create(userMessage, null), pmode))
+                {
+                    // Act
+                    await Step.ExecuteAsync(context, CancellationToken.None);
 
-                // Assert
-                await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
+                    // Assert
+                    await AssertUserInMessageAsync(userMessage, m => m.Operation == Operation.NotApplicable);
+                }                                
             }
 
             [Fact]
             public async Task ThenExecuteStepSucceedsAsync()
             {
                 // Arrange
-                var internalMessage = new MessagingContext(AS4Message.Empty, MessagingContextMode.Unknown);
+                using (var context = CreateReceivedMessagingContext(AS4Message.Empty, null))
+                {
+                    // Act
+                    StepResult result = await Step.ExecuteAsync(context, CancellationToken.None);
 
-                // Act
-                StepResult result = await Step.ExecuteAsync(internalMessage, CancellationToken.None);
-
-                // Assert
-                Assert.NotNull(result);
+                    // Assert
+                    Assert.NotNull(result);
+                }
             }
         }
 
@@ -155,6 +165,21 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         protected UserMessage CreateUserMessage()
         {
             return new UserMessage(_userMessageId) { RefToMessageId = _userMessageId };
+        }
+
+        protected MessagingContext CreateReceivedMessagingContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)
+        {
+            MemoryStream stream = new MemoryStream();
+
+            SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, stream, CancellationToken.None);
+            stream.Position = 0;
+
+            var receivedMessage = new ReceivedMessage(stream, as4Message.ContentType);
+
+            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Receive);
+            messagingContext.ReceivingPMode = receivingPMode;
+
+            return messagingContext;
         }
     }
 }
