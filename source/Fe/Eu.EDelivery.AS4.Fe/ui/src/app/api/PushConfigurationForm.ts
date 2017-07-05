@@ -10,9 +10,4 @@ export class PushConfigurationForm {
             tlsConfiguration: TlsConfigurationForm.getForm(formBuilder, current && current.tlsConfiguration),
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PushConfiguration) {
-        ProtocolForm.patchForm(formBuilder, <FormGroup>form.get(PushConfiguration.FIELD_protocol), current && current.protocol);
-        TlsConfigurationForm.patchForm(formBuilder, <FormGroup>form.get(PushConfiguration.FIELD_tlsConfiguration), current && current.tlsConfiguration);
-    }
 }

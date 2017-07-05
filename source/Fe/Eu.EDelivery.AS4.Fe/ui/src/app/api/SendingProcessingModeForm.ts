@@ -26,19 +26,4 @@ export class SendingProcessingModeForm {
             messagePackaging: SendMessagePackagingForm.getForm(formBuilder.formBuilder, current && current.messagePackaging),
         });
     }
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendingProcessingMode) {
-        form.get(SendingProcessingMode.FIELD_id).reset({ value: current && current.id, disabled: !!!current || form.parent.disabled });
-        form.get(SendingProcessingMode.FIELD_allowOverride).reset({ value: current && current.allowOverride, disabled: !!!current || form.parent.disabled });
-        form.get(SendingProcessingMode.FIELD_mep).reset({ value: current && current.mep, disabled: !!!current || form.parent.disabled });
-        form.get(SendingProcessingMode.FIELD_mepBinding).reset({ value: current && current.mepBinding, disabled: !!!current || form.parent.disabled });
-
-        PushConfigurationForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_pushConfiguration), current && current.pushConfiguration);
-        PullConfigurationForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_pullConfiguration), current && current.pullConfiguration);
-        SendReliabilityForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_reliability), current && current.reliability);
-        SendHandlingForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_receiptHandling), current && current.receiptHandling);
-        SendHandlingForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_errorHandling), current && current.errorHandling);
-        SendHandlingForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_exceptionHandling), current && current.exceptionHandling);
-        SecurityForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_security), current && current.security);
-        SendMessagePackagingForm.patchForm(formBuilder, <FormGroup>form.get(SendingProcessingMode.FIELD_messagePackaging), current && current.messagePackaging);
-    }
 }

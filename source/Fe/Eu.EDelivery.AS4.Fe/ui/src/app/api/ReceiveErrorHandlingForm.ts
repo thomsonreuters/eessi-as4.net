@@ -6,7 +6,7 @@ export class ReceiveErrorHandlingForm {
         return formBuilder.group({
             useSoapFault: [!!(current && current.useSoapFault)],
             replyPattern: [(current == null || current.replyPattern == null) ? 0 : current.replyPattern],
-            responseHttpCode: [(current == null || current.responseHttpCode == null) ? '200' : current.responseHttpCode],
+            responseHttpCode: [!!!current ? null : current.responseHttpCode],
             sendingPMode: [current && current.sendingPMode],
         });
     }

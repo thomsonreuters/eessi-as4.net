@@ -7,13 +7,14 @@ import { KeyEncryptionForm } from './KeyEncryptionForm';
 import { FormWrapper } from './../common/form.service';
 
 export class EncryptionForm {
+
     public static getForm(formBuilder: FormWrapper, current: Encryption): FormWrapper {
         let form = formBuilder
             .group({
                 isEnabled: [!!(current && current.isEnabled), Validators.required],
-                algorithm: [current && current.algorithm, Validators.required],
-                algorithmKeySize: [current && current.algorithmKeySize, Validators.required],
-                publicKeyType: [!!!current || !!!current.publicKeyType ? 0 : current.publicKeyType],
+                algorithm: [!!!current ? null : !!!current.algorithm ? this.DefaultAlgorithm : current.algorithm, Validators.required],
+                algorithmKeySize: [!!!current ? null : !!!current.algorithmKeySize ? this.DefaultAlgorithmKeySize : current.algorithmKeySize, Validators.required],
+                publicKeyType: [!!!current ? 0 : !!!current.publicKeyType ? 0 : current.publicKeyType],
                 keyTransport: KeyEncryptionForm.getForm(formBuilder.subForm('keyTransport'), current && current.keyTransport).form,
             })
             .onChange(Encryption.FIELD_isEnabled, (result, wrapper) => {
@@ -29,10 +30,8 @@ export class EncryptionForm {
 
         return form;
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Encryption) {
-
-    }
+    private static DefaultAlgorithm = 'http://www.w3.org/2009/xmlenc11#aes128-gcm';
+    private static DefaultAlgorithmKeySize = 128;
     private static getPublicKeyType(current: Encryption): number {
         if (!!current && !!current.publicKeyInformation && !!(<PublicKeyCertificate>current.publicKeyInformation).certificate) {
             return 1;

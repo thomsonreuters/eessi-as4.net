@@ -13,9 +13,4 @@ export class MethodForm {
 
         return form;
     }
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Method, disabled?: boolean) {
-        form.get(Method.FIELD_type).reset({ value: current && current.type, disabled: disabled });
-        form.removeControl(Method.FIELD_parameters);
-        form.addControl(Method.FIELD_parameters, formBuilder.array(!!!(current && current.parameters) ? [] : current.parameters.map(item => ParameterForm.getForm(formBuilder, item, disabled))));
-    }
 }

@@ -12,12 +12,6 @@ export class TlsConfigurationForm {
         TlsConfigurationForm.setupForm(form);
         return form;
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: TlsConfiguration) {
-        form.get(TlsConfiguration.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current });
-        form.get(TlsConfiguration.FIELD_tlsVersion).reset({ value: current && current.isEnabled, disabled: !!!current || !current.isEnabled });
-        ClientCertificateReferenceForm.patchForm(formBuilder, <FormGroup>form.get(TlsConfiguration.FIELD_clientCertificateReference), current && current.clientCertificateReference);
-    }
     private static setupForm(form: FormGroup) {
         this.processEnabled(form);
         form.get(TlsConfiguration.FIELD_isEnabled).valueChanges.subscribe(() => this.processEnabled(form));
