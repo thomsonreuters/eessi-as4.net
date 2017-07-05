@@ -171,7 +171,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 sentStream.UnderlyingStream.Position = 0;
                 return await serializer.DeserializeAsync(sentStream.UnderlyingStream, sentStream.ContentType,
-                                                   CancellationToken.None);
+                                                         CancellationToken.None);
             }
             catch (WebException exception)
             {

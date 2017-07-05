@@ -92,6 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 }
 
                 var serializer = SerializerProvider.Default.Get(receivedStream.ContentType);
+
                 return await serializer.DeserializeAsync(receivedStream.UnderlyingStream, receivedStream.ContentType, cancellation);
             }
             catch (Exception exception)

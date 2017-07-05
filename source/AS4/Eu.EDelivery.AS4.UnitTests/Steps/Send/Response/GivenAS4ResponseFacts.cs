@@ -38,6 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             HttpWebResponse response = CreateWebResponseWithContentType(string.Empty);
 
             // Act
+
             var result = CreateAS4ResponseWith(webResponse: response).ReceivedAS4Message;
 
             // Assert
