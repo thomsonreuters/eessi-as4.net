@@ -27,22 +27,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
         {
             IdentifierFactory.Instance.SetContext(StubConfig.Instance);
         }
-
-        public class Create
-        {
-            [Theory]
-            [InlineData(MessageExchangePatternBinding.Push, MessageExchangePattern.Push)]
-            [InlineData(MessageExchangePatternBinding.Pull, MessageExchangePattern.Pull)]
-            public void UseMepFromPMode(MessageExchangePatternBinding pmodeMep, MessageExchangePattern expected)
-            {
-                // Act
-                AS4Message message = AS4Message.Create(new SendingProcessingMode {MepBinding = pmodeMep});
-
-                // Assert
-                Assert.Equal(expected, message.Mep);
-            }
-        }
-
+       
         public class Empty
         {
             [Fact]

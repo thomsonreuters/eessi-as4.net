@@ -135,8 +135,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 StepResult result = await handler.HandleResponse(as4Response);
 
                 // Assert
-                Assert.True(spyHandler.IsCalled);
-                Assert.Equal(MessageExchangePattern.Push, result.MessagingContext.AS4Message.Mep);
+                Assert.True(spyHandler.IsCalled);                
             }
 
             [Fact]
@@ -185,8 +184,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
                 StepResult actualResult = await handler.HandleResponse(stubAS4Response);
 
                 // Assert
-                Assert.False(actualResult.CanProceed);
-                Assert.Equal(MessageExchangePattern.Pull, actualResult.MessagingContext.AS4Message.Mep);
+                Assert.False(actualResult.CanProceed);                
             }
 
             private static IAS4Response CreateResponseWith(SignalMessage request, SignalMessage response)

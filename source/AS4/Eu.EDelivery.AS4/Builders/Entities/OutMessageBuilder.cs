@@ -4,6 +4,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -14,18 +15,18 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     {
         private readonly MessageUnit _messageUnit;
         private readonly AS4Message _belongsToAS4Message;
-
-        private SendingProcessingMode _sendingProcessingMode;
+        private readonly SendingProcessingMode _sendingProcessingMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageBuilder" /> class.
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="belongsToAS4Message">The AS4 message to which the <paramref name="messageUnit"/> belongs to.</param>
-        private OutMessageBuilder(MessageUnit messageUnit, AS4Message belongsToAS4Message)
+        private OutMessageBuilder(MessageUnit messageUnit, AS4Message belongsToAS4Message, SendingProcessingMode sendingPMode)
         {
             _messageUnit = messageUnit;
             _belongsToAS4Message = belongsToAS4Message;
+            _sendingProcessingMode = sendingPMode;
         }
 
         /// <summary>
@@ -34,17 +35,11 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="belongsToAS4Message">The AS4 Message to which the <paramref name="messageUnit"/> belongs to.</param>
         /// <returns></returns>
-        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, AS4Message belongsToAS4Message)
+        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, AS4Message belongsToAS4Message, SendingProcessingMode sendingPMode)
         {
-            return new OutMessageBuilder(messageUnit, belongsToAS4Message);
+            return new OutMessageBuilder(messageUnit, belongsToAS4Message,sendingPMode);
         }
-
-        public OutMessageBuilder WithSendingPMode(SendingProcessingMode pmode)
-        {
-            _sendingProcessingMode = pmode;
-            return this;
-        }
-
+        
         /// <summary>
         /// Start Creating the <see cref="OutMessage"/>
         /// </summary>
@@ -64,7 +59,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
-                MEP = _belongsToAS4Message.Mep,
+                MEP = DetermineMepOf(_sendingProcessingMode),
                 EbmsMessageType = messageType,
                 PMode = AS4XmlSerializer.ToString(_sendingProcessingMode),
             };
@@ -97,6 +92,17 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             }
 
             throw new NotSupportedException($"There exists no MessageType mapping for the specified MessageUnit type {typeof(MessageUnit)}");
+        }
+
+        private static MessageExchangePattern DetermineMepOf(SendingProcessingMode pmode)
+        {
+            switch (pmode?.MepBinding)
+            {
+                case MessageExchangePatternBinding.Pull:
+                    return MessageExchangePattern.Pull;
+                default:
+                    return MessageExchangePattern.Push;
+            }
         }
     }
 }

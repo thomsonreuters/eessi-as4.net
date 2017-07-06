@@ -22,7 +22,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
         /// <param name="contentType">The contentType of the AS4Message Body to which the MessageUnit belongs to</param>
-        /// <param name="mep"></param>
+        /// <param name="mep"><see cref="MessageExchangePattern"/> that describes how the Message was received.</param>
         private InMessageBuilder(MessageUnit messageUnit , string contentType, MessageExchangePattern mep )
         {
             _messageUnit = messageUnit;
@@ -35,8 +35,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </summary>
         /// <param name="userMessage">The UserMessage for which an InMessage must be created.</param>
         /// <param name="belongsToAS4Message">The AS4Message that contains the <paramref name="userMessage"/></param>
+        /// <param name="mep"></param>
         /// <returns></returns>
-        public static InMessageBuilder ForUserMessage(UserMessage userMessage,  AS4Message belongsToAS4Message)
+        public static InMessageBuilder ForUserMessage(UserMessage userMessage,  AS4Message belongsToAS4Message, MessageExchangePattern mep)
         {
             if (userMessage == null)
             {
@@ -47,7 +48,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 throw new ArgumentNullException(nameof(belongsToAS4Message));
             }
 
-            return new InMessageBuilder(userMessage, belongsToAS4Message.ContentType, belongsToAS4Message.Mep);
+            return new InMessageBuilder(userMessage, belongsToAS4Message.ContentType, mep);
         }
 
         /// <summary>
@@ -55,10 +56,11 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </summary>
         /// <param name="signalMessage"></param>
         /// <param name="belongsToAS4Message"></param>
+        /// <param name="mep"></param>
         /// <returns></returns>
-        public static InMessageBuilder ForSignalMessage(SignalMessage signalMessage, AS4Message belongsToAS4Message)
+        public static InMessageBuilder ForSignalMessage(SignalMessage signalMessage, AS4Message belongsToAS4Message, MessageExchangePattern mep)
         {
-            return new InMessageBuilder(signalMessage, belongsToAS4Message.ContentType, belongsToAS4Message.Mep);
+            return new InMessageBuilder(signalMessage, belongsToAS4Message.ContentType, mep);
         }
 
         public InMessageBuilder WithPModeString(string pmode)

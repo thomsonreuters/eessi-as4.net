@@ -41,16 +41,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            using (DatastoreContext context = _createDatastoreContext())
-            {
-                var inMessageService = new InMessageService(new DatastoreRepository(context));
+            //////using (DatastoreContext context = _createDatastoreContext())
+            //////{
+            //////    var inMessageService = new InMessageService(new DatastoreRepository(context));
 
-                await inMessageService.InsertAS4Message(messagingContext, _messageBodyStore, cancellationToken).ConfigureAwait(false);
+            //////    await inMessageService.InsertAS4Message(messagingContext, _messageBodyStore, cancellationToken).ConfigureAwait(false);
 
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            }
+            //////    await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            //////}
 
-            return await StepResult.SuccessAsync(messagingContext);
+            //////return await StepResult.SuccessAsync(messagingContext);
+            throw new NotImplementedException();
         }
     }
 }

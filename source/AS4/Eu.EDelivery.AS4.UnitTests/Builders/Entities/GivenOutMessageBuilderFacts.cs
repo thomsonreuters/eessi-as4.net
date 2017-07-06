@@ -6,9 +6,7 @@ using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.UnitTests.Model;
 using Xunit;
-using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 {
@@ -18,24 +16,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
     public class GivenOutMessageBuilderFacts
     {
         public class GivenValidArguments : GivenOutMessageBuilderFacts
-        {
-            [Theory]
-            [InlineData(MessageExchangePattern.Push)]
-            [InlineData(MessageExchangePattern.Pull)]
-            public void BuilderTakesPModeAsMEPBinding(MessageExchangePattern expected)
-            {
-                // Arrange
-                AS4Message as4Message = AS4Message.Empty;
-                as4Message.Mep = expected;
-
-                // Act
-                OutMessage message = OutMessageBuilder.ForMessageUnit(new FilledUserMessage(), as4Message).Build(CancellationToken.None);
-
-                // Assert
-                MessageExchangePattern actual = message.MEP;
-                Assert.Equal(expected, actual);
-            }
-
+        {            
             [Fact]
             public async Task ThenBuildOutMessageSucceedsWithAS4Message()
             {
@@ -69,8 +50,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
 
             private OutMessage BuildForUserMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message)
-                                        .WithSendingPMode(ExpectedPMode())
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimaryUserMessage, as4Message, ExpectedPMode())                                        
                                         .Build(CancellationToken.None);
             }
 
@@ -104,9 +84,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
                 Assert.Equal(MessageType.Error, outMessage.EbmsMessageType);
             }
 
-            private static OutMessage BuildForSignalMessage(AS4Message as4Message)
+            private OutMessage BuildForSignalMessage(AS4Message as4Message)
             {
-                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message)
+                return OutMessageBuilder.ForMessageUnit(as4Message.PrimarySignalMessage, as4Message, ExpectedPMode())
                                         .Build(CancellationToken.None);
             }
         }

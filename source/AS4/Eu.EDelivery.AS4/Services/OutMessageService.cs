@@ -91,8 +91,7 @@ namespace Eu.EDelivery.AS4.Services
             string location,
             Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message)
-                                                     .WithSendingPMode(sendingPMode)
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message, sendingPMode)                                                     
                                                      .Build(CancellationToken.None);
 
             outMessage.MessageLocation = location;
@@ -112,6 +111,7 @@ namespace Eu.EDelivery.AS4.Services
 
             return outMessage;
         }
+
         private static MessageType DetermineSignalMessageType(MessageUnit messageUnit)
         {
             if (messageUnit is UserMessage)
