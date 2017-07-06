@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Repositories;
+using Eu.EDelivery.AS4.Serialization;
+using Eu.EDelivery.AS4.Singletons;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Entities
@@ -63,7 +65,7 @@ namespace Eu.EDelivery.AS4.Entities
         public string OperationString
         {
             get { return Operation.ToString(); }
-            set { Operation = (Operation) Enum.Parse(typeof(Operation), value, true); }
+            set { Operation = (Operation)Enum.Parse(typeof(Operation), value, true); }
         }
 
         public DateTimeOffset InsertionTime { get; set; }
@@ -84,7 +86,7 @@ namespace Eu.EDelivery.AS4.Entities
         public string MEPString
         {
             get { return MEP.ToString(); }
-            set { MEP = (MessageExchangePattern) Enum.Parse(typeof(MessageExchangePattern), value, true); }
+            set { MEP = (MessageExchangePattern)Enum.Parse(typeof(MessageExchangePattern), value, true); }
         }
 
         [Column("EbmsMessageType")]
@@ -92,7 +94,7 @@ namespace Eu.EDelivery.AS4.Entities
         public string EbmsMessageTypeString
         {
             get { return EbmsMessageType.ToString(); }
-            set { EbmsMessageType = (MessageType) Enum.Parse(typeof(MessageType), value, true); }
+            set { EbmsMessageType = (MessageType)Enum.Parse(typeof(MessageType), value, true); }
         }
 
         [Column("ExceptionType")]
@@ -100,7 +102,7 @@ namespace Eu.EDelivery.AS4.Entities
         public string ExceptionTypeString
         {
             get { return ErrorAlias.ToString(); }
-            set { ErrorAlias = (ErrorAlias) Enum.Parse(typeof(ErrorAlias), value, true); }
+            set { ErrorAlias = (ErrorAlias)Enum.Parse(typeof(ErrorAlias), value, true); }
         }
 
         [Column("Status")]
@@ -115,7 +117,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="messageUnit">The MessageUnit from which the properties must be retrieved..</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         public void AssignAS4Properties(MessageUnit messageUnit, CancellationToken cancellationToken)
-        {            
+        {
             var userMessage = messageUnit as UserMessage;
 
             if (userMessage != null)
@@ -127,11 +129,8 @@ namespace Eu.EDelivery.AS4.Entities
                 ConversationId = userMessage.CollaborationInfo.ConversationId;
                 Mpc = userMessage.Mpc;
                 IsTest = userMessage.IsTest;
-                IsDuplicate = userMessage.IsDuplicate;
-                // TODO: fill out the soap-envelope
-                // map to xml messageunit and serialize ?
-                //    SoapEnvelope = AS4XmlSerializer.ToString(userMessage);
-                //AS4XmlSerializer.ToSoapEnvelopeDocument(new MessagingContext(as4Message, MessagingContextMode.Unknown), cancellationToken).OuterXml;
+                IsDuplicate = userMessage.IsDuplicate;                
+                SoapEnvelope = AS4XmlSerializer.ToString(AS4Mapper.Map<Xml.UserMessage>(userMessage));                
             }
             else
             {
@@ -149,7 +148,7 @@ namespace Eu.EDelivery.AS4.Entities
         /// <param name="value">Value indicating the <see cref="Entity" /> is locked.</param>
         public override void Lock(string value)
         {
-            var updatedOperation = (Operation) Enum.Parse(typeof(Operation), value, true);
+            var updatedOperation = (Operation)Enum.Parse(typeof(Operation), value, true);
 
             if (updatedOperation != Operation.NotApplicable)
             {
