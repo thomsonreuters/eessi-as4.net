@@ -168,7 +168,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         }
 
         /// <summary>
-        /// Gets the message identifier.
+        /// Gets the Id of the Message that is handled by this context.
         /// </summary>
         /// <value>The message identifier.</value>
         public string EbmsMessageId
@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
                 {
                     return NotifyMessage.MessageInfo.RefToMessageId;
                 }
-
+                
                 return string.Empty;
             }
         }

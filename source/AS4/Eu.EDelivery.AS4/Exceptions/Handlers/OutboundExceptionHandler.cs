@@ -1,9 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
@@ -20,7 +21,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <summary>
         /// Initializes a new instance of the <see cref="OutboundExceptionHandler"/> class.
         /// </summary>
-        public OutboundExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) {}
+        public OutboundExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutboundExceptionHandler" /> class.
@@ -39,7 +40,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
         {
-            Logger.Error(exception.Message);
+            Logger.Error($"Exception occured during transformation: {exception.Message}");
 
             await SideEffectUsageRepository(
                 repository =>
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
         {
-            Logger.Error(exception.Message);
+            Logger.Error($"Exception occured while executing Error Pipeline: {exception.Message}");
             return await HandleExecutionException(exception, context);
         }
 
@@ -83,17 +84,19 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
-            Logger.Error(exception.Message);
+            Logger.Error($"Exception occured while executing Steps:{exception.Message}");           
 
-            if (string.IsNullOrEmpty(context.EbmsMessageId) == false)
+            string ebmsMessageId = await GetEbmsMessageId(context);
+
+            if (string.IsNullOrEmpty(ebmsMessageId) == false)
             {
                 await SideEffectUsageRepository(
                     repository =>
                     {
-                        repository.UpdateOutMessage(context.EbmsMessageId, m => m.Status = OutStatus.Exception);
+                        repository.UpdateOutMessage(ebmsMessageId, m => m.Status = OutStatus.Exception);
 
                         OutException outException = CreateOutExceptionWithContextInfo(exception, context);
-                        outException.EbmsRefToMessageId = context.EbmsMessageId;
+                        outException.EbmsRefToMessageId = ebmsMessageId;
 
                         repository.InsertOutException(outException);
                     });
@@ -112,13 +115,13 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
 
             return new MessagingContext(exception);
         }
-
+        
         private static OutException CreateOutExceptionWithContextInfo(Exception exception, MessagingContext context)
         {
             OutException outException = CreateMinimumOutException(exception);
 
             outException.PMode = AS4XmlSerializer.ToString(context.SendingPMode);
-            outException.Operation = 
+            outException.Operation =
                 context.SendingPMode?.ExceptionHandling?.NotifyMessageProducer == true
                     ? Operation.ToBeNotified
                     : default(Operation);
@@ -134,6 +137,35 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 usage(repository);
 
                 await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task<string> GetEbmsMessageId(MessagingContext context)
+        {
+            string ebmsMessageId = context.EbmsMessageId;
+
+            if (String.IsNullOrWhiteSpace(ebmsMessageId) && context.ReceivedMessage != null)
+            {
+                var as4Message = await TryDeserialize(context.ReceivedMessage);
+                ebmsMessageId = as4Message?.GetPrimaryMessageId();
+            }
+
+            return ebmsMessageId;
+        }
+
+        private static async Task<AS4Message> TryDeserialize(ReceivedMessage message)
+        {
+            var serializer = SerializerProvider.Default.Get(message.ContentType);
+            try
+            {
+                message.UnderlyingStream.Position = 0;
+                var as4Message = await serializer.DeserializeAsync(message.UnderlyingStream, message.ContentType, CancellationToken.None);
+
+                return as4Message;
+            }
+            catch
+            {
+                return null;
             }
         }
     }

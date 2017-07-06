@@ -52,13 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                         r.TotalRetryCount = -1000;
                     }, expected: false);
             }
-
-            [Fact]
-            public void MessageDoesntNeedsToBeResent_IfReferencedOutMesageOperationIsSending()
-            {
-                TestMessageNeedsToBeResend(r => { }, expected: false, referencedOperation: Operation.Sending);
-            }
-
+            
             [Fact]
             public void MessageDoesntNeedsToBeResent_IfNextDeadLineWillBeOutOfRange()
             {
