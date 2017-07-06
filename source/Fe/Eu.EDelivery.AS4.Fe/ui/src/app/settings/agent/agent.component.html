@@ -23,10 +23,10 @@
         <div content>
             <as4-input [label]="'Name'">
                 <div class="input-group">
-                    <select as4-no-auth (change)="selectAgent($event.target.value); agentSelect.value = currentAgent && currentAgent.name" [value]="currentAgent && currentAgent.name"
+                    <select as4-no-auth name="name" (change)="selectAgent($event.target.value); agentSelect.value = currentAgent && currentAgent.name"
                         class="form-control" #agentSelect>
                         <option value="undefined">Select an option</option>
-                        <option *ngFor="let agent of settings">{{currentAgent && (currentAgent.name == agent.name) && !!form && !!form.controls ? form.controls.name.value : agent.name}}</option>
+                        <option *ngFor="let agent of settings" [ngValue]="agent.name" [selected]="currentAgent && currentAgent.name === agent.name">{{currentAgent && (currentAgent.name == agent.name) && !!form && !!form.controls ? form.controls.name.value : agent.name}}</option>
                     </select>
                     <div class="input-group-btn" crud-buttons [current]="currentAgent" [isNewMode]="isNewMode" [form]="form" (rename)="rename()"
                         (add)="addAgent()" (save)="save()" (delete)="delete()" (reset)="reset()"></div>
@@ -47,9 +47,12 @@
         </div>
     </as4-box>
 
-    <as4-box title="Steps (Advanced)" collapsible="true" [collapsed]="!!!currentAgent || (currentAgent && !!currentAgent.steps)">
+    <as4-box title="Step configuration" collapsible="true" [collapsed]="!!!currentAgent || (currentAgent && !!currentAgent.stepConfiguration)">
         <div content>
-            <as4-step-settings [group]="form.get('steps')"></as4-step-settings>
+            <h5>Normal pipeline</h5>
+            <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.normalPipeline')"></as4-step-settings>
+            <h5>Error pipeline</h5>
+            <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.errorPipeline')"></as4-step-settings>
         </div>
     </as4-box>
 </form>

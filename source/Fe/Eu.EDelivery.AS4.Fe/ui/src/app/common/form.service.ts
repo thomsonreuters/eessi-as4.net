@@ -83,8 +83,13 @@ export class FormWrapper {
         this.form = form;
         return this;
     }
-    public build(): FormGroup {
+    public build(isDisabled: boolean = null): FormGroup {
         this.reApplyHandlers();
+        if (isDisabled) {
+            this.disable();
+        } else {
+            this.enable();
+        }
         return this.form;
     }
     public disable(except: string[] = null) {

@@ -28,9 +28,12 @@
         </div>
     </as4-box>
 
-    <as4-box [title]="'Steps'" [collapsed]="false">
+    <as4-box title="Step configuration" collapsible="true" [collapsed]="!!!currentAgent || (currentAgent && !!currentAgent.stepConfiguration)">
         <div content>
-            <as4-step-settings [group]="form.get('steps')"></as4-step-settings>
+            <h5>Normal pipeline</h5>
+            <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.normalPipeline')"></as4-step-settings>
+            <h5>Error pipeline</h5>
+            <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.errorPipeline')"></as4-step-settings>
         </div>
     </as4-box>
 </form>

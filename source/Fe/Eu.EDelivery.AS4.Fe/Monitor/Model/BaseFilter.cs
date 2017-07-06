@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             return query.Skip(ResultsPerPage * (Page - 1)).Take(ResultsPerPage);
         }
 
-        public abstract IQueryable<TInput> ApplyFilter(IQueryable<TInput> query);
+        //public abstract IQueryable<TInput> ApplyFilter(IQueryable<TInput> query);
 
         public async Task<MessageResult<TOutput>> ToResult(IQueryable<TOutput> query)
         {

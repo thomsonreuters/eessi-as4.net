@@ -14,7 +14,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public DateTime? ModificationTimeTo { get; set; }
         public Operation[] Operation { get; set; }
 
-        public override IQueryable<ExceptionEntity> ApplyFilter(IQueryable<ExceptionEntity> query)
+        public IQueryable<ExceptionEntity> ApplyFilter(IQueryable<ExceptionEntity> query)
         {
             if (!string.IsNullOrEmpty(EbmsRefToMessageId))
             {

@@ -35,6 +35,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private MonitorService monitorService;
         private DbContextOptions<DatastoreContext> options;
         protected IDatastoreRepository DatastoreRepository;
+
         public MonitorServiceTests()
         {
             pmodeString = File.ReadAllText(@"receivingpmode.xml");
@@ -170,9 +171,9 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 var result = await Setup().monitorService.GetMessages(filter);
 
-                Assert.True(result.Messages.Count() == 4);
-                Assert.True(result.Messages.Where(x => x.Direction == Direction.Inbound).Count() == 2);
-                Assert.True(result.Messages.Where(x => x.Direction == Direction.Outbound).Count() == 2);
+                Assert.True(result.Messages.Count() == 4, "Cound should be 4");
+                Assert.True(result.Messages.Count(x => x.Direction == Direction.Inbound) == 2, "Expected 2 inbound messages");
+                Assert.True(result.Messages.Count(x => x.Direction == Direction.Outbound) == 2, "Expected 2 outbound messages");
             }
 
             [Fact]

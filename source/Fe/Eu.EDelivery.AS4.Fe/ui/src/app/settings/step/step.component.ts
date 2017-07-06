@@ -1,5 +1,5 @@
 import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/forms';
-import { NgZone, Component, Input, OnDestroy } from '@angular/core';
+import { NgZone, Component, Input, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 
 import { DialogService } from './../../common/dialog.service';
@@ -13,24 +13,18 @@ import { StepForm } from './../../api/StepForm';
     selector: 'as4-step-settings',
     template: `
         <div [formGroup]="group">
-            <as4-input [label]="'Decorator'">
-                <select class="form-control" formControlName="decorator">
-                    <option *ngFor="let step of decorators" [value]="step.technicalName">{{step.name}}</option>
-                </select>
-            </as4-input>
             <as4-input showLabel="false">
-                <p><button as4-auth [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
-                <table formArrayName="step" class="table table-condensed" *ngIf="!!group.get('step')">
-                    <tbody [sortablejs]="group.get('step')" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }" as4-auth>
+                <p><button as4-auth type="button" [disabled]="disabled" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
+                <table class="table table-condensed" *ngIf="!!group && group.length > 0">
+                    <tbody [sortablejs]="group" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }" as4-auth>
                         <tr>
                             <th></th>
                             <th></th>
                             <th>Type</th>
-                            <th class="col-md-1">Undecorated?</th>
                         </tr>
-                        <tr *ngFor="let step of group.get('step').controls; let i = index" [formGroupName]="i">
+                        <tr *ngFor="let step of group.controls; let i = index" [formGroupName]="i">
                             <td class="col-small"><span class="grippy"></span></td>
-                            <td class="action"><button as4-auth [disabled]="group.disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
+                            <td class="action"><button as4-auth [disabled]="disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
                             <td>
                                 <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
                                     <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
@@ -39,7 +33,6 @@ import { StepForm } from './../../api/StepForm';
                                     <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.get('type').value"></as4-runtime-settings>
                                 </div>
                             </td>
-                            <td><input type="checkbox" formControlName="unDecorated"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -52,34 +45,34 @@ import { StepForm } from './../../api/StepForm';
                 padding-top: 10px;
             }
         `
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StepSettingsComponent implements OnDestroy {
-    @Input() public group: FormGroup;
+    @Input() public group: FormArray;
+    @Input() public disabled: boolean = true;
     public steps: ItemType[];
-    public decorators: ItemType[];
     private _runtimeStoreSubscription: Subscription;
-    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
+    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService, private _changeDetectorRef: ChangeDetectorRef) {
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter((result) => result != null)
             .subscribe((result) => {
                 this.steps = result.steps;
-                this.decorators = result.steps.filter((step) => step.name.toLowerCase().indexOf('decorator') > 0);
             });
     }
     public itemMoved = () => {
         this.group.markAsDirty();
     }
     public addStep() {
-        (<FormArray>this.group.controls['step']).push(StepForm.getForm(this.formBuilder, null));
+        this.group.push(StepForm.getForm(this.formBuilder, null));
         this.group.markAsDirty();
     }
     public removeStep(index: number) {
         if (!this.dialogService.confirm('Are you sure you want to delete the step ?')) {
             return;
         }
-        (<FormArray>this.group.controls['step']).removeAt(index);
+        this.group.removeAt(index);
         this.group.markAsDirty();
     }
     public ngOnDestroy() {
@@ -87,13 +80,19 @@ export class StepSettingsComponent implements OnDestroy {
     }
     public stepChanged(formGroup: FormGroup, selectedStep: string) {
         let stepProps = this.steps.find((st) => st.technicalName === selectedStep);
-        formGroup.removeControl('setting');
-        formGroup
-            .addControl('setting', this.formBuilder.array(stepProps
-                .properties
-                .map((prop) => SettingForm.getForm(this.formBuilder, {
-                    key: prop.friendlyName,
-                    value: ''
-                }))));
+        const setting = formGroup.get('setting');
+        if (!!setting) {
+            formGroup.removeControl('setting');
+        }
+        if (!!stepProps && stepProps.properties.length > 0) {
+            formGroup
+                .addControl('setting', this.formBuilder.array(stepProps
+                    .properties
+                    .map((prop) => SettingForm.getForm(this.formBuilder, {
+                        key: prop.friendlyName,
+                        value: ''
+                    }))));
+        }
+        this._changeDetectorRef.detectChanges();
     }
 }

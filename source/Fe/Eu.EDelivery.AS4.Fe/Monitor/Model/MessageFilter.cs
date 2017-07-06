@@ -22,7 +22,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public string ToParty { get; set; }
         public bool ShowDuplicates { get; set; }
         public bool ShowTests { get; set; }
-        public override IQueryable<MessageEntity> ApplyFilter(IQueryable<MessageEntity> query)
+        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query)
+            where TEntity: MessageEntity
         {
             if (!string.IsNullOrEmpty(EbmsMessageId))
             {

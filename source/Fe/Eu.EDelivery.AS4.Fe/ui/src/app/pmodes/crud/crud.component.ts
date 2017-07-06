@@ -57,7 +57,7 @@ export class CrudComponent implements OnInit, OnDestroy {
     private subscriptions: Subscription[] = new Array<Subscription>();
     constructor(private _dialogService: DialogService, @Inject(PMODECRUD_SERVICE) private _crudService: ICrudPmodeService, private _modalService: ModalService, private _activatedRoute: ActivatedRoute,
         private _router: Router, private _routerService: RouterService) {
-        this.form = this._crudService.getForm(null).build();
+        this.form = this._crudService.getForm(null).build(true);
     }
     public ngOnInit() {
         if (!!!this._activatedRoute.snapshot.params['pmode']) {
@@ -87,7 +87,10 @@ export class CrudComponent implements OnInit, OnDestroy {
         this.subscriptions
             .push(this._crudService.obsGet().subscribe((result) => {
                 this.currentPmode = result;
-                this.form = this._crudService.getForm(result).build();
+                if (!!!result && !!!this.currentPmode) {
+                    return;
+                }
+                this.form = this._crudService.getForm(result).build(!!!result);
                 this.form.markAsPristine();
                 if (!!!result) {
                     return;

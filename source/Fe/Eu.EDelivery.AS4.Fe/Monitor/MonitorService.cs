@@ -32,8 +32,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         {
             if (filter == null) throw new ArgumentNullException(nameof(filter), "Filter must be supplied");
             if (filter.Direction == null) throw new ArgumentNullException(nameof(filter.Direction), "Direction cannot be null");
-            var inExceptions = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(context.InExceptions).ProjectTo<ExceptionMessage>() : null;
-            var outExceptions = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(context.OutExceptions).ProjectTo<ExceptionMessage>() : null;
+            var inExceptions = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(context.InExceptions).ProjectTo<ExceptionMessage>(new ExceptionMessage { Direction = Direction.Inbound }) : null;
+            var outExceptions = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(context.OutExceptions).ProjectTo<ExceptionMessage>(new ExceptionMessage { Direction = Direction.Outbound }) : null;
 
             IQueryable<ExceptionMessage> result = null;
             if (inExceptions != null && outExceptions != null) result = inExceptions.Concat(outExceptions);
@@ -58,8 +58,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             IQueryable<InMessage> inMessageQuery = context.InMessages;
             IQueryable<OutMessage> outMessageQuery = context.OutMessages;
 
-            var inMessages = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(inMessageQuery).ProjectTo<Message>() : null;
-            var outMessages = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(outMessageQuery).ProjectTo<Message>() : null;
+            var inMessages = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(inMessageQuery).ProjectTo<Message>(new { Direction = Direction.Inbound }) : null;
+            var outMessages = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(outMessageQuery).ProjectTo<Message>(new { Direction = Direction.Outbound }) : null;
 
             IQueryable<Message> result = null;
 

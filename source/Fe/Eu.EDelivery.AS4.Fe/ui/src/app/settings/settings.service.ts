@@ -21,8 +21,7 @@ export interface ISettingsService {
 
 @Injectable()
 export class SettingsService implements ISettingsService {
-    constructor(private http: AuthHttp, private settingsStore: SettingsStore) {
-    }
+    constructor(private http: AuthHttp, private settingsStore: SettingsStore) { }
     public getSettings() {
         return this
             .http
@@ -69,35 +68,20 @@ export class SettingsService implements ISettingsService {
         return subj.asObservable();
     }
     public createAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
-        let subject = new Subject<boolean>();
-        this.http
+        return this.http
             .post(this.getUrl(agent), settings)
-            .subscribe(() => {
-                this.settingsStore.addAgent(agent, settings);
-                subject.next(true);
-                subject.complete();
-            }, () => {
-                subject.next(false);
-                subject.complete();
-            });
-        return subject.asObservable();
+            .do(() => this.settingsStore.addAgent(agent, settings))
+            .map(() => true)
+            .catch(() => Observable.of(false));
     }
     public updateAgent(settings: SettingsAgent, originalName: string, agent: string): Observable<boolean> {
-        let subject = new Subject<boolean>();
-
         // Make a copy of the SettingsAgent and swap the originalName with the new name
         // This is done because the api expects the new name as a route parameter instead of the old name
-        this.http
+        return this.http
             .put(`${this.getUrl(agent)}/${originalName}`, settings)
-            .subscribe(() => {
-                this.settingsStore.updateAgent(agent, originalName, settings);
-                subject.next(true);
-                subject.complete();
-            }, () => {
-                subject.next(false);
-                subject.complete();
-            });
-        return subject.asObservable();
+            .do(() => this.settingsStore.updateAgent(agent, originalName, settings))
+            .map(() => true)
+            .catch(() => Observable.of(false));
     }
     public deleteAgent(settings: SettingsAgent, agent: string) {
         this.http

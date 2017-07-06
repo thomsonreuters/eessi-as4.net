@@ -73,41 +73,41 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         [HttpPut]
-        [Route("submitagents/{originalName}")]
+        [Route("outboundprocessingagents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateSubmitAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        public async Task UpdateOutboundProcessingAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.OutboundProcessingAgents, (settings, agents) => settings.OutboundProcessingAgents = agents);
         }
 
         [HttpPost]
-        [Route("receiveagents")]
+        [Route("outboundprocessingagent")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateReceiveAgent([FromBody] AgentSettings settingsAgent)
+        public async Task CreateOutboundProcessingAgentAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.CreateAgent(settingsAgent, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
+            await settingsService.CreateAgent(settingsAgent, agents => agents.OutboundProcessingAgents, (settings, agents) => settings.OutboundProcessingAgents = agents);
         }
 
         [HttpDelete]
-        [Route("receiveagents")]
+        [Route("outboundprocessingagents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task DeleteReceiveAgent(string name)
+        public async Task DeleteOutboundProcessingAgentAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
-            await settingsService.DeleteAgent(name, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
+            await settingsService.DeleteAgent(name, agents => agents.OutboundProcessingAgents, (settings, agents) => settings.OutboundProcessingAgents = agents);
         }
 
         [HttpPut]
-        [Route("receiveagents/{originalName}")]
+        [Route("outboundprocessingagents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateReceiveAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        public async Task UpdateOutboundProcessingAgentAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.OutboundProcessingAgents, (settings, agents) => settings.OutboundProcessingAgents = agents);
         }
 
         [HttpPost]
@@ -139,6 +139,34 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         [HttpPost]
+        [Route("receiveagents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task CreateReceiveAgent([FromBody] AgentSettings settingsAgent)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            await settingsService.CreateAgent(settingsAgent, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
+        }
+
+        [HttpDelete]
+        [Route("receiveagents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task DeleteReceiveAgent(string name)
+        {
+            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
+            await settingsService.DeleteAgent(name, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
+        }
+
+        [HttpPut]
+        [Route("receiveagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task UpdateReceiveAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents);
+        }
+
+        [HttpPost]
         [Route("deliveragents")]
         [Authorize(Roles = Roles.Admin)]
         public async Task CreateDeliverAgent([FromBody] AgentSettings settingsAgent)
@@ -167,30 +195,59 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         [HttpPost]
-        [Route("notifyagents")]
+        [Route("notifyconsumeragents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task CreateNotifyAgent([FromBody] AgentSettings settingsAgent)
+        public async Task CreateNotifyConsumerAgent([FromBody] AgentSettings settingsAgent)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
+            await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyConsumerAgents, (settings, agents) => settings.NotifyConsumerAgents = agents);
         }
 
         [HttpDelete]
-        [Route("notifyagents")]
+        [Route("notifyconsumeragents")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task DeleteNotifyAgent(string name)
+        public async Task DeleteNotifyConsumerAgent(string name)
         {
             EnsureArg.IsNotNullOrEmpty(name, nameof(name));
-            await settingsService.DeleteAgent(name, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
+            await settingsService.DeleteAgent(name, agents => agents.NotifyConsumerAgents, (settings, agents) => settings.NotifyConsumerAgents = agents);
         }
 
         [HttpPut]
-        [Route("notifyagents/{originalName}")]
+        [Route("notifyconsumeragents/{originalName}")]
         [Authorize(Roles = Roles.Admin)]
-        public async Task UpdateNotifyAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        public async Task UpdateNotifyConsumerAgent([FromBody] AgentSettings settingsAgent, string originalName)
         {
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
-            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyAgents, (settings, agents) => settings.NotifyAgents = agents);
+            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyConsumerAgents, (settings, agents) => settings.NotifyConsumerAgents = agents);
+        }
+
+        [HttpPost]
+        [Route("notifyproduceragents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task CreateNotifyProducerAgent([FromBody] AgentSettings settingsAgent)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            await settingsService.CreateAgent(settingsAgent, agents => agents.NotifyProducerAgents, (settings, agents) => settings.NotifyProducerAgents = agents);
+        }
+
+        [HttpDelete]
+        [Route("notifyproduceragents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task DeleteNotifyProducerAgent(string name)
+        {
+            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
+            await settingsService.DeleteAgent(name, agents => agents.NotifyProducerAgents, (settings, agents) => settings.NotifyProducerAgents = agents);
+        }
+
+        [HttpPut]
+        [Route("notifyproduceragents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task UpdateNotifyProducerAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.NotifyProducerAgents, (settings, agents) => settings.NotifyProducerAgents = agents);
         }
 
         [HttpPost]
@@ -219,6 +276,62 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
             EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
             EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
             await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.ReceptionAwarenessAgent == null ? new AgentSettings[] { } : new[] { agents.ReceptionAwarenessAgent }, (settings, agents) => settings.ReceptionAwarenessAgent = agents[0]);
+        }
+
+        [HttpPost]
+        [Route("pullreceiveagents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task CreatePullReceiveAgent([FromBody] AgentSettings settingsAgent)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            await settingsService.CreateAgent(settingsAgent, agents => agents.PullReceiveAgents, (settings, agents) => settings.PullReceiveAgents = agents);
+        }
+
+        [HttpDelete]
+        [Route("pullreceiveagents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task DeletePullReceiveAgent(string name)
+        {
+            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
+            await settingsService.DeleteAgent(name, agents => agents.PullReceiveAgents, (settings, agents) => settings.PullReceiveAgents = agents);
+        }
+
+        [HttpPut]
+        [Route("pullreceiveagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task UpdatePullReceiveAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.PullReceiveAgents, (settings, agents) => settings.PullReceiveAgents = agents);
+        }
+
+        [HttpPost]
+        [Route("pullsendagents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task CreatePullSendAgent([FromBody] AgentSettings settingsAgent)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            await settingsService.CreateAgent(settingsAgent, agents => agents.PullSendAgents, (settings, agents) => settings.PullSendAgents = agents);
+        }
+
+        [HttpDelete]
+        [Route("pullsendagents")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task DeletePullSendAgent(string name)
+        {
+            EnsureArg.IsNotNullOrEmpty(name, nameof(name));
+            await settingsService.DeleteAgent(name, agents => agents.PullSendAgents, (settings, agents) => settings.PullSendAgents = agents);
+        }
+
+        [HttpPut]
+        [Route("pullsendagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
+        public async Task UpdatePullSendAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.PullSendAgents, (settings, agents) => settings.PullSendAgents = agents);
         }
     }
 }

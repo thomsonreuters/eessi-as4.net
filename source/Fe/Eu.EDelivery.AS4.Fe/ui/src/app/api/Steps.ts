@@ -3,9 +3,9 @@ import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Step } from "./Step";
 
 export class Steps {
-	decorator: string;
-	step: Step[];
+	normalPipeline: Step[];
+	errorPipeline: Step[];
 
-	static FIELD_decorator: string = 'decorator';	
-	static FIELD_step: string = 'step';	
+	static FIELD_normalPipeline: string = 'normalPipeline';
+	static FIELD_errorPipeline: string = 'errorPipeline';
 }

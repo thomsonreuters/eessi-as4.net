@@ -12,6 +12,7 @@ import { SettingsStore } from '../settings.store';
 import { SettingsAgentForm } from './../../api/SettingsAgentForm';
 import { SettingsAgent } from './../../api/SettingsAgent';
 import { SettingsService } from '../settings.service';
+import { FormBuilderExtended, FormWrapper } from './../../common/form.service';
 
 @Component({
     selector: 'as4-receptionawareness-agent',
@@ -20,13 +21,15 @@ import { SettingsService } from '../settings.service';
 export class ReceptionAwarenessAgentComponent implements OnDestroy {
     public form: FormGroup;
     public currentAgent: SettingsAgent = new SettingsAgent();
-    public transformers: Array<ItemType>;
+    public transformers: ItemType[];
     public isNew: boolean = true;
     private _settingsStoreSubscr: Subscription;
     private _runtimeStoreSubscr: Subscription;
-    constructor(private formBuilder: FormBuilder, private settingStore: SettingsStore, private settingsService: SettingsService,
+    private _formWrapper: FormWrapper;
+    constructor(private formBuilder: FormBuilderExtended, private settingStore: SettingsStore, private settingsService: SettingsService,
         private runtimeService: RuntimeService, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
-        this.form = SettingsAgentForm.getForm(this.formBuilder, null);
+        this._formWrapper = this.formBuilder.get();
+        this.form = SettingsAgentForm.getForm(this._formWrapper, null).build(true);
         this._settingsStoreSubscr = this.settingStore
             .changes
             .filter((result) => !!result && !!result.Settings && !!result.Settings.agents)
@@ -34,7 +37,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
             .subscribe((result) => {
                 this.isNew = !!!result;
                 this.currentAgent = !!!result ? new SettingsAgent() : result;
-                this.form = SettingsAgentForm.getForm(this.formBuilder, this.currentAgent);
+                this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
             });
         this._runtimeStoreSubscr = this.runtimeStore
             .changes
@@ -63,7 +66,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
         });
     }
     public reset() {
-        this.form = SettingsAgentForm.getForm(this.formBuilder, this.currentAgent);
+        this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
     }
     public delete() {
         if (!this.dialogService.deleteConfirm('agent')) {

@@ -112,7 +112,7 @@ const services: any = [
         useFactory: authHttpServiceFactory,
         deps: [Http, RequestOptions]
     },
-    ...errorHandlingServices
+    // ...errorHandlingServices
 ];
 
 @NgModule({

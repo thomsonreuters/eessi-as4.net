@@ -7,11 +7,9 @@ import { flatten } from './utils';
 
 @Injectable()
 export class RouterService {
-    constructor(private _location: Location, private _router: Router) {
-
-    }
-
-    public setCurrentValue(activatedRoute: ActivatedRoute, value: string, queryParams?: { }) {
+    constructor(private _location: Location, private _router: Router) { }
+    // tslint:disable-next-line:max-line-length
+    public setCurrentValue(activatedRoute: ActivatedRoute, value: string, queryParams?: {}, useReplaceState: boolean = true) {
         let route = flatten(activatedRoute
             .snapshot
             .pathFromRoot
@@ -19,7 +17,10 @@ export class RouterService {
             .map((activeRoute) => activeRoute.url[0]))
             .join('/');
 
-        // this._location.go(`${route}/${value}`, queryString);
-        this._router.navigateByUrl(`${route}/${value}`, { queryParams: {} });
+        if (useReplaceState) {
+            this._location.replaceState(`${route}/${value}`);
+        } else {
+            this._router.navigateByUrl(`${route}/${value}`, { queryParams: {} });
+        }
     }
 }

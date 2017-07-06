@@ -94,13 +94,7 @@ export class SendingPmodeService implements ICrudPmodeService {
         if (!!!this._form) {
             this._form = this.formBuilder.get();
         }
-        const form = SendingPmodeForm.getForm(this._form, <SendingPmode>pmode);
-        if (!!!pmode) {
-            form.disable();
-        } else {
-            form.enable();
-        }
-        return form;
+        return SendingPmodeForm.getForm(this._form, <SendingPmode>pmode);
     }
     public patchName(form: FormGroup, name: string) {
         form.setValue({ [SendingPmode.FIELD_name]: name });
