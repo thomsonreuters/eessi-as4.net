@@ -19,9 +19,4 @@ export class SendHandlingForm {
             });
         return form;
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SendHandling) {
-        form.get(SendHandling.FIELD_notifyMessageProducer).reset({ value: current && current.notifyMessageProducer, disabled: !!!current });
-        MethodForm.patchForm(formBuilder, <FormGroup>form.get(SendHandling.FIELD_notifyMethod), current && current.notifyMethod, !!!current || !current.notifyMessageProducer);
-    }
 }

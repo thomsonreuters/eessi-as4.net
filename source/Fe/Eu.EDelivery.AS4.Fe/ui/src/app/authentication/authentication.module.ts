@@ -20,7 +20,7 @@ const components: any = [
 ];
 
 const directives: any = [
-    // HasAuthDirective
+    HasAuthDirective
 ];
 
 const services: any = [
@@ -43,7 +43,7 @@ const services: any = [
     ],
     exports: [
         LoginComponent,
-        // HasAuthDirective
+        HasAuthDirective
     ]
 })
 export class AuthenticationModule { }
