@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Authentication
 {
-    public interface IAuthenticationSetup : IModular, IRunAtServicesStartup, IRunAtAppStartup
+    public interface IAuthenticationSetup : IModular, IRunAtServicesStartup, IRunAtAppConfiguration
     {
         
     }

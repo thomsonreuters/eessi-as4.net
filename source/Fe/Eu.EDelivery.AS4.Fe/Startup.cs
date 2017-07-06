@@ -26,6 +26,13 @@ namespace Eu.EDelivery.AS4.Fe
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
+            services
+             .AddMvc(options =>
+             {
+                 options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
+             })
+             .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
+
             var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
             IConfigurationRoot config;
             services.AddModules(moduleMappings, (configBuilder, env) =>
@@ -37,12 +44,6 @@ namespace Eu.EDelivery.AS4.Fe
             }, out config);
             Configuration = config;
 
-            services
-                .AddMvc(options =>
-                {
-                    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
-                })
-                .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
             services.AddSingleton<ILogging, Logging.Logging>();
             services.AddSingleton<ISettingsSource, FileSettingsSource>();
             services.AddSingleton<ITokenService, TokenService>();
@@ -76,7 +77,6 @@ namespace Eu.EDelivery.AS4.Fe
             {
                 options.Run(async context =>
                 {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
                     var ex = context.Features.Get<IExceptionHandlerFeature>();
                     if (ex != null)
@@ -84,10 +84,34 @@ namespace Eu.EDelivery.AS4.Fe
                         var response = new
                         {
                             IsError = true,
-                            Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace
+                            Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace,
+                            Message = ex.Error.Message
                         };
+
+                        if (ex.Error is AlreadyExistsException alreadyExists)
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
+                            
+                        }
+                        else if (ex.Error is NotFoundException notFound)
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        }
+                        else if (ex.Error is BusinessException businessEx)
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
+                        }
+                        else
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        }
+
                         await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
                         logger.Error(ex.Error);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     }
                 });
             });

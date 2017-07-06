@@ -112,7 +112,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var service = Setup().settingsService;
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => service.CreateAgent(newAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
+                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => service.CreateAgent(newAgent, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
             }
 
             [Fact]
@@ -130,15 +130,18 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             [Fact]
             public async Task Throws_Exception_When_Agent_Not_Found()
             {
+                Setup();
+                var newAgent = Mapper.Map<AgentSettings, AgentSettings>(submitAgent);
+                newAgent.Name = "NEW RANDOM NAME";
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => Setup().settingsService.UpdateAgent(submitAgent, "fdsqfd", settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
+                await Assert.ThrowsAsync(typeof(NotFoundException), () => Setup().settingsService.UpdateAgent(newAgent, "fdsqfd", settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
             }
 
             [Fact]
             public async Task Throws_Exception_When_Agent_With_Name_Already_Exists()
             {
                 // Act
-                await Assert.ThrowsAsync(typeof(Exception), () => Setup().settingsService.UpdateAgent(new AgentSettings
+                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => Setup().settingsService.UpdateAgent(new AgentSettings
                 {
                     Name = SubmitAgentName
                 }, SubmitAgentName2, settings => settings.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
@@ -190,8 +193,8 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 Setup();
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
-                await Assert.ThrowsAsync(typeof(Exception), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents));
+                await Assert.ThrowsAsync(typeof(NotFoundException), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents));
+                await Assert.ThrowsAsync(typeof(NotFoundException), () => settingsService.DeleteAgent("IDONTEXISTAGENT", agents => agents.ReceiveAgents, (settings, agents) => settings.ReceiveAgents = agents));
                 await settingsSource.DidNotReceive().Save(Arg.Any<Model.Internal.Settings>());
             }
 

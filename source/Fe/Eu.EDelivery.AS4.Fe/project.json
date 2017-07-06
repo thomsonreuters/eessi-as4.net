@@ -55,7 +55,7 @@
     "NLog.Extensions.Logging": "1.0.0-rtm-alpha4",
     "SQLite": "3.13.0",
     "SQLite.Native": "3.12.3",
-    "Swashbuckle": "6.0.0-beta902",
+    "Swashbuckle.AspNetCore": "1.0.0",
     "System.Collections": "4.3.0",
     "System.Collections.Immutable": "1.3.1",
     "System.Xml.XmlSerializer": "4.3.0"

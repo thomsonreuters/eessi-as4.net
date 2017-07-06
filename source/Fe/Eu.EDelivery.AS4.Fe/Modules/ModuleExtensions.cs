@@ -45,7 +45,7 @@ namespace Eu.EDelivery.AS4.Fe.Modules
 
         public static void ExecuteStartupServices(this IApplicationBuilder builder)
         {
-            foreach (var runat in builder.ApplicationServices.GetServices<IRunAtAppStartup>())
+            foreach (var runat in builder.ApplicationServices.GetServices<IRunAtAppConfiguration>())
                 runat.Run(builder);
         }
 

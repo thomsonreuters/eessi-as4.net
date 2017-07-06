@@ -2,7 +2,13 @@
 
 namespace Eu.EDelivery.AS4.Fe.Swagger
 {
-    public interface ISwaggerSetup : IModular, IRunAtAppStartup, IRunAtServicesStartup
+    /// <summary>
+    /// Setup swagger
+    /// </summary>
+    /// <seealso cref="Eu.EDelivery.AS4.Fe.Modules.IModular" />
+    /// <seealso cref="Eu.EDelivery.AS4.Fe.Modules.IRunAtAppConfiguration" />
+    /// <seealso cref="Eu.EDelivery.AS4.Fe.Modules.IRunAtServicesStartup" />
+    public interface ISwaggerSetup : IModular, IRunAtAppConfiguration, IRunAtServicesStartup
     {
         
     }

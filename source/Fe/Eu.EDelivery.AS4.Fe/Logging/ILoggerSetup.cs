@@ -2,7 +2,7 @@
 
 namespace Eu.EDelivery.AS4.Fe.Logging
 {
-    public interface ILoggerSetup : IModular, IRunAtAppStartup
+    public interface ILoggerSetup : IModular, IRunAtAppConfiguration
     {
         
     }

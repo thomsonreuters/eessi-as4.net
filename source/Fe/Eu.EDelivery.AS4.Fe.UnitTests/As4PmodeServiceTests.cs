@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 {
     public class As4PmodeServiceTests
     {
-        protected IAs4PmodeService Service { get; private set; }
+        protected IPmodeService Service { get; private set; }
         protected IAs4PmodeSource Source { get; private set; }
         protected IEnumerable<SendingBasePmode> SendingPmodes { get; private set; }
         protected IEnumerable<ReceivingBasePmode> ReceivingPmodes { get; private set; }
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         protected As4PmodeServiceTests Setup()
         {
             Source = Substitute.For<IAs4PmodeSource>();
-            Service = new As4PmodeService(Source);
+            Service = new PmodeService(Source);
             SetupPmodes();
             return this;
         }
@@ -174,7 +174,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                     Name = ReceivingBasePmode.Name
                 };
 
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.CreateReceiving(pmode));
+                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => test.Service.CreateReceiving(pmode));
             }
 
             [Fact]
@@ -214,7 +214,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var test = Setup();
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.DeleteReceiving("new"));
+                await Assert.ThrowsAsync(typeof(NotFoundException), () => test.Service.DeleteReceiving("new"));
             }
 
             [Fact]
@@ -250,7 +250,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var test = Setup();
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.CreateSending(SendingBasePmode));
+                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => test.Service.CreateSending(SendingBasePmode));
             }
 
             [Fact]
@@ -290,7 +290,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var test = Setup();
 
                 // Act & Assert
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.DeleteSending("sendingPmode"));
+                await Assert.ThrowsAsync(typeof(NotFoundException), () => test.Service.DeleteSending("sendingPmode"));
             }
 
             [Fact]
@@ -331,7 +331,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 };
 
                 // Act
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.UpdateSending(newPmode, "NEW"));
+                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => test.Service.UpdateSending(newPmode, "NEW"));
             }
 
             [Fact]
@@ -389,7 +389,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 };
 
                 // Act
-                await Assert.ThrowsAsync(typeof(Exception), () => test.Service.UpdateReceiving(newPmode, "NEW"));
+                await Assert.ThrowsAsync(typeof(AlreadyExistsException), () => test.Service.UpdateReceiving(newPmode, "NEW"));
             }
 
             [Fact]

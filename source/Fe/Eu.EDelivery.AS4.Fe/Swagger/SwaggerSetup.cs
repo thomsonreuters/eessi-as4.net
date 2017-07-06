@@ -1,20 +1,55 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.IO;
+using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.PlatformAbstractions;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Eu.EDelivery.AS4.Fe.Swagger
 {
+    /// <summary>
+    /// Setup swagger
+    /// </summary>
+    /// <seealso cref="Eu.EDelivery.AS4.Fe.Swagger.ISwaggerSetup" />
     public class SwaggerSetup : ISwaggerSetup
     {
+        private string AssemblyVersion => GetType().GetTypeInfo().Assembly.GetName().Version.ToString();
+
+
+        /// <summary>
+        /// Runs the specified application.
+        /// </summary>
+        /// <param name="app">The application.</param>
         public void Run(IApplicationBuilder app)
         {
             app.UseSwagger();
-            app.UseSwaggerUi();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "AS4 FE api");
+            });
         }
 
+        /// <summary>
+        /// Runs the specified services.
+        /// </summary>
+        /// <param name="services">The services.</param>
+        /// <param name="configuration">The configuration.</param>
         public void Run(IServiceCollection services, IConfigurationRoot configuration)
         {
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(options =>
+            {
+                options.IncludeXmlComments(GetXmlCommentsPath());
+                options.SwaggerDoc("v1", new Info { Title = "AS4 FE Api", Version = AssemblyVersion });
+            });
+        }
+
+        private string GetXmlCommentsPath()
+        {
+            ApplicationEnvironment app = PlatformServices.Default.Application;
+            return Path.Combine(app.ApplicationBasePath, "Eu.EDelivery.AS4.Fe.xml");
         }
     }
 }

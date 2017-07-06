@@ -15,12 +15,22 @@ using Eu.EDelivery.AS4.Repositories;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor
 {
+    /// <summary>
+    /// Service to view messages
+    /// </summary>
+    /// <seealso cref="Eu.EDelivery.AS4.Fe.Monitor.IMonitorService" />
     public class MonitorService : IMonitorService
     {
         private readonly DatastoreContext context;
         private readonly IAs4PmodeSource pmodeSource;
         private readonly IDatastoreRepository datastoreRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MonitorService"/> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="pmodeSource">The pmode source.</param>
+        /// <param name="datastoreRepository">The datastore repository.</param>
         public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource, IDatastoreRepository datastoreRepository)
         {
             this.context = context;
@@ -28,6 +38,15 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             this.datastoreRepository = datastoreRepository;
         }
 
+        /// <summary>
+        /// Gets the exceptions.
+        /// </summary>
+        /// <param name="filter">Exception filter object</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">filter - Filter must be supplied
+        /// or
+        /// Direction - Direction cannot be null</exception>
+        /// <exception cref="Eu.EDelivery.AS4.Fe.BusinessException">Could not get any exceptions, something went wrong.</exception>
         public async Task<MessageResult<ExceptionMessage>> GetExceptions(ExceptionFilter filter)
         {
             if (filter == null) throw new ArgumentNullException(nameof(filter), "Filter must be supplied");
@@ -40,16 +59,22 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             else if (inExceptions != null) result = inExceptions;
             else if (outExceptions != null) result = outExceptions;
 
-            var returnValue = ConvertPmodeXmlToNumbers(await filter.ToResult(result.OrderByDescending(msg => msg.InsertionTime)));
+            if (result == null) throw new BusinessException("Could not get any exceptions, something went wrong.");
 
-            return returnValue;
+            return ConvertPmodeXmlToNumbers(await filter.ToResult(result.OrderByDescending(msg => msg.InsertionTime)));
         }
 
-        public string GetPmodeNumber(string pmode)
-        {
-            return string.IsNullOrEmpty(pmode) ? string.Empty : pmodeSource.GetPmodeNumber(pmode);
-        }
-
+        /// <summary>
+        /// Gets the messages.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// filter - Filter cannot be null
+        /// or
+        /// Direction - Direction filter cannot be empty
+        /// </exception>
+        /// <exception cref="Eu.EDelivery.AS4.Fe.BusinessException">No messages found</exception>
         public async Task<MessageResult<Message>> GetMessages(MessageFilter filter)
         {
             if (filter == null) throw new ArgumentNullException(nameof(filter), "Filter cannot be null");
@@ -74,6 +99,12 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             return returnValue;
         }
 
+        /// <summary>
+        /// Gets the related messages.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="messageId">The message identifier.</param>
+        /// <returns></returns>
         public async Task<MessageResult<Message>> GetRelatedMessages(Direction direction, string messageId)
         {
             EnsureArg.IsNotNullOrEmpty(messageId);
@@ -110,11 +141,9 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                     .ProjectTo<Message>());
             }
 
-            var result = resultTest.FirstOrDefault();
-            foreach (var query in resultTest.Skip(1))
-            {
-                result = result.Union(query);
-            }
+            var result = resultTest.First();
+            result = resultTest.Skip(1).Aggregate(result, (current, query) => current.Union(query));
+
             return ConvertPmodeXmlToNumbers(new MessageResult<Message>
             {
                 Messages = await result.ToListAsync(),
@@ -125,6 +154,25 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             });
         }
 
+
+        /// <summary>
+        /// Gets the pmode number.
+        /// </summary>
+        /// <param name="pmode">The pmode.</param>
+        /// <returns></returns>
+        public string GetPmodeNumber(string pmode)
+        {
+            return string.IsNullOrEmpty(pmode) ? string.Empty : pmodeSource.GetPmodeNumber(pmode);
+        }
+
+        /// <summary>
+        /// Downloads the message body.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="messageId">The message identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
+        /// <exception cref="InvalidEnumArgumentException">direction</exception>
         public async Task<Stream> DownloadMessageBody(Direction direction, string messageId)
         {
             if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
@@ -138,6 +186,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             return await datastoreRepository.GetOutMessageData(messageId, x => x.RetrieveMessagesBody(Registry.Instance.MessageBodyStore));
         }
 
+        /// <summary>
+        /// Downloads the exception body.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="messageId">The message identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
         public async Task<byte[]> DownloadExceptionBody(Direction direction, string messageId)
         {
             if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
@@ -155,6 +210,14 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 .FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Gets the message details.
+        /// </summary>
+        /// <param name="direction">The direction.</param>
+        /// <param name="messageId">The message identifier.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">messageId</exception>
+        /// <exception cref="InvalidEnumArgumentException">direction</exception>
         public async Task<MessageDetails> GetMessageDetails(Direction direction, string messageId)
         {
             if (messageId == null) throw new ArgumentNullException(nameof(messageId));

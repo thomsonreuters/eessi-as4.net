@@ -270,7 +270,7 @@
       <Name>Eu.EDelivery.AS4.Transformers</Name>
     </ProjectReference>
     <ProjectReference Include="..\Eu.EDelivery.AS4.Fe\Eu.EDelivery.AS4.Fe.csproj">
-      <Project>{1beb12cd-af85-48af-bf39-b33b6b1d309e}</Project>
+      <Project>{1BEB12CD-AF85-48AF-BF39-B33B6B1D309E}</Project>
       <Name>Eu.EDelivery.AS4.Fe</Name>
     </ProjectReference>
   </ItemGroup>

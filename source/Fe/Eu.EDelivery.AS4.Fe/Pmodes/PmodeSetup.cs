@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             services.Configure<PmodeSettings>(configuration.GetSection("Pmodes"));
 
             services.AddSingleton<IAs4PmodeSource, As4PmodeSource>();
-            services.AddSingleton<IAs4PmodeService, As4PmodeService>();
+            services.AddSingleton<IPmodeService, PmodeService>();
         }
     }
 }
