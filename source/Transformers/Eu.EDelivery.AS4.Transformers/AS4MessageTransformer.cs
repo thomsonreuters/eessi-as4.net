@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             AS4Message as4Message = await DeserializeMessage(receivedMessage.ContentType, messageStream, cancellation);
 
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown); // { MessageStream = messageStream };
+            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
             receivedMessage.AssignPropertiesTo(context);
 
             return context;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
@@ -31,25 +30,20 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
         /// </summary>
         public class GivenValidReceivedMessageToTransformer : GivenAS4MessageTransformerFacts
         {
-            [Fact(Skip = "NotIMplemented anymore")]
-            public async Task ThenTransfromSuceedsWithSoapdAS4StreamAsync()
+            [Fact]
+            public async Task ThenTransfromSuceedsWithAS4Message()
             {
-                ////// Arrange
-                ////const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
+                // Arrange
+                const string contentType = "multipart/related; boundary=\"=-PHQq1fuE9QxpIWax7CKj5w==\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
 
-                ////// Act
-                ////MessagingContext context = await ExerciseTransform(as4_single_payload, contentType);
+                // Act
+                MessagingContext context = await ExerciseTransform(as4_single_payload, contentType);
 
-                ////// Assert
-                ////Assert.NotNull(context?.AS4Message);
-
-                ////string expected = Encoding.UTF8.GetString(as4_single_payload);
-                ////string actual = ReadToEnd(context.MessageStream);
-                ////Assert.Equal(expected, actual);
-
-                ////// TearDown
-                ////context.MessageStream.Close();
-                throw new NotImplementedException();
+                // Assert
+                Assert.NotNull(context?.AS4Message);
+                
+                // TearDown
+                context.Dispose();
             }
 
             private async Task<MessagingContext> ExerciseTransform(byte[] contents, string contentType)
@@ -58,15 +52,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 var receivedMessage = new ReceivedMessage(stream, contentType);
 
                 return await Transform(receivedMessage);
-            }
-
-            private string ReadToEnd(Stream stream)
-            {
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
+            }            
         }
 
         /// <summary>
@@ -82,7 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 Assert.ThrowsAny<Exception>(() => new AS4MessageTransformer(provider: null));
             }
 
-            [Fact(Skip="AS4 Message Transformer will become obsolete")]
+            [Fact]
             public async Task ThenTransformFailsWithInvalidUserMessageWithSoapAS4StreamAsync()
             {
                 // Arrange
@@ -90,7 +76,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
                 as4Message.UserMessages = new[] { new UserMessage("message-id") };
                 MemoryStream memoryStream = as4Message.ToStream();
 
-                var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Soap);
+                var receivedMessage = new ReceivedMessage(memoryStream, Constants.ContentTypes.Mime);
 
                 // Act / Assert
                 await Assert.ThrowsAnyAsync<Exception>(() => Transform(receivedMessage));
