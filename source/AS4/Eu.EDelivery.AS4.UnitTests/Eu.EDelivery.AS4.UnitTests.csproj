@@ -463,7 +463,6 @@
     <Compile Include="Steps\SpyStep.cs" />
     <Compile Include="Steps\Submit\GivenRetrieveSendingPModeStepFacts.cs" />
     <Compile Include="Steps\Send\GivenSigningAS4MessageStepFacts.cs" />
-    <Compile Include="Steps\Send\GivenStoreReceivedSignalMessageFacts.cs" />
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
     <Compile Include="Builders\Core\MessageContextBuilder.cs" />
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />

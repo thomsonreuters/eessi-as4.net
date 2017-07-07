@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
@@ -35,6 +36,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <returns>A MessagingContext instance that contains the parsed AS4 Message.</returns>
         Task<MessagingContext> InsertAS4Message(
             MessagingContext context,
+            MessageExchangePattern mep,
             IAS4MessageBodyStore as4MessageBodyPersister,
             CancellationToken cancellationToken);
 

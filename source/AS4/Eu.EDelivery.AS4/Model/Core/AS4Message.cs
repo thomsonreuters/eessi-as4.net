@@ -11,7 +11,6 @@ using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Security.Signing;
 using Eu.EDelivery.AS4.Serialization;
 using MimeKit;
-using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Model.Core
 {
@@ -94,8 +93,6 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public SignalMessage PrimarySignalMessage => SignalMessages.FirstOrDefault();
 
-        public Entities.MessageExchangePattern Mep { get; set; }
-
         public bool IsSignalMessage => SignalMessages.Count > 0;
 
         public bool IsUserMessage => UserMessages.Count > 0;
@@ -118,7 +115,7 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message Create(XmlDocument soapEnvelope, string contentType)
         {
-            return new AS4Message {EnvelopeDocument = soapEnvelope, ContentType = contentType};
+            return new AS4Message { EnvelopeDocument = soapEnvelope, ContentType = contentType };
         }
 
         /// <summary>
@@ -128,20 +125,10 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <returns></returns>
         public static AS4Message Create(SendingProcessingMode pmode)
         {
-            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true) {Mep = DetermineMepOf(pmode)};
+            return new AS4Message(pmode?.MessagePackaging?.IsMultiHop == true); // {Mep = DetermineMepOf(pmode)};
         }
 
-        private static MessageExchangePattern DetermineMepOf(SendingProcessingMode pmode)
-        {
-            switch (pmode?.MepBinding)
-            {
-                case MessageExchangePatternBinding.Pull:
-                    return MessageExchangePattern.Pull;
-                default:
-                    return MessageExchangePattern.Push;
-            }
-        }
-
+        
         /// <summary>
         /// Creates message with a <see cref="SignalMessage"/> and <see cref="SendingProcessingMode"/>.
         /// </summary>
@@ -258,6 +245,11 @@ namespace Eu.EDelivery.AS4.Model.Core
         /// <param name="other">An object to compare with this object.</param>
         public bool Equals(AS4Message other)
         {
+            if (other == null)
+            {
+                return false;
+            }
+
             return GetPrimaryMessageId() == other.GetPrimaryMessageId();
         }
 

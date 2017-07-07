@@ -7,14 +7,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Http;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
-using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Steps.Send.Response;
 using Eu.EDelivery.AS4.Utilities;
 using NLog;
@@ -71,64 +69,38 @@ namespace Eu.EDelivery.AS4.Steps.Send
             }
 
             // TODO: modify this; PullConfig and PushConfig: no distinction.
-            var sendConfiguration = messagingContext.SendingPMode.PushConfiguration; // GetSendConfigurationFrom(as4MessageHeader.IsPullRequest, messagingContext.SendingPMode);
-            AS4Message as4Message = AS4Message.Empty;
-            
+            var sendConfiguration = messagingContext.SendingPMode.PushConfiguration;
+
             try
             {
-                using (messagingContext)
-                {
-                    HttpWebRequest request = CreateWebRequest(sendConfiguration, messagingContext.ReceivedMessage.ContentType);
+                HttpWebRequest request = CreateWebRequest(sendConfiguration, messagingContext.ReceivedMessage.ContentType);
 
-                    as4Message = await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false);
+                var as4Message = await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false);
 
-                    var sentContext = messagingContext.CloneWith(as4Message);
+                var sentContext = messagingContext.CloneWith(as4Message);
 
-                    return await TryHandleHttpResponseAsync(request, sentContext, cancellation).ConfigureAwait(false);
-                }
-
+                return await TryHandleHttpResponseAsync(request, sentContext, cancellation).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
                 Logger.Error(
                     $"{messagingContext.Prefix} An error occured while trying to send the message: {exception.Message}");
+                Logger.Error(exception.StackTrace);
 
-                var errorResult = await HandleSendExceptionAsync(sendConfiguration.Protocol.Url, as4Message, messagingContext.SendingPMode, exception);
-                messagingContext.ErrorResult = errorResult;
-
-                return StepResult.Failed(messagingContext);
+                if (exception.InnerException != null)
+                {
+                    Logger.Error(exception.InnerException.Message);
+                }
+                
+                throw;
             }
         }
-
-        private async Task<ErrorResult> HandleSendExceptionAsync(
-            string requestUrl,
-            AS4Message as4MessageHeader,
-            SendingProcessingMode sendingPMode,
-            Exception exception)
-        {
-            if (sendingPMode.Reliability.ReceptionAwareness.IsEnabled)
-            {
-                // Set status to 'undetermined' and let ReceptionAwareness agent handle it.
-                UpdateMessageStatus(as4MessageHeader, Operation.Undetermined, OutStatus.Exception);
-            }
-
-            var errorResult = CreateConnectionFailureResult(requestUrl, exception);
-
-            using (DatastoreContext context = _createDatastore())
-            {
-                var service = new OutExceptionService(context);
-                await service.InsertException(errorResult, as4MessageHeader, sendingPMode);
-
-                context.SaveChanges();
-            }
-
-            return errorResult;
-        }
-
+       
         private HttpWebRequest CreateWebRequest(ISendConfiguration sendConfiguration, string contentType)
         {
+            Logger.Info("Creating WebRequest");
             HttpWebRequest request = _httpClient.Request(sendConfiguration.Protocol.Url, contentType);
-
+            Logger.Info("WebRequest Created");
             AssignClientCertificate(sendConfiguration.TlsConfiguration, request);
 
             return request;
@@ -158,23 +130,23 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             request.ClientCertificates.Add(certificate);
         }
-
+        
         private static async Task<AS4Message> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
-        {
+        {            
             try
-            {
+            {         
                 await SerializeHttpRequest(request, messagingContext);
 
-                // Get the AS4 Message representation of the stream that has been written to HTTP
-                var sentStream = messagingContext.ReceivedMessage;
-                var serializer = SerializerProvider.Default.Get(sentStream.ContentType);
-
-                sentStream.UnderlyingStream.Position = 0;
-                return await serializer.DeserializeAsync(sentStream.UnderlyingStream, sentStream.ContentType,
-                                                   CancellationToken.None);
+                return await GetAS4MessageFromStream(messagingContext.ReceivedMessage.UnderlyingStream,
+                                               messagingContext.ReceivedMessage.ContentType);
             }
             catch (WebException exception)
             {
+                Logger.Error(exception.Message);
+                if (exception.InnerException != null)
+                {
+                    Logger.Error(exception.InnerException.Message);
+                }
                 throw CreateFailedSendException(request.RequestUri.ToString(), exception);
             }
         }
@@ -196,6 +168,17 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);
             }
+        }
+
+        private static async Task<AS4Message> GetAS4MessageFromStream(Stream stream, string contentType)
+        {
+            var serializer = SerializerProvider.Default.Get(contentType);
+
+            stream.Position = 0;
+            var as4Message = await serializer.DeserializeAsync(stream, contentType, CancellationToken.None);
+            stream.Position = 0;
+
+            return as4Message;
         }
 
         private static long TryGetMessageSize(MessagingContext messagingContext)
@@ -279,21 +262,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             string description = $"Failed to Send AS4 Message to Url: {requestUrl}.";
 
             return new WebException(description, exception);
-        }
-
-        private static ErrorResult CreateConnectionFailureResult(string requestUrl, Exception exception)
-        {
-
-            string description = $"Failed to Send AS4 Message to Url: {requestUrl}.";
-
-            Logger.Error(description);
-            Logger.Error(exception.Message);
-            if (exception.InnerException != null)
-            {
-                Logger.Error(exception.InnerException.Message);
-            }
-
-            return new ErrorResult(description, ErrorCode.Ebms0005, ErrorAlias.ConnectionFailure);
-        }
+        }       
     }
 }

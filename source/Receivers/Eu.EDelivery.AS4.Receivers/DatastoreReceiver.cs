@@ -150,7 +150,14 @@ namespace Eu.EDelivery.AS4.Receivers
                 else
                 {
                     ReceivedMessage receivedMessage = CreateReceivedMessage(messageEntity, stream);
-                    await messageCallback(receivedMessage, token).ConfigureAwait(false);
+                    try
+                    {
+                        await messageCallback(receivedMessage, token).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        receivedMessage.UnderlyingStream.Dispose();
+                    }
                 }
             }
         }

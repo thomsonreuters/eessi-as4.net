@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Transformers
         /// <returns></returns>
         public async Task<MessagingContext> TransformAsync(ReceivedMessage message, CancellationToken cancellationToken)
         {
-            Logger.Debug("Transform AS4 Message to Internal Message");
+            Logger.Debug("Transform AS4 Message to Messaging Context");
             PreConditions(message);
 
             return await TransformMessage(message, cancellationToken);
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Transformers
 
             AS4Message as4Message = await DeserializeMessage(receivedMessage.ContentType, messageStream, cancellation);
 
-            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown); // { MessageStream = messageStream };
+            var context = new MessagingContext(as4Message, MessagingContextMode.Unknown);
             receivedMessage.AssignPropertiesTo(context);
 
             return context;
@@ -86,6 +86,12 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static async Task<VirtualStream> CopyIncomingStreamToVirtualStream(ReceivedMessage receivedMessage)
         {
+            var stream = receivedMessage.UnderlyingStream as VirtualStream;
+            if (stream != null)
+            {
+                return stream;
+            }
+
             VirtualStream messageStream =
                 VirtualStream.CreateVirtualStream(
                     receivedMessage.UnderlyingStream.CanSeek

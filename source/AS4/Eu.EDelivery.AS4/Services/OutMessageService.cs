@@ -91,8 +91,7 @@ namespace Eu.EDelivery.AS4.Services
             string location,
             Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message)
-                                                     .WithSendingPMode(sendingPMode)
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message, sendingPMode)                                                     
                                                      .Build(CancellationToken.None);
 
             outMessage.MessageLocation = location;
@@ -113,6 +112,26 @@ namespace Eu.EDelivery.AS4.Services
             return outMessage;
         }
 
+        private static MessageType DetermineSignalMessageType(MessageUnit messageUnit)
+        {
+            if (messageUnit is UserMessage)
+            {
+                return MessageType.UserMessage;
+            }
+
+            if (messageUnit is Receipt)
+            {
+                return MessageType.Receipt;
+            }
+
+            if (messageUnit is Error)
+            {
+                return MessageType.Error;
+            }
+
+            throw new NotSupportedException($"There exists no MessageType mapping for the specified MessageUnit type {typeof(MessageUnit)}");
+        }
+        
         private static SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
         {
             if (context.SendingPMode?.Id != null)

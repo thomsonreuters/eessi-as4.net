@@ -28,15 +28,9 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            bool isOriginatedFromPullRequest = (response.ReceivedAS4Message.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
-            bool isRequestBeingSendAPullRequest = response.OriginalRequest.AS4Message?.IsPullRequest == true;
-
-            ////response.ResultedMessage.AS4Message.Mep =
-            ////    isRequestBeingSendAPullRequest
-            ////        ? MessageExchangePattern.Pull
-            ////        : MessageExchangePattern.Push;
-
-            if (isOriginatedFromPullRequest)
+            bool isEmptyChannelWarning = (response.ReceivedAS4Message.PrimarySignalMessage as Error)?.IsWarningForEmptyPullRequest == true;
+            
+            if (isEmptyChannelWarning)
             {
                 return StepResult.Success(new MessagingContext(response.ReceivedAS4Message, MessagingContextMode.Send)).AndStopExecution();
             }

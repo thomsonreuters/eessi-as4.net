@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._6._Se
             Assert.Equal(sentXml.Length, receivedXml.Length);
         }
 
-        private void AssertReceipt()
+        private static void AssertReceipt()
         {
             FileInfo receipt = new DirectoryInfo(AS4ReceiptsPath).GetFiles("*.xml").FirstOrDefault();
 

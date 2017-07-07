@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
 
             }
 
-            [Fact(Skip="Soap envelope no longer saved atm")]
+            [Fact]
             public void GetsSoapEnvelope()
             {
                 // Arrange
@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Entities
                 MessageEntity actual = BuildForMessageUnit(expected.PrimaryUserMessage);
 
                 // Assert
-                MessageEntityAssertion.AssertSoapEnvelope(expected, actual);
+                MessageEntityAssertion.AssertSoapEnvelope(expected.PrimaryUserMessage, actual);
             }
 
             private static AS4Message CreateAS4MessageWithUserMessage()

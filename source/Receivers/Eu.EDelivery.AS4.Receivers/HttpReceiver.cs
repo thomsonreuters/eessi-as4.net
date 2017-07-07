@@ -122,10 +122,12 @@ namespace Eu.EDelivery.AS4.Receivers
         private void StartListener(HttpListener listener)
         {
             try
-            {                
+            {
                 listener.Start();
 
                 Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
+                Logger.Debug($"      with max concurrent connections = {_maxConcurrentConnections}");
+                Logger.Debug($"      with logging = {_requestMeta.UseLogging}");
             }
             catch (HttpListenerException exception)
             {
@@ -252,7 +254,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
                 finally
                 {
-                   processorResult?.Dispose();
+                    processorResult?.Dispose();
                 }
             }
 
@@ -295,16 +297,36 @@ namespace Eu.EDelivery.AS4.Receivers
                     Directory.CreateDirectory(logDir);
                 }
 
-                UriBuilder uriBuilder = new UriBuilder(hostname);
+                string hostInformation = string.Empty;
 
-                string newReceivedMessageFile = FilenameSanitizer.EnsureValidFilename(Path.Combine(logDir, $"{uriBuilder.Path}_{uriBuilder.Port}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}"));
-
-                using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
+                try
                 {
-                    await message.UnderlyingStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                    UriBuilder uriBuilder = new UriBuilder(hostname);
+                    hostInformation = $"{uriBuilder.Path}_{uriBuilder.Port}";
+                }
+                catch
+                {
+                    hostInformation = "localhost";
                 }
 
-                message.UnderlyingStream.Position = 0;
+                try
+                {
+                    string newReceivedMessageFile =                        
+                                     FilenameSanitizer.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
+
+                    Logger.Info($"Logging to {newReceivedMessageFile}");
+                    using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
+                    {
+                        await message.UnderlyingStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                    }
+
+                    message.UnderlyingStream.Position = 0;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex.Message);
+                    throw;
+                }
             }
 
             /// <summary>

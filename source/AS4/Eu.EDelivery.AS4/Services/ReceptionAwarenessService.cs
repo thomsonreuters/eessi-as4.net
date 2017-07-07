@@ -62,31 +62,39 @@ namespace Eu.EDelivery.AS4.Services
             IAS4MessageBodyStore messageBodyStore,
             CancellationToken cancellationToken)
         {
-            SendingProcessingMode pmode = _repository.GetOutMessageData(
-                messageId,
-                m => AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode));
+            // TODO: should this not be an OutException instead of an InMessage ?
+            //       Maybe it is an InMessage because we have more detailed information
+            //       regarding the type of Error ?
 
-            Model.Core.Error errorMessage = CreateError(messageId);
-            AS4Message as4Message = AS4Message.Create(errorMessage, pmode);
+            var outMessageData = _repository.GetOutMessageData(
+                messageId,
+                m => new
+                {
+                    pmode = AS4XmlSerializer.FromString<SendingProcessingMode>(m.PMode),
+                    mep = m.MEP
+                });
+
+            Error errorMessage = CreateError(messageId);
+            AS4Message as4Message = AS4Message.Create(errorMessage, outMessageData.pmode);
 
             // We do not use the InMessageService to persist the incoming message here, since this is not really
             // an incoming message.  We create this InMessage in order to be able to notify the Message Producer
             // if he should be notified when a message cannot be sent.
             // (Maybe we should only create the InMessage when notification is enabled ?)
-            string location = 
+            string location =
                 await messageBodyStore.SaveAS4MessageAsync(
                     location: _configuration.InMessageStoreLocation,
                     message: as4Message,
                     cancellation: cancellationToken);
 
             InMessage inMessage = InMessageBuilder
-                .ForSignalMessage(errorMessage, as4Message)
-                .WithPModeString(await AS4XmlSerializer.ToStringAsync(pmode))
+                .ForSignalMessage(errorMessage, as4Message, outMessageData.mep)
+                .WithPModeString(await AS4XmlSerializer.ToStringAsync(outMessageData.pmode))
                 .Build(cancellationToken);
 
             inMessage.MessageLocation = location;
 
-            inMessage.Operation = pmode.ErrorHandling.NotifyMessageProducer
+            inMessage.Operation = outMessageData.pmode.ErrorHandling.NotifyMessageProducer
                     ? Operation.ToBeNotified
                     : Operation.NotApplicable;
 
@@ -128,8 +136,7 @@ namespace Eu.EDelivery.AS4.Services
 
             return awareness.Status != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
-                   && DateTimeOffset.UtcNow > deadlineForResend()
-                   && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending;
+                   && DateTimeOffset.UtcNow > deadlineForResend();
         }
 
         /// <summary>

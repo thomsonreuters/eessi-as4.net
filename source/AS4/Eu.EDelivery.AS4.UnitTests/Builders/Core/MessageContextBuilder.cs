@@ -10,8 +10,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
 {
     /// <summary>
     /// Internal Message Builder to create an <see cref="MessagingContext" />
-    /// </summary>
-    [Obsolete]
+    /// </summary>    
     public class MessageContextBuilder
     {
         private readonly MessagingContext _messagingContext;

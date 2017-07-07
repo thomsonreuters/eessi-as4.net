@@ -69,6 +69,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
 
         private async Task InsertUserMessage(string mpc, MessageExchangePattern pattern, Operation operation)
         {
+            MessageExchangePatternBinding GetMepBindingFromMep(MessageExchangePattern mep)
+            {
+                switch (mep)
+                {
+                    case MessageExchangePattern.Pull:
+                        return MessageExchangePatternBinding.Pull;
+                    default:
+                        return MessageExchangePatternBinding.Push;
+                }
+            }
+
             using (var messageStream = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.as4_encrypted_envelope)))
             {
                 var serializer = new SoapEnvelopeSerializer();
@@ -76,13 +87,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                     .DeserializeAsync(messageStream, Constants.ContentTypes.Soap, CancellationToken.None);
 
                 message.PrimaryUserMessage.Mpc = mpc;
-                message.Mep = pattern;
 
-                await InsertOutMessage(message, operation);
+                var sendingPMode = new SendingProcessingMode()
+                {
+                    Id = "SomePModeId",
+                    MepBinding = GetMepBindingFromMep(pattern)
+                };
+               
+                await InsertOutMessage(message, operation, sendingPMode);
             }
         }
 
-        private async Task InsertOutMessage(AS4Message as4Message, Operation operation)
+        private async Task InsertOutMessage(AS4Message as4Message, Operation operation, SendingProcessingMode sendingPMode)
         {
             using (DatastoreContext context = GetDataStoreContext())
             {
@@ -91,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 await service.InsertAS4Message(
                     new MessagingContext(as4Message, MessagingContextMode.Send)
                     {
-                        SendingPMode = new SendingProcessingMode()
+                        SendingPMode = sendingPMode
                     },
                     operation,
                     CancellationToken.None);

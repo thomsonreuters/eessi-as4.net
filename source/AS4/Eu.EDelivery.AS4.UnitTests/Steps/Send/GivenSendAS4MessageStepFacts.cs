@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             Assert.False(actualResult.CanProceed);
         }
 
-        [Fact]
+        [Fact(Skip="This is no longer valid; the ExceptionHandler updates the status.")]
         public async Task StepUpdatesRequestOperationAndStatus_IfRequestFailsToSend()
         {
             // Arrange
