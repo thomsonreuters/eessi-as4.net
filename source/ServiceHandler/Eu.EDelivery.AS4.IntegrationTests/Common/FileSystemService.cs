@@ -27,6 +27,12 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             }
         }
 
+        public void RemoveDirectory(string directory)
+        {            
+            EnsureDirectory(directory);
+            WhileTimeOutTry(5, retryAction: () => Directory.Delete(directory, recursive: true));                            
+        }
+
         private static void EnsureDirectory(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
