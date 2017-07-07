@@ -19,15 +19,17 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
         {
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
             // In any other case, we should just return an InternalMessage which contains the as4Message.
+            var receivedStream = VirtualStream.CreateVirtualStream();
 
-            VirtualStream receivedStream = VirtualStream.CreateVirtualStream();
             await message.UnderlyingStream.CopyToAsync(receivedStream);
             receivedStream.Position = 0;
+
+            var receivedMessage = new ReceivedMessage(receivedStream, message.ContentType);
 
             try
             {
                 var transformer = new AS4MessageTransformer();
-                var messagingContext = await transformer.TransformAsync(message, cancellationToken);
+                var messagingContext = await transformer.TransformAsync(receivedMessage, cancellationToken);
 
                 var as4Message = messagingContext.AS4Message;
 
@@ -46,7 +48,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 else
                 {
                     receivedStream.Position = 0;
-                    return new MessagingContext(new ReceivedMessage(receivedStream, message.ContentType), MessagingContextMode.Receive);
+                    return new MessagingContext(receivedMessage, MessagingContextMode.Receive);
                 }
             }
             catch (Exception ex)
@@ -61,6 +63,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
                 }
                 throw;
             }
+
         }
 
         private static void AssignPModeToContext(MessagingContext context)
@@ -78,7 +81,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             SetCollaborationInfoProperties(userMessage, properties);
             SetPartyProperties(userMessage, properties);
 
-            RemoveMessageInfoProperties(userMessage);            
+            RemoveMessageInfoProperties(userMessage);
         }
 
         private static void RemoveMessageInfoProperties(UserMessage userMessage)
