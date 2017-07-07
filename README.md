@@ -25,9 +25,13 @@ Extensive testing against the EESSI AS4 Messaging profile is scheduled for June 
 - Performance tuning for large messages, up to 2GB (v1.1)
 - Performance tuning for high volume processing (v1.1) 
  
-
+# Bug fixes
+- Avoid NullReferenceException when a received AS4 Message contains PartInfo elements for attachments that are no MIME attachments (v1.1.1)
+- The ContentType for encrypted attachments is set correctly to application/octet-stream (v1.1.1)
+- IssuerSecurityTokenReference can now handle large certificate serialnumbers (v1.1.1) 
+ 
 # Installation
-AS4.NET v1.1.0 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.0/eessi_as4.net-1.1.0.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
+AS4.NET v1.1.1 can be downloaded from [the following location](https://ec.europa.eu/cefdigital/artifact/content/repositories/eDelivery/eu/eessi/as4/eessi_as4.net/1.1.1/eessi_as4.net-1.1.1.zip). The documentation on how to use and configure AS4.NET can be found in the documentation folder of the package.
 
 # Third Party software
 The following third party libraries are used by AS4.NET:
