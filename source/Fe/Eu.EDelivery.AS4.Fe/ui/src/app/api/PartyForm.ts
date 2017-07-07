@@ -9,10 +9,4 @@ export class PartyForm {
             partyIds: formBuilder.array(!!!(current && current.partyIds) ? [] : current.partyIds.map(item => PartyIdForm.getForm(formBuilder, item))),
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Party) {
-        form.get(Party.FIELD_role).reset({ value: current && current.role, disabled: !!!current && form.parent.disabled });
-        form.removeControl('partyIds');
-        form.addControl('partyIds', formBuilder.array(!!!(current && current.partyIds) ? [] : current.partyIds.map(item => PartyIdForm.getForm(formBuilder, item))));
-    }
 }

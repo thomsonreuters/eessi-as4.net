@@ -18,7 +18,7 @@ export class SendingProcessingModeForm {
             mepBinding: [(current == null || current.mepBinding == null) ? 1 : current.mepBinding],
             pushConfiguration: PushConfigurationForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_pushConfiguration), current && current.pushConfiguration).form,
             pullConfiguration: PullConfigurationForm.getForm(formBuilder.formBuilder, current && current.pullConfiguration),
-            reliability: SendReliabilityForm.getForm(formBuilder.formBuilder, current && current.reliability),
+            reliability: SendReliabilityForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_reliability), current && current.reliability).form,
             receiptHandling: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_receiptHandling), current && current.receiptHandling).form,
             errorHandling: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_errorHandling), current && current.errorHandling).form,
             exceptionHandling: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_exceptionHandling), current && current.exceptionHandling).form,

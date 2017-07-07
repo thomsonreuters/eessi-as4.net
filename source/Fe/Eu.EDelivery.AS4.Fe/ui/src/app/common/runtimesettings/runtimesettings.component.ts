@@ -11,9 +11,9 @@ import { ItemType } from './../../api/ItemType';
                 <h4 *ngIf="showTitle === true">Settings</h4>
                 <div formArrayName="setting">
                     <div *ngFor="let set of form.get('setting').controls; let i = index" [formGroupName]="i">
-                        <as4-input [tooltip]="selectedType && selectedType.properties[i] && selectedType.properties[i].description">
+                        <as4-input [tooltip]="selectedType?.properties[i]?.properties[i]?.description">
                             <span label>{{set.value.key}}</span>
-                            <div [ngSwitch]="selectedType && selectedType.properties[i] && selectedType.properties[i].type">
+                            <div [ngSwitch]="selectedType?.properties[i]?.type">
                                 <input *ngSwitchCase="'int'" type="number" class="form-control" formControlName="value"/>
                                 <input *ngSwitchDefault type="text" class="form-control" formControlName="value"/>
                             </div>
@@ -35,6 +35,6 @@ export class RuntimeSettingsComponent {
         }
     }
     @Input() public pshowTitle: boolean = true;
-    public selectedType: ItemType;
+    public selectedType: ItemType | undefined;
     private _type: string;
 }

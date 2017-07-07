@@ -9,7 +9,9 @@
     "sourceMap": true,
     "noEmit": true,
     "noEmitHelpers": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
     "lib": [
       "es2015",
       "dom"

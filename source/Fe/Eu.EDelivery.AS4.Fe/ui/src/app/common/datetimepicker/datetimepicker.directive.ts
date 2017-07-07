@@ -16,7 +16,7 @@ import * as $ from 'jquery';
 })
 export class DateTimePickerDirective implements ControlValueAccessor {
     private _input: any;
-    private _propagateChange: (_: Date) => {};
+    private _propagateChange: (_: Date | null) => {};
     private _control: any;
     constructor(private _elementRef: ElementRef) {
         this._control = (<any>$(this._elementRef.nativeElement)).datetimepicker({

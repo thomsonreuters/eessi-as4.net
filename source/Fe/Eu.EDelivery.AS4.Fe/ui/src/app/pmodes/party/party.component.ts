@@ -62,7 +62,7 @@ export class PartyComponent {
     }
     public addParty() {
         let form = <FormArray>this.group.controls[Party.FIELD_partyIds];
-        form.push(PartyIdForm.getForm(this.formBuilder, null));
+        form.push(PartyIdForm.getForm(this.formBuilder));
         this.group.markAsDirty();
     }
     public removeParty(index: number) {

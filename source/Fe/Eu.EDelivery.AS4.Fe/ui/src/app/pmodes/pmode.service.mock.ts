@@ -6,15 +6,15 @@ import { ICrudPmodeService } from './crudpmode.service.interface';
 import { Observable } from 'rxjs';
 
 export class PmodeServiceMock implements ICrudPmodeService {
-   public obsGet(): Observable<IPmode> { return null; }
-   public obsGetAll(): Observable<string[]> { return null; }
+   public obsGet(): Observable<IPmode | undefined> { return Observable.of(undefined); }
+   public obsGetAll(): Observable<string[] | undefined> {  return Observable.of(undefined); }
    public get(name: string) { }
    public delete(name: string) { }
-   public getNew(name: string): IPmode { return null; }
-   public create(pmode: IPmode): Observable<boolean> { return null; }
-   public getForm(pmode: IPmode): FormWrapper { return null; }
-   public getByName(name: string): Observable<IPmode> { return null; }
+   public getNew(name: string): IPmode { return undefined!; }
+   public create(pmode: IPmode): Observable<boolean> { return undefined!; }
+   public getForm(pmode: IPmode): FormWrapper { return undefined!; }
+   public getByName(name: string): Observable<IPmode> { return undefined!; }
    public patchName(form: FormGroup, name: string) { }
-   public update(pmode: IPmode, originalName: string): Observable<boolean> { return null; }
+   public update(pmode: IPmode, originalName: string): Observable<boolean> { return undefined!; }
    public getAll() { }
 }

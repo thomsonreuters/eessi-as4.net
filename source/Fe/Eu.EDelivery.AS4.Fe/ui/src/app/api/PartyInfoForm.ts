@@ -9,9 +9,4 @@ export class PartyInfoForm {
             toParty: PartyForm.getForm(formBuilder, current && current.toParty),
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PartyInfo) {
-        PartyForm.patchForm(formBuilder, <FormGroup>form.get(PartyInfo.FIELD_fromParty), current && current.fromParty);
-        PartyForm.patchForm(formBuilder, <FormGroup>form.get(PartyInfo.FIELD_toParty), current && current.toParty);
-    }
 }

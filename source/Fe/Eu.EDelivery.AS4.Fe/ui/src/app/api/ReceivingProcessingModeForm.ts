@@ -20,7 +20,7 @@ export class ReceivingProcessingModeForm {
             [ReceivingProcessingMode.FIELD_receiptHandling]: ReceiveReceiptHandlingForm.getForm(formBuilder.subForm(ReceivingProcessingMode.FIELD_receiptHandling), current && current.receiptHandling).form,
             [ReceivingProcessingMode.FIELD_errorHandling]: ReceiveErrorHandlingForm.getForm(formBuilder.formBuilder, current && current.errorHandling),
             [ReceivingProcessingMode.FIELD_exceptionHandling]: ReceivehandlingForm.getForm(formBuilder.subForm(ReceivingProcessingMode.FIELD_exceptionHandling), current && current.exceptionHandling).form,
-            [ReceivingProcessingMode.FIELD_security]: ReceiveSecurityForm.getForm(formBuilder.formBuilder, current && current.security),
+            [ReceivingProcessingMode.FIELD_security]: ReceiveSecurityForm.getForm(formBuilder.subForm(ReceivingProcessingMode.FIELD_security), current && current.security).form,
             [ReceivingProcessingMode.FIELD_messagePackaging]: MessagePackagingForm.getForm(formBuilder.formBuilder, current && current.messagePackaging),
             [ReceivingProcessingMode.FIELD_deliver]: DeliverForm.getForm(formBuilder.subForm(ReceivingProcessingMode.FIELD_deliver), current && current.deliver).form,
         });

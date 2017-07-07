@@ -8,25 +8,19 @@ import { Base } from './../api/Base';
 import { ISettingsService } from './settings.service';
 
 export class SettingsServiceMock implements ISettingsService {
-    getSettings() {
-
+    public getSettings() { }
+    public saveBaseSettings(base: Base) { }
+    public saveCustomSettings(custom: CustomSettings): Observable<boolean> {
+        return Observable.of(false);
     }
-    saveBaseSettings(base: Base) {
-
+    public saveDatabaseSettings(settings: SettingsDatabase): Observable<boolean> {
+        return Observable.of(false);
     }
-    saveCustomSettings(custom: CustomSettings): Observable<boolean> {
-        return null;
+    public createAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
+        return Observable.of(false);
     }
-    saveDatabaseSettings(settings: SettingsDatabase): Observable<boolean> {
-        return null;
+    public updateAgent(settings: SettingsAgent, originalName: string, agent: string): Observable<boolean> {
+        return Observable.of(false);
     }
-    createAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
-        return null;
-    }
-    updateAgent(settings: SettingsAgent, originalName: string, agent: string): Observable<boolean> {
-        return null;
-    }
-    deleteAgent(settings: SettingsAgent, agent: string) {
-
-    }
+    public deleteAgent(settings: SettingsAgent, agent: string) { }
 }

@@ -24,7 +24,11 @@ export class AuthenticationStore extends Store<State> {
         }
     }
     public login() {
-        let token = this._jwtHelper.decodeToken(localStorage.getItem(TOKENSTORE));
+        let tokenFromStore = localStorage.getItem(TOKENSTORE);
+        if (!!!tokenFromStore) {
+            throw new Error('No token found in store!');
+        }
+        let token = this._jwtHelper.decodeToken(tokenFromStore);
         this.setState({
             loggedin: true,
             roles: this.getRoles(token)

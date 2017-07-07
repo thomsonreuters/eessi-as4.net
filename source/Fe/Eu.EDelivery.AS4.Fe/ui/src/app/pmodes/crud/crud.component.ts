@@ -51,13 +51,13 @@ export class CrudComponent implements OnInit, OnDestroy {
     public isNewMode: boolean = false;
     public pmodes: string[];
     public form: FormGroup;
-    public currentPmode: IPmode;
+    public currentPmode: IPmode | undefined;
     public actionType: string;
     public newName: string;
     private subscriptions: Subscription[] = new Array<Subscription>();
     constructor(private _dialogService: DialogService, @Inject(PMODECRUD_SERVICE) private _crudService: ICrudPmodeService, private _modalService: ModalService, private _activatedRoute: ActivatedRoute,
         private _router: Router, private _routerService: RouterService) {
-        this.form = this._crudService.getForm(null).build(true);
+        this.form = this._crudService.getForm(undefined).build(true);
     }
     public ngOnInit() {
         if (!!!this._activatedRoute.snapshot.params['pmode']) {
@@ -68,7 +68,11 @@ export class CrudComponent implements OnInit, OnDestroy {
             .push(this._crudService
                 .obsGetAll()
                 .subscribe((result) => {
-                    this.pmodes = result;
+                    this.pmodes = !!!result ? new Array<string>() : result;
+                    if (!!!result) {
+                        return;
+                    }
+
                     let pmodeQueryParam = this._activatedRoute.snapshot.params['pmode'];
                     if (!!!pmodeQueryParam) {
                         return;
@@ -111,13 +115,13 @@ export class CrudComponent implements OnInit, OnDestroy {
             let lookupPmode = this.pmodes.find((pmode) => pmode === name);
             this._crudService.get(name);
         };
-        if (this.form.dirty || this.isNewMode) {
+        if ((this.form.dirty || this.isNewMode) && !!this.currentPmode) {
             this._dialogService
                 .confirmUnsavedChanges()
                 .filter((result) => result)
                 .subscribe(() => {
                     if (this.isNewMode) {
-                        this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode.name);
+                        this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode!.name);
                         this.isNewMode = false;
                     }
                     select();
@@ -129,9 +133,12 @@ export class CrudComponent implements OnInit, OnDestroy {
         return true;
     }
     public reset() {
+        if (!!!this.currentPmode) {
+            return;
+        }
         if (this.isNewMode) {
             this.isNewMode = false;
-            this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode.name);
+            this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode!.name);
             this.currentPmode = undefined;
         }
         this.form = this._crudService.getForm(this.currentPmode).build();
@@ -144,7 +151,7 @@ export class CrudComponent implements OnInit, OnDestroy {
         this._dialogService
             .deleteConfirm('pmode')
             .filter((result) => result)
-            .subscribe((result) => this._crudService.delete(this.currentPmode.name));
+            .subscribe((result) => this._crudService.delete(this.currentPmode!.name));
     }
     public add() {
         this._modalService
@@ -159,7 +166,7 @@ export class CrudComponent implements OnInit, OnDestroy {
                 }
                 if (+this.actionType !== -1) {
                     this._crudService
-                        .getByName(this.pmodes.find((name) => name === this.actionType))
+                        .getByName(this.pmodes.find((name) => name === this.actionType)!)
                         .subscribe((existingPmode) => {
                             this.currentPmode = Object.assign({}, existingPmode);
                             this.currentPmode.name = this.newName;
@@ -185,6 +192,9 @@ export class CrudComponent implements OnInit, OnDestroy {
             });
     }
     public save() {
+        if (!!!this.currentPmode) {
+            return;
+        }
         if (this.form.invalid) {
             this._dialogService.incorrectForm();
             return;

@@ -7,8 +7,4 @@ export class DuplicateEliminationForm {
             isEnabled: [!!(current && current.isEnabled)],
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: DuplicateElimination) {
-        form.get(DuplicateElimination.FIELD_isEnabled).reset({ value: current && current.isEnabled, disabled: !!!current && form.parent.disabled });
-    }
 }

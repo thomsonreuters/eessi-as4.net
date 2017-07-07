@@ -8,9 +8,4 @@ export class ServiceForm {
             type: [current && current.type],
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Service) {
-        form.get(Service.FIELD_value).reset({ value: current && current.value, disabled: !!!current && form.parent.disabled });
-        form.get(Service.FIELD_type).reset({ value: current && current.type, disabled: !!!current && form.parent.disabled });
-    }
 }

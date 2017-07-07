@@ -53,7 +53,7 @@ export class FilterComponent implements OnInit, OnDestroy {
     }
     private getPath(route: ActivatedRoute): string[] {
         let path = new Array<string>();
-        let test: ActivatedRouteSnapshot = route.snapshot;
+        let test: ActivatedRouteSnapshot | null= route.snapshot;
         do {
             path.push(test.url.toString());
             test = test.parent;

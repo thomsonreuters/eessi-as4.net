@@ -42,14 +42,14 @@ export class EncryptionForm {
             return 0;
         }
     }
-    private static setPublicKeyInfo(current: Encryption | null, type: number | number = null, formWrapper: FormWrapper): void {
+    private static setPublicKeyInfo(current: Encryption | null, type: number | null = null, formWrapper: FormWrapper): void {
         type = !!type ? type : this.getPublicKeyType(<Encryption>current);
 
-        if (formWrapper.form.get(Encryption.FIELD_publicKeyType).value !== type) {
+        if (formWrapper.form.get(Encryption.FIELD_publicKeyType)!.value !== type) {
             if (!!!formWrapper.form.get(Encryption.FIELD_publicKeyType)) {
                 formWrapper.form.setControl(Encryption.FIELD_publicKeyType, formWrapper.formBuilder.control(type));
             } else {
-                formWrapper.form.get(Encryption.FIELD_publicKeyType).setValue(type);
+                formWrapper.form.get(Encryption.FIELD_publicKeyType)!.setValue(type);
             }
         }
 

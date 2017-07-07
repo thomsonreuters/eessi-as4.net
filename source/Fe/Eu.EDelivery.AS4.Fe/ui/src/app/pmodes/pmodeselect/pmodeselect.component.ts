@@ -23,7 +23,7 @@ export const PMODESELECT_CONTROL_VALUE_ACCESSOR: any = {
 export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAccessor {
     @Input() public mode: string;
     public selectedPmode: string;
-    public pmodes: string[];
+    public pmodes: string[] | undefined;
     public isDisabled: boolean;
     private _storeSubscription: Subscription;
     private _propagateChange: (_: string) => void;

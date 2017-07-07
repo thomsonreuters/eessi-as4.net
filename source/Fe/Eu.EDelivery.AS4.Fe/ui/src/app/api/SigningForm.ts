@@ -23,7 +23,7 @@ export class SigningForm {
                 }
             })
             .onChange<number>(Signing.FIELD_privateKeyFindType, (result, wrapper) => {
-                const value = wrapper.form.get(Signing.FIELD_privateKeyFindValue);
+                const value = wrapper.form!.get(Signing.FIELD_privateKeyFindValue)!;
 
                 value.clearValidators();
                 if (result === 0) {

@@ -31,10 +31,10 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
     public settings: SettingsAgent[] = new Array<SettingsAgent>();
     public collapsed: boolean = true;
 
-    public get currentAgent(): SettingsAgent {
+    public get currentAgent(): SettingsAgent | undefined {
         return this._currentAgent;
     }
-    public set currentAgent(agent: SettingsAgent) {
+    public set currentAgent(agent: SettingsAgent | undefined) {
         this._currentAgent = agent;
     }
     public transformers: ItemType[];
@@ -46,7 +46,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
     @Input() public title: string;
     @Input() public agent: string;
 
-    private _currentAgent: SettingsAgent;
+    private _currentAgent: SettingsAgent | undefined;
     private _settingsStoreSubscription: Subscription;
     private _runtimeStoreSubscription: Subscription;
     private _formWrapper: FormWrapper;
@@ -54,7 +54,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
     constructor(private settingsStore: SettingsStore, private settingsService: SettingsService, private activatedRoute: ActivatedRoute,
         private runtimeStore: RuntimeStore, private dialogService: DialogService, private modalService: ModalService, private formBuilder: FormBuilderExtended) {
         this._formWrapper = this.formBuilder.get();
-        this.form = SettingsAgentForm.getForm(this._formWrapper, null).build();
+        this.form = SettingsAgentForm.getForm(this._formWrapper, undefined).build();
         this._formWrapper.disable();
         if (!!this.activatedRoute.snapshot.data['type']) {
             this.title = `${this.activatedRoute.snapshot.data['title']} agent`;
@@ -99,7 +99,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                     }
                     this.settings.push(newAgent);
                     this.currentAgent = newAgent;
-                    this.currentAgent.name = this.newName;
+                    this.currentAgent!.name = this.newName;
                     this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).form;
                     this.isNewMode = true;
                     this.form.reset(newAgent);
@@ -108,7 +108,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                 }
             });
     }
-    public selectAgent(selectedAgent: string = null): boolean {
+    public selectAgent(selectedAgent: string | undefined = undefined): boolean {
         let select = () => {
             this.isNewMode = false;
             this.currentAgent = this.settings.find((agent) => agent.name === selectedAgent);
@@ -134,6 +134,10 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         return true;
     }
     public save() {
+        if (!!!this.currentAgent) {
+            return;
+        }
+
         if (!this.form.valid) {
             this.dialogService.message('Input is not valid, please correct the invalid fields');
             return;
@@ -174,18 +178,21 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             });
     }
     public delete() {
+        if (!!!this.currentAgent) {
+            return;
+        }
         this.dialogService
             .confirm('Are you sure you want to delete the agent', 'Delete agent')
             .filter((result) => result)
             .subscribe((result) => {
                 this.form.markAsPristine();
                 if (this.isNewMode) {
-                    this.settings = this.settings.filter((agent) => agent.name !== this.currentAgent.name);
+                    this.settings = this.settings.filter((agent) => agent.name !== this.currentAgent!.name);
                     this.selectAgent();
                     return;
                 }
 
-                this.settingsService.deleteAgent(this.currentAgent, this.agent);
+                this.settingsService.deleteAgent(this.currentAgent!, this.agent);
             });
     }
     public ngOnDestroy() {

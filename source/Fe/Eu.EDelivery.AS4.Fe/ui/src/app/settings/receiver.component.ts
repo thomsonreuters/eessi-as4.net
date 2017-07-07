@@ -23,7 +23,7 @@ import { ItemType } from './../api/ItemType';
 export class ReceiverComponent implements OnDestroy {
     @Input() public group: FormGroup;
     public types: ItemType[];
-    public currentReceiver: ItemType;
+    public currentReceiver: ItemType | undefined;
     private _runtimeStoreSubscription: Subscription;
     constructor(private runtimeStore: RuntimeStore, private formBuilder: FormBuilder) {
         this._runtimeStoreSubscription = this.runtimeStore

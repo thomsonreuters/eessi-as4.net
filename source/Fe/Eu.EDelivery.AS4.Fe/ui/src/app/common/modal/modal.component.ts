@@ -51,7 +51,7 @@ export class ModalComponent implements OnDestroy {
     @Input() public payload: any;
     @Input() public showDefaultButtons: boolean = true;
     @Input() public name: string;
-    @Input() public title: string;
+    @Input() public title: string | undefined;
     @Input() public message: string;
     @Input() public showDefaultMessage: boolean = true;
     @Input() public buttonOk: string = 'OK';

@@ -17,7 +17,7 @@ export class KeyEncryptionForm {
                 [KeyEncryption.FIELD_mgfAlgorithm]: [!!!current ? null : !!!current.mgfAlgorithm ? this.defaultMgfAlgorithm : current.mgfAlgorithm, Validators.required]
             })
             .onChange<string>(KeyEncryption.FIELD_transportAlgorithm, (value, wrapper) => {
-                let mgf = wrapper.form.get(KeyEncryption.FIELD_mgfAlgorithm);
+                let mgf = wrapper.form.get(KeyEncryption.FIELD_mgfAlgorithm)!;
                 if (value !== KeyEncryptionForm.transportAlgorithm) {
                     mgf.disable();
                 } else {

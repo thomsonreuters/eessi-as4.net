@@ -37,7 +37,7 @@ export class MethodComponent {
     @Input() public isDisabled: boolean = false;
     @Input() public label: string;
     public get parametersControl(): any {
-        return !!!this.group && this.group.get('parameters');
+        return !!!this.group && this.group!.get('parameters');
     }
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) { }
     public typeChanged(result: string) {

@@ -5,7 +5,7 @@ import { Receiver } from './Receiver';
 import { SettingForm } from './SettingForm';
 
 export class ReceiverForm {
-    public static getForm(formBuilder: FormWrapper, current: Receiver): FormWrapper {
+    public static getForm(formBuilder: FormWrapper, current: Receiver | undefined): FormWrapper {
         return formBuilder
             .group({
                 type: [current && current.type],

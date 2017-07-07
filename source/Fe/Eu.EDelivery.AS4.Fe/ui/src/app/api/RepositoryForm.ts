@@ -7,8 +7,4 @@ export class RepositoryForm {
             type: [current && current.type],
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Repository) {
-        form.get(Repository.FIELD_type).reset({ value: current && current.type });
-    }
 }

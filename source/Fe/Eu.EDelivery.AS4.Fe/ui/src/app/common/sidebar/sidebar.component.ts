@@ -21,9 +21,15 @@ export class SidebarComponent {
 
         return [result];
       });
+
+    if (!!!routes || routes.length === 0) {
+      this.routes = new Array<Route>();
+      return;
+    }
+
     this.routes = routes
-      .reduce((a, b) => a.concat(b))
+      .reduce((a, b) => a!.concat(b!))!
       .filter((route) => !!route.data && !!route.data['title'])
-      .sort((route) => +route.data['weight']);
+      .sort((route) => !!!route.data ? 0 : +route.data['weight']);
   }
 }

@@ -29,7 +29,7 @@ export class ReceptionAwarenessAgentComponent implements OnDestroy {
     constructor(private formBuilder: FormBuilderExtended, private settingStore: SettingsStore, private settingsService: SettingsService,
         private runtimeService: RuntimeService, private runtimeStore: RuntimeStore, private dialogService: DialogService) {
         this._formWrapper = this.formBuilder.get();
-        this.form = SettingsAgentForm.getForm(this._formWrapper, null).build(true);
+        this.form = SettingsAgentForm.getForm(this._formWrapper).build(true);
         this._settingsStoreSubscr = this.settingStore
             .changes
             .filter((result) => !!result && !!result.Settings && !!result.Settings.agents)

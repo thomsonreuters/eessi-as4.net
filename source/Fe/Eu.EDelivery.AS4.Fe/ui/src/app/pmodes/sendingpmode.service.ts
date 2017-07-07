@@ -28,7 +28,7 @@ export class SendingPmodeService implements ICrudPmodeService {
                 this.pmodeStore.update('SendingNames', result.json());
             });
     }
-    public obsGet(): Observable<IPmode> {
+    public obsGet(): Observable<IPmode | undefined> {
         return this
             .pmodeStore
             .changes
@@ -36,7 +36,7 @@ export class SendingPmodeService implements ICrudPmodeService {
             .map((result) => result.Sending)
             .distinctUntilChanged();
     }
-    public obsGetAll(): Observable<string[]> {
+    public obsGetAll(): Observable<string[] | undefined> {
         return this.pmodeStore
             .changes
             .filter((result) => !!result)

@@ -11,7 +11,7 @@ export class SettingsAgents {
 	notifyAgents = new Array<SettingsAgent>();
 	notifyConsumerAgents = new Array<SettingsAgent>();
 	notifyProducerAgents = new Array<SettingsAgent>();
-	receptionAwarenessAgent: SettingsAgent;
+	receptionAwarenessAgent: SettingsAgent | undefined;
 	pullReceiveAgents = new Array<SettingsAgent>();
 	pullSendAgents = new Array<SettingsAgent>();
 

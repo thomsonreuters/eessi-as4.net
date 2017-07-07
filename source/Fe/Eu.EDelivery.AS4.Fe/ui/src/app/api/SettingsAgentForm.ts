@@ -7,7 +7,7 @@ import { TransformerForm } from './TransformerForm';
 import { StepsForm } from './StepsForm';
 
 export class SettingsAgentForm {
-    public static getForm(formBuilder: FormWrapper, current: SettingsAgent): FormWrapper {
+    public static getForm(formBuilder: FormWrapper, current: SettingsAgent | undefined = undefined): FormWrapper {
         return formBuilder.group({
             [SettingsAgent.FIELD_name]: [current && current.name],
             [SettingsAgent.FIELD_receiver]: ReceiverForm.getForm(formBuilder.subForm(SettingsAgent.FIELD_receiver), current && current.receiver).form,

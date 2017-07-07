@@ -15,6 +15,10 @@ export class ModalService {
     }
     public show(name: string, modal?: (dialog: ModalComponent) => void) {
         let dialog = this.modals.find((src) => src.name === name);
+        if (!!!dialog) {
+            throw Error(`No dialog found with name ${name}`);
+        }
+
         this.modals.forEach((mdl) => mdl.isVisible = false);
         if (!!modal) {
             modal(dialog);

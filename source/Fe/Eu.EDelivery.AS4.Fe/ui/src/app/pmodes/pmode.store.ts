@@ -15,16 +15,16 @@ export interface IPmodeStore {
 export class PmodeStore extends Store<IPmodeStore> {
     constructor() {
         super({
-            Receiving: null,
-            Sending: null,
+            Receiving: undefined,
+            Sending: undefined,
             ReceivingNames: new Array<string>(),
             SendingNames: new Array<string>()
         });
     }
     public clear() {
         this.setState({
-            Receiving: null,
-            Sending: null,
+            Receiving: undefined,
+            Sending: undefined,
             ReceivingNames: new Array<string>(),
             SendingNames: new Array<string>()
         });
@@ -40,9 +40,9 @@ export class PmodeStore extends Store<IPmodeStore> {
     }
     public deleteReceiving(name: string) {
         this.setState({
-            Receiving: null,
+            Receiving: undefined,
             Sending: this.state.Sending,
-            ReceivingNames: this.state.ReceivingNames.filter(map => map !== name),
+            ReceivingNames: !!!this.state.ReceivingNames ? undefined : this.state.ReceivingNames.filter((map) => map !== name),
             SendingNames: this.state.SendingNames
         });
     }
@@ -50,8 +50,8 @@ export class PmodeStore extends Store<IPmodeStore> {
         this.setState({
             Receiving: this.state.Receiving,
             ReceivingNames: this.state.ReceivingNames,
-            Sending: null,
-            SendingNames: this.state.SendingNames.filter(map => map !== name)
+            Sending: undefined,
+            SendingNames: !!!this.state.SendingNames ? undefined : this.state.SendingNames.filter((map) => map !== name)
         });
     }
 }

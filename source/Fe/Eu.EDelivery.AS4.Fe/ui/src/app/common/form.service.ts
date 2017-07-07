@@ -54,13 +54,13 @@ export class FormWrapper {
     public cleanup(): void {
         for (const subscription of Array.from(this._onValueChangeSubscriptions.entries())) {
             if (!!subscription[1].subscription) {
-                subscription[1].subscription.unsubscribe();
+                subscription[1]!.subscription!.unsubscribe();
             }
         }
 
         for (const subscription of Array.from(this._onStatusChangeSubscriptions.entries())) {
             if (!!subscription[1].subscription) {
-                subscription[1].subscription.unsubscribe();
+                subscription[1]!.subscription!.unsubscribe();
             }
         }
 
@@ -103,21 +103,19 @@ export class FormWrapper {
             });
         // });
     }
-    public enable(except: string[] = null) {
-        // setTimeout(() => {
+    public enable(except: string[] | null = null) {
         Object
             .keys(this.form.controls)
             .filter((key) => !!!except ? true : except.findIndex((search) => search === key) === -1)
             .forEach((key) => {
-                this.form.get(key).enable();
+                this.form!.get(key)!.enable();
             });
-        // });
     }
     public triggerHandler(field: string, value: any): FormWrapper {
         this._buildTriggers.set(field, value);
         return this;
     }
-    public reApplyHandlers(field: string = null) {
+    public reApplyHandlers(field: string | null = null) {
         let keys = Object.keys(this.form.controls);
 
         if (!!field) {
@@ -155,8 +153,8 @@ export class FormWrapper {
                         .distinctUntilChanged()
                         .subscribe((result) => valueChangeHandler.handler(result, this));
                 } else {
-                    valueChangeHandler.subscription = this.form
-                        .get(key)
+                    valueChangeHandler.subscription = this.form!
+                        .get(key)!
                         .valueChanges
                         .distinctUntilChanged()
                         .subscribe((result) => valueChangeHandler.handler(result, this));
@@ -175,8 +173,8 @@ export class FormWrapper {
                         .distinctUntilChanged()
                         .subscribe((result) => statusChangeHandler.handler(result, this));
                 } else {
-                    statusChangeHandler.subscription = this.form
-                        .get(key)
+                    statusChangeHandler.subscription = this.form!
+                        .get(key)!
                         .statusChanges
                         .distinctUntilChanged()
                         .subscribe((result) => statusChangeHandler.handler(result, this));
@@ -185,7 +183,7 @@ export class FormWrapper {
         });
     }
     private getSub(field: string): FormWrapper {
-        return this._subs.get(field);
+        return this._subs!.get(field)!;
     }
     private unsubscribeHandler(field: string, handlers: Map<string | null, SubscriptionHandler>): FormWrapper {
         const existing = handlers.get(field);
@@ -199,7 +197,7 @@ export class FormWrapper {
 
 // tslint:disable-next-line:max-classes-per-file
 class SubscriptionHandler {
-    public subscription: Subscription;
+    public subscription: Subscription | null;
     public handler: (current: any, wrapper: FormWrapper) => void;
     constructor(init: Partial<SubscriptionHandler>) {
         Object.assign(this, init);

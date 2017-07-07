@@ -3,7 +3,7 @@ import { Directive, AfterViewChecked, ElementRef, Renderer, NgZone } from '@angu
 import { NgControl } from '@angular/forms';
 
 @Directive({
-    selector: 'formControlName'
+    selector: '[formControlName]'
 })
 export class FixFormGroupStatedirective implements AfterViewChecked {
     constructor(private _elementRef: ElementRef, private _renderer: Renderer, private _activeRoute: ActivatedRoute, private _ngZone: NgZone, private _ngControl: NgControl) { }
@@ -16,7 +16,7 @@ export class FixFormGroupStatedirective implements AfterViewChecked {
         if (!!this._ngControl) {
             if (this._ngControl.disabled !== !!currentState) {
                 this._ngZone.runOutsideAngular(() => {
-                    this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', !this._ngControl.disabled ? null : this._ngControl.disabled + '');
+                    this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', !this._ngControl.disabled ? null! : this._ngControl.disabled + '');
                 });
             }
         }

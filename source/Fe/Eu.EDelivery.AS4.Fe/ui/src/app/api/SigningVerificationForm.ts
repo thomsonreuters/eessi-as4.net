@@ -7,8 +7,4 @@ export class SigningVerificationForm {
             signature: [(current == null || current.signature == null) ? 0 : current.signature],
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: SigningVerification) {
-        form.get(SigningVerification.FIELD_signature).reset({ value: current && current.signature, disabled: !!!current });
-    }
 }

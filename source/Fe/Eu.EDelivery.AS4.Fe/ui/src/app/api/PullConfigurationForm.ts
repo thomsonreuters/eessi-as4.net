@@ -7,8 +7,4 @@ export class PullConfigurationForm {
             subChannel: [current && current.subChannel],
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: PullConfiguration) {
-        form.get(PullConfiguration.FIELD_subChannel).reset({ value: current && current.subChannel, disabled: !!!current });
-    }
 }

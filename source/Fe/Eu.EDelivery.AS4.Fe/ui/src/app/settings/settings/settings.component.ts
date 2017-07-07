@@ -28,6 +28,7 @@ export class SettingsComponent implements OnDestroy, CanComponentDeactivate {
             if (cmp.canDeactivate) {
                 return !cmp.canDeactivate();
             }
+            return false;
         });
     }
 }

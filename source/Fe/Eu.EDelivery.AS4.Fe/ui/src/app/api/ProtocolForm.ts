@@ -9,10 +9,4 @@ export class ProtocolForm {
             [Protocol.FIELD_useHttpCompression]: [!!(current && current.useHttpCompression), Validators.required],
         });
     }
-    /// Patch up all the formArray controls
-    public static patchForm(formBuilder: FormBuilder, form: FormGroup, current: Protocol) {
-        form.get(Protocol.FIELD_url).reset({ value: current && current.url, disabled: !!!current });
-        form.get(Protocol.FIELD_useChunking).reset({ value: current && current.useChunking, disabled: !!!current });
-        form.get(Protocol.FIELD_useHttpCompression).reset({ value: current && current.useHttpCompression, disabled: !!!current });
-    }
 }

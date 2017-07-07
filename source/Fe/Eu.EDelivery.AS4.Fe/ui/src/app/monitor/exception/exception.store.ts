@@ -6,7 +6,7 @@ import { ExceptionFilter } from './exception.filter';
 
 export interface IExceptionState {
     messages: Exception[];
-    filter: ExceptionFilter;
+    filter: ExceptionFilter | null;
     total: number;
     pages: number;
     page: number;
