@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
+using Eu.EDelivery.AS4.Streaming;
 using MessageProperty = Eu.EDelivery.AS4.Model.Core.MessageProperty;
 
 namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
@@ -18,25 +19,47 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
         {
             // We receive an AS4Message from Minder, we should convert it to a SubmitMessage if the action is submit.
             // In any other case, we should just return an InternalMessage which contains the as4Message.
-            var transformer = new AS4MessageTransformer();
-            var messagingContext = await transformer.TransformAsync(message, cancellationToken);
 
-            var as4Message = messagingContext.AS4Message;
-            
-            if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
+            VirtualStream receivedStream = VirtualStream.CreateVirtualStream();
+            await message.UnderlyingStream.CopyToAsync(receivedStream);
+            receivedStream.Position = 0;
+            try
             {
-                var properties = as4Message.PrimaryUserMessage?.MessageProperties;
+                var transformer = new AS4MessageTransformer();
+                var messagingContext = await transformer.TransformAsync(message, cancellationToken);
 
-                TransformUserMessage(as4Message.PrimaryUserMessage, properties);
+                var as4Message = messagingContext.AS4Message;
 
-                messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
+                if (as4Message?.PrimaryUserMessage?.CollaborationInfo?.Action?.Equals("Submit", StringComparison.OrdinalIgnoreCase) ?? false)
+                {
+                    var properties = as4Message.PrimaryUserMessage?.MessageProperties;
 
-                AssignPModeToContext(messagingContext);
+                    TransformUserMessage(as4Message.PrimaryUserMessage, properties);
 
-                return messagingContext;
+                    messagingContext = new MessagingContext(as4Message, MessagingContextMode.Submit);
+
+                    AssignPModeToContext(messagingContext);
+
+                    return messagingContext;
+                }
+                else
+                {
+                    receivedStream.Position = 0;
+                    return new MessagingContext(new ReceivedMessage(receivedStream, message.ContentType), MessagingContextMode.Receive);
+                }
             }
+            catch (Exception ex)
+            {
+                var l = NLog.LogManager.GetCurrentClassLogger();
+                l.Error(ex.Message);
+                l.Error(ex.StackTrace);
 
-            return new MessagingContext(as4Message, MessagingContextMode.Receive);
+                if (ex.InnerException != null)
+                {
+                    l.Error(ex.InnerException.Message);
+                }
+                throw;
+            }
         }
 
         private static void AssignPModeToContext(MessagingContext context)

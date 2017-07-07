@@ -47,29 +47,37 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         {
             Logger.Info($"{messagingContext.Prefix} Insert received message in datastore");
 
-            if (messagingContext.ReceivedMessage == null)
+            try
             {
-                throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
+                if (messagingContext.ReceivedMessage == null)
+                {
+                    throw new InvalidOperationException("SaveReceivedMessageStep requires a ReceivedStream");
+                }
+
+                using (DatastoreContext context = _createDatastoreContext())
+                {
+                    var repository = new DatastoreRepository(context);
+                    var service = new InMessageService(repository);
+
+                    var mep = DetermineMessageExchangePattern(messagingContext);
+
+                    var resultContext = await service.InsertAS4Message(messagingContext, mep, _messageBodyStore, token).ConfigureAwait(false);
+                    await context.SaveChangesAsync(token).ConfigureAwait(false);
+
+                    if (resultContext != null)
+                    {
+                        return StepResult.Success(resultContext);
+                    }
+                    else
+                    {
+                        return StepResult.Failed(null);
+                    }
+                }
             }
-
-            using (DatastoreContext context = _createDatastoreContext())
+            finally
             {
-                var repository = new DatastoreRepository(context);
-                var service = new InMessageService(repository);
-
-                var mep = DetermineMessageExchangePattern(messagingContext);
-
-                var resultContext = await service.InsertAS4Message(messagingContext, mep, _messageBodyStore, token).ConfigureAwait(false);
-                await context.SaveChangesAsync(token).ConfigureAwait(false);
-
-                if (resultContext != null)
-                {
-                    return StepResult.Success(resultContext);
-                }
-                else
-                {
-                    return StepResult.Failed(null);
-                }
+                // We must dispose the received context here, since a new MessagingContext is created and returned.
+                messagingContext?.Dispose();
             }
         }
 

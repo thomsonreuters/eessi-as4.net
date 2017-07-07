@@ -69,6 +69,11 @@ namespace Eu.EDelivery.AS4.Streaming
             }
         }
 
+        public static VirtualStream CreateVirtualStream()
+        {
+            return CreateVirtualStream(ThresholdMax);
+        }
+
         /// <summary>
         /// Creates a VirtualStream instance.
         /// </summary>
