@@ -86,12 +86,12 @@ namespace Eu.EDelivery.AS4.Services
 
         private static OutMessage CreateOutMessageForMessageUnit(
             MessageUnit messageUnit,
-           MessagingContext messageContext,
-           SendingProcessingMode sendingPMode,
+            MessagingContext messageContext,
+            SendingProcessingMode sendingPMode,
             string location,
             Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message, sendingPMode)                                                     
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message, sendingPMode)
                                                      .Build(CancellationToken.None);
 
             outMessage.MessageLocation = location;
@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Services
 
             throw new NotSupportedException($"There exists no MessageType mapping for the specified MessageUnit type {typeof(MessageUnit)}");
         }
-        
+
         private static SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
         {
             if (context.SendingPMode?.Id != null)
@@ -141,7 +141,7 @@ namespace Eu.EDelivery.AS4.Services
 
             ReceivingProcessingMode receivePMode = context.ReceivingPMode;
 
-            if (isSignalMessage && receivePMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
+            if (isSignalMessage && receivePMode != null && receivePMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
             {
                 return Config.Instance.GetSendingPMode(receivePMode.ReplyHandling.SendingPMode);
             }
@@ -151,7 +151,7 @@ namespace Eu.EDelivery.AS4.Services
 
         private static (OutStatus, Operation) DetermineCorrectReplyPattern(ReceivingProcessingMode receivingPMode)
         {
-            bool isCallback = receivingPMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback;
+            bool isCallback = receivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
 
             Operation operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
             OutStatus status = isCallback ? OutStatus.Created : OutStatus.Sent;

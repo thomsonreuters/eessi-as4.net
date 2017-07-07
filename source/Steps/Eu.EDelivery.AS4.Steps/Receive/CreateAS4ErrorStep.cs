@@ -92,7 +92,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 .WithErrorResult(originalContext.ErrorResult)
                 .Build();
 
-            if (originalContext.SendingPMode?.MessagePackaging.IsMultiHop == true)
+            if (originalContext.SendingPMode?.MessagePackaging?.IsMultiHop == true)
             {
                 error.MultiHopRouting =
                     AS4Mapper.Map<RoutingInputUserMessage>(originalContext.AS4Message?.PrimaryUserMessage);

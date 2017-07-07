@@ -28,6 +28,9 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             service.CleanUpFiles(holodeck_A_output_path);
             service.CleanUpFiles(holodeck_B_output_path);
 
+            service.RemoveDirectory(holodeck_A_db_path);
+            service.RemoveDirectory(holodeck_B_db_path);
+            
             Process holodeckA = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-A\bin\startServer.bat");
             Process holodeckB = Process.Start(@"C:\Program Files\Java\holodeck\holodeck-b2b-B\bin\startServer.bat");
 
