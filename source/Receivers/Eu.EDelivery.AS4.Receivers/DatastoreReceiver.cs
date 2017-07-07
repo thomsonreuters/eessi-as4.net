@@ -157,11 +157,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private static ReceivedMessage CreateReceivedMessage(MessageEntity messageEntity, Stream stream)
         {
-            return new ReceivedMessageEntityMessage(messageEntity)
-            {
-                RequestStream = stream,
-                ContentType = messageEntity.ContentType
-            };
+            return new ReceivedMessageEntityMessage(messageEntity, stream, messageEntity.ContentType);
         }
 
         private static async void ReceiveEntity(Entity entity, Function messageCallback, CancellationToken token)

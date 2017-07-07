@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
@@ -13,7 +12,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     public class InMessageBuilder
     {
         private readonly MessageUnit _messageUnit;
-        private readonly AS4Message _as4Message;
+        private readonly string _contentType;
+        private readonly MessageExchangePattern _mep;
         private string _pmodeString;
 
         /// <summary>
@@ -21,22 +21,33 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// Starting the Builder with a given Serialize Provider
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
-        /// <param name="as4Message">The as4 message.</param>
-        private InMessageBuilder(MessageUnit messageUnit, AS4Message as4Message)
+        /// <param name="contentType">The contentType of the AS4Message Body to which the MessageUnit belongs to</param>
+        /// <param name="mep"></param>
+        private InMessageBuilder(MessageUnit messageUnit , string contentType, MessageExchangePattern mep )
         {
             _messageUnit = messageUnit;
-            _as4Message = as4Message;
+            _contentType = contentType;
+            _mep = mep;
         }
 
         /// <summary>
         /// Creates a new InMessageBuilder instance that can instantiate an <see cref="InMessage"/> for the received <paramref name="userMessage"/>
         /// </summary>
-        /// <param name="userMessage"></param>
-        /// <param name="belongsToAS4Message"></param>
+        /// <param name="userMessage">The UserMessage for which an InMessage must be created.</param>
+        /// <param name="belongsToAS4Message">The AS4Message that contains the <paramref name="userMessage"/></param>
         /// <returns></returns>
-        public static InMessageBuilder ForUserMessage(UserMessage userMessage, AS4Message belongsToAS4Message)
+        public static InMessageBuilder ForUserMessage(UserMessage userMessage,  AS4Message belongsToAS4Message)
         {
-            return new InMessageBuilder(userMessage, belongsToAS4Message);
+            if (userMessage == null)
+            {
+                throw new ArgumentNullException(nameof(userMessage));
+            }
+            if (belongsToAS4Message == null)
+            {
+                throw new ArgumentNullException(nameof(belongsToAS4Message));
+            }
+
+            return new InMessageBuilder(userMessage, belongsToAS4Message.ContentType, belongsToAS4Message.Mep);
         }
 
         /// <summary>
@@ -47,7 +58,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public static InMessageBuilder ForSignalMessage(SignalMessage signalMessage, AS4Message belongsToAS4Message)
         {
-            return new InMessageBuilder(signalMessage, belongsToAS4Message);
+            return new InMessageBuilder(signalMessage, belongsToAS4Message.ContentType, belongsToAS4Message.Mep);
         }
 
         public InMessageBuilder WithPModeString(string pmode)
@@ -63,11 +74,6 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public InMessage Build(CancellationToken cancellationToken)
         {
-            if (_as4Message == null)
-            {
-                throw new InvalidDataException("Builder needs a AS4Message for building an InMessage");
-            }
-
             if (_messageUnit == null)
             {
                 throw new InvalidDataException("Builder needs a Message Unit for building an InMessage");
@@ -78,16 +84,16 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 EbmsMessageId = _messageUnit.MessageId,
                 EbmsRefToMessageId = _messageUnit.RefToMessageId,
                 EbmsMessageType = DetermineMessageType(_messageUnit),
-                ContentType = _as4Message.ContentType,
+                ContentType = _contentType,
                 PMode = _pmodeString,
-                MEP = _as4Message.Mep,
+                MEP = _mep,
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
                 InsertionTime = DateTimeOffset.UtcNow,
                 ModificationTime = DateTimeOffset.UtcNow
             };
 
-            inMessage.AssignAS4Properties(_as4Message, cancellationToken);
+            inMessage.AssignAS4Properties(_messageUnit, cancellationToken);
 
             return inMessage;
         }

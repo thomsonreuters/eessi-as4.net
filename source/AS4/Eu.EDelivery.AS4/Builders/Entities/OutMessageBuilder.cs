@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Threading;
-using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
-using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Serialization;
-using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Builders.Entities
 {
@@ -15,29 +12,37 @@ namespace Eu.EDelivery.AS4.Builders.Entities
     /// </summary>
     public class OutMessageBuilder
     {
-        private readonly MessageUnit _messageUnitUnit;
-        private readonly MessagingContext _messagingContext;
+        private readonly MessageUnit _messageUnit;
+        private readonly AS4Message _belongsToAS4Message;
+
+        private SendingProcessingMode _sendingProcessingMode;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageBuilder" /> class.
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
-        /// <param name="message">The message.</param>
-        public OutMessageBuilder(MessageUnit messageUnit, MessagingContext message)
+        /// <param name="belongsToAS4Message">The AS4 message to which the <paramref name="messageUnit"/> belongs to.</param>
+        private OutMessageBuilder(MessageUnit messageUnit, AS4Message belongsToAS4Message)
         {
-            _messageUnitUnit = messageUnit;
-            _messagingContext = message;
+            _messageUnit = messageUnit;
+            _belongsToAS4Message = belongsToAS4Message;
         }
 
         /// <summary>
         /// For a given <paramref name="messageUnit"/>.
         /// </summary>
         /// <param name="messageUnit">The message unit.</param>
-        /// <param name="context">The messaging context.</param>
+        /// <param name="belongsToAS4Message">The AS4 Message to which the <paramref name="messageUnit"/> belongs to.</param>
         /// <returns></returns>
-        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, MessagingContext context)
+        public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, AS4Message belongsToAS4Message)
         {
-            return new OutMessageBuilder(messageUnit, context);
+            return new OutMessageBuilder(messageUnit, belongsToAS4Message);
+        }
+
+        public OutMessageBuilder WithSendingPMode(SendingProcessingMode pmode)
+        {
+            _sendingProcessingMode = pmode;
+            return this;
         }
 
         /// <summary>
@@ -50,46 +55,28 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// </returns>
         public OutMessage Build(CancellationToken cancellationToken)
         {
-            MessageType messageType = DetermineSignalMessageType(_messageUnitUnit);
+            MessageType messageType = DetermineSignalMessageType(_messageUnit);
 
             var outMessage = new OutMessage
             {
-                EbmsMessageId = _messageUnitUnit.MessageId,
-                ContentType = _messagingContext.AS4Message.ContentType,
+                EbmsMessageId = _messageUnit.MessageId,
+                ContentType = _belongsToAS4Message.ContentType,
                 Operation = Operation.NotApplicable,
                 ModificationTime = DateTimeOffset.Now,
                 InsertionTime = DateTimeOffset.Now,
-                MEP = (MessageExchangePattern) _messagingContext.AS4Message?.Mep,
+                MEP = _belongsToAS4Message.Mep,
                 EbmsMessageType = messageType,
-                PMode = AS4XmlSerializer.ToString(GetSendingPMode(messageType)),
+                PMode = AS4XmlSerializer.ToString(_sendingProcessingMode),
             };
 
-            if (string.IsNullOrWhiteSpace(_messageUnitUnit.RefToMessageId) == false)
+            if (string.IsNullOrWhiteSpace(_messageUnit.RefToMessageId) == false)
             {
-                outMessage.EbmsRefToMessageId = _messageUnitUnit.RefToMessageId;
+                outMessage.EbmsRefToMessageId = _messageUnit.RefToMessageId;
             }
-
-            outMessage.AssignAS4Properties(_messagingContext.AS4Message, cancellationToken);
+            
+            outMessage.AssignAS4Properties(_messageUnit, cancellationToken);
 
             return outMessage;
-        }
-
-        private SendingProcessingMode GetSendingPMode(MessageType messageType)
-        {
-            bool isSendPModeNotFound = _messagingContext.SendingPMode?.Id == null;
-            ReceivingProcessingMode receivePMode = _messagingContext.ReceivingPMode;
-           
-            if (isSendPModeNotFound && messageType == MessageType.Receipt && receivePMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback)
-            {
-                return Config.Instance.GetSendingPMode(receivePMode.ReceiptHandling.SendingPMode);
-            }
-
-            if (isSendPModeNotFound && messageType == MessageType.Error && receivePMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback)
-            {
-                return Config.Instance.GetSendingPMode(receivePMode.ErrorHandling.SendingPMode);
-            }
-
-            return _messagingContext.SendingPMode;
         }
 
         private static MessageType DetermineSignalMessageType(MessageUnit messageUnit)

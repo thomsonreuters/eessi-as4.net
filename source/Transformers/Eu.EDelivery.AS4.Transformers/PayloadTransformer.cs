@@ -36,7 +36,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             return new Attachment
             {
-                Content = receivedMessage.RequestStream,
+                Content = receivedMessage.UnderlyingStream,
                 ContentType = receivedMessage.ContentType
             };
         }

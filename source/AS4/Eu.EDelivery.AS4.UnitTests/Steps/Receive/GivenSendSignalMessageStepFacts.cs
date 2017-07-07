@@ -16,7 +16,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ReturnsEmptySoapForReceipt_IfReplyPatternIsCallback()
         {
             // Arrange
-            var pmode = new ReceivingProcessingMode {ReceiptHandling = {ReplyPattern = ReplyPattern.Callback}};
+            var pmode = new ReceivingProcessingMode();
+            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
             MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), pmode);
 
             // Act
@@ -30,7 +31,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ReturnsEmptySoapForError_IfReplyPatternIsCallback()
         {
             // Arrange
-            var pmode = new ReceivingProcessingMode {ErrorHandling = {ReplyPattern = ReplyPattern.Callback}};
+            var pmode = new ReceivingProcessingMode();
+            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
             MessagingContext context = ContextWithSignal(new Error(), pmode);
 
             // Act
@@ -44,7 +46,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ReturnsSameResultForReceipt_IfReplyPatternIsResponse()
         {
             // Arrange
-            var pmode = new ReceivingProcessingMode {ReceiptHandling = {ReplyPattern = ReplyPattern.Response}};
+            var pmode = new ReceivingProcessingMode();
+            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Response;
             MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), pmode);
 
             // Act
@@ -59,7 +62,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ReturnsSameResultForError_IfReplyPatternIsResponse()
         {
             // Arrange
-            var pmode = new ReceivingProcessingMode {ErrorHandling = {ReplyPattern = ReplyPattern.Callback}};
+            var pmode = new ReceivingProcessingMode();
+            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Response;
             MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), pmode);
 
             // Act

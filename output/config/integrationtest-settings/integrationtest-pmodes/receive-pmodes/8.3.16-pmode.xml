@@ -8,19 +8,17 @@
       <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
-  <ReceiptHandling>
-    <UseNNRFormat>false</UseNNRFormat>
+  <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
     <SendingPMode>pmode</SendingPMode>
-  </ReceiptHandling>
-  <ErrorHandling>
-    <NotifyMessageConsumer>false</NotifyMessageConsumer>
-    <NotifyMethod />
-    <UseSoapFault>false</UseSoapFault>
-    <ReplyPattern>Response</ReplyPattern>
-    <ResponseHttpCode>500</ResponseHttpCode>
-    <SendingPMode>pmode</SendingPMode>
-  </ErrorHandling>
+    <ReceiptHandling>
+      <UseNNRFormat>false</UseNNRFormat>
+    </ReceiptHandling>
+    <ErrorHandling>
+      <UseSoapFault>false</UseSoapFault>
+      <ResponseHttpCode>500</ResponseHttpCode>
+    </ErrorHandling>
+  </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod />
@@ -36,47 +34,47 @@
   </Security>
   <MessagePackaging>
     <PartyInfo>
-        <FromParty>
-          <PartyIds>
-            <PartyId>
-              <Id>org:holodeckb2b:example:company:A</Id>
-            </PartyId>
-          </PartyIds>
-          <Role>Sender</Role>
-        </FromParty>
-        <ToParty>
-          <PartyIds>
-            <PartyId>
-              <Id>org:eu:europa:as4:example</Id>
-            </PartyId>
-          </PartyIds>
-          <Role>Receiver</Role>
-        </ToParty>
-      </PartyInfo>
-      <CollaborationInfo>
-        <AgreementReference>
-          <Name>http://agreements.holodeckb2b.org/examples/agreement0</Name>
-        </AgreementReference>
-        <Action>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test</Action>
-        <Service>
-          <Name>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/service</Name>
-          <Type>org:holodeckb2b:services</Type>
-        </Service>
+      <FromParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:holodeckb2b:example:company:A</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Sender</Role>
+      </FromParty>
+      <ToParty>
+        <PartyIds>
+          <PartyId>
+            <Id>org:eu:europa:as4:example</Id>
+          </PartyId>
+        </PartyIds>
+        <Role>Receiver</Role>
+      </ToParty>
+    </PartyInfo>
+    <CollaborationInfo>
+      <AgreementReference>
+        <Name>http://agreements.holodeckb2b.org/examples/agreement0</Name>
+      </AgreementReference>
+      <Action>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/test</Action>
+      <Service>
+        <Name>http://docs.oasis-open.org/ebxml-msg/ebMS/v3.0/ns/core/200704/service</Name>
+        <Type>org:holodeckb2b:services</Type>
+      </Service>
     </CollaborationInfo>
   </MessagePackaging>
   <Deliver>
     <IsEnabled>true</IsEnabled>
-     <PayloadReferenceMethod >
+    <PayloadReferenceMethod>
       <Type>PAYLOAD-SERVICE</Type>
       <Parameters>
-          <Parameter name="location" value="http://localhost:3000/api/Payload/Upload/"/>
-        </Parameters>
+        <Parameter name="location" value="http://localhost:3000/api/Payload/Upload/" />
+      </Parameters>
     </PayloadReferenceMethod>
     <DeliverMethod>
       <Type>FILE</Type>
       <Parameters>
-          <Parameter name="location" value=".\messages\in\"/>
-        </Parameters>
+        <Parameter name="location" value=".\messages\in\" />
+      </Parameters>
     </DeliverMethod>
   </Deliver>
 </PMode>

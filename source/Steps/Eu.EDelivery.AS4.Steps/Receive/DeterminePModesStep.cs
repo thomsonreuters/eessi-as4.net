@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (pmode == null)
             {
                 string description =
-                    $"Unable to retrieve Sending PMOde from Datastore for OutMessage with Id: {messagingContext.AS4Message.PrimarySignalMessage.RefToMessageId}";
+                    $"Unable to retrieve Sending PMode from Datastore for OutMessage with Id: {messagingContext.AS4Message.PrimarySignalMessage.RefToMessageId}";
                 return FailedStepResult(description, messagingContext);
             }
 
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Logger.Info($"Use '{pmode.Id}' as Receiving PMode");
 
             messagingContext.ReceivingPMode = pmode;
-            messagingContext.SendingPMode = GetReferencedSendingPMode(messagingContext);
+            messagingContext.SendingPMode = GetReferencedSendingPMode(pmode);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
@@ -129,16 +129,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return _config.GetReceivingPModes().Select(pmode => new PModeParticipant(pmode, primaryUser)).ToList();
         }
 
-        private SendPMode GetReferencedSendingPMode(MessagingContext messagingContext)
+        private SendPMode GetReferencedSendingPMode(ReceivePMode receivePMode)
         {
-            if (string.IsNullOrWhiteSpace(messagingContext.ReceivingPMode.ReceiptHandling.SendingPMode))
+            if (string.IsNullOrWhiteSpace(receivePMode.ReplyHandling.SendingPMode))
             {
-                Logger.Warn("No SendingPMode defined in ReceiptHandling of Received PMode.");
+                Logger.Warn("No SendingPMode defined in ReplyHandling of Received PMode.");
                 return null;
             }
 
-            string pmodeId = messagingContext.ReceivingPMode.ReceiptHandling.SendingPMode;
-            Logger.Info("Receipt Sending PMode Id: " + pmodeId);
+            string pmodeId = receivePMode.ReplyHandling.SendingPMode;
+            Logger.Info("Referenced Sending PMode Id: " + pmodeId);
 
             return _config.GetSendingPMode(pmodeId);
         }

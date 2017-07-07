@@ -57,8 +57,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _pmode = new ReceivingProcessingMode();
 
                 // Assert
-                Assert.NotNull(_pmode.ErrorHandling);
-                Assert.False(_pmode.ErrorHandling.UseSoapFault);
+                Assert.NotNull(_pmode.ReplyHandling.ErrorHandling);
+                Assert.False(_pmode.ReplyHandling.ErrorHandling.UseSoapFault);
             }
 
             [Fact]
@@ -80,9 +80,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _pmode = new ReceivingProcessingMode();
 
                 // Assert
-                Assert.NotNull(_pmode.ReceiptHandling);
-                Assert.False(_pmode.ReceiptHandling.UseNNRFormat);
-                Assert.Equal(ReplyPattern.Response, _pmode.ReceiptHandling.ReplyPattern);
+                Assert.NotNull(_pmode.ReplyHandling.ReceiptHandling);
+                Assert.False(_pmode.ReplyHandling.ReceiptHandling.UseNNRFormat);
+                Assert.Equal(ReplyPattern.Response, _pmode.ReplyHandling.ReplyPattern);
             }
 
             [Fact]

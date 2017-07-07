@@ -86,7 +86,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 var pmode = new ReceivePMode {Id = sharedId};
                 SetupPModes(pmode, CreateDefaultPMode());
 
-                MessagingContext messagingContext = new InternalMessageBuilder().WithPModeId(sharedId).Build();
+                MessagingContext messagingContext = new MessageContextBuilder().WithPModeId(sharedId).Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
@@ -107,7 +107,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 pmode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
                 SetupPModes(pmode, new ReceivePMode());
 
-                MessagingContext messagingContext = new InternalMessageBuilder().WithPartys(fromParty, toParty).Build();
+                MessagingContext messagingContext = new MessageContextBuilder().WithPartys(fromParty, toParty).Build();
 
                 // Act               
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
@@ -124,7 +124,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode pmode = ArrangePModeThenPartyInfoNotDefined(service, action);
 
                 MessagingContext messagingContext =
-                    new InternalMessageBuilder().WithUserMessage(new UserMessage("message-id"))
+                    new MessageContextBuilder().WithUserMessage(new UserMessage("message-id"))
                                                 .WithServiceAction(service, action)
                                                 .Build();
 
@@ -154,7 +154,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ReceivePMode idPMode = ArrangePModeThenPModeWinsOverPartyInfo(sharedId, fromParty, toParty);
 
                 MessagingContext messagingContext =
-                    new InternalMessageBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
+                    new MessageContextBuilder().WithPModeId(sharedId).WithPartys(fromParty, toParty).Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
@@ -189,7 +189,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SetupPModes(pmodeParties, pmodeServiceAction);
 
                 MessagingContext messagingContext =
-                    new InternalMessageBuilder().WithPartys(fromParty, toParty)
+                    new MessageContextBuilder().WithPartys(fromParty, toParty)
                                                 .WithServiceAction(service, action)
                                                 .Build();
 
@@ -218,7 +218,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 SetupPModes(pmodeServiceAction, pmodeParties);
 
                 MessagingContext messagingContext =
-                    new InternalMessageBuilder().WithServiceAction(service, action)
+                    new MessageContextBuilder().WithServiceAction(service, action)
                                                 .WithPartys(fromParty, toParty)
                                                 .Build();
 
@@ -252,7 +252,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ArrangePModeThenServiceAndActionIsNotEnough(action, service);
 
                 MessagingContext messagingContext =
-                    new InternalMessageBuilder().WithServiceAction(service, action).Build();
+                    new MessageContextBuilder().WithServiceAction(service, action).Build();
 
                 // Act
                 StepResult result = await _step.ExecuteAsync(messagingContext, CancellationToken.None);
@@ -280,7 +280,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
                 MessagingContext messagingContext =
-                    new InternalMessageBuilder().WithAgreementRef(agreementRef)
+                    new MessageContextBuilder().WithAgreementRef(agreementRef)
                                                 .WithServiceAction("service", "action")
                                                 .Build();
 

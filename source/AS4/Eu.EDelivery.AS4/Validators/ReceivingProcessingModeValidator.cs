@@ -16,21 +16,19 @@ namespace Eu.EDelivery.AS4.Validators
         {
             RuleFor(pmode => pmode.Id).NotNull();
 
-            RulesForReceiptHandling();
-            RulesForErrorHandling();
+            RulesForReplyHandling();
             RulesForDeliver();
         }
 
-        private void RulesForReceiptHandling()
+        private void RulesForReplyHandling()
         {
-            RuleFor(pmode => pmode.ReceiptHandling).NotNull();
-            RuleFor(pmode => pmode.ReceiptHandling.SendingPMode).NotNull().When(pmode => pmode.ReceiptHandling != null);
-        }
-
-        private void RulesForErrorHandling()
-        {
-            RuleFor(pmode => pmode.ErrorHandling).NotNull();
-            RuleFor(pmode => pmode.ErrorHandling.SendingPMode).NotNull().When(pmode => pmode.ErrorHandling != null);
+            RuleFor(pmode => pmode.ReplyHandling).NotNull();
+            When(pmode => pmode.ReplyHandling != null, delegate
+            {
+                RuleFor(pmode => pmode.ReplyHandling.SendingPMode).NotNull();
+                RuleFor(pmode => pmode.ReplyHandling.ReceiptHandling).NotNull();
+                RuleFor(pmode => pmode.ReplyHandling.ErrorHandling).NotNull();
+            });
         }
 
         private void RulesForDeliver()

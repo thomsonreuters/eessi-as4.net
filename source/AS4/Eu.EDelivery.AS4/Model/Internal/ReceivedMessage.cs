@@ -10,17 +10,17 @@ namespace Eu.EDelivery.AS4.Model.Internal
     /// </summary>
     public class ReceivedMessage
     {
-        protected ReceivedMessage() {}
+        protected ReceivedMessage() { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceivedMessage" /> class.
         /// Create a new Received Message with a given RequestStream
         /// </summary>
-        /// <param name="requestStream">
+        /// <param name="underlyingStream">
         /// </param>
-        public ReceivedMessage(Stream requestStream)
+        public ReceivedMessage(Stream underlyingStream)
         {
-            RequestStream = requestStream;
+            UnderlyingStream = underlyingStream;
         }
 
         /// <summary>
@@ -28,19 +28,19 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// Create a new Received Message with a given RequestStream
         /// and Processing Mode
         /// </summary>
-        /// <param name="requestStream">
+        /// <param name="underlyingStream">
         /// </param>
         /// <param name="contentType">
         /// </param>
-        public ReceivedMessage(Stream requestStream, string contentType)
+        public ReceivedMessage(Stream underlyingStream, string contentType)
         {
-            RequestStream = requestStream;
+            UnderlyingStream = underlyingStream;
             ContentType = contentType;
-        }        
+        }
 
-        public string ContentType { get; set; }
+        public string ContentType { get; private set; }
 
-        public Stream RequestStream { get; set; }
+        public Stream UnderlyingStream { get; private set; }
 
         /// <summary>
         /// Assign custom properties to the <see cref="ReceivedMessage" />
@@ -48,7 +48,10 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <param name="message"></param>
         public virtual void AssignPropertiesTo(MessagingContext message)
         {
-            message.AS4Message.ContentType = ContentType;
+            if (message.AS4Message != null)
+            {
+                message.AS4Message.ContentType = ContentType;
+            }
         }
     }
 }

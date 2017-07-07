@@ -17,6 +17,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
         private readonly AS4Message _expectedMessage;
         private readonly HttpStatusCode _expectedStatusCode;
 
+        private readonly System.Exception _exceptionToBeThrown;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="StubHttpClient" /> class.
         /// </summary>
@@ -36,6 +38,11 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
             _expectedStatusCode = expectedStatusCode;
         }
 
+        private StubHttpClient(System.Exception exception)
+        {
+            _exceptionToBeThrown = exception;
+        }
+
         public bool IsCalled { get; private set; }
 
         /// <summary>
@@ -52,6 +59,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
         /// <param name="statusCode"></param>
         /// <returns></returns>
         public static IHttpClient ThatReturns(AS4Message as4Message, HttpStatusCode statusCode = HttpStatusCode.OK) => new StubHttpClient(as4Message, statusCode);
+
+        public static IHttpClient ThatThrows(System.Exception exception) => new StubHttpClient(exception);
 
         /// <summary>
         /// Request a Message for the <see cref="IHttpClient"/> implementation.
@@ -77,6 +86,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Http
         public Task<(HttpWebResponse response, WebException exception)> Respond(HttpWebRequest request)
         {
             IsCalled = true;
+
+            if (_exceptionToBeThrown != null)
+            {
+                throw _exceptionToBeThrown;
+            }
+
             var response = new Mock<HttpWebResponse>();
 
             if (_expectedMessage != null)

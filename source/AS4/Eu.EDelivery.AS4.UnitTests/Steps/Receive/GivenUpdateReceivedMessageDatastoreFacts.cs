@@ -1,9 +1,12 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -39,13 +42,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenOperationIsToBeNotified()
             {
                 // Arrange
-                InsertReceivedOutMessage();
+                InsertOutMessage();
 
-                MessagingContext message = ReceiptAS4MessageWithSendingPMode(EbmsMessageId);
-                await SaveReceiptFor(message);
+                var receivedAS4Message = AS4Message.Create(new Receipt {RefToMessageId = EbmsMessageId});
+
+                MessagingContext context = CreateMessageReceivedContext(receivedAS4Message, null);
+                // We need to mimick the retrieval of the SendingPMode.
+                context.SendingPMode = GetSendingPMode();
+
+                context = await ExecuteSaveReceivedMessage(context);
 
                 // Act
-                await Step.ExecuteAsync(message, CancellationToken.None);
+                await Step.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 InMessage inMessage = GetInMessageWithRefToMessageId(EbmsMessageId);
@@ -59,30 +67,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private static MessagingContext ReceiptAS4MessageWithSendingPMode(string refToMessageId)
             {
-                var receipt = new Receipt {RefToMessageId = refToMessageId};
+                var receipt = new Receipt { RefToMessageId = refToMessageId };
 
                 AS4Message as4Message = AS4Message.Create(receipt);
 
-                return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = GetSendingPMode()};
+                return new MessagingContext(as4Message, MessagingContextMode.Unknown) { SendingPMode = GetSendingPMode() };
             }
 
             [Fact]
             public async Task DoesntUpdateMessages_IfNoMessageLocationCanBeFound()
             {
                 // Arrange
-                InsertReceivedOutMessage("other message id");
+                InsertOutMessage("other message id");
                 MessagingContext message = ReceiptAS4MessageWithSendingPMode(EbmsMessageId);
-                
+
                 // Act / Assert
-                await Assert.ThrowsAnyAsync<Exception>(
+                await Assert.ThrowsAsync<InvalidDataException>(
                     () => Step.ExecuteAsync(message, CancellationToken.None));
             }
 
-            private void InsertReceivedOutMessage(string messageId = EbmsMessageId)
+            private void InsertOutMessage(string messageId = EbmsMessageId)
             {
                 using (DatastoreContext context = GetDataStoreContext())
                 {
-                    context.OutMessages.Add(new OutMessage {EbmsMessageId = messageId});
+                    context.OutMessages.Add(new OutMessage { EbmsMessageId = messageId });
                     context.SaveChanges();
                 }
             }
@@ -98,20 +106,24 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Arrange
                 await InsertOutMessageWith(EbmsMessageId);
 
-                var message = new MessagingContext(CreateErrorAS4Message(EbmsMessageId), MessagingContextMode.Receive)
-                {
-                    SendingPMode = GetSendingPMode()
-                };
+                var error = new ErrorBuilder().WithErrorResult(new ErrorResult("Some Error", ErrorCode.Ebms0001, ErrorAlias.ConnectionFailure))
+                                              .WithRefToEbmsMessageId(EbmsMessageId)
+                                              .Build();
 
-                await SaveReceiptFor(message);
+                var receivedError = AS4Message.Create(error);
+
+                var context = CreateMessageReceivedContext(receivedError, null);
+                context.SendingPMode = GetSendingPMode();
+                
+                context = await ExecuteSaveReceivedMessage(context);
 
                 // Act
-                await Step.ExecuteAsync(message, CancellationToken.None);
+                await Step.ExecuteAsync(context, CancellationToken.None);
 
                 // Assert
                 OutMessage outMessage = GetOutMessage(EbmsMessageId);
                 Assert.NotNull(outMessage);
-                Assert.Equal(OutStatus.Ack, outMessage.Status);
+                Assert.Equal(OutStatus.Nack, outMessage.Status);
             }
 
             private async Task InsertOutMessageWith(string messageId)
@@ -121,21 +133,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                     db.OutMessages.Add(await CreateOutMessage(messageId));
                     db.SaveChanges();
                 }
-            }
-
-            private static AS4Message CreateErrorAS4Message(string refToMessageId)
-            {
-                var receipt = new Receipt {RefToMessageId = refToMessageId};
-
-                return AS4Message.Create(receipt);
-            }
+            }           
         }
 
-        private async Task SaveReceiptFor(MessagingContext context)
+        private async Task<MessagingContext> ExecuteSaveReceivedMessage(MessagingContext context)
         {
             // The receipt needs to be saved first, since we're testing the update-step.
             var step = new SaveReceivedMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
-            await step.ExecuteAsync(context, CancellationToken.None);
+            var result = await step.ExecuteAsync(context, CancellationToken.None);
+
+            return result.MessagingContext;
         }
 
         private static async Task<OutMessage> CreateOutMessage(string messageId)
@@ -150,13 +157,28 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             };
         }
 
+        protected MessagingContext CreateMessageReceivedContext(AS4Message as4Message, ReceivingProcessingMode receivingPMode)
+        {
+            MemoryStream stream = new MemoryStream();
+
+            SerializerProvider.Default.Get(as4Message.ContentType).Serialize(as4Message, stream, CancellationToken.None);
+            stream.Position = 0;
+
+            var receivedMessage = new ReceivedMessage(stream, as4Message.ContentType);
+
+            var messagingContext = new MessagingContext(receivedMessage, MessagingContextMode.Receive);
+            messagingContext.ReceivingPMode = receivingPMode;
+
+            return messagingContext;
+        }
+
         private static SendingProcessingMode GetSendingPMode()
         {
             return new SendingProcessingMode
             {
                 Id = "receive_agent_facts_pmode",
-                ReceiptHandling = {NotifyMessageProducer = true},
-                ErrorHandling = {NotifyMessageProducer = true}
+                ReceiptHandling = { NotifyMessageProducer = true },
+                ErrorHandling = { NotifyMessageProducer = true }
             };
         }
 

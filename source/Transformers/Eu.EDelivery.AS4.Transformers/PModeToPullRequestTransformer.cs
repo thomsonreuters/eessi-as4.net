@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.Transformers
             ReceivedMessage receivedMessage,
             CancellationToken cancellationToken)
         {
-            if (receivedMessage.RequestStream == null)
+            if (receivedMessage.UnderlyingStream == null)
             {
                 throw new InvalidDataException("Invalid incoming request stream.");
             }
@@ -39,22 +40,25 @@ namespace Eu.EDelivery.AS4.Transformers
 
         private static async Task<MessagingContext> CreatePullRequest(ReceivedMessage receivedMessage)
         {
-            var context = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
-
-            receivedMessage.AssignPropertiesTo(context);
-
             SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
+
+            AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
+
+            MemoryStream ms = new MemoryStream();
+            var serializer = SerializerProvider.Default.Get(pullRequestMessage.ContentType);
+            serializer.Serialize(pullRequestMessage, ms, CancellationToken.None);
+            ms.Position = 0;
+
+            var context = new MessagingContext(new ReceivedMessage(ms, pullRequestMessage.ContentType), MessagingContextMode.Receive);
             context.SendingPMode = pmode;
 
-            AS4Message as4Message = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
-
-            return context.CloneWith(as4Message);
+            return context;
         }
 
         private static async Task<SendingProcessingMode> DeserializeValidPMode(ReceivedMessage receivedMessage)
         {
             SendingProcessingMode pmode =
-                await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.RequestStream);
+                await AS4XmlSerializer.FromStreamAsync<SendingProcessingMode>(receivedMessage.UnderlyingStream);
             var validator = new SendingProcessingModeValidator();
 
             ValidationResult result = validator.Validate(pmode);

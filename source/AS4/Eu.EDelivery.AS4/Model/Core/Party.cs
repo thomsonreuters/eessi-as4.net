@@ -11,7 +11,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         public Party()
         {
-            this.PartyIds = new List<PartyId>();
+            this.PartyIds = new List<PartyId>();            
         }
 
         public Party(PartyId partyId) : this()

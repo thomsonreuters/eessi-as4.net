@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForMember(dest => dest.MessageId, src => src.MapFrom(t => t.MessageInfo.MessageId))
                 .ForMember(dest => dest.Timestamp, src => src.MapFrom(t => t.MessageInfo.Timestamp))
                 .ForMember(dest => dest.UserMessage, src => src.MapFrom(t => t.Receipt.UserMessage))
-                .ForMember(dest => dest.IsDuplicated, src => src.Ignore())
+                .ForMember(dest => dest.IsDuplicate, src => src.Ignore())
                 .ForMember(
                     dest => dest.NonRepudiationInformation,
                     src => src.MapFrom(t => t.Receipt.NonRepudiationInformation))

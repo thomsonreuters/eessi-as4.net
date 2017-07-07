@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -15,7 +17,7 @@ namespace Eu.EDelivery.AS4.Services
     /// for the Exception Handling Decorator Steps
     /// </summary>
     public class OutMessageService : IOutMessageService
-    {        
+    {
         private readonly IDatastoreRepository _repository;
         private readonly IAS4MessageBodyStore _messageBodyStore;
         private readonly IConfig _configuration;
@@ -28,7 +30,7 @@ namespace Eu.EDelivery.AS4.Services
         /// <param name="repository"></param>
         /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the AS4 Message Body.</param>
         public OutMessageService(IDatastoreRepository repository, IAS4MessageBodyStore messageBodyStore)
-            : this(Config.Instance, repository, messageBodyStore) {}
+            : this(Config.Instance, repository, messageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OutMessageService" /> class.
@@ -62,24 +64,19 @@ namespace Eu.EDelivery.AS4.Services
                     message: message,
                     cancellation: cancellationToken);
 
-            foreach (var userMessage in message.UserMessages)
-            {
-                OutMessage outMessage = 
-                    CreateOutMessageForMessageUnit(
-                        messageUnit: userMessage,
-                        messagingContext: messagingContext,
-                        location: messageBodyLocation,
-                        operation: operation);
+            var messageUnits = new List<MessageUnit>();
+            messageUnits.AddRange(message.UserMessages);
+            messageUnits.AddRange(message.SignalMessages);
 
-                _repository.InsertOutMessage(outMessage);
-            }
-
-            foreach (SignalMessage signalMessage in message.SignalMessages)
+            foreach (var messageUnit in messageUnits)
             {
-                OutMessage outMessage = 
+                var sendingPMode = GetSendingPMode(messageUnit is SignalMessage, messagingContext);
+
+                OutMessage outMessage =
                     CreateOutMessageForMessageUnit(
-                        messageUnit: signalMessage,
-                        messagingContext: messagingContext,
+                        messageUnit: messageUnit,
+                        messageContext: messagingContext,
+                        sendingPMode: sendingPMode,
                         location: messageBodyLocation,
                         operation: operation);
 
@@ -89,13 +86,16 @@ namespace Eu.EDelivery.AS4.Services
 
         private static OutMessage CreateOutMessageForMessageUnit(
             MessageUnit messageUnit,
-            MessagingContext messagingContext,
+           MessagingContext messageContext,
+           SendingProcessingMode sendingPMode,
             string location,
             Operation operation)
         {
-            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messagingContext).Build(CancellationToken.None);
+            OutMessage outMessage = OutMessageBuilder.ForMessageUnit(messageUnit, messageContext.AS4Message)
+                                                     .WithSendingPMode(sendingPMode)
+                                                     .Build(CancellationToken.None);
 
-            outMessage.MessageLocation = location;            
+            outMessage.MessageLocation = location;
 
             if (outMessage.EbmsMessageType == MessageType.UserMessage)
             {
@@ -104,7 +104,7 @@ namespace Eu.EDelivery.AS4.Services
             else
             {
                 (OutStatus status, Operation operation) replyPattern =
-                    DetermineCorrectReplyPattern(outMessage.EbmsMessageType, messagingContext);
+                    DetermineCorrectReplyPattern(messageContext.ReceivingPMode);
 
                 outMessage.Status = replyPattern.status;
                 outMessage.Operation = replyPattern.operation;
@@ -113,28 +113,31 @@ namespace Eu.EDelivery.AS4.Services
             return outMessage;
         }
 
-        private static (OutStatus, Operation) DetermineCorrectReplyPattern(
-            MessageType outMessageType,
-            MessagingContext message)
+        private static SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
         {
-            bool isCallback = outMessageType == MessageType.Error
-                                  ? IsErrorReplyPatternCallback(message)
-                                  : IsReceiptReplyPatternCallback(message);
+            if (context.SendingPMode?.Id != null)
+            {
+                return context.SendingPMode;
+            }
+
+            ReceivingProcessingMode receivePMode = context.ReceivingPMode;
+
+            if (isSignalMessage && receivePMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback)
+            {
+                return Config.Instance.GetSendingPMode(receivePMode.ReplyHandling.SendingPMode);
+            }
+
+            return null;
+        }
+
+        private static (OutStatus, Operation) DetermineCorrectReplyPattern(ReceivingProcessingMode receivingPMode)
+        {
+            bool isCallback = receivingPMode.ReplyHandling.ReplyPattern == ReplyPattern.Callback;
 
             Operation operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
             OutStatus status = isCallback ? OutStatus.Created : OutStatus.Sent;
 
             return (status, operation);
-        }
-
-        private static bool IsErrorReplyPatternCallback(MessagingContext message)
-        {
-            return message.ReceivingPMode?.ErrorHandling.ReplyPattern == ReplyPattern.Callback;
-        }
-
-        private static bool IsReceiptReplyPatternCallback(MessagingContext message)
-        {
-            return message.ReceivingPMode?.ReceiptHandling.ReplyPattern == ReplyPattern.Callback;
         }
 
         /// <summary>

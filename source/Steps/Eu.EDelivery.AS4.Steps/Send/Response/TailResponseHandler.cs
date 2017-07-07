@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Model.Internal;
 
 namespace Eu.EDelivery.AS4.Steps.Send.Response
 {
@@ -15,7 +16,8 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public Task<StepResult> HandleResponse(IAS4Response response)
         {
-            return StepResult.SuccessAsync(response.ResultedMessage);
+            var context = response.OriginalRequest.CloneWith(response.ReceivedStream);
+            return StepResult.SuccessAsync(context);
         }
     }
 }

@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
-<PMode 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="eu:edelivery:as4:pmode">
+<PMode xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="eu:edelivery:as4:pmode">
   <Id>8.3.9-pmode</Id>
   <Mep>OneWay</Mep>
   <MepBinding>Pull</MepBinding>
@@ -11,24 +8,17 @@
       <IsEnabled>false</IsEnabled>
     </DuplicateElimination>
   </Reliability>
-  <ReceiptHandling>
-    <UseNNRFormat>true</UseNNRFormat>
+  <ReplyHandling>
     <ReplyPattern>Response</ReplyPattern>
     <SendingPMode>pmode</SendingPMode>
-  </ReceiptHandling>
-  <ErrorHandling>
-    <NotifyMessageConsumer>true</NotifyMessageConsumer>
-    <NotifyMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\errors\"/>
-      </Parameters>
-    </NotifyMethod>
-    <UseSoapFault>false</UseSoapFault>
-    <ReplyPattern>Response</ReplyPattern>
-    <ResponseHttpCode>500</ResponseHttpCode>
-    <SendingPMode>pmode</SendingPMode>
-  </ErrorHandling>
+    <ReceiptHandling>
+      <UseNNRFormat>true</UseNNRFormat>
+    </ReceiptHandling>
+    <ErrorHandling>
+      <UseSoapFault>false</UseSoapFault>
+      <ResponseHttpCode>500</ResponseHttpCode>
+    </ErrorHandling>
+  </ReplyHandling>
   <ExceptionHandling>
     <NotifyMessageConsumer>false</NotifyMessageConsumer>
     <NotifyMethod />
@@ -75,16 +65,16 @@
   </MessagePackaging>
   <Deliver>
     <IsEnabled>true</IsEnabled>
-    <PayloadReferenceMethod >
+    <PayloadReferenceMethod>
       <Type>FILE</Type>
       <Parameters>
-        <Parameter name="location" value=".\messages\in\"/>
+        <Parameter name="location" value=".\messages\in\" />
       </Parameters>
     </PayloadReferenceMethod>
     <DeliverMethod>
       <Type>FILE</Type>
       <Parameters>
-        <Parameter name="location" value=".\messages\in\"/>
+        <Parameter name="location" value=".\messages\in\" />
       </Parameters>
     </DeliverMethod>
   </Deliver>

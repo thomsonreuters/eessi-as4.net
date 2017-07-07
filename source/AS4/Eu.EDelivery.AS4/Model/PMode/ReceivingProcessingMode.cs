@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Xml;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -17,8 +18,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public MessageExchangePattern Mep { get; set; }
         public MessageExchangePatternBinding MepBinding { get; set; }
         public ReceiveReliability Reliability { get; set; }
-        public ReceiveReceiptHandling ReceiptHandling { get; set; }
-        public ReceiveErrorHandling ErrorHandling { get; set; }
+        public ReplyHandlingSetting ReplyHandling { get; set; }
         public Receivehandling ExceptionHandling { get; set; }
 
         [XmlElement(ElementName = "Security")] public ReceiveSecurity Security { get; set; }
@@ -28,8 +28,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public ReceivingProcessingMode()
         {
             this.Reliability = new ReceiveReliability();
-            this.ReceiptHandling = new ReceiveReceiptHandling();
-            this.ErrorHandling = new ReceiveErrorHandling();
+            this.ReplyHandling = new ReplyHandlingSetting();
             this.ExceptionHandling = new Receivehandling();
             this.Security = new ReceiveSecurity();
             this.MessagePackaging = new MessagePackaging();
@@ -58,16 +57,31 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
     }
 
+    public class ReplyHandlingSetting
+    {
+        public ReplyPattern ReplyPattern { get; set; }
+        public string SendingPMode { get; set; }
+        public ReceiveReceiptHandling ReceiptHandling { get; set; }
+        public ReceiveErrorHandling ErrorHandling { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReplyHandlingSetting"/> class.
+        /// </summary>
+        public ReplyHandlingSetting()
+        {
+            ReplyPattern = ReplyPattern.Response;
+            ReceiptHandling = new ReceiveReceiptHandling();
+            ErrorHandling = new ReceiveErrorHandling();
+        }
+    }
+
     public class ReceiveReceiptHandling
     {
         public bool UseNNRFormat { get; set; }
-        public ReplyPattern ReplyPattern { get; set; }        
-        public string SendingPMode { get; set; }
 
         public ReceiveReceiptHandling()
         {
             this.UseNNRFormat = false;
-            this.ReplyPattern = ReplyPattern.Response;
         }
     }
 
@@ -86,9 +100,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
     public class ReceiveErrorHandling
     {
         public bool UseSoapFault { get; set; }
-        public ReplyPattern ReplyPattern { get; set; }        
         public int ResponseHttpCode { get; set; }
-        public string SendingPMode { get; set; }
+      
 
         public ReceiveErrorHandling()
         {

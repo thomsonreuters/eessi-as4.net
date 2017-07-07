@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
@@ -10,15 +11,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
     /// <summary>
     /// Internal Message Builder to create an <see cref="MessagingContext" />
     /// </summary>
-    public class InternalMessageBuilder
+    [Obsolete]
+    public class MessageContextBuilder
     {
         private readonly MessagingContext _messagingContext;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InternalMessageBuilder"/> class.
+        /// Initializes a new instance of the <see cref="MessageContextBuilder"/> class.
         /// </summary>
         /// <param name="messageId">The message Id.</param>
-        public InternalMessageBuilder(string messageId = "message-id")
+        public MessageContextBuilder(string messageId = "message-id")
         {
             _messagingContext = new MessagingContext(AS4Message.Empty, MessagingContextMode.Receive);
 
@@ -40,7 +42,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// </summary>
         /// <param name="agreementRef"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithAgreementRef(AgreementReference agreementRef)
+        public MessageContextBuilder WithAgreementRef(AgreementReference agreementRef)
         {
             UserMessage userMessage = _messagingContext.AS4Message.PrimaryUserMessage;
             userMessage.CollaborationInfo.AgreementReference = agreementRef;
@@ -54,7 +56,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="fromParty"></param>
         /// <param name="toParty"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithPartys(Party fromParty, Party toParty)
+        public MessageContextBuilder WithPartys(Party fromParty, Party toParty)
         {
             UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
             userMessage.Sender = fromParty;
@@ -68,7 +70,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// </summary>
         /// <param name="pmodeId"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithPModeId(string pmodeId)
+        public MessageContextBuilder WithPModeId(string pmodeId)
         {
             _messagingContext.AS4Message.UserMessages.First().CollaborationInfo.AgreementReference.PModeId = pmodeId;
 
@@ -81,7 +83,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// <param name="service"></param>
         /// <param name="action"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithServiceAction(string service, string action)
+        public MessageContextBuilder WithServiceAction(string service, string action)
         {
             UserMessage userMessage = _messagingContext.AS4Message.UserMessages.First();
             userMessage.CollaborationInfo.Action = action;
@@ -95,7 +97,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// </summary>
         /// <param name="signalMessage"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithSignalMessage(SignalMessage signalMessage)
+        public MessageContextBuilder WithSignalMessage(SignalMessage signalMessage)
         {
             _messagingContext.AS4Message.SignalMessages = new List<SignalMessage> { signalMessage };
 
@@ -107,7 +109,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Core
         /// </summary>
         /// <param name="userMessage"></param>
         /// <returns></returns>
-        public InternalMessageBuilder WithUserMessage(UserMessage userMessage)
+        public MessageContextBuilder WithUserMessage(UserMessage userMessage)
         {
             _messagingContext.AS4Message.UserMessages = new List<UserMessage> { userMessage };
 

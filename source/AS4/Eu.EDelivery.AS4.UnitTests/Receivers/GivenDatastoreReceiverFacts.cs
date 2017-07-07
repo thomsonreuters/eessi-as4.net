@@ -95,7 +95,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Receivers
             ReceivedMessage actualMessage = StartReceiver(receiver);
 
             // Assert
-            Assert.Equal(expectedStream, actualMessage.RequestStream);
+            Assert.Equal(expectedStream, actualMessage.UnderlyingStream);
             Assert.Equal(expectedType, actualMessage.ContentType);
         }
 

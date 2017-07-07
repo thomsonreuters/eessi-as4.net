@@ -6,7 +6,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 {
     public abstract class SignalMessage : MessageUnit
     {
-        [XmlIgnore] public bool IsDuplicated { get; set; }
+        [XmlIgnore] public bool IsDuplicate { get; set; }
 
         protected SignalMessage() {}
         protected SignalMessage(string messageId) : base(messageId) {}

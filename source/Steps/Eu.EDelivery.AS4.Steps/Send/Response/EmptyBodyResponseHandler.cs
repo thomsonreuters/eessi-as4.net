@@ -30,21 +30,16 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
         /// <returns></returns>
         public async Task<StepResult> HandleResponse(IAS4Response response)
         {
-            if (response.ResultedMessage?.AS4Message.IsEmpty == true)
+            if (response.ReceivedAS4Message.IsEmpty)
             {
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    return StepResult.Success(response.ResultedMessage).AndStopExecution();
+                    return StepResult.Success(new MessagingContext(response.ReceivedAS4Message, MessagingContextMode.Send)).AndStopExecution();
                 }
 
                 Logger.Error($"Response with HTTP status {response.StatusCode} received.");
-                    
-                if (response.ResultedMessage?.Exception != null)
-                {
-                    Logger.Error($"Additional information: {response.ResultedMessage.Exception.Message}");
-                }
 
-                return StepResult.Failed(response.ResultedMessage).AndStopExecution();
+                return StepResult.Failed(new MessagingContext(response.ReceivedStream, MessagingContextMode.Send)).AndStopExecution();
             }
 
             return await _nextHandler.HandleResponse(response);

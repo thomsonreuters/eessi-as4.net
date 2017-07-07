@@ -465,7 +465,7 @@
     <Compile Include="Steps\Send\GivenSigningAS4MessageStepFacts.cs" />
     <Compile Include="Steps\Send\GivenStoreReceivedSignalMessageFacts.cs" />
     <Compile Include="Steps\Receive\GivenVerifySignatureAS4MessageStepFacts.cs" />
-    <Compile Include="Builders\Core\InternalMessageBuilder.cs" />
+    <Compile Include="Builders\Core\MessageContextBuilder.cs" />
     <Compile Include="Steps\Submit\GivenStoreAS4MessageStepsFacts.cs" />
     <Compile Include="Strategies\Retriever\GivenFilePayloadRetrieverFacts.cs" />
     <Compile Include="Strategies\GivenPayloadStrategyProviderFacts.cs" />

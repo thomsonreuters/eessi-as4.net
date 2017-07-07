@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Singletons;
@@ -63,7 +62,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         private static void AdaptReceiptMessage(Receipt receipt, MessagingContext messagingContext)
         {
             AS4Message receivedAS4Message = messagingContext.AS4Message;
-            if (messagingContext.ReceivingPMode?.ReceiptHandling.UseNNRFormat == true)
+            if (messagingContext.ReceivingPMode?.ReplyHandling.ReceiptHandling.UseNNRFormat == true)
             {
                 Logger.Debug(
                     $"{receivedAS4Message.GetPrimaryMessageId()} Use Non-Repudiation for Receipt {receipt.MessageId} Creation");

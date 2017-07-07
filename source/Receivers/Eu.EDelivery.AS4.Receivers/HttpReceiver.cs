@@ -244,7 +244,7 @@ namespace Eu.EDelivery.AS4.Receivers
                         }
                         finally
                         {
-                            receivedMessage.RequestStream.Dispose();
+                            receivedMessage.UnderlyingStream.Dispose();
                         }
                     }
 
@@ -270,11 +270,6 @@ namespace Eu.EDelivery.AS4.Receivers
                     await LogReceivedMessageMessage(message, request.settings.Hostname);
 
                     return message;
-                }
-
-                if (requestValue.ContentLength64 > VirtualStream.ThresholdMax)
-                {
-                    return await RequestAsVirtualStreamMessage(requestValue, VirtualStream.MemoryFlag.OnlyToDisk);
                 }
 
                 return new ReceivedMessage(requestValue.InputStream, requestValue.ContentType);
@@ -306,10 +301,10 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
                 {
-                    await message.RequestStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                    await message.UnderlyingStream.CopyToAsync(destinationStream).ConfigureAwait(false);
                 }
 
-                message.RequestStream.Position = 0;
+                message.UnderlyingStream.Position = 0;
             }
 
             /// <summary>
@@ -490,7 +485,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 {
                     if (processorResult?.ReceivingPMode != null && IsAS4MessageAnError(processorResult))
                     {
-                        int errorHttpCode = processorResult.ReceivingPMode.ErrorHandling.ResponseHttpCode;
+                        int errorHttpCode = processorResult.ReceivingPMode.ReplyHandling.ErrorHandling.ResponseHttpCode;
 
                         if (Enum.IsDefined(typeof(HttpStatusCode), errorHttpCode))
                         {
