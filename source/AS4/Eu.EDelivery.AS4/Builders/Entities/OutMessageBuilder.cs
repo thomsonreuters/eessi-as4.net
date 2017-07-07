@@ -37,9 +37,9 @@ namespace Eu.EDelivery.AS4.Builders.Entities
         /// <returns></returns>
         public static OutMessageBuilder ForMessageUnit(MessageUnit messageUnit, AS4Message belongsToAS4Message, SendingProcessingMode sendingPMode)
         {
-            return new OutMessageBuilder(messageUnit, belongsToAS4Message,sendingPMode);
+            return new OutMessageBuilder(messageUnit, belongsToAS4Message, sendingPMode);
         }
-        
+
         /// <summary>
         /// Start Creating the <see cref="OutMessage"/>
         /// </summary>
@@ -68,7 +68,7 @@ namespace Eu.EDelivery.AS4.Builders.Entities
             {
                 outMessage.EbmsRefToMessageId = _messageUnit.RefToMessageId;
             }
-            
+
             outMessage.AssignAS4Properties(_messageUnit, cancellationToken);
 
             return outMessage;

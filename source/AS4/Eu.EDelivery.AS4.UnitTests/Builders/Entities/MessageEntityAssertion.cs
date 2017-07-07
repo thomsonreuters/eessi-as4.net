@@ -63,7 +63,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Builders.Entities
         /// <param name="actual">The actual.</param>
         public static void AssertSoapEnvelope(MessageUnit expected, MessageEntity actual)
         {
-            string xmlRepresentation = AS4XmlSerializer.ToString(AS4Mapper.Map<Xml.UserMessage>(expected));
+            string xmlRepresentation = AS4XmlSerializer.ToString(AS4Mapper.Map<AS4.Xml.UserMessage>(expected));
 
             Assert.Equal(xmlRepresentation, actual.SoapEnvelope);
         }

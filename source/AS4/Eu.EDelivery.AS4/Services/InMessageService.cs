@@ -302,7 +302,7 @@ namespace Eu.EDelivery.AS4.Services
         private void AttemptToInsertUserMessage(
             UserMessage userMessage,
             AS4Message belongsToAS4Message,
-            Entities.MessageExchangePattern mep,
+            MessageExchangePattern mep,
             string location,
             CancellationToken cancellationToken)
         {
@@ -323,7 +323,7 @@ namespace Eu.EDelivery.AS4.Services
         private static InMessage CreateUserInMessage(
             UserMessage userMessage,
             AS4Message belongsToAS4Message,
-            Entities.MessageExchangePattern mep,
+            MessageExchangePattern mep,
             string messageLocation,
             CancellationToken cancellationToken)
         {
@@ -365,7 +365,6 @@ namespace Eu.EDelivery.AS4.Services
             {
                 InMessage inMessage =
                 InMessageBuilder.ForSignalMessage(signalMessage, as4Message, mep)
-                                //      .WithPModeString(await AS4XmlSerializer.ToStringAsync(sendingPMode))
                                 .Build(cancellationToken);
                 inMessage.MessageLocation = location;
 
@@ -380,91 +379,14 @@ namespace Eu.EDelivery.AS4.Services
             }
         }
 
-        ////private void InsertReceipt(
-        ////    SignalMessage signalMessage,
-        ////    AS4Message belongsToAS4Message,
-        ////    MessageExchangePattern mep,
-        ////    string location,
-        ////    CancellationToken token)
-        ////{
-        ////    Logger.Info($"Update Message: {signalMessage.MessageId} as Receipt");
-        ////    InMessage inMessage = CreateReceiptInMessage(signalMessage, belongsToAS4Message, mep, location, token);
-
-        ////    _repository.InsertInMessage(inMessage);
-        ////}
-
-        ////private void InsertError(
-        ////    SignalMessage signalMessage,
-        ////    AS4Message belongsToAS4Message,
-        ////    MessageExchangePattern mep,
-        ////    string location,
-        ////    CancellationToken cancellationToken)
-        ////{
-        ////    Logger.Info($"Update Message: {signalMessage.MessageId} as Error");
-
-        ////    if (Logger.IsWarnEnabled)
-        ////    {
-        ////        Logger.Warn("Details of the received Error:");
-
-        ////        var errorSignalMessage = signalMessage as Error;
-
-        ////        if (errorSignalMessage != null)
-        ////        {
-        ////            foreach (ErrorDetail error in errorSignalMessage.Errors)
-        ////            {
-        ////                Logger.Warn(
-        ////                    $"{error.RefToMessageInError} {error.ErrorCode}: {error.ShortDescription} {error.Detail}");
-        ////            }
-        ////        }
-        ////    }
-
-        ////    InMessage inMessage = CreateErrorInMessage(signalMessage, belongsToAS4Message, mep, location, cancellationToken);
-
-        ////    _repository.InsertInMessage(inMessage);
-        ////}
-
-        ////private static InMessage CreateReceiptInMessage(
-        ////    SignalMessage signalMessage,
-        ////    AS4Message as4Message,
-        ////    MessageExchangePattern mep,
-        ////    //   SendingProcessingMode sendingPMode,
-        ////    string location,
-        ////    CancellationToken cancellationToken)
-        ////{
-        ////    InMessage inMessage =
-        ////        InMessageBuilder.ForSignalMessage(signalMessage, as4Message, mep)
-        ////                        //      .WithPModeString(await AS4XmlSerializer.ToStringAsync(sendingPMode))
-        ////                        .Build(cancellationToken);
-        ////    inMessage.MessageLocation = location;
-
-        ////    return inMessage;
-        ////}
-
         private static bool ReceiptMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return sendingPMode.ReceiptHandling.NotifyMessageProducer == true;
+            return sendingPMode?.ReceiptHandling?.NotifyMessageProducer ?? false;
         }
-
-        ////private static InMessage CreateErrorInMessage(
-        ////    SignalMessage signalMessage,
-        ////    AS4Message belongsToAS4Message,
-        ////    MessageExchangePattern mep,
-        ////    //  SendingProcessingMode sendingPMode,
-        ////    string location,
-        ////    CancellationToken cancellationToken)
-        ////{
-        ////    InMessage inMessage =
-        ////        InMessageBuilder.ForSignalMessage(signalMessage, belongsToAS4Message, mep)
-        ////                        //  .WithPModeString(await AS4XmlSerializer.ToStringAsync(sendingPMode))
-        ////                        .Build(cancellationToken);
-        ////    inMessage.MessageLocation = location;
-
-        ////    return inMessage;
-        ////}
 
         private static bool ErrorMustBeNotified(SendingProcessingMode sendingPMode)
         {
-            return sendingPMode.ErrorHandling.NotifyMessageProducer == true;
+            return sendingPMode?.ErrorHandling?.NotifyMessageProducer ?? true;
         }
 
         private void UpdateRefUserMessageStatus(MessageUnit signalMessage, OutStatus status)
