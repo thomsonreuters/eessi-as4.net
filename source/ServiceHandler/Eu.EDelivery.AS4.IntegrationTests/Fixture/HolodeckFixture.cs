@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Fixture
             _parentProcess = new ParentProcess(holodeckA, holodeckB);
 
             // Make sure the Holodeck MSH's are started before continuing.
-            System.Threading.Thread.Sleep(2000);
+            System.Threading.Thread.Sleep(6000);
         }
 
         /// <summary>
