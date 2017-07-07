@@ -16,7 +16,8 @@ export class ReceivehandlingForm {
                 } else {
                     wrapper.disable([Receivehandling.FIELD_notifyMessageConsumer]);
                 }
-            });
+            })
+            .triggerHandler(Receivehandling.FIELD_notifyMessageConsumer, current && current.notifyMessageConsumer);
         return form;
     }
 }

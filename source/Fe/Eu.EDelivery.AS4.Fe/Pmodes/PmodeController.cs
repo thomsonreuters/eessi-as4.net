@@ -164,9 +164,9 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
         [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
-        public async Task UpdateSending([FromBody] SendingBasePmode basePmode, string originalPmodeName)
+        public async Task UpdateSending([FromBody] SendingBasePmode basePmode, string originalName)
         {
-            await pmodeService.UpdateSending(basePmode, originalPmodeName);
+            await pmodeService.UpdateSending(basePmode, originalName);
         }
     }
 }

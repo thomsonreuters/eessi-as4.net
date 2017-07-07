@@ -5,7 +5,7 @@ import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/
   selector: 'as4-sidebar',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './sidebar.component.html',
-  styleUrls: [ './sidebar.component.scss' ],
+  styleUrls: ['./sidebar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SidebarComponent {
@@ -19,13 +19,11 @@ export class SidebarComponent {
           return result.children;
         }
 
-        return result;
+        return [result];
       });
-    this.routes = this.flatten<Route>(routes)
+    this.routes = routes
+      .reduce((a, b) => a.concat(b))
       .filter((route) => !!route.data && !!route.data['title'])
       .sort((route) => +route.data['weight']);
-  }
-  private flatten<T>(list: Route[]): T[] {
-    return list.reduce((a, b) => (Array.isArray(b) ? a.push(...this.flatten(b)) : a.push(b), a), []);
   }
 }

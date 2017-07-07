@@ -26,7 +26,8 @@ export class EncryptionForm {
             })
             .onChange<number>(Encryption.FIELD_publicKeyType, (result, wrapper) => {
                 this.setPublicKeyInfo(current, +result, wrapper);
-            });
+            })
+            .triggerHandler(Encryption.FIELD_isEnabled, current && current.isEnabled);
 
         return form;
     }

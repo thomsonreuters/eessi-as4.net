@@ -85,7 +85,7 @@ export class SettingsService implements ISettingsService {
     }
     public deleteAgent(settings: SettingsAgent, agent: string) {
         this.http
-            .delete(`${this.getUrl(agent)}?name=${settings.name}`, settings)
+            .delete(`${this.getUrl(agent)}?name=${settings.name}`, { body: settings })
             .subscribe(() => this.settingsStore.deleteAgent(agent, settings));
     }
 

@@ -16,7 +16,8 @@ export class SendHandlingForm {
                 } else {
                     wrapper.disable([SendHandling.FIELD_notifyMessageProducer]);
                 }
-            });
+            })
+            .triggerHandler(SendHandling.FIELD_notifyMessageProducer, current && current.notifyMessageProducer);
         return form;
     }
 }

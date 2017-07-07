@@ -44,6 +44,7 @@ import { ToNumberPipe } from './tonumber.pipe';
 import { MultiSelectDirective } from './multiselect/multiselect.directive';
 import { ContainsPipe } from './contains.pipe';
 import { FormBuilderExtended } from './form.service';
+import { FixFormGroupStatedirective } from './fixformgroupstate.directive';
 
 import { Select2Module } from 'ng2-select2';
 
@@ -84,7 +85,8 @@ const directives: any = [
     SelectDirective,
     TooltipDirective,
     DateTimePickerDirective,
-    MultiSelectDirective
+    MultiSelectDirective,
+    FixFormGroupStatedirective
 ];
 
 const pipes: any = [
@@ -149,17 +151,18 @@ const services: any = [
         ToDatePipe,
         ToNumberPipe,
         MultiSelectDirective,
-        ContainsPipe
+        ContainsPipe,
+        FixFormGroupStatedirective
     ],
     imports: [
         ClipboardModule,
-        AuthenticationModule,
         RouterModule,
         CommonModule,
         ReactiveFormsModule,
         FormsModule,
         TextMaskModule,
-        Select2Module
+        Select2Module,
+        AuthenticationModule
     ]
 })
 export class As4ComponentsModule { }

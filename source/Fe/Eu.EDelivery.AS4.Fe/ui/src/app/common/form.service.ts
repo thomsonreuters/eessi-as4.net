@@ -30,7 +30,7 @@ export class FormWrapper {
         this._subs.set(field, wrapper);
         return wrapper;
     }
-    public onChange<T>(field: string = null, handler: (current: T, wrapper: FormWrapper) => void): FormWrapper {
+    public onChange<T>(field: string, handler: (current: T, wrapper: FormWrapper) => void): FormWrapper {
         this.unsubscribeHandler(field, this._onValueChangeSubscriptions)
             ._onValueChangeSubscriptions.set(field, new SubscriptionHandler({
                 handler
@@ -38,7 +38,7 @@ export class FormWrapper {
         return this;
     }
     // tslint:disable-next-line:max-line-length
-    public onStatusChange<T extends 'VALID' | 'DISABLED'>(field: string = null, handler: (current: 'VALID' | 'DISABLED', formWrapper: FormWrapper) => void): FormWrapper {
+    public onStatusChange<T extends 'VALID' | 'DISABLED'>(field: string, handler: (current: 'VALID' | 'DISABLED', formWrapper: FormWrapper) => void): FormWrapper {
         this.unsubscribeHandler(field, this._onStatusChangeSubscriptions)
             ._onStatusChangeSubscriptions.set(field, new SubscriptionHandler({
                 handler
@@ -83,34 +83,35 @@ export class FormWrapper {
         this.form = form;
         return this;
     }
-    public build(isDisabled: boolean = null): FormGroup {
-        this.reApplyHandlers();
+    public build(isDisabled: boolean = false): FormGroup {
         if (isDisabled) {
             this.disable();
         } else {
             this.enable();
         }
+        this.reApplyHandlers();
+
         return this.form;
     }
-    public disable(except: string[] = null) {
-        setTimeout(() => {
-            Object
-                .keys(this.form.controls)
-                .filter((key) => !!!except ? true : except.findIndex((search) => search === key) === -1)
-                .forEach((key) => {
-                    this.form.get(key).disable();
-                });
-        });
+    public disable(except: string[] | null = null) {
+        // setTimeout(() => {
+        Object
+            .keys(this.form.controls)
+            .filter((key) => !!!except ? true : except.findIndex((search) => search === key) === -1)
+            .forEach((key) => {
+                this!.form!.get(key)!.disable();
+            });
+        // });
     }
     public enable(except: string[] = null) {
-        setTimeout(() => {
-            Object
-                .keys(this.form.controls)
-                .filter((key) => !!!except ? true : except.findIndex((search) => search === key) === -1)
-                .forEach((key) => {
-                    this.form.get(key).enable();
-                });
-        });
+        // setTimeout(() => {
+        Object
+            .keys(this.form.controls)
+            .filter((key) => !!!except ? true : except.findIndex((search) => search === key) === -1)
+            .forEach((key) => {
+                this.form.get(key).enable();
+            });
+        // });
     }
     public triggerHandler(field: string, value: any): FormWrapper {
         this._buildTriggers.set(field, value);
@@ -188,7 +189,7 @@ export class FormWrapper {
     }
     private unsubscribeHandler(field: string, handlers: Map<string | null, SubscriptionHandler>): FormWrapper {
         const existing = handlers.get(field);
-        if (!!existing) {
+        if (!!existing && existing.subscription) {
             existing.subscription.unsubscribe();
             existing.subscription = null;
         }

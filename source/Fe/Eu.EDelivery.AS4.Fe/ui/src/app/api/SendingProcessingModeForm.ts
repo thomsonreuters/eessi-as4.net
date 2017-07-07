@@ -16,7 +16,7 @@ export class SendingProcessingModeForm {
             allowOverride: [!!(current && current.allowOverride)],
             mep: [(current == null || current.mep == null) ? 0 : current.mep],
             mepBinding: [(current == null || current.mepBinding == null) ? 1 : current.mepBinding],
-            pushConfiguration: PushConfigurationForm.getForm(formBuilder.formBuilder, current && current.pushConfiguration),
+            pushConfiguration: PushConfigurationForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_pushConfiguration), current && current.pushConfiguration).form,
             pullConfiguration: PullConfigurationForm.getForm(formBuilder.formBuilder, current && current.pullConfiguration),
             reliability: SendReliabilityForm.getForm(formBuilder.formBuilder, current && current.reliability),
             receiptHandling: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_receiptHandling), current && current.receiptHandling).form,
