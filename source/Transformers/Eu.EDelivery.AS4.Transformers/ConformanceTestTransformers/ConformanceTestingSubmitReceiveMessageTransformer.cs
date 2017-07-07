@@ -23,6 +23,7 @@ namespace Eu.EDelivery.AS4.Transformers.ConformanceTestTransformers
             VirtualStream receivedStream = VirtualStream.CreateVirtualStream();
             await message.UnderlyingStream.CopyToAsync(receivedStream);
             receivedStream.Position = 0;
+
             try
             {
                 var transformer = new AS4MessageTransformer();

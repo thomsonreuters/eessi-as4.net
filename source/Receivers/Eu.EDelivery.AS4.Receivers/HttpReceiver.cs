@@ -90,7 +90,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             string useLoggingValue = properties.ReadOptionalProperty(SettingKeys.UseLogging, defaultValue: false.ToString());
-            bool.TryParse(useLoggingValue, out var useLogging);            
+            bool.TryParse(useLoggingValue, out var useLogging);
 
             string hostname = properties.ReadMandatoryProperty(SettingKeys.Url);
             _requestMeta = new HttpRequestMeta(hostname, useLogging);
@@ -122,12 +122,12 @@ namespace Eu.EDelivery.AS4.Receivers
         private void StartListener(HttpListener listener)
         {
             try
-            {                
+            {
                 listener.Start();
 
                 Logger.Debug($"Start receiving on '{_requestMeta.Hostname}'...");
                 Logger.Debug($"      with max concurrent connections = {_maxConcurrentConnections}");
-                Logger.Debug($"      with logging = {_requestMeta.UseLogging}");                
+                Logger.Debug($"      with logging = {_requestMeta.UseLogging}");
             }
             catch (HttpListenerException exception)
             {
@@ -254,7 +254,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 }
                 finally
                 {
-                   processorResult?.Dispose();
+                    processorResult?.Dispose();
                 }
             }
 
@@ -312,8 +312,9 @@ namespace Eu.EDelivery.AS4.Receivers
                 try
                 {
                     string newReceivedMessageFile =
-                        FilenameSanitizer.EnsureValidFilename(Path.Combine(logDir,
-                                                                           $"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}"));
+                        Path.Combine(logDir,
+                                     FilenameSanitizer.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}"));
+
                     Logger.Info($"Logging to {newReceivedMessageFile}");
                     using (var destinationStream = new FileStream(Path.Combine(logDir, newReceivedMessageFile), FileMode.Create))
                     {
@@ -322,7 +323,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                     message.UnderlyingStream.Position = 0;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Logger.Error(ex.Message);
                     throw;
