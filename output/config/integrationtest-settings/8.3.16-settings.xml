@@ -178,7 +178,7 @@
     </ReceptionAwarenessAgent>
     <PullReceiveAgent name="Pull Request Agent">
       <Receiver type="Eu.EDelivery.AS4.Receivers.PullRequestReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <Setting key="8.1.14-pmode" tmin="0:00:01" tmax="0:00:25"/>
+        <Setting key="8.3.16-pmode" tmin="0:00:01" tmax="0:00:25"/>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.PModeToPullRequestTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
