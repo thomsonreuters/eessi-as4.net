@@ -49,6 +49,30 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
             private const string ActionNamespace = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test";
 
             [Fact]
+            public void ThenMpcAttributeIsCorrectlySerialized()
+            {
+                var userMessage = new UserMessage("some-message-id") { Mpc = "the-specified-mpc" };
+                var as4Message = AS4Message.Create(userMessage);
+
+                using (var messageStream = new MemoryStream())
+                {
+                    var sut = new SoapEnvelopeSerializer();
+
+                    // Act
+                    sut.Serialize(as4Message, messageStream, CancellationToken.None);
+
+                    // Assert
+                    messageStream.Position = 0;
+                    var xmlDocument = new XmlDocument();
+                    xmlDocument.Load(messageStream);
+
+                    var userMessageNode = xmlDocument.SelectSingleNode("//*[local-name()='UserMessage']");
+                    Assert.NotNull(userMessageNode);
+                    Assert.Equal(userMessage.Mpc, userMessageNode.Attributes["mpc"].InnerText);
+                }
+            }
+
+            [Fact]
             public async Task ThenDeserializeAS4MessageSucceedsAsync()
             {
                 // Arrange
