@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SimpleHttpMock;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17_Receive_Single_Payload_with_HTTP_Deliver
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._18_Receive_Single_Payload_with_HTTP_Deliver
 {
     public class SpyHttpDeliverTarget : IDisposable
     {

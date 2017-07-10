@@ -4,7 +4,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Send_Pull_Request_result_in_User_Message
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._16_Receive_Message_Via_Pulling
 {
     /// <summary>
     /// Testing if the AS4 Component correctly sends a Pull Request to another party.
@@ -15,13 +15,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._14_Se
         public void ThenSendingPullRequestSucceeds()
         {
             // Setup
-            AS4Component.OverrideSettings("8.1.14-settings.xml");
+            AS4Component.OverrideSettings("8.3.16-settings.xml");
             AS4Component.Start();
 
-            Holodeck.CopyPModeToHolodeckB("8.1.14-pmode.xml");
+            Holodeck.CopyPModeToHolodeckB("8.3.16-pmode.xml");
 
             // Act
-            Holodeck.CopyMessageToHolodeckB("8.1.14-sample.mmd");
+            Holodeck.CopyMessageToHolodeckB("8.3.16-sample.mmd");
 
             // Assert
             bool areFilesFound = PollingAt(AS4FullInputPath);
