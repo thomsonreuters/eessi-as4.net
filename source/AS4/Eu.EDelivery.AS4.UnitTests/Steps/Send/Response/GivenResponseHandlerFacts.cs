@@ -156,7 +156,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             {
                 var stubAS4Response = new Mock<IAS4Response>();
 
-                MessagingContext pullRequest = new MessageContextBuilder().WithSignalMessage(new PullRequest()).Build();
+                MessagingContext pullRequest = new MessageContextBuilder().WithSignalMessage(new PullRequest(null)).Build();
 
                 stubAS4Response.Setup(r => r.OriginalRequest).Returns(pullRequest);
                 stubAS4Response.Setup(r => r.ReceivedAS4Message).Returns(await PullResponseWarning());
@@ -177,7 +177,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send.Response
             public async Task ThenHandlerReturnsStoppedExecutionStepResult()
             {
                 // Arrange
-                IAS4Response stubAS4Response = CreateResponseWith(request: new PullRequest(), response: new PullRequestError());
+                IAS4Response stubAS4Response = CreateResponseWith(request: new PullRequest(null), response: new PullRequestError());
                 var handler = new PullRequestResponseHandler(CreateAnonymousNextHandler());
 
                 // Act

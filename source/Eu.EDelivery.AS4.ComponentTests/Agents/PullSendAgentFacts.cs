@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -44,16 +45,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
-        public async Task TestPullRequestWithoutMpc()
+        public void TestPullRequestWithoutMpc()
         {
-            // Act
-            AS4Message as4Message = await DeserializeSoapXml(pullrequest_without_mpc);
+            // Arrange
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(pullrequest_without_mpc);
 
-            // Assert
-            Assert.True(as4Message.IsPullRequest, "AS4 Message isn't a Pull Request");
+            var pullRequestNode = doc.SelectSingleNode("//*[local-name()='PullRequest']");
 
-            var pullRequest = (PullRequest) as4Message.PrimarySignalMessage;
-            Assert.True(string.IsNullOrEmpty(pullRequest.Mpc), "Pull Request hasn't got empty MPC");
+            Assert.True(pullRequestNode != null, "Message does not contain a PullRequest");
+            Assert.True(pullRequestNode.Attributes["mpc"] == null, "The PullRequest message has an MPC defined");
         }
 
         [Fact]
@@ -66,7 +67,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             string mpc = "http://as4.net.eu/mpc/2";
 
             var submitMessage = new SubmitMessage()
-            {                
+            {
                 MessageInfo = new MessageInfo(null, mpc)
             };
 
@@ -76,7 +77,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             SubmitMessageToSubmitAgent(AS4XmlSerializer.ToString(submitMessage)).Wait();
 
             // Act
-            
+
             HttpResponseMessage userMessageResponse =
                 await HttpClient.SendAsync(CreateHttpRequestFrom(PullSendUrl, CreatePullRequestWithMpc(mpc)));
 
@@ -120,7 +121,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static HttpRequestMessage CreateHttpRequestFrom(string url, string message)
         {
-            return new HttpRequestMessage(HttpMethod.Post, url) {Content = new StringContent(message, Encoding.UTF8, "application/soap+xml")};
+            return new HttpRequestMessage(HttpMethod.Post, url) { Content = new StringContent(message, Encoding.UTF8, "application/soap+xml") };
         }
 
         protected override void Disposing(bool isDisposing)

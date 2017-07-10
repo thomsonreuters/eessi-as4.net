@@ -88,7 +88,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
             public void IsTrueWhenSignalMessageIsPullRequest()
             {
                 // Arrange
-                AS4Message as4Message = AS4Message.Create(new PullRequest());
+                AS4Message as4Message = AS4Message.Create(new PullRequest(null));
 
                 // Act
                 bool isPulling = as4Message.IsPullRequest;
