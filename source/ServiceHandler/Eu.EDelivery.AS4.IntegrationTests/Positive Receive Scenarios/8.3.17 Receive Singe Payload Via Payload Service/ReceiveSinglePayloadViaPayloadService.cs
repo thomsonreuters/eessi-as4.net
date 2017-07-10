@@ -9,7 +9,7 @@ using System.Xml;
 using Eu.EDelivery.AS4.IntegrationTests.Common;
 using Xunit;
 
-namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._16_Receive_Singe_Payload_Via_Payload_Service
+namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._17_Receive_Singe_Payload_Via_Payload_Service
 {
     /// <summary>
     /// Integration Test with the Payload Service
@@ -22,8 +22,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._16
         public void RunIntegrationTest()
         {
             // Arrange
-            Holodeck.CopyPModeToHolodeckA("8.3.16-pmode.xml");
-            Holodeck.CopyMessageToHolodeckA("8.3.16-sample.mmd");
+            Holodeck.CopyPModeToHolodeckA("8.3.17-pmode.xml");
+            Holodeck.CopyMessageToHolodeckA("8.3.17-sample.mmd");
 
             // Act
             AS4Component.Start();

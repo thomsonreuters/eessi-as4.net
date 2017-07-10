@@ -15,6 +15,7 @@ using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Submit;
 using Eu.EDelivery.AS4.Strategies.Retriever;
 using Eu.EDelivery.AS4.UnitTests.Common;
+using Eu.EDelivery.AS4.UnitTests.Model;
 using Moq;
 using Xunit;
 using Party = Eu.EDelivery.AS4.Model.Core.Party;
@@ -53,7 +54,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 // Assert
                 AS4Message actual = result.MessagingContext.AS4Message;
                 Assert.False(actual.HasAttachments);
-            } 
+            }
 
             [Fact]
             public async Task AssignsAttachmentLocations()
@@ -106,6 +107,42 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                 Assert.Equal(submitMessageInfo.MessageId, userMessage.MessageId);
                 Assert.Equal(submitMessageInfo.Mpc, userMessage.Mpc);
                 Assert.Equal(submitMessageInfo.RefToMessageId, userMessage.RefToMessageId);
+            }
+
+            [Fact]
+            public async Task ThenStepCreatesAS4MessageWithMpcFromSubmitMessage()
+            {
+                SubmitMessage submitMessage = CreateSubmitMessageWithMpc("some-mpc");
+                submitMessage.PMode = DefaultSendPMode();
+                submitMessage.PMode.AllowOverride = true;
+                var context = new MessagingContext(submitMessage);
+
+                StepResult result = await ExerciseCreateAS4Message(context);
+
+                Assert.Equal(result.MessagingContext.AS4Message.PrimaryUserMessage.Mpc, submitMessage.MessageInfo.Mpc);
+            }
+
+            private static SubmitMessage CreateSubmitMessageWithMpc(string mpc)
+            {
+                var message = new SubmitMessage();                
+                
+                message.MessageInfo.Mpc = mpc;
+
+                return message;
+            }
+
+            [Fact]
+            public async Task ThenStepCreatesAS4MessageWithMpcFromSendingPMode()
+            {
+                SubmitMessage submitMessage = new SubmitMessage();
+                submitMessage.PMode = DefaultSendPMode();
+                submitMessage.PMode.MessagePackaging.Mpc = "some-mpc";
+
+                var context = new MessagingContext(submitMessage);
+
+                StepResult result = await ExerciseCreateAS4Message(context);
+
+                Assert.Equal(result.MessagingContext.AS4Message.PrimaryUserMessage.Mpc, "some-mpc");
             }
 
             [Fact]

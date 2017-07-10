@@ -237,7 +237,7 @@
     <Compile Include="Negative Send Scenarios\8.2.7 Send message to nonexisting URL\SubmitMessageReferenceNonExistingUrlIntegrationTest.cs" />
     <Compile Include="Negative Send Scenarios\8.2.8 Send message to incorrectly configured R MSH\SendMessageToIncorrectlyConfiguredRMSHIntegrationTest.cs" />
     <Compile Include="Negative Send Scenarios\8.2.9 Submit invalid serialized message result in Bad Request\SubmitInvalidSerializedMessageTest.cs" />
-    <Compile Include="Positive Receive Scenarios\8.3.16 Receive Singe Payload Via Payload Service\ReceiveSinglePayloadViaPayloadService.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Singe Payload Via Payload Service\ReceiveSinglePayloadViaPayloadService.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.1 Receive Single Payload with FILE Deliver\ReceiveSinglePayloadIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.10 Receive Single Payload Return Sync Receipt\ReceiveSinglePayloadReturnSyncReceiptIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.11 Receive Single Payload Return Sync Signed NRR Receipt\ReceiveSinglePayloadReturnSyncSignedNRRReceiptIntegrationTest.cs" />
@@ -245,8 +245,8 @@
     <Compile Include="Positive Receive Scenarios\8.3.13 Receive Single Payload Return Async Signed NRR Receipt\ReceiveSinglePayloadReturnAsyncSignedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.14 Receive Test Message\ReceiveTestMessageIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.15 Receive Duplicate Message\ReceiveDuplicateMessageIntegrationTest.cs" />
-    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Single Payload with HTTP Deliver\SpyHttpDeliverTarget.cs" />
-    <Compile Include="Positive Receive Scenarios\8.3.17 Receive Single Payload with HTTP Deliver\TestHttpDeliverSinglePayloadViaHttp.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.18 Receive Single Payload with HTTP Deliver\SpyHttpDeliverTarget.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.18 Receive Single Payload with HTTP Deliver\TestHttpDeliverSinglePayloadViaHttp.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.5 Receive Multiple Payloads Encrypted\ReceiveMultiplePayloadsEncryptedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.7 Receive Multiple Payloads Compressed Encrypted\ReceiveMultiplePayloadsCompressedEncryptedIntegrationTest.cs" />
     <Compile Include="Positive Receive Scenarios\8.3.8 Receive Multiple Payloads Compressed Signed Encrypted\ReceiveMultiplePayloadsCompressedSignedEncryptedIntegrationTest.cs" />
@@ -260,7 +260,7 @@
     <Compile Include="Positive Send Scenarios\8.1.10. Send Single Payload with Message Properties\SinglePayloadMessagePropertiesIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.11 Send Single Payload with Message Ids\SinglePayloadMessageIdsIntegrationTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.13 Receive Async Error\ReceiveAsyncSignedErrorIntegrationTest.cs" />
-    <Compile Include="Positive Send Scenarios\8.1.14 Send Pull Request result in User Message\SendPullRequestResultInUserMessageTest.cs" />
+    <Compile Include="Positive Receive Scenarios\8.3.16 Receive Message Via Pulling\SendPullRequestResultInUserMessageTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.15 Send Single Payload with HTTP Submit\SendSinglePayloadHttpSubmitTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.16 Send Message via Pulling\SendMessageViaPullingTest.cs" />
     <Compile Include="Positive Send Scenarios\8.1.18 Send Message via Pulling result in Error\SendMessageViaPullingResultInErrorTest.cs" />

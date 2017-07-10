@@ -37,8 +37,7 @@ namespace Eu.EDelivery.AS4.Mappings.Submit
         {
             return
                 submitMessage.PMode.AllowOverride == false &&
-                !string.IsNullOrEmpty(submitMessage.MessageInfo.Mpc) &&
-                !string.IsNullOrEmpty(submitMessage.PMode.MessagePackaging.Mpc);
+                !string.IsNullOrEmpty(submitMessage.MessageInfo.Mpc);
         }
     }
 }

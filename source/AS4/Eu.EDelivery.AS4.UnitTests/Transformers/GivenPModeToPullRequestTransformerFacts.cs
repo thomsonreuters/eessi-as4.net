@@ -63,20 +63,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Transformers
             var transformer = new PModeToPullRequestTransformer();
 
             // Act
-            using (MessagingContext message = await transformer.TransformAsync(receivedMessage, CancellationToken.None))
+            using (MessagingContext context = await transformer.TransformAsync(receivedMessage, CancellationToken.None))
             {
-
                 // Assert
-                Assert.NotNull(message.ReceivedMessage);
-
-                // Deserialize the ReceivedMessage so that we can verify the content.
-                var serializer = SerializerProvider.Default.Get(message.ReceivedMessage.ContentType);
-
-                var as4Message = await serializer.DeserializeAsync(message.ReceivedMessage.UnderlyingStream, message.ReceivedMessage.ContentType, CancellationToken.None);
-
-                var actualSignalMessage = as4Message.PrimarySignalMessage as PullRequest;
+                Assert.NotNull(context.AS4Message);
+                Assert.True(context.AS4Message.IsPullRequest);
+                
+                var actualSignalMessage = context.AS4Message.PrimarySignalMessage as PullRequest;
                 Assert.Equal(expectedMpc, actualSignalMessage?.Mpc);
-                Assert.Equal(expectedSendingPMode.Id, message.SendingPMode.Id);
+                Assert.Equal(expectedSendingPMode.Id, context.SendingPMode.Id);
             }
         }
 

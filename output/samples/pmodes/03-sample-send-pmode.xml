@@ -54,10 +54,10 @@
   </ExceptionHandling>
   <Security>
     <Signing>
-      <IsEnabled>true</IsEnabled>
-      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+      <IsEnabled>true</IsEnabled>      
       <PrivateKeyFindType>FindBySubjectName</PrivateKeyFindType>
       <PrivateKeyFindValue>AccessPointA</PrivateKeyFindValue>
+      <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
       <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
@@ -89,8 +89,7 @@
         <Role>Receiver</Role>
       </ToParty>
     </PartyInfo>
-    <CollaborationInfo>
-      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+    <CollaborationInfo>      
       <AgreementReference>
         <Value>http://agreements.europa.org/agreement</Value>
       </AgreementReference>      
@@ -99,6 +98,7 @@
         <Type>org:europa:services</Type>
       </Service>
       <Action>eu:sample:03</Action>
+      <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
     </CollaborationInfo>
     <UseAS4Compression>true</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>

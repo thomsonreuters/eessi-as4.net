@@ -9,7 +9,7 @@ install this P-Mode on instance A.
 <PMode 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xmlns="http://holodeck-b2b.org/schemas/2014/10/pmode" xsi:schemaLocation="http://holodeck-b2b.org/schemas/2014/10/pmode ../../repository/xsd/pmode.xsd">
-    <id include="true">8.3.16-pmode</id>
+    <id include="true">8.3.17-pmode</id>
     <mep>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/oneWay</mep>
     <mepBinding>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/push</mepBinding>
     <Initiator>

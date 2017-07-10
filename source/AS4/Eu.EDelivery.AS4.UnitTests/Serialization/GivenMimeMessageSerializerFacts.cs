@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                 Assert.NotEqual(AnonymousContentType, as4Message.ContentType);
                 Assert.Contains(Constants.ContentTypes.Mime, as4Message.ContentType);
             }
-
+            
             private async Task<AS4Message> ExerciseMimeDeserializeAnonymousUserMessage()
             {
                 using (Stream messageStream = SerializeAnonymousMessage())
@@ -79,7 +80,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Serialization
                     return await ExerciseMimeDeserialize(messageStream, AnonymousContentType);
                 }
             }
-
+            
             [Fact]
             public void ThenSerializeAS4MessageSucceeds()
             {
