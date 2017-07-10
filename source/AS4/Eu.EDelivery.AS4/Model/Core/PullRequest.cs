@@ -5,11 +5,11 @@
     /// </summary>
     public class PullRequest : SignalMessage
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PullRequest" /> class.
-        /// Used to serialize the <see cref="PullRequest"/>.
-        /// </summary>
-        public PullRequest() : this(null) { }
+        /////// <summary>
+        /////// Initializes a new instance of the <see cref="PullRequest" /> class.
+        /////// Used to serialize the <see cref="PullRequest"/>.
+        /////// </summary>
+        ////public PullRequest() : this(null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequest"/> class.
