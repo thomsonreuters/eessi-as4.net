@@ -63,9 +63,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellation)
         {
-            if (messagingContext.ReceivedMessage == null)
+            if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message == null)
             {
-                throw new InvalidOperationException("SendAS4MessageStep requires a MessagingContext with a ReceivedStream");
+                throw new InvalidOperationException("SendAS4MessageStep requires a MessagingContext with a ReceivedStream or an AS4 Message");
+            }
+
+            if (messagingContext.ReceivedMessage == null && messagingContext.AS4Message.IsPullRequest == false)
+            {
+                throw new InvalidOperationException("The SendStep expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
             }
 
             // TODO: modify this; PullConfig and PushConfig: no distinction.
@@ -73,7 +78,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             try
             {
-                HttpWebRequest request = CreateWebRequest(sendConfiguration, messagingContext.ReceivedMessage.ContentType);
+                string contentType = messagingContext.ReceivedMessage?.ContentType ?? messagingContext.AS4Message.ContentType;
+
+                HttpWebRequest request = CreateWebRequest(sendConfiguration, contentType);
 
                 var as4Message = await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false);
 
@@ -91,11 +98,11 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     Logger.Error(exception.InnerException.Message);
                 }
-                
+
                 throw;
             }
         }
-       
+
         private HttpWebRequest CreateWebRequest(ISendConfiguration sendConfiguration, string contentType)
         {
             Logger.Info("Creating WebRequest");
@@ -130,15 +137,31 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
             request.ClientCertificates.Add(certificate);
         }
-        
-        private static async Task<AS4Message> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
-        {            
-            try
-            {         
-                await SerializeHttpRequest(request, messagingContext);
 
-                return await GetAS4MessageFromStream(messagingContext.ReceivedMessage.UnderlyingStream,
-                                               messagingContext.ReceivedMessage.ContentType);
+        private static async Task<AS4Message> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
+        {
+            try
+            {
+                SetAdditionalRequestHeaders(request, messagingContext);
+
+                using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
+                {
+                    if (messagingContext.ReceivedMessage != null)
+                    {
+                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);
+
+                        return await GetAS4MessageFromStream(messagingContext.ReceivedMessage.UnderlyingStream,
+                                                             messagingContext.ReceivedMessage.ContentType);
+                    }
+                    else
+                    {
+                        // Serialize the AS4 Message to the request-stream
+                        var serializer = SerializerProvider.Default.Get(request.ContentType);
+                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None);
+
+                        return messagingContext.AS4Message;
+                    }
+                }                                
             }
             catch (WebException exception)
             {
@@ -150,11 +173,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 throw CreateFailedSendException(request.RequestUri.ToString(), exception);
             }
         }
-
-        private static async Task SerializeHttpRequest(HttpWebRequest request, MessagingContext messagingContext)
+       
+        private static void SetAdditionalRequestHeaders(HttpWebRequest request, MessagingContext messagingContext)
         {
-            Logger.Info($"Send AS4 Message to: {request.RequestUri}");
-
             long messageSize = TryGetMessageSize(messagingContext);
             const int threshold = 209_715_200;
 
@@ -162,11 +183,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 request.AllowWriteStreamBuffering = false;
                 request.ContentLength = messageSize;
-            }
-
-            using (Stream requestStream = await request.GetRequestStreamAsync().ConfigureAwait(false))
-            {
-                await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);
             }
         }
 
@@ -183,7 +199,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static long TryGetMessageSize(MessagingContext messagingContext)
         {
-            if (messagingContext.ReceivedMessage.UnderlyingStream.CanSeek)
+            if (messagingContext.ReceivedMessage?.UnderlyingStream?.CanSeek ?? false)
             {
                 return messagingContext.ReceivedMessage.UnderlyingStream.Length;
             }
@@ -191,7 +207,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             if (messagingContext.AS4Message != null)
             {
                 return messagingContext.AS4Message.DetermineMessageSize(SerializerProvider.Default);
-
             }
 
             return 0L;
@@ -262,6 +277,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
             string description = $"Failed to Send AS4 Message to Url: {requestUrl}.";
 
             return new WebException(description, exception);
-        }       
+        }
     }
 }

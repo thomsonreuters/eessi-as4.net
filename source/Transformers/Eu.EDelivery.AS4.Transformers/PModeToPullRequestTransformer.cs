@@ -43,13 +43,9 @@ namespace Eu.EDelivery.AS4.Transformers
             SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
 
             AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
+          
+            var context = new MessagingContext(pullRequestMessage, MessagingContextMode.Receive);
 
-            MemoryStream ms = new MemoryStream();
-            var serializer = SerializerProvider.Default.Get(pullRequestMessage.ContentType);
-            serializer.Serialize(pullRequestMessage, ms, CancellationToken.None);
-            ms.Position = 0;
-
-            var context = new MessagingContext(new ReceivedMessage(ms, pullRequestMessage.ContentType), MessagingContextMode.Receive);
             context.SendingPMode = pmode;
 
             return context;
