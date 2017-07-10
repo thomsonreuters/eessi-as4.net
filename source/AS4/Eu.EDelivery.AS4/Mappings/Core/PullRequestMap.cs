@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Eu.EDelivery.AS4.Model.Core;
 
 namespace Eu.EDelivery.AS4.Mappings.Core
 {
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                 .ForAllOtherMembers(x => x.Ignore());
 
             CreateMap<Xml.PullRequest, Model.Core.PullRequest>()
-                .ForMember(dest => dest.Mpc, src => src.MapFrom(t => t.mpc))
+                .ConstructUsing(xml => new PullRequest(xml.mpc))                
                 .ForAllOtherMembers(x => x.Ignore());
         }
     }

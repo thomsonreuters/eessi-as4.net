@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Mappings.Core
                     }).ForAllOtherMembers(t => t.Ignore());
 
             CreateMap<Xml.SignalMessage, PullRequest>()
-                .ForMember(dest => dest.Mpc, src => src.MapFrom(t => t.PullRequest.mpc))
+                .ConstructUsing(source => new PullRequest(source.PullRequest.mpc))                
                 .ForAllOtherMembers(t => t.Ignore());
         }
     }
