@@ -1,16 +1,12 @@
-﻿namespace Eu.EDelivery.AS4.Model.Core
+﻿using System;
+
+namespace Eu.EDelivery.AS4.Model.Core
 {
     /// <summary>
     /// AS4 Pull Request Signal Message.
     /// </summary>
     public class PullRequest : SignalMessage
     {
-        /////// <summary>
-        /////// Initializes a new instance of the <see cref="PullRequest" /> class.
-        /////// Used to serialize the <see cref="PullRequest"/>.
-        /////// </summary>
-        ////public PullRequest() : this(null) { }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequest"/> class.
         /// Used to programmatically initiate a <see cref="PullRequest"/> class.
@@ -18,7 +14,7 @@
         /// <param name="mpc"></param>
         public PullRequest(string mpc)
         {
-            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
+            Mpc = String.IsNullOrWhiteSpace(mpc) ? Constants.Namespaces.EbmsDefaultMpc : mpc;
         }
 
         /// <summary>
@@ -28,7 +24,7 @@
         /// <param name="messageId">The message Id.</param>
         public PullRequest(string mpc, string messageId) : base(messageId)
         {
-            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
+            Mpc = String.IsNullOrWhiteSpace(mpc) ? Constants.Namespaces.EbmsDefaultMpc : mpc;
         }
 
         public string Mpc { get; }
