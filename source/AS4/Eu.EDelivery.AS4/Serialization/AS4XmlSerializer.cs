@@ -54,13 +54,15 @@ namespace Eu.EDelivery.AS4.Serialization
         /// <returns></returns>
         public static string ToString<T>(T data)
         {
-            var stringBuilder = new StringBuilder();
-            using (XmlWriter xmlWriter = XmlWriter.Create(stringBuilder, DefaultXmlWriterSettings))
+            using (var stream = new MemoryStream())
             {
-                var serializer = new XmlSerializer(typeof(T));
-                serializer.Serialize(xmlWriter, data);
+                using (XmlWriter xmlWriter = XmlWriter.Create(stream, DefaultXmlWriterSettings))
+                {
+                    var serializer = new XmlSerializer(typeof(T));
+                    serializer.Serialize(xmlWriter, data);
 
-                return stringBuilder.ToString();
+                    return Encoding.UTF8.GetString(stream.ToArray());
+                }
             }
         }
 
@@ -181,7 +183,7 @@ namespace Eu.EDelivery.AS4.Serialization
             {
                 return null;
             }
-
+                        
             using (XmlReader reader = XmlReader.Create(new StringReader(xml)))
             {
                 var serializer = new XmlSerializer(typeof(T));
