@@ -9,7 +9,7 @@
         /// Initializes a new instance of the <see cref="PullRequest" /> class.
         /// Used to serialize the <see cref="PullRequest"/>.
         /// </summary>
-        public PullRequest() {}
+        public PullRequest() : this(null) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullRequest"/> class.
@@ -18,7 +18,7 @@
         /// <param name="mpc"></param>
         public PullRequest(string mpc)
         {
-            Mpc = mpc;
+            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
         }
 
         /// <summary>
@@ -28,9 +28,9 @@
         /// <param name="messageId">The message Id.</param>
         public PullRequest(string mpc, string messageId) : base(messageId)
         {
-            Mpc = mpc;
+            Mpc = mpc ?? Constants.Namespaces.EbmsDefaultMpc;
         }
 
-        public string Mpc { get; set; }
+        public string Mpc { get; }
     }
 }

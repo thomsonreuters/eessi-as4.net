@@ -346,7 +346,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         {
             Protocol = new Protocol();
             TlsConfiguration = new TlsConfiguration();
-            Mpc = "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC";
+            Mpc = Constants.Namespaces.EbmsDefaultMpc;            
         }
 
         public string Mpc { get; set; }

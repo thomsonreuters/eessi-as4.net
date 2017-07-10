@@ -38,6 +38,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             // Assert
             AS4Message as4Message = await userMessageResponse.DeserializeToAS4Message();
             Assert.True(as4Message.IsUserMessage, "AS4 Message isn't a User Message");
+            Assert.Equal(Constants.Namespaces.EbmsDefaultMpc, as4Message.PrimaryUserMessage.Mpc);
         }
 
         [Fact]
@@ -65,6 +66,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         private static async Task SubmitMessageToSubmitAgentToPrepareRespondedUserMessage()
         {
             await HttpClient.SendAsync(CreateHttpRequestFrom(SubmitUrl, pullsendagent_submit));
+            // Wait a bit so that we're sure that the processing agent has picked up the message.
+            await Task.Delay(3000);
         }
 
         private static HttpRequestMessage CreateHttpRequestFrom(string url, string message)
