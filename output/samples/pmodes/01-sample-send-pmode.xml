@@ -79,8 +79,7 @@
                 <Role>Receiver</Role>
             </ToParty>
         </PartyInfo>
-        <CollaborationInfo>
-            <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
+        <CollaborationInfo>            
             <AgreementReference>
                 <Value>http://agreements.europa.org/agreement</Value>
             </AgreementReference>       
@@ -89,6 +88,7 @@
                 <Type>eu:europa:services</Type>
             </Service>      
             <Action>eu:sample:01</Action>
+            <ConversationId>eu:edelivery:as4:sampleconversation</ConversationId>
         </CollaborationInfo>    
         <UseAS4Compression>false</UseAS4Compression>
         <IsMultiHop>false</IsMultiHop>

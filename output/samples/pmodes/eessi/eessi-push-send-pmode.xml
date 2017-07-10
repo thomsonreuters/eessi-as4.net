@@ -39,10 +39,10 @@
     </ErrorHandling>
     <Security>
         <Signing>
-            <IsEnabled>true</IsEnabled>
-            <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
+            <IsEnabled>true</IsEnabled>            
             <PrivateKeyFindType>FindBySerialNumber</PrivateKeyFindType>
             <PrivateKeyFindValue>[Add the serial number of your Institution's ebMS signing certificate here]</PrivateKeyFindValue>
+            <KeyReferenceMethod>BSTReference</KeyReferenceMethod>
             <Algorithm>http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Algorithm>
             <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
         </Signing>
