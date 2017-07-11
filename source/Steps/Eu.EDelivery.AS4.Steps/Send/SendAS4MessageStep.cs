@@ -275,8 +275,8 @@ namespace Eu.EDelivery.AS4.Steps.Send
         private static void UpdateReceptionAwareness(IEnumerable<Entities.ReceptionAwareness> receptionAwarenessItems)
         {
             foreach (var item in receptionAwarenessItems)
-            {                
-                item.LastSendTime = DateTimeOffset.Now;
+            {
+                item.LastSendTime = DateTimeOffset.UtcNow;
                 item.CurrentRetryCount += 1;
             }
         }

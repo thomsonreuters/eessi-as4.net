@@ -136,12 +136,12 @@ namespace Eu.EDelivery.AS4.Services
                 return false;
             }
 
-            Func<DateTimeOffset> deadlineForResend =
-                () => awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
+            DateTimeOffset deadlineForResend = awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
 
             return awareness.Status != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
-                   && DateTimeOffset.UtcNow > deadlineForResend();
+                   && DateTimeOffset.UtcNow > deadlineForResend
+                   && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending;
         }
 
         /// <summary>
