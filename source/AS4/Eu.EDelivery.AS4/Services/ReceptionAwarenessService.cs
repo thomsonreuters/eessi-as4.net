@@ -131,8 +131,13 @@ namespace Eu.EDelivery.AS4.Services
         /// <exception cref="Exception">A delegate callback throws an exception.</exception>
         public bool MessageNeedsToBeResend(ReceptionAwareness awareness)
         {
+            if (awareness.LastSendTime == null)
+            {
+                return false;
+            }
+
             Func<DateTimeOffset> deadlineForResend =
-                () => awareness.LastSendTime.Add(TimeSpan.Parse(awareness.RetryInterval));
+                () => awareness.LastSendTime.Value.Add(TimeSpan.Parse(awareness.RetryInterval));
 
             return awareness.Status != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
