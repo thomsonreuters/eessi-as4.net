@@ -38,7 +38,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         }
 
         [Fact]
-        public async Task InsertInException_IfHandlingExecutionException()
+        public async Task InsertOutException_IfHandlingExecutionException()
         {
             await TestExecutionException(
                 async sut =>
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
         }
 
         [Fact]
-        public async Task InsertInException_IfHandlingErrorException()
+        public async Task InsertOutException_IfHandlingErrorException()
         {
             await TestExecutionException(
                 async sut =>
@@ -65,8 +65,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Exceptions.Handlers
             // Act
             MessagingContext result = await act(sut);
 
-            // Assert
-            Assert.IsType<Error>(result.AS4Message.PrimarySignalMessage);
+            // Assert            
             GetDataStoreContext.AssertOutException(
                 ex =>
                 {

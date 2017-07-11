@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Xml;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -85,6 +86,21 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = await userMessageResponse.DeserializeToAS4Message();
             Assert.True(as4Message.IsUserMessage, "AS4 Message isn't a User Message");
             Assert.Equal(mpc, as4Message.PrimaryUserMessage.Mpc);
+        }
+
+        [Fact]
+        public async Task RespondsWithBadRequest_WhenInvalidMessageReceived()
+        {
+            // Arrange
+            OverrideSettings("pullsendagent_settings.xml");
+            _as4Msh = AS4Component.Start(Environment.CurrentDirectory);
+
+            // Act
+            HttpResponseMessage response =
+                await HttpClient.SendAsync(CreateHttpRequestFrom(PullSendUrl, pullsendagent_submit));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         private static string CreatePullRequestWithMpc(string mpc)
