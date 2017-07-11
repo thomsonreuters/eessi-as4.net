@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
@@ -60,7 +59,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
                         context.ReceptionAwareness.FirstOrDefault(a => a.InternalMessageId.Equals(messageId));
 
                     Assert.NotNull(receptionAwareness);
-                    Assert.Equal(0, receptionAwareness.CurrentRetryCount);
+                    Assert.Equal(-1, receptionAwareness.CurrentRetryCount);
+                    Assert.Null(receptionAwareness.LastSendTime);
                     Assert.Equal(ReceptionStatus.Pending, receptionAwareness.Status);
 
                     condition(receptionAwareness);
@@ -73,7 +73,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             {
                 var pmode = new SendingProcessingMode {Reliability = {ReceptionAwareness = receptionAwareness}};
                 var userMessage = new UserMessage(messageId);
-                AS4Message as4Message = AS4Message.Create(userMessage, pmode);;
+                AS4Message as4Message = AS4Message.Create(userMessage, pmode);
 
                 return new MessagingContext(as4Message, MessagingContextMode.Unknown) {SendingPMode = pmode};
             }
