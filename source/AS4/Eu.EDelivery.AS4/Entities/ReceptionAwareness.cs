@@ -16,7 +16,11 @@ namespace Eu.EDelivery.AS4.Entities
 
         public string RetryInterval { get; set; }
 
-        public DateTimeOffset LastSendTime { get; set; }
+        /// <summary>
+        /// Contains the date/time when the message has last been sent.
+        /// If the message hasn't been sent yet, this property returns null.
+        /// </summary>
+        public DateTimeOffset? LastSendTime { get; set; }
 
         [NotMapped]
         public ReceptionStatus Status { get; set; }

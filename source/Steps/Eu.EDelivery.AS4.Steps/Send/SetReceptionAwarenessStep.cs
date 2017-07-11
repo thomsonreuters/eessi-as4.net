@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,27 +59,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 Entities.ReceptionAwareness[] existingReceptionAwarenessEntities =
                     repository.GetReceptionAwareness(as4Message.MessageIds).ToArray();
-
-                // Update existing entities and create new one if we do not have one already
-                UpdateCurrentRetryCountFor(existingReceptionAwarenessEntities);
-
+                
                 // For every MessageId for which no ReceptionAwareness entity exists, create one.
-                InsertReceptionAwarenessForMessagesWithout(messagingContext, repository, existingReceptionAwarenessEntities);
+                InsertReceptionAwarenessForMessages(messagingContext, repository, existingReceptionAwarenessEntities);
 
                 await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
-
-        private static void UpdateCurrentRetryCountFor(IEnumerable<Entities.ReceptionAwareness> existingReceptionAwarenessEntities)
-        {
-            foreach (Entities.ReceptionAwareness awareness in existingReceptionAwarenessEntities)
-            {
-                awareness.CurrentRetryCount += 1;
-                awareness.LastSendTime = DateTimeOffset.UtcNow;
-            }
-        }
-
-        private static void InsertReceptionAwarenessForMessagesWithout(
+       
+        private static void InsertReceptionAwarenessForMessages(
             MessagingContext message,
             IDatastoreRepository repository,
             IEnumerable<Entities.ReceptionAwareness> existingReceptionAwarenessEntities)
@@ -98,13 +85,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static Entities.ReceptionAwareness CreateReceptionAwareness(string messageId, SendingProcessingMode pmode)
         {
+            // The Message hasn't been sent yet, so set the currentretrycount to -1 and the lastsendtime to null.
+            // The SendMessageStep will update those values once the message has in fact been sent.
             return new Entities.ReceptionAwareness
             {
                 InternalMessageId = messageId,
-                CurrentRetryCount = 0,
+                CurrentRetryCount = -1,
                 TotalRetryCount = pmode.Reliability.ReceptionAwareness.RetryCount,
                 RetryInterval = pmode.Reliability.ReceptionAwareness.RetryInterval,
-                LastSendTime = DateTimeOffset.UtcNow,
+                LastSendTime = null,
                 Status = ReceptionStatus.Pending
             };
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Net;
@@ -28,7 +29,6 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private readonly Func<DatastoreContext> _createDatastore;
         private readonly IHttpClient _httpClient;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SendAS4MessageStep" /> class
@@ -76,13 +76,15 @@ namespace Eu.EDelivery.AS4.Steps.Send
             // TODO: modify this; PullConfig and PushConfig: no distinction.
             var sendConfiguration = messagingContext.SendingPMode.PushConfiguration;
 
+            var as4Message = await GetAS4MessageFromContext(messagingContext);
+
             try
             {
                 string contentType = messagingContext.ReceivedMessage?.ContentType ?? messagingContext.AS4Message.ContentType;
 
                 HttpWebRequest request = CreateWebRequest(sendConfiguration, contentType);
 
-                var as4Message = await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false);
+                await TryWriteToHttpRequestStreamAsync(request, messagingContext).ConfigureAwait(false);
 
                 var sentContext = messagingContext.CloneWith(as4Message);
 
@@ -100,6 +102,10 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 }
 
                 throw;
+            }
+            finally
+            {
+                UpdateMessageStatus(as4Message, Operation.Sent, OutStatus.Sent);
             }
         }
 
@@ -138,7 +144,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             request.ClientCertificates.Add(certificate);
         }
 
-        private static async Task<AS4Message> TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
+        private static async Task TryWriteToHttpRequestStreamAsync(HttpWebRequest request, MessagingContext messagingContext)
         {
             try
             {
@@ -148,18 +154,13 @@ namespace Eu.EDelivery.AS4.Steps.Send
                 {
                     if (messagingContext.ReceivedMessage != null)
                     {
-                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);
-
-                        return await GetAS4MessageFromStream(messagingContext.ReceivedMessage.UnderlyingStream,
-                                                             messagingContext.ReceivedMessage.ContentType);
+                        await messagingContext.ReceivedMessage.UnderlyingStream.CopyToAsync(requestStream);                       
                     }
                     else
                     {
                         // Serialize the AS4 Message to the request-stream
                         var serializer = SerializerProvider.Default.Get(request.ContentType);
-                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None);
-
-                        return messagingContext.AS4Message;
+                        await serializer.SerializeAsync(messagingContext.AS4Message, requestStream, CancellationToken.None);                        
                     }
                 }                                
             }
@@ -183,6 +184,18 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 request.AllowWriteStreamBuffering = false;
                 request.ContentLength = messageSize;
+            }
+        }
+
+        private static async Task<AS4Message> GetAS4MessageFromContext(MessagingContext context)
+        {
+            if (context.ReceivedMessage != null)
+            {
+                return await GetAS4MessageFromStream(context.ReceivedMessage.UnderlyingStream, context.ReceivedMessage.ContentType);
+            }
+            else
+            {
+                return context.AS4Message;
             }
         }
 
@@ -218,11 +231,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             CancellationToken cancellationToken)
         {
             Logger.Debug($"AS4 Message received from: {request.Address}");
-
-            // Since we've got here, the message has been sent.  Independently on the result whether it was correctly received or not, 
-            // we've sent the message, so update the status to sent.
-            UpdateMessageStatus(messagingContext.AS4Message, Operation.Sent, OutStatus.Sent);
-
+            
             (HttpWebResponse webResponse, WebException exception) response = await _httpClient.Respond(request);
 
             if (response.webResponse != null
@@ -255,7 +264,20 @@ namespace Eu.EDelivery.AS4.Steps.Send
                         outMessage.Status = status;
                     });
 
+                var receptionAwareness = repository.GetReceptionAwareness(as4Message.MessageIds);
+
+                UpdateReceptionAwareness(receptionAwareness);
+
                 context.SaveChanges();
+            }
+        }
+
+        private static void UpdateReceptionAwareness(IEnumerable<Entities.ReceptionAwareness> receptionAwarenessItems)
+        {
+            foreach (var item in receptionAwarenessItems)
+            {                
+                item.LastSendTime = DateTimeOffset.Now;
+                item.CurrentRetryCount += 1;
             }
         }
 
