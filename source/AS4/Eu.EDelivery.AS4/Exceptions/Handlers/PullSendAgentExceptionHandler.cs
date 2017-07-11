@@ -1,13 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
-using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Serialization;
 using Eu.EDelivery.AS4.Streaming;
 
 namespace Eu.EDelivery.AS4.Exceptions.Handlers
@@ -16,10 +13,12 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
     {
         private readonly Func<DatastoreContext> _createContext;
 
+        private readonly OutboundExceptionHandler _outboundExceptionHandler;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PullSendAgentExceptionHandler"/> class.
         /// </summary>
-        public PullSendAgentExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) {}
+        public PullSendAgentExceptionHandler() : this(Registry.Instance.CreateDatastoreContext) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PullSendAgentExceptionHandler" /> class.
@@ -28,6 +27,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public PullSendAgentExceptionHandler(Func<DatastoreContext> createContext)
         {
             _createContext = createContext;
+            _outboundExceptionHandler = new OutboundExceptionHandler(createContext);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
-            return await HandleErrorException(exception, context);
+            return await _outboundExceptionHandler.HandleExecutionException(exception, context);
         }
 
         /// <summary>
@@ -62,10 +62,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
         {
-            byte[] body = await AS4XmlSerializer.ToSoapEnvelopeBytesAsync(context.AS4Message);
-            await InsertOutException(exception, body);
-
-            return new MessagingContext(BuildAS4Error(context), MessagingContextMode.Send);
+            return await _outboundExceptionHandler.HandleErrorException(exception, context);
         }
 
         private async Task InsertOutException(Exception exception, byte[] body)
@@ -84,16 +81,6 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                 repository.InsertOutException(outException);
                 await context.SaveChangesAsync();
             }
-        }
-
-        private static AS4Message BuildAS4Error(MessagingContext messagingContext)
-        {
-            Error error = new ErrorBuilder()
-                .WithRefToEbmsMessageId(messagingContext.AS4Message.GetPrimaryMessageId())
-                .WithErrorResult(messagingContext.ErrorResult)
-                .Build();
-
-            return AS4Message.Create(error);
-        }
+        }       
     }
 }

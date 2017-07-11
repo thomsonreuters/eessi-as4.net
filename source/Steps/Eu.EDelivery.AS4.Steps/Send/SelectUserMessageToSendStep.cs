@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -29,7 +30,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// Initializes a new instance of the <see cref="SelectUserMessageToSendStep"/> class.
         /// </summary>
         public SelectUserMessageToSendStep()
-            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) {}
+            : this(Registry.Instance.CreateDatastoreContext, Registry.Instance.MessageBodyStore) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectUserMessageToSendStep" /> class.
@@ -52,7 +53,14 @@ namespace Eu.EDelivery.AS4.Steps.Send
             MessagingContext messagingContext,
             CancellationToken cancellationToken)
         {
-            (bool hasMatch, OutMessage match) selection = ConcurrentSelectUserMessage(messagingContext);
+            var pullRequest = messagingContext.AS4Message.PrimarySignalMessage as PullRequest;
+
+            if (pullRequest == null)
+            {
+                throw new InvalidMessageException("The received message is not a PullRequest-message.");
+            }
+
+            (bool hasMatch, OutMessage match) selection = RetrieveUserMessageForPullRequest(pullRequest);
 
             if (selection.hasMatch)
             {
@@ -68,9 +76,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
             return SuccessStepResult(pullRequestWarning, messagingContext).AndStopExecution();
         }
 
-        private (bool, OutMessage) ConcurrentSelectUserMessage(MessagingContext messagingContext)
+        private (bool, OutMessage) RetrieveUserMessageForPullRequest(PullRequest pullRequestMessage)
         {
-            var options = new TransactionOptions {IsolationLevel = IsolationLevel.RepeatableRead};
+            var options = new TransactionOptions { IsolationLevel = IsolationLevel.RepeatableRead };
 
             using (var scope = new TransactionScope(TransactionScopeOption.Required, options))
             using (DatastoreContext context = _createContext())
@@ -79,7 +87,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
                 OutMessage message =
                     repository.GetOutMessageData(
-                        m => PullRequestQuery(m, messagingContext.AS4Message.PrimarySignalMessage as PullRequest),
+                        m => PullRequestQuery(m, pullRequestMessage),
                         m => m);
 
                 if (message == null)
@@ -97,7 +105,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static bool PullRequestQuery(MessageEntity userMessage, PullRequest pullRequest)
         {
-            return userMessage.Mpc == pullRequest.Mpc 
+            return userMessage.Mpc == pullRequest.Mpc
                    && userMessage.Operation == Operation.ToBeSent
                    && userMessage.MEP == MessageExchangePattern.Pull;
         }

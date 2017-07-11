@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.Submit;
 using Eu.EDelivery.AS4.Validators;
@@ -16,7 +17,7 @@ namespace Eu.EDelivery.AS4.Transformers
     public class SubmitMessageXmlTransformer : ITransformer
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-        
+
         /// <summary>
         /// Transform a <see cref="SubmitMessage" />
         /// to a <see cref="MessagingContext"/>
@@ -54,12 +55,12 @@ namespace Eu.EDelivery.AS4.Transformers
                          });
         }
 
-        private static ApplicationException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
+        private static InvalidMessageException ThrowInvalidSubmitMessageException(SubmitMessage submitMessage)
         {
             string description = $"Submit Message {submitMessage.MessageInfo.MessageId} was invalid, see logging";
             Logger.Error(description);
 
-            return new ApplicationException(description);
+            return new InvalidMessageException(description);
         }
     }
 }
