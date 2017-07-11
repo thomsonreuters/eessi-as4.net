@@ -351,6 +351,7 @@
     <Compile Include="Model\Core\PullRequestError.cs" />
     <Compile Include="Model\Deliver\DeliverMessageEnvelope.cs" />
     <Compile Include="Model\Notify\NotifyMessageEnvelope.cs" />
+    <Compile Include="NotConfigurableAttribute.cs" />
     <Compile Include="Receivers\ExponentialIntervalReceiver.cs" />
     <Compile Include="Receivers\IntervalRequest.cs" />
     <Compile Include="Repositories\AS4MessageBodyFileStore.cs" />

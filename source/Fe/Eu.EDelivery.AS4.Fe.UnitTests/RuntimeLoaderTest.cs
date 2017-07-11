@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Steps;
+using Eu.EDelivery.AS4.Transformers;
 using Microsoft.Extensions.Options;
 using Mono.Cecil;
 using Newtonsoft.Json;
@@ -40,6 +42,36 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 // Assert
                 Assert.True(loader.Receivers.Any());
                 Assert.True(loader.Receivers.Any(type => type.Name == "File receiver"));
+            }
+
+            [Fact]
+            public void Interfaces_Should_Not_Be_In_The_List()
+            {
+                Setup();
+
+                var istep = typeof(IConfigStep).Name;
+
+                Assert.True(loader.Steps.All(y => !y.Name.Contains(istep)), "No interfaces types should be in the list.");
+            }
+
+            [Fact]
+            public void Abstract_Classes_Should_Not_Be_In_The_List()
+            {
+                Setup();
+
+                var abstractClass = typeof(MinderNotifyMessageTransformer).Name;
+
+                Assert.True(loader.Transformers.All(y => !y.Name.Contains(abstractClass)), "No abstract types should be in the list.");
+            }
+
+            [Fact]
+            public void Types_Decorated_With_NoUi_Attribute_Should_Not_Be_In_The_List()
+            {
+                Setup();
+
+                var conditionalstep = typeof(ConditionalStep).Name;
+
+                Assert.True(loader.Steps.All(y => !y.Name.Contains(conditionalstep)), "Types decorates with the NoUiAttribute should not be in the list.");
             }
 
             [Fact]
