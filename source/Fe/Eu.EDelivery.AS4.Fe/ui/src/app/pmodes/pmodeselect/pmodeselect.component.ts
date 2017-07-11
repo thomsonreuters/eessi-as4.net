@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs/Subscription';
-import { Component, OnInit, Input, Output, forwardRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, Input, Output, forwardRef, ChangeDetectionStrategy, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { PmodeStore } from '../pmode.store';
@@ -18,19 +18,23 @@ export const PMODESELECT_CONTROL_VALUE_ACCESSOR: any = {
             <option *ngFor="let pmode of pmodes" [selected]="pmode === selectedPmode">{{pmode}}</option>
         </select>
     `,
-    providers: [PMODESELECT_CONTROL_VALUE_ACCESSOR]
+    providers: [PMODESELECT_CONTROL_VALUE_ACCESSOR],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAccessor {
     @Input() public mode: string;
-    public selectedPmode: string;
+    @Input() public selectFirst: boolean = false;
+    public selectedPmode: string | null;
     public pmodes: string[] | undefined;
     public isDisabled: boolean;
     private _storeSubscription: Subscription;
-    private _propagateChange: (_: string) => void;
-    constructor(private pmodeStore: PmodeStore) { }
-    public selectPmode(pmode: string) {
+    private _propagateChange: (_: string | null) => void | undefined;
+    constructor(private pmodeStore: PmodeStore, private _changeDetectorRef: ChangeDetectorRef) { }
+    public selectPmode(pmode: string | null = null) {
         this.selectedPmode = pmode;
-        this._propagateChange(pmode);
+        if (!!this._propagateChange) {
+            this._propagateChange(pmode);
+        }
     }
     public ngOnInit() {
         switch (this.mode) {
@@ -39,14 +43,32 @@ export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAcce
                     .distinctUntilChanged()
                     .filter((result) => !!(result && result.ReceivingNames))
                     .map((result) => result.ReceivingNames)
-                    .subscribe((result) => this.pmodes = result);
+                    .subscribe((result) => {
+                        this.pmodes = result;
+                        this._changeDetectorRef.detectChanges();
+                        if (!!!result) {
+                            return;
+                        }
+                        if (this.selectFirst) {
+                            setTimeout(() => this.selectPmode(result[0]));
+                        }
+                    });
                 break;
             case 'sending':
                 this._storeSubscription = this.pmodeStore.changes
                     .distinctUntilChanged()
                     .filter((result) => !!(result && result.SendingNames))
                     .map((result) => result.SendingNames)
-                    .subscribe((result) => this.pmodes = result);
+                    .subscribe((result) => {
+                        this.pmodes = result;
+                        this._changeDetectorRef.detectChanges();
+                        if (!!!result) {
+                            return;
+                        }
+                        if (this.selectFirst) {
+                            setTimeout(() => this.selectPmode(result[0]));
+                        }
+                    });
                 break;
             default:
                 throw Error('Mode should be supplied');
@@ -60,6 +82,7 @@ export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAcce
     }
     public registerOnChange(fn) {
         this._propagateChange = fn;
+        this._propagateChange(this.selectedPmode);
     }
     public registerOnTouched() { }
     public setDisabledState(isDisabled: boolean): void {

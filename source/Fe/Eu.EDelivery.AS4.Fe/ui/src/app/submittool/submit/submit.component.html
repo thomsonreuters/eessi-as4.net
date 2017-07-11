@@ -1,0 +1,93 @@
+<div content>
+    <as4-tab #tab>
+        <div tabitem title="Compose">
+            <form class="form-horizontal" #form="ngForm">
+                <as4-input label="Sending pmode">
+                    <as4-pmode-select mode="sending" selectFirst="true" name="pmode" [(ngModel)]="payloadData.pmode" required></as4-pmode-select>
+                </as4-input>
+                <as4-input label="Payloads">
+                    <ng-container *ngIf="uploader.queue.length === 0">
+                        <div ng2FileDrop [ngClass]="{'nv-file-over': hasBaseDropZoneOver}" (fileOver)="fileOverBase($event)" [uploader]="uploader"
+                            class="well my-drop-zone">
+                            No payload(s) added yet. Drop your payloads here.
+                        </div>
+                    </ng-container>
+                    <div class="my-drop-zone my-drop-zone-table" *ngIf="uploader.queue.length > 0" ng2FileDrop [ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
+                        (fileOver)="fileOverBase($event)" [uploader]="uploader">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th width="50%">Name</th>
+                                    <th width="25%">Size</th>
+                                    <th width="25%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of uploader.queue">
+                                    <td><strong>{{ item?.file?.name }}</strong></td>
+                                    <td class="text-right">{{ item?.file?.size | fileSize:2 }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-xs" (click)="item.remove()">
+                                    <span class="glyphicon glyphicon-trash"></span> Remove
+                                </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="total-size">Total:</td>
+                                    <td class="text-right">{{totalSize() | fileSize:2}}</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="drop-text">Drop your files here</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="upload-button">
+                        <button type="button" class="btn btn-secondary" (click)="fileInput.click()"><i class="fa fa-upload"></i></button>
+                        <input class="hidden" type="file" ng2FileSelect [uploader]="uploader" multiple required #fileInput/>
+                    </div>
+                </as4-input>
+                <as4-input label="# messages">
+                    <input type="number" name="messages" [(ngModel)]="payloadData.messages" pattern="^[1-9][0-9]?$|^100$" required min="1" max="999"
+                    />
+                </as4-input>
+                <as4-input label="Payload location">
+                    <input type="radio" name="payloadType" [value]="0" [(ngModel)]="payloadData.payloadType" (click)="payloadData.payloadLocation =''"
+                        required>File
+                    <input type="radio" name="payloadType" [value]="1" [(ngModel)]="payloadData.payloadType" required markAsTouched="payloadLocation">Http
+                    <input type="text" *ngIf="(payloadData.payloadType | tonumber) === 1" class="form-control" name="payloadLocation" [(ngModel)]="payloadData.payloadLocation"
+                        required #payloadLocation="ngModel" />
+                </as4-input>
+                <as4-input label="To">
+                    <input type="radio" name="submitType" [value]="0" [(ngModel)]="payloadData.submitType" (click)="payloadData.to = ''" required>File
+                    <input type="radio" name="submitType" [value]="1" [(ngModel)]="payloadData.submitType" required markAsTouched="to">Http
+                    <input type="text" *ngIf="(payloadData.submitType | tonumber) === 1" class="form-control" name="to" #to="ngModel" [(ngModel)]="payloadData.to"
+                        minlength="1" required="(payloadData.submitType | tonumber) === 1">
+                </as4-input>
+                <as4-input showLabel="false">
+                    <button [disabled]="!form.valid" type="button" class="btn btn-primary" (click)="submit()">
+                        <span *ngIf="!isBusy">Send</span>
+                        <ng-container *ngIf="isBusy">
+                            <span class="glyphicon glyphicon-refresh spinning"></span> Processing...
+                        </ng-container>
+                    </button>
+                </as4-input>
+            </form>
+        </div>
+        <div tabitem title="Logging">
+            <div>
+                <as4-clipboard [content]="logToText()"></as4-clipboard>
+            </div>
+            <div class="logging">
+                <div *ngFor="let message of logging">
+                    <p [ngClass]="{ 'error': message.type === 1, 'success': message.type === 3}">{{message.timeStamp | todate}} - {{message.message}}</p>
+                    <div class="progress-container" *ngIf="message.type === 2">
+                        <as4-progress [progress]="progress"></as4-progress>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </as4-tab>
+</div>

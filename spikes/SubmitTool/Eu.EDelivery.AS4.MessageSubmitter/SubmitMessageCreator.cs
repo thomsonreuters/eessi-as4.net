@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.MessageSubmitter
         private static void SubmitMessags(IEnumerable<SubmitMessage> submitMessages, string location)
         {
             SubmitToFilesystem(submitMessages, location);
-
+            
             // Commented out since we're not going to support this right now in this tool.
             // Submitting via HTTP means that our payloads should be referred via http aswell.
 

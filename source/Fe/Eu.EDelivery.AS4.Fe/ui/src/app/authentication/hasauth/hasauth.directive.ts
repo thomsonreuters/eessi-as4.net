@@ -69,13 +69,12 @@ export class HasAuthDirective implements OnDestroy, AfterViewChecked {
     }
     public ngAfterViewChecked() {
         const currentState = this._elementRef.nativeElement.getAttribute('disabled');
-        if (this._isReadOnly) {
-            if (currentState === 'false' || !!!currentState) {
-                this._ngZone.runOutsideAngular(() => {
-                    this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', 'true');
-                });
-            }
-            return;
+        const isDisabled = !!(this._isReadOnly || this.disabled || (!!!this._ngControl ? false : this._ngControl.disabled));
+        if (isDisabled + '' !== currentState) {
+            // State doesn't match update it
+            this._ngZone.runOutsideAngular(() => {
+                this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', isDisabled ? 'true' : null!);
+            });
         }
     }
 }

@@ -1,4 +1,4 @@
-import { InputComponent } from './../input/input.component';
+import { Subscription } from 'rxjs/Subscription';
 import {
     Directive,
     Input,
@@ -10,6 +10,8 @@ import {
     TemplateRef
 } from '@angular/core';
 
+import { InputComponent } from './../input/input.component';
+
 @Directive({
     selector: '[tabitem]'
 })
@@ -17,7 +19,6 @@ export class TabItemDirective implements AfterViewInit {
     @Input() public title: string;
     @Input() public tabId: number;
     @Input() public isValid: boolean = true;
-    @ContentChild('headerExtra') public container: TemplateRef<Object>;
     constructor(private _elementRef: ElementRef, private _renderer: Renderer) {
         _renderer.setElementClass(this._elementRef.nativeElement, 'tab-pane', true);
     }
@@ -26,5 +27,11 @@ export class TabItemDirective implements AfterViewInit {
         if (this.tabId === 0) {
             this._renderer.setElementClass(this._elementRef.nativeElement, 'active', true);
         }
+    }
+    public setActive() {
+        this._renderer.setElementClass(this._elementRef.nativeElement, 'active', true);
+    }
+    public setInactive(){
+        this._renderer.setElementClass(this._elementRef.nativeElement, 'active', false);
     }
 }

@@ -27,9 +27,21 @@ export class SidebarComponent {
       return;
     }
 
-    this.routes = routes
+    let data = routes
       .reduce((a, b) => a!.concat(b!))!
-      .filter((route) => !!route.data && !!route.data['title'])
-      .sort((route) => !!!route.data ? 0 : +route.data['weight']);
+      .filter((route) => !!route.data && !!route.data['title']);
+
+    this.routes = data
+      .sort((a, b) => {
+        let aWeight = !!!a.data!['weight'] ? 0 : a.data!['weight'];
+        let bWeight = !!!b.data!['weight'] ? 0 : b.data!['weight'];
+
+        // tslint:disable-next-line:curly
+        if (aWeight < bWeight) return -1;
+        // tslint:disable-next-line:curly
+        else if (aWeight > bWeight) return 1;
+        // tslint:disable-next-line:curly
+        else return 0;
+      });
   }
 }

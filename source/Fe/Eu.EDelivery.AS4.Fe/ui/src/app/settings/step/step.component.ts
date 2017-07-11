@@ -13,36 +13,38 @@ import { StepForm } from './../../api/StepForm';
     selector: 'as4-step-settings',
     template: `
         <div [formGroup]="group">
-            <as4-input showLabel="false">
-                <p><button as4-auth type="button" [disabled]="disabled" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
-                <table class="table table-condensed" *ngIf="!!group && group.length > 0">
-                    <tbody [sortablejs]="group" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }" as4-auth>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>Type</th>
-                        </tr>
-                        <tr *ngFor="let step of group.controls; let i = index" [formGroupName]="i">
-                            <td class="col-small"><span class="grippy"></span></td>
-                            <td class="action"><button as4-auth [disabled]="disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></td>
-                            <td>
-                                <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
-                                    <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
-                                </select>
-                                <div class="settings">
-                                    <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.get('type').value"></as4-runtime-settings>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </as4-input>
+            <p><button as4-auth type="button" [disabled]="disabled" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
+            <div [sortablejs]="group" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }">
+                <div *ngFor="let step of group.controls; let i = index" [formGroupName]="i">
+                    <div class="step-row">
+                        <div class="item"><span class="grippy"></span></div>
+                        <div class="item"><button as4-auth [disabled]="disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></div>
+                        <div class="item">
+                            <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
+                                <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
+                            </select>
+                            <div class="settings">
+                                <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.get('type').value"></as4-runtime-settings>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     `,
     styles: [
         `
             .settings {
                 padding-top: 10px;
+            }
+            table tr td {
+                border: 0;
+            }
+            .step-row {
+                display: flex;
+            }
+            .step-row > .item:last-child {
+                flex: 1 1 auto;
             }
         `
     ],

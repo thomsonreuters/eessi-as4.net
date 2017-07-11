@@ -53,6 +53,9 @@ const services: any = [
         ReactiveFormsModule,
         RouterModule.forChild(ROUTES),
         AuthenticationModule
+    ],
+    exports: [
+        PmodeSelectComponent
     ]
 })
 export class PmodesModule {

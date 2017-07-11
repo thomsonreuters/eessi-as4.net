@@ -8,13 +8,13 @@
             <ng-container *ngFor="let route of routes">
                 <li *ngIf="!!!route.children" routerLinkActive="active">
                     <a routerLink="/{{route.path}}">
-                        <i class="fa fa-fw {{route.data.icon ? route.data.icon : 'fa-book'}}"></i>
+                        <i class="fa fa-fw {{!!route.data.icon ? route.data.icon : 'fa-book'}}"></i>
                         <span>{{route.data.title}}</span>
                     </a>
                 </li>
                 <li class="treeview" *ngIf="!!(route && route.children && (route.children.length > 0))" routerLinkActive="active">
                     <a href="#">
-                        <i class="fa {{route.data.icon ? route.data.icon : 'fa-table'}}"></i>
+                        <i class="fa {{!!route.data.icon ? route.data.icon : 'fa-table'}}"></i>
                         <span>{{route.data.title}}</span>
                         <span class="pull-right-container">
                             <i class="fa fa-angle-left pull-right"></i>
@@ -27,7 +27,7 @@
                                     routerLinkActive="active"><a routerLink="/{{route.path}}/{{childRoute.path}}"><i class="fa fa-fw {{childRoute.data.icon ? childRoute.data.icon : 'fa-adjust'}}"></i>{{childRoute.data.title}}</a></li>
                                 <li *ngIf="childRoute.children?.length !== null" routerLinkActive="active">
                                     <a href="#">
-                                        <i class="fa fa-fw {{childRoute.data.icon ? childRoute.data.icon : 'fa-book'}}"></i><span>{{childRoute.data.title}}</span>
+                                        <i class="fa fa-fw {{!!childRoute.data.icon ? childRoute.data.icon : 'fa-book'}}"></i><span>{{childRoute.data.title}}</span>
                                         <span class="pull-right-container">
                                             <i class="fa fa-fw fa-angle-left pull-right"></i>
                                         </span>

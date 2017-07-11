@@ -421,6 +421,6 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 // Assert
                 await test.Source.UpdateReceiving(Arg.Is<ReceivingBasePmode>(x => x.Name == "NEW"), Arg.Is(ReceivingBasePmode.Name));
             }
-        }       
+        }
     }
 }

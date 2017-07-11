@@ -36,13 +36,13 @@ export class MessageService {
             });
     }
     public getExceptions(direction: number, message: api.Message) {
-        if (!!!message.ebmsRefToMessageId) {
+        if (!!!message.ebmsMessageId) {
             this._exceptionService.reset();
             return;
         }
 
         let filter = new ExceptionFilter();
-        filter.ebmsRefToMessageId = message.ebmsRefToMessageId;
+        filter.ebmsRefToMessageId = message.ebmsMessageId;
         this._exceptionService.getMessages(filter);
     }
     public getRelatedMessages(direction: number, messageId: string) {

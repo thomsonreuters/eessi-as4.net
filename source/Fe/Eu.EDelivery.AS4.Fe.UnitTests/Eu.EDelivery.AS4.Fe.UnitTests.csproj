@@ -40,6 +40,9 @@
       <HintPath>..\..\..\packages\AutoMapper.5.0.2\lib\net45\AutoMapper.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="HttpMultipartParser, Version=2.2.4.0, Culture=neutral, PublicKeyToken=6d293681fa6c7a03, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\HttpMultipartParser.2.2.4\lib\net46\HttpMultipartParser.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Data.Sqlite, Version=1.1.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Microsoft.Data.Sqlite.1.1.0\lib\net451\Microsoft.Data.Sqlite.dll</HintPath>
       <Private>True</Private>
@@ -230,6 +233,7 @@
     <Compile Include="RuntimeLoaderTest.cs" />
     <Compile Include="ScannerTests.cs" />
     <Compile Include="SqlConnectionBuilderTests.cs" />
+    <Compile Include="SubmitMessageCreatorTests.cs" />
     <Compile Include="TestData\InfoAttribute.cs" />
     <Compile Include="TestData\ITestReceiver.cs" />
     <Compile Include="TestData\TestReceiver.cs" />
@@ -280,17 +284,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Authentication\" />
-    <Folder Include="Automapper\" />
-    <Folder Include="Controllers\" />
-    <Folder Include="Logging\" />
-    <Folder Include="Models\" />
-    <Folder Include="Modules\" />
     <Folder Include="Pmodes\Model\" />
-    <Folder Include="Runtime\" />
-    <Folder Include="Settings\" />
-    <Folder Include="Start\" />
-    <Folder Include="Swagger\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

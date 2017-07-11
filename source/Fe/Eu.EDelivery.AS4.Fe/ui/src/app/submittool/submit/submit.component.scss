@@ -1,0 +1,56 @@
+@import '../../../styles/variables.scss';
+.my-drop-zone {
+    border: dotted 3px lightgray;
+    margin-bottom: 5px;
+    &-table {
+        padding: 5px;
+    }
+}
+
+.nv-file-over {
+    border: dotted 3px red;
+}
+
+.another-file-over-class {
+    border: dotted 3px green;
+}
+
+.upload-button {
+    margin-bottom: 10px;
+}
+
+.drop-text {
+    color: #CCC;
+    text-align: center !important;
+    font-style: italic;
+}
+
+.total-size {
+    text-align: right;
+    font-weight: bold;
+}
+
+.error {
+    color: $error;
+    font-weight: bold;
+}
+
+.success {
+    color: green;
+    font-weight: bold;
+}
+
+.logging {
+    max-height: 400px;
+    height: 400px;
+    overflow: auto;
+    font-size: 12px;
+    color: #eaeaea;
+    background-color: #003251;
+    font-family: Consolas, Courier New, monospace;
+}
+
+.progress-container {
+    margin-left: 10px;
+    margin-right: 10px;
+}

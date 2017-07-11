@@ -26,6 +26,7 @@ import { As4ComponentsModule } from './common';
 import { AuthenticationModule } from './authentication';
 import { AuthHttp } from 'angular2-jwt';
 import { authHttpServiceFactory, errorHandlingServices } from '../app/common/as4components.module';
+import { SubmittoolModule } from './submittool/submittool.module';
 
 import '../styles/external.scss';
 
@@ -51,6 +52,7 @@ type StoreType = {
 
         SettingsModule,
         PmodesModule,
+        SubmittoolModule,
         As4ComponentsModule,
         AuthenticationModule,
         ClipboardModule

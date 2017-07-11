@@ -3,7 +3,8 @@
         <div class="form-group">
             <label class="col-xs-2">New name</label>
             <div class="col-xs-10">
-                <input type="text" as4-no-auth class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName" />
+                <input type="text" as4-no-auth class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName"
+                />
             </div>
         </div>
         <div class="form-group">
@@ -49,10 +50,12 @@
 
     <as4-box title="Step configuration" collapsible="true" [collapsed]="!!!currentAgent || (currentAgent && !!currentAgent.stepConfiguration)">
         <div content>
-            <h5>Normal pipeline</h5>
-            <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.normalPipeline')"></as4-step-settings>
-            <h5>Error pipeline</h5>
-            <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.errorPipeline')"></as4-step-settings>
+            <as4-input label="Normal pipeline">
+                <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.normalPipeline')"></as4-step-settings>
+            </as4-input>
+            <as4-input label="Error pipeline">
+                <as4-step-settings [disabled]="form.get('stepConfiguration').disabled" [group]="form.get('stepConfiguration.errorPipeline')"></as4-step-settings>
+            </as4-input>
         </div>
     </as4-box>
 </form>

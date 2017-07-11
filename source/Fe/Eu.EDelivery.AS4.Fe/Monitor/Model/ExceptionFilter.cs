@@ -70,7 +70,9 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// </summary>
         /// <param name="query">The query.</param>
         /// <returns></returns>
-        public IQueryable<ExceptionEntity> ApplyFilter(IQueryable<ExceptionEntity> query)
+        public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query)
+            where TEntity : ExceptionEntity
+
         {
             if (!string.IsNullOrEmpty(EbmsRefToMessageId))
             {

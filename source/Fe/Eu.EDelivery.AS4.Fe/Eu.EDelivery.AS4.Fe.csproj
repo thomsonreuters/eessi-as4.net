@@ -40,9 +40,13 @@
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HttpMultipartParser">
+      <HintPath>..\..\packages\HttpMultipartParser.2.2.4\lib\net46\HttpMultipartParser.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -134,6 +138,21 @@
     <Compile Include="Settings\SettingsAutoMapper.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Hash\ObjectExtensions.cs" />
+    <Compile Include="SubmitTool\FileMessageHandler.cs" />
+    <Compile Include="SubmitTool\FilePayload.cs" />
+    <Compile Include="SubmitTool\FilePayloadHandler.cs" />
+    <Compile Include="SubmitTool\IHandler.cs" />
+    <Compile Include="SubmitTool\IMessageHandler.cs" />
+    <Compile Include="SubmitTool\IPayloadHandler.cs" />
+    <Compile Include="SubmitTool\ISubmitMessageCreator.cs" />
+    <Compile Include="SubmitTool\ISubmitToolSetup.cs" />
+    <Compile Include="SubmitTool\MessagePayload.cs" />
+    <Compile Include="SubmitTool\MshMessageHandler.cs" />
+    <Compile Include="SubmitTool\PayloadServiceHandler.cs" />
+    <Compile Include="SubmitTool\SubmitMessageCreator.cs" />
+    <Compile Include="SubmitTool\SubmitToolController.cs" />
+    <Compile Include="SubmitTool\SubmitToolSetup.cs" />
+    <Compile Include="Swagger\FileUploadOperation.cs" />
     <Compile Include="Swagger\ISwaggerSetup.cs" />
     <Compile Include="Swagger\SwaggerSetup.cs" />
   </ItemGroup>

@@ -49,11 +49,11 @@ const services: any = [
     ],
     imports: [
         CommonModule,
-        As4ComponentsModule,
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(ROUTES),
         SortablejsModule,
+        As4ComponentsModule,
         AuthenticationModule
     ],
     exports: [

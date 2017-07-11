@@ -113,7 +113,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
-                    EbmsRefToMessageId = InEbmsRefToMessageId1,
+                    EbmsRefToMessageId = InEbmsMessageId1,
                     PMode = pmodeString,                
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
                 });
@@ -303,13 +303,13 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                     var filter = new ExceptionFilter()
                     {
-                        EbmsRefToMessageId = InEbmsRefToMessageId1,
+                        EbmsRefToMessageId = InEbmsMessageId1,
                         Direction = new[] { Direction.Inbound }
                     };
                     var result = await monitorService.GetExceptions(filter);
 
-                    Assert.True(result.Messages.Count() == 1);
-                    Assert.True(result.Messages.First().EbmsRefToMessageId == InEbmsRefToMessageId1);
+                    Assert.True(result.Messages.Count() == 1, "Count should be 1");
+                    Assert.True(result.Messages.First().EbmsRefToMessageId == InEbmsMessageId1, $"The first embsRefToMessagId should be {InEbmsRefToMessageId1}");
                 }
 
                 [Fact]
@@ -503,7 +503,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 }
 
                 [Theory]
-                [InlineData(Direction.Inbound, "ebmsRefToMessageId1")]
+                [InlineData(Direction.Inbound, "ebmsMessageId1")]
                 [InlineData(Direction.Outbound, "OutEbmsRefToMessageId1")]
                 public async Task Gets_The_MesageBody(Direction direction, string ebmsMessageId)
                 {
