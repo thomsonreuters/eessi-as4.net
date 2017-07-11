@@ -147,7 +147,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
         /// </summary>
         public XsdValidationFixture()
         {
-            Computer.RunPowershellScript("&..\\scripts\\GenerateXsd.ps1 . .");
+            Computer.RunPowershellScript("&..\\scripts\\GenerateXsd.ps1 -binDirectory . -outputDirectory ./doc/schemas");
         }
     }
 }
