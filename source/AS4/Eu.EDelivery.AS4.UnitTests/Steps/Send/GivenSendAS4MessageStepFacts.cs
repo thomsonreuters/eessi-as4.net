@@ -155,8 +155,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static SendingProcessingMode CreateValidSendingPMode()
         {
             return new SendingProcessingMode
-            {
-                PullConfiguration = new PullConfiguration { Protocol = { Url = "http://ignored/path" } },
+            {                
                 PushConfiguration = new PushConfiguration { Protocol = { Url = "http://ignored/path" } },
                 Reliability = { ReceptionAwareness = { IsEnabled = true } }
             };

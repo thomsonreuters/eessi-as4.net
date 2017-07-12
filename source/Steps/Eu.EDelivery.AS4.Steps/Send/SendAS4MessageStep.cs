@@ -72,8 +72,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
             {
                 throw new InvalidOperationException("The SendStep expects a PullRequest AS4 Message when the MessagingContext does not contain a ReceivedStream");
             }
-
-            // TODO: modify this; PullConfig and PushConfig: no distinction.
+            
             var sendConfiguration = messagingContext.SendingPMode.PushConfiguration;
 
             var as4Message = await GetAS4MessageFromContext(messagingContext);

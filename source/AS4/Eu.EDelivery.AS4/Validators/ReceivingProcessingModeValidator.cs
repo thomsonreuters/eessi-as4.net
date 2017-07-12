@@ -16,7 +16,7 @@ namespace Eu.EDelivery.AS4.Validators
         {
             RuleFor(pmode => pmode.Id).NotNull();
 
-            RulesForReplyHandling();
+            RulesForReplyHandling();            
             RulesForDeliver();
         }
 

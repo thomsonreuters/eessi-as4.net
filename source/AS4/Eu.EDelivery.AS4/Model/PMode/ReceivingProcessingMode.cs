@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
 using System.Xml.Serialization;
-using Eu.EDelivery.AS4.Xml;
 using Newtonsoft.Json;
 
 namespace Eu.EDelivery.AS4.Model.PMode
@@ -16,7 +15,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public string Id { get; set; }
         public MessageExchangePattern Mep { get; set; }
-        public MessageExchangePatternBinding MepBinding { get; set; }
+        public MessageExchangePatternBinding MepBinding { get; set; }        
         public ReceiveReliability Reliability { get; set; }
         public ReplyHandlingSetting ReplyHandling { get; set; }
         public Receivehandling ExceptionHandling { get; set; }
@@ -26,15 +25,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Deliver Deliver { get; set; }
 
         public ReceivingProcessingMode()
-        {
-            this.Reliability = new ReceiveReliability();
-            this.ReplyHandling = new ReplyHandlingSetting();
-            this.ExceptionHandling = new Receivehandling();
-            this.Security = new ReceiveSecurity();
-            this.MessagePackaging = new MessagePackaging();
-            this.Deliver = new Deliver();
-        }
-    }
+        {            
+            Reliability = new ReceiveReliability();
+            ReplyHandling = new ReplyHandlingSetting();
+            ExceptionHandling = new Receivehandling();
+            Security = new ReceiveSecurity();
+            MessagePackaging = new MessagePackaging();
+            Deliver = new Deliver();
+        }        
+    }    
 
     public class ReceiveReliability
     {
@@ -42,7 +41,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public ReceiveReliability()
         {
-            this.DuplicateElimination = new DuplicateElimination();
+            DuplicateElimination = new DuplicateElimination();
         }
     }
 
@@ -53,7 +52,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public DuplicateElimination()
         {
-            this.IsEnabled = false;
+            IsEnabled = false;
         }
     }
 
@@ -81,7 +80,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public ReceiveReceiptHandling()
         {
-            this.UseNNRFormat = false;
+            UseNNRFormat = false;
         }
     }
 
@@ -92,8 +91,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public Receivehandling()
         {
-            this.NotifyMessageConsumer = false;
-            this.NotifyMethod = new Method();
+            NotifyMessageConsumer = false;
+            NotifyMethod = new Method();
         }
     }
 
@@ -105,7 +104,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public ReceiveErrorHandling()
         {
-            this.UseSoapFault = false;
+            UseSoapFault = false;
         }
     }
 
@@ -116,8 +115,8 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public ReceiveSecurity()
         {
-            this.SigningVerification = new SigningVerification();
-            this.Decryption = new Decryption();
+            SigningVerification = new SigningVerification();
+            Decryption = new Decryption();
         }
     }
 
@@ -127,7 +126,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public SigningVerification()
         {
-            this.Signature = Limit.Allowed;
+            Signature = Limit.Allowed;
         }
     }
 
@@ -151,7 +150,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public Decryption()
         {
-            this.Encryption = Limit.Allowed;
+            Encryption = Limit.Allowed;
         }
     }
 
@@ -163,9 +162,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public Deliver()
         {
-            this.IsEnabled = false;
-            this.PayloadReferenceMethod = new Method();
-            this.DeliverMethod = new Method();
+            IsEnabled = false;
+            PayloadReferenceMethod = new Method();
+            DeliverMethod = new Method();
         }
     }
 

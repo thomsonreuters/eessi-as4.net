@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         [InlineData(200, 128)]
         public void ValidSendingPMode_IfKeySizeIs(int beforeKeySize, int afterKeySize)
         {
-            
+
             SendingProcessingMode pmode = new ValidSendingPModeFactory().Create();
             pmode.Security.Encryption.IsEnabled = true;
             pmode.Security.Encryption.AlgorithmKeySize = beforeKeySize;
@@ -36,8 +36,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             SendingProcessingMode pmode = new SendingProcessingMode
             {
                 Id = "Test",
-                MepBinding = MessageExchangePatternBinding.Pull,
-                PullConfiguration = null,
+                MepBinding = MessageExchangePatternBinding.Push,
                 PushConfiguration = null,
                 DynamicDiscovery = null
             };
@@ -49,42 +48,39 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void PullConfigurationMustBeComplete_WhenMepBindingIsPull()
-        {            
+        public void PushConfigurationMustNotBeSpecified_WhenPulling()
+        {
             SendingProcessingMode pmode = new SendingProcessingMode
             {
                 Id = "Test",
                 MepBinding = MessageExchangePatternBinding.Pull,
-                PullConfiguration = new PullConfiguration(),
-                PushConfiguration = null,
+                PushConfiguration = new PushConfiguration(),
                 DynamicDiscovery = null
             };
 
             var result = ExerciseValidation(pmode);
 
             Assert.False(result.IsValid);
+
+            pmode.PushConfiguration = null;
+
+            result = ExerciseValidation(pmode);
+
+            Assert.True(result.IsValid);
         }
 
         [Fact]
         public void SendConfigurationMayBeIncomplete_WhenDynamicDiscovery()
-        {         
+        {
             SendingProcessingMode pmode = new SendingProcessingMode
             {
                 Id = "Test",
                 MepBinding = MessageExchangePatternBinding.Pull,
-                PullConfiguration = new PullConfiguration(),
                 PushConfiguration = null,
                 DynamicDiscovery = new DynamicDiscoveryConfiguration()
             };
 
             var result = ExerciseValidation(pmode);
-
-            Assert.True(result.IsValid);
-
-            pmode.PullConfiguration = null;
-            pmode.MepBinding = MessageExchangePatternBinding.Push;
-
-            result = ExerciseValidation(pmode);
 
             Assert.True(result.IsValid);
         }

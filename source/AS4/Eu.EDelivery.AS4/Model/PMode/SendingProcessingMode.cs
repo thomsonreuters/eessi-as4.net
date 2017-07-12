@@ -8,7 +8,6 @@ using Eu.EDelivery.AS4.Security.References;
 using Eu.EDelivery.AS4.Security.Strategies;
 using Eu.EDelivery.AS4.Serialization;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.Model.PMode
 {
@@ -25,6 +24,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         public SendingProcessingMode()
         {
+            MepBinding = MessageExchangePatternBinding.Push;            
             AllowOverride = false;
             Reliability = new SendReliability();
             ReceiptHandling = new SendHandling();
@@ -47,12 +47,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public PushConfiguration PushConfiguration { get; set; }
 
-        public PullConfiguration PullConfiguration { get; set; }
-
         public DynamicDiscoveryConfiguration DynamicDiscovery { get; set; }
 
         public SendReliability Reliability { get; set; }
-                        
+
         public SendHandling ReceiptHandling { get; set; }
 
         public SendHandling ErrorHandling { get; set; }
@@ -69,11 +67,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [JsonIgnore]
         [ScriptIgnore]
         public bool PushConfigurationSpecified => PushConfiguration != null;
-
-        [XmlIgnore]
-        [JsonIgnore]
-        [ScriptIgnore]
-        public bool PullConfigurationSpecified => PullConfiguration != null;
 
         [XmlIgnore]
         [JsonIgnore]
@@ -113,7 +106,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlIgnore]
         public static readonly Encryption Default = new Encryption();
 
-        private object publicKeyInformation;
+        private object _publicKeyInformation;
 
         public Encryption()
         {
@@ -140,13 +133,22 @@ namespace Eu.EDelivery.AS4.Model.PMode
         [XmlElement("PublicKeyCertificate", typeof(PublicKeyCertificate))]
         public object PublicKeyInformation
         {
-            get { return publicKeyInformation; }
+            get { return _publicKeyInformation; }
             set
             {
-                publicKeyInformation = value;
-                if (value is PublicKeyFindCriteria) PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
-                else if (value is PublicKeyCertificate) PublicKeyType= PublicKeyChoiceType.PublicKeyCertificate;
-                else PublicKeyType = PublicKeyChoiceType.None;
+                _publicKeyInformation = value;
+                if (value is PublicKeyFindCriteria)
+                {
+                    PublicKeyType = PublicKeyChoiceType.PublicKeyFindCriteria;
+                }
+                else if (value is PublicKeyCertificate)
+                {
+                    PublicKeyType = PublicKeyChoiceType.PublicKeyCertificate;
+                }
+                else
+                {
+                    PublicKeyType = PublicKeyChoiceType.None;
+                }
             }
         }
 
@@ -337,23 +339,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
         Protocol Protocol { get; set; }
 
         TlsConfiguration TlsConfiguration { get; set; }
-    }
-
-    [Serializable]
-    public class PullConfiguration : ISendConfiguration
-    {
-        public PullConfiguration()
-        {
-            Protocol = new Protocol();
-            TlsConfiguration = new TlsConfiguration();
-            Mpc = Constants.Namespaces.EbmsDefaultMpc;            
-        }
-
-        public string Mpc { get; set; }
-
-        public Protocol Protocol { get; set; }
-
-        public TlsConfiguration TlsConfiguration { get; set; }
     }
 
     [Serializable]

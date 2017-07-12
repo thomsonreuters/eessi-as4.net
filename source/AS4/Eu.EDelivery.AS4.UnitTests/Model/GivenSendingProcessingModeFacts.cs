@@ -68,21 +68,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 Assert.False(DefaultEmptyPMode.PushConfiguration.Protocol.UseChunking);
                 Assert.False(DefaultEmptyPMode.PushConfiguration.Protocol.UseHttpCompression);
             }
-
-            [Fact(Skip = "PushConfiguration is not populated by default, review after PMode modifications")]
-            public void ThenProtocolIsNotNull()
-            {
-                // Assert
-                Assert.NotNull(DefaultEmptyPMode.PushConfiguration);
-            }
-
-            [Fact(Skip = "PullConfiguration is not populated by default, review after PMode modifications")]
-            public void ThenPullConfigurationIsNotNull()
-            {
-                // Assert
-                Assert.NotNull(DefaultEmptyPMode.PullConfiguration);
-            }
-
+            
             public void ThenPushConfigurationIsDefault()
             {
                 // Assert
