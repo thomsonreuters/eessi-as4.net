@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 
-import { As4ComponentsModule } from './../common/as4components.module';
+import { As4ComponentsModule, errorHandlingServices } from './../common/as4components.module';
 import { ReceivingPmodeComponent } from './receivingpmode/receivingpmode.component';
 import { PmodeStore } from './pmode.store';
 import { SendingPmodeService } from './sendingpmode.service';
@@ -36,7 +36,8 @@ const components: any = [
 const services: any = [
     PmodeStore,
     SendingPmodeService,
-    ReceivingPmodeService
+    ReceivingPmodeService,
+    ...errorHandlingServices
 ];
 
 @NgModule({

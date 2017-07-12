@@ -107,14 +107,14 @@ const services: any = [
     {
         provide: Http,
         useFactory: spinnerHttpServiceFactory,
-        deps: [XHRBackend, RequestOptions, SpinnerService]
+        deps: [XHRBackend, RequestOptions, SpinnerService, DialogService]
     },
     {
         provide: AuthHttp,
         useFactory: authHttpServiceFactory,
         deps: [Http, RequestOptions]
     },
-    // ...errorHandlingServices
+    ...errorHandlingServices
 ];
 
 @NgModule({
