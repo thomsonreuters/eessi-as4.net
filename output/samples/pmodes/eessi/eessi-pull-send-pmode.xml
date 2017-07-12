@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
+<!-- This PMode is used for sending (pushing) PullRequest signal messages -->
 <PMode 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="eu:edelivery:as4:pmode">
   <Id>eessi-pull-send-pmode</Id>
   <Mep>OneWay</Mep>
-  <MepBinding>Pull</MepBinding>
-  <PullConfiguration>
-    <Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/[Add your Institution's PULL endpoint here]</Mpc>
+  <MepBinding>Push</MepBinding>
+  <PushConfiguration>    
     <Protocol>
       <Url>[Add the URL of the AP Inbox Service here]</Url>
     </Protocol>
@@ -19,7 +19,7 @@
         <ClientCertificateFindValue>[Add the serial number of your Institution's TLS client certificate here]</ClientCertificateFindValue>
       </ClientCertificateReference>
     </TlsConfiguration>
-  </PullConfiguration>
+  </PushConfiguration>
    <Security>
     <Signing>
       <IsEnabled>true</IsEnabled>      
@@ -30,4 +30,7 @@
       <HashFunction>http://www.w3.org/2001/04/xmlenc#sha256</HashFunction>
     </Signing>
   </Security>
+  <MessagePackaging>
+	<Mpc>http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC/[Add your Institution's PULL endpoint here]</Mpc>
+  </MessagePackaging>
   </PMode>

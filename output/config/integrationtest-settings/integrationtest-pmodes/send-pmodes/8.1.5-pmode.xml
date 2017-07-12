@@ -15,10 +15,7 @@
       <TlsVersion>Tls12</TlsVersion>
       <ClientCertificateReference />
     </TlsConfiguration>
-  </PushConfiguration>
-  <PullConfiguration>
-    <SubChannel />
-  </PullConfiguration>
+  </PushConfiguration>  
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>false</IsEnabled>

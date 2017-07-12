@@ -14,10 +14,7 @@
       <IsEnabled>false</IsEnabled>
       <TlsVersion>Tls12</TlsVersion>
     </TlsConfiguration>
-  </PushConfiguration>
-  <PullConfiguration>
-    <Mpc />
-  </PullConfiguration>
+  </PushConfiguration>  
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>true</IsEnabled>

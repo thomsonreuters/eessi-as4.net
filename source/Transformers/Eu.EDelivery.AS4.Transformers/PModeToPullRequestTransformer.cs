@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Core;
@@ -42,7 +41,7 @@ namespace Eu.EDelivery.AS4.Transformers
         {
             SendingProcessingMode pmode = await DeserializeValidPMode(receivedMessage);
 
-            AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode.PullConfiguration.Mpc), pmode);
+            AS4Message pullRequestMessage = AS4Message.Create(new PullRequest(pmode.MessagePackaging.Mpc), pmode);
           
             var context = new MessagingContext(pullRequestMessage, MessagingContextMode.Receive);
 
@@ -64,20 +63,16 @@ namespace Eu.EDelivery.AS4.Transformers
                 return pmode;
             }
 
-            throw ThrowHandleInvalidPModeException(pmode, result);
+            throw CreateInvalidPModeException(pmode, result);
         }
 
-        private static InvalidDataException ThrowHandleInvalidPModeException(IPMode pmode, ValidationResult result)
+        private static InvalidDataException CreateInvalidPModeException(IPMode pmode, ValidationResult result)
         {
-            foreach (ValidationFailure error in result.Errors)
-            {
-                Logger.Error($"Sending PMode Validation Error: {error.PropertyName} = {error.ErrorMessage}");
-            }
+            var errorMessage = result.AppendValidationErrorsToErrorMessage($"Receiving PMode {pmode.Id} is not valid");
 
-            string description = $"Sending PMode {pmode.Id} was invalid, see logging";
-            Logger.Error(description);
-
-            return new InvalidDataException(description);
+            Logger.Error(errorMessage);
+            
+            return new InvalidDataException(errorMessage);
         }
     }
 }

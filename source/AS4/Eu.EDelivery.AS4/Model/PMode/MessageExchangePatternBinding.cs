@@ -2,7 +2,7 @@
 {
     public enum MessageExchangePatternBinding
     {
-        Pull = 0,
-        Push = 1
+        Push = 0,
+        Pull = 1        
     }
 }

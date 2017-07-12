@@ -8,7 +8,6 @@
       <xs:element minOccurs="1" maxOccurs="1" name="Mep" type="tns:MessageExchangePattern" />
       <xs:element minOccurs="1" maxOccurs="1" name="MepBinding" type="tns:MessageExchangePatternBinding" />
       <xs:element minOccurs="0" maxOccurs="1" name="PushConfiguration" type="tns:PushConfiguration" />
-      <xs:element minOccurs="0" maxOccurs="1" name="PullConfiguration" type="tns:PullConfiguration" />
       <xs:element minOccurs="0" maxOccurs="1" name="DynamicDiscovery" type="tns:DynamicDiscoveryConfiguration" />
       <xs:element minOccurs="0" maxOccurs="1" name="Reliability" type="tns:SendReliability" />
       <xs:element minOccurs="0" maxOccurs="1" name="ReceiptHandling" type="tns:SendHandling" />
@@ -26,8 +25,8 @@
   </xs:simpleType>
   <xs:simpleType name="MessageExchangePatternBinding">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="Pull" />
       <xs:enumeration value="Push" />
+      <xs:enumeration value="Pull" />
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="PushConfiguration">
@@ -83,13 +82,6 @@
       <xs:enumeration value="FindBySubjectKeyIdentifier" />
     </xs:restriction>
   </xs:simpleType>
-  <xs:complexType name="PullConfiguration">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="1" name="Mpc" type="xs:string" />
-      <xs:element minOccurs="0" maxOccurs="1" name="Protocol" type="tns:Protocol" />
-      <xs:element minOccurs="0" maxOccurs="1" name="TlsConfiguration" type="tns:TlsConfiguration" />
-    </xs:sequence>
-  </xs:complexType>
   <xs:complexType name="DynamicDiscoveryConfiguration">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="SmlScheme" type="xs:string" />

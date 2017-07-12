@@ -22,8 +22,8 @@
   </xs:simpleType>
   <xs:simpleType name="MessageExchangePatternBinding">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="Pull" />
       <xs:enumeration value="Push" />
+      <xs:enumeration value="Pull" />
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="ReceiveReliability">

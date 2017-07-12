@@ -47,30 +47,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
             // Assert
             Assert.False(actualResult.CanProceed);
         }
-
-        [Fact(Skip="This is no longer valid; the ExceptionHandler updates the status.")]
-        public async Task StepUpdatesRequestOperationAndStatus_IfRequestFailsToSend()
-        {
-            // Arrange
-            var as4Message = AS4Message.Create(new FilledUserMessage());
-            InsertToBeSentUserMessage(as4Message);
-            MessagingContext context = CreateSendMessagingContext(as4Message);
-
-            // Act / Assert
-            // Act 
-            var step = new SendAS4MessageStep(GetDataStoreContext, StubHttpClient.ThatThrows(new WebException()));
-            await step.ExecuteAsync(context, CancellationToken.None);
-
-            // Assert
-            AssertSentUserMessage(
-                as4Message,
-                message =>
-                {
-                    Assert.Equal(Operation.Undetermined, message.Operation);
-                    Assert.Equal(OutStatus.Exception, message.Status);
-                });
-        }
-
+        
         [Fact]
         public async Task StepUpdatesRequestOperationAndStatus_IfRequestIsBeingSent()
         {
@@ -155,8 +132,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Send
         private static SendingProcessingMode CreateValidSendingPMode()
         {
             return new SendingProcessingMode
-            {
-                PullConfiguration = new PullConfiguration { Protocol = { Url = "http://ignored/path" } },
+            {                
                 PushConfiguration = new PushConfiguration { Protocol = { Url = "http://ignored/path" } },
                 Reliability = { ReceptionAwareness = { IsEnabled = true } }
             };

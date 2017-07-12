@@ -44,7 +44,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message for delivery and notifycation");
+            Logger.Info($"{messagingContext.AS4Message.GetPrimaryMessageId()} Update the received message for delivery and notification");
 
             using (DatastoreContext datastoreContext = _createDatastoreContext())
             {
