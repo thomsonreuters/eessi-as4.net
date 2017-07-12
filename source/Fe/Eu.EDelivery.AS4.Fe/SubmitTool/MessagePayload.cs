@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HttpMultipartParser;
 
 namespace Eu.EDelivery.AS4.Fe.SubmitTool
