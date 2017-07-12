@@ -13,6 +13,12 @@ export class DecryptionForm {
                 privateKeyFindType: [current && current.privateKeyFindType, this.validateKeyType],
             })
             .onChange(Decryption.FIELD_encryption, (result, wrapper) => {
+                if (wrapper.form.disabled) {
+                    // Force disable the form
+                    wrapper.disable([Decryption.FIELD_encryption]);
+                    return;
+                }
+
                 if (+result === 2 || result === 0) {
                     wrapper.disable([Decryption.FIELD_encryption]);
                 } else {

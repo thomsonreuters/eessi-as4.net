@@ -7,6 +7,7 @@
 @import './tooltip.scss';
 @import './button.scss';
 @import '../app/common/multiselect/multiselect.directive.scss';
+@import './mixins.scss';
 .clickable {
     cursor: pointer;
 }
@@ -34,4 +35,34 @@ i.active {
 
 input[type="checkbox"] {
     margin-top: 9px;
+}
+
+div {
+    .sub-header {
+        color: #CCC;
+        font-size: 16px;
+        &:not(:first-child) {
+            margin-top: 30px;
+        }
+        margin-bottom: 10px;
+        @include breakpoint(md) {
+            text-align: right;
+            width: 25%;
+            padding-right: 23px;
+        }
+    }
+    .sub-header-1 {
+        color: $primary;
+        font-size: 18px;
+        font-weight: bold;
+        &:not(:first-child) {
+            margin-top: 30px;
+        }
+        margin-bottom: 10px;
+        @include breakpoint(md) {
+            text-align: right;
+            width: 25%;
+            padding-right: 23px;
+        }
+    }
 }

@@ -4,7 +4,7 @@
         <div content>
             <as4-input [label]="'Name'">
                 <div class="input-group">
-                    <input type="text" class="form-control" formControlName="name" />
+                    <input type="text" class="form-control" formControlName="name" as4-no-auth/>
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-flat" (click)="save()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-save"></i></button>
                         <button type="button" class="btn btn-flat" (click)="reset()" [class.btn-primary]="form.dirty" [disabled]="!form.dirty"><i class="fa fa-undo"></i></button>

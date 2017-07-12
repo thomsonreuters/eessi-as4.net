@@ -91,11 +91,11 @@ export class CrudComponent implements OnInit, OnDestroy {
         this.subscriptions
             .push(this._crudService.obsGet().subscribe((result) => {
                 this.currentPmode = result;
+                this.form = this._crudService.getForm(result).build(!!!result);
+                this.form.markAsPristine();
                 if (!!!result && !!!this.currentPmode) {
                     return;
                 }
-                this.form = this._crudService.getForm(result).build(!!!result);
-                this.form.markAsPristine();
                 if (!!!result) {
                     return;
                 }

@@ -1,4 +1,3 @@
-import { FormControl, ControlValueAccessor } from '@angular/forms';
 /* tslint:disable */
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { Validators } from '@angular/forms';

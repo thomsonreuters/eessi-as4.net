@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div tabitem title="Push" formGroupName="pushConfiguration" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.pushConfiguration').valid">
-                <h5>Protocol</h5>
+                <div class="sub-header-1">Protocol</div>
                 <as4-input label="Url" formGroupName="protocol" runtimeTooltip="protocol.url">
                     <input type="text" formControlName="url" />
                 </as4-input>
@@ -46,7 +46,7 @@
                 <as4-input label="Use http compression" formGroupName="protocol" runtimeTooltip="protocol.usehttpcompression">
                     <input type="checkbox" formControlName="useHttpCompression" />
                 </as4-input>
-                <h5>Tls configuration</h5>
+                <div class="sub-header-1">Tls configuration</div>
                 <as4-input label="Enabled" formGroupName="tlsConfiguration" runtimeTooltip="protocol.tlsconfiguration">
                     <input type="checkbox" formControlName="isEnabled" />
                 </as4-input>
@@ -58,7 +58,7 @@
                         <option value="3">Tls12</option>
                     </select>
                 </as4-input>
-                <h5>Tls client certificate</h5>
+                <div class="sub-header">Tls client certificate</div>
                 <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindtype">
                     <div formGroupName="clientCertificateReference">
                         <select formControlName="clientCertificateFindType">
@@ -91,77 +91,32 @@
                     <input type="text" formControlName="subChannel" />
                 </as4-input>
             </div>
+            <div tabitem title="Dynamic discovery" formGroupName="dynamicDiscovery" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.dynamicDiscovery').valid">
+                <as4-input label="Sml scheme" runtimeTooltip="dynamicdiscovery.smlscheme">
+                    <input type="text" formControlName="smlScheme" required/>
+                </as4-input>
+                <as4-input label="Smp server domain name" runtimeTooltip="dynamicdiscovery.smpserverdomainname">
+                    <input type="text" formControlName="smpServerDomainName" required/>
+                </as4-input>
+                <as4-input label="Document identifier" runtimeTooltip="dynamicdiscovery.documentidentifier">
+                    <input type="text" formControlName="documentIdentifier" required/>
+                </as4-input>
+                <as4-input label="Document identifier scheme" runtimeTooltip="dynamicdiscovery.documentidentifierscheme">
+                    <input type="text" formControlName="documentIdentifierScheme" required/>
+                </as4-input>
+            </div>
             <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid">
-                <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')"></as4-message-packaging>
+                <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')" [disabled]="pmode.form.get('pmode.messagePackaging').disabled"></as4-message-packaging>
             </div>
             <div tabitem title="Security" formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid">
-                <div formGroupName="signing">
-                    <h5>Signing</h5>
-                    <as4-input label="Enabled" runtimeTooltip="security.signing.isenabled">
-                        <input type="checkbox" formControlName="isEnabled" />
-                    </as4-input>
-                    <as4-input label="Private key find type" runtimeTooltip="security.signing.privatekeyfindtype">
-                        <select formControlName="privateKeyFindType">
-                            <option value="0">Find by thumbprint</option>
-                            <option value="1">Find by subject name</option>
-                            <option value="2">Find by subject distinguished name</option>
-                            <option value="3">Find by issuer name</option>
-                            <option value="4">Find by issuer distinguished name</option>
-                            <option value="5">Find by serial number</option>
-                            <option value="6">Find by time valid</option>
-                            <option value="7">Find by time not yet valid</option>
-                            <option value="8">Find by time expired</option>
-                            <option value="9">Find by template name</option>
-                            <option value="10">Find by application policy</option>
-                            <option value="11">Find by certificate policy</option>
-                            <option value="12">Find by extension</option>
-                            <option value="13">Find by key usage</option>
-                            <option value="14">Find by subject key identifier</option>
-                        </select>
-                    </as4-input>
-                    <as4-input label="Private key find value" runtimeTooltip="security.signing.privatekeyfindvalue">
-                        <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
-                    </as4-input>
-                    <as4-input label="Key reference method" runtimeTooltip="security.signing.keyreferencemethod">
-                        <select formControlName="keyReferenceMethod">
-                            <option value="0">BSTReference</option>
-                            <option value="1">KeyIdentifier</option>
-                            <option value="2">IssuerSerial</option>
-                        </select>
-                    </as4-input>
-                    <as4-input label="Algorithm" runtimeTooltip="security.signing.alogrithm">
-                        <input type="text" formControlName="algorithm" />
-                    </as4-input>
-                    <as4-input label="HashFunction" runtimeTooltip="security.signing.hashfunction">
-                        <input type="text" formControlName="hashFunction" />
-                    </as4-input>
-                </div>
-                <div formGroupName="encryption">
-                    <h5>Encryption</h5>
-                    <as4-input label="Enabled" runtimeTooltip="security.encryption.isenabled">
-                        <input type="checkbox" formControlName="isEnabled" />
-                    </as4-input>
-                    <as4-input label="Algorithm">
-                        <input type="text" formControlName="algorithm" />
-                    </as4-input>
-                    <as4-input label="AlgorithmKeySize">
-                        <input type="number" formControlName="algorithmKeySize" />
-                    </as4-input>
-                    <as4-input label="PublicKeyType">
-                        <select formControlName="publicKeyType" test #keyInfo>
-                            <option value="0">None</option>                            
-                            <option value="1">Certificate</option>                            
-                            <option value="2">Criteria</option>                            
-                        </select>
-                    </as4-input>
-                    <ng-container *ngIf="keyInfo.value === '1'" formGroupName="publicKeyInformation">
-                        <as4-input label="Certificate" runtimeTooltip="security.encryption.publickeyinformation.certificate">
-                            <input type="text" formControlName="certificate" />
+                <div class="row">
+                    <div formGroupName="signing" class="col-xs-12 col-md-6">
+                        <div class="sub-header-1">Signing</div>
+                        <as4-input label="Enabled" runtimeTooltip="security.signing.isenabled">
+                            <input type="checkbox" formControlName="isEnabled" />
                         </as4-input>
-                    </ng-container>
-                    <ng-container *ngIf="keyInfo.value === '2'" formGroupName="publicKeyInformation">
-                        <as4-input label="Public key find type" runtimeTooltip="security.encryption.publickeyinformation.publickeyfindtype">
-                            <select formControlName="publicKeyFindType">
+                        <as4-input label="Private key find type" runtimeTooltip="security.signing.privatekeyfindtype">
+                            <select formControlName="privateKeyFindType">
                                 <option value="0">Find by thumbprint</option>
                                 <option value="1">Find by subject name</option>
                                 <option value="2">Find by subject distinguished name</option>
@@ -179,20 +134,86 @@
                                 <option value="14">Find by subject key identifier</option>
                             </select>
                         </as4-input>
-                        <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyinformation.publickeyfindvalue">
-                            <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
+                        <as4-input label="Private key find value" runtimeTooltip="security.signing.privatekeyfindvalue">
+                            <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
                         </as4-input>
-                    </ng-container>
-                    <div formGroupName="keyTransport">
-                        <as4-input label="Key Transport algorithm" runtimeTooltip="security.encryption.keytransport.transportAlgorithm">
-                            <input type="text" formControlName="transportAlgorithm">
+                        <as4-input label="Key reference method" runtimeTooltip="security.signing.keyreferencemethod">
+                            <select formControlName="keyReferenceMethod">
+                                <option value="0">BSTReference</option>
+                                <option value="1">KeyIdentifier</option>
+                                <option value="2">IssuerSerial</option>
+                            </select>
                         </as4-input>
-                        <as4-input label="Key Digest algorithm" runtimeTooltip="security.encryption.keytransport.digestAlgorithm">
-                            <input type="text" formControlName="digestAlgorithm">
+                        <as4-input label="Algorithm" runtimeTooltip="security.signing.alogrithm">
+                            <input type="text" formControlName="algorithm" />
                         </as4-input>
-                        <as4-input label="Key Mgf algorithm" runtimeTooltip="security.encryption.keytransport.mgfAlgorithm">
-                            <input type="text" formControlName="mgfAlgorithm">
+                        <as4-input label="HashFunction" runtimeTooltip="security.signing.hashfunction">
+                            <input type="text" formControlName="hashFunction" />
                         </as4-input>
+                    </div>
+                    <div formGroupName="encryption" class="col-xs-12 col-md-6">
+                        <div class="sub-header-1">Encryption</div>
+                        <as4-input label="Enabled" runtimeTooltip="security.encryption.isenabled">
+                            <input type="checkbox" formControlName="isEnabled" />
+                        </as4-input>
+                        <as4-input label="Algorithm">
+                            <input type="text" formControlName="algorithm" />
+                        </as4-input>
+                        <as4-input label="AlgorithmKeySize">
+                            <input type="number" formControlName="algorithmKeySize" />
+                        </as4-input>
+
+                        <div class="sub-header">Public key information</div>
+                        <as4-input label="PublicKeyType">
+                            <select formControlName="publicKeyType" test #keyInfo>
+                                <option value="0">None</option>                            
+                                <option value="1">Certificate</option>                            
+                                <option value="2">Criteria</option>                            
+                            </select>
+                        </as4-input>
+                        <ng-container *ngIf="keyInfo.value === '1'" formGroupName="publicKeyInformation">
+                            <div class="sub-header">Public key information</div>
+                            <as4-input label="Certificate" runtimeTooltip="security.encryption.publickeyinformation.certificate">
+                                <input type="text" formControlName="certificate" />
+                            </as4-input>
+                        </ng-container>
+                        <ng-container *ngIf="keyInfo.value === '2'" formGroupName="publicKeyInformation">
+                            <as4-input label="Public key find type" runtimeTooltip="security.encryption.publickeyinformation.publickeyfindtype">
+                                <select formControlName="publicKeyFindType">
+                                    <option value="0">Find by thumbprint</option>
+                                    <option value="1">Find by subject name</option>
+                                    <option value="2">Find by subject distinguished name</option>
+                                    <option value="3">Find by issuer name</option>
+                                    <option value="4">Find by issuer distinguished name</option>
+                                    <option value="5">Find by serial number</option>
+                                    <option value="6">Find by time valid</option>
+                                    <option value="7">Find by time not yet valid</option>
+                                    <option value="8">Find by time expired</option>
+                                    <option value="9">Find by template name</option>
+                                    <option value="10">Find by application policy</option>
+                                    <option value="11">Find by certificate policy</option>
+                                    <option value="12">Find by extension</option>
+                                    <option value="13">Find by key usage</option>
+                                    <option value="14">Find by subject key identifier</option>
+                                </select>
+                            </as4-input>
+                            <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyinformation.publickeyfindvalue">
+                                <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
+                            </as4-input>
+                        </ng-container>
+
+                        <div class="sub-header">Key transport</div>
+                        <div formGroupName="keyTransport">
+                            <as4-input label="Key Transport algorithm" runtimeTooltip="security.encryption.keytransport.transportAlgorithm">
+                                <input type="text" formControlName="transportAlgorithm">
+                            </as4-input>
+                            <as4-input label="Key Digest algorithm" runtimeTooltip="security.encryption.keytransport.digestAlgorithm">
+                                <input type="text" formControlName="digestAlgorithm">
+                            </as4-input>
+                            <as4-input label="Key Mgf algorithm" runtimeTooltip="security.encryption.keytransport.mgfAlgorithm">
+                                <input type="text" formControlName="mgfAlgorithm">
+                            </as4-input>
+                        </div>
                     </div>
                 </div>
             </div>

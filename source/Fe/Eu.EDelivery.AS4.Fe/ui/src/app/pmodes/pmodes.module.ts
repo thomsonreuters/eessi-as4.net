@@ -47,12 +47,12 @@ const services: any = [
         ...services
     ],
     imports: [
+        AuthenticationModule,
         CommonModule,
         As4ComponentsModule,
         FormsModule,
         ReactiveFormsModule,
-        RouterModule.forChild(ROUTES),
-        AuthenticationModule
+        RouterModule.forChild(ROUTES)
     ],
     exports: [
         PmodeSelectComponent

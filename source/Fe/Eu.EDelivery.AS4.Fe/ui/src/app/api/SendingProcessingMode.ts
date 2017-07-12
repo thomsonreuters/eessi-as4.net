@@ -7,6 +7,7 @@ import { SendHandling } from "./SendHandling";
 import { Security } from "./Security";
 import { SendMessagePackaging } from "./SendMessagePackaging";
 import { MessagePackaging } from './MessagePackaging';
+import { DynamicDiscovery } from './DynamicDiscovery';
 
 export class SendingProcessingMode {
 	id: string;
@@ -15,6 +16,7 @@ export class SendingProcessingMode {
 	mepBinding: number;
 	pushConfiguration: PushConfiguration = new PushConfiguration();
 	pullConfiguration: PullConfiguration = new PullConfiguration();
+	dynamicDiscovery: DynamicDiscovery = new DynamicDiscovery();
 	reliability: SendReliability = new SendReliability(); 
 	receiptHandling: SendHandling = new SendHandling();
 	errorHandling: SendHandling = new SendHandling();
@@ -28,6 +30,7 @@ export class SendingProcessingMode {
 	static FIELD_mepBinding: string = 'mepBinding';
 	static FIELD_pushConfiguration: string = 'pushConfiguration';
 	static FIELD_pullConfiguration: string = 'pullConfiguration';
+	static FIELD_dynamicDiscovery: string = 'dynamicDiscovery';
 	static FIELD_reliability: string = 'reliability';
 	static FIELD_receiptHandling: string = 'receiptHandling';
 	static FIELD_errorHandling: string = 'errorHandling';

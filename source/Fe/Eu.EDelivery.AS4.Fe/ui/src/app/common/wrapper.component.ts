@@ -16,17 +16,7 @@ import { Router, RoutesRecognized, ActivatedRouteSnapshot, ActivatedRoute } from
             </section>
         </section>
     </div>`,
-    styles: [
-        `
-            .content-header {
-                font-size: 12px !important;
-            }
-
-            .content-wrapper {
-                min-height: 100vh;
-            }
-        `
-    ]
+    styleUrls: ['./wrapper.component.scss']
 })
 export class WrapperComponent implements OnDestroy {
     public breadCrumb: string;

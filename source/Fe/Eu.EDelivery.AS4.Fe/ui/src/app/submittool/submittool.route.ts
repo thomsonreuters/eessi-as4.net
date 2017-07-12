@@ -8,7 +8,7 @@ export const ROUTES: Routes = [
     // { path: '**', component: NoContentComponent }
     {
         path: '', component: WrapperComponent, children: [
-            { path: 'submittool', component: SubmitComponent, data: { title: 'Submit tool', icon: 'fa-inbox', weight: 1000 } }
+            { path: 'submittool', component: SubmitComponent, data: { title: 'Submit tool', icon: 'fa-inbox', weight: 1000, isAuthCheck: false } }
         ],
         data: { title: 'test', weight: 1000 },
         canActivate: [MustBeAuthorizedGuard]

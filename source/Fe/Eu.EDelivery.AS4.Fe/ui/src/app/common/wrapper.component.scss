@@ -1,0 +1,13 @@
+@import '../../styles/site.scss';
+.content-header {
+    font-size: 12px !important;
+}
+
+.content-wrapper {
+    min-height: 100vh;
+}
+
+h2 {
+    color: $primary;
+    margin-top: 0;
+}
