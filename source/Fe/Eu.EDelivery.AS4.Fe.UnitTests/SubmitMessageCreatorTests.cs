@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
 using HttpMultipartParser;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
@@ -19,11 +20,19 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         protected readonly string Pmode = "8.1.1-pmode";
         protected SubmitMessageCreator SubmitMessageCreator;
         protected IPmodeService PmodeService;
+        protected IOptions<SubmitToolOptions> Options;
 
         protected SubmitMessageCreatorTests Setup(IEnumerable<IPayloadHandler> payloadHandlers = null, IEnumerable<IMessageHandler> messageHandlers = null)
         {
+            Options = Substitute.For<IOptions<SubmitToolOptions>>();
+            Options.Value.Returns(new SubmitToolOptions
+            {
+                PayloadHttpAddress = "httpaddress",
+                ToHttpAddress = "tohttpaddress"
+            });
+
             PmodeService = Substitute.For<IPmodeService>();
-            SubmitMessageCreator = new SubmitMessageCreator(PmodeService, payloadHandlers, messageHandlers);
+            SubmitMessageCreator = new SubmitMessageCreator(PmodeService, payloadHandlers, messageHandlers, Options);
 
             PmodeService.GetSendingByName(Arg.Is(Pmode)).Returns(new SendingBasePmode()
             {
@@ -57,8 +66,6 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 var payload = new MessagePayload
                 {
-                    PayloadLocation = "test",
-                    To = "test",
                     SendingPmode = "IDONTEXIST"
                 };
 
@@ -83,8 +90,6 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 {
                     var payload = new MessagePayload
                     {
-                        PayloadLocation = "test",
-                        To = "test",
                         Files = new List<FilePart>
                         {
                             new FilePart("test", "test", memoryStream)
@@ -108,21 +113,16 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 Setup(Enumerable.Empty<IPayloadHandler>(), new[] { dummyMessageHandler });
 
-                using (var memoryStream = new MemoryStream())
+                var payload = new MessagePayload
                 {
-                    var payload = new MessagePayload
-                    {
-                        PayloadLocation = "test",
-                        To = "test",
-                        Files = Enumerable.Empty<FilePart>().ToList(),
-                        SendingPmode = Pmode
-                    };
+                    Files = Enumerable.Empty<FilePart>().ToList(),
+                    SendingPmode = Pmode
+                };
 
-                    await SubmitMessageCreator.CreateSubmitMessages(payload);
+                await SubmitMessageCreator.CreateSubmitMessages(payload);
 
-                    dummyMessageHandler.Received().CanHandle(Arg.Any<string>());
-                    await dummyMessageHandler.Received().Handle(Arg.Any<SubmitMessage>(), Arg.Any<string>());
-                }
+                dummyMessageHandler.Received().CanHandle(Arg.Any<string>());
+                await dummyMessageHandler.Received().Handle(Arg.Any<SubmitMessage>(), Arg.Any<string>());
             }
         }
     }

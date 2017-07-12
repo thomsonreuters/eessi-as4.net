@@ -53,19 +53,6 @@
                     <input type="number" name="messages" [(ngModel)]="payloadData.messages" pattern="^[1-9][0-9]?$|^100$" required min="1" max="999"
                     />
                 </as4-input>
-                <as4-input label="Payload location">
-                    <input type="radio" name="payloadType" [value]="0" [(ngModel)]="payloadData.payloadType" (click)="payloadData.payloadLocation =''"
-                        required>File
-                    <input type="radio" name="payloadType" [value]="1" [(ngModel)]="payloadData.payloadType" required markAsTouched="payloadLocation">Http
-                    <input type="text" *ngIf="(payloadData.payloadType | tonumber) === 1" class="form-control" name="payloadLocation" [(ngModel)]="payloadData.payloadLocation"
-                        required #payloadLocation="ngModel" />
-                </as4-input>
-                <as4-input label="To">
-                    <input type="radio" name="submitType" [value]="0" [(ngModel)]="payloadData.submitType" (click)="payloadData.to = ''" required>File
-                    <input type="radio" name="submitType" [value]="1" [(ngModel)]="payloadData.submitType" required markAsTouched="to">Http
-                    <input type="text" *ngIf="(payloadData.submitType | tonumber) === 1" class="form-control" name="to" #to="ngModel" [(ngModel)]="payloadData.to"
-                        minlength="1" required="(payloadData.submitType | tonumber) === 1">
-                </as4-input>
                 <as4-input showLabel="false">
                     <button [disabled]="!form.valid" type="button" class="btn btn-primary" (click)="submit()">
                         <span *ngIf="!isBusy">Send</span>

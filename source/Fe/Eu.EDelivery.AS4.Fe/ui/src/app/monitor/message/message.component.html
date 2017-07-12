@@ -54,7 +54,7 @@
                     <div class="input-group">
                         <select name="ebmsMessageType" [(ngModel)]="filter.filter.ebmsMessageType" multiselect>
                             <option value="0">User message</option>
-                            <option value="1">Error</option>
+                            <option value="1">Exception</option>
                             <option value="2">Receipt</option>
                         </select>
                         <span class="input-group-btn">
@@ -170,14 +170,14 @@
 <as4-box title="Messages">
     <div content *ngIf="messages | async as messageData">
         <div class="row">
-            <div class="col-xs-2">
+            <div class="col-xs-3">
                 <ul class="legend">
-                    <li><span class="error"></span> Error</li>
-                    <li><span class="duplicate"></span> Duplicate</li>
-                    <li><span class="test"></span> Test</li>
+                    <li class="active" as4-tooltip="Exceptions are always shown"><span class="exception"></span> Exceptions</li>
+                    <li class="clickable" [ngClass]="{ 'active': filter.filter.showDuplicates }" as4-tooltip="Show duplicate messages" (click)="toggleSearch(); filter.filter.showDuplicates = !filter.filter.showDuplicates"><span class="duplicate"></span> Duplicates</li>
+                    <li class="clickable" [ngClass]="{ 'active': filter.filter.showTests }" as4-tooltip="Show test messages" (click)="toggleSearch(); filter.filter.showTests = !filter.filter.showTests"><span class="test"></span> Tests</li>
                 </ul>
             </div>
-            <div class="col-xs-10" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            <div class="col-xs-9" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
                 [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
         </div>
         <div class="table-responsive">
@@ -229,7 +229,9 @@
                                         <p><b>Is test message?</b>: <input type="checkbox" [ngModel]="message.isTest" disabled/></p>
                                         <p><b>Is duplicate message?</b>: <input type="checkbox" [ngModel]="message.isDuplicate"
                                                 disabled/></p>
-                                        <p><b>Soap envelope</b>: <as4-clipboard [content]="messageDetail?.soapEnvelope"></as4-clipboard></p>
+                                        <p><b>Soap envelope</b>:
+                                            <as4-clipboard [content]="messageDetail?.soapEnvelope"></as4-clipboard>
+                                        </p>
                                     </div>
                                     <div tabitem title="Exceptions" class="exceptions">
                                         <as4-error-message [message]="message" [direction]="+filter.outFilter.direction === 0 ? 1 : 0" target="_blank"></as4-error-message>
@@ -245,14 +247,14 @@
             </table>
         </div>
         <div class="row">
-            <div class="col-xs-2">
+            <div class="col-xs-3">
                 <ul class="legend">
-                    <li><span class="error"></span> Error</li>
-                    <li><span class="duplicate"></span> Duplicate</li>
-                    <li><span class="test"></span> Test</li>
+                    <li class="active" as4-tooltip="Exceptions are always shown"><span class="exception"></span> Exceptions</li>
+                    <li class="clickable" [ngClass]="{ 'active': filter.filter.showDuplicates }" as4-tooltip="Show duplicate messages" (click)="toggleSearch(); filter.filter.showDuplicates = !filter.filter.showDuplicates"><span class="duplicate"></span> Duplicates</li>
+                    <li class="clickable" [ngClass]="{ 'active': filter.filter.showTests }" as4-tooltip="Show test messages" (click)="toggleSearch(); filter.filter.showTests = !filter.filter.showTests"><span class="test"></span> Tests</li>
                 </ul>
             </div>
-            <div class="col-xs-10" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            <div class="col-xs-9" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
                 [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
         </div>
     </div>

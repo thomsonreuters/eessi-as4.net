@@ -8,8 +8,10 @@ export class SendingPmode implements IPmode {
 	name: string;
 	hash: string;
 	pmode: SendingProcessingMode;
+	isPushConfigurationEnabled: boolean;
 
 	static FIELD_type: string = 'type';
 	static FIELD_name: string = 'name';
 	static FIELD_pmode: string = 'pmode';
+	static FIELD_isPushConfigurationEnabled: string = 'isPushConfigurationEnabled';
 }

@@ -20,8 +20,6 @@ export class SubmitToolService {
             });
             data.append('pmode', submitData.pmode);
             data.append('messages', submitData.messages + '');
-            data.append('payloadLocation', submitData.payloadLocation);
-            data.append('to', submitData.to);
             let xhr = new XMLHttpRequest();
 
             xhr.open('POST', `${this._baseUrl}`, true);
@@ -61,9 +59,4 @@ export class SubmitData {
     public files: any[];
     public pmode: string;
     public messages: number = 1;
-    public payloadType: number = 1;
-    public submitType: number = 1;
-    public payloadLocation: string = 'http://localhost:3000/api/Payload/Upload';
-    public toType: number = 0;
-    public to: string = 'http://localhost:9000/msh/';
 }

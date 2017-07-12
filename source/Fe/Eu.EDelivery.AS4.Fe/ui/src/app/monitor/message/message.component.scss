@@ -15,10 +15,35 @@
     padding-top: 5px;
 }
 
+@keyframes fadeIn {
+    from {
+        color: #CCC;
+    }
+    to {
+        color: black;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        color: black;
+    }
+    to {
+        color: #CCC;
+    }
+}
+
 .legend li {
     float: left;
     margin-right: 10px;
     color: #CCC;
+    animation-name: fadeOut;
+    animation-duration: 0.5s;
+    &.active {
+        color: black;
+        animation-name: fadeIn;
+        animation-duration: 0.5s;
+    }
 }
 
 .legend span {
@@ -29,7 +54,7 @@
     margin-top: 7px;
 }
 
-.error {
+.exception {
     background-color: #f2dede !important;
 }
 

@@ -191,22 +191,22 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// </summary>
         /// <param name="direction">The direction.</param>
         /// <param name="messageId">The message identifier.</param>
-        /// <returns></returns>
+        /// <returns>The exception</returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
-        public async Task<byte[]> DownloadExceptionBody(Direction direction, string messageId)
+        public async Task<string> DownloadExceptionBody(Direction direction, string messageId)
         {
             if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
             if (direction == Direction.Inbound)
             {
                 return await context.InExceptions
                     .Where(msg => msg.EbmsRefToMessageId == messageId)
-                    .Select(msg => msg.MessageBody)
+                    .Select(msg => msg.Exception)
                     .FirstOrDefaultAsync();
             }
 
             return await context.OutExceptions
                 .Where(msg => msg.EbmsRefToMessageId == messageId)
-                .Select(msg => msg.MessageBody)
+                .Select(msg => msg.Exception)
                 .FirstOrDefaultAsync();
         }
 

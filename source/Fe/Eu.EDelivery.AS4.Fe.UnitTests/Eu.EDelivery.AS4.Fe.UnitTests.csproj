@@ -234,6 +234,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeLoaderTest.cs" />
     <Compile Include="ScannerTests.cs" />
+    <Compile Include="SendingBasePmodeTests.cs" />
     <Compile Include="SqlConnectionBuilderTests.cs" />
     <Compile Include="SubmitMessageCreatorTests.cs" />
     <Compile Include="TestData\InfoAttribute.cs" />

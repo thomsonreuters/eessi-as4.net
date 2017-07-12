@@ -24,8 +24,8 @@ export class DownloadMessageBodyComponent {
         }
 
         service.subscribe((result) => {
-            let blob: Blob = new Blob([result], { type: 'application/xml' });
-            fileSaver.saveAs(blob, `${this.messageId}.xml`);
+            let blob: Blob = new Blob([result], { type: this.type === 'exception' ? 'application/text' : 'application/xml' });
+            fileSaver.saveAs(blob, `${this.messageId}.${this.type === 'exception' ? 'txt' : 'xml'}`);
         });
     }
 }

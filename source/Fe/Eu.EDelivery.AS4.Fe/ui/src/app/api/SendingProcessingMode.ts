@@ -17,13 +17,13 @@ export class SendingProcessingMode {
 	pushConfiguration: PushConfiguration = new PushConfiguration();
 	pullConfiguration: PullConfiguration = new PullConfiguration();
 	dynamicDiscovery: DynamicDiscovery = new DynamicDiscovery();
-	reliability: SendReliability = new SendReliability(); 
+	reliability: SendReliability = new SendReliability();
 	receiptHandling: SendHandling = new SendHandling();
 	errorHandling: SendHandling = new SendHandling();
 	exceptionHandling: SendHandling = new SendHandling();
 	security: Security = new Security();
 	messagePackaging: SendMessagePackaging = new SendMessagePackaging();
-
+	
 	static FIELD_id: string = 'id';
 	static FIELD_allowOverride: string = 'allowOverride';
 	static FIELD_mep: string = 'mep';

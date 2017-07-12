@@ -28,6 +28,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private readonly string OutEbmsMessageId2 = "OutEbmsMessageId2";
         private readonly string OutEbmsRefToMessageId1 = "OutEbmsRefToMessageId1";
         private readonly string OutEbmsRefToMessageId2 = "OutEbmsRefToMessageId2";
+        private readonly string InException = "THIS IS EXCEPTION 1";
         private readonly string pmodeString;
         private readonly string MessageBody1 = "TEST";
         private readonly string MessageBody2 = "TEST2";
@@ -114,8 +115,8 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = InEbmsMessageId1,
-                    PMode = pmodeString,                
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    PMode = pmodeString,
+                    Exception = InException
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
@@ -127,7 +128,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    Exception = InException
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
@@ -375,7 +376,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                             PMode = pmodeString
                         });
                         datastoreContext.OutMessages.Add(new OutMessage
-                        {                            
+                        {
                             EbmsMessageId = InEbmsRefToMessageId1,
                             PMode = pmodeString
                         });
@@ -507,9 +508,9 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 [InlineData(Direction.Outbound, "OutEbmsRefToMessageId1")]
                 public async Task Gets_The_MesageBody(Direction direction, string ebmsMessageId)
                 {
-                    var testBody = MessageBody1;
+                    var testBody = InException;
                     var result = await Setup().monitorService.DownloadExceptionBody(direction, ebmsMessageId);
-                    Assert.True(testBody == Encoding.ASCII.GetString(result));
+                    Assert.True(testBody == result);
                 }
             }
         }

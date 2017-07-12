@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, FormControl, AbstractControl } from '@angular/forms';
 import 'rxjs/add/operator/distinctUntilChanged';
 
 @Injectable()
@@ -18,19 +18,19 @@ export class FormWrapper {
     private _onStatusChangeSubscriptions = new Map<string | null, SubscriptionHandler>();
     private _enabledConditions = new Map<string, string>();
     private _subs = new Map<string, FormWrapper>();
-    private _buildTriggers = new Map<string | null, any>();
-    constructor(public formBuilder: FormBuilder) { }
+    private _buildTriggers = new Map<string, any | null>();
+    constructor(public formBuilder: FormBuilder, public name: string = '') { }
     public subForm(field: string): FormWrapper {
         const sub = this._subs.get(field);
         if (!!sub) {
             return sub;
         }
 
-        const wrapper = new FormWrapper(this.formBuilder);
+        const wrapper = new FormWrapper(this.formBuilder, field);
         this._subs.set(field, wrapper);
         return wrapper;
     }
-    public onChange<T>(field: string, handler: (current: T, wrapper: FormWrapper) => void): FormWrapper {
+    public onChange<T>(field: string = this.name, handler: (current: T, wrapper: FormWrapper) => void): FormWrapper {
         this.unsubscribeHandler(field, this._onValueChangeSubscriptions)
             ._onValueChangeSubscriptions.set(field, new SubscriptionHandler({
                 handler
@@ -38,7 +38,7 @@ export class FormWrapper {
         return this;
     }
     // tslint:disable-next-line:max-line-length
-    public onStatusChange<T extends 'VALID' | 'DISABLED'>(field: string, handler: (current: 'VALID' | 'DISABLED', formWrapper: FormWrapper) => void): FormWrapper {
+    public onStatusChange<T extends 'VALID' | 'INVALID' | 'DISABLED'>(field: string = this.name, handler: (current: 'VALID' | 'INVALID' | 'DISABLED', formWrapper: FormWrapper) => void): FormWrapper {
         this.unsubscribeHandler(field, this._onStatusChangeSubscriptions)
             ._onStatusChangeSubscriptions.set(field, new SubscriptionHandler({
                 handler
@@ -94,14 +94,12 @@ export class FormWrapper {
         return this.form;
     }
     public disable(except: string[] | null = null) {
-        // setTimeout(() => {
         Object
             .keys(this.form.controls)
             .filter((key) => !!!except ? true : except.findIndex((search) => search === key) === -1)
             .forEach((key) => {
                 this!.form!.get(key)!.disable();
             });
-        // });
     }
     public enable(except: string[] | null = null) {
         Object
@@ -111,12 +109,15 @@ export class FormWrapper {
                 this.form!.get(key)!.enable();
             });
     }
-    public triggerHandler(field: string, value: any): FormWrapper {
+    public triggerHandler(field: string, value: any | null = null): FormWrapper {
         this._buildTriggers.set(field, value);
         return this;
     }
     public reApplyHandlers(field: string | null = null) {
         let keys = Object.keys(this.form.controls);
+        if (!!this.name) {
+            keys = keys.concat(this.name);
+        }
 
         if (!!field) {
             keys = keys.filter((key) => key === field);
@@ -126,10 +127,10 @@ export class FormWrapper {
             const valueHandler = this._onValueChangeSubscriptions.get(trigger[0]);
             const statusHandler = this._onStatusChangeSubscriptions.get(trigger[0]);
             if (!!valueHandler) {
-                valueHandler.handler(trigger[1], this);
+                valueHandler.handler(this.getForm(trigger[0])!.value, this);
             }
             if (!!statusHandler) {
-                statusHandler.handler(trigger[1], this);
+                statusHandler.handler(this.getForm(trigger[0])!.value, this);
             }
         }
 
@@ -147,18 +148,11 @@ export class FormWrapper {
                     valueChangeHandler.subscription.unsubscribe();
                     valueChangeHandler.subscription = null;
                 }
-                if (!!!key) {
-                    valueChangeHandler.subscription = this.form
-                        .valueChanges
-                        .distinctUntilChanged()
-                        .subscribe((result) => valueChangeHandler.handler(result, this));
-                } else {
-                    valueChangeHandler.subscription = this.form!
-                        .get(key)!
-                        .valueChanges
-                        .distinctUntilChanged()
-                        .subscribe((result) => valueChangeHandler.handler(result, this));
-                }
+                valueChangeHandler.subscription = this
+                    .getForm(key)
+                    .valueChanges
+                    .distinctUntilChanged()
+                    .subscribe((result) => valueChangeHandler.handler(result, this));
             }
 
             const statusChangeHandler = this._onStatusChangeSubscriptions.get(key);
@@ -167,18 +161,11 @@ export class FormWrapper {
                     statusChangeHandler.subscription.unsubscribe();
                     statusChangeHandler.subscription = null;
                 }
-                if (!!!key) {
-                    statusChangeHandler.subscription = this.form
-                        .statusChanges
-                        .distinctUntilChanged()
-                        .subscribe((result) => statusChangeHandler.handler(result, this));
-                } else {
-                    statusChangeHandler.subscription = this.form!
-                        .get(key)!
-                        .statusChanges
-                        .distinctUntilChanged()
-                        .subscribe((result) => statusChangeHandler.handler(result, this));
-                }
+                statusChangeHandler.subscription = this
+                    .getForm(key)
+                    .statusChanges
+                    .distinctUntilChanged()
+                    .subscribe((result) => statusChangeHandler.handler(result, this));
             }
         });
     }
@@ -192,6 +179,12 @@ export class FormWrapper {
             existing.subscription = null;
         }
         return this;
+    }
+    private getForm(name: string = this.name): AbstractControl {
+        if (name === this.name) {
+            return this.form;
+        }
+        return this.form.get(name)!;
     }
 }
 

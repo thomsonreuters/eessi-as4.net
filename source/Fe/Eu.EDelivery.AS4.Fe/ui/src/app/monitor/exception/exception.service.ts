@@ -46,4 +46,3 @@ export class ExceptionService {
         return `/api/monitor/exceptions`;
     }
 }
-

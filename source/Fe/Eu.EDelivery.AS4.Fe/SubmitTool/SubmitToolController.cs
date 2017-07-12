@@ -35,17 +35,12 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
 
             var sendingPmode = parser.GetParameterValue("pmode");
             if (sendingPmode == null) throw new ArgumentNullException(nameof(sendingPmode), "SendingPmode parameter is required!");
-            var payloadLocation = parser.GetParameterValue("payloadLocation");
-            var toLocation = parser.GetParameterValue("to");
-            if (toLocation == null) throw new ArgumentNullException(nameof(toLocation));
 
             await submitMessageCreator.CreateSubmitMessages(new MessagePayload
             {
                 Files = parser.Files,
                 SendingPmode = sendingPmode,
-                NumberOfSubmitMessages = messages == 0 ? 1 : messages,
-                PayloadLocation = payloadLocation,
-                To = toLocation
+                NumberOfSubmitMessages = messages == 0 ? 1 : messages
             });
             return Ok();
         }

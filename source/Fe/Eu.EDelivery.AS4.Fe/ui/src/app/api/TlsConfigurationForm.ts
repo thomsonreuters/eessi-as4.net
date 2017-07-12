@@ -21,6 +21,13 @@ export class TlsConfigurationForm {
                     wrapper.form!.get(TlsConfiguration.FIELD_clientCertificateReference)!.disable();
                 }
             })
+            .onStatusChange(undefined, (status, wrapper) => {
+                if (status !== 'DISABLED') {
+                    if (!!!wrapper.form!.get(TlsConfiguration.FIELD_tlsVersion)!.value) {
+                        wrapper.form!.get(TlsConfiguration.FIELD_tlsVersion)!.setValue(3);
+                    }
+                }
+            })
             .triggerHandler(TlsConfiguration.FIELD_isEnabled, current && current.isEnabled);
 
         return form;

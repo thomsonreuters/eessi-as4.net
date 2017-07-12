@@ -9,7 +9,7 @@ export class PushConfigurationForm {
     public static getForm(formBuilder: FormWrapper, current: PushConfiguration): FormWrapper {
         return formBuilder
             .group({
-                [PushConfiguration.FIELD_protocol]: ProtocolForm.getForm(formBuilder.formBuilder, current && current.protocol),
+                [PushConfiguration.FIELD_protocol]: ProtocolForm.getForm(formBuilder.subForm(PushConfiguration.FIELD_protocol), current && current.protocol).form,
                 [PushConfiguration.FIELD_tlsConfiguration]: TlsConfigurationForm.getForm(formBuilder.subForm(PushConfiguration.FIELD_tlsConfiguration), current && current.tlsConfiguration).form,
             });
     }
