@@ -54,14 +54,16 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
                 await StoreSignalMessage(messagingContext, repository, _messageBodyStore, cancellationToken);
 
-                if (IsReplyPatternCallback(messagingContext))
-                {
-                    return await CreateEmptySoapResult(messagingContext);
-                }
-                else
-                {
-                    return await ReturnSameStepResult(messagingContext);
-                }
+                await dataContext.SaveChangesAsync(cancellationToken);
+            }
+
+            if (IsReplyPatternCallback(messagingContext))
+            {
+                return await CreateEmptySoapResult(messagingContext);
+            }
+            else
+            {
+                return await ReturnSameStepResult(messagingContext);
             }
 
         }
