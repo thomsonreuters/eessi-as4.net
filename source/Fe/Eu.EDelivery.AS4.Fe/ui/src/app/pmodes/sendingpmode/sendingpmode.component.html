@@ -107,11 +107,6 @@
                     </as4-input>
                 </ng-container>
             </div>
-            <div tabitem title="Pull" formGroupName="pullConfiguration" [isValid]="pmode.form.get('pmode.pullConfiguration')">
-                <as4-input label="Sub channel" runtimeTooltip="pullconfiguration.subchannel">
-                    <input type="text" formControlName="subChannel" />
-                </as4-input>
-            </div>
             <div tabitem title="Message packaging" [isValid]="pmode.form.get('pmode.messagePackaging')">
                 <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')" [disabled]="pmode.form.get('pmode.messagePackaging').disabled"></as4-message-packaging>
             </div>

@@ -7,7 +7,6 @@ import { SendReliabilityForm } from './SendReliabilityForm';
 import { SendMessagePackagingForm } from './SendMessagePackagingForm';
 import { SecurityForm } from './SecurityForm';
 import { SendHandlingForm } from './SendHandlingForm';
-import { PullConfigurationForm } from './PullConfigurationForm';
 import { FormWrapper } from './../common/form.service';
 
 export class SendingProcessingModeForm {
@@ -20,7 +19,6 @@ export class SendingProcessingModeForm {
                 mep: [(current == null || current.mep == null) ? 0 : current.mep],
                 mepBinding: [(current == null || current.mepBinding == null) ? 1 : current.mepBinding],
                 pushConfiguration: PushConfigurationForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_pushConfiguration), current && current.pushConfiguration).form,
-                pullConfiguration: PullConfigurationForm.getForm(formBuilder.formBuilder, current && current.pullConfiguration),
                 [SendingProcessingMode.FIELD_dynamicDiscovery]: DynamicDiscoveryForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_dynamicDiscovery), current && current.dynamicDiscovery).form,
                 reliability: SendReliabilityForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_reliability), current && current.reliability).form,
                 receiptHandling: SendHandlingForm.getForm(formBuilder.subForm(SendingProcessingMode.FIELD_receiptHandling), current && current.receiptHandling).form,
