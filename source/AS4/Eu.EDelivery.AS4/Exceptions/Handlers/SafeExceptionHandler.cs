@@ -66,6 +66,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
             catch (Exception exception)
             {
                 Logger.Error(exception);
+                Logger.Trace(exception.StackTrace);
                 return new MessagingContext(exception);
             }
         }
