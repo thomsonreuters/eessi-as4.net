@@ -39,10 +39,15 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 }
 
                 Logger.Error($"Response with HTTP status {response.StatusCode} received.");
-                using (StreamReader r = new StreamReader(response.ReceivedStream.UnderlyingStream))
-                {                    
-                    Logger.Error(await r.ReadToEndAsync());
+
+                if (Logger.IsErrorEnabled)
+                {
+                    using (StreamReader r = new StreamReader(response.ReceivedStream.UnderlyingStream))
+                    {
+                        Logger.Error(await r.ReadToEndAsync());
+                    }
                 }
+
                 return StepResult.Failed(new MessagingContext(response.ReceivedStream, MessagingContextMode.Send)).AndStopExecution();
             }
 
