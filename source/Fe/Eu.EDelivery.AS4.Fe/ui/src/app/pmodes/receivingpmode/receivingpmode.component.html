@@ -25,6 +25,32 @@
                     </as4-input>
                 </div>
             </div>
+            <div tabitem title="Reply handling" formGroupName="replyHandling" [isValid]="pmode.form.get('pmode.replyHandling')">
+                <as4-input label="Reply pattern" runtimeTooltip="replyHandling.replyPattern">
+                    <select formControlName="replyPattern">
+                        <option [ngValue]="0">Response</option>
+                        <option [ngValue]="1">Callback</option>
+                    </select>
+                </as4-input>
+                <as4-input label="Sending pmode" runtimeTooltip="replyHandling.sendingpmode">
+                    <div as4-pmode-select mode="sending" formControlName="sendingPMode"></div>
+                </as4-input>
+                <div class="sub-header-1">Receipt handling</div>
+                <ng-container formGroupName="receiptHandling">
+                    <as4-input label="Use NNR format" runtimeTooltip="receiptHandling.usennrformat">
+                        <input type="checkbox" formControlName="useNNRFormat"/>
+                    </as4-input>
+                </ng-container>
+                <div class="sub-header-1">Error handling</div>
+                <ng-container formGroupName="errorHandling">
+                    <as4-input label="Use Soap fault" runtimeTooltip="receiveErrorHandling.usesoapfault">
+                        <input type="checkbox" formControlName="useSoapFault"/>
+                    </as4-input>
+                    <as4-input label="Response HTTP code" runtimeTooltip="receiveErrorHandling.responsehttpcode">
+                        <input type="number" formControlName="responseHttpCode">
+                    </as4-input>
+                </ng-container>
+            </div>
             <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid">
                 <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')"></as4-message-packaging>
             </div>
@@ -78,37 +104,6 @@
                 </as4-input>
                 <as4-method label="Payload reference method" [group]="pmode.form.get('pmode.deliver.payloadReferenceMethod')" [types]="deliverSenders"></as4-method>
                 <as4-method label="Deliver method" [group]="pmode.form.get('pmode.deliver.deliverMethod')" [types]="deliverSenders"></as4-method>
-            </div>
-            <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.receiptHandling').valid">
-                <as4-input label="Use NNR format" runtimeTooltip="receivereceipthandling.usennrformat">
-                    <input type="checkbox" formControlName="useNNRFormat" />
-                </as4-input>
-                <as4-input label="Reply pattern" runtimeTooltip="receivereceipthandling.replypattern">
-                    <select formControlName="replyPattern">
-                        <option value="0">Response</option>
-                        <option value="1">Callback</option>
-                    </select>
-                </as4-input>
-                <as4-input label="Sending PMode" runtimeTooltip="receivereceipthandling.sendingpmode">
-                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
-                </as4-input>
-            </div>
-            <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid">
-                <as4-input label="Use soap fault" runtimeTooltip="receiveerrorhandling.usesoapfault">
-                    <input type="checkbox" formControlName="useSoapFault">
-                </as4-input>
-                <as4-input label="Reply pattern" runtimeTooltip="receiveerrorhandling.replypattern">
-                    <select formControlName="replyPattern">
-                        <option value="0">Response</option>
-                        <option value="1">Callback</option>
-                    </select>
-                </as4-input>
-                <as4-input label="Response http code" runtimeTooltip="receiveerrorhandling.responsehttpcode">
-                    <input type="text" formControlName="responseHttpCode">
-                </as4-input>
-                <as4-input label="Sending pmode" runtimeTooltip="receiveerrorhandling.sendingpmode">
-                    <as4-pmode-select mode="sending" formControlName="sendingPMode"></as4-pmode-select>
-                </as4-input>
             </div>
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
                 <as4-input label="Notify message consumer" runtimeTooltip="receivehandling.notifymessageconsumer">
