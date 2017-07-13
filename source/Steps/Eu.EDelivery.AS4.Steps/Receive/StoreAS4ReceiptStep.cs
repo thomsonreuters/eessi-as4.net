@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -12,6 +13,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     /// <summary>
     /// Describes how a AS4 Receipt gets stores in the Data store
     /// </summary>
+    [Obsolete("Receipts are no longer stored explicitly; they're stored in the sendsignalmessage-step.")]
     public class StoreAS4ReceiptStep : IStep
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Entities;
@@ -9,6 +10,7 @@ using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.Services
 {
@@ -68,6 +70,10 @@ namespace Eu.EDelivery.AS4.Services
             messageUnits.AddRange(message.UserMessages);
             messageUnits.AddRange(message.SignalMessages);
 
+            var relatedInMessageMeps =
+                _repository.GetInMessagesData(message.SignalMessages.Select(s => s.RefToMessageId).Distinct(), inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
+                           .ToDictionary(r => r.EbmsMessageId, r => r.MEP);
+
             foreach (var messageUnit in messageUnits)
             {
                 var sendingPMode = GetSendingPMode(messageUnit is SignalMessage, messagingContext);
@@ -77,6 +83,7 @@ namespace Eu.EDelivery.AS4.Services
                         messageUnit: messageUnit,
                         messageContext: messagingContext,
                         sendingPMode: sendingPMode,
+                        relatedInMessageMeps: relatedInMessageMeps,
                         location: messageBodyLocation,
                         operation: operation);
 
@@ -88,6 +95,7 @@ namespace Eu.EDelivery.AS4.Services
             MessageUnit messageUnit,
             MessagingContext messageContext,
             SendingProcessingMode sendingPMode,
+            Dictionary<string, MessageExchangePattern> relatedInMessageMeps,
             string location,
             Operation operation)
         {
@@ -102,8 +110,17 @@ namespace Eu.EDelivery.AS4.Services
             }
             else
             {
+                MessageExchangePattern? inMessageMep = null;
+
+                string refToMessageId = messageUnit.RefToMessageId ?? string.Empty;
+
+                if (relatedInMessageMeps.ContainsKey(refToMessageId))
+                {
+                    inMessageMep = relatedInMessageMeps[refToMessageId];
+                }
+
                 (OutStatus status, Operation operation) replyPattern =
-                    DetermineCorrectReplyPattern(messageContext.ReceivingPMode);
+                    DetermineCorrectReplyPattern(messageContext.ReceivingPMode, inMessageMep);
 
                 outMessage.Status = replyPattern.status;
                 outMessage.Operation = replyPattern.operation;
@@ -111,7 +128,7 @@ namespace Eu.EDelivery.AS4.Services
 
             return outMessage;
         }
-       
+
         private static SendingProcessingMode GetSendingPMode(bool isSignalMessage, MessagingContext context)
         {
             if (context.SendingPMode?.Id != null)
@@ -129,12 +146,18 @@ namespace Eu.EDelivery.AS4.Services
             return null;
         }
 
-        private static (OutStatus, Operation) DetermineCorrectReplyPattern(ReceivingProcessingMode receivingPMode)
+        private static (OutStatus, Operation) DetermineCorrectReplyPattern(ReceivingProcessingMode receivingPMode, MessageExchangePattern? inMessageMep)
         {
-            bool isCallback = receivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
+            if (inMessageMep == null)
+            {
+                return (OutStatus.Created, Operation.NotApplicable);
+            }
 
-            Operation operation = isCallback ? Operation.ToBeSent : Operation.NotApplicable;
-            OutStatus status = isCallback ? OutStatus.Created : OutStatus.Sent;
+            bool isCallback = receivingPMode?.ReplyHandling?.ReplyPattern == ReplyPattern.Callback;
+            bool userMessageReceivedViaPulling = inMessageMep == MessageExchangePattern.Pull;
+
+            Operation operation = isCallback || userMessageReceivedViaPulling ? Operation.ToBeSent : Operation.NotApplicable;
+            OutStatus status = isCallback || userMessageReceivedViaPulling ? OutStatus.Created : OutStatus.Sent;
 
             return (status, operation);
         }

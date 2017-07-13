@@ -5,20 +5,36 @@ using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Steps.Receive;
+using Eu.EDelivery.AS4.UnitTests.Common;
 using Eu.EDelivery.AS4.UnitTests.Model;
+using Eu.EDelivery.AS4.UnitTests.Repositories;
+using Eu.EDelivery.AS4.UnitTests.Strategies.Sender;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 {
-    public class GivenSendSignalMessageStepFacts
+    public class GivenSendSignalMessageStepFacts : GivenDatastoreStepFacts
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GivenSendSignalMessageStepFacts"/> class.
+        /// </summary>
+        public GivenSendSignalMessageStepFacts()
+        {
+            Step = new SendAS4SignalMessageStep(GetDataStoreContext, StubMessageBodyStore.Default);
+        }
+
         [Fact]
         public async Task ReturnsEmptySoapForReceipt_IfReplyPatternIsCallback()
         {
             // Arrange
-            var pmode = new ReceivingProcessingMode();
-            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
-            MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), pmode);
+            var receivePMode = new ReceivingProcessingMode();
+            receivePMode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
+
+            var sendPMode = new SendingProcessingMode();
+            sendPMode.Id = "sending-pmode";
+
+            MessagingContext context = ContextWithSignal(new FilledNRRReceipt(), receivePMode);
+            context.SendingPMode = sendPMode;
 
             // Act
             AS4Message result = await ExerciseSendSignal(context);
@@ -31,9 +47,14 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
         public async Task ReturnsEmptySoapForError_IfReplyPatternIsCallback()
         {
             // Arrange
-            var pmode = new ReceivingProcessingMode();
-            pmode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
-            MessagingContext context = ContextWithSignal(new Error(), pmode);
+            var receivePMode = new ReceivingProcessingMode();
+            receivePMode.ReplyHandling.ReplyPattern = ReplyPattern.Callback;
+            receivePMode.ReplyHandling.SendingPMode = "sending-pmode";
+            var sendPMode = new SendingProcessingMode();
+            sendPMode.Id = "sending-pmode";
+
+            MessagingContext context = ContextWithSignal(new Error(), receivePMode);
+            context.SendingPMode = sendPMode;
 
             // Act
             AS4Message result = await ExerciseSendSignal(context);
@@ -82,13 +103,16 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             };
         }
 
-        private static async Task<AS4Message> ExerciseSendSignal(MessagingContext context)
+        private async Task<AS4Message> ExerciseSendSignal(MessagingContext context)
         {
-            var sut = new SendAS4SignalMessageStep();
-
-            StepResult result = await sut.ExecuteAsync(context, default(CancellationToken));
+            StepResult result = await Step.ExecuteAsync(context, default(CancellationToken));
 
             return result.MessagingContext.AS4Message;
-        } 
+        }
+
+        /// <summary>
+        /// Gets a <see cref="IStep" /> implementation to exercise the datastore.
+        /// </summary>
+        protected override IStep Step { get; }
     }
 }

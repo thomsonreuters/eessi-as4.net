@@ -3,11 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Services;
 using Eu.EDelivery.AS4.Singletons;
 using Eu.EDelivery.AS4.Xml;
 using NLog;
@@ -20,24 +18,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IAS4MessageBodyStore _messageBodyStore;
-        private readonly Func<DatastoreContext> _createDatastore;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class.
         /// </summary>
-        public CreateAS4ErrorStep() : this(Registry.Instance.MessageBodyStore, Registry.Instance.CreateDatastoreContext) {}
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateAS4ErrorStep"/> class
-        /// </summary>
-        /// <param name="messageBodyStore">The <see cref="IAS4MessageBodyStore"/> that must be used to persist the MessageBody.</param>
-        /// <param name="createDatastoreContext">The context in which teh datastore context is set.</param>
-        public CreateAS4ErrorStep(IAS4MessageBodyStore messageBodyStore, Func<DatastoreContext> createDatastoreContext)
-        {
-            _messageBodyStore = messageBodyStore;
-            _createDatastore = createDatastoreContext;
-        }
+        public CreateAS4ErrorStep() { }
 
         /// <summary>
         /// Start creating <see cref="Error"/>
@@ -48,7 +33,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <exception cref="System.Exception">A delegate callback throws an exception.</exception>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (messagingContext.AS4Message.IsEmpty && messagingContext.ErrorResult == null)
+            if ((messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty) && messagingContext.ErrorResult == null)
             {
                 return await StepResult.SuccessAsync(messagingContext);
             }
@@ -56,19 +41,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Logger.Info($"[{messagingContext.AS4Message?.GetPrimaryMessageId()}] Create AS4 Error Message");
 
             AS4Message errorMessage = CreateAS4Error(messagingContext);
-            MessagingContext message = messagingContext.CloneWith(errorMessage);
-
-            // Save the Error Message as well .... 
-            using (DatastoreContext db = _createDatastore())
-            {
-                var service = new OutMessageService(new DatastoreRepository(db), _messageBodyStore);
-
-                // The service will determine the correct operation for each message-part.
-                await service.InsertAS4Message(message, Operation.NotApplicable, cancellationToken);
-                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-            }
-            
-            return await StepResult.SuccessAsync(message);
+            MessagingContext context = messagingContext.CloneWith(errorMessage);
+          
+            return await StepResult.SuccessAsync(context);
         }
 
         private static AS4Message CreateAS4Error(MessagingContext context)

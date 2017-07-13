@@ -45,6 +45,15 @@ namespace Eu.EDelivery.AS4.Repositories
         TResult GetInMessageData<TResult>(string messageId, Func<InMessage, TResult> selection);
 
         /// <summary>
+        /// Selects some information of specified InMessages.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="messageIds"></param>
+        /// <param name="selection"></param>
+        /// <returns></returns>
+        IEnumerable<TResult> GetInMessagesData<TResult>(IEnumerable<string> messageIds, Func<InMessage, TResult> selection);
+
+        /// <summary>
         /// Firsts the or default out message.
         /// </summary>
         /// <typeparam name="TResult">The type of the result.</typeparam>
