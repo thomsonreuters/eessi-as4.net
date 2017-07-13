@@ -49,7 +49,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
-            if (messagingContext.AS4Message.IsEmpty)
+            if (messagingContext.AS4Message == null || messagingContext.AS4Message.IsEmpty)
             {
                 return await StepResult.SuccessAsync(messagingContext);
             }
