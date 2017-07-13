@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Receive_Scenarios._8._3._1_
         }
 
         [Fact]
-        public void ThenReceiveSignalPayloadSucceeds()
+        public void ThenReceiveSinglePayloadSucceeds()
         {
             // Before
             AS4Component.Start();
