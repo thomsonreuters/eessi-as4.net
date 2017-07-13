@@ -1,22 +1,21 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Eu.EDelivery.AS4.Fe
 {
@@ -29,11 +28,11 @@ namespace Eu.EDelivery.AS4.Fe
         public void ConfigureServices(IServiceCollection services)
         {
             services
-             .AddMvc(options =>
-             {
-                 //options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
-             })
-             .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
+                .AddMvc(options =>
+                {
+                    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
+                })
+                .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
 
             services.Configure<FormOptions>(x =>
             {
@@ -41,7 +40,7 @@ namespace Eu.EDelivery.AS4.Fe
                 x.ValueCountLimit = int.MaxValue;
                 x.MultipartBodyLengthLimit = int.MaxValue;
                 x.MemoryBufferThreshold = int.MaxValue;
-            }); 
+            });
 
             var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
             IConfigurationRoot config;
@@ -94,39 +93,29 @@ namespace Eu.EDelivery.AS4.Fe
                         var response = new
                         {
                             IsError = true,
-                            Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace,
-                            Message = ex.Error.Message
+                            Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace, ex.Error.Message
                         };
 
                         if (ex.Error is AlreadyExistsException alreadyExists)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                            
-                        }
+                            context.Response.StatusCode = (int) HttpStatusCode.Conflict;
                         else if (ex.Error is NotFoundException notFound)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                        }
+                            context.Response.StatusCode = (int) HttpStatusCode.NotFound;
                         else if (ex.Error is BusinessException businessEx)
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.ExpectationFailed;
-                        }
+                            context.Response.StatusCode = (int) HttpStatusCode.ExpectationFailed;
                         else
-                        {
-                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                        }
+                            context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
 
                         await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
                         logger.Error(ex.Error);
                     }
                     else
                     {
-                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                     }
                 });
             });
 
             app.UseMvc();
         }
-    }   
+    }
 }

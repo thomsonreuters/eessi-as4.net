@@ -26,7 +26,6 @@ export const ROUTES: Routes = [
                             { path: 'send', component: AgentSettingsComponent, data: { title: 'Send', header: 'Send agent', type: 'sendAgents' }, canDeactivate: [CanDeactivateGuard] },
                             { path: 'receive', component: AgentSettingsComponent, data: { title: 'Receive', header: 'Receive agent', type: 'receiveAgents' }, canDeactivate: [CanDeactivateGuard] },
                             { path: 'deliver', component: AgentSettingsComponent, data: { title: 'Deliver', header: 'Deliver agent', type: 'deliverAgents' }, canDeactivate: [CanDeactivateGuard] },
-                            { path: 'notify', component: AgentSettingsComponent, data: { title: 'Notify', header: 'Notify agent', type: 'notifyAgents' }, canDeactivate: [CanDeactivateGuard] },
                             { path: 'notifyconsumer', component: AgentSettingsComponent, data: { title: 'Notify consumer', header: 'Notify consumer agent', type: 'notifyConsumerAgents' }, canDeactivate: [CanDeactivateGuard] },
                             { path: 'notifyproducer', component: AgentSettingsComponent, data: { title: 'Notify producer', header: 'Notify producer agent', type: 'notifyProducerAgents' }, canDeactivate: [CanDeactivateGuard] },
                             { path: 'receptionawareness', component: ReceptionAwarenessAgentComponent, data: { title: 'Reception awareness', header: 'Reception awareness agent', type: 'receptionAwarenessAgent' }, canDeactivate: [CanDeactivateGuard] },
