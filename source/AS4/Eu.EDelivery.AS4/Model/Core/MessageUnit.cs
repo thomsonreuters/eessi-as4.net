@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Model.Core
 
         protected MessageUnit(string messageid)
         {
-            Timestamp = DateTimeOffset.UtcNow;
+            Timestamp = DateTimeOffset.Now;
             MessageId = messageid;
         }
     }

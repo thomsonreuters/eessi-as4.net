@@ -175,7 +175,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.ReceptionAwareness
                 CurrentRetryCount = 0,
                 Status = ReceptionStatus.Pending,
                 InternalMessageId = "message-id",
-                LastSendTime = DateTimeOffset.UtcNow.AddMinutes(-1),
+                LastSendTime = DateTimeOffset.Now.AddMinutes(-1),
                 RetryInterval = "00:00:00",
                 TotalRetryCount = 5
             };
