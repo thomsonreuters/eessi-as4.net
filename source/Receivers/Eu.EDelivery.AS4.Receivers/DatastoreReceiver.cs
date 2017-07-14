@@ -200,20 +200,21 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             get
             {
-                TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
-
-                return _properties.ContainsKey(SettingKeys.PollingInterval)
-                           ? GetPollingIntervalFromProperties()
-                           : defaultInterval;
+                return GetPollingIntervalFromProperties();
             }
         }
 
         private TimeSpan GetPollingIntervalFromProperties()
         {
-            string pollingInterval = _properties.ReadMandatoryProperty(SettingKeys.PollingInterval);
-            double miliseconds = Convert.ToDouble(pollingInterval);
+            TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
 
-            return TimeSpan.FromMilliseconds(miliseconds);
+            if (_properties.ContainsKey(SettingKeys.PollingInterval) == false)
+            {
+                return defaultInterval;
+            }
+
+            string pollingInterval = _properties[SettingKeys.PollingInterval];
+            return pollingInterval.AsTimeSpan(defaultInterval);            
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
         private readonly IMimeTypeRepository _repository;
 
-        private IDictionary<string, string> _properties;
+        private IDictionary<string, string> _properties;        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileReceiver" /> class
@@ -45,10 +45,13 @@ namespace Eu.EDelivery.AS4.Receivers
         [Info("Maximum number of concurrent processed files")]
         private int BatchSize { get; set; }
 
+        [Info("Interval to poll on the configured file-path")]
+        private TimeSpan _pollingInterval;
+
         protected override ILogger Logger { get; }
 
         [Info("Polling interval", "", "int")]
-        protected override TimeSpan PollingInterval => FromProperties();
+        protected override TimeSpan PollingInterval => _pollingInterval;
 
         #region Configuration
 
@@ -57,6 +60,7 @@ namespace Eu.EDelivery.AS4.Receivers
             public const string FilePath = "FilePath";
             public const string FileMask = "FileMask";            
             public const string BatchSize = "BatchSize";
+            public const string PollingInterval = "PollingInterval";
         }
 
         /// <summary>
@@ -75,6 +79,8 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             BatchSize = batchSize;
+
+            _pollingInterval = ReadPollingIntervalFromProperties();
         }
 
         #endregion
@@ -241,12 +247,17 @@ namespace Eu.EDelivery.AS4.Receivers
             return filename;
         }
 
-        private TimeSpan FromProperties()
+        private TimeSpan ReadPollingIntervalFromProperties()
         {
-            string pollingInterval = _properties.ReadMandatoryProperty("PollingInterval");
-            double miliseconds = Convert.ToDouble(pollingInterval);
+            TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
 
-            return TimeSpan.FromMilliseconds(miliseconds);
+            if (_properties.ContainsKey(SettingKeys.PollingInterval) == false)
+            {
+                return defaultInterval;
+            }
+
+            string pollingInterval = _properties[SettingKeys.PollingInterval];
+            return pollingInterval.AsTimeSpan(defaultInterval);
         }
 
         /// <summary>
