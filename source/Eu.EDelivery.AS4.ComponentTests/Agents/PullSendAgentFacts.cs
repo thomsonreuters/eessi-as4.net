@@ -119,15 +119,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             }
         }
 
-        private static async Task<AS4Message> DeserializeSoapXml(string soapXml)
-        {
-            using (var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(soapXml)))
-            {
-                var serializer = new SoapEnvelopeSerializer();
-                return await serializer.DeserializeAsync(contentStream, "application/soap+xml", CancellationToken.None);
-            }
-        }
-
         private static async Task SubmitMessageToSubmitAgent(string submitMessage)
         {
             await HttpClient.SendAsync(CreateHttpRequestFrom(SubmitUrl, submitMessage));

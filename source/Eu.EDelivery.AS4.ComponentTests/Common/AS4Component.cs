@@ -97,7 +97,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 file.Delete();
             }
         }
-
+        
         /// <summary>
         /// Gets the <see cref="IConfig"/> implementation for the given <see cref="AS4Component"/>.
         /// </summary>
