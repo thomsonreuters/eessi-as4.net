@@ -140,7 +140,7 @@ namespace Eu.EDelivery.AS4.Services
 
             return awareness.Status != ReceptionStatus.Completed
                    && awareness.CurrentRetryCount < awareness.TotalRetryCount
-                   && DateTimeOffset.UtcNow > deadlineForResend
+                   && DateTimeOffset.Now > deadlineForResend
                    && _repository.GetOutMessageData(awareness.InternalMessageId, m => m.Operation) != Operation.Sending;
         }
 

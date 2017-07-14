@@ -74,7 +74,7 @@ namespace Eu.EDelivery.AS4.Transformers.InteropTestTransformers
         {
             userMessage.MessageId = GetPropertyValue(properties, "MessageId");
             userMessage.RefToMessageId = GetPropertyValue(properties, "RefToMessageId");
-            userMessage.Timestamp = DateTimeOffset.UtcNow;
+            userMessage.Timestamp = DateTimeOffset.Now;
         }
 
         private static void SetCollaborationInfoProperties(UserMessage userMessage, IList<MessageProperty> properties)

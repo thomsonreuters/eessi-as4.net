@@ -60,7 +60,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Services
                     r =>
                     {
                         r.RetryInterval = "00:00:05";
-                        r.LastSendTime = DateTimeOffset.UtcNow;
+                        r.LastSendTime = DateTimeOffset.Now;
                     }, expected: false);
             }
 

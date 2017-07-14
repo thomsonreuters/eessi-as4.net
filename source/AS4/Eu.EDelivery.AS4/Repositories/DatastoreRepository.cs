@@ -128,7 +128,7 @@ namespace Eu.EDelivery.AS4.Repositories
                 }
 
                 updateAction(message);
-                message.ModificationTime = DateTimeOffset.UtcNow;
+                message.ModificationTime = DateTimeOffset.Now;
             }
         }
 
@@ -257,7 +257,7 @@ namespace Eu.EDelivery.AS4.Repositories
             if (msg != null)
             {
                 updateAction(msg);
-                msg.ModificationTime = DateTimeOffset.UtcNow;
+                msg.ModificationTime = DateTimeOffset.Now;
             }
         }
 
@@ -349,7 +349,7 @@ namespace Eu.EDelivery.AS4.Repositories
             foreach (OutException outException in outExceptions)
             {
                 updateAction(outException);
-                outException.ModificationTime = DateTimeOffset.UtcNow;
+                outException.ModificationTime = DateTimeOffset.Now;
             }
         }
 
@@ -379,7 +379,7 @@ namespace Eu.EDelivery.AS4.Repositories
             foreach (InException inException in inExceptions)
             {
                 updateAction(inException);
-                inException.ModificationTime = DateTimeOffset.UtcNow;
+                inException.ModificationTime = DateTimeOffset.Now;
             }
         }
 

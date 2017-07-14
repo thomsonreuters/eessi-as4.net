@@ -91,8 +91,8 @@ namespace Eu.EDelivery.AS4.Builders.Entities
                 MEP = _mep,
                 Status = InStatus.Received,
                 Operation = Operation.NotApplicable,
-                InsertionTime = DateTimeOffset.UtcNow,
-                ModificationTime = DateTimeOffset.UtcNow
+                InsertionTime = DateTimeOffset.Now,
+                ModificationTime = DateTimeOffset.Now
             };
 
             inMessage.AssignAS4Properties(_messageUnit, cancellationToken);

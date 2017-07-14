@@ -64,7 +64,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         /// <returns></returns>
         public Error Build()
         {
-            _errorMessage.Timestamp = DateTimeOffset.UtcNow;
+            _errorMessage.Timestamp = DateTimeOffset.Now;
 
             if (_result != null)
             {
@@ -91,7 +91,7 @@ namespace Eu.EDelivery.AS4.Builders.Core
         [Obsolete("No exception will be used to create an 'Error' in the future")]
         public Error BuildWithOriginalAS4Exception()
         {
-            _errorMessage.Timestamp = DateTimeOffset.UtcNow;
+            _errorMessage.Timestamp = DateTimeOffset.Now;
             return _errorMessage;
         }
     }

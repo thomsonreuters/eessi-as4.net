@@ -276,7 +276,7 @@ namespace Eu.EDelivery.AS4.Steps.Send
         {
             foreach (var item in receptionAwarenessItems)
             {
-                item.LastSendTime = DateTimeOffset.UtcNow;
+                item.LastSendTime = DateTimeOffset.Now;
                 item.CurrentRetryCount += 1;
             }
         }
