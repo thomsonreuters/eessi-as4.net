@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Security.Cryptography.X509Certificates;
+using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 
@@ -15,7 +16,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public string Id { get; set; }
         public MessageExchangePattern Mep { get; set; }
-        public MessageExchangePatternBinding MepBinding { get; set; }        
+        public MessageExchangePatternBinding MepBinding { get; set; }
         public ReceiveReliability Reliability { get; set; }
         public ReplyHandlingSetting ReplyHandling { get; set; }
         public Receivehandling ExceptionHandling { get; set; }
@@ -25,15 +26,15 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public Deliver Deliver { get; set; }
 
         public ReceivingProcessingMode()
-        {            
+        {
             Reliability = new ReceiveReliability();
             ReplyHandling = new ReplyHandlingSetting();
             ExceptionHandling = new Receivehandling();
             Security = new ReceiveSecurity();
             MessagePackaging = new MessagePackaging();
             Deliver = new Deliver();
-        }        
-    }    
+        }
+    }
 
     public class ReceiveReliability
     {
@@ -76,12 +77,27 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ReceiveReceiptHandling
     {
-        public bool UseNNRFormat { get; set; }
+        private bool? _useNNRFormat;
+
+        public bool UseNNRFormat
+        {
+            get { return _useNNRFormat ?? false; }
+            set { _useNNRFormat = value; }
+        }
 
         public ReceiveReceiptHandling()
         {
             UseNNRFormat = false;
         }
+
+        #region Serialization Control properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool UseNNRFormatSpecified => _useNNRFormat.HasValue;
+
+        #endregion
     }
 
     public class Receivehandling
@@ -98,14 +114,37 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class ReceiveErrorHandling
     {
-        public bool UseSoapFault { get; set; }
-        public int ResponseHttpCode { get; set; }
-      
+        private bool? _useSoapFault;
+        private int? _responseHttpCode;
+
+        public bool UseSoapFault
+        {
+            get { return _useSoapFault ?? false; }
+            set { _useSoapFault = value; }
+        }
+        public int ResponseHttpCode
+        {
+            get { return _responseHttpCode ?? 200; }
+            set { _responseHttpCode = value; }
+        }
 
         public ReceiveErrorHandling()
         {
-            UseSoapFault = false;
         }
+
+        #region Serialization Control Properties
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool UseSoapFaultSpecified => _useSoapFault.HasValue;
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public bool ResponseHttpCodeSpecified => _responseHttpCode.HasValue;
+
+        #endregion
     }
 
     public class ReceiveSecurity

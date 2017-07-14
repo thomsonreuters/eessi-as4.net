@@ -65,7 +65,12 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 WorkingDirectory = workingDirectory.FullName
             };
 
-            return new AS4Component(Process.Start(mshInfo));
+            var as4Msh = new AS4Component(Process.Start(mshInfo));
+
+            // Wait a little bit to make sure the DB is created.
+            System.Threading.Thread.Sleep(1000);
+
+            return as4Msh;
         }
 
         private static void CleanupWorkingDirectory(DirectoryInfo workingFolder)
@@ -97,7 +102,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
                 file.Delete();
             }
         }
-
+        
         /// <summary>
         /// Gets the <see cref="IConfig"/> implementation for the given <see cref="AS4Component"/>.
         /// </summary>

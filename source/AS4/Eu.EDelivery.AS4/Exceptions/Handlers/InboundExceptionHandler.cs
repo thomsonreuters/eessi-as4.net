@@ -39,6 +39,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleTransformationException(Exception exception, Stream contents)
         {
             Logger.Error(exception.Message);
+            Logger.Trace(exception.StackTrace);
 
             await SideEffectRepositoryUsage(
                 repository =>
@@ -70,6 +71,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         public async Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
         {
             Logger.Error(exception.Message);
+            Logger.Trace(exception.StackTrace);
 
             return await HandleExecutionException(exception, context);
         }

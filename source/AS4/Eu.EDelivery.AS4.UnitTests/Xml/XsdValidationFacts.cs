@@ -35,7 +35,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
                 {
                     var violations = VerifyReceivingPMode(receivingPMode);
 
-                    Assert.False(violations.Any(), $"Sending PMode {receivingPMode} invalid: {String.Join(Environment.NewLine, violations)}");
+                    Assert.False(violations.Any(), $"Receiving PMode {receivingPMode} invalid: {String.Join(Environment.NewLine, violations)}");
                 }
             }
 
@@ -48,7 +48,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
                 {
                     var violations = VerifyReceivingPMode(submitMessage);
 
-                    Assert.False(violations.Any(), $"Sending PMode {submitMessage} invalid: {String.Join(Environment.NewLine, violations)}");
+                    Assert.False(violations.Any(), $"Submit Message {submitMessage} invalid: {String.Join(Environment.NewLine, violations)}");
                 }
             }
         }
@@ -66,6 +66,37 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
                     var violations = VerifySendingPMode(sendingPMode);
 
                     Assert.False(violations.Any(), $"Sending PMode {sendingPMode} invalid: {String.Join(Environment.NewLine, violations)}");
+                }
+            }
+        }
+
+        public class EessiConformanceXsdValidationFacts : XsdValidationFacts
+        {
+            [Fact]
+            public void SendingPModesValidateAgainstXsd()
+            {
+                var pmodes = Computer.GetFilesInDirectory(".\\config\\eessi-conformancetest-settings\\C2\\send-pmodes", "*.xml", true).ToList();
+                pmodes.AddRange(Computer.GetFilesInDirectory(".\\config\\eessi-conformancetest-settings\\C3\\send-pmodes", "*.xml", true));
+
+                foreach (var sendingPMode in pmodes)
+                {
+                    var violations = VerifySendingPMode(sendingPMode);
+
+                    Assert.False(violations.Any(), $"Sending PMode {sendingPMode} invalid: {String.Join(Environment.NewLine, violations)}");
+                }
+            }
+
+            [Fact]
+            public void ReceivingPModesValidateAgainstXsd()
+            {
+                var pmodes = Computer.GetFilesInDirectory(".\\config\\eessi-conformancetest-settings\\C2\\receive-pmodes", "*.xml", true).ToList();
+                pmodes.AddRange(Computer.GetFilesInDirectory(".\\config\\eessi-conformancetest-settings\\C3\\receive-pmodes", "*.xml", true));
+
+                foreach (var receivingPModes in pmodes)
+                {
+                    var violations = VerifyReceivingPMode(receivingPModes);
+
+                    Assert.False(violations.Any(), $"Sending PMode {receivingPModes} invalid: {String.Join(Environment.NewLine, violations)}");
                 }
             }
         }
@@ -148,6 +179,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Xml
         public XsdValidationFixture()
         {
             Computer.RunPowershellScript("&..\\scripts\\GenerateXsd.ps1 -binDirectory . -outputDirectory ./doc/schemas");
+            // Pragmatic way to make sure that the XSD's are ready
+            System.Threading.Thread.Sleep(2000);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Model.Internal;
 using NLog;
@@ -38,6 +39,14 @@ namespace Eu.EDelivery.AS4.Steps.Send.Response
                 }
 
                 Logger.Error($"Response with HTTP status {response.StatusCode} received.");
+
+                if (Logger.IsErrorEnabled)
+                {
+                    using (StreamReader r = new StreamReader(response.ReceivedStream.UnderlyingStream))
+                    {
+                        Logger.Error(await r.ReadToEndAsync());
+                    }
+                }
 
                 return StepResult.Failed(new MessagingContext(response.ReceivedStream, MessagingContextMode.Send)).AndStopExecution();
             }

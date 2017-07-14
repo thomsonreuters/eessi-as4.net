@@ -53,6 +53,23 @@ namespace Eu.EDelivery.AS4.Repositories
         }
 
         /// <summary>
+        /// Selects some information of specified InMessages.
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="messageIds"></param>
+        /// <param name="selection"></param>
+        /// <returns></returns>
+        public IEnumerable<TResult> GetInMessagesData<TResult>(IEnumerable<string> messageIds, Func<InMessage, TResult> selection)
+        {
+            if (messageIds.Any() == false)
+            {
+                return new TResult[] { };
+            }
+
+            return _datastoreContext.InMessages.Where(m => messageIds.Contains(m.EbmsMessageId)).Select(selection);
+        }
+
+        /// <summary>
         /// Select all the found 'EbmsMessageIds' in the given datastore.
         /// </summary>
         /// <param name="searchedMessageIds">Collection of 'EbmsMessageIds' to be search for.</param>
