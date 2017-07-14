@@ -57,6 +57,7 @@ namespace Eu.EDelivery.AS4.Receivers
             public const string FilePath = "FilePath";
             public const string FileMask = "FileMask";            
             public const string BatchSize = "BatchSize";
+            public const string PollingInterval = "PollingInterval";
         }
 
         /// <summary>
@@ -243,10 +244,15 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private TimeSpan FromProperties()
         {
-            string pollingInterval = _properties.ReadMandatoryProperty("PollingInterval");
-            double miliseconds = Convert.ToDouble(pollingInterval);
+            TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
 
-            return TimeSpan.FromMilliseconds(miliseconds);
+            if (_properties.ContainsKey(SettingKeys.PollingInterval) == false)
+            {
+                return defaultInterval;
+            }
+
+            string pollingInterval = _properties[SettingKeys.PollingInterval];
+            return pollingInterval.AsTimeSpan(defaultInterval);
         }
 
         /// <summary>

@@ -25,7 +25,7 @@
       <Receiver type="Eu.EDelivery.AS4.Receivers.FileReceiver, Eu.EDelivery.AS4.Receivers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
         <Setting key="FilePath">.\messages\out</Setting>
         <Setting key="FileMask">*.xml</Setting>
-        <Setting key="PollingInterval">5000</Setting>
+        <Setting key="PollingInterval">0:00:05</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.SubmitMessageXmlTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
@@ -109,7 +109,7 @@
         <Setting key="Table">InMessages</Setting>
         <Setting key="Filter">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
-        <Setting key="PollingInterval">2000</Setting>
+        <Setting key="PollingInterval">0:00:02</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.InteropTestTransformers.InteropTestingNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
@@ -124,7 +124,7 @@
         <Setting key="Table">OutMessages</Setting>
         <Setting key="Filter">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
-        <Setting key="PollingInterval">2000</Setting>
+        <Setting key="PollingInterval">0:00:02</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.InteropTestTransformers.InteropTestingNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
@@ -139,7 +139,7 @@
         <Setting key="Table">InExceptions</Setting>
         <Setting key="Filter">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
-        <Setting key="PollingInterval">3000</Setting>
+        <Setting key="PollingInterval">0:00:03</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.InteropTestTransformers.InteropTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
@@ -154,7 +154,7 @@
         <Setting key="Table">OutExceptions</Setting>
         <Setting key="Filter">Operation = ToBeNotified</Setting>
         <Setting key="Update" field="Operation">Notifying</Setting>
-        <Setting key="PollingInterval">3000</Setting>
+        <Setting key="PollingInterval">0:00:03</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.InteropTestTransformers.InteropTestingExceptionNotifyMessageTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
@@ -169,7 +169,7 @@
         <Setting key="Table">ReceptionAwareness</Setting>
         <Setting key="Filter">Status = Pending</Setting>
         <Setting key="Update" field="Status">Busy</Setting>
-        <Setting key="PollingInterval">5000</Setting>
+        <Setting key="PollingInterval">0:00:05</Setting>
       </Receiver>
       <Transformer type="Eu.EDelivery.AS4.Transformers.ReceptionAwarenessTransformer, Eu.EDelivery.AS4.Transformers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
       <StepConfiguration>
