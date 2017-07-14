@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Repositories;
-using Eu.EDelivery.AS4.Security;
 using NLog;
 using Function =
     System.Func<Eu.EDelivery.AS4.Model.Internal.ReceivedMessage, System.Threading.CancellationToken,
@@ -21,7 +20,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// </summary>
     [Info("File receiver")]
     public class FileReceiver : PollingTemplate<FileInfo, ReceivedMessage>, IReceiver
-    {        
+    {
         private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
         private readonly IMimeTypeRepository _repository;
 
@@ -43,13 +42,8 @@ namespace Eu.EDelivery.AS4.Receivers
         [Info("File mask")]
         private string FileMask => _properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*");
 
-        [Info("Username")]
-        private string Username => _properties.ReadOptionalProperty(SettingKeys.UserName);
-
-        [Info("Password")]
-        private string Password => _properties.ReadOptionalProperty(SettingKeys.Password);
-
-        private int _batchSize;
+        [Info("Maximum number of concurrent processed files")]
+        private int BatchSize { get; set; }
 
         protected override ILogger Logger { get; }
 
@@ -61,9 +55,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private static class SettingKeys
         {
             public const string FilePath = "FilePath";
-            public const string FileMask = "FileMask";
-            public const string UserName = "Username";
-            public const string Password = "Password";
+            public const string FileMask = "FileMask";            
             public const string BatchSize = "BatchSize";
         }
 
@@ -77,10 +69,12 @@ namespace Eu.EDelivery.AS4.Receivers
 
             var configuredBatchSize = _properties.ReadOptionalProperty(SettingKeys.BatchSize, "20");
 
-            if (Int32.TryParse(configuredBatchSize, out _batchSize) == false)
+            if (Int32.TryParse(configuredBatchSize, out var batchSize) == false)
             {
-                _batchSize = 20;
+                batchSize = 20;
             }
+
+            BatchSize = batchSize;
         }
 
         #endregion
@@ -101,7 +95,7 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger.Debug($"Stop receiving on '{Path.GetFullPath(FilePath)}'...");
         }
 
-        private async Task GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
+        private async void GetMessageFromFile(FileInfo fileInfo, Function messageCallback, CancellationToken token)
         {
             if (!fileInfo.Exists)
             {
@@ -255,29 +249,6 @@ namespace Eu.EDelivery.AS4.Receivers
             return TimeSpan.FromMilliseconds(miliseconds);
         }
 
-        private void WithImpersonation(Action action)
-        {
-            object impersonationContext = null;
-
-            try
-            {
-                impersonationContext = ImpersonateWhenRequired();
-                action();
-            }
-            finally
-            {
-                if (impersonationContext != null) Impersonation.UndoImpersonation(impersonationContext);
-            }
-        }
-
-        private object ImpersonateWhenRequired()
-        {
-            if (string.IsNullOrEmpty(Username)) return null;
-
-            Logger.Trace($"Impersonating as user {Username}");
-            return Impersonation.Impersonate(Username, Password);
-        }
-
         /// <summary>
         /// Declaration to where the Message are and can be polled
         /// </summary>
@@ -288,36 +259,32 @@ namespace Eu.EDelivery.AS4.Receivers
             var directoryInfo = new DirectoryInfo(FilePath);
             var resultedFiles = new List<FileInfo>();
 
-            WithImpersonation(
-                delegate
+            FileInfo[] directoryFiles = directoryInfo.GetFiles(FileMask).Take(BatchSize).ToArray();
+
+            foreach (FileInfo file in directoryFiles)
+            {
+                try
                 {
-                    FileInfo[] directoryFiles = directoryInfo.GetFiles(FileMask).Take(_batchSize).ToArray();
+                    var result = MoveFile(file, "pending");
 
-                    foreach (FileInfo file in directoryFiles)
+                    if (result.success)
                     {
-                        try
-                        {
-                            var result = MoveFile(file, "pending");
+                        var pendingFile = new FileInfo(result.filename);
 
-                            if (result.success)
-                            {
-                                var pendingFile = new FileInfo(result.filename);
+                        Logger.Trace(
+                            $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
 
-                                Logger.Trace(
-                                    $"Locked file {file.Name} to be processed and renamed it to {pendingFile.Name}");
+                        _pendingFiles.Add(pendingFile);
 
-                                _pendingFiles.Add(pendingFile);
-                               
-                                resultedFiles.Add(pendingFile);
-                            }
-                        }
-                        catch (IOException ex)
-                        {
-                            Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
-                            Logger.Trace(ex.Message);
-                        }
+                        resultedFiles.Add(pendingFile);
                     }
-                });
+                }
+                catch (IOException ex)
+                {
+                    Logger.Info($"FileReceiver on {FilePath}: {file.Name} skipped since it is in use.");
+                    Logger.Trace(ex.Message);
+                }
+            }
 
             return resultedFiles;
         }
@@ -351,7 +318,7 @@ namespace Eu.EDelivery.AS4.Receivers
         protected override void MessageReceived(FileInfo entity, Function messageCallback, CancellationToken token)
         {
             Logger.Info($"Received Message from Filesystem: {entity.Name}");
-            WithImpersonation(async () => await GetMessageFromFile(entity, messageCallback, token));
+            GetMessageFromFile(entity, messageCallback, token);
         }
 
         /// <summary>
