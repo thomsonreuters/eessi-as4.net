@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
 using Eu.EDelivery.AS4.Fe.Pmodes;
 using Eu.EDelivery.AS4.Model.Common;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Model.Submit;
+using Microsoft.Extensions.Options;
 
 namespace Eu.EDelivery.AS4.Fe.SubmitTool
 {
@@ -23,16 +20,21 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
         private readonly IPmodeService pmodeService;
         private readonly IEnumerable<IPayloadHandler> payloadHandlers;
         private readonly IEnumerable<IMessageHandler> messageHandlers;
+        private readonly IOptions<SubmitToolOptions> options;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SubmitMessageCreator"/> class.
+        /// Initializes a new instance of the <see cref="SubmitMessageCreator" /> class.
         /// </summary>
         /// <param name="pmodeService">The pmode service.</param>
-        public SubmitMessageCreator(IPmodeService pmodeService, IEnumerable<IPayloadHandler> payloadHandlers, IEnumerable<IMessageHandler> messageHandlers)
+        /// <param name="payloadHandlers">The payload handlers.</param>
+        /// <param name="messageHandlers">The message handlers.</param>
+        /// <param name="options">The configuration options.</param>
+        public SubmitMessageCreator(IPmodeService pmodeService, IEnumerable<IPayloadHandler> payloadHandlers, IEnumerable<IMessageHandler> messageHandlers, IOptions<SubmitToolOptions> options )
         {
             this.pmodeService = pmodeService;
             this.payloadHandlers = payloadHandlers;
             this.messageHandlers = messageHandlers;
+            this.options = options;
         }
 
         /// <summary>
@@ -51,14 +53,12 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
         /// </exception>
         public async Task CreateSubmitMessages(MessagePayload submitInfo)
         {
-            if (string.IsNullOrEmpty(submitInfo.To)) throw new BusinessException("Missing to location");
-            if (string.IsNullOrEmpty(submitInfo.PayloadLocation)) throw new BusinessException("Missing payload location");
             if (submitInfo.NumberOfSubmitMessages <= 0 || submitInfo.NumberOfSubmitMessages > 999) throw new BusinessException("Invalid number of submit messages value. Only a value between 1 & 999 is allowed.");
 
             var sendingPmode = await pmodeService.GetSendingByName(submitInfo.SendingPmode);
             if (sendingPmode == null) throw new BusinessException($"Could not find pmode {submitInfo.SendingPmode}");
 
-            await CreateSubmitMessageObjects(submitInfo, sendingPmode.Pmode, submitInfo.PayloadLocation, submitInfo.To);
+            await CreateSubmitMessageObjects(submitInfo, sendingPmode.Pmode, options.Value.PayloadHttpAddress, options.Value.ToHttpAddress);
         }
 
         private async Task CreateSubmitMessageObjects(MessagePayload submitInfo, SendingProcessingMode sendingPmode, string payloadDestination, string messageDestination)

@@ -28,6 +28,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private readonly string OutEbmsMessageId2 = "OutEbmsMessageId2";
         private readonly string OutEbmsRefToMessageId1 = "OutEbmsRefToMessageId1";
         private readonly string OutEbmsRefToMessageId2 = "OutEbmsRefToMessageId2";
+        private readonly string InException = "THIS IS EXCEPTION 1";
         private readonly string pmodeString;
         private readonly string MessageBody1 = "TEST";
         private readonly string MessageBody2 = "TEST2";
@@ -35,6 +36,21 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         private MonitorService monitorService;
         private DbContextOptions<DatastoreContext> options;
         protected IDatastoreRepository DatastoreRepository;
+        private const string Exception = @"[9acd3265 - cd3a - 4903 - 9ec4 - 694fc4433c34@mindertestbed.org]Decryption failed
+   at Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep.TryDecryptAS4Message() in C:\Dev\codit.visualstudio.com\AS4.NET\source\Steps\Eu.EDelivery.AS4.Steps\Receive\DecryptAS4MessageStep.cs:line 109
+   at Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep.ExecuteAsync(InternalMessage internalMessage, CancellationToken cancellationToken) in C:\Dev\codit.visualstudio.com\AS4.NET\source\Steps\Eu.EDelivery.AS4.Steps\Receive\DecryptAS4MessageStep.cs:line 66
+   at Eu.EDelivery.AS4.Steps.CompositeStep.<ExecuteAsync>d__2.MoveNext() in C:\Dev\codit.visualstudio.com\AS4.NET\source\AS4\Eu.EDelivery.AS4\Steps\CompositeStep.cs:line 43
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   at Eu.EDelivery.AS4.Steps.Receive.ReceiveExceptionStepDecorator.<ExecuteAsync>d__4.MoveNext() in C:\Dev\codit.visualstudio.com\AS4.NET\source\Steps\Eu.EDelivery.AS4.Steps\Receive\ReceiveExceptionStepDecorator.cs:line 54
+Failed to decrypt data element
+   at Eu.EDelivery.AS4.Security.Strategies.EncryptionStrategy.TryDecryptEncryptedData(EncryptedData encryptedData) in C:\Dev\codit.visualstudio.com\AS4.NET\source\AS4\Eu.EDelivery.AS4\Security\Strategies\EncryptionStrategy.cs:line 288
+   at Eu.EDelivery.AS4.Security.Strategies.EncryptionStrategy.DecryptMessage() in C:\Dev\codit.visualstudio.com\AS4.NET\source\AS4\Eu.EDelivery.AS4\Security\Strategies\EncryptionStrategy.cs:line 271
+   at Eu.EDelivery.AS4.Model.Core.SecurityHeader.Decrypt(IEncryptionStrategy encryptionStrategy) in C:\Dev\codit.visualstudio.com\AS4.NET\source\AS4\Eu.EDelivery.AS4\Model\Core\SecurityHeader.cs:line 124
+   at Eu.EDelivery.AS4.Steps.Receive.DecryptAS4MessageStep.TryDecryptAS4Message() in C:\Dev\codit.visualstudio.com\AS4.NET\source\Steps\Eu.EDelivery.AS4.Steps\Receive\DecryptAS4MessageStep.cs:line 104
+";
 
         public MonitorServiceTests()
         {
@@ -114,8 +130,8 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = InEbmsMessageId1,
-                    PMode = pmodeString,                
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    PMode = pmodeString,
+                    Exception = InException
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
@@ -127,13 +143,14 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    Exception = InException
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1),
+                    Exception = Exception
                 });
                 datastoreContext.SaveChanges();
             }
@@ -289,7 +306,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             }
 
             public class GetExceptions : MonitorServiceTests
-            {
+            {                
                 [Fact]
                 public async Task Throws_Exception_When_Parameters_Is_Null()
                 {
@@ -338,6 +355,19 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 {
                     var result = await Setup().ExpectExceptionAsync(() => monitorService.GetExceptions(new ExceptionFilter() { Direction = null }), typeof(ArgumentNullException));
                 }
+
+                [Fact]
+                public async Task Exception_Short_Should_Not_Contain_The_Full_Exception()
+                {
+                    Setup();
+
+                    var result = await monitorService.GetExceptions(new ExceptionFilter
+                    {
+                        EbmsRefToMessageId = InEbmsRefToMessageId1
+                    });
+
+                    Assert.True(result.Messages.First().ExceptionShort == "Decryption failed");
+                }
             }
 
             public class Hash : MonitorServiceTests
@@ -375,7 +405,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                             PMode = pmodeString
                         });
                         datastoreContext.OutMessages.Add(new OutMessage
-                        {                            
+                        {
                             EbmsMessageId = InEbmsRefToMessageId1,
                             PMode = pmodeString
                         });
@@ -507,9 +537,9 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 [InlineData(Direction.Outbound, "OutEbmsRefToMessageId1")]
                 public async Task Gets_The_MesageBody(Direction direction, string ebmsMessageId)
                 {
-                    var testBody = MessageBody1;
+                    var testBody = InException;
                     var result = await Setup().monitorService.DownloadExceptionBody(direction, ebmsMessageId);
-                    Assert.True(testBody == Encoding.ASCII.GetString(result));
+                    Assert.True(testBody == result);
                 }
             }
         }

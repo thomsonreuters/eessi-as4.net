@@ -23,6 +23,8 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
 
             services.AddSingleton<IMessageHandler, MshMessageHandler>();
             services.AddSingleton<IMessageHandler, FileMessageHandler>();
+
+            services.Configure<SubmitToolOptions>(configuration.GetSection("SubmitTool"));
         }
     }
 }

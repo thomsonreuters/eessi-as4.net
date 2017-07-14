@@ -1,6 +1,6 @@
 <div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
-        <li *ngFor="let tabItem of tabItems; let i = index" [class.active]="(!!!activeTab && i === 0) || tabItem === activeTab" [class.invalid]="!tabItem.isValid">
+        <li *ngFor="let tabItem of tabItems; let i = index" [class.active]="(!!!activeTab && i === 0) || tabItem === activeTab" [class.invalid]="!(tabItem.isValidTab | async)">
             <a href="#tab_{{i}}" data-toggle="tab" (click)="selectTab(tabItem)">{{tabItem.title}}&nbsp;<ng-template *ngIf="activeTab === tabItem" [ngTemplateOutlet]="tabItem.container"></ng-template></a>
         </li>
     </ul>

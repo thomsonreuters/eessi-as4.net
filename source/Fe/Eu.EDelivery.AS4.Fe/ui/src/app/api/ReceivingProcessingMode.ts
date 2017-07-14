@@ -1,21 +1,18 @@
 /* tslint:disable */
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { ReplyHandlingSetting } from './ReplyHandlingSetting';
 import { ReceiveReliability } from "./ReceiveReliability";
-import { ReceiveReceiptHandling } from "./ReceiveReceiptHandling";
 import { ReceiveErrorHandling } from "./ReceiveErrorHandling";
 import { Receivehandling } from "./Receivehandling";
 import { ReceiveSecurity } from "./ReceiveSecurity";
 import { MessagePackaging } from "./MessagePackaging";
 import { Deliver } from "./Deliver";
-import { IPmode } from './Pmode.interface';
 
 export class ReceivingProcessingMode {
     id: string;
     mep: number;
     mepBinding: number;
     reliability: ReceiveReliability = new ReceiveReliability();
-    receiptHandling: ReceiveReceiptHandling = new ReceiveReceiptHandling();
-    errorHandling: ReceiveErrorHandling = new ReceiveErrorHandling();
+    replyHandling: ReplyHandlingSetting = new ReplyHandlingSetting();
     exceptionHandling: Receivehandling = new Receivehandling();
     security: ReceiveSecurity = new ReceiveSecurity();
     messagePackaging: MessagePackaging = new MessagePackaging();
@@ -25,8 +22,7 @@ export class ReceivingProcessingMode {
     static FIELD_mep: string = 'mep';
     static FIELD_mepBinding: string = 'mepBinding';
     static FIELD_reliability: string = 'reliability';
-    static FIELD_receiptHandling: string = 'receiptHandling';
-    static FIELD_errorHandling: string = 'errorHandling';
+    static FIELD_replyHandling: string = 'replyHandling';
     static FIELD_exceptionHandling: string = 'exceptionHandling';
     static FIELD_security: string = 'security';
     static FIELD_messagePackaging: string = 'messagePackaging';

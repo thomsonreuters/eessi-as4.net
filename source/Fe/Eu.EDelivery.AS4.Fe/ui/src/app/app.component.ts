@@ -39,6 +39,8 @@ import '../theme/js/app.js';
 })
 export class AppComponent {
     public isLoggedIn: boolean;
+    public isShowDetails: boolean = false;
+    public showOk: boolean = true;
     @ViewChild('modal') public modal: ElementRef;
     // tslint:disable-next-line:max-line-length
     constructor(private appState: AppState, private authenticationStore: AuthenticationStore, private runtimeService: RuntimeService, private modalService: ModalService, private dialogService: DialogService, private sendingPmodeService: SendingPmodeService, private receivingPmodeService: ReceivingPmodeService,

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Common;
+using Eu.EDelivery.AS4.Extensions;
 using Eu.EDelivery.AS4.Factories;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
@@ -20,6 +22,10 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         private readonly IConfig _config;
 
         private IDictionary<string, string> _properties;
+
+        [Info("Default pmode")]
+        [Description("The default pmode to be used to create a message.")]
+        private string DefaultPmode => _properties?.ReadOptionalProperty("default-pmode");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CreateDefaultAS4MessageStep" /> class.
@@ -70,8 +76,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private SendingProcessingMode GetDefaultPMode()
         {
-            string pmodeKey = _properties?["default-pmode"];
-            return _config.GetSendingPMode(pmodeKey);
+            return _config.GetSendingPMode(DefaultPmode);
         }
 
         private static void AddPartInfos(AS4Message as4Message)

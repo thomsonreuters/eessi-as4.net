@@ -151,6 +151,7 @@
     <Compile Include="SubmitTool\PayloadServiceHandler.cs" />
     <Compile Include="SubmitTool\SubmitMessageCreator.cs" />
     <Compile Include="SubmitTool\SubmitToolController.cs" />
+    <Compile Include="SubmitTool\SubmitToolOptions.cs" />
     <Compile Include="SubmitTool\SubmitToolSetup.cs" />
     <Compile Include="Swagger\FileUploadOperation.cs" />
     <Compile Include="Swagger\ISwaggerSetup.cs" />

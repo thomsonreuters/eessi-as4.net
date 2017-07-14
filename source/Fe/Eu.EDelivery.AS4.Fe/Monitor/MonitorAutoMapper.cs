@@ -10,6 +10,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     /// <seealso cref="AutoMapper.Profile" />
     public class MonitorAutoMapper : Profile
     {
+        private const int ExceptionLength = 50;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MonitorAutoMapper"/> class.
         /// </summary>
@@ -30,14 +32,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 .ForMember(x => x.ContentType, x => x.MapFrom(y => y.SimplifyContentType()))
                 .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound));
             CreateMap<InException, ExceptionMessage>()
-              .ForMember(x => x.Direction, x => x.UseValue(Direction.Inbound));
+              .ForMember(x => x.Direction, x => x.UseValue(Direction.Inbound))
+              .ForMember(x => x.ExceptionShort, x => x.MapFrom(y => string.IsNullOrEmpty(y.Exception) ? "" : y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0].Length > ExceptionLength ? y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0].Substring(0, ExceptionLength) + "..." : y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0]));
             CreateMap<OutException, ExceptionMessage>()
-              .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound));
-            //CreateMap<ExceptionEntity, ExceptionMessage>()
-            //    .ForMember(x => x.Operation, x => x.MapFrom(y => y.OperationString));
-            //CreateMap<MessageEntity, Message>()
-            //  .ForMember(x => x.Status, x => x.MapFrom(y => y.StatusString))
-            //  .ForMember(x => x.ContentType, x => x.MapFrom(y => y.SimplifyContentType()));
+              .ForMember(x => x.Direction, x => x.UseValue(Direction.Outbound))
+              .ForMember(x => x.ExceptionShort, x => x.MapFrom(y => string.IsNullOrEmpty(y.Exception) ? "" : y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0].Length > ExceptionLength ? y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0].Substring(0, ExceptionLength) + "..." : y.Exception.Substring(y.Exception.IndexOf(']') + 1).Split('\r', '\n')[0]));
         }
     }
 }

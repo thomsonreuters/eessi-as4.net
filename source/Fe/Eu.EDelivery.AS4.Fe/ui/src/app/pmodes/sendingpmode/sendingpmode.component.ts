@@ -1,6 +1,6 @@
 import { CanComponentDeactivate } from './../../common/candeactivate.guard';
 import { Subscription } from 'rxjs/Subscription';
-import { FormBuilder, FormGroupDirective } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, FormGroup } from '@angular/forms';
 import { Component, OnDestroy, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 

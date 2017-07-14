@@ -26,17 +26,16 @@ export class FilterComponent implements OnInit, OnDestroy {
     @Output() public outFilter: MessageFilter;
     @Output() public onSearch: EventEmitter<BaseFilter> = new EventEmitter();
     private _subscriptions: Subscription[] = new Array<Subscription>();
+    // tslint:disable-next-line:max-line-length
     constructor( @Inject(MESSAGESERVICETOKEN) private _messageService: MessageService, private _activatedRoute: ActivatedRoute, private _router: Router) {
-        this._subscriptions
-            .push(this._activatedRoute
-                .queryParams
-                .filter(() => !!this.filter)
-                .subscribe((result) => {
-                    this.executeServiceCall();
-                }));
+        let routeChangeSub = this._activatedRoute
+            .queryParams
+            .filter(() => !!this.filter)
+            .subscribe((result) => this.executeSearch());
+        this._subscriptions.push(routeChangeSub);
     }
     public ngOnInit() {
-        this.executeServiceCall();
+        this.executeSearch();
     }
     public ngOnDestroy() {
         this._subscriptions.forEach((sub) => sub.unsubscribe());
@@ -45,15 +44,22 @@ export class FilterComponent implements OnInit, OnDestroy {
         if (resetPage) {
             this.filter.page = 1;
         }
-        this._router.navigate(this.getPath(this._activatedRoute), { queryParams: this.filter.sanitize() });
+        this._router
+            .navigate(this.getPath(this._activatedRoute), { queryParams: this.filter.sanitize() })
+            .then((result) => {
+                if (result === null) {
+                    // When nothing happened call the service manually, this is usually the case when the queryparams haven't changed.
+                    this.executeSearch();
+                }
+            });
     }
-    public executeServiceCall() {
+    public executeSearch() {
         this.queryParamsToFilter();
         this._messageService.getMessages(this.filter);
     }
     private getPath(route: ActivatedRoute): string[] {
         let path = new Array<string>();
-        let test: ActivatedRouteSnapshot | null= route.snapshot;
+        let test: ActivatedRouteSnapshot | null = route.snapshot;
         do {
             path.push(test.url.toString());
             test = test.parent;

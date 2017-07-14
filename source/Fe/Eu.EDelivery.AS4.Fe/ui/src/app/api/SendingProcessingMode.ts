@@ -1,7 +1,6 @@
 /* tslint:disable */
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { PushConfiguration } from "./PushConfiguration";
-import { PullConfiguration } from "./PullConfiguration";
 import { SendReliability } from "./SendReliability";
 import { SendHandling } from "./SendHandling";
 import { Security } from "./Security";
@@ -15,21 +14,19 @@ export class SendingProcessingMode {
 	mep: number;
 	mepBinding: number;
 	pushConfiguration: PushConfiguration = new PushConfiguration();
-	pullConfiguration: PullConfiguration = new PullConfiguration();
 	dynamicDiscovery: DynamicDiscovery = new DynamicDiscovery();
-	reliability: SendReliability = new SendReliability(); 
+	reliability: SendReliability = new SendReliability();
 	receiptHandling: SendHandling = new SendHandling();
 	errorHandling: SendHandling = new SendHandling();
 	exceptionHandling: SendHandling = new SendHandling();
 	security: Security = new Security();
 	messagePackaging: SendMessagePackaging = new SendMessagePackaging();
-
+	
 	static FIELD_id: string = 'id';
 	static FIELD_allowOverride: string = 'allowOverride';
 	static FIELD_mep: string = 'mep';
 	static FIELD_mepBinding: string = 'mepBinding';
 	static FIELD_pushConfiguration: string = 'pushConfiguration';
-	static FIELD_pullConfiguration: string = 'pullConfiguration';
 	static FIELD_dynamicDiscovery: string = 'dynamicDiscovery';
 	static FIELD_reliability: string = 'reliability';
 	static FIELD_receiptHandling: string = 'receiptHandling';

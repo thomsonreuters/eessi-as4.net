@@ -67,7 +67,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// <param name="messageId">The message identifier.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
-        Task<byte[]> DownloadExceptionBody(Direction direction, string messageId);
+        Task<string> DownloadExceptionBody(Direction direction, string messageId);
 
         /// <summary>
         /// Gets the message details.

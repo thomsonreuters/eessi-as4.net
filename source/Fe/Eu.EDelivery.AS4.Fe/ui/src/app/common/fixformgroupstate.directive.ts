@@ -5,7 +5,7 @@ import { NgControl, AbstractControl, ControlValueAccessor, NG_VALUE_ACCESSOR } f
 import { HasAuthDirective } from './../authentication/hasauth/hasauth.directive';
 
 @Directive({
-    selector: '[formControlName]'
+    selector: '[formControlName], [formControl]'
 })
 export class FixFormGroupStateDirective implements DoCheck {
     private _previous: boolean | null = null;

@@ -123,7 +123,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 // Assert
                 var json = JObject.Parse(jsonResult);
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "pullconfiguration"));
+                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "pushconfiguration"));
                 Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "security"));
                 Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "signing"));
             }

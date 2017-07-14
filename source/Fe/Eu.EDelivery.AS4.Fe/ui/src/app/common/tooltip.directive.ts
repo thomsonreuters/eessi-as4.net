@@ -1,4 +1,4 @@
-import { Directive, Input, ElementRef, Renderer, OnInit, OnDestroy } from '@angular/core';
+import { Directive, Input, ElementRef, Renderer, OnInit, OnDestroy, HostListener } from '@angular/core';
 import * as $ from 'jquery';
 
 @Directive({
@@ -14,6 +14,10 @@ export class TooltipDirective implements OnInit, OnDestroy {
     @Input('as4-tooltip-placement') public placement: string = 'bottom';
     private custom: string | null;
     constructor(private renderer: Renderer, private elementRef: ElementRef) { }
+    @HostListener('click')
+    public onClick() {
+        this.ngOnDestroy();
+    }
     public ngOnInit() {
         (<any>$(this.elementRef.nativeElement)).tooltip({
             placement: this.placement,

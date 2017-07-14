@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -88,9 +89,9 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         [HttpGet]
         [Route("exceptionbody")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(MessageResult<Message>))]
-        public async Task<FileContentResult> GetExceptionBody(Direction direction, string messageId)
+        public async Task<FileResult> GetExceptionBody(Direction direction, string messageId)
         {
-            return File(await monitorService.DownloadExceptionBody(direction, messageId), "application/xml");
+            return File(Encoding.Unicode.GetBytes(await monitorService.DownloadExceptionBody(direction, messageId)), "application/txt");
         }
 
         /// <summary>
