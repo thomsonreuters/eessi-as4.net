@@ -9,14 +9,14 @@
             <div tabitem title="Common">
                 <as4-input label="Message exchange pattern" runtimeTooltip="receivingprocessingmode.mep">
                     <select formControlName="mep">
-                        <option value="0">One way</option>
-                        <option value="1">Two way</option>
+                        <option [ngValue]="0">One way</option>
+                        <option [ngValue]="1">Two way</option>
                     </select>
                 </as4-input>
                 <as4-input label="Message exchange pattern binding" runtimeTooltip="receivingprocessingmode.mepbinding">
                     <select formControlName="mepBinding">
-                        <option value="0">Pull</option>
-                        <option value="1">Push</option>
+                        <option [ngValue]="0">Push</option>
+                        <option [ngValue]="1">Pull</option>
                     </select>
                 </as4-input>
                 <div formGroupName="reliability">
@@ -57,39 +57,39 @@
             <div title="Security" tabitem formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid">
                 <as4-input label="Signing verification" formGroupName="signingVerification" runtimeTooltip="receivesecurity.signingverification">
                     <select formControlName="signature">
-                        <option value="0">Allowed</option>
-                        <option value="1">Not allowed</option>
-                        <option value="2">Required</option>
-                        <option value="3">Ignored</option>
+                        <option [ngValue]="0">Allowed</option>
+                        <option [ngValue]="1">Not allowed</option>
+                        <option [ngValue]="2">Required</option>
+                        <option [ngValue]="3">Ignored</option>
                     </select>
                 </as4-input>
                 <as4-input label="Decryption" formGroupName="decryption" runtimeTooltip="receivesecurity.decryption">
                     <select formControlName="encryption" #selectedEncryption>
-                        <option value="0">Allowed</option>
-                        <option value="1">Not allowed</option>
-                        <option value="2">Required</option>
-                        <option value="3">Ignored</option>
+                        <option [ngValue]="0">Allowed</option>
+                        <option [ngValue]="1">Not allowed</option>
+                        <option [ngValue]="2">Required</option>
+                        <option [ngValue]="3">Ignored</option>
                     </select>
                 </as4-input>
                 <div formGroupName="decryption">
                     <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"
                         runtimeTooltip="decryption.privatekeyfindtype">
                         <select formControlName="privateKeyFindType">
-                            <option value="0">Find by thumbprint</option>
-                            <option value="1">Find by subject name</option>
-                            <option value="2">Find by subject distinguished name</option>
-                            <option value="3">Find by issuer name</option>
-                            <option value="4">Find by issuer distinguished name</option>
-                            <option value="5">Find by serial number</option>
-                            <option value="6">Find by time valid</option>
-                            <option value="7">Find by time not yet valid</option>
-                            <option value="8">Find by time expired</option>
-                            <option value="9">Find by template name</option>
-                            <option value="10">Find by application policy</option>
-                            <option value="11">Find by certificate policy</option>
-                            <option value="12">Find by extension</option>
-                            <option value="13">Find by key usage</option>
-                            <option value="14">Find by subject key identifier</option>
+                            <option [ngValue]="0">Find by thumbprint</option>
+                            <option [ngValue]="1">Find by subject name</option>
+                            <option [ngValue]="2">Find by subject distinguished name</option>
+                            <option [ngValue]="3">Find by issuer name</option>
+                            <option [ngValue]="4">Find by issuer distinguished name</option>
+                            <option [ngValue]="5">Find by serial number</option>
+                            <option [ngValue]="6">Find by time valid</option>
+                            <option [ngValue]="7">Find by time not yet valid</option>
+                            <option [ngValue]="8">Find by time expired</option>
+                            <option [ngValue]="9">Find by template name</option>
+                            <option [ngValue]="10">Find by application policy</option>
+                            <option [ngValue]="11">Find by certificate policy</option>
+                            <option [ngValue]="12">Find by extension</option>
+                            <option [ngValue]="13">Find by key usage</option>
+                            <option [ngValue]="14">Find by subject key identifier</option>
                         </select>
                     </as4-input>
                     <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"

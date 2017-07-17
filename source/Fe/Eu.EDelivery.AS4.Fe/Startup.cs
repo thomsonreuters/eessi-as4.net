@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
@@ -90,20 +91,32 @@ namespace Eu.EDelivery.AS4.Fe
                     var ex = context.Features.Get<IExceptionHandlerFeature>();
                     if (ex != null)
                     {
-                        var response = new
+                        var response = new ErrorResponse()
                         {
-                            IsError = true,
-                            Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace, ex.Error.Message
+                            Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace,
+                            Message = ex.Error.Message
                         };
 
                         if (ex.Error is AlreadyExistsException alreadyExists)
+                        {
                             context.Response.StatusCode = (int) HttpStatusCode.Conflict;
+                            response.Type = "businessexception";
+                        }
                         else if (ex.Error is NotFoundException notFound)
+                        {
                             context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                            response.Type = "businessexception";
+                        }
                         else if (ex.Error is BusinessException businessEx)
+                        {
                             context.Response.StatusCode = (int) HttpStatusCode.ExpectationFailed;
+                            response.Type = "businessexception";
+                        }
                         else
+                        {
                             context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                            response.Type = "businessexception";
+                        }
 
                         await context.Response.WriteAsync(JsonConvert.SerializeObject(response));
                         logger.Error(ex.Error);

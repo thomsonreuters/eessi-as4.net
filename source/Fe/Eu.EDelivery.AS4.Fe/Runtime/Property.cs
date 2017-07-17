@@ -43,11 +43,31 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// </value>
         public string Description { get; set; }
         /// <summary>
+        /// The default value
+        /// </summary>
+        public object DefaultValue { get; set; }
+        /// <summary>
         /// Gets or sets the child properties.
         /// </summary>
         /// <value>
         /// The properties.
         /// </value>
         public IEnumerable<Property> Properties { get; set; }
+
+        /// <summary>
+        /// Gets or sets if the property is required.
+        /// </summary>
+        /// <value>
+        /// The required.
+        /// </value>
+        public bool? Required { get; set; }
+
+        /// <summary>
+        /// Gets or sets the attributes which can be set for this setting.
+        /// </summary>
+        /// <value>
+        /// The attributes.
+        /// </value>
+        public IEnumerable<string> Attributes { get; set; }
     }
 }

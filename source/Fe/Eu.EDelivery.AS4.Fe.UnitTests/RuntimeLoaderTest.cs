@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Eu.EDelivery.AS4.Fe.UnitTests.TestData;
+using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Transformers;
 using Microsoft.Extensions.Options;
@@ -79,7 +81,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 // Setup
                 Setup();
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.Tests.TestData.ITestReceiver");
+                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.UnitTests.TestData.ITestReceiver");
 
                 // Assert
                 var first = result.First();
@@ -100,12 +102,23 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 Setup();
 
                 // Act
-                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.Tests.TestData.ITestReceiver");
+                var result = loader.LoadImplementationsForType(types, "Eu.EDelivery.AS4.Fe.UnitTests.TestData.ITestReceiver");
                 var onlywithDescription = result.First(test => test.Name.ToLower().Contains("testreceiverwithonlydescription"));
 
                 // Assert
                 Assert.True(onlywithDescription.Description == "TestReceiverWithOnlyDescription");
                 Assert.True(onlywithDescription.Properties.First().Description == "Name");
+            }
+
+            [Fact]
+            public void Types_Decorated_With_InfoAttribute_Should_Be_In_The_Runtime_List()
+            {
+                Setup();
+
+                var result = loader.LoadImplementationsForType(types, typeof(ITestReceiver).FullName);
+                var type = result.First(test => test.Name.ToLower().Contains("testreceiverwithonlydescription")).Properties.First(prop => prop.TechnicalName == "Test");
+
+                Assert.True(type.Attributes.Contains("testattribute"));
             }
         }
 
@@ -123,9 +136,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 // Assert
                 var json = JObject.Parse(jsonResult);
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "pushconfiguration"));
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "security"));
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "signing"));
+                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "sendingprocessingmode"));
             }
         }
     }

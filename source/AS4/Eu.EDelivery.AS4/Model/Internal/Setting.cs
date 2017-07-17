@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Eu.EDelivery.AS4.Model.Internal
 {
@@ -127,7 +130,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         /// <summary>
         /// Gets or sets a value indicating whether or not logging of received messages is enabled.
         /// </summary>
-        [XmlAttribute("UseLogging")]        
+        [XmlAttribute("UseLogging")]
         public bool UseLogging { get; set; }
 
         /// <summary>
@@ -248,6 +251,48 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public string Type { get; set; }
     }
 
+    public class XmlAttributeArrayConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(XmlAttribute[]);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+                return null;
+            var array = JArray.Load(reader);
+            var doc = new XmlDocument();
+            var test = array.Select(x => (JObject) x).SelectMany(x => x.Properties()).ToDictionary(pair => pair.Name, pair => pair.Value.Value<string>());
+            var result = test.Select(x =>
+            {
+                var a = doc.CreateAttribute(x.Key);
+                a.Value = x.Value;
+                return a;
+            }).ToArray();
+            return result;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var test = (XmlAttribute[]) value;
+            
+            writer.WriteStartArray();
+            foreach (var attribute in test)
+            {
+                writer.WriteStartObject();
+                writer.WritePropertyName(attribute.Name);
+                writer.WriteValue(attribute.Value);
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
+
+            //JArray.FromObject(value).WriteTo(writer);
+            //throw new NotImplementedException();
+        }
+    }
+
     [Serializable]
     [DesignerCategory("code")]
     [XmlType(AnonymousType = true, Namespace = "eu:edelivery:as4")]
@@ -257,6 +302,7 @@ namespace Eu.EDelivery.AS4.Model.Internal
         public string Key { get; set; }
 
         [XmlAnyAttribute]
+        [JsonConverter(typeof(XmlAttributeArrayConverter))]
         public XmlAttribute[] Attributes { get; set; }
 
         [XmlText]

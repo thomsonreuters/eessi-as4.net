@@ -76,10 +76,10 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             .distinctUntilChanged()
             .subscribe((result) => {
                 this.settings = result;
-                this.currentAgent = result.find((agt) => agt.name === this.form.value.name);
                 if (!!this.currentAgent) {
-                    this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build();
+                    this.currentAgent = result.find((agt) => agt.name === this.currentAgent!.name);
                 }
+                this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
             });
     }
     public addAgent() {
@@ -88,23 +88,20 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             .filter((result) => result)
             .subscribe(() => {
                 if (!!this.newName) {
+                    this.isNewMode = true;
                     if (this.messageIfExists(this.newName)) {
                         return;
                     }
                     let newAgent;
                     if (+this.actionType !== -1) {
-                        newAgent = Object.assign({}, this.settings.find(agt => agt.name === this.actionType));
+                        newAgent = Object.assign({}, this.settings.find((agt) => agt.name === this.actionType));
                     } else {
                         newAgent = new SettingsAgent();
                     }
-                    this.settings.push(newAgent);
+
                     this.currentAgent = newAgent;
                     this.currentAgent!.name = this.newName;
-                    this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).form;
-                    this.isNewMode = true;
-                    this.form.reset(newAgent);
-                    this.form.patchValue({ [SettingsAgent.FIELD_name]: this.newName });
-                    this.form.markAsDirty();
+                    this.settingsStore.addAgent(this.agent, this.currentAgent!);
                 }
             });
     }
@@ -157,12 +154,12 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
     }
     public reset() {
         if (this.isNewMode) {
+            this.settingsStore.deleteAgent(this.agent, this.currentAgent!);
             this.settings = this.settings.filter((agent) => agent !== this.currentAgent);
             this.currentAgent = undefined;
         }
         this.isNewMode = false;
-        this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build();
-        this.form.reset(this.currentAgent);
+        this.form = SettingsAgentForm.getForm(this._formWrapper, this.currentAgent).build(!!!this.currentAgent);
     }
     public rename() {
         this.dialogService
@@ -185,10 +182,9 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
             .confirm('Are you sure you want to delete the agent', 'Delete agent')
             .filter((result) => result)
             .subscribe((result) => {
-                this.form.markAsPristine();
                 if (this.isNewMode) {
                     this.settings = this.settings.filter((agent) => agent.name !== this.currentAgent!.name);
-                    this.selectAgent();
+                    this.reset();
                     return;
                 }
 
@@ -204,7 +200,7 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
         return !this.form.dirty;
     }
     private messageIfExists(name: string): boolean {
-        let exists = !!this.settings.find((agent) => agent.name === name);
+        let exists = !!this.settings.find((agent) => agent.name.toLocaleLowerCase() === name.toLocaleLowerCase());
         if (exists) {
             this.dialogService.message(`An agent with the name ${name} already exists`);
             return true;

@@ -27,6 +27,7 @@ import { AuthenticationModule } from './authentication';
 import { AuthHttp } from 'angular2-jwt';
 import { authHttpServiceFactory, errorHandlingServices } from '../app/common/as4components.module';
 import { SubmittoolModule } from './submittool/submittool.module';
+import { RuntimeModule } from './runtime/runtime.module';
 
 import '../styles/external.scss';
 
@@ -43,6 +44,7 @@ type StoreType = {
         NoContentComponent,
     ],
     imports: [
+        RuntimeModule,
         BrowserModule,
         FormsModule,
         HttpModule,

@@ -17,6 +17,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private string _destinationPath;
+        [Info("Destination path")]
+        private string DestinationPath { get; set; }
 
         /// <summary>
         /// Configure the <see cref="INotifySender"/>

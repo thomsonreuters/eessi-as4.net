@@ -31,6 +31,16 @@ namespace Eu.EDelivery.AS4.Receivers
         private HttpRequestMeta _requestMeta;
         private HttpListener _listener;
         private int _maxConcurrentConnections;
+        private Dictionary<string, string> _properties;
+
+        [Info("Url", required: true)]
+        private string Url => _properties?.ReadOptionalProperty(SettingKeys.Url);
+
+        [Info("Maximum concurrent requests to process", defaultValue: 10)]
+        private int ConcurrentRequests => Convert.ToInt32(_properties?.ReadOptionalProperty(SettingKeys.ConcurrentRequests, "10"));
+
+        [Info("Use logging")]
+        private bool UseLogging => Convert.ToBoolean(_properties?.ReadOptionalProperty(SettingKeys.UseLogging, "false"));
 
         /// <summary>
         /// Data Class that contains the required keys to correctly configure the <see cref="HttpReceiver"/>.
@@ -79,20 +89,20 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <param name="settings"></param>
         public void Configure(IEnumerable<Setting> settings)
         {
-            Dictionary<string, string> properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
+            _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
             const int defaultConcurrentRequests = 10;
-            string concurrentRequestValue = properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, defaultConcurrentRequests.ToString());
+            string concurrentRequestValue = _properties.ReadOptionalProperty(SettingKeys.ConcurrentRequests, defaultConcurrentRequests.ToString());
             if (!int.TryParse(concurrentRequestValue, out _maxConcurrentConnections))
             {
                 Logger.Warn($"Invalid '{SettingKeys.ConcurrentRequests}' was given: {concurrentRequestValue}, will fall back to '{defaultConcurrentRequests}'");
                 _maxConcurrentConnections = defaultConcurrentRequests;
             }
 
-            string useLoggingValue = properties.ReadOptionalProperty(SettingKeys.UseLogging, defaultValue: false.ToString());
+            string useLoggingValue = _properties.ReadOptionalProperty(SettingKeys.UseLogging, defaultValue: false.ToString());
             bool.TryParse(useLoggingValue, out var useLogging);
 
-            string hostname = properties.ReadMandatoryProperty(SettingKeys.Url);
+            string hostname = _properties.ReadMandatoryProperty(SettingKeys.Url);
             _requestMeta = new HttpRequestMeta(hostname, useLogging);
         }
 
@@ -311,7 +321,7 @@ namespace Eu.EDelivery.AS4.Receivers
 
                 try
                 {
-                    string newReceivedMessageFile =                        
+                    string newReceivedMessageFile =
                                      FilenameSanitizer.EnsureValidFilename($"{hostInformation}.{Guid.NewGuid()}.{DateTime.Now:yyyyMMdd}");
 
                     Logger.Info($"Logging to {newReceivedMessageFile}");

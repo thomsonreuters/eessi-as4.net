@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
 
             var file = await GetSettings();
             var agents = GetAgents(getAgents, file);
-            var existing = agents.FirstOrDefault(agent => agent.Name == settingsAgent.Name);
+            var existing = agents.FirstOrDefault(agent => agent.Name.ToLower() == settingsAgent.Name.ToLower());
             if (existing != null)
                 throw new AlreadyExistsException($"Agent with name {settingsAgent.Name} already exists");
 
@@ -114,12 +114,12 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             var file = await GetSettings();
             var agents = getAgents(file.Agents);
             // If a rename of an agent is requested then validate that no other agent with the new name exists yet
-            if (agents.Any(agt => agt.Name == settingsAgent.Name && agt.Name != originalAgentName))
+            if (agents.Any(agt => agt.Name.ToLower() == settingsAgent.Name.ToLower() && agt.Name.ToLower() != originalAgentName.ToLower()))
             {
                 throw new AlreadyExistsException($"An agent with name {settingsAgent.Name} already exists");
             }
 
-            var agent = agents.FirstOrDefault(agt => agt.Name == originalAgentName);
+            var agent = agents.FirstOrDefault(agt => agt.Name.ToLower() == originalAgentName.ToLower());
             if (agent == null) throw new NotFoundException($"{originalAgentName} agent doesn't exist");
 
             mapper.Map(settingsAgent, agent);
@@ -143,7 +143,7 @@ namespace Eu.EDelivery.AS4.Fe.Settings
             var file = await GetSettings();
             var agents = getAgents(file.Agents);
 
-            var agent = agents.FirstOrDefault(agt => agt.Name == name);
+            var agent = agents.FirstOrDefault(agt => agt.Name.ToLower() == name.ToLower());
             if (agent == null) throw new NotFoundException($"Submit agent {name} could not be found");
             var newList = agents.ToList();
             newList.Remove(agent);

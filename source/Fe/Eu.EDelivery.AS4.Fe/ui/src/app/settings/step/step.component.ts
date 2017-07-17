@@ -24,7 +24,7 @@ import { StepForm } from './../../api/StepForm';
                                 <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>
                             </select>
                             <div class="settings">
-                                <as4-runtime-settings showTitle="false" [form]="step" [types]="steps" [itemType]="step.get('type').value"></as4-runtime-settings>
+                                <as4-runtime-settings showTitle="false" [form]="step.get('setting')" [types]="steps" [itemType]="step.get('type').value"></as4-runtime-settings>
                             </div>
                         </div>
                     </div>
@@ -35,7 +35,8 @@ import { StepForm } from './../../api/StepForm';
     styles: [
         `
             .settings {
-                padding-top: 10px;
+                margin-top: 10px;
+                margin-bottom: 15px;
             }
             table tr td {
                 border: 0;
@@ -91,9 +92,10 @@ export class StepSettingsComponent implements OnDestroy {
                 .addControl('setting', this.formBuilder.array(stepProps
                     .properties
                     .map((prop) => SettingForm.getForm(this.formBuilder, {
-                        key: prop.friendlyName,
-                        value: ''
-                    }))));
+                        key: prop.technicalName,
+                        value: prop.defaultValue,
+                        attributes: prop.attributes
+                    }, prop.required))));
         }
         this._changeDetectorRef.detectChanges();
     }

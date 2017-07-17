@@ -18,9 +18,9 @@ export class SettingsStore extends Store<ISettingsState> {
         });
     }
     public clear() {
-        this.setState({ Settings: new Settings()});
+        this.setState({ Settings: new Settings() });
     }
-    public updateAgent(type: string, originalName: string, agent: SettingsAgent) {
+    public updateAgent(type: string, originalName: string | null = null, agent: SettingsAgent) {
         if (type === SettingsAgents.FIELD_receptionAwarenessAgent) {
             this.setReceptionAwarenessAgent(agent);
         } else {
@@ -42,6 +42,7 @@ export class SettingsStore extends Store<ISettingsState> {
         } else {
             if (!!!this.state.Settings.agents[type]) {
                 this.state.Settings.agents[type] = [agent];
+                this.setState(this.state);
                 return;
             }
             this.state.Settings.agents[type] = [...this.state.Settings.agents[type], agent];
@@ -51,7 +52,11 @@ export class SettingsStore extends Store<ISettingsState> {
     private setReceptionAwarenessAgent(settingsAgent: SettingsAgent) {
         this.state.Settings.agents[SettingsAgents.FIELD_receptionAwarenessAgent] = settingsAgent;
     }
-    private setAgent(settingsAgent: SettingsAgent, originalName: string, type: string) {
+    private setAgent(settingsAgent: SettingsAgent, originalName: string | null = null, type: string) {
+        if (!!!originalName) {
+            this.state.Settings.agents[type] = <SettingsAgent[]>this.state.Settings.agents[type].map(agt => agt.name === settingsAgent.name ? Object.assign({}, settingsAgent) : agt);
+            return;
+        }
         this.state.Settings.agents[type] = <SettingsAgent[]>this.state.Settings.agents[type].map(agt => agt.name === originalName ? Object.assign({}, settingsAgent) : agt);
     }
     private removeAgent(settingsAgent: SettingsAgent, type: string) {

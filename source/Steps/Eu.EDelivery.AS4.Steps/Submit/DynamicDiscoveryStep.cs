@@ -24,6 +24,11 @@ namespace Eu.EDelivery.AS4.Steps.Submit
     /// </summary>
     public class DynamicDiscoveryStep : IConfigStep
     {
+        [Info("SMP profile")]
+        public string SmpProfile => _properties?.ReadMandatoryProperty("SmpProfile");
+
+        private IDictionary<string, string> _properties { get; set; }
+
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         private IDynamicDiscoveryProfile _profile;
@@ -123,8 +128,9 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         /// <param name="properties"></param>
         public void Configure(IDictionary<string, string> properties)
         {
-            string typeName = properties.ReadMandatoryProperty("SmpProfile");
-            _profile = GenericTypeBuilder.FromType(typeName).Build<IDynamicDiscoveryProfile>();
+            _properties = properties;
+            _profile = GenericTypeBuilder.FromType(SmpProfile).Build<IDynamicDiscoveryProfile>();
         }
+
     }
 }

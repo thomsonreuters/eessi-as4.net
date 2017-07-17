@@ -70,7 +70,7 @@ export class SettingsService implements ISettingsService {
     public createAgent(settings: SettingsAgent, agent: string): Observable<boolean> {
         return this.http
             .post(this.getUrl(agent), settings)
-            .do(() => this.settingsStore.addAgent(agent, settings))
+            .do(() => this.settingsStore.updateAgent(agent, null, settings))
             .map(() => true)
             .catch(() => Observable.of(false));
     }

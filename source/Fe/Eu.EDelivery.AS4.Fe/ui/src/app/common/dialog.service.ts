@@ -34,6 +34,8 @@ export class DialogService {
                     .show('default', (dlg) => {
                         dlg.message = message;
                         dlg.title = title;
+                        dlg.buttonOk = 'Yes';
+                        dlg.buttonCancel = 'No';
                     })
                     .subscribe((result) => {
                         observer.next(result);

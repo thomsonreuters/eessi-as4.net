@@ -72,6 +72,7 @@
     <Compile Include="Database\AuthenticationSetup.cs" />
     <Compile Include="Database\SqlConnectionBuilder.cs" />
     <Compile Include="ErrorModel.cs" />
+    <Compile Include="ErrorResponse.cs" />
     <Compile Include="Logging\ApplicationInsightsSetup.cs" />
     <Compile Include="Logging\IApplicationInsightsSetup.cs" />
     <Compile Include="Logging\ILoggerSetup.cs" />

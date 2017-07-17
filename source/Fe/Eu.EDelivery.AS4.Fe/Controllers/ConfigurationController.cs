@@ -127,6 +127,26 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         }
 
         /// <summary>
+        /// Update an existing submit agent
+        /// </summary>
+        /// <param name="settingsAgent">The settings agent.</param>
+        /// <param name="originalName">Name of the original.</param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("submitagents/{originalName}")]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, typeof(ErrorModel), "Indicates that another entity already exists")]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, typeof(ErrorModel), "Returned when the requested submit agent doesn't exist")]
+        public async Task<IActionResult> UpdateSubmitAgent([FromBody] AgentSettings settingsAgent, string originalName)
+        {
+            EnsureArg.IsNotNull(settingsAgent, nameof(settingsAgent));
+            EnsureArg.IsNotNullOrEmpty(originalName, nameof(originalName));
+            await settingsService.UpdateAgent(settingsAgent, originalName, agents => agents.SubmitAgents, (settings, agents) => settings.SubmitAgents = agents);
+            return new OkResult();
+        }
+
+        /// <summary>
         /// Updates the outbound processing agent.
         /// </summary>
         /// <param name="settingsAgent">The settings agent.</param>

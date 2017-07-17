@@ -23,7 +23,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
 
         private IDictionary<string, string> _properties;
 
-        [Info("Default pmode")]
+        [Info("Default pmode", type: "pmode")]
         [Description("The default pmode to be used to create a message.")]
         private string DefaultPmode => _properties?.ReadOptionalProperty("default-pmode");
 

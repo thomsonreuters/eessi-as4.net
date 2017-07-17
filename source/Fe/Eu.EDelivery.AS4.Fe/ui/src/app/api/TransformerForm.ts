@@ -7,7 +7,7 @@ export class TransformerForm {
     public static getForm(formBuilder: FormWrapper, current: Transformer | undefined): FormWrapper {
         return formBuilder
             .group({
-                type: [current && current.type],
+                type: [current && current.type, Validators.required],
             });
     }
 }

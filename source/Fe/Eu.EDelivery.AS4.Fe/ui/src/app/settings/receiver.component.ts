@@ -12,11 +12,11 @@ import { ItemType } from './../api/ItemType';
     template: `
         <div [formGroup]="group">    
             <as4-input [label]="'Type'">
-                <select class="form-control" formControlName="type" (change)="receiverChanged($event.target.value)" #type>
+                <select class="form-control" formControlName="type" (change)="receiverChanged($event.target.value)" #type required>
                     <option *ngFor="let type of types" [value]="type.technicalName">{{type.name}}</option>
                 </select>
             </as4-input>
-            <as4-runtime-settings [form]="group" [types]="types" [itemType]="type.value"></as4-runtime-settings>      
+            <as4-runtime-settings [form]="group.get('setting')" labelSize="3" controlSize="5" [types]="types" [itemType]="type.value"></as4-runtime-settings>      
         </div>
     `
 })
@@ -39,14 +39,14 @@ export class ReceiverComponent implements OnDestroy {
             return;
         }
 
-        console.log(this.currentReceiver);
         this.group
             .addControl('setting', this.formBuilder.array(this.currentReceiver
                 .properties
                 .map((prop) => SettingForm.getForm(this.formBuilder, {
-                    key: prop.friendlyName,
-                    value: ''
-                }))));
+                    key: prop.technicalName,
+                    value: prop.defaultValue,
+                    attributes: prop.attributes
+                }, prop.required))));
     }
     public ngOnDestroy() {
         this._runtimeStoreSubscription.unsubscribe();

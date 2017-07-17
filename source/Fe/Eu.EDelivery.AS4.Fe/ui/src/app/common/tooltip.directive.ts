@@ -16,7 +16,7 @@ export class TooltipDirective implements OnInit, OnDestroy {
     constructor(private renderer: Renderer, private elementRef: ElementRef) { }
     @HostListener('click')
     public onClick() {
-        this.ngOnDestroy();
+        this.hide();
     }
     public ngOnInit() {
         (<any>$(this.elementRef.nativeElement)).tooltip({

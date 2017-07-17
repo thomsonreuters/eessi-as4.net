@@ -28,7 +28,7 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
                     <div class="col-xs-10">
                         <select class="form-control" (change)="actionType = $event.target.value" #select>
                             <option *ngFor="let setting of pmodes" [selected]="actionType === setting" [ngValue]="setting">{{setting}}</option>
-                            <option value="-1" [selected]="actionType === '-1'">Custom</option>
+                            <option value="-1" [selected]="actionType === '-1'">Empty</option>
                         </select>
                     </div>
                 </div>

@@ -1,5 +1,5 @@
 import { Method } from './../../api/Method';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, AbstractControl } from '@angular/forms';
 
 import { ParameterForm } from './../../api/ParameterForm';
@@ -16,7 +16,7 @@ import { ItemType } from './../../api/ItemType';
                     <option *ngFor="let type of types" [value]="type.name">{{type.name}}</option>
                 </select>
             </as4-input>
-            <as4-input label="Method parameters" *ngIf="parametersControl.length > 0" runtimeTooltip="method.parameters">
+            <as4-input label="Method parameters" *ngIf="!!parametersControl && parametersControl.length > 0" runtimeTooltip="method.parameters" [isLabelBold]="false">
                 <table class="table table-condensed" formArrayName="parameters">
                     <tr>
                         <th>Name</th>
@@ -29,7 +29,8 @@ import { ItemType } from './../../api/ItemType';
                 </table>
             </as4-input>
         </div>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MethodComponent {
     @Input() public group: FormGroup;
@@ -37,7 +38,7 @@ export class MethodComponent {
     @Input() public isDisabled: boolean = false;
     @Input() public label: string;
     public get parametersControl(): any {
-        return !!!this.group && this.group!.get('parameters');
+        return !!this.group && (<FormGroup>this.group!.get('parameters'))!.controls;
     }
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) { }
     public typeChanged(result: string) {

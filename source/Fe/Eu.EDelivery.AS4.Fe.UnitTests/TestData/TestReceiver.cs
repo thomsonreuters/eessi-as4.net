@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Eu.EDelivery.AS4.Fe.UnitTests.TestData;
 
 namespace Eu.EDelivery.AS4.Fe.Tests.TestData
 {

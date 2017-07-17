@@ -233,7 +233,6 @@
     <Compile Include="SendingBasePmodeTests.cs" />
     <Compile Include="SqlConnectionBuilderTests.cs" />
     <Compile Include="SubmitMessageCreatorTests.cs" />
-    <Compile Include="TestData\InfoAttribute.cs" />
     <Compile Include="TestData\ITestReceiver.cs" />
     <Compile Include="TestData\TestReceiver.cs" />
     <Compile Include="TestData\TestReceiverWithOnlyDescription.cs" />

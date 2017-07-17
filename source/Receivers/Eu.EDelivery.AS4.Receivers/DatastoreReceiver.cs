@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -33,7 +34,7 @@ namespace Eu.EDelivery.AS4.Receivers
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class
         /// </summary>
-        public DatastoreReceiver() : this(() => new DatastoreContext(Config.Instance)) {}
+        public DatastoreReceiver() : this(() => new DatastoreContext(Config.Instance)) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatastoreReceiver" /> class.
@@ -188,14 +189,30 @@ namespace Eu.EDelivery.AS4.Receivers
 
         #region Configuration
 
+        [Info("Table", required: true)]
+        private string Table => _properties?.ReadOptionalProperty(SettingKeys.Table);
+
+        [Info("Filter", required: true)]
+        private string Filter => _properties?.ReadOptionalProperty(SettingKeys.Filter);
+
+        [Info("How many rows to take", defaultValue: SettingKeys.TakeRowsDefault, type: "int32")]
+        private int TakeRows => Convert.ToInt32(_properties?.ReadOptionalProperty(SettingKeys.TakeRows));
+
+        [Info("Update", attributes: new[] { "Field" })]
+        private string Update => _properties?.ReadOptionalProperty(SettingKeys.Update);
+
         private static class SettingKeys
         {
             public const string PollingInterval = "PollingInterval";
             public const string Table = "Table";
             public const string Filter = "Filter";
             public const string TakeRows = "BatchSize";
+            public const string TakeRowsDefault = "20";
+            public const string Update = "Update";
+            public const int PollingIntervalDefault = 3;
         }
 
+        [Info("Polling interval", null, "int32", SettingKeys.PollingIntervalDefault)]
         protected override TimeSpan PollingInterval
         {
             get
@@ -245,7 +262,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             string tableName = properties.ReadMandatoryProperty(SettingKeys.Table);
             string filterColumn = properties.ReadMandatoryProperty(SettingKeys.Filter);
-            int take = Convert.ToInt32(properties.ReadOptionalProperty(SettingKeys.TakeRows, "20"));
+            int take = Convert.ToInt32(properties.ReadOptionalProperty(SettingKeys.TakeRows, SettingKeys.TakeRowsDefault));
 
             return new DatastoreSpecificationArgs(tableName, filterColumn, take);
         }

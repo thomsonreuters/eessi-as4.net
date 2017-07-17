@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { FormBuilder, FormGroup, FormControl, AbstractControl } from '@angular/forms';
 import 'rxjs/add/operator/distinctUntilChanged';
 
 @Injectable()
 export class FormBuilderExtended {
-    constructor(private formBuilder: FormBuilder) { }
+    constructor(private formBuilder: FormBuilder, private injector: Injector) { }
     public get(): FormWrapper {
-        return new FormWrapper(this.formBuilder);
+        return new FormWrapper(this.formBuilder, '', this.injector);
     }
 }
 
@@ -19,14 +19,14 @@ export class FormWrapper {
     private _enabledConditions = new Map<string, string>();
     private _subs = new Map<string, FormWrapper>();
     private _buildTriggers = new Map<string, any | null>();
-    constructor(public formBuilder: FormBuilder, public name: string = '') { }
+    constructor(public formBuilder: FormBuilder, public name: string = '', public injector: Injector) { }
     public subForm(field: string): FormWrapper {
         const sub = this._subs.get(field);
         if (!!sub) {
             return sub;
         }
 
-        const wrapper = new FormWrapper(this.formBuilder, field);
+        const wrapper = new FormWrapper(this.formBuilder, field, this.injector);
         this._subs.set(field, wrapper);
         return wrapper;
     }

@@ -16,11 +16,9 @@ export interface IRuntimeService {
 }
 
 @Injectable()
-export class RuntimeService implements IRuntimeService {s
+export class RuntimeService implements IRuntimeService {
     private _runtimeMetaData: any | null = null;
-    constructor(private http: AuthHttp, private runtimeStore: RuntimeStore) {
-
-    }
+    constructor(private http: AuthHttp, private runtimeStore: RuntimeStore) { }
     public getReceivers() {
         this.http
             .get(this.getBaseUrl('getreceivers'))

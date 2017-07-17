@@ -21,6 +21,7 @@ import { RuntimeStore } from './runtime.store';
 import { ROUTES } from './settings.routes';
 import { SortablejsModule } from 'angular-sortablejs';
 import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
+import { RuntimeModule } from './../runtime/runtime.module';
 
 const components: any = [
     SettingsComponent,
@@ -54,7 +55,8 @@ const services: any = [
         RouterModule.forChild(ROUTES),
         SortablejsModule,
         As4ComponentsModule,
-        AuthenticationModule
+        AuthenticationModule,
+        RuntimeModule
     ],
     exports: [
         SettingsComponent,

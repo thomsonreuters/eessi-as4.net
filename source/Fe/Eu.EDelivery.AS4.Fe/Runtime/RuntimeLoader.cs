@@ -155,18 +155,31 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
 
         private IEnumerable<Property> BuildProperties(Collection<PropertyDefinition> properties)
         {
-            foreach (var prop in properties)
+            foreach (var prop in properties.Where(x => x.CustomAttributes.Any(y => y.AttributeType.Name == Infoattribute)))
             {
-                var customAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute)?.ConstructorArguments;
+                var customAttr = prop.CustomAttributes.First(attr => attr.AttributeType.Name == Infoattribute)?.ConstructorArguments;
                 var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute)?.ConstructorArguments;
                 var property = new Property
                 {
                     FriendlyName = customAttr != null ? customAttr[0].Value as string : prop.Name,
                     TechnicalName = prop.Name,
                     Regex = customAttr != null ? customAttr.Count > 1 ? customAttr[1].Value as string : string.Empty : string.Empty,
-                    Type = customAttr != null && customAttr.Count > 2 ? customAttr[2].Value as string : prop.PropertyType.Name,
-                    Description = descriptionAttr != null ? descriptionAttr.Count > 0 ? descriptionAttr[0].Value as string : string.Empty : string.Empty
+                    Type = customAttr != null && customAttr.Count > 2 ? customAttr[2].Value as string : prop.PropertyType.Name.ToLower(),
+                    Description = descriptionAttr != null ? descriptionAttr.Count > 0 ? descriptionAttr[0].Value as string : string.Empty : string.Empty,
+                    Required = customAttr != null && (customAttr.Count >= 5 && Convert.ToBoolean(customAttr[4].Value))
                 };
+
+                var defaultValue = customAttr?.Count >= 4 ? customAttr[3].Value : null;
+                if (defaultValue is CustomAttributeArgument defaultValueAttribute)
+                {
+                    property.DefaultValue = defaultValueAttribute.Value;
+                }
+
+                var attributeList = customAttr?.Count >= 6 ? customAttr[5].Value : null;
+                if (attributeList is CustomAttributeArgument[] attributes)
+                {
+                    property.Attributes = attributes.Select(x => x.Value as string).ToList();
+                }
 
                 if (prop.PropertyType.Namespace != "System")
                 {

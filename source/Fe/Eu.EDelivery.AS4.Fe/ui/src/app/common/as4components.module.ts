@@ -19,7 +19,6 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { HeaderComponent } from './header/header.component';
 import { InputComponent } from './input/input.component';
 import { InfoComponent } from './info/info.component';
-import { RuntimeSettingsComponent } from './runtimesettings/runtimesettings.component';
 import { CrudButtonsComponent } from './crudbuttons/crudbuttons.component';
 import { ModalComponent } from './modal/modal.component';
 import { TabItemDirective } from './tab/tabitem.directive';
@@ -68,7 +67,6 @@ const components: any = [
     HeaderComponent,
     InputComponent,
     InfoComponent,
-    RuntimeSettingsComponent,
     CrudButtonsComponent,
     ModalComponent,
     TabComponent,
@@ -133,7 +131,6 @@ const services: any = [
         HeaderComponent,
         InputComponent,
         InfoComponent,
-        RuntimeSettingsComponent,
         CrudButtonsComponent,
         ModalComponent,
         FocusDirective,

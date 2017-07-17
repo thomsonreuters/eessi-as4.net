@@ -1,3 +1,4 @@
+import { ErrorResponse } from './../../api/ErrorResponse';
 import { Observable } from 'rxjs';
 import { Http, XHRBackend, Request, RequestOptionsArgs, RequestOptions, Response } from '@angular/http';
 
@@ -15,8 +16,14 @@ export class CustomHttp extends Http {
             .request(url, options)
             .do(() => this.spinnerService.hide())
             .catch((error) => {
-                // tslint:disable-next-line:max-line-length
-                this._dialogService.error(`An error occured while communicating with the API. Please verify that you can reach the API. Please reload the application to try again.`, error, true);
+                const errorResponse = <ErrorResponse>error.json();
+                if (errorResponse.Type === 'businessexception') {
+                    this._dialogService.error(errorResponse.Message, errorResponse.Exception, false);
+                    this.spinnerService.hide();
+                } else {
+                    // tslint:disable-next-line:max-line-length
+                    this._dialogService.error(`An error occured while communicating with the API. Please verify that you can reach the API. Please reload the application to try again.`, error, true);
+                }
                 return Observable.throw(error);
             });
         return result;
