@@ -65,3 +65,28 @@
 .test {
     background-color: #c2c2a3 !important;
 }
+
+.advanced {
+    margin-top: 10px;
+    p {
+        display: inline;
+    }
+}
+
+.margin-bottom {
+    margin-bottom: 20px;
+}
+
+.margin-top {
+    margin-top: 10px;
+}
+
+.info-tab {
+    tr>td:first-child {
+        text-align: right;
+    }
+}
+
+.break {
+    word-break: break-all;
+}

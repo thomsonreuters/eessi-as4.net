@@ -1,5 +1,5 @@
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Component, Input, EventEmitter, Output,  ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 
 import { Setting } from './../../api/Setting';
 import { Property } from './../../api/Property';
@@ -16,4 +16,5 @@ export class RuntimeSettingComponent {
     @Input() public labelSize: string;
     @Input() public controlSize: string;
     @Output() public onChange = new EventEmitter<Setting>();
+    public timeSpanMask = [/[0-9]/, /[0-9]/, ':', /[0-5]/, /[0-9]/, ':', /[0-5]/, /[0-9]/];
 }

@@ -54,11 +54,15 @@ export class ReceivingPmodeService implements ICrudPmodeService {
                 this.pmodeStore.update('Receiving', result.json());
             });
     }
-    public delete(name: string) {
+    public delete(name: string, onlyStore: boolean = false) {
+        if (onlyStore) {
+            this.pmodeStore.deleteReceiving(name);
+            return;
+        }
         this.http
             .delete(`${this.getBaseUrl(name)}/`)
             .subscribe((result) => {
-                this.pmodeStore.deleteSending(name);
+                this.pmodeStore.deleteReceiving(name);
             });
     }
     public update(pmode: IPmode, originalName: string): Observable<boolean> {

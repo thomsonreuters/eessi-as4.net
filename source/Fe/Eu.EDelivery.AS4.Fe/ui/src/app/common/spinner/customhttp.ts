@@ -1,3 +1,4 @@
+import { AuthHttp } from 'angular2-jwt';
 import { ErrorResponse } from './../../api/ErrorResponse';
 import { Observable } from 'rxjs';
 import { Http, XHRBackend, Request, RequestOptionsArgs, RequestOptions, Response } from '@angular/http';
@@ -7,14 +8,20 @@ import { DialogService } from './../dialog.service';
 
 export class CustomHttp extends Http {
     // tslint:disable-next-line:max-line-length
-    constructor(backend: XHRBackend, options: RequestOptions, private spinnerService: SpinnerService, private _dialogService: DialogService) {
+    constructor(backend: XHRBackend, options: RequestOptions, private spinnerService: SpinnerService, private _dialogService: DialogService, private _noSpinner: boolean = false) {
         super(backend, options);
     }
-    public request(url: string | Request, options?: RequestOptionsArgs): Observable<Response> {
-        this.spinnerService.show();
+    public request(url: string | Request, options?: RequestOptionsArgs, ): Observable<Response> {
+        if (!this._noSpinner) {
+            this.spinnerService.show();
+        }
         let result = super
             .request(url, options)
-            .do(() => this.spinnerService.hide())
+            .do(() => {
+                if (!this._noSpinner) {
+                    this.spinnerService.hide();
+                }
+            })
             .catch((error) => {
                 const errorResponse = <ErrorResponse>error.json();
                 if (errorResponse.Type === 'businessexception') {
@@ -28,4 +35,8 @@ export class CustomHttp extends Http {
             });
         return result;
     }
+}
+
+export class CustomAuthNoSpinnerHttp extends AuthHttp {
+    
 }

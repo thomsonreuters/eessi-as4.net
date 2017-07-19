@@ -1,5 +1,5 @@
-<div *ngIf="messages | async as messageData">
-    <table class="table table-responsive" *ngIf="!!messageData.relatedMessages.length">
+<div *ngIf="messages | async; let messageData">
+    <table class="table table-responsive" *ngIf="!isLoading">
         <thead>
             <tr>
                 <th>Direction</th>
@@ -15,7 +15,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let message of messageData.relatedMessages">
+            <tr *ngFor="let message of messageData">
                 <td>{{message.direction | todirection}}</td>
                 <td>{{message.insertionTime | todate}}</td>
                 <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: message.direction, ebmsMessageId: message.ebmsMessageId }"
@@ -33,5 +33,6 @@
         </tbody>
     </table>
 
-    <p *ngIf="!!!messageData.relatedMessages.length">No messages available</p>
+    <p *ngIf="isLoading">Loading related messages ...&nbsp;<i class="fa fa-refresh fa-spin"></i> </p>
+    <p *ngIf="!isLoading && messageData.length === 0">No messages available</p>
 </div>

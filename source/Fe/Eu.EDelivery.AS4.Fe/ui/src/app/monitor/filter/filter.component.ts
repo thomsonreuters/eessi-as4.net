@@ -25,6 +25,7 @@ export class FilterComponent implements OnInit, OnDestroy {
     @Input() public filter: MessageFilter;
     @Output() public outFilter: MessageFilter;
     @Output() public onSearch: EventEmitter<BaseFilter> = new EventEmitter();
+    @Output() public onFiltersLoaded: EventEmitter<MessageFilter> = new EventEmitter();
     private _subscriptions: Subscription[] = new Array<Subscription>();
     // tslint:disable-next-line:max-line-length
     constructor( @Inject(MESSAGESERVICETOKEN) private _messageService: MessageService, private _activatedRoute: ActivatedRoute, private _router: Router) {
@@ -55,7 +56,9 @@ export class FilterComponent implements OnInit, OnDestroy {
     }
     public executeSearch() {
         this.queryParamsToFilter();
-        this._messageService.getMessages(this.filter);
+        this._messageService
+            .getMessages(this.filter)
+            .subscribe();
     }
     private getPath(route: ActivatedRoute): string[] {
         let path = new Array<string>();
@@ -69,6 +72,7 @@ export class FilterComponent implements OnInit, OnDestroy {
     }
     private queryParamsToFilter() {
         this.filter.fromUrlParams(this._activatedRoute.snapshot.queryParams);
-        this.outFilter = Object.assign({}, this.filter);
+        this.outFilter = new MessageFilter(this.filter);
+        this.onFiltersLoaded.next(this.outFilter);
     }
 }

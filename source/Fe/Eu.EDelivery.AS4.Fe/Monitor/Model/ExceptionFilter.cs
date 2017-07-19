@@ -28,21 +28,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// <value>
         /// The ebms reference to message identifier.
         /// </value>
-        public string EbmsRefToMessageId { get; set; }
-        /// <summary>
-        /// Gets or sets the insertion time from.
-        /// </summary>
-        /// <value>
-        /// The insertion time from.
-        /// </value>
-        public DateTime? InsertionTimeFrom { get; set; }
-        /// <summary>
-        /// Gets or sets the insertion time to.
-        /// </summary>
-        /// <value>
-        /// The insertion time to.
-        /// </value>
-        public DateTime? InsertionTimeTo { get; set; }
+        public string EbmsRefToMessageId { get; set; }       
         /// <summary>
         /// Gets or sets the modification time from.
         /// </summary>
@@ -83,13 +69,38 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
                 else query = query.Where(qr => qr.EbmsRefToMessageId == filter);
             }
 
-            if (InsertionTimeFrom != null && InsertionTimeTo == null) query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom);
-            else if (InsertionTimeFrom == null && InsertionTimeTo != null) query = query.Where(qr => qr.InsertionTime <= InsertionTimeTo);
-            else if (InsertionTimeFrom != null && InsertionTimeTo != null) query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom && qr.InsertionTime <= InsertionTimeTo);
-
             if (ModificationTimeFrom != null && ModificationTimeTo == null) query = query.Where(qr => qr.ModificationTime >= ModificationTimeFrom);
             else if (ModificationTimeFrom == null && ModificationTimeTo != null) query = query.Where(qr => qr.ModificationTime <= ModificationTimeTo);
             else if (ModificationTimeFrom != null && ModificationTimeTo != null) query = query.Where(qr => qr.ModificationTime >= ModificationTimeFrom && qr.ModificationTime <= ModificationTimeTo);
+
+            switch (InsertionTimeType)
+            {
+                case DateTimeFilterType.Custom:
+                    if (InsertionTimeFrom != null && InsertionTimeTo != null) query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom && qr.InsertionTime <= InsertionTimeTo);
+                    else if (InsertionTimeFrom == null && InsertionTimeTo != null) query = query.Where(qr => qr.InsertionTime <= InsertionTimeTo);
+                    else if (InsertionTimeFrom != null && InsertionTimeTo == null) query = query.Where(qr => qr.InsertionTime >= InsertionTimeFrom);
+                    break;
+                case DateTimeFilterType.Last4Hours:
+                    var last4Hours = DateTime.UtcNow.AddHours(-4);
+                    query = query.Where(x => x.InsertionTime >= last4Hours);
+                    break;
+                case DateTimeFilterType.LastDay:
+                    var lastDay = DateTime.UtcNow.AddDays(-1);
+                    query = query.Where(x => x.InsertionTime >= lastDay);
+                    break;
+                case DateTimeFilterType.LastHour:
+                    var lastHour = DateTime.UtcNow.AddHours(-1);
+                    query = query.Where(x => x.InsertionTime >= lastHour);
+                    break;
+                case DateTimeFilterType.LastMonth:
+                    var lastMonth = DateTime.UtcNow.AddMonths(-1);
+                    query = query.Where(x => x.InsertionTime >= lastMonth);
+                    break;
+                case DateTimeFilterType.LastWeek:
+                    var lastWeek = DateTime.UtcNow.AddDays(-7);
+                    query = query.Where(x => x.InsertionTime >= lastWeek);
+                    break;
+            }
 
             if (Operation == null) return query;
             {

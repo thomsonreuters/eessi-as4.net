@@ -20,13 +20,28 @@ import { TabItemDirective } from './tabitem.directive';
     templateUrl: './tab.component.html',
     exportAs: 'as4-tab'
 })
-export class TabComponent implements AfterContentInit {
+export class TabComponent implements AfterContentInit, OnDestroy {
     @ContentChildren(TabItemDirective) public tabItems: QueryList<TabItemDirective>;
     public activeTab: TabItemDirective;
+    private _subscription: Subscription;
+    private _activeTabIndex: number;
     public ngAfterContentInit() {
         let current = 0;
         this.tabItems.forEach((item) => item.tabId = current++);
         this.activeTab = this.tabItems.first;
+        this._subscription = this.tabItems
+            .changes
+            .subscribe((result: TabItemDirective[]) => {
+                const exists = this.tabItems.find((item) => item === this.activeTab);
+                if (!!!exists) {
+                    this.next();
+                }
+            });
+    }
+    public ngOnDestroy() {
+        if (!!this._subscription) {
+            this._subscription.unsubscribe();
+        }
     }
     public next() {
         const tabArray = this.tabItems.toArray();

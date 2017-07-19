@@ -1,4 +1,4 @@
-import { AuthHttp } from 'angular2-jwt';
+import { AuthHttp, AuthConfig } from 'angular2-jwt';
 import { Http, XHRBackend, RequestOptions } from '@angular/http';
 import { Injectable, Provider } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -13,7 +13,17 @@ export class SpinnerService {
     private _changes = new BehaviorSubject<boolean>(false);
     private _counter: number = 0;
     constructor() {
-        this.changes = this._changes.asObservable().distinctUntilChanged();
+        this.changes = this._changes
+            .asObservable()
+            .distinctUntilChanged()
+            .switchMap((value) => {
+                if (!value) {
+                    return Observable.timer(100).map(() => value);
+                } else {
+                    return Observable.of(value);
+                }
+            })
+            .do((value) => console.log(value));
     }
     public show() {
         this._counter++;

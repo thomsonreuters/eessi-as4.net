@@ -53,7 +53,11 @@ export class SendingPmodeService implements ICrudPmodeService {
             .get(`${this.getBaseUrl()}/${name}`)
             .subscribe((result) => this.pmodeStore.update('Sending', result.json()));
     }
-    public delete(name: string) {
+    public delete(name: string, onlyStore: boolean = false) {
+        if (onlyStore) {
+            this.pmodeStore.deleteSending(name);
+            return;
+        }
         this.http
             .delete(`${this.getBaseUrl()}/${name}`)
             .subscribe((result) => {

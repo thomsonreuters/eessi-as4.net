@@ -1,0 +1,30 @@
+<ng-container [formGroup]="input">
+    <select name="time" [formControl]="input.get(type)">
+        <option value="0">Last Hour</option>
+        <option value="1">Last 4 Hours</option>
+        <option value="2">Last day</option>
+        <option value="3">Last Week</option>
+        <option value="4">Last Month</option>
+        <option value="5">Custom</option>
+    </select>
+    <div class="row custom-row" *ngIf="input.get(type).value === '5'">
+        <div class="col-xs-12 col-md-5">
+            <div class="input-group">
+                <input placeholder="From" type="text" as4-datetimepicker [formControl]="input.get(from)" />
+                <span class="input-group-btn">
+            <button type="button" class="btn btn-secondary" (click)="input.get(from).setValue(null)"><i class="fa fa-trash"></i></button>
+        </span>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-2 text-center">to</div>
+        <div class="col-xs-12 col-md-5">
+            <div class="input-group">
+                <input placeholder="To" type="text" as4-datetimepicker [formControl]="input.get(to)"
+                    name="to"/>
+                <span class="input-group-btn">
+                <button type="button" class="btn btn-secondary" (click)="input.get(to).setValue(null)"><i class="fa fa-trash"></i></button>
+            </span>
+            </div>
+        </div>
+    </div>
+</ng-container>

@@ -1,5 +1,5 @@
 <div *ngIf="exceptions | async as exceptionData">
-    <table class="table table-striped" *ngIf="exceptionData.messages?.length > 0">
+    <table class="table table-striped" *ngIf="exceptionData.messages?.length > 0 && !isLoading">
         <colgroup>
             <col width="2%">
             <col width="5%">
@@ -21,11 +21,13 @@
             <tr *ngFor="let message of exceptionData.messages">
                 <td>{{message.direction | todirection}}</td>
                 <td>{{message.insertionTime | todate}}</td>
-                <td><a [routerLink]="['/monitor/exceptions']" [queryParams]="{ direction: message.direction, ebmsRefToMessageId: message.ebmsRefToMessageId }" target="_blank">{{message.ebmsRefToMessageId}}</a></td>
+                <td><a [routerLink]="['/monitor/exceptions']" [queryParams]="{ direction: message.direction, ebmsRefToMessageId: message.ebmsRefToMessageId }"
+                        target="_blank">{{message.ebmsRefToMessageId}}</a></td>
                 <td>{{message.operation}}</td>
                 <td><a [routerLink]="['/pmodes', direction === '0' ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a></td>
             </tr>
         </tbody>
     </table>
-    <p *ngIf="exceptionData.messages?.length === 0">No exceptions found</p>
+    <p *ngIf="isLoading">Loading exception messages ...&nbsp;<i class="fa fa-refresh fa-spin"></i> </p>
+    <p *ngIf="!isLoading && exceptionData.messages?.length === 0">No exceptions found</p>
 </div>

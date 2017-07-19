@@ -7,7 +7,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
     public class SendingBasePmodeTests
     {
         [Fact]
-        public void IsPushConfigurationEnabled_False_Will_Set_PushConfigurationNode_To_Null()
+        public void IsDynamicDiscoveryEnabled_True_Will_Set_PushConfigurationNode_To_Null()
         {
             var pmode = new SendingBasePmode
             {
@@ -15,7 +15,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 {
                     PushConfiguration = new PushConfiguration()
                 },
-                IsPushConfigurationEnabled = false
+                IsDynamicDiscoveryEnabled = true
             };
 
 
@@ -23,45 +23,34 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         }
 
         [Fact]
-        public void IsPushConfigurationEnabled_Is_False_When_PushConfiguration_Is_Null()
-        {
-            var pmode = new SendingBasePmode
-            {
-                Pmode = new SendingProcessingMode
-                {
-                }
-            };
-
-            Assert.False(pmode.IsPushConfigurationEnabled);
-        }
-
-        [Fact]
-        public void IsPushConfigurationEnabled_Is_True_Then_DynamicDiscovery_Is_Null()
+        public void IsDynamicDiscoveryEnabled_False_When_PushConfiguration_Is_Not_Null()
         {
             var pmode = new SendingBasePmode
             {
                 Pmode = new SendingProcessingMode()
                 {
-                    DynamicDiscovery = new DynamicDiscoveryConfiguration()
-                },
-                IsPushConfigurationEnabled = true
+                    PushConfiguration = new PushConfiguration()
+                }
             };
 
-            Assert.Null(pmode.Pmode.DynamicDiscovery);
+            Assert.False(pmode.IsDynamicDiscoveryEnabled);
         }
 
         [Fact]
-        public void IsPushConfigurationEnabled_Is_True_When_PushConfiguration_Is_Null()
+        public void IsDynamicDiscoveryEnabled_Is_True_Then_PushConfiguration_Is_Null()
         {
             var pmode = new SendingBasePmode
             {
                 Pmode = new SendingProcessingMode
                 {
-                    PushConfiguration = new PushConfiguration()
-                }
+                    PushConfiguration = new PushConfiguration(),
+                    DynamicDiscovery = new DynamicDiscoveryConfiguration()
+                },
+                IsDynamicDiscoveryEnabled = true
             };
 
-            Assert.True(pmode.IsPushConfigurationEnabled);
+            Assert.Null(pmode.Pmode.PushConfiguration);
+            Assert.NotNull(pmode.Pmode.DynamicDiscovery);
         }
     }
 }

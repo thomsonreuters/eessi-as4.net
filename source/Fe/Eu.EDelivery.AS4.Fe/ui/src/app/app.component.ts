@@ -30,7 +30,7 @@ import '../theme/js/app.js';
             </div>
             <div buttons>
                 <button type="button" class="btn" *ngIf="!!errorDialog.payload" (click)="isShowDetails = !!!isShowDetails ? true : isShowDetails">DETAILS</button>
-                <button type="button" class="btn" *ngIf="showOk" (click)="errorDialog.ok()">OK</button>
+                <button type="button" class="btn" *ngIf="showOk" (click)="errorDialog.ok()" focus>OK</button>
             </div>
         </as4-modal>
         <as4-spinner></as4-spinner>

@@ -15,16 +15,16 @@ export const PMODECRUD_SERVICE = new OpaqueToken('pmodecrudservice');
 @Component({
     selector: 'as4-pmode',
     template: `
-        <as4-modal name="new-pmode" title="Create a new pmode" (shown)="actionType = pmodes[0]; newName = ''; nameInput.focus()">
+        <as4-modal name="new-pmode" title="Create a new pmode" (shown)="actionType = pmodes[0]; newName = ''; nameInput.focus()" focus>
             <form class="form-horizontal">
                 <div class="form-group">
                     <label class="col-xs-2">New name</label>
                     <div class="col-xs-10">
-                        <input type="text" class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName" />
+                        <input type="text" class="form-control" #nameInput (keyup)="newName = $event.target.value" [value]="newName" focus/>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-xs-2">Use</label>
+                    <label class="col-xs-2">Clone</label>
                     <div class="col-xs-10">
                         <select class="form-control" (change)="actionType = $event.target.value" #select>
                             <option *ngFor="let setting of pmodes" [selected]="actionType === setting" [ngValue]="setting">{{setting}}</option>
@@ -94,6 +94,7 @@ export class CrudComponent implements OnInit, OnDestroy {
                 this.form = this._crudService.getForm(result).build(!!!result);
                 this.form.markAsPristine();
                 if (!!!result && !!!this.currentPmode) {
+                    this._routerService.setCurrentValue(this._activatedRoute, null);
                     return;
                 }
                 if (!!!result) {
@@ -108,6 +109,10 @@ export class CrudComponent implements OnInit, OnDestroy {
     }
     public ngOnDestroy() {
         this.subscriptions.forEach((subs) => subs.unsubscribe());
+        if (this.isNewMode) {
+            // Reset the state when the component is being destroyed
+            this.reset();
+        }
     }
     public pmodeChanged(name: string) {
         let select = () => {
@@ -139,10 +144,14 @@ export class CrudComponent implements OnInit, OnDestroy {
         if (this.isNewMode) {
             this.isNewMode = false;
             this.pmodes = this.pmodes.filter((pmode) => pmode !== this.currentPmode!.name);
+            // The pmode can be removed from the store because it isn't used anymore, but don't call the REST service.
+            this._crudService.delete(this.currentPmode!.name, true);
             this.currentPmode = undefined;
         }
-        this.form = this._crudService.getForm(this.currentPmode).build();
-        this.form.markAsPristine();
+        this.form = this._crudService.getForm(this.currentPmode).build(!!!this.currentPmode);
+        if (!!!this.currentPmode) {
+            this._routerService.setCurrentValue(this._activatedRoute, null);
+        }
     }
     public delete() {
         if (!!!this.currentPmode) {
@@ -151,7 +160,10 @@ export class CrudComponent implements OnInit, OnDestroy {
         this._dialogService
             .deleteConfirm('pmode')
             .filter((result) => result)
-            .subscribe((result) => this._crudService.delete(this.currentPmode!.name));
+            .subscribe((result) => {
+                this._crudService.delete(this.currentPmode!.name, false);
+                this._routerService.setCurrentValue(this._activatedRoute, null);
+            });
     }
     public add() {
         this._modalService
@@ -229,5 +241,6 @@ export class CrudComponent implements OnInit, OnDestroy {
         this.isNewMode = true;
         this.form = this._crudService.getForm(this.currentPmode).build();
         this.form.markAsDirty();
+        this._routerService.setCurrentValue(this._activatedRoute, null);
     }
 }

@@ -35,20 +35,28 @@ import { DialogService } from './dialog.service';
 import { errorHandlerFactory } from './error.handler';
 import { ModalService } from './modal/modal.service';
 import { TextDirective } from './text.directive';
-import { FocusDirective } from './focus.directive';
+import { FocusDirective, TabIndexDirective } from './focus.directive';
 import { SelectDirective } from './selectdirective';
 import { spinnerErrorhandlerDecoratorFactory } from './spinner/spinnerhideerror.handler.factory';
 import { DateTimePickerDirective } from './datetimepicker/datetimepicker.directive';
 import { ToNumberPipe } from './tonumber.pipe';
-import { MultiSelectDirective } from './multiselect/multiselect.directive';
+import { MultiSelectDirective, OptionDirective } from './multiselect/multiselect.directive';
 import { ContainsPipe } from './contains.pipe';
 import { FormBuilderExtended } from './form.service';
 import { FixFormGroupStateDirective } from './fixformgroupstate.directive';
+import { TimeInputComponent } from './timeinput/timeinput.component';
+import { CustomHttp, CustomAuthNoSpinnerHttp } from './spinner/customhttp';
+import { GetItemTypePropertyPipe, GetTypePipe } from './getitemtypeproperty.pipe';
 
 import { Select2Module } from 'ng2-select2';
 
-export function authHttpServiceFactory(http: Http, options: RequestOptions) {
-    let result = new AuthHttp(new AuthConfig(), http, options);
+export function authHttpServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService) {
+    let result = new AuthHttp(new AuthConfig(), new CustomHttp(backend, options, spinnerService, dialogService), options);
+    return result;
+}
+
+export function authHttpNoSpinnerServiceFactory(http: Http, options: RequestOptions, backend: XHRBackend, spinnerService: SpinnerService, dialogService: DialogService) {
+    let result = new AuthHttp(new AuthConfig(), new CustomHttp(backend, options, spinnerService, dialogService, true), options);
     return result;
 }
 
@@ -73,7 +81,8 @@ const components: any = [
     ColumnsComponent,
     SpinnerComponent,
     ThumbprintInputComponent,
-    ClipboardComponent
+    ClipboardComponent,
+    TimeInputComponent
 ];
 
 const directives: any = [
@@ -84,13 +93,17 @@ const directives: any = [
     TooltipDirective,
     DateTimePickerDirective,
     MultiSelectDirective,
-    FixFormGroupStateDirective
+    FixFormGroupStateDirective,
+    OptionDirective,
+    TabIndexDirective
 ];
 
 const pipes: any = [
     ToDatePipe,
     ToNumberPipe,
-    ContainsPipe
+    ContainsPipe,
+    GetItemTypePropertyPipe,
+    GetTypePipe
 ];
 
 const services: any = [
@@ -110,9 +123,14 @@ const services: any = [
     {
         provide: AuthHttp,
         useFactory: authHttpServiceFactory,
-        deps: [Http, RequestOptions]
+        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService]
     },
-    ...errorHandlingServices
+    {
+        provide: CustomAuthNoSpinnerHttp,
+        useFactory: authHttpNoSpinnerServiceFactory,
+        deps: [Http, RequestOptions, XHRBackend, SpinnerService, DialogService]
+    },
+    // ...errorHandlingServices
 ];
 
 @NgModule({
@@ -149,7 +167,12 @@ const services: any = [
         ToNumberPipe,
         MultiSelectDirective,
         ContainsPipe,
-        FixFormGroupStateDirective
+        FixFormGroupStateDirective,
+        TimeInputComponent,
+        OptionDirective,
+        TabIndexDirective,
+        GetItemTypePropertyPipe,
+        GetTypePipe
     ],
     imports: [
         ClipboardModule,

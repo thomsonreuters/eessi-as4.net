@@ -123,7 +123,7 @@ export class FormWrapper {
             keys = keys.filter((key) => key === field);
         }
 
-        for (const trigger of Array.from(this._buildTriggers.entries())) {
+        for (const trigger of Array.from(this._buildTriggers.entries()).reverse()) {
             const valueHandler = this._onValueChangeSubscriptions.get(trigger[0]);
             const statusHandler = this._onStatusChangeSubscriptions.get(trigger[0]);
             if (!!valueHandler) {

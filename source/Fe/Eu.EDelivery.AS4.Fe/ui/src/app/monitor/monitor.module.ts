@@ -9,7 +9,7 @@ import { MessageStore } from './message/message.store';
 import { SortDirective } from './sort/sort.directive';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { ClipboardModule } from 'ngx-clipboard';
 
@@ -53,6 +53,7 @@ const pipes: any = [
         AuthenticationModule,
         As4ComponentsModule,
         FormsModule,
+        ReactiveFormsModule,
         CommonModule,
         ClipboardModule,
         RouterModule.forChild(ROUTES),

@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Receivers
         private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
         private readonly IMimeTypeRepository _repository;
 
-        private IDictionary<string, string> _properties;        
+        private IDictionary<string, string> _properties;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FileReceiver" /> class
@@ -35,22 +35,21 @@ namespace Eu.EDelivery.AS4.Receivers
             Logger = LogManager.GetCurrentClassLogger();
         }
 
-        [Info("File path")]
+        [Info("File path", required: true)]
         [Description("Path to the folder to poll for new files")]
         private string FilePath => _properties.ReadMandatoryProperty(SettingKeys.FilePath);
 
-        [Info("File mask")]
+        [Info("File mask", required: true, defaultValue: "*.*")]
         private string FileMask => _properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*");
 
-        [Info("Maximum number of concurrent processed files")]
+        [Info("Maximum number of concurrent processed files", required: true, defaultValue: SettingKeys.BatchSizeDefault)]
         private int BatchSize { get; set; }
 
-        [Info("Interval to poll on the configured file-path")]
         private TimeSpan _pollingInterval;
 
         protected override ILogger Logger { get; }
 
-        [Info("Polling interval", "", "int")]
+        [Info("Interval to poll on the configured file-path (every)", defaultValue: SettingKeys.PollingIntervalDefault)]
         protected override TimeSpan PollingInterval => _pollingInterval;
 
         #region Configuration
@@ -58,9 +57,11 @@ namespace Eu.EDelivery.AS4.Receivers
         private static class SettingKeys
         {
             public const string FilePath = "FilePath";
-            public const string FileMask = "FileMask";            
+            public const string FileMask = "FileMask";
             public const string BatchSize = "BatchSize";
+            public const string BatchSizeDefault = "20";
             public const string PollingInterval = "PollingInterval";
+            public const string PollingIntervalDefault = "00:00:03";
         }
 
         /// <summary>
@@ -71,7 +72,7 @@ namespace Eu.EDelivery.AS4.Receivers
         {
             _properties = settings.ToDictionary(s => s.Key, s => s.Value, StringComparer.OrdinalIgnoreCase);
 
-            var configuredBatchSize = _properties.ReadOptionalProperty(SettingKeys.BatchSize, "20");
+            var configuredBatchSize = _properties.ReadOptionalProperty(SettingKeys.BatchSize, SettingKeys.BatchSizeDefault);
 
             if (Int32.TryParse(configuredBatchSize, out var batchSize) == false)
             {
@@ -249,15 +250,13 @@ namespace Eu.EDelivery.AS4.Receivers
 
         private TimeSpan ReadPollingIntervalFromProperties()
         {
-            TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
-
             if (_properties.ContainsKey(SettingKeys.PollingInterval) == false)
             {
-                return defaultInterval;
+                return TimeSpan.Parse(SettingKeys.PollingIntervalDefault);
             }
 
             string pollingInterval = _properties[SettingKeys.PollingInterval];
-            return pollingInterval.AsTimeSpan(defaultInterval);
+            return pollingInterval.AsTimeSpan(TimeSpan.Parse(SettingKeys.PollingIntervalDefault));
         }
 
         /// <summary>

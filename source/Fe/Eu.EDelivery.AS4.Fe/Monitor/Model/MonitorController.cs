@@ -89,9 +89,9 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         [HttpGet]
         [Route("exceptionbody")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(MessageResult<Message>))]
-        public async Task<FileResult> GetExceptionBody(Direction direction, string messageId)
+        public async Task<FileResult> GetExceptionBody(Direction direction, long messageId)
         {
-            return File(Encoding.Unicode.GetBytes(await monitorService.DownloadExceptionBody(direction, messageId)), "application/txt");
+            return File(Encoding.UTF8.GetBytes(await monitorService.DownloadExceptionMessageBody(direction, messageId)), "application/txt");
         }
 
         /// <summary>

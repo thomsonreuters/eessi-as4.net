@@ -23,7 +23,7 @@ import { ItemType } from './../../api/ItemType';
                         <th>Value</th>
                     </tr>
                     <tr *ngFor="let setting of parametersControl; let i = index" [formGroupName]="i">
-                        <td>{{parametersControl[i].value.name}}</td>
+                        <td>{{(types | gettype:group.get('type')?.value | getitemtypeproperty:parametersControl[i].value.name)?.friendlyName}}</td>
                         <td><input type="text" name="value" class="value-input form-control" formControlName="value"/></td>
                     </tr>
                 </table>
@@ -37,14 +37,15 @@ export class MethodComponent {
     @Input() public types: ItemType[];
     @Input() public isDisabled: boolean = false;
     @Input() public label: string;
+    public currentType: ItemType | undefined;
     public get parametersControl(): any {
         return !!this.group && (<FormGroup>this.group!.get('parameters'))!.controls;
     }
     constructor(private formBuilder: FormBuilder, private dialogService: DialogService) { }
     public typeChanged(result: string) {
-        let type = this.types.find((method) => method.name === result);
-        this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!type || !!!type.properties ? [] : type.properties.map(prop => ParameterForm.getForm(this.formBuilder, {
-            name: prop.friendlyName,
+        this.currentType = this.types.find((method) => method.name === result);
+        this.group.setControl(Method.FIELD_parameters, this.formBuilder.array(!!!this.currentType || !!!this.currentType.properties ? [] : this.currentType.properties.map(prop => ParameterForm.getForm(this.formBuilder, {
+            name: prop.technicalName,
             value: ''
         }))));
     }

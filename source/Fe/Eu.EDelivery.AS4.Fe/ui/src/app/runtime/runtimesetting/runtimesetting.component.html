@@ -6,9 +6,12 @@
         <input *ngSwitchCase="'int64'" type="number" class="form-control" name="type" formControlName="value" />
         <input *ngSwitchCase="'long'" type="number" class="form-control" name="type" formControlName="value" />
         <input *ngSwitchCase="'boolean'" type="checkbox" name="type" formControlName="value" />
+        <input *ngSwitchCase="'password'" type="password" name="type" formControlName="value" />
         <as4-pmode-select *ngSwitchCase="'sendingpmode'" mode="sending" formControlName="value"></as4-pmode-select>
         <as4-pmode-select *ngSwitchCase="'receivingpmode'" mode="receiving" formControlName="value"></as4-pmode-select>
         <as4-pmode-select *ngSwitchCase="'pmode'" formControlName="value"></as4-pmode-select>
+        <input *ngSwitchCase="'timespan'" type="text" [textMask]="{ mask: timeSpanMask }" formControlName="value"
+        />
         <input *ngSwitchDefault type="text" class="form-control" name="type" formControlName="value" />
     </div>
 </as4-input>

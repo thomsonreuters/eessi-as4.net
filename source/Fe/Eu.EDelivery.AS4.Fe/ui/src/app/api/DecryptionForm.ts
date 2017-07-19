@@ -9,8 +9,8 @@ export class DecryptionForm {
         let form = formBuilder
             .group({
                 encryption: [(current == null || current.encryption == null) ? 0 : current.encryption],
-                privateKeyFindValue: [current && current.privateKeyFindValue, this.validateKey],
                 privateKeyFindType: [current && current.privateKeyFindType, this.validateKeyType],
+                privateKeyFindValue: [current && current.privateKeyFindValue, this.validateKey]
             })
             .onChange(Decryption.FIELD_encryption, (result, wrapper) => {
                 if (wrapper.form.disabled) {
@@ -19,13 +19,17 @@ export class DecryptionForm {
                     return;
                 }
 
-                if (+result === 2 || result === 0) {
-                    wrapper.disable([Decryption.FIELD_encryption]);
-                } else {
+                if (+result === 2 || +result === 0) {
                     wrapper.enable([Decryption.FIELD_encryption]);
+                } else {
+                    wrapper.disable([Decryption.FIELD_encryption]);
                 }
             })
-            .triggerHandler(Decryption.FIELD_encryption, current && current.encryption);
+            .onChange(Decryption.FIELD_privateKeyFindType, (result, wrapper) => {
+                wrapper.form.get(Decryption.FIELD_privateKeyFindValue)!.updateValueAndValidity();
+            })
+            .triggerHandler(Decryption.FIELD_encryption, current && current.encryption)
+            .triggerHandler(Decryption.FIELD_privateKeyFindType, current && current.privateKeyFindType);
         return form;
     }
     private static validateKey(control: FormGroup): any {

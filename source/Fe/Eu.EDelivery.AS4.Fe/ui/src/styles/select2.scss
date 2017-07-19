@@ -1,17 +1,28 @@
-$focusColor: #3c8dbc;
-$borderColor: #d2d6de;
-
 .select2 {
     border: 1px solid $borderColor;
+    height: 34px !important;
     overflow: hidden;
     overflow-y: auto;
     margin-right: 36px;
     width: 99.9% !important;
+    &-selection {
+        border-radius: 0 !important;
+        border-color: #d2d6de !important;
+        border: 0 !important;
+        &__choice {
+            border-radius: 0 !important;
+            border: 0 !important;
+            background-color: $focusColor !important;
+        }
+    }
     &-results__option {
         &--highlighted {
             background-color: #1E90FF;
         }
         height: 30px;
+    }
+    &-container {
+        z-index: 20000;
     }
     &-container--focus {
         border: 1px solid $focusColor;
@@ -21,28 +32,22 @@ $borderColor: #d2d6de;
     }
     &-selection__rendered {
         margin-bottom: 0;
-        height: 27px !important;
         width: 100%;
         list-style: none;
         ul {
             margin: 0;
+            li {
+                float: left;
+                &:not(:last-child) {
+                    margin-top: 5px;
+                }
+                &:not(:first-child) {
+                    padding-left: 5px;
+                }
+            }
         }
-       
         &-search {
             width: 99.9%;
-        }
-        li {
-            float: left;
-            margin-bottom: 2px;
-            &:not(:last-child) {
-                margin-top: 5px;
-            }
-            &:not(:first-child) {
-                padding-left: 5px;
-            }
-            &:hover:not(:last-child) {
-                border-radius: 2px;
-            }
         }
         input {
             border: none !important;

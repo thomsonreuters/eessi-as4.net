@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using Eu.EDelivery.AS4.Fe.Hash;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor.Model
 {
@@ -8,6 +8,15 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
     /// </summary>
     public class ExceptionMessage
     {
+        private string pMode;
+
+        /// <summary>
+        /// Gets or sets the identifier.
+        /// </summary>
+        /// <value>
+        /// The identifier.
+        /// </value>
+        public long Id { get; set; }
         /// <summary>
         /// Gets or sets the direction.
         /// </summary>
@@ -36,13 +45,26 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// The exception short.
         /// </value>
         public string ExceptionShort { get; set; }
+
         /// <summary>
         /// Gets or sets the p mode.
         /// </summary>
         /// <value>
         /// The p mode.
         /// </value>
-        public string PMode { get; set; }
+        public string PMode
+        {
+            get { return pMode; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value) && value.ToLower().Contains("xml"))
+                {
+                    Hash = value.GetMd5Hash();
+                }
+                pMode = value;
+            }
+        }
+
         /// <summary>
         /// Gets or sets the modification time.
         /// </summary>
@@ -71,5 +93,12 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// The hash.
         /// </value>
         public string Hash { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance has a message body.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance has a message body; otherwise, <c>false</c>.
+        /// </value>
+        public bool HasMessageBody { get; set; }
     }
 }

@@ -8,6 +8,16 @@
 @import './button.scss';
 @import '../app/common/multiselect/multiselect.directive.scss';
 @import './mixins.scss';
+@import './datetimepicker.scss';
+@import './select2.scss';
+
+$focusColor: #3c8dbc;
+$borderColor: #d2d6de;
+
+.completer-dropdown-holder {
+    z-index: 20000;
+}
+
 .clickable {
     cursor: pointer;
 }

@@ -11,7 +11,7 @@ export class ClientCertificateReferenceForm {
                 clientCertificateFindType: [current && current.clientCertificateFindType, Validators.required],
                 clientCertificateFindValue: [current && current.clientCertificateFindValue, [Validators.required, thumbPrintValidation]]
             })
-            .onChange<number>(ClientCertificateReference.FIELD_clientCertificateFindValue, (selected, wrapper) => {
+            .onChange<number>(ClientCertificateReference.FIELD_clientCertificateFindType, (selected, wrapper) => {
                 let findValue = wrapper.form.get(ClientCertificateReference.FIELD_clientCertificateFindValue)!;
                 findValue.clearValidators();
                 if (+selected === 0) {

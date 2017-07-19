@@ -17,4 +17,5 @@ export class Message {
     public isTest: boolean;
     public hash: string;
     public direction: number;
+    public mep: string;
 }

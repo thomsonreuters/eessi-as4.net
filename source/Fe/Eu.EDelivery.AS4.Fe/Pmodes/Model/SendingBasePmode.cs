@@ -29,6 +29,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
                     if (json["certificate"] != null) value.Security.Encryption.PublicKeyInformation = json.ToObject<PublicKeyCertificate>();
                     else value.Security.Encryption.PublicKeyInformation = json.ToObject<PublicKeyFindCriteria>();
                 }
+
+                if (value?.MepBinding == MessageExchangePatternBinding.Pull)
+                {
+                    value.PushConfiguration = null;
+                }
             }
         }
 
@@ -39,15 +44,15 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes.Model
         /// <value>
         ///   <c>true</c> if this instance is push configuration enabled; otherwise, <c>false</c>.
         /// </value>
-        public bool IsPushConfigurationEnabled
+        public bool IsDynamicDiscoveryEnabled
         {
             get
             {
-                return Pmode?.PushConfiguration != null;
+                return Pmode?.PushConfiguration == null;
             }
             set
             {
-                if (!value)
+                if (value)
                 {
                     Pmode.PushConfiguration = null;
                 }

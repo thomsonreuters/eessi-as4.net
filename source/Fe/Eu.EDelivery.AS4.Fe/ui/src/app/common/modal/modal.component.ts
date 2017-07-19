@@ -10,8 +10,8 @@ import { ModalService } from './modal.service';
 @Component({
     selector: 'as4-modal, [as4-modal]',
     template: `
-        <div *ngIf="isVisible" class="modal fade" [class.in]="isVisible" [class.show-modal]="isVisible" id="myModal" [ngClass]="{ 'zIndexTop': type === 'modal-danger' || !!!type, 'zIndexNormal': type !== 'modal-danger'}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" #modal>
-            <div class="modal-dialog" role="document" [ngClass]="{ 'zIndexTop': type === 'modal-danger' || !!!type, 'zIndexNormal': type !== 'modal-danger', 'modal-danger': !!type }">
+        <div *ngIf="isVisible" class="modal fade" [class.in]="isVisible" [class.show-modal]="isVisible" id="myModal" [ngClass]="{ 'zIndexTop': type === 'modal-danger' || !!!type, 'zIndexNormal': type !== 'modal-danger'}" role="dialog" aria-labelledby="myModalLabel" #modal>
+            <div class="modal-dialog" role="document" [ngClass]="{ 'zIndexTop': type === 'modal-danger' || !!!type, 'zIndexNormal': type !== 'modal-danger', 'modal-danger': !!type }" focus>
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" *ngIf="showClose" class="close" (click)="cancel()" data-dismiss="modal" aria-label="Close">
@@ -25,7 +25,7 @@ import { ModalService } from './modal.service';
                     </div>
                     <div class="modal-footer">
                         <div *ngIf="showDefaultButtons === true">
-                            <button type="button" class="btn btn-flat btn-primary" *ngIf="showOk" (click)="ok()">{{buttonOk}}</button>
+                            <button type="button" class="btn btn-flat" *ngIf="showOk" (click)="ok()" focus>{{buttonOk}}</button>
                             <button type="button" class="btn btn-flat" *ngIf="showCancel" data-dismiss="modal" (click)="cancel()" focus onlyWhenNoText="true">{{buttonCancel}}</button>
                         </div>
                         <ng-content select="[buttons]"></ng-content>

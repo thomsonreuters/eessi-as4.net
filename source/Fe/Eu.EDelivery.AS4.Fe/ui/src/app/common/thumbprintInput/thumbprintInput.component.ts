@@ -17,7 +17,7 @@ import { Component, OnInit, Input, Host, Inject, Optional, SkipSelf, forwardRef,
     template: `<div class="input-group col-md-12">
         <input type="text" [disabled]="!isDisabled ? null : isDisabled" [(ngModel)]="input" [ngClass]="{ 'ng-invalid': !!errors && !!!errors['required'] && !!errors['validThumbPrint'] }"/>
         <span class="input-group-btn" *ngIf="!!errors && !!!errors['required'] && !!errors['validThumbPrint']">
-            <button as4-auth class="btn btn-danger" (click)="sanitize()" [disabled]="!isDisabled ? null : isDisabled" as4-tooltip="The input contains invalid characters, you can press this button to sanitize it"><i class="fa fa-check"></i></button>
+            <button as4-auth class="btn btn-danger" (click)="sanitize()" [disabled]="!isDisabled ? null : isDisabled" as4-tooltip="The input contains invalid characters or is not a valid thumbprint, you can press this button to sanitize it"><i class="fa fa-check"></i></button>
         </span>
     </div>
     `,

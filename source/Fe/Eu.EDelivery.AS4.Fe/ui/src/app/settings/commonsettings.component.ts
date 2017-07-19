@@ -61,6 +61,7 @@ export class CommonSettingsComponent implements CanComponentDeactivate {
                 if (result) {
                     this.form.markAsPristine();
                     this.form.updateValueAndValidity();
+                    this.dialogService.message(`Settings will only be applied after restarting the runtime!`, 'Attention');
                 }
             });
     }

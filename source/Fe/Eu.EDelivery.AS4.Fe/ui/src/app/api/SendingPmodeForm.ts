@@ -6,37 +6,35 @@ import { SendingProcessingMode } from './SendingProcessingMode';
 
 export class SendingPmodeForm {
     public static getForm(formWrapper: FormWrapper, current: SendingPmode): FormWrapper {
-        let previousPushEnabled: boolean | null = null;
+        let previousDynamicDiscoveryEnabled: boolean | null = null;
         return formWrapper
             .group({
                 type: [current && current.type],
                 name: [current && current.name],
                 pmode: SendingProcessingModeForm.getForm(formWrapper.subForm('pmode'), current && current.pmode).form,
-                [SendingPmode.FIELD_isPushConfigurationEnabled]: [current && current.isPushConfigurationEnabled]
+                [SendingPmode.FIELD_isDynamicDiscoveryEnabled]: [current && current.isDynamicDiscoveryEnabled]
             })
-            .onChange<boolean>(SendingPmode.FIELD_isPushConfigurationEnabled, (value, wrapper) => {
-                if (previousPushEnabled === value) {
+            .onChange<boolean>(SendingPmode.FIELD_isDynamicDiscoveryEnabled, (value, wrapper) => {
+                if (previousDynamicDiscoveryEnabled === value) {
                     return;
                 }
 
-                previousPushEnabled = value;
+                previousDynamicDiscoveryEnabled = value;
 
                 // tslint:disable-next-line:max-line-length
                 const pushConfig = wrapper.form.get(`${SendingPmode.FIELD_pmode}.${SendingProcessingMode.FIELD_pushConfiguration}`);
                 const dynamicDiscovery = wrapper.form.get(`${SendingPmode.FIELD_pmode}.${SendingProcessingMode.FIELD_dynamicDiscovery}`);
 
-                if (value) {
+                if (!value) {
                     pushConfig!.enable();
-                    dynamicDiscovery!.reset({});
                     dynamicDiscovery!.disable();
                     wrapper.reApplyHandlers();
                 } else {
                     pushConfig!.disable();
-                    pushConfig!.reset({});
                     dynamicDiscovery!.enable();
                     wrapper.reApplyHandlers();
                 }
             })
-            .triggerHandler(SendingPmode.FIELD_isPushConfigurationEnabled, current && current.isPushConfigurationEnabled);
+            .triggerHandler(SendingPmode.FIELD_isDynamicDiscoveryEnabled, current && current.isDynamicDiscoveryEnabled);
     }
 }

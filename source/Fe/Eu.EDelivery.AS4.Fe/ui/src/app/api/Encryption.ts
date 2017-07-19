@@ -8,7 +8,7 @@ export class Encryption {
 	algorithm: string;
 	algorithmKeySize: number;
 	publicKeyType: number;
-	publicKeyInformation: PublicKeyFindCriteria | PublicKeyCertificate | null;
+	publicKeyInformation: PublicKeyFindCriteria | null;
 	keyTransport: KeyEncryption = new KeyEncryption();
 
 	static FIELD_isEnabled: string = 'isEnabled';
@@ -16,8 +16,6 @@ export class Encryption {
 	static FIELD_algorithmKeySize: string = 'algorithmKeySize';
 	static FIELD_publicKeyType: string = 'publicKeyType';
 	static FIELD_publicKeyInformation: string = 'publicKeyInformation';
-	// static FIELD_publicKeyFindType: string = 'publicKeyFindType';
-	// static FIELD_publicKeyFindValue: string = 'publicKeyFindValue';
 	static FIELD_keyTransport: string = 'keyTransport';
 
 	static defaultAlgorithm: string = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';

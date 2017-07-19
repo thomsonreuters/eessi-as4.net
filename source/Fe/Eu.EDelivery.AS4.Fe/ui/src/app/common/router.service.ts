@@ -9,7 +9,7 @@ import { flatten } from './utils';
 export class RouterService {
     constructor(private _location: Location, private _router: Router) { }
     // tslint:disable-next-line:max-line-length
-    public setCurrentValue(activatedRoute: ActivatedRoute, value: string, queryParams?: {}, useReplaceState: boolean = true) {
+    public setCurrentValue(activatedRoute: ActivatedRoute, value: string | null, queryParams?: {}, useReplaceState: boolean = true) {
         let route = flatten(activatedRoute
             .snapshot
             .pathFromRoot
@@ -18,9 +18,9 @@ export class RouterService {
             .join('/');
 
         if (useReplaceState) {
-            this._location.replaceState(`${route}/${value}`);
+            this._location.replaceState(`${route}/${!!!value ? '' : value}`);
         } else {
-            this._router.navigateByUrl(`${route}/${value}`, { queryParams: {} });
+            this._router.navigateByUrl(`${route}/${!!!value ? '' : value}`, { queryParams: {} });
         }
     }
 }

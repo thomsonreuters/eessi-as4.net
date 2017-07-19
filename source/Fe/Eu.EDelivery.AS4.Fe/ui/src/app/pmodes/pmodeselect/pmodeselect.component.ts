@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
-import { Component, Input, Output, forwardRef, ChangeDetectionStrategy, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, forwardRef, ChangeDetectionStrategy, OnDestroy, OnInit, ChangeDetectorRef, ViewRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 
 import { PmodeStore } from '../pmode.store';
@@ -28,7 +28,7 @@ export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAcce
     public pmodes: string[] | undefined;
     private _storeSubscription: Subscription;
     private _propagateChange: (_: string | null) => void | undefined;
-    constructor(private pmodeStore: PmodeStore, private _changeDetectorRef: ChangeDetectorRef) { }
+    constructor(private pmodeStore: PmodeStore) { }
     public selectPmode(pmode: string | null = null) {
         this.selectedPmode = pmode;
         if (!!this._propagateChange) {
@@ -44,7 +44,6 @@ export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAcce
                     .map((result) => result.ReceivingNames)
                     .subscribe((result) => {
                         this.pmodes = result;
-                        this._changeDetectorRef.detectChanges();
                         if (!!!result) {
                             return;
                         }
@@ -60,7 +59,6 @@ export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAcce
                     .map((result) => result.SendingNames)
                     .subscribe((result) => {
                         this.pmodes = result;
-                        this._changeDetectorRef.detectChanges();
                         if (!!!result) {
                             return;
                         }
@@ -77,7 +75,6 @@ export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAcce
                     .filter((result) => !!result[0] && !!result[1])
                     .subscribe((result) => {
                         this.pmodes = result[0]!.concat(result[1]!);
-                        this._changeDetectorRef.detectChanges();
                         if (!!!result) {
                             return;
                         }

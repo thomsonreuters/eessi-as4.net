@@ -104,53 +104,61 @@ Failed to decrypt data element
                     EbmsMessageId = InEbmsMessageId1,
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Status = InStatus.Created
+                    Status = InStatus.Created,
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.InMessages.Add(new InMessage
                 {
                     EbmsMessageId = InEbmsMessageId2,
                     EbmsRefToMessageId = InEbmsRefToMessageId2,
                     PMode = pmodeString,
-                    Status = InStatus.Received
+                    Status = InStatus.Received,
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutMessages.Add(new OutMessage
                 {
                     EbmsMessageId = OutEbmsMessageId1,
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Status = OutStatus.Created
+                    Status = OutStatus.Created,
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutMessages.Add(new OutMessage
                 {
                     EbmsMessageId = OutEbmsMessageId2,
                     EbmsRefToMessageId = OutEbmsRefToMessageId2,
                     PMode = pmodeString,
-                    Status = OutStatus.Created
+                    Status = OutStatus.Created,
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = InEbmsMessageId1,
                     PMode = pmodeString,
-                    Exception = InException
+                    Exception = InException,
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1),
                 });
                 datastoreContext.InExceptions.Add(new InException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1)
+                    MessageBody = Encoding.ASCII.GetBytes(MessageBody1),
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = OutEbmsRefToMessageId1,
                     PMode = pmodeString,
-                    Exception = InException
+                    Exception = InException,
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.OutExceptions.Add(new OutException
                 {
                     EbmsRefToMessageId = InEbmsRefToMessageId1,
                     PMode = pmodeString,
                     MessageBody = Encoding.ASCII.GetBytes(MessageBody1),
-                    Exception = Exception
+                    Exception = Exception,
+                    InsertionTime = DateTime.UtcNow.AddMinutes(-1)
                 });
                 datastoreContext.SaveChanges();
             }
@@ -306,7 +314,7 @@ Failed to decrypt data element
             }
 
             public class GetExceptions : MonitorServiceTests
-            {                
+            {
                 [Fact]
                 public async Task Throws_Exception_When_Parameters_Is_Null()
                 {
@@ -529,17 +537,29 @@ Failed to decrypt data element
                 public async Task Throws_Exception_When_Parameters_Are_Invalid()
                 {
                     Setup();
-                    await ExpectExceptionAsync(() => monitorService.DownloadExceptionBody(Direction.Inbound, null), typeof(ArgumentNullException));
+                    await ExpectExceptionAsync(() => monitorService.DownloadExceptionMessageBody(Direction.Inbound, 0), typeof(ArgumentOutOfRangeException));
                 }
 
                 [Theory]
-                [InlineData(Direction.Inbound, "ebmsMessageId1")]
-                [InlineData(Direction.Outbound, "OutEbmsRefToMessageId1")]
-                public async Task Gets_The_MesageBody(Direction direction, string ebmsMessageId)
+                [InlineData(Direction.Inbound)]
+                [InlineData(Direction.Outbound)]
+                public async Task Gets_The_MesageBody(Direction direction)
                 {
-                    var testBody = InException;
-                    var result = await Setup().monitorService.DownloadExceptionBody(direction, ebmsMessageId);
-                    Assert.True(testBody == result);
+                    Setup();
+
+                    long id = 0;
+                    switch (direction)
+                    {
+                        case Direction.Inbound:
+                            id = datastoreContext.InExceptions.Where(x => x.MessageBody != null).Select(x => x.Id).First();
+                            break;
+                        case Direction.Outbound:
+                            id = datastoreContext.OutExceptions.Where(x => x.MessageBody != null).Select(x => x.Id).First();
+                            break;
+                    }
+
+                    var result = await monitorService.DownloadExceptionMessageBody(direction, id);
+                    Assert.True(result != null, $"Could not find body for {id}");
                 }
             }
         }

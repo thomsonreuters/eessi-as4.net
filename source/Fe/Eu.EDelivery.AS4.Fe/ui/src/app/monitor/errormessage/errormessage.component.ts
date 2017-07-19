@@ -12,12 +12,16 @@ import { ExceptionStore, IExceptionState } from './../exception/exception.store'
 })
 export class ErrorMessageComponent implements OnInit {
     public exceptions: Observable<IExceptionState>;
+    public isLoading: boolean = false;
     @Input() public message: Message;
     @Input() public direction: number;
     constructor(private _messageStore: ExceptionStore, private _messageService: MessageService) {
         this.exceptions = _messageStore.changes;
     }
     public ngOnInit() {
-        this._messageService.getExceptions(this.direction, this.message);
+        this.isLoading = true;
+        this._messageService
+            .getExceptions(this.direction, this.message)
+            .subscribe(() => this.isLoading = false);
     }
 }

@@ -7,4 +7,5 @@ export class Exception {
     public operationMethod: string;
     public operation: string;
     public pMode: string;
+    public hasMessageBody: boolean;
 }

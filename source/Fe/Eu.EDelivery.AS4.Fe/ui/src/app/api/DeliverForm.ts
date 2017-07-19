@@ -19,7 +19,8 @@ export class DeliverForm {
                 } else {
                     wrapper.disable([Deliver.FIELD_isEnabled]);
                 }
-            });
+            })
+            .triggerHandler(Deliver.FIELD_isEnabled, current && current.isEnabled);
         return form;
     }
 }

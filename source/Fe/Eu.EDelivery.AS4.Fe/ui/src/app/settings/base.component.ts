@@ -65,6 +65,7 @@ export class BaseSettingsComponent implements CanComponentDeactivate {
             .subscribe((result) => {
                 this.form.markAsPristine();
                 this.form.updateValueAndValidity();
+                this.dialogService.message(`Settings will only be applied after restarting the runtime!`, 'Attention');
             });
     }
     public canDeactivate(): boolean {

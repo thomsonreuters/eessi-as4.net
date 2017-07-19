@@ -1,8 +1,12 @@
+import { Subscription } from 'rxjs/Subscription';
+import { Component, Input, ContentChildren, QueryList, OnDestroy, ViewChildren } from '@angular/core';
+import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/forms';
+
+import { FocusDirective } from './../../common/focus.directive';
 import { DialogService } from './../../common/dialog.service';
 import { PartyIdForm } from './../../api/PartyIdForm';
 import { Party } from './../../api/Party';
-import { Component, Input } from '@angular/core';
-import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/forms';
+import { PartyId } from '../../api/PartyId';
 
 @Component({
     selector: 'as4-party',
@@ -13,7 +17,7 @@ import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/for
                     <button as4-auth class="action add-button" type="button" [attr.disabled]="!group.disabled ? null : group.disabled" (click)="addParty()" class="btn btn-flat add-button"><i class="fa fa-plus"></i></button>
                 </div>
                 <div class="item-container" *ngFor="let party of partyIdsControl; let i = index" [formGroupName]="i">
-                    <div class="item input"><input type="text" placeholder="id" formControlName="id"/></div>
+                    <div class="item input"><input type="text" placeholder="id" formControlName="id" focus [focus-disabled]="!focusNew"/></div>
                     <div class="item input"><input type="text" placeholder="type" formControlName="type"/></div>
                     <div class="item actions">
                         <button as4-auth [attr.disabled]="!group.disabled ? null : group.disabled" type="button" class="remove-button btn btn-flat" (click)="removeParty(i)"><i class="fa fa-trash-o"></i></button>
@@ -52,20 +56,35 @@ import { FormGroup, FormArray, FormBuilder, AbstractControl } from '@angular/for
         }
     `]
 })
-export class PartyComponent {
+export class PartyComponent implements OnDestroy {
     @Input() public group: FormGroup;
     @Input() public label: string;
+    public focusNew: boolean = false;
+    private _subscription: Subscription;
+    private _previousFocusCount: number = 0;
     public get partyIdsControl(): any {
         return !!this.group && (<FormGroup>this.group.get('partyIds')).controls;
     }
-    constructor(private formBuilder: FormBuilder, private dialogService: DialogService) {
+    constructor(private formBuilder: FormBuilder, private dialogService: DialogService) { }
+    public ngOnDestroy() {
+        if (!!this._subscription) {
+            this._subscription.unsubscribe();
+        }
     }
     public addParty() {
+        this.focusNew = true;
         let form = <FormArray>this.group.controls[Party.FIELD_partyIds];
         form.push(PartyIdForm.getForm(this.formBuilder));
         this.group.markAsDirty();
     }
     public removeParty(index: number) {
+        const party = (<FormArray>this.group.controls[Party.FIELD_partyIds]).controls[index];
+
+        if (!!party && !!!party.get(PartyId.FIELD_id)!.value && !!!party.get(PartyId.FIELD_type)!.value) {
+            (<FormArray>this.group.controls[Party.FIELD_partyIds]).removeAt(index);
+            return;
+        }
+
         this.dialogService
             .deleteConfirm('Party')
             .filter((result) => result)

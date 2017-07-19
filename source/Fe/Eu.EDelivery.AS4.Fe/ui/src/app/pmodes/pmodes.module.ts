@@ -21,9 +21,7 @@ import { PartyComponent } from './party/party.component';
 
 import { ROUTES } from './pmodes.routes';
 
-import { AuthHttp } from 'angular2-jwt';
 import { Http, RequestOptions } from '@angular/http';
-import { authHttpServiceFactory } from '../common/as4components.module';
 
 const components: any = [
     ReceivingPmodeComponent,
@@ -39,7 +37,7 @@ const services: any = [
     PmodeStore,
     SendingPmodeService,
     ReceivingPmodeService,
-    ...errorHandlingServices
+    // ...errorHandlingServices
 ];
 
 @NgModule({
@@ -55,11 +53,10 @@ const services: any = [
         As4ComponentsModule,
         FormsModule,
         ReactiveFormsModule,
-        RouterModule.forChild(ROUTES)
+        RouterModule.forChild(ROUTES),
     ],
     exports: [
         PmodeSelectComponent
     ]
 })
-export class PmodesModule {
-}
+export class PmodesModule { }

@@ -9,9 +9,9 @@ export class SigningForm {
         let form = formBuilder
             .group({
                 [Signing.FIELD_isEnabled]: [!!(current && current.isEnabled)],
+                [Signing.FIELD_privateKeyFindType]: [(!!!current || !!!current.privateKeyFindType) ? 0 : current.privateKeyFindType, Validators.required],
                 [Signing.FIELD_privateKeyFindValue]: [current && current.privateKeyFindValue, Validators.required],
-                [Signing.FIELD_privateKeyFindType]: [current && current.privateKeyFindType, Validators.required],
-                [Signing.FIELD_keyReferenceMethod]: [current && current.keyReferenceMethod, Validators.required],
+                [Signing.FIELD_keyReferenceMethod]: [(!!!current || !!!current.keyReferenceMethod) ? this.defaultKeyReferenceMethod : current.keyReferenceMethod, Validators.required],
                 [Signing.FIELD_algorithm]: [(current == null || current.algorithm == null) ? 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256' : current.algorithm, Validators.required],
                 [Signing.FIELD_hashFunction]: [(current == null || current.hashFunction == null) ? 'http://www.w3.org/2001/04/xmlenc#sha256' : current.hashFunction, Validators.required],
             })
@@ -26,7 +26,7 @@ export class SigningForm {
                 const value = wrapper.form!.get(Signing.FIELD_privateKeyFindValue)!;
 
                 value.clearValidators();
-                if (result === 0) {
+                if (+result === 0) {
                     value.setValidators([Validators.required, thumbPrintValidation]);
                 } else {
                     value.setValidators(Validators.required);

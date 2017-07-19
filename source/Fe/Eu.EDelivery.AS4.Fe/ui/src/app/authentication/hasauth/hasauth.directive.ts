@@ -6,8 +6,7 @@ import {
     FormGroup,
     NgForm,
     NgControl,
-    NG_VALUE_ACCESSOR,
-    ControlValueAccessor
+    NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';

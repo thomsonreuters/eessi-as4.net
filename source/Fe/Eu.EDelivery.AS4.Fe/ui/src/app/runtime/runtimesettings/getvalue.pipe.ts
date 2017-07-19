@@ -13,6 +13,7 @@ export class GetValuePipe implements PipeTransform {
     }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 @Pipe({
     name: 'getkeys'
 })
@@ -22,7 +23,7 @@ export class GetKeysPipe implements PipeTransform {
             return null;
         }
 
-        let result = obj.map((control => Object.keys(control.controls)));
+        let result = obj.map(((control) => Object.keys(control.controls)));
         return result.reduce((a, b) => a.concat(b));
     }
 }

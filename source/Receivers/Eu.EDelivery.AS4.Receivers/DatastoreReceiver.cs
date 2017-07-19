@@ -209,21 +209,15 @@ namespace Eu.EDelivery.AS4.Receivers
             public const string TakeRows = "BatchSize";
             public const string TakeRowsDefault = "20";
             public const string Update = "Update";
-            public const int PollingIntervalDefault = 3;
+            public const string PollingIntervalDefault = "00:00:03";
         }
 
-        [Info("Polling interval", null, "int32", SettingKeys.PollingIntervalDefault)]
-        protected override TimeSpan PollingInterval
-        {
-            get
-            {
-                return GetPollingIntervalFromProperties();
-            }
-        }
+        [Info("Polling interval (every)", defaultValue: SettingKeys.PollingIntervalDefault)]
+        protected override TimeSpan PollingInterval => GetPollingIntervalFromProperties();
 
         private TimeSpan GetPollingIntervalFromProperties()
         {
-            TimeSpan defaultInterval = TimeSpan.FromSeconds(3);
+            TimeSpan defaultInterval = TimeSpan.Parse(SettingKeys.PollingIntervalDefault);
 
             if (_properties.ContainsKey(SettingKeys.PollingInterval) == false)
             {
@@ -231,7 +225,7 @@ namespace Eu.EDelivery.AS4.Receivers
             }
 
             string pollingInterval = _properties[SettingKeys.PollingInterval];
-            return pollingInterval.AsTimeSpan(defaultInterval);            
+            return pollingInterval.AsTimeSpan(defaultInterval);
         }
 
         /// <summary>

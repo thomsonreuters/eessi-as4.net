@@ -1,144 +1,112 @@
 <as4-box title="Filters">
     <div content>
-        <as4-filter #filter [filter]="inExceptionFilter">
-            <div class="col-md-6 col-xs-12">
-                <as4-input label="Direction" labelSize="3" controlSize="9">
-                    <div class="input-group">
-                        <select [(ngModel)]="filter.filter.direction" multiselect>
-                            <option value="0" selected>Inbound</option>
-                            <option value="1">Outbound</option>
-                        </select>
-                        <div class="input-group-btn">
-                            <button class="btn btn-secondary" type="button" (click)="filter.filter.direction = null"><i class="fa fa-trash"></i></button>
-                        </div>
-                    </div>
-                </as4-input>
-                <as4-input label="Operation" labelSize="3" controlSize="9">
-                    <div class="input-group">
-                        <select name="operation" [(ngModel)]="filter.filter.operation" multiselect>
-                            <option value="undefined">None</option>
-                            <option value="0">Not applicable</option>
-                            <option value="1">To be sent</option>
-                            <option value="2">Sending</option>
-                            <option value="3">Sent</option>
-                            <option value="4">To be notified</option>
-                            <option value="5">Notifying</option>
-                            <option value="6">Notified</option>
-                            <option value="7">To be delivered</option>
-                            <option value="8">Delivering</option>
-                            <option value="9">Delivered</option>
-                        </select>
-                        <span class="input-group-btn">
-                            <button class="btn btn-secondary" type="button" (click)="filter.filter.operation = null"><i class="fa fa-trash"></i></button>
-                        </span>
-                    </div>
-                </as4-input>
-                <as4-input label="ebMS ref to message id" labelSize="3" controlSize="9">
-                    <input type="text" name="ebmsRefToMessageId" [(ngModel)]="filter.filter.ebmsRefToMessageId" />
-                </as4-input>
-            </div>
-            <div class="col-md-6 col-xs-12">
-                <as4-input label="Modification time" labelSize="3" controlSize="9">
-                    <div class="row time-range">
-                        <div class="col-xs-12 col-md-5">
+        <form class="form-horizontal" [formGroup]="exceptionFilterForm">
+            <as4-filter #filter [filter]="inExceptionFilter" (onFiltersLoaded)="filtersLoaded($event)">
+                <div class="row">
+                    <div class="col-md-6 col-xs-12">
+                        <as4-input label="Direction" labelSize="3" controlSize="9">
                             <div class="input-group">
-                                <input placeholder="From" class="col-xs-10" type="text" as4-datetimepicker [(ngModel)]="filter.filter.modificationTimeFrom"
-                                />
+                                <select formControlName="direction" multiselect>
+                                <option value="0">Inbound</option>
+                                <option value="1">Outbound</option>
+                            </select>
+                                <div class="input-group-btn">
+                                    <button class="btn btn-secondary" type="button" (click)="filter.filter.direction = null"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </as4-input>
+                        <as4-input label="Operation" labelSize="3" controlSize="9">
+                            <div class="input-group">
+                                <select name="operation" formControlName="operation" multiselect>
+                                    <option value="undefined">None</option>
+                                    <option value="0">Not applicable</option>
+                                    <option value="1">To be sent</option>
+                                    <option value="2">Sending</option>
+                                    <option value="3">Sent</option>
+                                    <option value="4">To be notified</option>
+                                    <option value="5">Notifying</option>
+                                    <option value="6">Notified</option>
+                                    <option value="7">To be delivered</option>
+                                    <option value="8">Delivering</option>
+                                    <option value="9">Delivered</option>
+                                </select>
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-secondary" (click)="filter.filter.modificationTimeFrom = null"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-secondary" type="button" (click)="filter.filter.operation = null"><i class="fa fa-trash"></i></button>
                                 </span>
                             </div>
-                        </div>
-                        <div class="col-xs-12 col-md-2 text-center">to</div>
-                        <div class="col-xs-12 col-md-5">
-                            <div class="input-group">
-                                <input placeholder="To" type="text" as4-datetimepicker [(ngModel)]="filter.filter.modificationTimeTo" />
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-secondary" (click)="filter.filter.modificationTimeTo = null"><i class="fa fa-trash"></i></button>
-                                </span>
-                            </div>
-                        </div>
+                        </as4-input>
                     </div>
-                </as4-input>
-                <as4-input label="Insertion time" labelSize="3" controlSize="9">
-                    <div class="row time-range">
-                        <div class="col-xs-12 col-md-5">
-                            <div class="input-group">
-                                <input placeholder="From" class="col-xs-10" type="text" as4-datetimepicker [(ngModel)]="filter.filter.insertionTimeFrom"
-                                />
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-secondary" (click)="filter.filter.insertionTimeFrom = null"><i class="fa fa-trash"></i></button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-md-2 text-center">to</div>
-                        <div class="col-xs-12 col-md-5">
-                            <div class="input-group">
-                                <input placeholder="To" type="text" as4-datetimepicker [(ngModel)]="filter.filter.insertionTimeTo" />
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-secondary" (click)="filter.filter.insertionTimeTo = null"><i class="fa fa-trash"></i></button>
-                                </span>
-                            </div>
-                        </div>
+                    <div class="col-md-6 col-xs-12">
+                        <as4-input label="ebMS message id" labelSize="3" controlSize="9">
+                            <input type="text" formControlName="ebmsRefToMessageId" />
+                        </as4-input>
+                        <as4-input label="Insertion time" labelSize="3" controlSize="9">
+                            <as4-timeinput [input]="exceptionFilterForm" type="insertionTimeType" from="insertionTimeFrom" to="insertionTimeTo"></as4-timeinput>
+                        </as4-input>
+                        <as4-input [showLabel]="false" controlSize="12">
+                            <button type="submit" [disabled]="!exceptionFilterForm.valid" (click)="search()" class="btn btn-default pull-right"><i class="fa fa-search"></i></button>
+                        </as4-input>
                     </div>
-                </as4-input>
-                <as4-input [showLabel]="false" controlSize="12">
-                    <button type="submit" class="btn btn-default pull-right"><i class="fa fa-search"></i></button>
-                </as4-input>
-            </div>
-        </as4-filter>
+                </div>
+            </as4-filter>
+        </form>
     </div>
 </as4-box>
 <as4-box title="Messages">
     <div content *ngIf="messages | async as messageData">
-        <as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page"
-            (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
+        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
         <table class="table table-striped">
             <colgroup>
+                <col width="1%">
+                <col width="1%">
+                <col width="1%">
+                <col width="12%">
                 <col width="2%">
-                <col width="2%">
-                <col width="10%">
-                <col width="5%">
-                <col width="25%">
-                <col width="15%">
-                <col width="28%">
-                <col width="5%">
+                <col>
+                <col>
+                <col>
             </colgroup>
             <thead>
                 <tr>
                     <th></th>
+                    <th></th>
                     <th>Direction</th>
                     <th>Insertion time</th>
                     <th>Operation</th>
-                    <th>ebMS ref to message id</th>
-                    <th>Modification time</th>
+                    <th>ebMS message id</th>
                     <th>Exception</th>
                     <th>Pmode</th>
                 </tr>
             </thead>
             <tbody>
                 <ng-container *ngFor="let message of messageData.messages; let i = index">
-                    <tr>
+                    <tr *ngIf="messageData.messages.length > 0">
                         <td>
                             <i class="fa clickable" [class.fa-chevron-right]="message !== activeMessage" [class.fa-chevron-down]="message === activeMessage"
                                 (click)="toggle(message)"></i>
                         </td>
+                        <td>
+                            <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body" [direction]="message.direction" [id]="message.id"></as4-downloadmessagebody>
+                        </td>
                         <td>{{message.direction | todirection}}</td>
                         <td>{{message.insertionTime | todate}}</td>
                         <td>{{message.operation}}</td>
-                        <td><a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}" target="_blank">{{message.ebmsRefToMessageId}}</a></td>
-                        <td>{{message.modificationTime | todate}}</td>
-                        <td>{{message.exceptionShort}}</td>
                         <td>
-                            <a [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
+                            <a [routerLink]="['../messages']" [queryParams]="{ ebmsRefToMessageId: message.ebmsRefToMessageId}" target="_blank">{{message.ebmsRefToMessageId}}</a>
+                            <as4-clipboard *ngIf="!!message.ebmsRefToMessageId" [content]="message.ebmsRefToMessageId"></as4-clipboard>
+                        </td>
+                        <td>
+                            {{message.exceptionShort}}
+                            <as4-clipboard [content]="message.exception"></as4-clipboard>
+                        </td>
+                        <td>
+                            <a target="_blank" [routerLink]="['/pmodes', filter.filter.direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
                         </td>
                     </tr>
                     <tr *ngIf="message === activeMessage">
                         <td colspan="10">
                             <as4-tab>
-                                <div tabitem title="Info">
-                                    <p><b>Exception body</b>: <downloadmessagebody [type]="'exception'" [direction]="message.direction" [messageId]="message.ebmsRefToMessageId"></downloadmessagebody></p>
-                                </div>
                                 <div tabitem title="Exception">
                                     <ng-template #headerExtra>
                                         <as4-clipboard [content]="message.exception"></as4-clipboard>
@@ -149,9 +117,14 @@
                         </td>
                     </tr>
                 </ng-container>
+                <tr *ngIf="messageData.messages.length === 0">
+                    <td colspan="9" class="text-center">
+                        <i>No data found.</i>
+                    </td>
+                </tr>
             </tbody>
         </table>
-        <as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total" [page]="messageData.page"
-            (onChangePage)="filter.filter.page = $event; filter.search()"></as4-pager>
+        <div class="col-xs-12" as4-pager [pages]="messageData.pages" [pageTotal]="messageData.messages.length" [total]="messageData.total"
+            [page]="messageData.page" (onChangePage)="filter.filter.page = $event; filter.search()"></div>
     </div>
 </as4-box>

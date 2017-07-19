@@ -13,12 +13,11 @@ import { StepForm } from './../../api/StepForm';
     selector: 'as4-step-settings',
     template: `
         <div [formGroup]="group">
-            <p><button as4-auth type="button" [disabled]="disabled" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
+            <p><button as4-auth type="button" [attr.disabled]="!disabled ? null : disabled" class="btn btn-flat" (click)="addStep()"><i class="fa fa-plus"></i></button></p>
             <div [sortablejs]="group" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }">
                 <div *ngFor="let step of group.controls; let i = index" [formGroupName]="i">
                     <div class="step-row">
-                        <div class="item"><span class="grippy"></span></div>
-                        <div class="item"><button as4-auth [disabled]="disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></div>
+                        <div class="item"><button as4-auth [attr.disabled]="!disabled ? null : disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></div>
                         <div class="item">
                             <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
                                 <option *ngFor="let step of steps" [value]="step.technicalName">{{step.name}}</option>

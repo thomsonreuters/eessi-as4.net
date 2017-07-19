@@ -1,5 +1,4 @@
 import { Http, RequestOptions } from '@angular/http';
-import { AuthConfig } from 'angular2-jwt';
 import { ClipboardModule } from 'ngx-clipboard';
 import { CommonModule } from '@angular/common';
 import { NgModule, ApplicationRef } from '@angular/core';
@@ -8,7 +7,6 @@ import { FormsModule, FormControlDirective } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { removeNgStyles, createNewHosts, createInputTransfer } from '@angularclass/hmr';
-import { JwtHelper } from 'angular2-jwt';
 
 import { SettingsModule } from './settings';
 import { PmodesModule } from './pmodes/pmodes.module';
@@ -24,8 +22,7 @@ import { AppComponent } from './app.component';
 
 import { As4ComponentsModule } from './common';
 import { AuthenticationModule } from './authentication';
-import { AuthHttp } from 'angular2-jwt';
-import { authHttpServiceFactory, errorHandlingServices } from '../app/common/as4components.module';
+import { errorHandlingServices } from '../app/common/as4components.module';
 import { SubmittoolModule } from './submittool/submittool.module';
 import { RuntimeModule } from './runtime/runtime.module';
 
@@ -61,7 +58,7 @@ type StoreType = {
     ],
     providers: [ // expose our Services and Providers into Angular's dependency injection
         AppState,
-        ...errorHandlingServices
+        // ...errorHandlingServices
     ]
 })
 export class AppModule {

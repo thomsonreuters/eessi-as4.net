@@ -8,7 +8,7 @@ export interface ICrudPmodeService {
     obsGet(): Observable<IPmode | undefined>;
     obsGetAll(): Observable<string[] | undefined>;
     get(name: string | null);
-    delete(name: string);
+    delete(name: string, onlyStore: boolean);
     getNew(name: string): IPmode;
     create(pmode: IPmode): Observable<boolean>;
     getForm(pmode: IPmode | undefined): FormWrapper;

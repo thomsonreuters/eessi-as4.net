@@ -9,12 +9,14 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
     {
         public int Page { get; set; } = 1;
         public int ResultsPerPage { get; } = 50;
+        public DateTimeFilterType InsertionTimeType { get; set; }
+        public DateTime? InsertionTimeFrom { get; set; }
+        public DateTime? InsertionTimeTo { get; set; }
+
         public IQueryable<TOutput> ApplyPaging(IQueryable<TOutput> query)
         {
             return query.Skip(ResultsPerPage * (Page - 1)).Take(ResultsPerPage);
         }
-
-        //public abstract IQueryable<TInput> ApplyFilter(IQueryable<TInput> query);
 
         public async Task<MessageResult<TOutput>> ToResult(IQueryable<TOutput> query)
         {

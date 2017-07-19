@@ -34,8 +34,10 @@ export class DialogService {
                     .show('default', (dlg) => {
                         dlg.message = message;
                         dlg.title = title;
-                        dlg.buttonOk = 'Yes';
-                        dlg.buttonCancel = 'No';
+                        dlg.showOk = true;
+                        dlg.showCancel = true;
+                        dlg.buttonOk = 'YES';
+                        dlg.buttonCancel = 'NO';
                     })
                     .subscribe((result) => {
                         observer.next(result);
@@ -46,10 +48,11 @@ export class DialogService {
     public confirmUnsavedChanges(): Observable<boolean> {
         return this.confirm('There are unsaved changes, are you sure you want to continue?', 'Unsaved changes');
     }
-    public message(message: string) {
+    public message(message: string, title: string = '') {
         this.modalService
             .show('default', (dlg) => {
                 dlg.message = message;
+                dlg.title = title;
                 dlg.showCancel = false;
             });
     }
@@ -77,6 +80,7 @@ export class DialogService {
             .show('default', (dlg) => {
                 dlg.message = 'Input is invalid, please correct the invalid fields';
                 dlg.showCancel = false;
+                dlg.buttonOk = 'OK';
             });
     }
     public deleteConfirm(type: string): Observable<boolean> {
@@ -86,8 +90,10 @@ export class DialogService {
                     .show('default', (dlg) => {
                         dlg.title = `Delete ${type}`;
                         dlg.message = `Are you sure you want to delete the ${type} ?`;
-                        dlg.buttonCancel = 'No';
-                        dlg.buttonOk = 'Yes';
+                        dlg.showCancel = true;
+                        dlg.showOk = true;
+                        dlg.buttonCancel = 'NO';
+                        dlg.buttonOk = 'YES';
                     })
                     .subscribe((result) => {
                         observer.next(result);

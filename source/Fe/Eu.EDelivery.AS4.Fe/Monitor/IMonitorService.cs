@@ -64,10 +64,10 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// Downloads the exception body.
         /// </summary>
         /// <param name="direction">The direction.</param>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
-        Task<string> DownloadExceptionBody(Direction direction, string messageId);
+        Task<string> DownloadExceptionMessageBody(Direction direction, long id);
 
         /// <summary>
         /// Gets the message details.

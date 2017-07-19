@@ -52,7 +52,7 @@
                 </ng-container>
             </div>
             <div tabitem title="Message packaging" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.messagePackaging').valid">
-                <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')"></as4-message-packaging>
+                <as4-message-packaging [form]="pmode.form.get('pmode.messagePackaging')" [isSendingType]="false"></as4-message-packaging>
             </div>
             <div title="Security" tabitem formGroupName="security" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.security').valid">
                 <as4-input label="Signing verification" formGroupName="signingVerification" runtimeTooltip="receivesecurity.signingverification">
@@ -72,7 +72,7 @@
                     </select>
                 </as4-input>
                 <div formGroupName="decryption">
-                    <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"
+                    <as4-input label="Private key find type (decryption)" *ngIf="selectedEncryption.selectedIndex === 0 || selectedEncryption.selectedIndex === 2"
                         runtimeTooltip="decryption.privatekeyfindtype">
                         <select formControlName="privateKeyFindType">
                             <option [ngValue]="0">Find by thumbprint</option>
@@ -92,7 +92,7 @@
                             <option [ngValue]="14">Find by subject key identifier</option>
                         </select>
                     </as4-input>
-                    <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.value === '0' || selectedEncryption.value === '2'"
+                    <as4-input label="Private key find value (decryption)" *ngIf="selectedEncryption.selectedIndex === 0 || selectedEncryption.selectedIndex === 2"
                         runtimeTooltip="decryption.privatekeyfindvalue">
                         <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
                     </as4-input>

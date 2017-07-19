@@ -12,8 +12,8 @@ export const ROUTES: Routes = [
     {
         path: '',
         component: WrapperComponent, children: [
-            { path: 'inbound', component: AgentSettingsComponent, data: { title: 'Inbound', type: 'receiveAgents', icon: 'fa-cloud-download' }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
-            { path: 'outbound', component: AgentSettingsComponent, data: { title: 'Outbound', type: 'submitAgents', icon: 'fa-cloud-upload' }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
+            { path: 'inbound', component: AgentSettingsComponent, data: { title: 'Inbound', type: 'receiveAgents', icon: 'fa-cloud-download', weight: -10 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
+            { path: 'outbound', component: AgentSettingsComponent, data: { title: 'Outbound', type: 'submitAgents', icon: 'fa-cloud-upload', weight: -9 }, canActivate: [MustBeAuthorizedGuard], canDeactivate: [CanDeactivateGuard] },
             {
                 path: 'settings', children: [
                     { path: '', redirectTo: 'common', pathMatch: 'full', canDeactivate: [CanDeactivateGuard] },

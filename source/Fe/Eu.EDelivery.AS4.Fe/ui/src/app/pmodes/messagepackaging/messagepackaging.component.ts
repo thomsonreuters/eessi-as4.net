@@ -5,9 +5,22 @@ import { Component, Input } from '@angular/core';
     selector: 'as4-message-packaging',
     template: `
         <div [formGroup]="form">
+            <ng-container *ngIf="isSendingType">
+                <as4-input label="Use AS4 compression" runtimeTooltip="messagepackaging.useas4compression">
+                    <input type="checkbox" formControlName="useAS4Compression" />
+                </as4-input>
+                <as4-input label="Use multi hop" runtimeTooltip="messagepackaging.ismultihop">
+                    <input type="checkbox" formControlName="isMultiHop" />
+                </as4-input>
+                <as4-input label="Include pmode id" runtimeTooltip="messagepackaging.includepmodeid">
+                    <input type="checkbox" formControlName="includePModeId" />
+                </as4-input>
+                <as4-input label="MPC" runtimeTooltip="messagepackaging.mpc">
+                    <input type="text" formControlName="mpc" />
+                </as4-input>         
+            </ng-container>
             <as4-party label="From party" [group]="form.get('partyInfo.fromParty')" runtimeTooltip="partyinfo.fromparty"></as4-party>
-            <as4-party label="To party" [group]="form.get('partyInfo.toParty')"></as4-party>
-        
+            <as4-party label="To party" [group]="form.get('partyInfo.toParty')"></as4-party>           
             <div formGroupName="collaborationInfo">
                 <div class="sub-header-1">Collaboration info</div>
                 <as4-input isLabelBold="true" label="Action" runtimeTooltip="collaborationinfo.action">
@@ -26,9 +39,6 @@ import { Component, Input } from '@angular/core';
                             <input type="text" formControlName="type" placeholder="type" />
                         </as4-columns>
                     </as4-input>
-                    <as4-input isLabelBold="true" label="PmodeId" runtimeTooltip="collaborationinfo.agreementreference.pmodeid">
-                        <div as4-pmode-select mode="receiving" formControlName="pModeId" test></div>
-                    </as4-input>
                 </ng-container>
             </div>
         </div>
@@ -37,4 +47,5 @@ import { Component, Input } from '@angular/core';
 export class MessagePackagingComponent {
     @Input() public form: FormGroup;
     @Input() public disabled: boolean;
+    @Input() public isSendingType: boolean = true;
 }

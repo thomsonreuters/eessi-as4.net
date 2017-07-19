@@ -25,7 +25,10 @@ import { PmodesModule } from './../pmodes/pmodes.module';
     ],
     exports: [
         RuntimeSettingComponent,
-        RuntimeSettingsComponent
+        RuntimeSettingsComponent,
+
+        GetValuePipe,
+        GetKeysPipe
     ]
 })
 export class RuntimeModule { }

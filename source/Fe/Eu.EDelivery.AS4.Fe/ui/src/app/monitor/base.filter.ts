@@ -9,6 +9,9 @@ import { getIsDate } from './exception/isDate.decorator';
 export class BaseFilter {
     public page: number = 1;
     public direction: number[] = [0, 1];
+    public insertionTimeType: number;
+    public insertionTimeFrom: Date;
+    public insertionTimeTo: Date;
     public toUrlParams(): URLSearchParams {
         let params = new URLSearchParams();
         Object.keys(this).forEach((param) => {
@@ -63,5 +66,13 @@ export class BaseFilter {
             }
         });
         return result;
+    }
+    public setDefaults() {
+        if (!!!this.insertionTimeType) {
+            this.insertionTimeType = 0;
+        }
+        if (!!!this.direction) {
+            this.direction = [0, 1];
+        }
     }
 }

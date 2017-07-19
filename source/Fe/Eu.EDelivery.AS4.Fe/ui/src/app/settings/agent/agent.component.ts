@@ -150,6 +150,8 @@ export class AgentSettingsComponent implements OnDestroy, CanComponentDeactivate
                 this.isNewMode = false;
                 this.form.markAsPristine();
             }
+
+            this.dialogService.message(`Settings will only be applied after restarting the runtime!`, 'Attention');
         });
     }
     public reset() {

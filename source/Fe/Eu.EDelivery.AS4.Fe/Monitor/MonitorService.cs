@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Monitor.Model;
 using Eu.EDelivery.AS4.Repositories;
@@ -190,24 +191,32 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// Downloads the exception body.
         /// </summary>
         /// <param name="direction">The direction.</param>
-        /// <param name="messageId">The message identifier.</param>
+        /// <param name="id"></param>
         /// <returns>The exception</returns>
         /// <exception cref="ArgumentNullException">messageId - messageId parameter cannot be null</exception>
-        public async Task<string> DownloadExceptionBody(Direction direction, string messageId)
+        public async Task<string> DownloadExceptionMessageBody(Direction direction, long id)
         {
-            if (string.IsNullOrEmpty(messageId)) throw new ArgumentNullException(nameof(messageId), "messageId parameter cannot be null");
+            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "Invalid value for id");
+            if (!Enum.IsDefined(typeof(Direction), direction)) throw new InvalidEnumArgumentException(nameof(direction), (int)direction, typeof(Direction));
+            byte[] body;
             if (direction == Direction.Inbound)
             {
-                return await context.InExceptions
-                    .Where(msg => msg.EbmsRefToMessageId == messageId)
-                    .Select(msg => msg.Exception)
+                body = await context
+                    .InExceptions
+                    .Where(msg => msg.Id == id)
+                    .Select(msg => msg.MessageBody)
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                body = await context
+                    .OutExceptions
+                    .Where(msg => msg.Id == id)
+                    .Select(msg => msg.MessageBody)
                     .FirstOrDefaultAsync();
             }
 
-            return await context.OutExceptions
-                .Where(msg => msg.EbmsRefToMessageId == messageId)
-                .Select(msg => msg.Exception)
-                .FirstOrDefaultAsync();
+            return body != null ? Encoding.UTF8.GetString(body) : string.Empty;
         }
 
         /// <summary>

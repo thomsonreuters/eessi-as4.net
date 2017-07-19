@@ -8,7 +8,7 @@ export class ReceptionAwarenessForm {
         let form = formBuilder
             .group({
                 [ReceptionAwareness.FIELD_isEnabled]: [!!(current && current.isEnabled), Validators.required],
-                [ReceptionAwareness.FIELD_retryCount]: [(current == null || current.retryCount == null) ? 0 : current.retryCount, Validators.required],
+                [ReceptionAwareness.FIELD_retryCount]: [(current == null || current.retryCount == null) ? 5 : current.retryCount, Validators.required],
                 [ReceptionAwareness.FIELD_retryInterval]: [(current == null || current.retryInterval == null) ? 0 : current.retryInterval, Validators.required],
             })
             .onChange<boolean>(ReceptionAwareness.FIELD_isEnabled, (result, wrapper) => {

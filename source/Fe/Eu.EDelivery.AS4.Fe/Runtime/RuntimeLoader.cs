@@ -164,10 +164,12 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                     FriendlyName = customAttr != null ? customAttr[0].Value as string : prop.Name,
                     TechnicalName = prop.Name,
                     Regex = customAttr != null ? customAttr.Count > 1 ? customAttr[1].Value as string : string.Empty : string.Empty,
-                    Type = customAttr != null && customAttr.Count > 2 ? customAttr[2].Value as string : prop.PropertyType.Name.ToLower(),
                     Description = descriptionAttr != null ? descriptionAttr.Count > 0 ? descriptionAttr[0].Value as string : string.Empty : string.Empty,
                     Required = customAttr != null && (customAttr.Count >= 5 && Convert.ToBoolean(customAttr[4].Value))
                 };
+
+                var type = customAttr?.Count >= 2 ? customAttr[2].Value as string : null;
+                property.Type = !string.IsNullOrEmpty(type) ? type : prop.PropertyType.Name.ToLower();
 
                 var defaultValue = customAttr?.Count >= 4 ? customAttr[3].Value : null;
                 if (defaultValue is CustomAttributeArgument defaultValueAttribute)

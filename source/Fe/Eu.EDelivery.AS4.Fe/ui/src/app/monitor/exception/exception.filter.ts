@@ -12,4 +12,12 @@ export class ExceptionFilter extends BaseFilter {
     public insertionTimeFrom: Date;
     @isDate()
     public insertionTimeTo: Date;
+    public insertionTimeType: number;
+    constructor(init?: Partial<ExceptionFilter>) {
+        super();
+        if (!!init) {
+            Object.assign(this, init);
+        }
+        this.setDefaults();
+    }
 }
