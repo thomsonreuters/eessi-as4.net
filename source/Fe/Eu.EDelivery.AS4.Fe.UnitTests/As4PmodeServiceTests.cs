@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         protected As4PmodeServiceTests Setup()
         {
             Source = Substitute.For<IAs4PmodeSource>();
-            Service = new PmodeService(Source);
+            Service = new PmodeService(Source, true);
             SetupPmodes();
             return this;
         }

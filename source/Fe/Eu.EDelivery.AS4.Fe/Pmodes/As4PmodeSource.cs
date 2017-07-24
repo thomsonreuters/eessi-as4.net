@@ -13,15 +13,27 @@ using System.Xml;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
 {
+    /// <summary>
+    /// As4 PMode source
+    /// </summary>
+    /// <seealso cref="Eu.EDelivery.AS4.Fe.Pmodes.IAs4PmodeSource" />
     public class As4PmodeSource : IAs4PmodeSource
     {
         private readonly IOptions<PmodeSettings> settings;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="As4PmodeSource"/> class.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
         public As4PmodeSource(IOptions<PmodeSettings> settings)
         {
             this.settings = settings;
         }
 
+        /// <summary>
+        /// Gets the receiving names.
+        /// </summary>
+        /// <returns></returns>
         public Task<IEnumerable<string>> GetReceivingNames()
         {
             return Task
@@ -30,6 +42,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .Select(Path.GetFileNameWithoutExtension));
         }
 
+        /// <summary>
+        /// Gets the name of the receiving by.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public Task<ReceivingBasePmode> GetReceivingByName(string name)
         {
             return Task.Factory.StartNew(() => Directory
@@ -52,6 +69,10 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .FirstOrDefault());
         }
 
+        /// <summary>
+        /// Gets the sending names.
+        /// </summary>
+        /// <returns></returns>
         public Task<IEnumerable<string>> GetSendingNames()
         {
             return Task
@@ -60,6 +81,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .Select(Path.GetFileNameWithoutExtension));
         }
 
+        /// <summary>
+        /// Gets the name of the sending by.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public Task<SendingBasePmode> GetSendingByName(string name)
         {
             return Task
@@ -85,6 +111,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 .FirstOrDefault());
         }
 
+        /// <summary>
+        /// Creates the receiving.
+        /// </summary>
+        /// <param name="basePmode">The base pmode.</param>
+        /// <returns></returns>
         public Task CreateReceiving(ReceivingBasePmode basePmode)
         {
             var xmlSerializer = new XmlSerializer(typeof(ReceivingProcessingMode));
@@ -100,6 +131,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             });
         }
 
+        /// <summary>
+        /// Deletes the receiving.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public Task DeleteReceiving(string name)
         {
             return Task.Factory.StartNew(() =>
@@ -109,6 +145,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             });
         }
 
+        /// <summary>
+        /// Deletes the sending.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public Task DeleteSending(string name)
         {
             return Task.Factory.StartNew(() =>
@@ -118,6 +159,11 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             });
         }
 
+        /// <summary>
+        /// Creates the sending.
+        /// </summary>
+        /// <param name="basePmode">The base pmode.</param>
+        /// <returns></returns>
         public Task CreateSending(SendingBasePmode basePmode)
         {
             var xmlSerializer = new XmlSerializer(typeof(SendingProcessingMode));
@@ -133,16 +179,33 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
             });
         }
 
+        /// <summary>
+        /// Gets the pmode number.
+        /// </summary>
+        /// <param name="pmodeString">The pmode string.</param>
+        /// <returns></returns>
         public string GetPmodeNumber(string pmodeString)
         {
             return XDocument.Parse(pmodeString).Root?.Descendants()?.FirstOrDefault(x => x.Name.LocalName == "Id")?.Value;
         }
 
+        /// <summary>
+        /// Updates the sending.
+        /// </summary>
+        /// <param name="basePmode">The base pmode.</param>
+        /// <param name="originalName">Name of the original.</param>
+        /// <returns></returns>
         public async Task UpdateSending(SendingBasePmode basePmode, string originalName)
         {
             await CreateSending(basePmode);
         }
 
+        /// <summary>
+        /// Updates the receiving.
+        /// </summary>
+        /// <param name="basePmode">The base pmode.</param>
+        /// <param name="originalName">Name of the original.</param>
+        /// <returns></returns>
         public async Task UpdateReceiving(ReceivingBasePmode basePmode, string originalName)
         {
             await CreateReceiving(basePmode);

@@ -63,6 +63,12 @@ namespace Eu.EDelivery.AS4.Fe
             services.AddOptions();
         }
 
+        /// <summary>
+        /// Configures the specified application.
+        /// </summary>
+        /// <param name="app">The application.</param>
+        /// <param name="env">The env.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(LogLevel.Debug);
@@ -101,21 +107,25 @@ namespace Eu.EDelivery.AS4.Fe
                         {
                             context.Response.StatusCode = (int) HttpStatusCode.Conflict;
                             response.Type = "businessexception";
+                            response.ExceptionType = typeof(AlreadyExistsException).Name;
                         }
                         else if (ex.Error is NotFoundException notFound)
                         {
                             context.Response.StatusCode = (int) HttpStatusCode.NotFound;
                             response.Type = "businessexception";
+                            response.ExceptionType = typeof(NotFoundException).Name;
                         }
                         else if (ex.Error is BusinessException businessEx)
                         {
                             context.Response.StatusCode = (int) HttpStatusCode.ExpectationFailed;
                             response.Type = "businessexception";
+                            response.ExceptionType = typeof(BusinessException).Name;
                         }
                         else
                         {
                             context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                             response.Type = "businessexception";
+                            response.ExceptionType = typeof(BusinessException).Name;
                         }
 
                         await context.Response.WriteAsync(JsonConvert.SerializeObject(response));

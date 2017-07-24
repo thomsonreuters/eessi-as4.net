@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
+using FluentValidation.Results;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
 {

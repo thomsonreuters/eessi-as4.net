@@ -37,6 +37,5 @@ export class CustomHttp extends Http {
     }
 }
 
-export class CustomAuthNoSpinnerHttp extends AuthHttp {
-    
-}
+// tslint:disable-next-line:max-classes-per-file
+export class CustomAuthNoSpinnerHttp extends AuthHttp { }

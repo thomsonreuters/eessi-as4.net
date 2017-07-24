@@ -1,4 +1,4 @@
-namespace Eu.EDelivery.AS4.Fe
+﻿namespace Eu.EDelivery.AS4.Fe
 {
     /// <summary>
     /// To be returned to the client to indicate an error.
@@ -12,6 +12,13 @@ namespace Eu.EDelivery.AS4.Fe
         /// The type.
         /// </value>
         public string Type { get; set; }
+        /// <summary>
+        /// Gets or sets the type of the exception.
+        /// </summary>
+        /// <value>
+        /// The type of the exception.
+        /// </value>
+        public string ExceptionType { get; set; }
         /// <summary>
         /// Gets or sets the exception.
         /// This contains the stack trace if enabled

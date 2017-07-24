@@ -2,28 +2,32 @@
 using System.Threading.Tasks;
 using EnsureThat;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
+using Eu.EDelivery.AS4.Validators;
 
 namespace Eu.EDelivery.AS4.Fe.Pmodes
 {
     /// <summary>
-    /// Manage pmodes
+    ///     Manage pmodes
     /// </summary>
     /// <seealso cref="Eu.EDelivery.AS4.Fe.Pmodes.IPmodeService" />
     public class PmodeService : IPmodeService
     {
         private readonly IAs4PmodeSource source;
+        private readonly bool disableValidation;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PmodeService"/> class.
+        /// Initializes a new instance of the <see cref="PmodeService" /> class.
         /// </summary>
         /// <param name="source">The source.</param>
-        public PmodeService(IAs4PmodeSource source)
+        /// <param name="disableValidation">if set to <c>true</c> [disable validation].</param>
+        public PmodeService(IAs4PmodeSource source, bool disableValidation = false)
         {
             this.source = source;
+            this.disableValidation = disableValidation;
         }
 
         /// <summary>
-        /// Gets the receiving names.
+        ///     Gets the receiving names.
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<string>> GetReceivingNames()
@@ -32,7 +36,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         }
 
         /// <summary>
-        /// Get a list of receiving pmodes
+        ///     Get a list of receiving pmodes
         /// </summary>
         /// <param name="name">The name of the pmode.</param>
         /// <returns></returns>
@@ -43,7 +47,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         }
 
         /// <summary>
-        /// Get a list of sending pmodes
+        ///     Get a list of sending pmodes
         /// </summary>
         /// <returns></returns>
         public async Task<IEnumerable<string>> GetSendingNames()
@@ -52,7 +56,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         }
 
         /// <summary>
-        /// Get a sending pmode by name
+        ///     Get a sending pmode by name
         /// </summary>
         /// <param name="name">The name of the pmode.</param>
         /// <returns></returns>
@@ -63,35 +67,43 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         }
 
         /// <summary>
-        /// Create a receiving pmode
+        ///     Create a receiving pmode
         /// </summary>
         /// <param name="basePmode">The pmode to create</param>
         /// <returns></returns>
-        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">Exception thrown when a pmode with the supplied name already exists</exception>
+        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">
+        ///     Exception thrown when a pmode with the supplied name
+        ///     already exists
+        /// </exception>
         public async Task CreateReceiving(ReceivingBasePmode basePmode)
         {
             EnsureArg.IsNotNull(basePmode, nameof(basePmode));
             var exists = await source.GetReceivingByName(basePmode.Name);
             if (exists != null) throw new AlreadyExistsException($"BasePmode with name {basePmode.Name} already exists.");
+            ValidateReceivingPmode(basePmode);
             await source.CreateReceiving(basePmode);
         }
 
         /// <summary>
-        /// Create sending pmode
+        ///     Create sending pmode
         /// </summary>
         /// <param name="basePmode">The pmode to create.</param>
         /// <returns></returns>
-        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">Exception thrown when a pmode with the supplied name already exists</exception>
+        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">
+        ///     Exception thrown when a pmode with the supplied name
+        ///     already exists
+        /// </exception>
         public async Task CreateSending(SendingBasePmode basePmode)
         {
             EnsureArg.IsNotNull(basePmode, nameof(basePmode));
             var exists = await source.GetSendingByName(basePmode.Name);
             if (exists != null) throw new AlreadyExistsException($"BasePmode with name {basePmode.Name} already exists.");
+            ValidateSendingPmode(basePmode);
             await source.CreateSending(basePmode);
         }
 
         /// <summary>
-        /// Delete a receiving pmode
+        ///     Delete a receiving pmode
         /// </summary>
         /// <param name="name">The name of the pmode to delete.</param>
         /// <returns></returns>
@@ -105,7 +117,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         }
 
         /// <summary>
-        /// Delete a sending pmode
+        ///     Delete a sending pmode
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
@@ -119,12 +131,15 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         }
 
         /// <summary>
-        /// Update sending pmode
+        ///     Update sending pmode
         /// </summary>
         /// <param name="basePmode">Date to update the sending pmode with</param>
         /// <param name="originalName">Name of the original.</param>
         /// <returns></returns>
-        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">Exception thrown when a sending pmode with the supplied name already exists</exception>
+        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">
+        ///     Exception thrown when a sending pmode with the supplied
+        ///     name already exists
+        /// </exception>
         public async Task UpdateSending(SendingBasePmode basePmode, string originalName)
         {
             EnsureArg.IsNotNull(basePmode, nameof(basePmode));
@@ -136,16 +151,20 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 if (newExists != null) throw new AlreadyExistsException($"BasePmode with {originalName} already exists");
             }
 
+            ValidateSendingPmode(basePmode);
             await source.UpdateSending(basePmode, originalName);
         }
 
         /// <summary>
-        /// Update receiving pmode
+        ///     Update receiving pmode
         /// </summary>
         /// <param name="basePmode">The base pmode.</param>
         /// <param name="originalName">Name of the original.</param>
         /// <returns></returns>
-        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">Exception thrown when a pmode with the supplied name already exists.</exception>
+        /// <exception cref="Eu.EDelivery.AS4.Fe.AlreadyExistsException">
+        ///     Exception thrown when a pmode with the supplied name
+        ///     already exists.
+        /// </exception>
         public async Task UpdateReceiving(ReceivingBasePmode basePmode, string originalName)
         {
             EnsureArg.IsNotNull(basePmode, nameof(basePmode));
@@ -157,7 +176,32 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
                 if (newExists != null) throw new AlreadyExistsException($"BasePmode with {originalName} already exists");
             }
 
+            ValidateReceivingPmode(basePmode);
             await source.UpdateReceiving(basePmode, originalName);
+        }
+
+        /// <summary>
+        ///     Validates the sending pmode.
+        /// </summary>
+        /// <param name="sendingPmode">The sending pmode.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidPmodeException"></exception>
+        private void ValidateSendingPmode(SendingBasePmode sendingPmode)
+        {
+            if (disableValidation) return;
+            var validator = new SendingProcessingModeValidator();
+            var result = validator.Validate(sendingPmode.Pmode);
+            if (!result.IsValid)
+                throw new InvalidPmodeException(result.Errors);
+        }
+
+        private void ValidateReceivingPmode(ReceivingBasePmode sendingPmode)
+        {
+            if (disableValidation) return;
+            var validator = new ReceivingProcessingModeValidator();
+            var result = validator.Validate(sendingPmode.Pmode);
+            if (!result.IsValid)
+                throw new InvalidPmodeException(result.Errors);
         }
     }
 }

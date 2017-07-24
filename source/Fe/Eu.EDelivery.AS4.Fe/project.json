@@ -18,6 +18,7 @@
     "AspNet.Security.OAuth.Validation": "1.0.0-alpha3-final",
     "AutoMapper": "5.0.2",
     "Ensure.That": "5.0.0",
+    "FluentValidation": "6.2.1",
     "HttpMultipartParser": "2.2.4",
     "Microsoft.ApplicationInsights.AspNetCore": "2.0.0",
     "Microsoft.AspNetCore.Authentication.Facebook": "1.1.1",
