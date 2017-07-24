@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace Eu.EDelivery.AS4.PayloadService
 {
@@ -15,22 +16,30 @@ namespace Eu.EDelivery.AS4.PayloadService
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            const string hostUrl = "http://localhost:3000/";
+            var hostBuilder = new WebHostBuilder();
 
-            IWebHost host =
-                new WebHostBuilder()
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{hostBuilder.GetSetting("Environment")}.json", true, true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            var url = config.GetValue<string>("Url") ?? "http://localhost:5000";
+
+            var host = hostBuilder
                     .UseKestrel()
                     .UseContentRoot(Directory.GetCurrentDirectory())
                     .UseIISIntegration()
                     .UseStartup<Startup>()
-                    .UseApplicationInsights()
+                    .UseApplicationInsights();
 
-                    // TODO: Hosting URL must be made configurable...
-                    .UseUrls(hostUrl)
-                    .Build();
 
             Console.WriteLine("=== Payload Service Started ===");
-            host.Run();
+            host
+                .UseUrls(host.GetSetting(url))
+                .Build()
+                .Run();
 
             Console.WriteLine("Payload Service shutdown");
         }
