@@ -1,3 +1,9 @@
+<div as4-modal name="editor" #editor="as4-modal" class="editor">
+    <as4-clipboard [content]="editor.payload"></as4-clipboard>
+    <div>
+        <pre *ngIf="editor.isVisible">{{editor.payload | asxml}}</pre>
+    </div>
+</div>
 <div content>
     <as4-tab #tab>
         <div tabitem title="Compose">
@@ -69,10 +75,22 @@
             </div>
             <div class="logging">
                 <div *ngFor="let message of logging">
-                    <p [ngClass]="{ 'error': message.type === 1, 'success': message.type === 3}">{{message.timeStamp | todate}} - {{message.message}}</p>
-                    <div class="progress-container" *ngIf="message.type === 2">
-                        <as4-progress [progress]="progress"></as4-progress>
-                    </div>
+                    <ng-container [ngSwitch]="message.type">
+                        <div class="row" [ngClass]="{ 'error': message.type === 1, 'success': message.type === 3}">
+                            {{message.timeStamp | todate}} -
+                            <div class="progress-container" *ngSwitchCase="2">
+                                Upload files ...
+                                <as4-progress [progress]="progress"></as4-progress>
+                            </div>
+                            <div *ngSwitchCase="4">
+                                Example of the AS4 message being submitted.
+                                <div class="pmode">
+                                    <as4-clipboard [content]="message.message"></as4-clipboard><i as4-tooltip="Show full AS4 message" (click)="open(message.message)"
+                                        class="clickable fa fa-search-plus"></i>{{message.message | slice:1:100}}...</div>
+                            </div>
+                            <div *ngSwitchDefault>{{message.message}}</div>
+                        </div>
+                    </ng-container>
                 </div>
             </div>
         </div>

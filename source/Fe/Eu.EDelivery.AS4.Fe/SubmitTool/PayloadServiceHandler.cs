@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -9,7 +9,7 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
     /// Implementation to upload payloads to a payload service
     /// </summary>
     /// <seealso cref="Eu.EDelivery.AS4.Fe.SubmitTool.IPayloadHandler" />
-    public class PayloadServiceHandler : IPayloadHandler
+    public class PayloadHttpServiceHandler : IPayloadHandler
     {
         /// <summary>
         /// Determines whether this instance can handle the specified location.
@@ -20,7 +20,7 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
         /// </returns>
         public bool CanHandle(string location)
         {
-            return location.ToLower().StartsWith("http");
+            return location.ToLower().StartsWith("http://");
         }
 
         /// <summary>

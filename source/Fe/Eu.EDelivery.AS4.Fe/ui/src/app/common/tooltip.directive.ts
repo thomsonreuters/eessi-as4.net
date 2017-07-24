@@ -1,4 +1,4 @@
-import { Directive, Input, ElementRef, Renderer, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Directive, Input, ElementRef, Renderer, OnInit, OnDestroy, HostListener, Optional, SkipSelf } from '@angular/core';
 import * as $ from 'jquery';
 
 @Directive({
@@ -13,10 +13,19 @@ export class TooltipDirective implements OnInit, OnDestroy {
     // tslint:disable-next-line:no-input-rename
     @Input('as4-tooltip-placement') public placement: string = 'bottom';
     private custom: string | null;
-    constructor(private renderer: Renderer, private elementRef: ElementRef) { }
-    @HostListener('click')
-    public onClick() {
-        this.hide();
+    private _timer: any | null;
+    constructor(private renderer: Renderer, private elementRef: ElementRef, @Optional() @SkipSelf() private _outerTooltip: TooltipDirective) { }
+    @HostListener('click', ['$event'])
+    public onClick(event: any) {
+        if (!!!this._outerTooltip) {
+            this.hide();
+        }
+    }
+    @HostListener('document:keydown')
+    public onKeyDown() {
+        if (!!this) {
+            this.hide();
+        }
     }
     public ngOnInit() {
         (<any>$(this.elementRef.nativeElement)).tooltip({
@@ -31,7 +40,10 @@ export class TooltipDirective implements OnInit, OnDestroy {
             this.custom = message;
         }
         element.tooltip('show');
-        setTimeout(() => element.tooltip('hide'), 2000);
+        if (!!this._timer) {
+            clearTimeout(this._timer);
+        }
+        this._timer = setTimeout(() => element.tooltip('hide'), 2000);
         this.custom = null;
     }
     public hide() {

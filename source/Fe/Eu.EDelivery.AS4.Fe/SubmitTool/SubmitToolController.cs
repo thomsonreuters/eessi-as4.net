@@ -34,7 +34,7 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
             int.TryParse(parser.GetParameterValue("messages"), out var messages);
 
             var sendingPmode = parser.GetParameterValue("pmode");
-            if (sendingPmode == null) throw new ArgumentNullException(nameof(sendingPmode), "SendingPmode parameter is required!");
+            if (sendingPmode == null) throw new ArgumentNullException(nameof(sendingPmode), @"SendingPmode parameter is required!");
 
             await submitMessageCreator.CreateSubmitMessages(new MessagePayload
             {
@@ -42,7 +42,24 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
                 SendingPmode = sendingPmode,
                 NumberOfSubmitMessages = messages == 0 ? 1 : messages
             });
+
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("simulate")]
+        public async Task<IActionResult> Simulate()
+        {
+            var parser = new MultipartFormDataParser(Request.Body);
+
+            var sendingPmode = parser.GetParameterValue("pmode");
+            if (sendingPmode == null) throw new ArgumentNullException(nameof(sendingPmode), @"SendingPmode parameter is required!");
+
+            return new OkObjectResult(await submitMessageCreator.Simulate(new MessagePayload
+            {
+                Files = parser.Files,
+                SendingPmode = sendingPmode
+            }));
         }
     }
 }

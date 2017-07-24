@@ -54,3 +54,14 @@
     margin-left: 10px;
     margin-right: 10px;
 }
+
+.row {
+    margin-right: 0;
+    margin-left: 0;
+    div {
+        display: inline;
+    }
+    .pmode {
+        font-style: italic;
+    }
+}

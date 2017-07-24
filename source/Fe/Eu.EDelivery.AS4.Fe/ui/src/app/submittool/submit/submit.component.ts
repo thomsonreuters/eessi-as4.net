@@ -5,6 +5,7 @@ import { FileUploader } from 'ng2-file-upload';
 import { SubmitToolService, SubmitData } from './../submittool.service';
 import { TabComponent } from './../../common/tab/tab.component';
 import { ErrorResponse } from './../../api/ErrorResponse';
+import { ModalService } from './../../common/modal/modal.service';
 
 @Component({
     selector: 'as4-submit',
@@ -27,12 +28,17 @@ export class SubmitComponent {
     }
     @ViewChild('tab') public as4Tab: TabComponent;
     private _isBusy: boolean = false;
-    constructor(private _submitToolService: SubmitToolService, private _changeDetectorRef: ChangeDetectorRef) { }
+    constructor(private _submitToolService: SubmitToolService, private _changeDetectorRef: ChangeDetectorRef, private _modalService: ModalService) { }
     public submit() {
         this.isBusy = true;
         this.as4Tab.next();
         this.logging = new Array<LogMessage>();
         this.payloadData.files = this.uploader.getNotUploadedItems();
+
+        this._submitToolService
+            .simulate(this.payloadData)
+            .subscribe((result) => this.addLog(`${result}`, LogType.Pmode));
+
         if (!!!this.payloadData.files || this.payloadData.files.length === 0) {
             this.addLog('Uploading your request and processing it on the server.');
         } else {
@@ -82,6 +88,15 @@ export class SubmitComponent {
     public logToText(): string {
         return this.logging.map((log) => `${log.timeStamp} - ${log.message}`).join('\r\n');
     }
+    public open(content: string) {
+        this._modalService
+            .show('editor', (dlg) => {
+                dlg.payload = content;
+                dlg.showOk = true;
+                dlg.showCancel = false;
+                dlg.title = 'AS4 Message';
+            });
+    }
 }
 
 // tslint:disable-next-line:max-classes-per-file
@@ -98,5 +113,6 @@ export enum LogType {
     Info = 0,
     Error = 1,
     Upload = 2,
-    Done = 3
+    Done = 3,
+    Pmode = 4
 }

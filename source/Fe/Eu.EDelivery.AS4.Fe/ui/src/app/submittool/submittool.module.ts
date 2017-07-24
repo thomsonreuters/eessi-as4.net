@@ -15,11 +15,13 @@ import { ProgressComponent } from './progress/progress.component';
 import { SubmitToolService } from './submittool.service';
 import { FileSizePipe } from './fileSize.pipe';
 import { MarkAsTouchedDirective } from './markastouched.directive';
+import { AsXmlPipe } from './asxml.pipe';
 
 const components: any[] = [
     SubmitComponent,
     ProgressComponent,
-    FileSizePipe
+    FileSizePipe,
+    AsXmlPipe
 ];
 
 const directives: any[] = [

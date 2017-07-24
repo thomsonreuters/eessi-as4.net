@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
         /// </returns>
         public bool CanHandle(string location)
         {
-            return !location.ToLower().StartsWith("http");
+            return location.ToLower().StartsWith("file://");
         }
 
         /// <summary>

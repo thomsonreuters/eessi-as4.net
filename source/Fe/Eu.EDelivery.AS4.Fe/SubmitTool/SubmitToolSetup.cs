@@ -18,7 +18,8 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
         {
             services.AddSingleton<ISubmitMessageCreator, SubmitMessageCreator>();
 
-            services.AddSingleton<IPayloadHandler, PayloadServiceHandler>();
+            services.AddSingleton<IPayloadHandler, PayloadHttpServiceHandler>();
+            services.AddSingleton<IPayloadHandler, SimulatePayloadServiceHandler>();
             services.AddSingleton<IPayloadHandler, FilePayloadHandler>();
 
             services.AddSingleton<IMessageHandler, MshMessageHandler>();

@@ -150,6 +150,7 @@
     <Compile Include="SubmitTool\MessagePayload.cs" />
     <Compile Include="SubmitTool\MshMessageHandler.cs" />
     <Compile Include="SubmitTool\PayloadServiceHandler.cs" />
+    <Compile Include="SubmitTool\SimulatePayloadServiceHandler.cs" />
     <Compile Include="SubmitTool\SubmitMessageCreator.cs" />
     <Compile Include="SubmitTool\SubmitToolController.cs" />
     <Compile Include="SubmitTool\SubmitToolOptions.cs" />

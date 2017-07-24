@@ -20,7 +20,7 @@ import { ModalService } from './modal.service';
                         <h4 class="modal-title" id="myModalLabel">{{title}}</h4>
                     </div>
                     <div class="modal-body" #body>
-                        <b *ngIf="showDefaultMessage">{{message}}</b>
+                        <div *ngIf="showDefaultMessage">{{message}}</div>
                         <ng-content></ng-content>
                     </div>
                     <div class="modal-footer">
@@ -36,7 +36,7 @@ import { ModalService } from './modal.service';
    `,
     styleUrls: ['modal.component.scss'],
     encapsulation: ViewEncapsulation.None,
-    exportAs: 'codit-modal'
+    exportAs: 'as4-modal'
 })
 export class ModalComponent implements OnDestroy {
     public isVisible: boolean = false;

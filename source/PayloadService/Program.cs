@@ -25,7 +25,7 @@ namespace Eu.EDelivery.AS4.PayloadService
                 .AddEnvironmentVariables()
                 .Build();
 
-            var url = config.GetValue<string>("Url") ?? "http://localhost:5000";
+            var url = config.GetValue<string>("Url") ?? "http://localhost:3000";
 
             var host = hostBuilder
                     .UseKestrel()
@@ -34,13 +34,12 @@ namespace Eu.EDelivery.AS4.PayloadService
                     .UseStartup<Startup>()
                     .UseApplicationInsights();
 
-
-            Console.WriteLine("=== Payload Service Started ===");
             host
-                .UseUrls(host.GetSetting(url))
+                .UseUrls(url)
                 .Build()
                 .Run();
 
+            Console.WriteLine("=== Payload Service Started ===");           
             Console.WriteLine("Payload Service shutdown");
         }
     }
