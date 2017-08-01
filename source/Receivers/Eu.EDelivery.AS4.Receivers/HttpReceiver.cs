@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -24,6 +25,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// Receiver which listens on a given target URL
     /// </summary>
+    [Info("HTTP receiver")]
     public sealed class HttpReceiver : IReceiver, IDisposable
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
@@ -34,12 +36,15 @@ namespace Eu.EDelivery.AS4.Receivers
         private Dictionary<string, string> _properties;
 
         [Info("Url", required: true)]
+        [Description("The URL to receive messages on. The url can also contain a port ex: http://localhost:5000/msh/")]
         private string Url => _properties?.ReadOptionalProperty(SettingKeys.Url);
 
         [Info("Maximum concurrent requests to process", defaultValue: 10)]
+        [Description("Indicates how wany requests should be processed per batch.")]
         private int ConcurrentRequests => Convert.ToInt32(_properties?.ReadOptionalProperty(SettingKeys.ConcurrentRequests, "10"));
 
         [Info("Use logging")]
+        [Description("Add log entries.")]
         private bool UseLogging => Convert.ToBoolean(_properties?.ReadOptionalProperty(SettingKeys.UseLogging, "false"));
 
         /// <summary>

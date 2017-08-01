@@ -34,7 +34,6 @@ namespace Eu.EDelivery.AS4.Model.PMode
             MessagePackaging = new SendMessagePackaging();
         }
 
-        [Info("The id of the sending pmode")]
         [XmlElement(IsNullable = true)]
         public string Id { get; set; }
 
@@ -43,6 +42,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public MessageExchangePattern Mep { get; set; }
 
+        [Info("Message exchange pattern binding", defaultValue: MessageExchangePatternBinding.Push)]
         public MessageExchangePatternBinding MepBinding { get; set; }
 
         public PushConfiguration PushConfiguration { get; set; }
@@ -119,8 +119,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public bool IsEnabled { get; set; }
 
+        [DefaultValue("http://www.w3.org/2009/xmlenc11#aes128-gcm")]
         public string Algorithm { get; set; }
 
+        [DefaultValue(128)]
         public int AlgorithmKeySize { get; set; }
 
         [XmlIgnore]
@@ -213,8 +215,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
             MgfAlgorithm = null;
         }
 
+        [DefaultValue(EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf)]
         public string TransportAlgorithm { get; set; }
-
+        
+        [DefaultValue(EncryptionStrategy.XmlEncSHA1Url)]
         public string DigestAlgorithm { get; set; }
 
         public string MgfAlgorithm { get; set; }
@@ -252,10 +256,13 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public string PrivateKeyFindValue { get; set; }
 
+        [DefaultValue(X509ReferenceType.BSTReference)]
         public X509ReferenceType KeyReferenceMethod { get; set; }
 
+        [DefaultValue("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")]
         public string Algorithm { get; set; }
 
+        [DefaultValue("http://www.w3.org/2001/04/xmlenc#sha256")]
         public string HashFunction { get; set; }
 
         #region Properties that control serialization

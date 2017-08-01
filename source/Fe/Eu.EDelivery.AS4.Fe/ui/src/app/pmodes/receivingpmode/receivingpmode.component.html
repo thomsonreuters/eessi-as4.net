@@ -1,5 +1,5 @@
 ﻿<form [formGroup]="pmode.form" class="form-horizontal" disabled>
-    <div formGroupName="pmode">
+    <div formGroupName="pmode" runtimetooltip="receivingprocessingmode">
         <as4-box>
             <div content>
                 <as4-pmode #pmode></as4-pmode>
@@ -7,20 +7,20 @@
         </as4-box>
         <as4-tab>
             <div tabitem title="Common">
-                <as4-input label="Message exchange pattern" runtimeTooltip="receivingprocessingmode.mep">
+                <as4-input label="Message exchange pattern" runtimetooltip="mep">
                     <select formControlName="mep">
                         <option [ngValue]="0">One way</option>
                         <option [ngValue]="1">Two way</option>
                     </select>
                 </as4-input>
-                <as4-input label="Message exchange pattern binding" runtimeTooltip="receivingprocessingmode.mepbinding">
+                <as4-input label="Message exchange pattern binding" runtimetooltip="receivingprocessingmode.mepbinding">
                     <select formControlName="mepBinding">
                         <option [ngValue]="0">Push</option>
                         <option [ngValue]="1">Pull</option>
                     </select>
                 </as4-input>
                 <div formGroupName="reliability">
-                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination" runtimeTooltip="duplicateelimination.isenabled">
+                    <as4-input label="Reliability - duplicate elimination" formGroupName="duplicateElimination" runtimetooltip="duplicateelimination.isenabled">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
                 </div>

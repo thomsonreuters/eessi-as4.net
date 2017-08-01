@@ -9,6 +9,7 @@ namespace Eu.EDelivery.AS4.Xml
     /// </summary>
     public partial class TlsConfiguration
     {
+        [Info("Tls version", defaultValue: TlsVersion.Tls12)]
         private TlsVersion _tlsVersion = TlsVersion.Tls12;
 
         [XmlElement("TlsVersion")]

@@ -2,6 +2,7 @@
     <table class="table table-responsive" *ngIf="!isLoading">
         <thead>
             <tr>
+                <th></th>
                 <th>Direction</th>
                 <th>Insertion time</th>
                 <th>Message id</th>
@@ -11,11 +12,14 @@
                 <th>Status</th>
                 <th>Operation</th>
                 <th>Content type</th>
-                <th>Pmode</th>
+                <th>PMode</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let message of messageData">
+                <td>
+                    <as4-downloadmessagebody [type]="'message'" [direction]="message.direction" [id]="message.ebmsMessageId"></as4-downloadmessagebody>
+                </td>
                 <td>{{message.direction | todirection}}</td>
                 <td>{{message.insertionTime | todate}}</td>
                 <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: message.direction, ebmsMessageId: message.ebmsMessageId }"

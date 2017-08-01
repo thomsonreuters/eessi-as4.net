@@ -4,6 +4,7 @@ using System.Linq;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Fe.UnitTests.TestData;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Receivers;
 using Eu.EDelivery.AS4.Steps;
 using Eu.EDelivery.AS4.Transformers;
@@ -43,7 +44,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 // Assert
                 Assert.True(loader.Receivers.Any());
-                Assert.True(loader.Receivers.Any(type => type.Name == "File receiver"));
+                Assert.True(loader.Receivers.Any(type => type.Name == "FILE receiver"));
             }
 
             [Fact]
@@ -120,6 +121,14 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 Assert.True(type.Attributes.Contains("testattribute"));
             }
+
+            [Fact]
+            public void BuildProperties_BuildsThePropertyTree()
+            {
+                Setup();
+
+                var result = loader.LoadImplementationsForType(types, typeof(IPMode).FullName).ToList();
+            }
         }
 
         public class FlattenRuntimeToJson : RuntimeLoaderTest
@@ -136,7 +145,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
 
                 // Assert
                 var json = JObject.Parse(jsonResult);
-                Assert.NotNull(json.Properties().FirstOrDefault(prop => prop.Name == "sendingprocessingmode"));
+                Assert.NotNull(json.Properties().Any(prop => prop.Name == "sendingprocessingmodel.mepbinding"));
             }
         }
     }

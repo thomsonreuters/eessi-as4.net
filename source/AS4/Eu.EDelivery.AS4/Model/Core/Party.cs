@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace Eu.EDelivery.AS4.Model.Core
@@ -7,6 +8,7 @@ namespace Eu.EDelivery.AS4.Model.Core
     public class Party : IEquatable<Party>
     {
         public List<PartyId> PartyIds { get; set; }
+        [Description("Role")]
         public string Role { get; set; }
 
         public Party()

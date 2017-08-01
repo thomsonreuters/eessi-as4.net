@@ -16,6 +16,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
     {
         public string Id { get; set; }
         public MessageExchangePattern Mep { get; set; }
+        [Info("Message exchange pattern", defaultValue: MessageExchangePatternBinding.Push)]
         public MessageExchangePatternBinding MepBinding { get; set; }
         public ReceiveReliability Reliability { get; set; }
         public ReplyHandlingSetting ReplyHandling { get; set; }

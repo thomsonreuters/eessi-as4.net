@@ -77,7 +77,7 @@ Failed to decrypt data element
                 cfg.AddProfile(new MonitorAutoMapper());
             });
             DatastoreRepository = Substitute.For<IDatastoreRepository>();
-            monitorService = new MonitorService(datastoreContext, SetupPmodeSource(), DatastoreRepository);
+            monitorService = new MonitorService(datastoreContext, SetupPmodeSource(), DatastoreRepository, Mapper.Instance);
 
             return this;
         }

@@ -11,7 +11,7 @@
                                 <option value="1">Outbound</option>
                             </select>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-secondary" type="button" (click)="filterForm.get('direction').setValue(null)"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-secondary" type="button" (click)="resetForm('direction')"><i class="fa fa-trash"></i></button>
                                 </span>
                             </div>
                         </as4-input>
@@ -23,7 +23,7 @@
                                 <option value="2">Receipt</option>
                             </select>
                                 <span class="input-group-btn">
-                                <button class="btn btn-secondary" type="button" (click)="filterForm.get('ebmsMessageType').setValue(null)"><i class="fa fa-trash"></i></button>
+                                <button class="btn btn-secondary" type="button" (click)="resetForm('ebmsMessageType')"><i class="fa fa-trash"></i></button>
                             </span>
                             </div>
                         </as4-input>
@@ -42,7 +42,7 @@
                                 <option value="8">Sent</option>
                             </select>
                                 <span class="input-group-btn">
-                            <button class="btn btn-secondary" type="button" (click)="filterForm.get('status').setValue(null)"><i class="fa fa-trash"></i></button>
+                            <button class="btn btn-secondary" type="button" (click)="resetForm('status')"><i class="fa fa-trash"></i></button>
                         </span>
                             </div>
                         </as4-input>
@@ -65,8 +65,8 @@
                         </as4-input>
                     </div>
                 </div>
-                <div class="advanced">
-                    <p class="clickable" (click)="advanced = !advanced"><i class="fa" [class.fa-chevron-right]="!advanced" [class.fa-chevron-down]="advanced"></i>Advanced</p>
+                <div class="row">
+                    <p class="clickable advanced" (click)="advanced = !advanced"><i class="fa" [class.fa-chevron-right]="!advanced" [class.fa-chevron-down]="advanced"></i>Advanced</p>
                     <div *ngIf="advanced">
                         <div class="col-xs-12 col-md-6">
                             <as4-input label="Message exchange pattern" labelSize="3" controlSize="9">
@@ -76,7 +76,7 @@
                                     <option value="1">Pull</option>
                                 </select>
                                     <span class="input-group-btn">
-                                    <button class="btn btn-secondary" type="button" (click)="filterForm.get('mep').setValue(null)"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-secondary" type="button" (click)="resetForm('mep')"><i class="fa fa-trash"></i></button>
                                 </span>
                                 </div>
                             </as4-input>
@@ -97,7 +97,7 @@
                                         <option value="11">Delivered</option>
                                     </select>
                                     <span class="input-group-btn">
-                                        <button class="btn btn-secondary" type="button" (click)="filterForm.get('operation').setValue(null)"><i class="fa fa-trash"></i></button>
+                                        <button class="btn btn-secondary" type="button" (click)="resetForm('operation')"><i class="fa fa-trash"></i></button>
                                     </span>
                                 </div>
                             </as4-input>
@@ -156,11 +156,11 @@
                         <th>Insertion time</th>
                         <th>Message type</th>
                         <th>Status</th>
-                        <th>Message id</th>
+                        <th>ebMS message id</th>
                         <th>From party</th>
                         <th>To party</th>
                         <th>Operation</th>
-                        <th>Pmode</th>
+                        <th>PMode</th>
                     </tr>
                 </thead>
                 <tbody>

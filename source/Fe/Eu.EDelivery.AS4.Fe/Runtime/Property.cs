@@ -69,5 +69,6 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// The attributes.
         /// </value>
         public IEnumerable<string> Attributes { get; set; }
+        public string Path { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// <see cref="IReceiver" /> Implementation to receive Files
     /// </summary>
-    [Info("File receiver")]
+    [Info("FILE receiver")]
     public class FileReceiver : PollingTemplate<FileInfo, ReceivedMessage>, IReceiver
     {
         private readonly SynchronizedCollection<FileInfo> _pendingFiles = new SynchronizedCollection<FileInfo>();
@@ -40,16 +40,18 @@ namespace Eu.EDelivery.AS4.Receivers
         private string FilePath => _properties.ReadMandatoryProperty(SettingKeys.FilePath);
 
         [Info("File mask", required: true, defaultValue: "*.*")]
+        [Description("Mask used to match files.")]
         private string FileMask => _properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*");
 
         [Info("Maximum number of concurrent processed files", required: true, defaultValue: SettingKeys.BatchSizeDefault)]
+        [Description("Indicates how many files should be processed per batch.")]
         private int BatchSize { get; set; }
 
         private TimeSpan _pollingInterval;
 
         protected override ILogger Logger { get; }
 
-        [Info("Interval to poll on the configured file-path (every)", defaultValue: SettingKeys.PollingIntervalDefault)]
+        [Info("Polling interval", defaultValue: SettingKeys.PollingIntervalDefault)]
         protected override TimeSpan PollingInterval => _pollingInterval;
 
         #region Configuration

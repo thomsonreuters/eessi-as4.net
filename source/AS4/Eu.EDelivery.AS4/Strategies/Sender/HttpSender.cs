@@ -18,6 +18,8 @@ namespace Eu.EDelivery.AS4.Strategies.Sender
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         private readonly IHttpClient _httpClient;
         private string _destinationUri;
+        [Info("Destination URL")]
+        private string Location { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpSender"/> class.

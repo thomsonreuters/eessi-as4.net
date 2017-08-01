@@ -1,4 +1,4 @@
-<div as4-modal name="editor" #editor="as4-modal" class="editor">
+﻿<div as4-modal name="editor" #editor="as4-modal" class="editor">
     <as4-clipboard [content]="editor.payload"></as4-clipboard>
     <div>
         <pre *ngIf="editor.isVisible">{{editor.payload | asxml}}</pre>
@@ -85,7 +85,7 @@
                             <div *ngSwitchCase="4">
                                 Example of the AS4 message being submitted.
                                 <div class="pmode">
-                                    <as4-clipboard [content]="message.message"></as4-clipboard><i as4-tooltip="Show full AS4 message" (click)="open(message.message)"
+                                    <as4-clipboard [content]="message.message"></as4-clipboard><i as4-tooltip="Show full submit message" (click)="open(message.message)"
                                         class="clickable fa fa-search-plus"></i>{{message.message | slice:1:100}}...</div>
                             </div>
                             <div *ngSwitchDefault>{{message.message}}</div>

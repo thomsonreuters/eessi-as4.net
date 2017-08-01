@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.Entities;
@@ -22,6 +21,7 @@ namespace Eu.EDelivery.AS4.Receivers
     /// <summary>
     /// Receiver to poll the database to get the messages which validates a given Expression
     /// </summary>
+    [Info("Datastore receiver")]
     public class DatastoreReceiver : PollingTemplate<Entity, ReceivedMessage>, IReceiver
     {
         private readonly IDictionary<string, string> _properties;

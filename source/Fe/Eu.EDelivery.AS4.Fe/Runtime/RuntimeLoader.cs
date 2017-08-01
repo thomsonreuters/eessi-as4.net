@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using Eu.EDelivery.AS4.Fe.Settings;
@@ -21,9 +22,10 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         private static readonly string RuntimeCertificateRepositoryInterface = "Eu.EDelivery.AS4.Repositories.ICertificateRepository";
         private static readonly string RuntimeDeliverSenderInterface = "Eu.EDelivery.AS4.Strategies.Sender.IDeliverSender";
         private static readonly string RuntimePmodeInterface = "Eu.EDelivery.AS4.Model.PMode.IPMode";
-        private static readonly string Infoattribute = typeof(InfoAttribute).Name;
+        private static readonly string InfoAttribute = typeof(InfoAttribute).Name;
         private static readonly string NoUiAttribute = typeof(NotConfigurableAttribute).Name;
-        private static readonly string Descriptionattribute = "DescriptionAttribute";
+        private static readonly string DefaultValueAttribute = typeof(DefaultValueAttribute).Name;
+        private static readonly string DescriptionAttribute = typeof(DescriptionAttribute).Name;
 
         private readonly string folder;
 
@@ -135,14 +137,14 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                 .Where(x => !x.IsInterface)
                 .Where(x => !x.IsAbstract)
                 .Where(x => x.CustomAttributes.All(attr => attr.AttributeType.Name != NoUiAttribute));
-            var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties)));
+            var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties, itemType.Name)));
             return itemTypes.Where(x => x != null);
         }
 
         private ItemType BuildItemType(TypeDefinition itemType, IEnumerable<Property> properties)
         {
-            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Infoattribute)?.ConstructorArguments;
-            var descriptionAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute)?.ConstructorArguments;
+            var infoAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == InfoAttribute)?.ConstructorArguments;
+            var descriptionAttribute = itemType.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DescriptionAttribute)?.ConstructorArguments;
 
             return new ItemType
             {
@@ -153,41 +155,82 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             };
         }
 
-        private IEnumerable<Property> BuildProperties(Collection<PropertyDefinition> properties)
+        private void ApplyInfoAttribute(Property property, PropertyDefinition prop, Collection<CustomAttributeArgument> arguments)
         {
-            foreach (var prop in properties.Where(x => x.CustomAttributes.Any(y => y.AttributeType.Name == Infoattribute)))
+            if (arguments == null) return;
+
+            property.FriendlyName = arguments[0].Value as string ?? prop.Name;
+            property.Regex = arguments.Count > 1 ? arguments[1].Value as string : string.Empty;
+            property.Required = arguments.Count >= 5 && Convert.ToBoolean(arguments[4].Value);
+
+            var type = arguments.Count >= 2 ? arguments[2].Value as string : null;
+            property.Type = !string.IsNullOrEmpty(type) ? type : prop.PropertyType.Name.ToLower();
+
+            var defaultValue = arguments.Count >= 4 ? arguments[3].Value : null;
+            if (defaultValue is CustomAttributeArgument defaultValueAttribute)
             {
-                var customAttr = prop.CustomAttributes.First(attr => attr.AttributeType.Name == Infoattribute)?.ConstructorArguments;
-                var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == Descriptionattribute)?.ConstructorArguments;
+                property.DefaultValue = defaultValueAttribute.Value;
+            }
+
+            var attributeList = arguments.Count >= 6 ? arguments[5].Value : null;
+            if (attributeList is CustomAttributeArgument[] attributes)
+            {
+                property.Attributes = attributes.Select(x => x.Value as string).ToList();
+            }
+        }
+
+        private void ApplyDefaultValueAttribute(Property property, Collection<CustomAttributeArgument> arguments)
+        {
+            if (arguments == null) return;
+
+            if (arguments[0].Value is CustomAttributeArgument argument)
+            {
+                property.DefaultValue = argument.Value;
+            }
+            else
+            {
+                property.DefaultValue = arguments[0].Value;
+            }
+        }
+
+        private IEnumerable<Property> BuildProperties(Collection<PropertyDefinition> properties, string propPath)
+        {
+            foreach (var prop in properties)
+            {
+                var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DescriptionAttribute)?.ConstructorArguments;
                 var property = new Property
                 {
-                    FriendlyName = customAttr != null ? customAttr[0].Value as string : prop.Name,
+                    Type = prop.PropertyType.Name,
                     TechnicalName = prop.Name,
-                    Regex = customAttr != null ? customAttr.Count > 1 ? customAttr[1].Value as string : string.Empty : string.Empty,
                     Description = descriptionAttr != null ? descriptionAttr.Count > 0 ? descriptionAttr[0].Value as string : string.Empty : string.Empty,
-                    Required = customAttr != null && (customAttr.Count >= 5 && Convert.ToBoolean(customAttr[4].Value))
+                    Path = string.IsNullOrEmpty(propPath) ? prop.Name.ToLower() : propPath.ToLower() + "." + prop.Name.ToLower()
                 };
 
-                var type = customAttr?.Count >= 2 ? customAttr[2].Value as string : null;
-                property.Type = !string.IsNullOrEmpty(type) ? type : prop.PropertyType.Name.ToLower();
-
-                var defaultValue = customAttr?.Count >= 4 ? customAttr[3].Value : null;
-                if (defaultValue is CustomAttributeArgument defaultValueAttribute)
-                {
-                    property.DefaultValue = defaultValueAttribute.Value;
-                }
-
-                var attributeList = customAttr?.Count >= 6 ? customAttr[5].Value : null;
-                if (attributeList is CustomAttributeArgument[] attributes)
-                {
-                    property.Attributes = attributes.Select(x => x.Value as string).ToList();
-                }
+                ApplyDefaultValueAttribute(property, prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DefaultValueAttribute)?.ConstructorArguments);
+                ApplyInfoAttribute(property, prop, prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == InfoAttribute)?.ConstructorArguments);
 
                 if (prop.PropertyType.Namespace != "System")
                 {
                     var typeDef = prop.PropertyType as TypeDefinition;
                     if (typeDef != null)
-                        property.Properties = BuildProperties(typeDef.Properties);
+                    {
+                        IEnumerable<Property> BuildProps(TypeDefinition type, string path)
+                        {
+                            foreach (var childProp in BuildProperties(type.Properties, path + "." + prop.Name.ToLower()))
+                            {
+                                yield return childProp;
+                            }
+
+                            if (type.BaseType is TypeDefinition typedef && typedef.HasProperties)
+                            {
+                                foreach (var childProp in BuildProperties(typedef.Properties, path + "." + prop.Name.ToLower()))
+                                {
+                                    yield return childProp;
+                                }
+                            }
+                        }
+                        property.Properties = BuildProps(typeDef, propPath.ToLower()).Distinct().ToList();
+                    }
                 }
 
                 yield return property;

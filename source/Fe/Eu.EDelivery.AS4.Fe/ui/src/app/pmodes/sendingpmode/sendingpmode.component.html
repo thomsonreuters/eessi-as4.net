@@ -1,5 +1,5 @@
 ﻿<form [formGroup]="pmode.form" class="form-horizontal">
-    <div formGroupName="pmode">
+    <div formGroupName="pmode" runtimetooltip="sendingprocessingmode">
         <as4-box>
             <div content>
                 <as4-pmode #pmode></as4-pmode>
@@ -7,16 +7,16 @@
         </as4-box>
         <as4-tab>
             <div tabitem title="Common" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.id').valid || pmode.form.get('pmode.allowOverride').valid || pmode.form.get('pmode.mep').valid || pmode.form.get('pmode.mepBinding').valid || pmode.form.get('pmode.messagePackaging').valid">
-                <as4-input label="Allow PMode override" runtimeTooltip="sendingprocessingmode.allowoverride">
+                <as4-input label="Allow PMode override" runtimetooltip="allowoverride">
                     <input type="checkbox" formControlName="allowOverride" />
                 </as4-input>
-                <as4-input label="Message exchange pattern" runtimeTooltip="sendingprocessingmode.mep">
+                <as4-input label="Message exchange pattern" runtimetooltip="mep">
                     <select formControlName="mep">
                         <option value="0">One way</option>
                         <option value="1">Two way</option>
                     </select>
                 </as4-input>
-                <as4-input label="Message exchange pattern binding" runtimeTooltip="sendingprocessingmode.mepbinding">
+                <as4-input label="Message exchange pattern binding" runtimetooltip="mepbinding">
                     <select formControlName="mepBinding" #mepBinding>
                         <option value="0">Push</option>
                         <option value="1">Pull</option>
@@ -27,16 +27,16 @@
                 <as4-input label="SMP/SML Discovery">
                     <input type="checkbox" name="dynamicDiscoveryEnabled" [formControl]="pmode.form.get('isDynamicDiscoveryEnabled')">
                 </as4-input>
-                <ng-container formGroupName="pushConfiguration" *ngIf="!pmode.form.get('isDynamicDiscoveryEnabled').value">
+                <ng-container formGroupName="pushConfiguration" *ngIf="!pmode.form.get('isDynamicDiscoveryEnabled').value" runtimetooltip="pushconfiguration">
                     <div class="sub-header-1">Protocol</div>
-                    <as4-input label="Url" formGroupName="protocol" runtimeTooltip="protocol.url">
+                    <as4-input label="Url" formGroupName="protocol" runtimetooltip="protocol.url">
                         <input type="text" formControlName="url" />
                     </as4-input>
                     <div class="sub-header-1">TLS configuration</div>
-                    <as4-input label="Enabled" formGroupName="tlsConfiguration" runtimeTooltip="protocol.tlsconfiguration">
+                    <as4-input label="Enabled" formGroupName="tlsConfiguration" runtimetooltip="tlsconfiguration.isenabled">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
-                    <as4-input label="TLS version" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.tlsversion">
+                    <as4-input label="TLS version" formGroupName="tlsConfiguration" runtimetooltip="tlsconfiguration.tlsversion">
                         <select formControlName="tlsVersion">
                                 <option value="0">SSL30</option>
                                 <option value="1">TLS10</option>
@@ -45,7 +45,7 @@
                             </select>
                     </as4-input>
                     <div class="sub-header">TLS client certificate</div>
-                    <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindtype">
+                    <as4-input label="Client certificate find type" formGroupName="tlsConfiguration" runtimetooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindtype">
                         <div formGroupName="clientCertificateReference">
                             <select formControlName="clientCertificateFindType">
                                     <option value="0">Find by thumbprint</option>
@@ -66,7 +66,7 @@
                                 </select>
                         </div>
                     </as4-input>
-                    <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimeTooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindvalue">
+                    <as4-input label="Certificate find value" formGroupName="tlsConfiguration" runtimetooltip="tlsconfiguration.clientcertificatereference.clientcertificatefindvalue">
                         <div formGroupName="clientCertificateReference">
                             <as4-thumbprint-input formControlName="clientCertificateFindValue"></as4-thumbprint-input>
                         </div>
@@ -74,16 +74,16 @@
                 </ng-container>
                 <ng-container formGroupName="dynamicDiscovery" *ngIf="pmode.form.get('isDynamicDiscoveryEnabled').value">
                     <div class="sub-header-1">SMP/SML Discovery</div>
-                    <as4-input label="SML scheme" runtimeTooltip="dynamicdiscovery.smlscheme">
+                    <as4-input label="SML scheme" runtimetooltip="dynamicdiscovery.smlscheme">
                         <input type="text" formControlName="smlScheme" />
                     </as4-input>
-                    <as4-input label="SMP server domain name" runtimeTooltip="dynamicdiscovery.smpserverdomainname">
+                    <as4-input label="SMP server domain name" runtimetooltip="dynamicdiscovery.smpserverdomainname">
                         <input type="text" formControlName="smpServerDomainName" />
                     </as4-input>
-                    <as4-input label="Document identifier" runtimeTooltip="dynamicdiscovery.documentidentifier">
+                    <as4-input label="Document identifier" runtimetooltip="dynamicdiscovery.documentidentifier">
                         <input type="text" formControlName="documentIdentifier" />
                     </as4-input>
-                    <as4-input label="Document identifier scheme" runtimeTooltip="dynamicdiscovery.documentidentifierscheme">
+                    <as4-input label="Document identifier scheme" runtimetooltip="dynamicdiscovery.documentidentifierscheme">
                         <input type="text" formControlName="documentIdentifierScheme" />
                     </as4-input>
                 </ng-container>
@@ -95,17 +95,17 @@
                 <div class="row">
                     <div formGroupName="signing" class="col-xs-12 col-md-6">
                         <div class="sub-header-1">Signing</div>
-                        <as4-input label="Enabled" runtimeTooltip="security.signing.isenabled" controlSize="6">
+                        <as4-input label="Enabled" runtimetooltip="security.signing.isenabled" controlSize="6">
                             <input type="checkbox" formControlName="isEnabled" />
                         </as4-input>
-                        <as4-input label="Algorithm" runtimeTooltip="security.signing.alogrithm" controlSize="6">
+                        <as4-input label="Algorithm" runtimetooltip="security.signing.alogrithm" controlSize="6">
                             <input type="text" formControlName="algorithm" />
                         </as4-input>
-                        <as4-input label="HashFunction" runtimeTooltip="security.signing.hashfunction" controlSize="6">
+                        <as4-input label="HashFunction" runtimetooltip="security.signing.hashfunction" controlSize="6">
                             <input type="text" formControlName="hashFunction" />
                         </as4-input>
                         <div class="sub-header">Private key information</div>
-                        <as4-input label="Private key find type" runtimeTooltip="security.signing.privatekeyfindtype" controlSize="6">
+                        <as4-input label="Private key find type" runtimetooltip="security.signing.privatekeyfindtype" controlSize="6">
                             <select formControlName="privateKeyFindType">
                                     <option value="0">Find by thumbprint</option>
                                     <option value="1">Find by subject name</option>
@@ -124,11 +124,11 @@
                                     <option value="14">Find by subject key identifier</option>
                                 </select>
                         </as4-input>
-                        <as4-input label="Private key find value" runtimeTooltip="security.signing.privatekeyfindvalue" controlSize="6">
+                        <as4-input label="Private key find value" runtimetooltip="security.signing.privatekeyfindvalue" controlSize="6">
                             <as4-thumbprint-input formControlName="privateKeyFindValue"></as4-thumbprint-input>
                         </as4-input>
                         <div class="sub-header">Key reference method</div>
-                        <as4-input label="Key reference method" runtimeTooltip="security.signing.keyreferencemethod" controlSize="6">
+                        <as4-input label="Key reference method" runtimetooltip="security.signing.keyreferencemethod" controlSize="6">
                             <select formControlName="keyReferenceMethod">
                                     <option value="0">BSTReference</option>
                                     <option value="1">KeyIdentifier</option>
@@ -138,7 +138,7 @@
                     </div>
                     <div formGroupName="encryption" class="col-xs-12 col-md-6">
                         <div class="sub-header-1">Encryption</div>
-                        <as4-input label="Enabled" runtimeTooltip="security.encryption.isenabled" controlSize="6">
+                        <as4-input label="Enabled" runtimetooltip="security.encryption.isenabled" controlSize="6">
                             <input type="checkbox" formControlName="isEnabled" />
                         </as4-input>
                         <as4-input label="Algorithm" controlSize="6">
@@ -168,19 +168,19 @@
                                         <option value="14">Find by subject key identifier</option>
                                     </select>
                             </as4-input>
-                            <as4-input label="Public key find value" runtimeTooltip="security.encryption.publickeyinformation.publickeyfindvalue" controlSize="6">
+                            <as4-input label="Public key find value" runtimetooltip="security.encryption.publickeyinformation.publickeyfindvalue" controlSize="6">
                                 <as4-thumbprint-input formControlName="publicKeyFindValue"></as4-thumbprint-input>
                             </as4-input>
                         </ng-container>
                         <div class="sub-header">Key transport</div>
                         <div formGroupName="keyTransport">
-                            <as4-input label="Key Transport algorithm" runtimeTooltip="security.encryption.keytransport.transportAlgorithm" controlSize="6">
+                            <as4-input label="Key Transport algorithm" runtimetooltip="security.encryption.keytransport.transportAlgorithm" controlSize="6">
                                 <input type="text" formControlName="transportAlgorithm">
                             </as4-input>
-                            <as4-input label="Key Digest algorithm" runtimeTooltip="security.encryption.keytransport.digestAlgorithm" controlSize="6">
+                            <as4-input label="Key Digest algorithm" runtimetooltip="security.encryption.keytransport.digestAlgorithm" controlSize="6">
                                 <input type="text" formControlName="digestAlgorithm">
                             </as4-input>
-                            <as4-input label="Key Mgf algorithm" runtimeTooltip="security.encryption.keytransport.mgfAlgorithm" controlSize="6">
+                            <as4-input label="Key Mgf algorithm" runtimetooltip="security.encryption.keytransport.mgfAlgorithm" controlSize="6">
                                 <input type="text" formControlName="mgfAlgorithm">
                             </as4-input>
                         </div>
@@ -189,31 +189,31 @@
             </div>
             <div tabitem title="Reliability" formGroupName="reliability" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.reliability').valid">
                 <div formGroupName="receptionAwareness">
-                    <as4-input label="Reception awareness" runtimeTooltip="reliability.receptionawareness.isenabled">
+                    <as4-input label="Reception awareness" runtimetooltip="reliability.receptionawareness.isenabled">
                         <input type="checkbox" formControlName="isEnabled" />
                     </as4-input>
-                    <as4-input label="Retry count" runtimeTooltip="reliability.receptionawareness.retrycount">
+                    <as4-input label="Retry count" runtimetooltip="reliability.receptionawareness.retrycount">
                         <input type="number" formControlName="retryCount" />
                     </as4-input>
-                    <as4-input label="Retry interval" runtimeTooltip="reliability.receptionawareness.retryinterval">
+                    <as4-input label="Retry interval" runtimetooltip="reliability.receptionawareness.retryinterval">
                         <input type="text" [textMask]="{ mask: mask}" formControlName="retryInterval" />
                     </as4-input>
                 </div>
             </div>
             <div tabitem title="Receipt handling" formGroupName="receiptHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.receiptHandling').valid">
-                <as4-input label="Notify message producer" runtimeTooltip="receipthandling.notifymessageproducer">
+                <as4-input label="Notify message producer" runtimetooltip="receipthandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" [group]="pmode.form.get('pmode.receiptHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
             </div>
             <div tabitem title="Error handling" formGroupName="errorHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.errorHandling').valid">
-                <as4-input label="Notify message producer" runtimeTooltip="errorhandling.notifymessageproducer">
+                <as4-input label="Notify message producer" runtimetooltip="errorhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" [group]="pmode.form.get('pmode.errorHandling.notifyMethod')" [types]="deliverSenders"></as4-method>
             </div>
             <div tabitem title="Exception handling" formGroupName="exceptionHandling" [isValid]="!!!pmode.currentPmode || pmode.form.get('pmode.exceptionHandling').valid">
-                <as4-input label="Notify message producer" runtimeTooltip="exceptionhandling.notifymessageproducer">
+                <as4-input label="Notify message producer" runtimetooltip="exceptionhandling.notifymessageproducer">
                     <input type="checkbox" formControlName="notifyMessageProducer" />
                 </as4-input>
                 <as4-method label="Notify method" [group]="pmode.form.get('pmode.exceptionHandling.notifyMethod')" [types]="deliverSenders"></as4-method>

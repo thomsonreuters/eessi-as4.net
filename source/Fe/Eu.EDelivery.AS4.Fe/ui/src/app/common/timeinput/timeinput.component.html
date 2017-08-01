@@ -7,7 +7,7 @@
         <option value="4">Last Month</option>
         <option value="5">Custom</option>
     </select>
-    <div class="row custom-row" *ngIf="input.get(type).value === '5'">
+    <div class="row custom-row" *ngIf="selectedType() === 5">
         <div class="col-xs-12 col-md-5">
             <div class="input-group">
                 <input placeholder="From" type="text" as4-datetimepicker [formControl]="input.get(from)" />

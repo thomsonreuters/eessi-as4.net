@@ -57,7 +57,7 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
                     }
                     catch (HttpRequestException)
                     {
-                        throw new BusinessException($"Could not send message to {toLocation}. Please check that the address is correct.");
+                        throw new BusinessException($"Could not submit message to {toLocation}. Please check that the address is correct.");
                     }
                     catch (Exception)
                     {

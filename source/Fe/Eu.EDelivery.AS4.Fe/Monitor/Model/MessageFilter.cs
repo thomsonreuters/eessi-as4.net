@@ -1,21 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Eu.EDelivery.AS4.Entities;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Eu.EDelivery.AS4.Fe.Monitor.Model
 {
-    public enum DateTimeFilterType
-    {
-        LastHour = 0,
-        Last4Hours = 1,
-        LastDay = 2,
-        LastWeek = 3,
-        LastMonth = 4,
-        Custom = 5
-    }
-
-
     public class MessageFilter : BaseFilter<MessageEntity, Message>
     {
         public Direction[] Direction { get; set; } = new[] { Model.Direction.Inbound, Model.Direction.Outbound };

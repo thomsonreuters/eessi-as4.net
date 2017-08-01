@@ -94,18 +94,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
             return File(Encoding.UTF8.GetBytes(await monitorService.DownloadExceptionMessageBody(direction, messageId)), "application/txt");
         }
 
-        /// <summary>
-        /// Gets the details.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <param name="messageId">The message identifier.</param>
-        /// <returns></returns>
         [HttpGet]
-        [Route("detail")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(MessageResult<Message>))]
-        public async Task<IActionResult> GetDetails(Direction direction, string messageId)
+        [Route("detail/{direction}/{messageId}")]
+        public async Task<IActionResult> GetExceptionDetail(Direction direction, long messageId)
         {
-            return new OkObjectResult(await monitorService.GetMessageDetails(direction, messageId));
+            return new OkObjectResult(await monitorService.GetExceptionDetail(direction, messageId));
         }
     }
 }

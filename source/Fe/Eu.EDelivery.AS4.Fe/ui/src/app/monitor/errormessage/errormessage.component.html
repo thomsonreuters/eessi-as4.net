@@ -4,27 +4,21 @@
             <col width="2%">
             <col width="5%">
             <col width="5%">
-            <col width="5%">
-            <col width="5%">
-            <col width="5%">
         </colgroup>
         <thead>
             <tr>
                 <th>Direction</th>
                 <th>Insertion time</th>
-                <th>Ref to message id</th>
-                <th>Operation</th>
-                <th>Pmode</th>
+                <th>Exception</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let message of exceptionData.messages">
                 <td>{{message.direction | todirection}}</td>
                 <td>{{message.insertionTime | todate}}</td>
-                <td><a [routerLink]="['/monitor/exceptions']" [queryParams]="{ direction: message.direction, ebmsRefToMessageId: message.ebmsRefToMessageId }"
-                        target="_blank">{{message.ebmsRefToMessageId}}</a></td>
-                <td>{{message.operation}}</td>
-                <td><a [routerLink]="['/pmodes', direction === '0' ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a></td>
+                <td><a [routerLink]="['../exceptions', message.direction, message.id]" target="_blank">{{message.exceptionShort}}</a>
+                    <as4-clipboard [content]="message.exception"></as4-clipboard>
+                </td>
             </tr>
         </tbody>
     </table>

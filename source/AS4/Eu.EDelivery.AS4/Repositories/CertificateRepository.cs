@@ -7,6 +7,7 @@ namespace Eu.EDelivery.AS4.Repositories
     /// <summary>
     /// Repository to expose the Certificate from the Certificate Store
     /// </summary>
+    [Info("Certificate repository")]
     public class CertificateRepository : ICertificateRepository
     {
         private readonly IConfig _config;

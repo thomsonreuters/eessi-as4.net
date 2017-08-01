@@ -109,11 +109,6 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
             var submitMessage = new SubmitMessage {MessageInfo = {MessageId = $"{Guid.NewGuid()}@{Environment.MachineName}"}};
             submitMessage.Collaboration.AgreementRef.PModeId = sendingPmode.Id;
 
-            var originalSenderProperty = new MessageProperty("originalSender", sendingPmode.MessagePackaging.PartyInfo.FromParty.PartyIds.First().Id);
-            var finalRecipientProperty = new MessageProperty("finalRecipient", sendingPmode.MessagePackaging.PartyInfo.ToParty.PartyIds.First().Id);
-
-            submitMessage.MessageProperties = new[] {originalSenderProperty, finalRecipientProperty};
-
             submitMessage.Payloads = payloads.Select(x => x.ToPayload(CreatePayloadId(submitInfo, x.FileName, submitMessage.MessageInfo.MessageId))).ToArray();
             return submitMessage;
         }

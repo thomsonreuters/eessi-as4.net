@@ -28,7 +28,7 @@ namespace Eu.EDelivery.AS4.Fe.Automapper
             });
 
             services.AddSingleton(Mapper.Configuration);
-            services.AddSingleton<IMapper>(sp => new Mapper(sp.GetRequiredService<AutoMapper.IConfigurationProvider>(), sp.GetService));
+            services.AddScoped<IMapper>(sp => new Mapper(sp.GetRequiredService<AutoMapper.IConfigurationProvider>(), sp.GetService));
         }
     }
 }

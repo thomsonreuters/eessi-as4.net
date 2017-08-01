@@ -7,11 +7,11 @@
                         <as4-input label="Direction" labelSize="3" controlSize="9">
                             <div class="input-group">
                                 <select formControlName="direction" multiselect>
-                                <option value="0">Inbound</option>
-                                <option value="1">Outbound</option>
-                            </select>
+                                    <option value="0">Inbound</option>
+                                    <option value="1">Outbound</option>
+                                </select>
                                 <div class="input-group-btn">
-                                    <button class="btn btn-secondary" type="button" (click)="filter.filter.direction = null"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-secondary" type="button" (click)="clear('direction')"><i class="fa fa-trash"></i></button>
                                 </div>
                             </div>
                         </as4-input>
@@ -31,7 +31,7 @@
                                     <option value="9">Delivered</option>
                                 </select>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-secondary" type="button" (click)="filter.filter.operation = null"><i class="fa fa-trash"></i></button>
+                                    <button class="btn btn-secondary" type="button" (click)="clear('operation')"><i class="fa fa-trash"></i></button>
                                 </span>
                             </div>
                         </as4-input>
@@ -76,7 +76,7 @@
                     <th>Operation</th>
                     <th>ebMS message id</th>
                     <th>Exception</th>
-                    <th>Pmode</th>
+                    <th>PMode</th>
                 </tr>
             </thead>
             <tbody>
@@ -87,7 +87,8 @@
                                 (click)="toggle(message)"></i>
                         </td>
                         <td>
-                            <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body" [direction]="message.direction" [id]="message.id"></as4-downloadmessagebody>
+                            <as4-downloadmessagebody *ngIf="message.hasMessageBody" [type]="'exception'" tooltip="Download original message body" [direction]="message.direction"
+                                [id]="message.id"></as4-downloadmessagebody>
                         </td>
                         <td>{{message.direction | todirection}}</td>
                         <td>{{message.insertionTime | todate}}</td>

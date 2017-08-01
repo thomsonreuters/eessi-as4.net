@@ -70,13 +70,11 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         Task<string> DownloadExceptionMessageBody(Direction direction, long id);
 
         /// <summary>
-        /// Gets the message details.
+        /// Gets the exception detail.
         /// </summary>
         /// <param name="direction">The direction.</param>
         /// <param name="messageId">The message identifier.</param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException">messageId</exception>
-        /// <exception cref="InvalidEnumArgumentException">direction</exception>
-        Task<MessageDetails> GetMessageDetails(Direction direction, string messageId);
+        Task<string> GetExceptionDetail(Direction direction, long messageId);
     }
 }

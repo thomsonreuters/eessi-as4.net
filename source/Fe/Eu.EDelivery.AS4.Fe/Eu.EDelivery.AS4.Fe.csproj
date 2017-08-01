@@ -94,6 +94,7 @@
     <Compile Include="Modules\Scanner.cs" />
     <Compile Include="Modules\TypeInfoExtensions.cs" />
     <Compile Include="Monitor\Model\BaseFilter.cs" />
+    <Compile Include="Monitor\Model\DateTimeFilterType.cs" />
     <Compile Include="Monitor\Model\Direction.cs" />
     <Compile Include="Monitor\Model\ExceptionFilter.cs" />
     <Compile Include="Monitor\Model\ExceptionMessage.cs" />

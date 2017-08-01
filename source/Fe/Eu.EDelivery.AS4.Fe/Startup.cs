@@ -28,13 +28,6 @@ namespace Eu.EDelivery.AS4.Fe
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddMvc(options =>
-                {
-                    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
-                })
-                .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
-
             services.Configure<FormOptions>(x =>
             {
                 x.ValueLengthLimit = int.MaxValue;
@@ -53,6 +46,13 @@ namespace Eu.EDelivery.AS4.Fe
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
             }, out config);
             Configuration = config;
+
+            services
+                .AddMvc(options =>
+                {
+                    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
+                })
+                .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
 
             services.AddSingleton<ILogging, Logging.Logging>();
             services.AddSingleton<ISettingsSource, FileSettingsSource>();
@@ -78,7 +78,7 @@ namespace Eu.EDelivery.AS4.Fe
                 await next();
 
                 if (context.Request.Path.StartsWithSegments("/api")) return;
-                if (context.Response.StatusCode != 200)
+                if (context.Response.StatusCode != 200 && context.Request.Path.Value?.IndexOf(".") == -1)
                 {
                     context.Request.Path = "/index.html";
                     await next();
