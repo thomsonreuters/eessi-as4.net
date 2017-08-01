@@ -17,6 +17,7 @@ import { StepForm } from './../../api/StepForm';
             <div [sortablejs]="group" [sortablejsOptions]="{ handle: '.grippy', onEnd: itemMoved }">
                 <div *ngFor="let step of group.controls; let i = index" [formGroupName]="i">
                     <div class="step-row">
+                        <div class="item"><span class="grippy"></span></div>    
                         <div class="item"><button as4-auth [attr.disabled]="!disabled ? null : disabled" type="button" class="btn btn-flat" (click)="removeStep(i)"><i class="fa fa-trash-o"></i></button></div>
                         <div class="item">
                             <select class="form-control" formControlName="type" (change)="stepChanged(step, selectedStep.value)" #selectedStep>    
@@ -51,20 +52,30 @@ import { StepForm } from './../../api/StepForm';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StepSettingsComponent implements OnDestroy {
-    @Input() public group: FormArray;
+    @Input() public set group(group: FormArray) {
+        this._group = group;
+        if (!!group) {
+            this.setupForm();
+        }
+    }
+    public get group(): FormArray {
+        return this._group;
+    }
     @Input() public disabled: boolean = true;
     public steps: ItemType[];
+    private _group: FormArray;
     private _runtimeStoreSubscription: Subscription;
-    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService, private _changeDetectorRef: ChangeDetectorRef) {
+    private _valueStoreSubscription: Subscription;
+    constructor(private formBuilder: FormBuilder, private runtimeStore: RuntimeStore, private dialogService: DialogService, private _changeDetectorRef: ChangeDetectorRef, private _ngZone: NgZone) {
         this._runtimeStoreSubscription = this.runtimeStore
             .changes
             .filter((result) => result != null)
-            .subscribe((result) => {
-                this.steps = result.steps;
-            });
+            .subscribe((result) => this.steps = result.steps);
     }
     public itemMoved = () => {
-        this.group.markAsDirty();
+        this._ngZone.run(() => {
+            this.group.markAsDirty();
+        });
     }
     public addStep() {
         this.group.push(StepForm.getForm(this.formBuilder, null));
@@ -79,6 +90,9 @@ export class StepSettingsComponent implements OnDestroy {
     }
     public ngOnDestroy() {
         this._runtimeStoreSubscription.unsubscribe();
+        if (!!this._valueStoreSubscription) {
+            this._valueStoreSubscription.unsubscribe();
+        }
     }
     public stepChanged(formGroup: FormGroup, selectedStep: string) {
         let stepProps = this.steps.find((st) => st.technicalName === selectedStep);
@@ -97,5 +111,13 @@ export class StepSettingsComponent implements OnDestroy {
                     }, prop.required))));
         }
         this._changeDetectorRef.detectChanges();
+    }
+    private setupForm() {
+        if (!!this._valueStoreSubscription) {
+            this._valueStoreSubscription.unsubscribe();
+        }
+        this._valueStoreSubscription = this._group.valueChanges.subscribe((result) => {
+            this._changeDetectorRef.detectChanges();
+        });
     }
 }
