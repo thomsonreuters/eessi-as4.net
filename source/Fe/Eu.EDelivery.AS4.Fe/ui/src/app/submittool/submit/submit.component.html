@@ -1,4 +1,4 @@
-﻿<div as4-modal name="editor" #editor="as4-modal" class="editor">
+<div as4-modal name="editor" #editor="as4-modal" class="editor">
     <as4-clipboard [content]="editor.payload"></as4-clipboard>
     <div>
         <pre *ngIf="editor.isVisible">{{editor.payload | asxml}}</pre>
