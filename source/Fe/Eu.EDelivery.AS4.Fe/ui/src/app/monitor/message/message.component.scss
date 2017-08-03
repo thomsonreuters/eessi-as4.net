@@ -66,10 +66,10 @@
     background-color: #c2c2a3 !important;
 }
 
-.advanced {
-    margin-left: 24px;
-    margin-top: 10px;
-    p {
+.row {
+    &__advanced {
+        margin-left: 24px;
+        margin-top: 10px;
         display: inline;
     }
 }

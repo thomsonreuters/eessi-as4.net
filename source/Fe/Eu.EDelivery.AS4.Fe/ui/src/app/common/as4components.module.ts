@@ -48,6 +48,7 @@ import { TimeInputComponent } from './timeinput/timeinput.component';
 import { CustomHttp, CustomAuthNoSpinnerHttp } from './spinner/customhttp';
 import { GetItemTypePropertyPipe, GetTypePipe } from './getitemtypeproperty.pipe';
 import { RuntimetoolTipDirective } from './runtimetooltip.directive';
+import { Select2Component } from './select2/select2.component';
 
 import { Select2Module } from 'ng2-select2';
 
@@ -85,7 +86,8 @@ const components: any = [
     SpinnerComponent,
     ThumbprintInputComponent,
     ClipboardComponent,
-    TimeInputComponent
+    TimeInputComponent,
+    Select2Component
 ];
 
 const directives: any = [
@@ -177,7 +179,8 @@ const services: any = [
         TabIndexDirective,
         GetItemTypePropertyPipe,
         GetTypePipe,
-        RuntimetoolTipDirective
+        RuntimetoolTipDirective,
+        Select2Component
     ],
     imports: [
         ClipboardModule,

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Fe.Monitor;
 using Eu.EDelivery.AS4.Fe.Pmodes;
 using Eu.EDelivery.AS4.Fe.Pmodes.Model;
 using Eu.EDelivery.AS4.Fe.SubmitTool;
@@ -32,7 +33,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             });
 
             PmodeService = Substitute.For<IPmodeService>();
-            SubmitMessageCreator = new SubmitMessageCreator(PmodeService, payloadHandlers, messageHandlers, Options);
+            SubmitMessageCreator = new SubmitMessageCreator(PmodeService, payloadHandlers, messageHandlers, Options, Substitute.For<IClient>());
 
             PmodeService.GetSendingByName(Arg.Is(Pmode)).Returns(new SendingBasePmode()
             {
@@ -70,7 +71,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 };
 
                 var error = await Assert.ThrowsAsync<BusinessException>(() => Setup().SubmitMessageCreator.CreateSubmitMessages(payload));
-                Assert.True(error.Message.Contains("Could not find pmode"));
+                Assert.True(error.Message.Contains("Could not find PMode"));
             }
 
             [Fact]

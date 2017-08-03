@@ -17,9 +17,10 @@ namespace Eu.EDelivery.AS4.Fe.Automapper
             var allTypes = assembliesToScan.SelectMany(a => a.ExportedTypes).ToArray();
             var profiles = allTypes
                 .Where(t => typeof(Profile).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()))
-                .Where(t => !t.GetTypeInfo().IsAbstract);
+                .Where(t => !t.GetTypeInfo().IsAbstract)
+                .ToList();
 
-            Mapper.Initialize(cfg =>
+            var config = new MapperConfiguration(cfg =>
             {
                 foreach (var profile in profiles)
                 {
@@ -27,8 +28,8 @@ namespace Eu.EDelivery.AS4.Fe.Automapper
                 }
             });
 
-            services.AddSingleton(Mapper.Configuration);
-            services.AddScoped<IMapper>(sp => new Mapper(sp.GetRequiredService<AutoMapper.IConfigurationProvider>(), sp.GetService));
+            services.AddSingleton(config);
+            services.AddSingleton(_ => config.CreateMapper());
         }
     }
 }

@@ -26,7 +26,7 @@ export class DownloadMessageBodyComponent {
 
         service.subscribe((result) => {
             let blob: Blob = new Blob([result], { type: 'application/xml' });
-            fileSaver.saveAs(blob, `${this.id}.xml`);
+            fileSaver.saveAs(blob, `${this.id}.txt`);
         });
     }
 }

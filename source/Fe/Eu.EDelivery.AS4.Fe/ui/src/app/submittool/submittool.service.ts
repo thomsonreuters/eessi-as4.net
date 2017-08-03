@@ -1,3 +1,4 @@
+import { FileUploader } from 'ng2-file-upload';
 import { AuthHttp } from 'angular2-jwt';
 import { Observer } from 'rxjs/Observer';
 import { Injectable, NgZone } from '@angular/core';
@@ -8,23 +9,17 @@ import 'rxjs/add/operator/catch';
 
 import { TOKENSTORE } from './../authentication/token';
 
+export class Settings {
+    public uploader: FileUploader = new FileUploader({ url: '' });
+    public payloadData: SubmitData = new SubmitData();
+}
+
+// tslint:disable-next-line:max-classes-per-file
 @Injectable()
 export class SubmitToolService {
+    public settings: Settings = new Settings();
     private _baseUrl = 'api/submittool';
-    constructor(private _http: AuthHttp, private _ngZone: NgZone) { }
-    public simulate(submitData: SubmitData): Observable<string> {
-        let data = new FormData();
-        let counter = 0;
-        submitData.files.map((file) => {
-            data.append(`file[${counter++}]`, file.some);
-        });
-        data.append('pmode', submitData.pmode);
-        data.append('messages', submitData.messages + '');
-        return this
-            ._http
-            .post(`${this._baseUrl}/simulate`, data)
-            .map((result) => result.text());
-    }
+    constructor(private _http: AuthHttp, private _ngZone: NgZone) { }    
     public upload(submitData: SubmitData): Observable<number> {
         return Observable.create((obs: Observer<number>) => {
             let data = new FormData();

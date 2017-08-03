@@ -23,6 +23,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         public string ActionName { get; set; }
         public string Service { get; set; }
         public string MPC { get; set; }
+        public string[] Pmode { get; set; }
         public IQueryable<TEntity> ApplyFilter<TEntity>(IQueryable<TEntity> query)
             where TEntity : MessageEntity
         {
@@ -41,7 +42,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
                 if (EbmsRefToMessageId.StartsWith("*") && EbmsRefToMessageId.EndsWith("*")) query = query.Where(qr => qr.EbmsRefToMessageId.Contains(filter));
                 else if (EbmsRefToMessageId.EndsWith("*")) query = query.Where(qr => qr.EbmsRefToMessageId.StartsWith(filter));
                 else if (EbmsRefToMessageId.StartsWith("*")) query = query.Where(qr => qr.EbmsRefToMessageId.EndsWith(filter));
-                else query = query.Where(qr => qr.EbmsRefToMessageId == filter);    
+                else query = query.Where(qr => qr.EbmsRefToMessageId == filter);
             }
 
             if (Operation != null)
@@ -135,6 +136,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
                 else if (MPC.StartsWith("*")) query = query.Where(qr => qr.Mpc.EndsWith(filter));
                 else query = query.Where(qr => qr.Mpc == filter);
             }
+
+            if (Pmode != null && Pmode.Length > 0) query = query.Where(qr => Pmode.Contains(qr.PMode));
 
             return query;
         }

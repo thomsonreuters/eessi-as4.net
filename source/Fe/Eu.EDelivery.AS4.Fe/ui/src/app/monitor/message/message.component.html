@@ -54,6 +54,14 @@
                         <as4-input label="From party" labelSize="3" controlSize="9">
                             <input type="text" formControlName="fromParty" />
                         </as4-input>
+                        <as4-input label="PMode" labelSize="3" controlSize="9">
+                            <div class="input-group">
+                                <as4-pmode-select formControlName="pmode" multi="true"></as4-pmode-select>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-secondary" type="button" (click)="resetForm('pmode')"><i class="fa fa-trash"></i></button>
+                                </span>
+                            </div>
+                        </as4-input>
                         <as4-input label="To party" labelSize="3" controlSize="9">
                             <input type="text" formControlName="toParty" />
                         </as4-input>
@@ -66,7 +74,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <p class="clickable advanced" (click)="advanced = !advanced"><i class="fa" [class.fa-chevron-right]="!advanced" [class.fa-chevron-down]="advanced"></i>Advanced</p>
+                    <p class="clickable row__advanced" (click)="advanced = !advanced"><i class="fa" [class.fa-chevron-right]="!advanced" [class.fa-chevron-down]="advanced"></i>Advanced</p>
                     <div *ngIf="advanced">
                         <div class="col-xs-12 col-md-6">
                             <as4-input label="Message exchange pattern" labelSize="3" controlSize="9">
@@ -139,12 +147,12 @@
                     <col width="1%">
                     <col width="1%">
                     <col width="1%">
-                    <col width="12%">
+                    <col width="8%">
                     <col width="8%">
                     <col width="1%">
-                    <col width="28%">
-                    <col>
-                    <col>
+                    <col width="14%">
+                    <col width="5%">
+                    <col width="5%">
                     <col width="1%">
                     <col width="1%">
                 </colgroup>
@@ -189,14 +197,15 @@
                             </td>
                             <td>{{message.operation}}</td>
                             <td>
-                                <a target="_blank" [routerLink]="['/pmodes', filter.outFilter.direction === '0' ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
+                                <a target="_blank" [routerLink]="['/pmodes', filter.outFilter.direction === '0' ? 'receiving' : 'sending', message.pMode]"
+                                    [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
                             </td>
                         </tr>
                         <tr *ngIf="message === activeMessage">
                             <td colspan="11">
                                 <as4-tab>
                                     <div tabitem title="Related messages" class="related-messages">
-                                        <as4-related-messages [messageId]="message.ebmsMessageId" [direction]="filter.outFilter.direction"></as4-related-messages>
+                                        <as4-related-messages [messageId]="message.ebmsMessageId" [direction]="message.direction"></as4-related-messages>
                                     </div>
                                     <div tabitem title="Info" class="info-tab">
                                         <div class="col-xs-12 col-md-6">

@@ -8,7 +8,7 @@ import { ItemType } from './ItemType';
 
 export class DynamicDiscoveryForm {
     public static getForm(formBuilder: FormWrapper, current: DynamicDiscovery | null, runtime: ItemType[], path: string): FormWrapper {
-        let isNew = !!!current;
+        let isNew = true;
         return formBuilder
             .group({
                 [DynamicDiscovery.FIELD_smlScheme]: [formBuilder.createFieldValue(current, DynamicDiscovery.FIELD_smlScheme, path, null, runtime), Validators.required],
@@ -24,9 +24,15 @@ export class DynamicDiscoveryForm {
                     const documentIdent = wrapper.form.get(DynamicDiscovery.FIELD_documentIdentifier);
                     const documentIdentScheme = wrapper.form.get(DynamicDiscovery.FIELD_documentIdentifierScheme);
 
-                    sml!.setValue(runtime[`${path}.${DynamicDiscovery.FIELD_smlScheme}`]);
-                    documentIdent!.setValue(runtime[`${path}.${DynamicDiscovery.FIELD_documentIdentifier}`]);
-                    documentIdentScheme!.setValue(runtime[`${path}.${DynamicDiscovery.FIELD_documentIdentifierScheme}`]);
+                    if (!!!sml!.value) {
+                        sml!.setValue(runtime[`${path}.${DynamicDiscovery.FIELD_smlScheme}`.toLowerCase()].defaultvalue);
+                    }
+                    if (!!documentIdent!.value) {
+                        documentIdent!.setValue(runtime[`${path}.${DynamicDiscovery.FIELD_documentIdentifier}`.toLowerCase()].defaultvalue);
+                    }
+                    if (!!documentIdentScheme!.value) {
+                        documentIdentScheme!.setValue(runtime[`${path}.${DynamicDiscovery.FIELD_documentIdentifierScheme}`.toLowerCase()].defaultvalue);
+                    }
                 }
             });
     }

@@ -26,6 +26,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         private static readonly string NoUiAttribute = typeof(NotConfigurableAttribute).Name;
         private static readonly string DefaultValueAttribute = typeof(DefaultValueAttribute).Name;
         private static readonly string DescriptionAttribute = typeof(DescriptionAttribute).Name;
+        private static readonly List<string> Attributes = new List<string> { InfoAttribute, NoUiAttribute, DefaultValueAttribute, DescriptionAttribute };
 
         private readonly string folder;
 
@@ -97,7 +98,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             Transformers = LoadImplementationsForType(types, RuntimeTransformerInterface);
             CertificateRepositories = LoadImplementationsForType(types, RuntimeCertificateRepositoryInterface);
             DeliverSenders = LoadImplementationsForType(types, RuntimeDeliverSenderInterface);
-            ReceivingPmode = LoadImplementationsForType(types, RuntimePmodeInterface);
+            ReceivingPmode = LoadImplementationsForType(types, RuntimePmodeInterface, false);
 
             return this;
         }
@@ -129,15 +130,16 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// </summary>
         /// <param name="types">The types.</param>
         /// <param name="type">The type.</param>
+        /// <param name="onlyWithAttribute">Indicates that when building the properties only properties decorated with an attribute should be scanned.</param>
         /// <returns></returns>
-        public IEnumerable<ItemType> LoadImplementationsForType(List<TypeDefinition> types, string type)
+        public IEnumerable<ItemType> LoadImplementationsForType(List<TypeDefinition> types, string type, bool onlyWithAttribute = true)
         {
             var implementations = types
                 .Where(x => x.Interfaces.Any(iface => iface.InterfaceType.FullName == type))
                 .Where(x => !x.IsInterface)
                 .Where(x => !x.IsAbstract)
                 .Where(x => x.CustomAttributes.All(attr => attr.AttributeType.Name != NoUiAttribute));
-            var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties, itemType.Name)));
+            var itemTypes = implementations.Select(itemType => BuildItemType(itemType, BuildProperties(itemType.Properties, itemType.Name, onlyWithAttribute)));
             return itemTypes.Where(x => x != null);
         }
 
@@ -193,8 +195,10 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
             }
         }
 
-        private IEnumerable<Property> BuildProperties(Collection<PropertyDefinition> properties, string propPath)
+        private IEnumerable<Property> BuildProperties(IEnumerable<PropertyDefinition> properties, string propPath, bool onlyWithAttribute = true)
         {
+            if (onlyWithAttribute) properties = properties.Where(x => x.CustomAttributes.Any(y => Attributes.Contains(y.AttributeType.Name)));
+
             foreach (var prop in properties)
             {
                 var descriptionAttr = prop.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == DescriptionAttribute)?.ConstructorArguments;
@@ -216,14 +220,14 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
                     {
                         IEnumerable<Property> BuildProps(TypeDefinition type, string path)
                         {
-                            foreach (var childProp in BuildProperties(type.Properties, path + "." + prop.Name.ToLower()))
+                            foreach (var childProp in BuildProperties(type.Properties, path + "." + prop.Name.ToLower(), onlyWithAttribute))
                             {
                                 yield return childProp;
                             }
 
                             if (type.BaseType is TypeDefinition typedef && typedef.HasProperties)
                             {
-                                foreach (var childProp in BuildProperties(typedef.Properties, path + "." + prop.Name.ToLower()))
+                                foreach (var childProp in BuildProperties(typedef.Properties, path + "." + prop.Name.ToLower(), onlyWithAttribute))
                                 {
                                     yield return childProp;
                                 }

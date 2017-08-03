@@ -1,35 +1,48 @@
 <div *ngIf="messages | async; let messageData">
-    <table class="table table-responsive" *ngIf="!isLoading">
+    <table class="table table-striped" *ngIf="!isLoading">
+        <colgroup>
+            <col width="1%">
+            <col width="1%">
+            <col width="1%">
+            <col width="9%">
+            <col width="7%">
+            <col width="1%">
+            <col width="12%">
+            <col width="4%">
+            <col width="4%">
+            <col width="1%">
+            <col width="3%">
+        </colgroup>
         <thead>
             <tr>
                 <th></th>
+                <th></th>
                 <th>Direction</th>
                 <th>Insertion time</th>
-                <th>Message id</th>
-                <th>From party</th>
-                <th>To party</th>
                 <th>Message type</th>
                 <th>Status</th>
+                <th>ebMS message id</th>
+                <th>From party</th>
+                <th>To party</th>
                 <th>Operation</th>
-                <th>Content type</th>
                 <th>PMode</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let message of messageData">
+                <td></td>
                 <td>
                     <as4-downloadmessagebody [type]="'message'" [direction]="message.direction" [id]="message.ebmsMessageId"></as4-downloadmessagebody>
                 </td>
                 <td>{{message.direction | todirection}}</td>
                 <td>{{message.insertionTime | todate}}</td>
+                <td>{{message.ebmsMessageType}}</td>
+                <td>{{message.status}}</td>
                 <td><a [routerLink]="['/monitor/messages']" [queryParams]="{ direction: message.direction, ebmsMessageId: message.ebmsMessageId }"
                         target="_blank">{{message.ebmsMessageId}}</a></td>
                 <td>{{message.fromParty}}</td>
                 <td>{{message.toParty}}</td>
-                <td>{{message.ebmsMessageType}}</td>
-                <td>{{message.status}}</td>
                 <td>{{message.operation}}</td>
-                <td>{{message.contentType}}</td>
                 <td>
                     <a [routerLink]="['/pmodes', +direction === 0 ? 'receiving' : 'sending', message.pMode]" [queryParams]="{ compareto: message.hash }">{{message.pMode}}</a>
                 </td>

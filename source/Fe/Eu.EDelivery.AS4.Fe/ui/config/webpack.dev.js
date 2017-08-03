@@ -4,7 +4,7 @@
 
 const helpers = require('./helpers');
 const webpackMerge = require('webpack-merge'); // used to merge webpack configs
-const webpackMergeDll = webpackMerge.strategy({plugins: 'replace'});
+const webpackMergeDll = webpackMerge.strategy({ plugins: 'replace' });
 const commonConfig = require('./webpack.common.js'); // the settings that are common to prod and dev
 
 /**
@@ -22,7 +22,7 @@ const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 4000;
 const HMR = helpers.hasProcessFlag('hot');
-const METADATA = webpackMerge(commonConfig({env: ENV}).metadata, {
+const METADATA = webpackMerge(commonConfig({ env: ENV }).metadata, {
   host: HOST,
   port: PORT,
   ENV: ENV,
@@ -38,7 +38,7 @@ const DllBundlesPlugin = require('webpack-dll-bundles-plugin').DllBundlesPlugin;
  * See: http://webpack.github.io/docs/configuration.html#cli
  */
 module.exports = function (options) {
-  return webpackMerge(commonConfig({env: ENV}), {
+  return webpackMerge(commonConfig({ env: ENV }), {
 
     /**
      * Developer tool to enhance debugging
@@ -168,7 +168,7 @@ module.exports = function (options) {
           ]
         },
         dllDir: helpers.root('dll'),
-        webpackConfig: webpackMergeDll(commonConfig({env: ENV}), {
+        webpackConfig: webpackMergeDll(commonConfig({ env: ENV }), {
           devtool: 'cheap-module-source-map',
           plugins: []
         })
@@ -217,26 +217,35 @@ module.exports = function (options) {
      *
      * See: https://webpack.github.io/docs/webpack-dev-server.html
      */
-      devServer: {
-            port: METADATA.port,
-            host: METADATA.host,
-            historyApiFallback: true,
-            watchOptions: {
-              aggregateTimeout: 300,
-              poll: 1000
-            },
-            proxy: {
-              '/api/*': {
-                target: 'http://localhost:5000/',
-                changeOrigin: true,
-                secure: false,
-                headers: {
-                  'Connection': 'keep-alive',
-                  'Access-Control-Allow-Origin': '*'
-                }
-              }
-            }
-          },
+    devServer: {
+      port: METADATA.port,
+      host: METADATA.host,
+      historyApiFallback: true,
+      watchOptions: {
+        aggregateTimeout: 300,
+        poll: 1000
+      },
+      proxy: {
+        '/api/*': {
+          target: 'http://localhost:5000/',
+          changeOrigin: true,
+          secure: false,
+          headers: {
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+          }
+        },
+        '/signalr/*': {
+          target: 'http://localhost:5000/',
+          changeOrigin: true,
+          secure: false,
+          headers: {
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+          }
+        }
+      }
+    },
 
     /*
      * Include polyfills or mocks for various node stuff

@@ -1,0 +1,38 @@
+<as4-modal name="new-user" title="New user" #modal="as4-modal">
+    <form class="form-horizontal" *ngIf="modal.isVisible">
+        <as4-input label="Username">
+            <input type="text" name="username" (change)="newName = $event.target.value" [value]="newName" focus/>
+        </as4-input>
+    </form>
+</as4-modal>
+<ng-container>
+    <form class="form-horizontal" [formGroup]="form">
+        <as4-box [collapsed]="false">
+            <button action type="button" class="btn btn-box-tool"><i class="fa fa-save"></i></button>
+            <div content>
+                <as4-input [label]=" 'Username'">
+                    <div class="input-group">
+                        <select name="name" (change)="selectUser(users[$event.target.selectedIndex-1])" class="form-control"
+                            #agentSelect>
+                            <option value="undefined">Select an option</option>
+                            <option *ngFor="let user of users" [selected]="currentUser && currentUser.name === user.name">{{user.name}}</option>
+                        </select>
+                        <div class="input-group-btn" [showRename]="false" crud-buttons [current]="currentUser" [isNewMode]="isNewMode" [form]="form" (rename)="rename()"
+                            (add)="add()" (save)="save()" (delete)="delete()" (reset)="reset()"></div>
+                    </div>
+                </as4-input>
+            </div>
+        </as4-box>
+        <as4-tab>
+            <div tabitem title="Common" [isValid]="!form.enabled || form.valid">                
+                <as4-input label="Password">
+                    <input type="password" class="form-control" formControlName="password" />
+                    <i *ngIf="!!currentUser && !isNew">Leave this field blank to keep the same password.</i>
+                </as4-input>
+                <as4-input label="Is administrator?">
+                    <input type="checkbox" formControlName="isAdmin"/>
+                </as4-input>
+            </div>
+        </as4-tab>
+    </form>
+</ng-container>

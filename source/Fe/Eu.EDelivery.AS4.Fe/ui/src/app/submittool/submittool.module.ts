@@ -16,6 +16,17 @@ import { SubmitToolService } from './submittool.service';
 import { FileSizePipe } from './fileSize.pipe';
 import { MarkAsTouchedDirective } from './markastouched.directive';
 import { AsXmlPipe } from './asxml.pipe';
+import { SignalRModule, SignalRConfiguration } from 'ng2-signalr';
+import { SignalrService } from './signalr.service';
+
+import '../../../node_modules/signalr/jquery.signalR.js';
+
+export function createSignalRConfig(): SignalRConfiguration {
+    const c = new SignalRConfiguration();
+    c.hubName = 'SubmitToolMessageHub';
+    c.logging = true;
+    return c;
+}
 
 const components: any[] = [
     SubmitComponent,
@@ -29,7 +40,8 @@ const directives: any[] = [
 ];
 
 const services: any[] = [
-    SubmitToolService
+    SubmitToolService,
+    SignalrService
 ];
 
 @NgModule({
@@ -43,10 +55,13 @@ const services: any[] = [
         RouterModule.forChild(ROUTES),
         PmodesModule,
         FormsModule,
-        FileUploadModule
+        FileUploadModule,
+        SignalRModule.forRoot(createSignalRConfig)
     ],
     providers: [
         ...services
     ]
 })
-export class SubmittoolModule { }
+export class SubmittoolModule {
+    constructor(private sevice: SignalrService) { }
+}

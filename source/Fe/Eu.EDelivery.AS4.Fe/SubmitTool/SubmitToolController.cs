@@ -45,21 +45,5 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
 
             return Ok();
         }
-
-        [HttpPost]
-        [Route("simulate")]
-        public async Task<IActionResult> Simulate()
-        {
-            var parser = new MultipartFormDataParser(Request.Body);
-
-            var sendingPmode = parser.GetParameterValue("pmode");
-            if (sendingPmode == null) throw new ArgumentNullException(nameof(sendingPmode), @"SendingPmode parameter is required!");
-
-            return new OkObjectResult(await submitMessageCreator.Simulate(new MessagePayload
-            {
-                Files = parser.Files,
-                SendingPmode = sendingPmode
-            }));
-        }
     }
 }

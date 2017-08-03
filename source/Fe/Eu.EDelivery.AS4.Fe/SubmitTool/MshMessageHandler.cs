@@ -53,6 +53,7 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
                     try
                     {
                         var result = await client.PostAsync(toLocation, new StringContent(stringBuilder.ToString(), Encoding.Unicode, "application/soap+xml"));
+                        var test = result.Content.ReadAsStringAsync();
                         result.EnsureSuccessStatusCode();
                     }
                     catch (HttpRequestException)

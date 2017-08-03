@@ -31,13 +31,6 @@ namespace Eu.EDelivery.AS4.Fe.Monitor.Model
         /// </value>
         public string OperationMethod { get; set; }
         /// <summary>
-        /// Gets or sets the type of the content.
-        /// </summary>
-        /// <value>
-        /// The type of the content.
-        /// </value>
-        public string ContentType { get; set; }
-        /// <summary>
         /// Gets or sets the ebms message identifier.
         /// </summary>
         /// <value>

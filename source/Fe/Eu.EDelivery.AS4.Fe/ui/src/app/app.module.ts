@@ -26,6 +26,7 @@ import { errorHandlingServices } from '../app/common/as4components.module';
 import { SubmittoolModule } from './submittool/submittool.module';
 import { RuntimeModule } from './runtime/runtime.module';
 import { RuntimeService } from './settings/runtime.service';
+import { UserModule } from './users/user.module';
 
 import '../styles/external.scss';
 
@@ -50,6 +51,7 @@ type StoreType = {
         MonitorModule,
         RouterModule.forRoot(ROUTES, { useHash: false }),
 
+        UserModule,
         SettingsModule,
         PmodesModule,
         SubmittoolModule,

@@ -1,11 +1,13 @@
+import { Subscription } from 'rxjs/Subscription';
 import { NgForm, FormGroup } from '@angular/forms';
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ViewEncapsulation, ElementRef, OnDestroy } from '@angular/core';
 import { FileUploader } from 'ng2-file-upload';
 
-import { SubmitToolService, SubmitData } from './../submittool.service';
+import { SubmitToolService, SubmitData, Settings } from './../submittool.service';
 import { TabComponent } from './../../common/tab/tab.component';
 import { ErrorResponse } from './../../api/ErrorResponse';
 import { ModalService } from './../../common/modal/modal.service';
+import { SignalrService } from '../signalr.service';
 
 @Component({
     selector: 'as4-submit',
@@ -13,11 +15,10 @@ import { ModalService } from './../../common/modal/modal.service';
     styleUrls: ['submit.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SubmitComponent {
-    public uploader: FileUploader = new FileUploader({ url: '' });
+export class SubmitComponent implements OnDestroy {
+    public settings: Settings;
     public hasBaseDropZoneOver: boolean = false;
     public progress: number = 0;
-    public payloadData: SubmitData = new SubmitData();
     public logging: LogMessage[] = new Array<LogMessage>();
     public set isBusy(busy: boolean) {
         this._changeDetectorRef.detectChanges();
@@ -27,43 +28,48 @@ export class SubmitComponent {
         return this._isBusy;
     }
     @ViewChild('tab') public as4Tab: TabComponent;
+    @ViewChild('loggingContainer') public logEl: ElementRef;
     private _isBusy: boolean = false;
-    constructor(private _submitToolService: SubmitToolService, private _changeDetectorRef: ChangeDetectorRef, private _modalService: ModalService) { }
+    private _subscription: Subscription;
+    constructor(private _submitToolService: SubmitToolService, private _changeDetectorRef: ChangeDetectorRef, private _modalService: ModalService, private _signalrService: SignalrService) {
+        this.settings = this._submitToolService.settings;
+        this._subscription = this._signalrService
+            .onMessage
+            .subscribe((result) => this.addLog(result));
+    }
+    public ngOnDestroy() {
+        if (!!this._subscription) {
+            this._subscription.unsubscribe();
+        }
+    }
     public submit() {
         this.isBusy = true;
         this.as4Tab.next();
         this.logging = new Array<LogMessage>();
-        this.payloadData.files = this.uploader.getNotUploadedItems();
+        this.settings.payloadData.files = this.settings.uploader.getNotUploadedItems();
 
-        this._submitToolService
-            .simulate(this.payloadData)
-            .subscribe((result) => this.addLog(`${result}`, LogType.Pmode));
-
-        if (!!!this.payloadData.files || this.payloadData.files.length === 0) {
-            this.addLog('Uploading your request and processing it on the server.');
+        if (!!!this.settings.payloadData.files || this.settings.payloadData.files.length === 0) {
+            this.addLog(new LogMessage({ message: 'Uploading your request and processing it on the server.' }));
         } else {
-            this.addLog('Uploading message and payload(s)', LogType.Upload);
+            this.addLog(new LogMessage({ message: 'Uploading message and payload(s)', type: LogType.Upload }));
         }
+
         let hasError: boolean = false;
         this._submitToolService
-            .upload(this.payloadData)
+            .upload(this.settings.payloadData)
             .finally(() => {
                 this.isBusy = false;
                 if (hasError) {
-                    this.addLog('FAILED!', LogType.Error);
+                    this.addLog(new LogMessage({ message: 'FAILED!', type: LogType.Error }));
                 } else {
-                    this.addLog('DONE - Message(s) submitted', LogType.Done);
+                    this.addLog(new LogMessage({ message: 'DONE - Message(s) submitted', type: LogType.Done });
                 }
             })
             .subscribe((progress) => {
                 this.progress = progress;
                 this._changeDetectorRef.detectChanges();
-                if (progress === 100 && this.payloadData.files.length > 0) {
-                    this.addLog('Upload finished, now processing your request on the server');
-                }
             }, (error: ErrorResponse) => {
                 hasError = true;
-                this.addLog(error.Message, LogType.Error);
             });
     }
     public fileOverBase(e: any): void {
@@ -71,30 +77,28 @@ export class SubmitComponent {
     }
     public totalSize(): number {
         let total = 0;
-        this.uploader.getNotUploadedItems().forEach((item) => total += item.file.size);
+        this.settings.uploader.getNotUploadedItems().forEach((item) => total += item.file.size);
         return total;
     }
     public update(form: FormGroup) {
         form.markAsTouched();
     }
-    public addLog(msg: string, type: LogType = LogType.Info) {
-        this.logging.push(new LogMessage({
-            timeStamp: new Date(),
-            message: msg,
-            type
-        }));
+    public addLog(msg: LogMessage) {
+        msg.timeStamp = new Date();
+        this.logging.push(msg);
         this._changeDetectorRef.detectChanges();
+        this.logEl.nativeElement.scrollTop = this.logEl.nativeElement.scrollHeight;
     }
     public logToText(): string {
         return this.logging.map((log) => `${log.timeStamp} - ${log.message}`).join('\r\n');
     }
-    public open(content: string) {
+    public open(content: string, title: string) {
         this._modalService
             .show('editor', (dlg) => {
                 dlg.payload = content;
                 dlg.showOk = true;
                 dlg.showCancel = false;
-                dlg.title = 'AS4 Message';
+                dlg.title = title;
             });
     }
 }
@@ -103,6 +107,7 @@ export class SubmitComponent {
 export class LogMessage {
     public timeStamp: Date;
     public message: string;
+    public data: any;
     public type: LogType;
     constructor(init: Partial<LogMessage>) {
         Object.assign(this, init);
@@ -114,5 +119,6 @@ export enum LogType {
     Error = 1,
     Upload = 2,
     Done = 3,
-    Pmode = 4
+    Pmode = 4,
+    Message = 5
 }

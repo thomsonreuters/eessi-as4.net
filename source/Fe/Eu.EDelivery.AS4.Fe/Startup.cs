@@ -1,10 +1,11 @@
 ﻿using System.Net;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Fe.Authentication;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
+using Eu.EDelivery.AS4.Fe.Monitor;
 using Eu.EDelivery.AS4.Fe.Runtime;
 using Eu.EDelivery.AS4.Fe.Settings;
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
@@ -36,6 +37,10 @@ namespace Eu.EDelivery.AS4.Fe
                 x.MemoryBufferThreshold = int.MaxValue;
             });
 
+            var settings = new JsonSerializerSettings {ContractResolver = new SignalRContractResolver()};
+            var serializer = JsonSerializer.Create(settings);
+            GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
+
             var moduleMappings = services.BuildServiceProvider().GetService<IOptions<ApplicationSettings>>().Value.Modules;
             IConfigurationRoot config;
             services.AddModules(moduleMappings, (configBuilder, env) =>
@@ -48,10 +53,7 @@ namespace Eu.EDelivery.AS4.Fe
             Configuration = config;
 
             services
-                .AddMvc(options =>
-                {
-                    options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build()));
-                })
+                .AddMvc(options => { options.Filters.Add(new AuthorizeFilter(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())); })
                 .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
 
             services.AddSingleton<ILogging, Logging.Logging>();
@@ -64,7 +66,7 @@ namespace Eu.EDelivery.AS4.Fe
         }
 
         /// <summary>
-        /// Configures the specified application.
+        ///     Configures the specified application.
         /// </summary>
         /// <param name="app">The application.</param>
         /// <param name="env">The env.</param>
@@ -86,6 +88,7 @@ namespace Eu.EDelivery.AS4.Fe
             });
             app.UseDefaultFiles();
             app.UseStaticFiles();
+            app.UseSignalR2();
 
             var logger = app.ApplicationServices.GetService<ILogging>();
             var settings = app.ApplicationServices.GetService<IOptions<ApplicationSettings>>();
@@ -97,7 +100,7 @@ namespace Eu.EDelivery.AS4.Fe
                     var ex = context.Features.Get<IExceptionHandlerFeature>();
                     if (ex != null)
                     {
-                        var response = new ErrorResponse()
+                        var response = new ErrorResponse
                         {
                             Exception = !settings.Value.ShowStackTraceInExceptions ? null : ex.Error.StackTrace,
                             Message = ex.Error.Message

@@ -11,7 +11,7 @@ import { IMessageState, MessageStore } from './message.store';
 import * as api from '../../api/Messages';
 import { FilterComponent } from './../filter/filter.component';
 import { MESSAGESERVICETOKEN } from './../service.token';
-import { timeRangeValidator } from "../../common/timeinput/timeinput.component";
+import { timeRangeValidator } from '../../common/timeinput/timeinput.component';
 
 @Component({
     selector: 'as4-messages',
@@ -53,6 +53,7 @@ export class MessageComponent implements OnDestroy {
             insertionTimeType: [],
             insertionTimeFrom: [],
             insertionTimeTo: [],
+            pmode: [],
             page: []
         }, { validator: timeRangeValidator('insertionTimeType', 'insertionTimeFrom', 'insertionTimeTo') });
         this.messageFilter = new MessageFilter(this.filterForm.value);

@@ -71,13 +71,14 @@ Failed to decrypt data element
             SetupDataStore();
             datastoreContext = new DatastoreContext(options);
 
-            Mapper.Initialize(cfg =>
+            var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new SettingsAutoMapper());
                 cfg.AddProfile(new MonitorAutoMapper());
             });
+
             DatastoreRepository = Substitute.For<IDatastoreRepository>();
-            monitorService = new MonitorService(datastoreContext, SetupPmodeSource(), DatastoreRepository, Mapper.Instance);
+            monitorService = new MonitorService(datastoreContext, SetupPmodeSource(), DatastoreRepository, mapperConfig);
 
             return this;
         }

@@ -9,17 +9,17 @@
         <div tabitem title="Compose">
             <form class="form-horizontal" #form="ngForm">
                 <as4-input label="Sending pmode">
-                    <as4-pmode-select mode="sending" selectFirst="true" name="pmode" [(ngModel)]="payloadData.pmode" required></as4-pmode-select>
+                    <as4-pmode-select mode="sending" selectFirst="true" name="pmode" [(ngModel)]="settings.payloadData.pmode" required></as4-pmode-select>
                 </as4-input>
                 <as4-input label="Payloads">
-                    <ng-container *ngIf="uploader.queue.length === 0">
-                        <div ng2FileDrop [ngClass]="{'nv-file-over': hasBaseDropZoneOver}" (fileOver)="fileOverBase($event)" [uploader]="uploader"
+                    <ng-container *ngIf="settings.uploader.queue.length === 0">
+                        <div ng2FileDrop [ngClass]="{'nv-file-over': hasBaseDropZoneOver}" (fileOver)="fileOverBase($event)" [uploader]="settings.uploader"
                             class="well my-drop-zone">
                             No payload(s) added yet. Drop your payloads here.
                         </div>
                     </ng-container>
-                    <div class="my-drop-zone my-drop-zone-table" *ngIf="uploader.queue.length > 0" ng2FileDrop [ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
-                        (fileOver)="fileOverBase($event)" [uploader]="uploader">
+                    <div class="my-drop-zone my-drop-zone-table" *ngIf="settings.uploader.queue.length > 0" ng2FileDrop [ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
+                        (fileOver)="fileOverBase($event)" [uploader]="settings.uploader">
                         <table class="table">
                             <thead>
                                 <tr>
@@ -29,7 +29,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let item of uploader.queue">
+                                <tr *ngFor="let item of settings.uploader.queue">
                                     <td><strong>{{ item?.file?.name }}</strong></td>
                                     <td class="text-right">{{ item?.file?.size | fileSize:2 }}</td>
                                     <td>
@@ -52,12 +52,12 @@
                     </div>
                     <div class="upload-button">
                         <button type="button" class="btn btn-secondary" (click)="fileInput.click()"><i class="fa fa-upload"></i></button>
-                        <input class="hidden" type="file" ng2FileSelect [uploader]="uploader" multiple required #fileInput/>
+                        <input class="hidden" type="file" ng2FileSelect [uploader]="settings.uploader" multiple required #fileInput/>
                     </div>
                 </as4-input>
                 <as4-input label="# messages">
-                    <input type="number" name="messages" [(ngModel)]="payloadData.messages" pattern="^[1-9][0-9]?$|^100$" required min="1" max="999"
-                    />
+                    <input type="number" name="messages" [(ngModel)]="settings.payloadData.messages" pattern="^[1-9][0-9]?$|^100$" required min="1"
+                        max="999" />
                 </as4-input>
                 <as4-input showLabel="false">
                     <button [disabled]="!form.valid" type="button" class="btn btn-primary" (click)="submit()">
@@ -73,7 +73,7 @@
             <div>
                 <as4-clipboard [content]="logToText()"></as4-clipboard>
             </div>
-            <div class="logging">
+            <div class="logging" #loggingContainer>
                 <div *ngFor="let message of logging">
                     <ng-container [ngSwitch]="message.type">
                         <div class="row" [ngClass]="{ 'error': message.type === 1, 'success': message.type === 3}">
@@ -83,10 +83,17 @@
                                 <as4-progress [progress]="progress"></as4-progress>
                             </div>
                             <div *ngSwitchCase="4">
-                                Example of the AS4 message being submitted.
                                 <div class="pmode">
-                                    <as4-clipboard [content]="message.message"></as4-clipboard><i as4-tooltip="Show full submit message" (click)="open(message.message)"
-                                        class="clickable fa fa-search-plus"></i>{{message.message | slice:1:100}}...</div>
+                                    <as4-clipboard [content]="message.message"></as4-clipboard><i as4-tooltip="Show PMode" (click)="open(message.message, 'PMode')"
+                                        class="clickable fa fa-search-plus"></i>{{message.message | slice:1:100}}...
+                                </div>
+                            </div>
+                            <div *ngSwitchCase="5">
+                                <div class="pmode">
+                                    <as4-clipboard [content]="message.message"></as4-clipboard><i as4-tooltip="Show full submit message" (click)="open(message.message, 'AS4 message')"
+                                        class="clickable fa fa-search-plus"></i>{{message.message | slice:1:100}}...
+                                    <a [routerLink]="['/monitor', 'messages']" [queryParams]="{ebmsMessageId: message.data}" target="_blank">Open message in monitor</a>
+                                </div>
                             </div>
                             <div *ngSwitchDefault>{{message.message}}</div>
                         </div>

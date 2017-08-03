@@ -18,7 +18,7 @@ export const ROUTES: Routes = [
                     { path: 'sending', component: SendingPmodeComponent, data: { title: 'Sending PMode', mode: 'sending' }, canDeactivate: [CanDeactivateGuard] },
                     { path: 'sending/:pmode', component: SendingPmodeComponent, data: { title: 'Sending PMode', mode: 'sending', nomenu: true }, canDeactivate: [CanDeactivateGuard] },
                 ],
-                data: { title: 'Pmodes' },
+                data: { title: 'PModes' },
                 canActivate: [MustBeAuthorizedGuard]
             }
         ],

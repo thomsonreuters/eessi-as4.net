@@ -26,7 +26,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         private readonly DatastoreContext context;
         private readonly IAs4PmodeSource pmodeSource;
         private readonly IDatastoreRepository datastoreRepository;
-        private readonly IMapper mapper;
+        private readonly MapperConfiguration mapperConfig;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MonitorService" /> class.
@@ -34,13 +34,13 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         /// <param name="context">The context.</param>
         /// <param name="pmodeSource">The pmode source.</param>
         /// <param name="datastoreRepository">The datastore repository.</param>
-        /// <param name="mapper">The mapper.</param>
-        public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource, IDatastoreRepository datastoreRepository, IMapper mapper)
+        /// <param name="mapperConfig">The mapper configuration.</param>
+        public MonitorService(DatastoreContext context, IAs4PmodeSource pmodeSource, IDatastoreRepository datastoreRepository, MapperConfiguration mapperConfig)
         {
             this.context = context;
             this.pmodeSource = pmodeSource;
             this.datastoreRepository = datastoreRepository;
-            this.mapper = mapper;
+            this.mapperConfig = mapperConfig;
         }
 
         /// <summary>
@@ -56,8 +56,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         {
             if (filter == null) throw new ArgumentNullException(nameof(filter), @"Filter must be supplied");
             if (filter.Direction == null) throw new ArgumentNullException(nameof(filter.Direction), @"Direction cannot be null");
-            var inExceptions = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(context.InExceptions).ProjectTo<ExceptionMessage>(mapper) : null;
-            var outExceptions = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(context.OutExceptions).ProjectTo<ExceptionMessage>(mapper) : null;
+            var inExceptions = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(context.InExceptions).ProjectTo<ExceptionMessage>(mapperConfig) : null;
+            var outExceptions = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(context.OutExceptions).ProjectTo<ExceptionMessage>(mapperConfig) : null;
 
             IQueryable<ExceptionMessage> result = null;
             if (inExceptions != null && outExceptions != null) result = inExceptions.Concat(outExceptions);
@@ -88,8 +88,8 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
             IQueryable<InMessage> inMessageQuery = context.InMessages;
             IQueryable<OutMessage> outMessageQuery = context.OutMessages;
 
-            var inMessages = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(inMessageQuery).ProjectTo<Message>(mapper) : null;
-            var outMessages = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(outMessageQuery).ProjectTo<Message>(mapper) : null;
+            var inMessages = filter.Direction.Contains(Direction.Inbound) ? filter.ApplyFilter(inMessageQuery).ProjectTo<Message>(mapperConfig) : null;
+            var outMessages = filter.Direction.Contains(Direction.Outbound) ? filter.ApplyFilter(outMessageQuery).ProjectTo<Message>(mapperConfig) : null;
 
             IQueryable<Message> result = null;
 
@@ -125,12 +125,12 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 resultTest.Add(context
                     .InMessages
                     .Where(message => message.EbmsMessageId == refToMessageId)
-                    .ProjectTo<Message>(mapper));
+                    .ProjectTo<Message>(mapperConfig));
 
                 resultTest.Add(context
                     .OutMessages
                     .Where(message => message.EbmsMessageId == refToMessageId)
-                    .ProjectTo<Message>(mapper));
+                    .ProjectTo<Message>(mapperConfig));
             }
 
             if (!string.IsNullOrEmpty(messageId))
@@ -138,12 +138,12 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
                 resultTest.Add(context
                     .InMessages
                     .Where(message => message.EbmsRefToMessageId == messageId)
-                    .ProjectTo<Message>(mapper));
+                    .ProjectTo<Message>(mapperConfig));
 
                 resultTest.Add(context
                     .OutMessages
                     .Where(message => message.EbmsRefToMessageId == messageId)
-                    .ProjectTo<Message>(mapper));
+                    .ProjectTo<Message>(mapperConfig));
             }
 
             var result = resultTest.First();
@@ -268,17 +268,6 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
         {
             foreach (var message in result.Messages) message.PMode = GetPmodeNumber(message.PMode);
             return result;
-        }
-
-        /// <summary>
-        /// Gets the message.
-        /// </summary>
-        /// <param name="direction">The direction.</param>
-        /// <returns></returns>
-        private IQueryable<MessageEntity> GetMessage(Direction direction)
-        {
-            if (direction == Direction.Inbound) return context.InMessages;
-            return context.OutMessages;
         }
     }
 }

@@ -1,4 +1,3 @@
-
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -26,6 +25,7 @@ import { ErrorMessageComponent } from './errormessage/errormessage.component';
 import { MessageComponent } from './message/message.component';
 import { MessageStore } from './message/message.store';
 import { SortDirective } from './sort/sort.directive';
+import { PmodesModule } from './../pmodes/pmodes.module';
 
 const components: any = [
     ExceptionComponent,
@@ -55,6 +55,7 @@ const pipes: any = [
     ],
     imports: [
         AuthenticationModule,
+        PmodesModule,
         As4ComponentsModule,
         FormsModule,
         ReactiveFormsModule,

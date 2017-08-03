@@ -47,6 +47,10 @@
     <Reference Include="HttpMultipartParser">
       <HintPath>..\..\packages\HttpMultipartParser.2.2.4\lib\net46\HttpMultipartParser.dll</HintPath>
     </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
@@ -73,7 +77,7 @@
     <Compile Include="Automapper\IAutomapperSetup.cs" />
     <Compile Include="BusinessException.cs" />
     <Compile Include="Controllers\ConfigurationController.cs" />
-    <Compile Include="Database\AuthenticationSetup.cs" />
+    <Compile Include="Authentication\AuthenticationSetup.cs" />
     <Compile Include="Database\SqlConnectionBuilder.cs" />
     <Compile Include="ErrorModel.cs" />
     <Compile Include="ErrorResponse.cs" />
@@ -93,6 +97,11 @@
     <Compile Include="Modules\ModuleExtensions.cs" />
     <Compile Include="Modules\Scanner.cs" />
     <Compile Include="Modules\TypeInfoExtensions.cs" />
+    <Compile Include="Monitor\BuilderExtensions.cs" />
+    <Compile Include="Monitor\Client.cs" />
+    <Compile Include="Monitor\ClientMessage.cs" />
+    <Compile Include="Monitor\IClient.cs" />
+    <Compile Include="Monitor\LogType.cs" />
     <Compile Include="Monitor\Model\BaseFilter.cs" />
     <Compile Include="Monitor\Model\DateTimeFilterType.cs" />
     <Compile Include="Monitor\Model\Direction.cs" />
@@ -101,7 +110,6 @@
     <Compile Include="Monitor\IMonitorService.cs" />
     <Compile Include="Monitor\IMonitorSetup.cs" />
     <Compile Include="Monitor\Model\Message.cs" />
-    <Compile Include="Monitor\MessageEntityExtension.cs" />
     <Compile Include="Monitor\Model\MessageDetails.cs" />
     <Compile Include="Monitor\Model\MessageFilter.cs" />
     <Compile Include="Monitor\Model\MessageResult.cs" />
@@ -113,6 +121,8 @@
     <Compile Include="Monitor\Model\Pmode.cs" />
     <Compile Include="Monitor\Model\SortOrder.cs" />
     <Compile Include="Monitor\Model\StatusEnum.cs" />
+    <Compile Include="Monitor\SubmitToolMessageHub.cs" />
+    <Compile Include="Monitor\SignalRContractResolver.cs" />
     <Compile Include="NotFoundException.cs" />
     <Compile Include="Pmodes\InvalidPmodeException.cs" />
     <Compile Include="Pmodes\PmodeService.cs" />
@@ -165,6 +175,15 @@
     <Compile Include="Swagger\FileUploadOperation.cs" />
     <Compile Include="Swagger\ISwaggerSetup.cs" />
     <Compile Include="Swagger\SwaggerSetup.cs" />
+    <Compile Include="Users\IUserService.cs" />
+    <Compile Include="Users\IUserSetup.cs" />
+    <Compile Include="Users\NewUser.cs" />
+    <Compile Include="Users\UpdateUser.cs" />
+    <Compile Include="Users\User.cs" />
+    <Compile Include="Users\UserController.cs" />
+    <Compile Include="Users\UsersAutoMapperProfile.cs" />
+    <Compile Include="Users\UserService.cs" />
+    <Compile Include="Users\UserSetup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

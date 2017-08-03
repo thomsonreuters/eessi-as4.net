@@ -9,9 +9,12 @@ import { PMODECRUD_SERVICE } from './../crud/crud.component';
 @Component({
     selector: 'as4-pmode-select, [as4-pmode-select]',
     template: `
-        <select class="form-control" (change)="selectPmode($event.target.value)" [attr.disabled]="!isDisabled ? null : true">
+        <select class="form-control" (change)="selectPmode($event.target.value)" [attr.disabled]="!isDisabled ? null : true" *ngIf="!multi">
             <option value="null">None</option>
             <option *ngFor="let pmode of pmodes" [selected]="pmode === selectedPmode">{{pmode}}</option>
+        </select>
+        <select class="form-control" [ngModel]="selectedPmode" (ngModelChange)="selectPmode($event)" [attr.disabled]="!isDisabled ? null : true" multiselect="false" *ngIf="multi">
+            <option *ngFor="let pmode of pmodes">{{pmode}}</option>
         </select>
     `,
     providers: [{
@@ -23,13 +26,15 @@ import { PMODECRUD_SERVICE } from './../crud/crud.component';
 export class PmodeSelectComponent implements OnInit, OnDestroy, ControlValueAccessor {
     @Input() public mode: string | null;
     @Input() public selectFirst: boolean = false;
+    @Input() public multi: boolean = false;
     public isDisabled: boolean;
-    public selectedPmode: string | null;
+    public selectedPmode: string | string[] | null;
     public pmodes: string[] | undefined;
     private _storeSubscription: Subscription;
     private _propagateChange: (_: string | null) => void | undefined;
     constructor(private pmodeStore: PmodeStore) { }
     public selectPmode(pmode: string | null = null) {
+        pmode = pmode === 'null' ? null : pmode;
         this.selectedPmode = pmode;
         if (!!this._propagateChange) {
             this._propagateChange(pmode);
