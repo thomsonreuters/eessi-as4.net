@@ -27,8 +27,13 @@ import { SubmittoolModule } from './submittool/submittool.module';
 import { RuntimeModule } from './runtime/runtime.module';
 import { RuntimeService } from './settings/runtime.service';
 import { UserModule } from './users/user.module';
+import { AuthenticationService } from './authentication/authentication.service';
 
 import '../styles/external.scss';
+
+export function runtimeService(runtimeService: RuntimeService): () => Promise<boolean> {
+    return () => runtimeService.getAll();
+}
 
 type StoreType = {
     state: InternalStateType,
@@ -62,8 +67,7 @@ type StoreType = {
     providers: [ // expose our Services and Providers into Angular's dependency injection
         AppState,
         // ...errorHandlingServices,
-
-        { provide: APP_INITIALIZER, useFactory: (runtimeService: RuntimeService) => () => runtimeService.getAll(), deps: [RuntimeService], multi: true }
+        { provide: APP_INITIALIZER, useFactory: runtimeService, deps: [RuntimeService], multi: true }
     ]
 })
 export class AppModule {

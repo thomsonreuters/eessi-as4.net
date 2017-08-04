@@ -10,13 +10,15 @@ import { routes } from './authentication.routes';
 import { AuthenticationStore } from './authentication.store';
 import { TOKENSTORE } from './token';
 import { HasAuthDirective } from './hasauth/hasauth.directive';
+import { UnauthorizedComponent } from './unauthorized/unauthorized.component';
 
 export function jwtHelperFactory() {
     return new JwtHelper();
 }
 
 const components: any = [
-    LoginComponent
+    LoginComponent,
+    UnauthorizedComponent
 ];
 
 const directives: any = [

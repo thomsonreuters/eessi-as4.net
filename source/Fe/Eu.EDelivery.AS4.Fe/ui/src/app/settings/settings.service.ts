@@ -1,4 +1,3 @@
-import { SettingsAgent } from './../api/SettingsAgent';
 import { Injectable } from '@angular/core';
 import { AuthHttp } from 'angular2-jwt';
 import { Observable } from 'rxjs/Observable';
@@ -8,6 +7,8 @@ import { SettingsStore } from './settings.store';
 import { Base } from './../api/Base';
 import { CustomSettings } from './../api/CustomSettings';
 import { SettingsDatabase } from './../api/SettingsDatabase';
+import { PortalSettings } from './../api/PortalSettings';
+import { SettingsAgent } from './../api/SettingsAgent';
 
 export interface ISettingsService {
     getSettings();
@@ -88,7 +89,18 @@ export class SettingsService implements ISettingsService {
             .delete(`${this.getUrl(agent)}?name=${settings.name}`, { body: settings })
             .subscribe(() => this.settingsStore.deleteAgent(agent, settings));
     }
-
+    public getPortalSettings(): Observable<PortalSettings> {
+        return this
+            .http
+            .get(this.getUrl('portal'))
+            .map((result) => result.json());
+    }
+    public savePortalSettings(settings: PortalSettings): Observable<boolean> {
+        return this
+            .http
+            .post(this.getUrl('portal'), settings)
+            .map((result) => true);
+    }
     private getUrl(path?: string): string {
         if (path === undefined) {
             return '/api/configuration';

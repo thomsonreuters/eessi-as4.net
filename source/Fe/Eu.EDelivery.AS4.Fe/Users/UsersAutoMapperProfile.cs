@@ -18,7 +18,7 @@ namespace Eu.EDelivery.AS4.Fe.Users
         {
             CreateMap<ApplicationUser, User>()
                 .ForMember(x => x.Name, x => x.MapFrom(y => y.UserName))
-                .ForMember(x => x.Claims, x => x.MapFrom(y => y.Claims.Select(z => z.ClaimValue)));
+                .ForMember(x => x.Roles, x => x.MapFrom(y => y.Claims.Select(z => z.ClaimValue)));
         }
     }
 }

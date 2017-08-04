@@ -31,7 +31,7 @@ export class UsersComponent implements OnDestroy, CanComponentDeactivate {
     public canDeactivate(): boolean {
         return !this.form.dirty;
     }
-    public selectUser(user: User | null, index: number) {
+    public selectUser(user: User | null) {
         const change = () => {
             this.isNew = false;
             this.currentUser = user;
@@ -42,7 +42,7 @@ export class UsersComponent implements OnDestroy, CanComponentDeactivate {
         };
         if (this.form.dirty) {
             this._dialogService
-                .confirm(`You have unsaved changes, are you sure you want to continue ?`)
+                .confirm(`You have unsaved changes, are you sure you want to continue ?`, 'Delete user')
                 .filter((result) => result)
                 .subscribe(() => change());
             return;
@@ -86,7 +86,11 @@ export class UsersComponent implements OnDestroy, CanComponentDeactivate {
         this._dialogService
             .confirm(`Are you sure you want to delete ${this.currentUser!.name}`)
             .filter((result) => result)
-            .subscribe(() => this._userService.delete(this.currentUser!.name));
+            .switchMap(() => this._userService.delete(this.currentUser!.name))
+            .subscribe(() => {
+                this.currentUser = null;
+                this.reload();
+            });
     }
     private reload() {
         if (!!this.currentUser) {
@@ -103,7 +107,7 @@ export class UsersComponent implements OnDestroy, CanComponentDeactivate {
     private setForm(user: User | null) {
         this.form = this._formBuilder.group({
             name: [!!!user ? '' : user.name, Validators.required],
-            isAdmin: [!!!user ? false : user.isAdmin, Validators.required],
+            roles: [!!!user ? null : user.roles[0], Validators.required],
             password: ['', this.isNew ? Validators.required : this.validatePassword]
         });
         if (!!!user) {
@@ -112,11 +116,12 @@ export class UsersComponent implements OnDestroy, CanComponentDeactivate {
             this.form.enable();
         }
     }
+    private static regex: RegExp = new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}/)
     private validatePassword(control: FormControl) {
         if (!!!control.value) {
             return null;
         } else {
-            if ((<string>control.value).length === 0) {
+            if ((<string>control.value).length === 0 || !UsersComponent.regex.test(control.value)) {
                 return {
                     validatePassword: {
                         valid: false

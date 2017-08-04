@@ -1,43 +1,42 @@
-import { DialogService } from './dialog.service';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, Router, ActivatedRoute, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { tokenNotExpired, AuthHttp } from 'angular2-jwt';
 import { Observable } from 'rxjs/Observable';
 
 import { RolesService, Role } from './../authentication/roles.service';
+import { AuthenticationService } from './../authentication/authentication.service';
+import { DialogService } from './dialog.service';
 
 @Injectable()
 export class MustBeAuthorizedGuard implements CanActivate {
-    constructor(private _router: Router, private _rolesService: RolesService, private _dialogService: DialogService) {
-
-    }
+    constructor(private _router: Router, private _rolesService: RolesService, private _dialogService: DialogService, private _authenticationService: AuthenticationService) { }
     public isTokenValid(): boolean {
         return tokenNotExpired();
     }
-    public canActivate(): Observable<boolean> {
-        return Observable.create((obs) => {
-            this._rolesService
-                .validate('/pmodes/receiving')
-                .map((result) => result & Role.Read)
-                .subscribe((result) => {
-                    if (!result) {
-                        this._dialogService.message('No access to this route');
-                        obs.next(false);
-                        obs.complete();
-                        return;
-                    }
+    public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+        if (!this._authenticationService.isAuthenticated) {
+            this._router.navigate(['/login']);
+            return Observable.of(false);
+        }
 
-                    if (this.isTokenValid()) {
-                        obs.next(true);
-                        obs.complete();
-                        return true;
-                    }
+        // Get Route roles
+        const roles = this.getData(route);
+        if (!!roles) {
+            // Validate that the user has the required roles
+            const isValid = this._rolesService.validate(roles);
+            if (!isValid) {
+                this._router.navigate(['/unauthorized']);
+            }
 
-                    this._router.navigate(['login']);
+            return Observable.of(isValid);
+        }
 
-                    obs.next(false);
-                    obs.complete(true);
-                });
-        });
+        return Observable.of(true);
+    }
+    private getData(route: ActivatedRouteSnapshot): string[] {
+        if (!!route.firstChild) {
+            return route.firstChild!.data['roles'];
+        }
+        return route.data['roles'];
     }
 }

@@ -1,6 +1,3 @@
-import { AuthenticationModule } from './../authentication/authentication.module';
-import { RuntimeService } from './runtime.service';
-import { SettingsService } from './settings.service';
 import { Component, NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -22,6 +19,10 @@ import { ROUTES } from './settings.routes';
 import { SortablejsModule } from 'angular-sortablejs';
 import { ReceptionAwarenessAgentComponent } from './receptionawarenessagent/receptionawarenessagent.component';
 import { RuntimeModule } from './../runtime/runtime.module';
+import { PortalSettingsComponent } from './portalsettings/portalsettings.component';
+import { AuthenticationModule } from './../authentication/authentication.module';
+import { RuntimeService } from './runtime.service';
+import { SettingsService } from './settings.service';
 
 const components: any = [
     SettingsComponent,
@@ -31,7 +32,8 @@ const components: any = [
     AgentSettingsComponent,
     ReceiverComponent,
     StepSettingsComponent,
-    ReceptionAwarenessAgentComponent
+    ReceptionAwarenessAgentComponent,
+    PortalSettingsComponent
 ];
 
 const services: any = [

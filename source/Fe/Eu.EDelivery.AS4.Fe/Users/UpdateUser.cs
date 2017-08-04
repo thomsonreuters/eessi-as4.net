@@ -1,4 +1,7 @@
-﻿namespace Eu.EDelivery.AS4.Fe.Users
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace Eu.EDelivery.AS4.Fe.Users
 {
     /// <summary>
     /// Update user object
@@ -12,12 +15,13 @@
         /// The password.
         /// </value>
         public string Password { get; set; }
+
         /// <summary>
-        /// Gets or sets a value indicating whether this instance is admin.
+        /// Gets or sets the roles.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if this instance is admin; otherwise, <c>false</c>.
+        /// The roles.
         /// </value>
-        public bool IsAdmin { get; set; }
+        public IEnumerable<string> Roles { get; set; } = new List<string>();
     }
 }

@@ -1,6 +1,6 @@
-<as4-input [tooltip]="!!runtimeType && runtimeType.description" [labelSize]="labelSize" [controlSize]="controlSize">
-    <span label>{{!!runtimeType && runtimeType.friendlyName}}</span>
-    <div [ngSwitch]="!!runtimeType && runtimeType.type" [formGroup]="control">
+<as4-input [tooltip]="runtimeType?.description" [labelSize]="labelSize" [controlSize]="controlSize">
+    <span label>{{runtimeType?.friendlyName}}</span>
+    <div [ngSwitch]="runtimeType?.type" [formGroup]="control">
         <input *ngSwitchCase="'int'" type="number" class="form-control" name="type" formControlName="value" />
         <input *ngSwitchCase="'int32'" type="number" class="form-control" name="type" formControlName="value" />
         <input *ngSwitchCase="'int64'" type="number" class="form-control" name="type" formControlName="value" />
@@ -10,9 +10,9 @@
         <as4-pmode-select *ngSwitchCase="'sendingpmode'" mode="sending" formControlName="value"></as4-pmode-select>
         <as4-pmode-select *ngSwitchCase="'receivingpmode'" mode="receiving" formControlName="value"></as4-pmode-select>
         <as4-pmode-select *ngSwitchCase="'pmode'" formControlName="value"></as4-pmode-select>
-        <input *ngSwitchCase="'timespan'" type="text" [textMask]="{ mask: timeSpanMask }" formControlName="value"
+        <input *ngSwitchCase="'timespan'" type="text" [textMask]="{ mask: timeSpanMask }" formControlName="value" 
         />
-        <input *ngSwitchDefault type="text" class="form-control" name="type" formControlName="value" />
+        <input *ngSwitchDefault type="text" class="form-control" name="type" formControlName="value" test/>
     </div>
 </as4-input>
 <as4-input label="Parameters" *ngIf="hasParameters()"

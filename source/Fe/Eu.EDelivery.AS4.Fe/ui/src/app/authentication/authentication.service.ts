@@ -17,10 +17,16 @@ import { TOKENSTORE } from './token';
 @Injectable()
 export class AuthenticationService {
     public onAuthenticate: Observable<boolean>;
+    public get isAuthenticated(): boolean {
+        return !!this.getToken();
+    }
     private _onAuthenticate: BehaviorSubject<boolean> = new BehaviorSubject(false);
     constructor(private http: Http, private authenticationStore: AuthenticationStore, private router: Router, private _spinnerService: SpinnerService,
         private _dialogService: DialogService, private _settingsStore: SettingsStore, private _pmodesStore: PmodeStore, private _runtimeStore: RuntimeStore) {
         this.onAuthenticate = this._onAuthenticate.asObservable();
+        if (!!this.getToken()) {
+            this._onAuthenticate.next(true);
+        }
     }
     public getToken(): string | null {
         return localStorage.getItem(TOKENSTORE);
@@ -35,12 +41,12 @@ export class AuthenticationService {
                 password
             }), options)
             .subscribe((result) => {
-                this._onAuthenticate.next(true);
                 obs.next(true);
                 let token = result.json().access_token;
                 localStorage.setItem(TOKENSTORE, token);
                 this.authenticationStore.login();
                 this.router.navigate(['/settings']);
+                this._onAuthenticate.next(true);
             }, (error: { status: number }) => {
                 this._onAuthenticate.next(false);
                 obs.next(false);

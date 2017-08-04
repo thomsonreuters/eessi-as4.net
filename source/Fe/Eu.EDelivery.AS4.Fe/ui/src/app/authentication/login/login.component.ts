@@ -8,7 +8,16 @@ import { AuthenticationStore } from '../authentication.store';
 
 @Component({
     selector: 'as4-login',
-    templateUrl: './login.component.html'
+    templateUrl: './login.component.html',
+    styles: [`
+        .login-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -180px;
+            margin-left: -180px;   
+        }
+    `]
 })
 export class LoginComponent implements OnDestroy {
     public username: string;
@@ -29,7 +38,7 @@ export class LoginComponent implements OnDestroy {
                             console.log(`Callback result token ${authenticationResult.json().access_token}`);
                         });
                 }
-        }));
+            }));
     }
     public login() {
         this.authenticationService
@@ -40,7 +49,7 @@ export class LoginComponent implements OnDestroy {
                 this.password = '';
             });
     }
-    public ngOnDestroy(){
+    public ngOnDestroy() {
         this._subscriptions.forEach((sub) => sub.unsubscribe());
     }
 }

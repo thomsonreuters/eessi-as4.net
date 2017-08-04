@@ -9,6 +9,7 @@ using Eu.EDelivery.AS4.Fe.Settings;
 using Eu.EDelivery.AS4.Model.Internal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Eu.EDelivery.AS4.Fe.Controllers
@@ -21,15 +22,21 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
     public class ConfigurationController : Controller
     {
         private readonly IAs4SettingsService settingsService;
+        private readonly IOptions<PortalSettings> portalSettings;
+        private readonly IPortalSettingsService portalSettingsService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigurationController"/> class.
+        /// Initializes a new instance of the <see cref="ConfigurationController" /> class.
         /// </summary>
         /// <param name="settingsService">The settings service.</param>
         /// <param name="logging">The logging.</param>
-        public ConfigurationController(IAs4SettingsService settingsService, ILogging logging)
+        /// <param name="portalSettings">The portal settings.</param>
+        /// <param name="portalSettingsService">The portal settings service.</param>
+        public ConfigurationController(IAs4SettingsService settingsService, ILogging logging, IOptions<PortalSettings> portalSettings, IPortalSettingsService portalSettingsService)
         {
             this.settingsService = settingsService;
+            this.portalSettings = portalSettings;
+            this.portalSettingsService = portalSettingsService;
         }
 
         /// <summary>
@@ -41,6 +48,32 @@ namespace Eu.EDelivery.AS4.Fe.Controllers
         public async Task<Model.Internal.Settings> Get()
         {
             return await settingsService.GetSettings();
+        }
+
+        /// <summary>
+        /// Gets the portal settings.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("portal")]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(PortalSettings))]
+        public PortalSettings GetRuntimeSettings()
+        {
+            return portalSettings.Value;
+        }
+
+        /// <summary>
+        /// Saves the portal settings.
+        /// </summary>
+        /// <param name="settings">The settings.</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("portal")]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SavePortalSettings([FromBody] PortalSettings settings)
+        {
+            await portalSettingsService.Save(settings);
+            return new OkResult();
         }
 
         /// <summary>

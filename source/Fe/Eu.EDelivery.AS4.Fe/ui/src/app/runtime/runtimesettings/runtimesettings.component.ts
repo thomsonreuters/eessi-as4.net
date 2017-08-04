@@ -1,10 +1,10 @@
-import { Property } from './../../api/Property';
-import { SettingForm } from './../../api/SettingForm';
 import { Component, Input, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormArray, FormBuilder, FormControl } from '@angular/forms';
 
 import { Setting } from './../../api/Setting';
 import { ItemType } from './../../api/ItemType';
+import { Property } from './../../api/Property';
+import { SettingForm } from './../../api/SettingForm';
 
 @Component({
     selector: 'as4-runtime-settings',
@@ -15,6 +15,7 @@ import { ItemType } from './../../api/ItemType';
                 <as4-runtime-setting [control]="setting" [controlSize]="controlSize" [labelSize]="labelSize" [runtimeType]="selectedType | getvalue:setting.value.key"></as4-runtime-setting>
             </div>
           </div>
+
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

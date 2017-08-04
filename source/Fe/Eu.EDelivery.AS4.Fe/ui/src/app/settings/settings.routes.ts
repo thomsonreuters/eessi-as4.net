@@ -1,3 +1,4 @@
+import { PortalSettingsComponent } from './portalsettings/portalsettings.component';
 import { CanDeactivateGuard } from './../common/candeactivate.guard';
 import { Component } from '@angular/core';
 import { Routes } from '@angular/router';
@@ -17,7 +18,8 @@ export const ROUTES: Routes = [
             {
                 path: 'settings', children: [
                     { path: '', redirectTo: 'common', pathMatch: 'full', canDeactivate: [CanDeactivateGuard] },
-                    { path: 'common', component: SettingsComponent, data: { title: 'Base settings' }, canDeactivate: [CanDeactivateGuard] },
+                    { path: 'portal', component: PortalSettingsComponent, data: { title: 'Portal settings' }, canDeactivate: [CanDeactivateGuard] },
+                    { path: 'runtime', component: SettingsComponent, data: { title: 'Runtime settings' }, canDeactivate: [CanDeactivateGuard] },
                     {
                         path: 'agents', data: { title: 'Internal Agents' }, children: [
                             { path: '', redirectTo: 'submit', pathMatch: 'full', canDeactivate: [CanDeactivateGuard] },

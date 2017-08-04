@@ -12,8 +12,9 @@ export class SignalrService {
         this.onMessage = new BroadcastEventListener<LogMessage>('onMessage');
         this._authenticationService
             .onAuthenticate
-            .subscribe((result) => {
-                if (!result && !!this._srConnection) {
+            .filter((result) => result)
+            .subscribe(() => {
+                if (!!this._srConnection) {
                     this._srConnection.stop();
                     this._srConnection = null;
                     return;

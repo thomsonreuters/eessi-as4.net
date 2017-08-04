@@ -1,3 +1,4 @@
+import { Http } from '@angular/http';
 import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
 import { ItemType } from './../api/ItemType';
@@ -19,34 +20,34 @@ export interface IRuntimeService {
 @Injectable()
 export class RuntimeService implements IRuntimeService {
     private _runtimeMetaData: any | null = null;
-    constructor(private http: AuthHttp, private runtimeStore: RuntimeStore) { }
+    constructor(private _authHttp: AuthHttp, private _http: Http, private _runtimeStore: RuntimeStore) { }
     public getReceivers() {
-        this.http
+        this._authHttp
             .get(this.getBaseUrl('getreceivers'))
-            .subscribe((type) => this.runtimeStore.update('receivers', type.json()));
+            .subscribe((type) => this._runtimeStore.update('receivers', type.json()));
     }
     public getSteps() {
-        this.http
+        this._authHttp
             .get(this.getBaseUrl('getsteps'))
-            .subscribe((type) => this.runtimeStore.update('steps', type.json()));
+            .subscribe((type) => this._runtimeStore.update('steps', type.json()));
     }
     public getTransformers() {
-        this.http
+        this._authHttp
             .get(this.getBaseUrl('gettransformers'))
-            .subscribe((type) => this.runtimeStore.update('transformers', type.json()));
+            .subscribe((type) => this._runtimeStore.update('transformers', type.json()));
     }
     public getCertificateRepositories() {
-        this.http
+        this._authHttp
             .get(this.getBaseUrl('getcertificaterepositories'))
-            .subscribe((type) => this.runtimeStore.update('certificateRepositories', type.json()));
+            .subscribe((type) => this._runtimeStore.update('certificateRepositories', type.json()));
     }
     public getAll(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            this.http
+            this._http
                 .get(this.getBaseUrl('getall'))
                 .subscribe((result) => {
                     let json = result.json();
-                    this.runtimeStore.setState({
+                    this._runtimeStore.setState({
                         receivers: json.receivers,
                         steps: json.steps,
                         transformers: json.transformers,
@@ -64,7 +65,7 @@ export class RuntimeService implements IRuntimeService {
             return Observable.of<any>(this._runtimeMetaData);
         }
         let obs = new Subject<any>();
-        this.http
+        this._authHttp
             .get(this.getBaseUrl('getruntimemetadata'))
             .subscribe((result) => {
                 this._runtimeMetaData = result.json();

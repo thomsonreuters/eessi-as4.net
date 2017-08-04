@@ -1,6 +1,8 @@
 import { Router, Route } from '@angular/router';
 import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 
+import { RolesService } from './../../authentication/roles.service';
+
 @Component({
   selector: 'as4-sidebar',
   encapsulation: ViewEncapsulation.None,
@@ -10,9 +12,9 @@ import { Component, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/
 })
 export class SidebarComponent {
   public routes: Route[];
-  constructor(private router: Router) {
+  constructor(private _router: Router, private _rolesService: RolesService) {
     let routes = this
-      .router
+      ._router
       .config
       .map((result) => {
         if (!!!result.path) {
@@ -29,7 +31,7 @@ export class SidebarComponent {
 
     let data = routes
       .reduce((a, b) => a!.concat(b!))!
-      .filter((route) => !!route.data && !!route.data['title']);
+      .filter((route) => this.validateAuth(route.data) && !!route.data && !!route.data['title']);
 
     this.routes = data
       .sort((a, b) => {
@@ -43,5 +45,12 @@ export class SidebarComponent {
         // tslint:disable-next-line:curly
         else return 0;
       });
+  }
+  private validateAuth(data: any): boolean {
+    if (!!!data) {
+      return true;
+    }
+
+    return !!!data['roles'] || this._rolesService.validate(data['roles']);
   }
 }

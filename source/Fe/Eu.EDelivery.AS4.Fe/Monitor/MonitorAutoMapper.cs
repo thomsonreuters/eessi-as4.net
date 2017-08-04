@@ -10,7 +10,7 @@ namespace Eu.EDelivery.AS4.Fe.Monitor
     /// <seealso cref="AutoMapper.Profile" />
     public class MonitorAutoMapper : Profile
     {
-        private const int ExceptionLength = 50;
+        private const int ExceptionLength = 100;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MonitorAutoMapper"/> class.

@@ -31,13 +31,13 @@ namespace Eu.EDelivery.AS4.Fe
         }
         private static void OpenPortal(bool isInProcess, IConfigurationRoot config)
         {
-            if (isInProcess && !string.IsNullOrEmpty(config["StartUrl"]))
-                Task.Factory.StartNew(() => System.Diagnostics.Process.Start(config["StartUrl"]));
+            if (isInProcess)
+                Task.Factory.StartNew(() => System.Diagnostics.Process.Start(config["Url"]));
         }
 
         private static string HttpPort(IConfigurationRoot config)
         {
-            var httpPort = config["Port"] ?? "http://0.0.0.0:5000";
+            var httpPort = config["Url"] ?? "http://0.0.0.0:5000";
             return httpPort;
         }
 

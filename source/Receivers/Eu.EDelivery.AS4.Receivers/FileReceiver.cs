@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Receivers
         [Description("Mask used to match files.")]
         private string FileMask => _properties.ReadOptionalProperty(SettingKeys.FileMask, "*.*");
 
-        [Info("Maximum number of concurrent processed files", required: true, defaultValue: SettingKeys.BatchSizeDefault)]
+        [Info("Batch size", required: true, defaultValue: SettingKeys.BatchSizeDefault)]
         [Description("Indicates how many files should be processed per batch.")]
         private int BatchSize { get; set; }
 

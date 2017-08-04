@@ -66,7 +66,8 @@ namespace Eu.EDelivery.AS4.Fe.Users
             }
 
             var newUser = await userManager.FindByNameAsync(user.Name);
-            if (user.IsAdmin) await userManager.AddClaimsAsync(newUser, new[] { new Claim(ClaimTypes.Role, Roles.Admin) });
+            var claims = user.Roles.Select(x => new Claim(ClaimTypes.Role, x));
+            await userManager.AddClaimsAsync(newUser, claims);
         }
 
         /// <summary>
@@ -94,8 +95,8 @@ namespace Eu.EDelivery.AS4.Fe.Users
                 await userManager.AddPasswordAsync(existingUser, user.Password);
             }
             await userManager.RemoveClaimsAsync(existingUser, claims);
-            if (user.IsAdmin) await userManager.AddClaimAsync(existingUser, new Claim(ClaimTypes.Role, Roles.Admin));
-            else await userManager.AddClaimAsync(existingUser, new Claim(ClaimTypes.Role, Roles.Readonly));
+            var newClaims = user.Roles.Select(x => new Claim(ClaimTypes.Role, x));
+            await userManager.AddClaimsAsync(existingUser, newClaims);
         }
 
         /// <summary>

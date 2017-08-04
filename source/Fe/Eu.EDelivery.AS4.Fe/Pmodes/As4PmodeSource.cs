@@ -19,13 +19,13 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
     /// <seealso cref="Eu.EDelivery.AS4.Fe.Pmodes.IAs4PmodeSource" />
     public class As4PmodeSource : IAs4PmodeSource
     {
-        private readonly IOptions<PmodeSettings> settings;
+        private readonly IOptionsSnapshot<PmodeSettings> settings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="As4PmodeSource"/> class.
         /// </summary>
         /// <param name="settings">The settings.</param>
-        public As4PmodeSource(IOptions<PmodeSettings> settings)
+        public As4PmodeSource(IOptionsSnapshot<PmodeSettings> settings)
         {
             this.settings = settings;
         }

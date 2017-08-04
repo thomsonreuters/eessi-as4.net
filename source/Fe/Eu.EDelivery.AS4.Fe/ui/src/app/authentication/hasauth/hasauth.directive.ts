@@ -42,7 +42,7 @@ interface IAuthCheck {
 })
 export class HasAuthDirective implements OnDestroy, DoCheck {
     @Input() public required: string = 'admin';
-    @Input() public disabled: boolean;
+    @Input('as4-auth') public disabled: boolean;
     @Input() public formControlName: string;
     private _subscription: Subscription | null;
     private _isReadOnly: boolean = false;
@@ -61,8 +61,8 @@ export class HasAuthDirective implements OnDestroy, DoCheck {
             .filter((role) => !!!role.find((check) => check === this.required))
             .subscribe(() => {
                 this._isReadOnly = true;
-                this._renderer.setElementAttribute(this._elementRef.nativeElement, 'readonly', 'true');
-                this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', 'true');
+                setTimeout(() => this._renderer.setElementAttribute(this._elementRef.nativeElement, 'readonly', 'true'));
+                setTimeout(() => this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', 'true'));
             });
     }
     public ngOnDestroy() {
@@ -81,7 +81,7 @@ export class HasAuthDirective implements OnDestroy, DoCheck {
         if (this._isReadOnly && this._isReadOnly !== (!!!currentState ? false : true)) {
             // State doesn't match update it
             this._ngZone.runOutsideAngular(() => {
-                this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', 'true');
+                setTimeout(() => this._renderer.setElementAttribute(this._elementRef.nativeElement, 'disabled', 'true'));
             });
         }
     }

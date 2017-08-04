@@ -68,7 +68,7 @@
                         <as4-input label="Insertion time" labelSize="3" controlSize="9">
                             <as4-timeinput [input]="filterForm" type="insertionTimeType" from="insertionTimeFrom" to="insertionTimeTo"></as4-timeinput>
                         </as4-input>
-                        <as4-input controlSize="12" [showLabel]="false">
+                        <as4-input controlSize="12" [showLabel]="false" *ngIf="!!!advanced">
                             <button type="submit" [disabled]="!filterForm.valid" class="btn btn-default pull-right" (click)="toggleSearch()"><i class="fa fa-search"></i></button>
                         </as4-input>
                     </div>
@@ -120,6 +120,9 @@
                             <as4-input label="MPC" labelSize="3" controlSize="9">
                                 <input type="text" formControlName="mpc" />
                             </as4-input>
+                            <as4-input controlSize="12" [showLabel]="false" *ngIf="advanced">
+                                <button type="submit" [disabled]="!filterForm.valid" class="btn btn-default pull-right" (click)="toggleSearch()"><i class="fa fa-search"></i></button>
+                            </as4-input>
                         </div>
                     </div>
                 </div>
@@ -147,14 +150,14 @@
                     <col width="1%">
                     <col width="1%">
                     <col width="1%">
-                    <col width="8%">
-                    <col width="8%">
+                    <col width="4%">
+                    <col width="2%">
                     <col width="1%">
-                    <col width="14%">
-                    <col width="5%">
-                    <col width="5%">
+                    <col width="10%">
+                    <col width="6%">
+                    <col width="6%">
                     <col width="1%">
-                    <col width="1%">
+                    <col width="3%">
                 </colgroup>
                 <thead>
                     <tr>

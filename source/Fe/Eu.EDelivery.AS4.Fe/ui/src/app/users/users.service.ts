@@ -16,7 +16,7 @@ export class UsersService {
     public create(user: User): Observable<boolean> {
         return this
             .http
-            .post(this.getUrl(), user)
+            .post(this.getUrl(), this.transform(user))
             .map(() => true);
     }
     public delete(user: string): Observable<boolean> {
@@ -28,11 +28,17 @@ export class UsersService {
     public update(user: User): Observable<boolean> {
         return this
             .http
-            .put(this.getUrl() + `/${user.name}`, user)
+            .put(this.getUrl() + `/${user.name}`, this.transform(user))
             .map(() => true);
     }
     private getUrl(): string {
         return `/api/user`;
+    }
+    private transform(user: User): any {
+        if (!Array.isArray(user.roles)) {
+            user.roles = [user.roles];
+        }
+        return user;
     }
 }
 
@@ -40,5 +46,5 @@ export class UsersService {
 export class User {
     public name: string;
     public password: string;
-    public isAdmin: boolean;
+    public roles: string[] | string;
 }

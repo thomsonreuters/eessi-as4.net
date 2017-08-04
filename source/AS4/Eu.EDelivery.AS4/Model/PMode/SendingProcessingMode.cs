@@ -365,13 +365,9 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class DynamicDiscoveryConfiguration
     {
-        [DefaultValue("iso6523-actorid-upis")]
         public string SmlScheme { get; set; }
         public string SmpServerDomainName { get; set; }
-
-        [DefaultValue("urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:www.cenbii.eu:transaction:biitrns010:ver2.0:extended:urn:www.peppol.eu:bis:peppol5a:ver2.0::2.1")]
         public string DocumentIdentifier { get; set; }
-        [DefaultValue("busdox-docid-qns")]
         public string DocumentIdentifierScheme { get; set; }
 
         /// <summary>

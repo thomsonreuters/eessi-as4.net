@@ -85,7 +85,7 @@ Failed to decrypt data element
 
         private static As4PmodeSource SetupPmodeSource()
         {
-            var sourceOptions = Substitute.For<IOptions<PmodeSettings>>();
+            var sourceOptions = Substitute.For<IOptionsSnapshot<PmodeSettings>>();
             var pmodeSource = new As4PmodeSource(sourceOptions);
             return pmodeSource;
         }

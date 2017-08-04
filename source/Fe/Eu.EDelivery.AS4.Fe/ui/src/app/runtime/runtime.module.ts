@@ -7,6 +7,7 @@ import { RuntimeSettingComponent } from './runtimesetting/runtimesetting.compone
 import { RuntimeSettingsComponent } from './runtimesettings/runtimesettings.component';
 import { GetValuePipe, GetKeysPipe } from './runtimesettings/getvalue.pipe';
 import { PmodesModule } from './../pmodes/pmodes.module';
+import { AuthenticationModule } from './../authentication/authentication.module';
 
 @NgModule({
     declarations: [
@@ -21,7 +22,8 @@ import { PmodesModule } from './../pmodes/pmodes.module';
         ReactiveFormsModule,
         CommonModule,
         As4ComponentsModule,
-        PmodesModule
+        PmodesModule,
+        AuthenticationModule
     ],
     exports: [
         RuntimeSettingComponent,

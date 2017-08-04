@@ -1,0 +1,71 @@
+<form [formGroup]="form" class="form-horizontal">
+    <as4-box title="Runtime">
+        <button [disabled]="!form.dirty" action type="button" class="btn btn-box-tool" (click)="save()"><i class="fa fa-save" [class.active]="form.dirty"></i></button>
+        <div content>
+            <as4-input label="Provider" formGroupName="monitor" tooltip="Provider used for the monitor module">
+                <input type="text" formControlName="provider" />
+            </as4-input>
+            <as4-input label="ConnectionString" formGroupName="monitor">
+                <input type="text" formControlName="connectionString" />
+            </as4-input>
+            <as4-input label="Settings Xml path" formGroupName="settings" tooltip="Location of the settings.xml used by the runtim">
+                <input type="text" formControlName="settingsXml" />
+            </as4-input>
+            <as4-input label="Runtime path" formGroupName="settings" tooltip="Location of the runtime exe & dlls">
+                <input type="text" formControlName="runtime" />
+            </as4-input>
+            <as4-input label="Sending PMode folder" formGroupName="pmodes" tooltip="Location of the sending PModes">
+                <input type="text" formControlName="sendingPmodeFolder" />
+            </as4-input>
+            <as4-input label="Receiving PMode folder" formGroupName="pmodes" tooltip="Location of the receiving PModes">
+                <input type="text" formControlName="receivingPmodeFolder" />
+            </as4-input>
+        </div>
+    </as4-box>
+    <as4-box title="Portal">
+        <button [disabled]="!form.dirty" action type="button" class="btn btn-box-tool" (click)="save()"><i class="fa fa-save" [class.active]="form.dirty"></i></button>
+        <div content>
+            <as4-input label="URL" tooltip="URL & port to start the portal on">
+                <input type="text" formControlName="url" />
+            </as4-input>
+            <as4-input label="Show stacktrace" formGroupName="settings" tooltip="If true then a stacktrace will be shown in the error dialog">
+                <input type="text" formControlName="showStackTraceInExceptions" />
+            </as4-input>
+            <div class="sub-header-1">Authentication</div>
+            <as4-input label="Provider" formGroupName="authentication" tooltip="Provider used for the authentication database">
+                <input type="text" formControlName="provider" />
+            </as4-input>
+            <as4-input label="Database connectionString" formGroupName="authentication" tooltip="ConnectionString to the authentication database">
+                <input type="text" formControlName="connectionString" />
+            </as4-input>
+            <div class="sub-header-1">JWT settings</div>
+            <ng-container formGroupName="authentication">
+                <ng-container formGroupName="jwtOptions">
+                    <as4-input label="Issuer">
+                        <input type="text" formControlName="issuer" />
+                    </as4-input>
+                    <as4-input label="Audience">
+                        <input type="text" formControlName="audience" />
+                    </as4-input>
+                    <as4-input label="Valid for (days)" tooltip="How long is the JWT token valid?">
+                        <input type="number" formControlName="validFor" />
+                    </as4-input>
+                    <as4-input label="Signing key" tooltip="Key used to sign the JWT token">
+                        <input type="text" formControlName="key" />
+                    </as4-input>
+                </ng-container>
+            </ng-container>
+        </div>
+    </as4-box>
+    <as4-box title="Test tool" formGroupName="submitTool">
+        <button [disabled]="!form.dirty" action type="button" class="btn btn-box-tool" (click)="save()"><i class="fa fa-save" [class.active]="form.dirty"></i></button>
+        <div content>
+            <as4-input label="HTTP address" tooltip="HTTP address used to submit messages to">
+                <input type="text" formControlName="toHttpAddress" />
+            </as4-input>
+            <as4-input label="Payload HTTP address" tooltip="HTTP address to send message payloads to">
+                <input type="text" formControlName="payloadHttpAddress" />
+            </as4-input>
+        </div>
+    </as4-box>
+</form>

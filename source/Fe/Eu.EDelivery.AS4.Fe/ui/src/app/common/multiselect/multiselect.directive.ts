@@ -89,4 +89,4 @@ export class MultiSelectDirective implements OnInit, ControlValueAccessor, OnDes
         }
         return value.split(': ')[1].replace(/'/g, '');
     }
-    
+}

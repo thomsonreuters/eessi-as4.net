@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
 using Xunit;
 
 namespace Eu.EDelivery.AS4.Fe.UnitTests
@@ -72,13 +71,13 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             public async Task Creates_User()
             {
                 await Setup();
-                var username =Guid.NewGuid().ToString();
+                var username = Guid.NewGuid().ToString();
 
                 await UserService.Create(new NewUser
                 {
                     Name = username,
                     Password = "CZ#$So7OGoNb",
-                    IsAdmin = true
+                    Roles = new[] { Roles.Admin }
                 });
 
                 var user = (await UserService.Get()).ToList();
@@ -86,7 +85,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var search = user.FirstOrDefault(x => x.Name == username);
                 Assert.NotNull(search);
                 Assert.True(search.Name == username, $"Expected the created user to have '{username}' as username!");
-                Assert.True(search.IsAdmin, "Expected the user to be an admin!");
+                Assert.True(search.Roles.Contains(Roles.Admin), "Expected the user to be an admin!");
             }
 
             [Fact]
@@ -105,7 +104,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 var search = user.FirstOrDefault(name => name.Name == username);
                 Assert.NotNull(search);
                 Assert.True(search.Name == username, "Expected the created user to have 'test123' as username!");
-                Assert.False(search.IsAdmin, "Expected the user to be not be an admin!");
+                Assert.False(search.Roles.Contains(Roles.Admin), "Expected the user to be not be an admin!");
             }
 
             [Fact]
@@ -134,17 +133,17 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
         [Collection("Update")]
         public class Update : UserServiceTests
         {
-            private string User;
+            private string user;
 
             protected override async Task<UserServiceTests> Setup()
             {
-                User = Guid.NewGuid().ToString();
+                user = Guid.NewGuid().ToString();
                 var result = await base.Setup();
                 await UserService.Create(new NewUser
                 {
-                    Name = User,
+                    Name = user,
                     Password = "CZ#$So7OGoNb",
-                    IsAdmin = true
+                    Roles = new[] { Roles.Admin }
                 });
                 return result;
             }
@@ -154,9 +153,9 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 await Setup();
 
-                await UserService.Update(User, new UpdateUser { Password = "9*SC!7i*wH3r", IsAdmin = false });
+                await UserService.Update(this.user, new UpdateUser { Password = "9*SC!7i*wH3r" });
 
-                var user = await UserManager.FindByNameAsync(User);
+                var user = await UserManager.FindByNameAsync(this.user);
                 var claims = await UserManager.GetClaimsAsync(user);
                 var result = await UserManager.CheckPasswordAsync(user, "9*SC!7i*wH3r");
                 Assert.True(result, "CheckPasswordAsync should have returned true");
@@ -168,9 +167,9 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
             {
                 await Setup();
 
-                await UserService.Update(User, new UpdateUser());
+                await UserService.Update(this.user, new UpdateUser());
 
-                var user = await UserManager.FindByNameAsync(User);
+                var user = await UserManager.FindByNameAsync(this.user);
                 var claims = await UserManager.GetClaimsAsync(user);
                 var result = await UserManager.CheckPasswordAsync(user, "CZ#$So7OGoNb");
                 Assert.True(result, "CheckPasswordAsync should have returned true");
@@ -200,7 +199,7 @@ namespace Eu.EDelivery.AS4.Fe.UnitTests
                 });
 
                 await UserService.Delete(username);
-                
+
                 var user = (await UserService.Get()).ToList();
                 Assert.True(user.All(find => find.Name != username));
             }

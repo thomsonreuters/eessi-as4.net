@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
+using Eu.EDelivery.AS4.Fe.Authentication;
 using HttpMultipartParser;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Eu.EDelivery.AS4.Fe.SubmitTool
 {
@@ -28,6 +32,8 @@ namespace Eu.EDelivery.AS4.Fe.SubmitTool
         /// </summary>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Post()
         {
             var parser = new MultipartFormDataParser(Request.Body);

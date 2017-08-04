@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Eu.EDelivery.AS4.Fe.Authentication;
+using Eu.EDelivery.AS4.Fe.Controllers;
 using Eu.EDelivery.AS4.Fe.Logging;
 using Eu.EDelivery.AS4.Fe.Modules;
 using Eu.EDelivery.AS4.Fe.Monitor;
@@ -48,7 +49,7 @@ namespace Eu.EDelivery.AS4.Fe
                 configBuilder
                     .SetBasePath(env.ContentRootPath)
                     .AddJsonFile("appsettings.json", true, true)
-                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true);
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true);
             }, out config);
             Configuration = config;
 
@@ -57,11 +58,13 @@ namespace Eu.EDelivery.AS4.Fe
                 .AddJsonOptions(options => { options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore; });
 
             services.AddSingleton<ILogging, Logging.Logging>();
-            services.AddSingleton<ISettingsSource, FileSettingsSource>();
-            services.AddSingleton<ITokenService, TokenService>();
-            services.AddSingleton<IRuntimeLoader, RuntimeLoader>();
+            services.AddScoped<ISettingsSource, FileSettingsSource>();
+            services.AddScoped<IPortalSettingsService, PortalSettingsService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IRuntimeLoader, RuntimeLoader>();
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("Settings"));
+            services.Configure<PortalSettings>(Configuration.Bind);
             services.AddOptions();
         }
 

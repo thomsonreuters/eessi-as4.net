@@ -7,6 +7,7 @@ import { Component } from './name.component';
 import { UsersComponent } from './users/users.component';
 import { UsersService } from './users.service';
 import { As4ComponentsModule } from './../common/as4components.module';
+import { AuthenticationModule } from './../authentication/authentication.module';
 import { ROUTES } from './user.route';
 
 @NgModule({
@@ -15,7 +16,8 @@ import { ROUTES } from './user.route';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        As4ComponentsModule
+        As4ComponentsModule,
+        AuthenticationModule
     ],
     exports: [],
     declarations: [

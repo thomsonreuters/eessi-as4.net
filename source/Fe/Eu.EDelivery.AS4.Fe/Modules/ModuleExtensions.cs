@@ -14,6 +14,9 @@ using System.Runtime.Loader;
 
 namespace Eu.EDelivery.AS4.Fe.Modules
 {
+    /// <summary>
+    /// Extension class to do module management
+    /// </summary>
     public static class ModuleExtensions
     {
         /// <summary>

@@ -12,25 +12,27 @@
             <div content>
                 <as4-input [label]=" 'Username'">
                     <div class="input-group">
-                        <select name="name" (change)="selectUser(users[$event.target.selectedIndex-1])" class="form-control"
-                            #agentSelect>
+                        <select name="name" (change)="selectUser(users[$event.target.selectedIndex-1])" class="form-control" #agentSelect>
                             <option value="undefined">Select an option</option>
                             <option *ngFor="let user of users" [selected]="currentUser && currentUser.name === user.name">{{user.name}}</option>
                         </select>
-                        <div class="input-group-btn" [showRename]="false" crud-buttons [current]="currentUser" [isNewMode]="isNewMode" [form]="form" (rename)="rename()"
+                        <div class="input-group-btn" [showRename]="false" crud-buttons [current]="currentUser" [form]="form"
                             (add)="add()" (save)="save()" (delete)="delete()" (reset)="reset()"></div>
                     </div>
                 </as4-input>
             </div>
         </as4-box>
         <as4-tab>
-            <div tabitem title="Common" [isValid]="!form.enabled || form.valid">                
+            <div tabitem title="Common" [isValid]="!form.enabled || form.valid">
                 <as4-input label="Password">
                     <input type="password" class="form-control" formControlName="password" />
                     <i *ngIf="!!currentUser && !isNew">Leave this field blank to keep the same password.</i>
                 </as4-input>
-                <as4-input label="Is administrator?">
-                    <input type="checkbox" formControlName="isAdmin"/>
+                <as4-input label="Role">
+                    <select formControlName="roles">
+                        <option value="admin">Admin</option>
+                        <option value="readonly">Readonly</option>
+                    </select>
                 </as4-input>
             </div>
         </as4-tab>

@@ -32,6 +32,7 @@ namespace Eu.EDelivery.AS4.Fe.Users
         /// </summary>
         /// <returns>List of users</returns>
         [HttpGet]
+        [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(IEnumerable<User>))]
         [SwaggerResponse((int)HttpStatusCode.ExpectationFailed, typeof(ErrorModel), "Password requirements were not met or something else went wrong.")]
         public async Task<IActionResult> Get()
@@ -45,6 +46,7 @@ namespace Eu.EDelivery.AS4.Fe.Users
         /// <param name="newUser">The new user.</param>
         /// <returns></returns>
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.ExpectationFailed, typeof(ErrorModel), "User already exists")]
         public async Task<IActionResult> Create([FromBody] NewUser newUser)
@@ -60,6 +62,7 @@ namespace Eu.EDelivery.AS4.Fe.Users
         /// <returns></returns>
         [HttpDelete]
         [Route("{username}")]
+        [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.ExpectationFailed, typeof(ErrorModel), "User doesn't exist")]
         public async Task<IActionResult> Delete(string username)
@@ -76,6 +79,7 @@ namespace Eu.EDelivery.AS4.Fe.Users
         /// <returns></returns>
         [HttpPut]
         [Route("{username}")]
+        [Authorize(Roles = Roles.Admin)]
         [SwaggerResponse((int) HttpStatusCode.OK)]
         [SwaggerResponse((int) HttpStatusCode.ExpectationFailed, typeof(ErrorModel), "User doesn't exist or password requirements were not met.")]
         public async Task<IActionResult> Update(string username, [FromBody]UpdateUser update)

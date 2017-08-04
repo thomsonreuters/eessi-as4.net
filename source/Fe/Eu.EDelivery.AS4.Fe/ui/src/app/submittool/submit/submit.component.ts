@@ -62,7 +62,7 @@ export class SubmitComponent implements OnDestroy {
                 if (hasError) {
                     this.addLog(new LogMessage({ message: 'FAILED!', type: LogType.Error }));
                 } else {
-                    this.addLog(new LogMessage({ message: 'DONE - Message(s) submitted', type: LogType.Done });
+                    this.addLog(new LogMessage({ message: 'DONE - Message(s) submitted', type: LogType.Done }));
                 }
             })
             .subscribe((progress) => {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -90,6 +91,7 @@ namespace Eu.EDelivery.AS4.Fe.Runtime
         /// <returns></returns>
         [HttpGet]
         [Route("getall")]
+        [AllowAnonymous]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(OkResult))]
         public IActionResult GetAllRuntimeTypes()
         {
