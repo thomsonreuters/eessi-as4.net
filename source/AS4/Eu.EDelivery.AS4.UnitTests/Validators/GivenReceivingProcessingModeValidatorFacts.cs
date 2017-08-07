@@ -19,6 +19,12 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
+        public void ForwardPModeIsValid()
+        {
+            TestReceivingPModeValidation(pmode => { pmode.MessageHandling.Item = new Forward() { SendingPMode = "SomePModeId" }; }, expected: true);
+        }
+
+        [Fact]
         public void PModeIsNotValid_IfNoReceiptHandlingIsPresent()
         {
             TestReceivingPModeValidation(pmode => pmode.ReplyHandling.ReceiptHandling = null);
@@ -110,7 +116,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
         }
 
         [Fact]
-        public void PModeIsNotValid_IfInvalidParametersArePresentInPayloadReferenceMetodWhenDeliverIsEnabeld()
+        public void PModeIsNotValid_IfInvalidParametersArePresentInPayloadReferenceMetodWhenDeliverIsEnabled()
         {
             TestReceivingPModeValidation(
                 pmode =>
@@ -118,6 +124,25 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                     pmode.MessageHandling.DeliverInformation.IsEnabled = true;
                     pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod.Parameters.Add(new Parameter { Name = null, Value = null });
                 });
+        }
+
+        [Fact]
+        public void PModeIsNotValid_WhenNoMessageHandlingIsPresent()
+        {
+            TestReceivingPModeValidation(
+                pmode => { pmode.MessageHandling = null; });
+        }
+
+        [Fact]
+        public void PModeIsNotValid_WhenMessagaeHandlingIsEmpty()
+        {
+            TestReceivingPModeValidation(pmode => { pmode.MessageHandling.Item = null; });
+        }
+
+        [Fact]
+        public void PModeIsNotValid_WhenMessageHandlingContainsUnknownItem()
+        {
+            TestReceivingPModeValidation(pmode => { pmode.MessageHandling.Item = new object(); });
         }
 
         private static void TestReceivingPModeValidation(Action<ReceivingProcessingMode> arrangePMode, bool expected = false)
@@ -143,10 +168,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 Parameters = new List<Parameter> { new Parameter { Name = "parameter-name", Value = "parameter-value" } }
             };
 
-            var pmode =new ReceivingProcessingMode
+            var pmode = new ReceivingProcessingMode
             {
                 Id = "pmode-id",
-                ReplyHandling = new ReplyHandlingSetting() { SendingPMode = "send-pmode" }                
+                ReplyHandling = new ReplyHandlingSetting() { SendingPMode = "send-pmode" }
             };
 
             pmode.MessageHandling.DeliverInformation.IsEnabled = true;

@@ -16,8 +16,10 @@ namespace Eu.EDelivery.AS4.Validators
         {
             RuleFor(pmode => pmode.Id).NotNull();
 
-            RulesForReplyHandling();            
+            RulesForReplyHandling();
+            RulesForMessageHandling();
             RulesForDeliver();
+            RulesForForwarding();
         }
 
         public static readonly ReceivingProcessingModeValidator Instance = new ReceivingProcessingModeValidator();
@@ -33,14 +35,31 @@ namespace Eu.EDelivery.AS4.Validators
             });
         }
 
+        private void RulesForMessageHandling()
+        {
+            RuleFor(pmode => pmode.MessageHandling).NotNull().WithMessage("The MessageHandling element must be declared")
+                                                   .DependentRules(r => r.RuleFor(pmode => pmode.MessageHandling).Must(mh => mh.DeliverInformation != null ||
+                                                                                                                             mh.ForwardInformation != null)
+                                                                         .WithMessage("The MessageHandling element must contain a Deliver or a Forward element"));
+        }
+
+        private void RulesForForwarding()
+        {
+            Func<ReceivingProcessingMode, bool> isForwarding = pmode => pmode.MessageHandling?.ForwardInformation != null;
+
+            RuleFor(pmode => pmode.MessageHandling.ForwardInformation.SendingPMode).NotEmpty()
+                .When(isForwarding)
+                .WithMessage("When Forwarding is enabled, the Forward element must contain the ID of the Sending PMode that must be used for forwarding.");
+        }
+
         private void RulesForDeliver()
-        {            
+        {
             Func<ReceivingProcessingMode, bool> isDeliverEnabled = pmode => pmode.MessageHandling?.DeliverInformation?.IsEnabled == true;
 
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.DeliverMethod).NotNull().When(isDeliverEnabled);
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod).NotNull().When(isDeliverEnabled);
 
-            Func<ReceivingProcessingMode, bool> isDeliverMethodPresent = pmode => pmode.MessageHandling.DeliverInformation.DeliverMethod != null;
+            Func<ReceivingProcessingMode, bool> isDeliverMethodPresent = pmode => pmode.MessageHandling?.DeliverInformation?.DeliverMethod != null;
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.DeliverMethod.Type)
                 .NotNull()
                 .When(pmode => isDeliverMethodPresent(pmode) && isDeliverEnabled(pmode));
@@ -50,7 +69,7 @@ namespace Eu.EDelivery.AS4.Validators
                 .When(pmode => isDeliverMethodPresent(pmode) && isDeliverEnabled(pmode));
 
             Func<ReceivingProcessingMode, bool> isPayloadReferencePresent =
-                pmode => pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod != null;
+                pmode => pmode.MessageHandling?.DeliverInformation?.PayloadReferenceMethod != null;
             RuleFor(pmode => pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod.Type)
                 .NotNull()
                 .When(pmode => isPayloadReferencePresent(pmode) && isDeliverEnabled(pmode));
