@@ -51,8 +51,18 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
         private async Task SendDeliverMessage(MessagingContext context)
         {
+            if (context.ReceivingPMode == null)
+            {
+                throw new InvalidOperationException("Unable to send DeliverMessage: the MessagingContext does not contain a Receiving PMode");
+            }
+
+            if (context.ReceivingPMode.MessageHandling?.DeliverInformation == null)
+            {
+                throw new InvalidOperationException("Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
+            }
+
             DeliverMessageEnvelope deliverMessage = context.DeliverMessage;
-            Method deliverMethod = context?.ReceivingPMode.Deliver.DeliverMethod;
+            Method deliverMethod = context.ReceivingPMode.MessageHandling.DeliverInformation.DeliverMethod;
 
             IDeliverSender sender = _provider.GetDeliverSender(deliverMethod?.Type);
             sender.Configure(deliverMethod);

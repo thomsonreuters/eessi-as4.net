@@ -60,8 +60,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             TestReceivingPModeValidation(
                 pmode =>
                 {
-                    pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.DeliverMethod = null;
+                    pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+                    pmode.MessageHandling.DeliverInformation.DeliverMethod = null;
                 });
         }
 
@@ -71,8 +71,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             TestReceivingPModeValidation(
                 pmode =>
                 {
-                    pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.PayloadReferenceMethod = null;
+                    pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+                    pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = null;
                 });
         }
 
@@ -82,8 +82,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             TestReceivingPModeValidation(
                 pmode =>
                 {
-                    pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.DeliverMethod.Parameters = null;
+                    pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+                    pmode.MessageHandling.DeliverInformation.DeliverMethod.Parameters = null;
                 });
         }
 
@@ -93,8 +93,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             TestReceivingPModeValidation(
                 pmode =>
                 {
-                    pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.PayloadReferenceMethod.Parameters = null;
+                    pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+                    pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod.Parameters = null;
                 });
         }
 
@@ -104,8 +104,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             TestReceivingPModeValidation(
                 pmode =>
                 {
-                    pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.DeliverMethod.Parameters.Add(new Parameter { Name = null, Value = null });
+                    pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+                    pmode.MessageHandling.DeliverInformation.DeliverMethod.Parameters.Add(new Parameter { Name = null, Value = null });
                 });
         }
 
@@ -115,8 +115,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             TestReceivingPModeValidation(
                 pmode =>
                 {
-                    pmode.Deliver.IsEnabled = true;
-                    pmode.Deliver.PayloadReferenceMethod.Parameters.Add(new Parameter { Name = null, Value = null });
+                    pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+                    pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod.Parameters.Add(new Parameter { Name = null, Value = null });
                 });
         }
 
@@ -143,12 +143,17 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
                 Parameters = new List<Parameter> { new Parameter { Name = "parameter-name", Value = "parameter-value" } }
             };
 
-            return new ReceivingProcessingMode
+            var pmode =new ReceivingProcessingMode
             {
                 Id = "pmode-id",
-                ReplyHandling = new ReplyHandlingSetting() { SendingPMode = "send-pmode" },
-                Deliver = new Deliver { IsEnabled = true, DeliverMethod = method, PayloadReferenceMethod = method }
+                ReplyHandling = new ReplyHandlingSetting() { SendingPMode = "send-pmode" }                
             };
+
+            pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+            pmode.MessageHandling.DeliverInformation.DeliverMethod = method;
+            pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = method;
+
+            return pmode;
         }
     }
 }

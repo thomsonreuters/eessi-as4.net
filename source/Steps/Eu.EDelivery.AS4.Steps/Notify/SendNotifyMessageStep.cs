@@ -105,9 +105,9 @@ namespace Eu.EDelivery.AS4.Steps.Notify
             }
         }
 
-        private static Method DetermineMethod(IPMode sendPMode, SendHandling sendHandling, Receivehandling receivehandling)
+        private static Method DetermineMethod(IPMode sendPMode, SendHandling sendHandling, ReceiveHandling receiveHandling)
         {
-            return IsNotifyMessageFormedBySending(sendPMode) ? sendHandling?.NotifyMethod : receivehandling?.NotifyMethod;
+            return IsNotifyMessageFormedBySending(sendPMode) ? sendHandling?.NotifyMethod : receiveHandling?.NotifyMethod;
         }
 
         private static bool IsNotifyMessageFormedBySending(IPMode pmode)

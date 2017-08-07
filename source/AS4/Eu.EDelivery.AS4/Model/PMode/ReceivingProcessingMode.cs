@@ -20,20 +20,21 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public MessageExchangePatternBinding MepBinding { get; set; }
         public ReceiveReliability Reliability { get; set; }
         public ReplyHandlingSetting ReplyHandling { get; set; }
-        public Receivehandling ExceptionHandling { get; set; }
+        public ReceiveHandling ExceptionHandling { get; set; }
 
         [XmlElement(ElementName = "Security")] public ReceiveSecurity Security { get; set; }
         public MessagePackaging MessagePackaging { get; set; }
-        public Deliver Deliver { get; set; }
+
+        public MessageHandling MessageHandling { get; set; }
 
         public ReceivingProcessingMode()
         {
             Reliability = new ReceiveReliability();
             ReplyHandling = new ReplyHandlingSetting();
-            ExceptionHandling = new Receivehandling();
+            ExceptionHandling = new ReceiveHandling();
             Security = new ReceiveSecurity();
             MessagePackaging = new MessagePackaging();
-            Deliver = new Deliver();
+            MessageHandling = new MessageHandling();
         }
     }
 
@@ -101,12 +102,12 @@ namespace Eu.EDelivery.AS4.Model.PMode
         #endregion
     }
 
-    public class Receivehandling
+    public class ReceiveHandling
     {
         public bool NotifyMessageConsumer { get; set; }
         public Method NotifyMethod { get; set; }
 
-        public Receivehandling()
+        public ReceiveHandling()
         {
             NotifyMessageConsumer = false;
             NotifyMethod = new Method();
@@ -194,6 +195,53 @@ namespace Eu.EDelivery.AS4.Model.PMode
         }
     }
 
+    public class MessageHandling
+    {
+        [XmlIgnore]
+        [JsonIgnore]
+        [ScriptIgnore]
+        public MessageHandlingChoiceType MessageHandlingType { get; set; }
+
+        private object _item;
+
+        [XmlChoiceIdentifier(nameof(MessageHandlingType))]
+        [XmlElement("Deliver", typeof(Deliver))]
+        [XmlElement("Forward", typeof(Forward))]
+        public object Item
+        {
+            get { return _item; }
+            set
+            {
+                _item = value;
+                if (_item is Deliver)
+                {
+                    MessageHandlingType = MessageHandlingChoiceType.Deliver;
+                }
+                else if (_item is Forward)
+                {
+                    MessageHandlingType = MessageHandlingChoiceType.Forward;
+                }
+                else
+                {
+                    MessageHandlingType = MessageHandlingChoiceType.None;
+                }
+            }
+        }
+
+        public Deliver DeliverInformation => Item as Deliver;
+
+        public Forward ForwardInformation => Item as Forward;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MessageHandling"/> class.
+        /// </summary>
+        public MessageHandling()
+        {
+            MessageHandlingType = MessageHandlingChoiceType.Deliver;
+            Item = new Deliver();
+        }
+    }
+
     public class Deliver
     {
         public bool IsEnabled { get; set; }
@@ -206,6 +254,21 @@ namespace Eu.EDelivery.AS4.Model.PMode
             PayloadReferenceMethod = new Method();
             DeliverMethod = new Method();
         }
+    }
+
+    public class Forward
+    {
+        /// <summary>
+        /// The Id of the Sending ProcessingMode that must be used to forward the received AS4 message.
+        /// </summary>
+        public string SendingPMode { get; set; }
+    }
+
+    public enum MessageHandlingChoiceType
+    {
+        None = 0,
+        Deliver,
+        Forward
     }
 
     public enum ReplyPattern

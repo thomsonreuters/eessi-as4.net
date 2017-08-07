@@ -405,7 +405,12 @@ namespace Eu.EDelivery.AS4.Services
 
         private static bool UserMessageNeedsToBeDelivered(ReceivingProcessingMode pmode, UserMessage userMessage)
         {
-            return pmode.Deliver.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
+            if (pmode.MessageHandling?.DeliverInformation == null)
+            {
+                return false;
+            }
+
+            return pmode.MessageHandling.DeliverInformation.IsEnabled && !userMessage.IsDuplicate && !userMessage.IsTest;
         }
     }
 }

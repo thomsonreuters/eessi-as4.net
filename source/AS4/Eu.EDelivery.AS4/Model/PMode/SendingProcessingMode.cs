@@ -24,7 +24,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         /// </summary>
         public SendingProcessingMode()
         {
-            MepBinding = MessageExchangePatternBinding.Push;            
+            MepBinding = MessageExchangePatternBinding.Push;
             AllowOverride = false;
             Reliability = new SendReliability();
             ReceiptHandling = new SendHandling();
@@ -217,7 +217,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         [DefaultValue(EncryptionStrategy.XmlEncRSAOAEPUrlWithMgf)]
         public string TransportAlgorithm { get; set; }
-        
+
         [DefaultValue(EncryptionStrategy.XmlEncSHA1Url)]
         public string DigestAlgorithm { get; set; }
 
