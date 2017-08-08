@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 
@@ -20,7 +21,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Utilities
         {
             if (Directory.Exists(directoryName) == false)
             {
-                throw new DirectoryNotFoundException($"Directory {directoryName} does not exists.");
+                Console.WriteLine("Current Directory: " + Environment.CurrentDirectory);
+                throw new DirectoryNotFoundException($"Directory {directoryName} does not exist.");
             }
 
             List<string> matchingFiles = new List<string>();
