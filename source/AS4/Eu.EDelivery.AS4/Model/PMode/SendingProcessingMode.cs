@@ -256,13 +256,10 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
         public string PrivateKeyFindValue { get; set; }
 
-        [DefaultValue(X509ReferenceType.BSTReference)]
         public X509ReferenceType KeyReferenceMethod { get; set; }
-
-        //[DefaultValue("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256")]
+        
         public string Algorithm { get; set; }
 
-        //[DefaultValue("http://www.w3.org/2001/04/xmlenc#sha256")]
         public string HashFunction { get; set; }
 
         #region Properties that control serialization
