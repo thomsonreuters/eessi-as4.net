@@ -11,11 +11,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._7._Se
     /// Testing the Application with multiple payloads compressed and encrypted
     /// </summary>
     public class MultiplePayloadsCompressedEncryptedIntegrationTest : IntegrationTestTemplate
-    {
-        private const string SubmitMessageFilename = "\\8.1.7-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-        private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-
+    {        
         [Fact]
         public void ThenSendingMultiplePayloadCompressedEncryptedSucceeds()
         {
@@ -26,7 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._7._Se
             Holodeck.CopyPModeToHolodeckB("8.1.7-pmode.xml");
 
             // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            AS4Component.PutMessage("8.1.7-sample.xml");            
 
             // Assert
             bool areFilesFound = PollingAt(AS4ReceiptsPath);
