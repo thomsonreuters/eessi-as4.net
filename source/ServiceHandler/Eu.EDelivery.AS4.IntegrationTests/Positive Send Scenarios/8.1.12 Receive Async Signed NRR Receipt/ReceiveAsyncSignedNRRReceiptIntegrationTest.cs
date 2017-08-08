@@ -12,17 +12,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
     /// Testing the Application with a Single Payload
     /// </summary>
     public class ReceiveAsyncSignedNRRReceiptIntegrationTest : IntegrationTestTemplate
-    {
-        private readonly string _as4MessagesPath;
-        private readonly string _as4OutputPath;
-
-        public ReceiveAsyncSignedNRRReceiptIntegrationTest()
-        {
-            const string submitMessage = "\\8.1.12-sample.xml";
-            _as4MessagesPath = $"{AS4MessagesRootPath}{submitMessage}";
-            _as4OutputPath = $"{AS4FullOutputPath}{submitMessage}";
-        }
-
+    {        
+    
         [Retry(MaxRetries = 3)]
         public void ThenSendAsyncSignedNRRReceiptSucceeds()
         {
@@ -33,7 +24,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._12_Re
             Holodeck.CopyPModeToHolodeckB("8.1.12-pmode.xml");
 
             // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            AS4Component.PutMessage("8.1.12-sample.xml");    
 
             // Assert
             Assert.True(PollingAt(AS4ReceiptsPath, "*.xml"), "Send Async Signed NRR Receipt failed");

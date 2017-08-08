@@ -81,7 +81,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public void PutMessage(string messageName)
         {
             File.Copy(
-                sourceFileName: $"{IntegrationTestTemplate.AS4MessagesRootPath}\\{messageName}",
+                sourceFileName: $"{IntegrationTestTemplate.AS4IntegrationMessagesPath}\\{messageName}",
                 destFileName: $"{IntegrationTestTemplate.AS4FullOutputPath}\\{messageName}",
                 overwrite: true);
         }

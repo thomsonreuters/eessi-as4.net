@@ -14,8 +14,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._8_Sen
     public class SendMessageToIncorrectlyConfiguredRMSHIntegrationTest : IntegrationTestTemplate
     {
         private const string SubmitMessageFilename = "\\8.2.8-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-        private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         
         [Fact]
         public void ThenSendMessageFailes()
@@ -24,7 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._8_Sen
             AS4Component.Start();
 
             // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            AS4Component.PutMessage(SubmitMessageFilename);            
 
             // Assert
             Assert.True(AreErrorFilesFound());

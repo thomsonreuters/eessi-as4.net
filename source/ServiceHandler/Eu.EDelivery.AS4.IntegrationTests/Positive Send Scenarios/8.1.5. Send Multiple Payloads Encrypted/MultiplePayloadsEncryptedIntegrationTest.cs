@@ -8,11 +8,7 @@ using Xunit;
 namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._5._Send_Multiple_Payloads_Encrypted
 {
     public class MultiplePayloadsEncryptedIntegrationTest : IntegrationTestTemplate
-    {
-        private const string SubmitMessageFilename = "\\8.1.5-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-        private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-
+    {        
         [Fact]
         public void Test()
         {
@@ -23,7 +19,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._5._Se
             Holodeck.CopyPModeToHolodeckB("8.1.5-pmode.xml");
 
             // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            AS4Component.PutMessage("8.1.5-sample.xml");            
 
             // Assert
             bool areFilesFound = PollingAt(HolodeckBInputPath);

@@ -16,8 +16,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
         public static readonly string AS4MessagesRootPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}");
         public static readonly string AS4FullOutputPath = Path.GetFullPath($@".\{Properties.Resources.submit_output_path}");
         public static readonly string AS4FullInputPath = Path.GetFullPath($@".\{Properties.Resources.submit_input_path}");
+        public static readonly string AS4IntegrationMessagesPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}\integrationtest-messages");
 
-        protected static readonly string AS4IntegrationMessagesPath = Path.GetFullPath($@".\{Properties.Resources.submit_messages_path}\integrationtest-messages");
         protected static readonly string AS4ReceiptsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_receipts_path}");
         protected static readonly string AS4ErrorsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_errors_path}");
         protected static readonly string AS4ExceptionsPath = Path.GetFullPath($@".\{Properties.Resources.as4_component_exceptions_path}");
@@ -39,8 +39,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Common
             CopyDirectory(@".\config\integrationtest-settings", @".\config\");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\send-pmodes", @".\config\send-pmodes");
             CopyDirectory(@".\config\integrationtest-settings\integrationtest-pmodes\receive-pmodes", @".\config\receive-pmodes");
-            CopyDirectory(@".\messages\integrationtest-messages", @".\messages");
-
+            
             CleanUpFiles(@".\database");
             CleanUpFiles(AS4FullInputPath);
             CleanUpFiles(AS4FullOutputPath);
