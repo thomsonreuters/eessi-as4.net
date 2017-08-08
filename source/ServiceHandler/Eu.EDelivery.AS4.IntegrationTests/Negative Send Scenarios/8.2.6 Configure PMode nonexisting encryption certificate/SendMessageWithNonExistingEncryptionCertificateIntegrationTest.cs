@@ -10,19 +10,15 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._6_Con
     /// Testin the Application with a configured PMode which reference a non-existing encryption certificate
     /// </summary>
     public class SendMessageWithNonExistingEncryptionCertificateIntegrationTest : IntegrationTestTemplate
-    {
-        private const string SubmitMessageFilename = "\\8.2.6-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-        private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-
+    {        
         [Fact]
         public void ThenSendingSubmitMessageFails()
         {
             // Before
             AS4Component.Start();
 
-            // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            // Act            
+            AS4Component.PutMessage("8.2.6-sample.xml");
 
             // Assert
             Assert.True(AreExceptionFilesFound());

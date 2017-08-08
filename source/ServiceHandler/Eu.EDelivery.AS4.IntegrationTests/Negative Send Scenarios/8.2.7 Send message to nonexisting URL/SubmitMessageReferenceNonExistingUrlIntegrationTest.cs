@@ -10,11 +10,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._7_Sen
     /// Testing the Application with a Single Payload
     /// </summary>
     public class SubmitMessageReferenceNonExistingUrlIntegrationTest : IntegrationTestTemplate
-    {
-        private const string SubmitMessageFilename = "\\8.2.7-sample.xml";
-        private readonly string _as4MessagesPath = $"{IntegrationTestTemplate.AS4MessagesRootPath}{SubmitMessageFilename}";
-        private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-        
+    {        
         [Fact]
         public void ThenSendingSubmitMessageFails()
         {
@@ -22,7 +18,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._7_Sen
             AS4Component.Start();
 
             // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            AS4Component.PutMessage("8.2.7-sample.xml");            
 
             // Assert
             Assert.True(AreExceptionFilesFound());

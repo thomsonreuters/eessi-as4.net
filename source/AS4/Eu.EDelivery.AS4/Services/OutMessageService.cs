@@ -72,6 +72,7 @@ namespace Eu.EDelivery.AS4.Services
 
             var relatedInMessageMeps =
                 _repository.GetInMessagesData(message.SignalMessages.Select(s => s.RefToMessageId).Distinct(), inMsg => new { inMsg.EbmsMessageId, inMsg.MEP })
+                           .Distinct()
                            .ToDictionary(r => r.EbmsMessageId, r => r.MEP);
 
             foreach (var messageUnit in messageUnits)

@@ -21,7 +21,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
         public ReceiveAsyncSignedErrorIntegrationTest()
         {
             _sender = new StubSender {Url = "http://localhost:9090/msh", HandleResponse = response => null};
-            _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
+            _as4MessagesPath = $"{AS4IntegrationMessagesPath}\\8.1.13-sample.xml";
             _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         }
 
@@ -34,8 +34,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._13_Re
             AS4Component.Start();
 
             // Arrange
-            Holodeck.CopyPModeToHolodeckB("8.1.13-pmode.xml");
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            Holodeck.CopyPModeToHolodeckB("8.1.13-pmode.xml");            
+            AS4Component.PutMessage("8.1.13-sample.xml");            
 
             // Act
             string messageWrongSigned = ReplaceSubmitMessageIdWith(sharedMessageId);

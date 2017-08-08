@@ -11,9 +11,6 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._5_Con
     /// </summary>
     public class SubmitMessageReferenceNonExistingCertificateIntegrationTest : IntegrationTestTemplate
     {
-        private const string SubmitMessageFilename = "\\8.2.5-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-        private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
         
         [Fact]
         public void ThenSendingSubmitMessageFails()
@@ -21,8 +18,8 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Negative_Send_Scenarios._8._2._5_Con
             // Before
             AS4Component.Start();
 
-            // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            // Act            
+            AS4Component.PutMessage("8.2.5-sample.xml");
 
             // Assert
             Assert.True(AreExceptionFilesFound());

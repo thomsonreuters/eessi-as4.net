@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 
@@ -19,8 +21,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Utilities
         public static IEnumerable<string> GetFilesInDirectory(string directoryName, string pattern, bool recursive)
         {
             if (Directory.Exists(directoryName) == false)
-            {
-                throw new DirectoryNotFoundException($"Directory {directoryName} does not exists.");
+            {                
+                throw new DirectoryNotFoundException($"Directory {directoryName} does not exist. (Current directory = {Environment.CurrentDirectory} )");
             }
 
             List<string> matchingFiles = new List<string>();

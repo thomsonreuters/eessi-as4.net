@@ -3,7 +3,7 @@
   <Id>8.3.16-pmode</Id>
   <AllowOverride>false</AllowOverride>
   <Mep>OneWay</Mep>
-  <MepBinding>Pull</MepBinding>
+  <MepBinding>Push</MepBinding>
   <PushConfiguration>
     <Protocol>
       <Url>http://localhost:9090/msh</Url>
@@ -16,13 +16,6 @@
       <ClientCertificateReference />
     </TlsConfiguration>
   </PushConfiguration>
-  <PullConfiguration>
-    <SubChannel />
-    <Mpc>http://example.holodeckb2b.org/mpc/2</Mpc>
-    <Protocol>
-      <Url>http://localhost:9090/msh</Url>
-    </Protocol>
-  </PullConfiguration>
   <Reliability>
     <ReceptionAwareness>
       <IsEnabled>false</IsEnabled>
@@ -66,6 +59,7 @@
     </Encryption>
   </Security>
   <MessagePackaging>
+    <Mpc>http://example.holodeckb2b.org/mpc/2</Mpc>
     <UseAS4Compression>false</UseAS4Compression>
     <IsMultiHop>false</IsMultiHop>
     <IncludePModeId>true</IncludePModeId>

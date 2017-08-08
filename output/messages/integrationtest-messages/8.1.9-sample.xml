@@ -37,9 +37,9 @@
       </PayloadProperties>
     </Payload>
     <Payload>
-      <Id>earth2</Id>
-      <MimeType>image/jpeg</MimeType>
-      <Location>file:///.\messages\attachments\earth(2).jpg</Location>
+      <Id>sample</Id>
+      <MimeType>application/xml</MimeType>
+      <Location>file:///.\messages\attachments\sample.xml</Location>
       <PayloadProperties>
         <PayloadProperty>
           <Name>Test</Name>

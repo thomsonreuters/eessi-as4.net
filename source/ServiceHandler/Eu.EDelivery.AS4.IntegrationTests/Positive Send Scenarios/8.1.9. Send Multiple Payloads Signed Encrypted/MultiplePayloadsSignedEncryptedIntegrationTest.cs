@@ -13,7 +13,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._9._Se
     public class MultiplePayloadsSignedEncryptedIntegrationTest : IntegrationTestTemplate
     {
         private const string SubmitMessageFilename = "\\8.1.9-sample.xml";
-        private readonly string _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
+        private readonly string _as4MessagesPath = $"{AS4IntegrationMessagesPath}{SubmitMessageFilename}";
         private readonly string _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
 
         [Fact]
@@ -54,13 +54,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._9._Se
 
             // Earth attachment
             FileInfo receivedEarth = receivedPayloads.FirstOrDefault(x => x.Extension == ".jpg");
-            FileInfo receivedXml = receivedPayloads.FirstOrDefault(x => x.Name.Contains("sample"));
+            FileInfo receivedXml = receivedPayloads.FirstOrDefault(x => x.Name.Contains("sample") &&  x.Extension == ".xml");            
 
             Assert.NotNull(receivedEarth);
             Assert.NotNull(receivedXml);
 
             Assert.Equal(sentEarth.Length, receivedEarth.Length);
-            Assert.Equal(sentXml.Length, receivedXml.Length);
+            Assert.Equal(sentXml.Length, receivedXml.Length);            
         }
 
         private static void AssertReceipt()

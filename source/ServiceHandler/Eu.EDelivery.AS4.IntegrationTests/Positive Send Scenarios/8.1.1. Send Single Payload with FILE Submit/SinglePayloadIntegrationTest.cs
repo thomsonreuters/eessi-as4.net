@@ -11,17 +11,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._1._Se
     /// Testing the Application with a Single Payload
     /// </summary>
     public class SinglePayloadIntegrationTest : IntegrationTestTemplate
-    {
-        private const string SubmitMessageFilename = "\\8.1.1-sample.xml";
-        private readonly string _as4MessagesPath;
-        private readonly string _as4OutputPath;
-
-        public SinglePayloadIntegrationTest()
-        {
-            _as4MessagesPath = $"{AS4MessagesRootPath}{SubmitMessageFilename}";
-            _as4OutputPath = $"{AS4FullOutputPath}{SubmitMessageFilename}";
-        }
-
+    {                       
         [Fact]
         public void ThenSendingSinglePayloadSucceeds()
         {
@@ -32,7 +22,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._1._Se
             Holodeck.CopyPModeToHolodeckB("8.1.1-pmode.xml");
 
             // Act
-            File.Copy(_as4MessagesPath, _as4OutputPath);
+            AS4Component.PutMessage("8.1.1-sample.xml");        
 
             // Assert
             bool areFilesFound = PollingAt(AS4ReceiptsPath);
