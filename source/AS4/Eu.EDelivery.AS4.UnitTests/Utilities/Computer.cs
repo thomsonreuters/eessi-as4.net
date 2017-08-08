@@ -21,9 +21,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Utilities
         public static IEnumerable<string> GetFilesInDirectory(string directoryName, string pattern, bool recursive)
         {
             if (Directory.Exists(directoryName) == false)
-            {
-                Trace.WriteLine("Current Directory: " + Environment.CurrentDirectory);
-                throw new DirectoryNotFoundException($"Directory {directoryName} does not exist.");
+            {                
+                throw new DirectoryNotFoundException($"Directory {directoryName} does not exist. (Current directory = {Environment.CurrentDirectory} )");
             }
 
             List<string> matchingFiles = new List<string>();
