@@ -13,14 +13,14 @@ you should install this P-Mode on instance B.
     <Initiator>
         <PartyId>org:eu:europa:as4:example</PartyId>
         <Role>Sender</Role>
-         <SecurityConfiguration>
-            <Encryption>
-                <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
-            </Encryption>
-            <Signing>
-                <KeystoreAlias>partya</KeystoreAlias>
-            </Signing>
-        </SecurityConfiguration>
+          <SecurityConfiguration> 
+             <Encryption>
+               <KeystoreAlias>partya</KeystoreAlias>
+             </Encryption> 
+             <Signing>
+               <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
+             </Signing> 
+         </SecurityConfiguration> 
    </Initiator>
     <Responder>
         <PartyId>org:holodeckb2b:example:company:B</PartyId>
@@ -30,7 +30,7 @@ you should install this P-Mode on instance B.
                 <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
             </Encryption>
             <Signing>
-                <KeystoreAlias>partya</KeystoreAlias>
+                <KeystoreAlias password="Pz4cZK4SULUwmraZb">accesspointb</KeystoreAlias>
             </Signing>
         </SecurityConfiguration>
     </Responder>

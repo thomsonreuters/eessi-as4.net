@@ -54,13 +54,13 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._9._Se
 
             // Earth attachment
             FileInfo receivedEarth = receivedPayloads.FirstOrDefault(x => x.Extension == ".jpg");
-            FileInfo receivedXml = receivedPayloads.FirstOrDefault(x => x.Name.Contains("sample"));
+            FileInfo receivedXml = receivedPayloads.FirstOrDefault(x => x.Name.Contains("sample") &&  x.Extension == ".xml");            
 
             Assert.NotNull(receivedEarth);
             Assert.NotNull(receivedXml);
 
             Assert.Equal(sentEarth.Length, receivedEarth.Length);
-            Assert.Equal(sentXml.Length, receivedXml.Length);
+            Assert.Equal(sentXml.Length, receivedXml.Length);            
         }
 
         private static void AssertReceipt()
