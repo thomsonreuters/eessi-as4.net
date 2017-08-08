@@ -8,7 +8,7 @@ namespace Eu.EDelivery.AS4.IntegrationTests.Positive_Send_Scenarios._8._1._16_Se
     public class SendMessageViaPullingTest : IntegrationTestTemplate
     {
         [Fact]
-        public void HolodeckGetsReciptForPullRequest_IfRequestMatchesMpc()
+        public void HolodeckGetsReceiptForPullRequest_IfRequestMatchesMpc()
         {
             // Arrange
             AS4Component.OverrideSettings("8.1.16-settings.xml");
