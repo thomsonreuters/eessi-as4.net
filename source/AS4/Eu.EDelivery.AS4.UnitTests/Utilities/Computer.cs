@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Management.Automation;
 
@@ -21,7 +22,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Utilities
         {
             if (Directory.Exists(directoryName) == false)
             {
-                Console.WriteLine("Current Directory: " + Environment.CurrentDirectory);
+                Trace.WriteLine("Current Directory: " + Environment.CurrentDirectory);
                 throw new DirectoryNotFoundException($"Directory {directoryName} does not exist.");
             }
 
