@@ -245,9 +245,14 @@ namespace Eu.EDelivery.AS4.Model.PMode
 
     public class Signing
     {
+        private const string DefaultAlgorithm = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+        private const string DefaultHashFunction = "http://www.w3.org/2001/04/xmlenc#sha256";
+
         public Signing()
         {
             IsEnabled = false;
+            Algorithm = DefaultAlgorithm;
+            HashFunction = DefaultHashFunction;
         }
 
         public bool IsEnabled { get; set; }
@@ -257,7 +262,7 @@ namespace Eu.EDelivery.AS4.Model.PMode
         public string PrivateKeyFindValue { get; set; }
 
         public X509ReferenceType KeyReferenceMethod { get; set; }
-        
+
         public string Algorithm { get; set; }
 
         public string HashFunction { get; set; }
