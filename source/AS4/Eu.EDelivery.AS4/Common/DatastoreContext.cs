@@ -131,7 +131,7 @@ namespace Eu.EDelivery.AS4.Common
 
                 if (!String.IsNullOrWhiteSpace(databaseLocation) && !Directory.Exists(databaseLocation))
                 {
-                    Directory.CreateDirectory(c);
+                    Directory.CreateDirectory(databaseLocation);
                 }
 
                 return optionsBuilder.UseSqlite(c);
