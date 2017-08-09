@@ -17,7 +17,7 @@ namespace Eu.EDelivery.AS4.Validators
         /// <summary>
         /// Initializes a new instance of the <see cref="SendingProcessingModeValidator"/> class.
         /// </summary>
-        public SendingProcessingModeValidator()
+        private SendingProcessingModeValidator()
         {
             RuleFor(pmode => pmode.Id).NotEmpty();
 
@@ -29,6 +29,8 @@ namespace Eu.EDelivery.AS4.Validators
             RulesForSigning();
             RulesForEncryption();
         }
+
+        public static readonly SendingProcessingModeValidator Instance = new SendingProcessingModeValidator();
 
         private void RulesForDynamicDiscoveryConfiguration()
         {

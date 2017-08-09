@@ -126,7 +126,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Validators
             ReceivingProcessingMode pmode = CreateValidPMode();
             arrangePMode(pmode);
 
-            var sut = new ReceivingProcessingModeValidator();
+            var sut = ReceivingProcessingModeValidator.Instance;
 
             // Act
             ValidationResult result = sut.Validate(pmode);

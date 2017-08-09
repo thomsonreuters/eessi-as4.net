@@ -81,10 +81,8 @@ namespace Eu.EDelivery.AS4.Steps.Submit
         }
 
         private static void ValidatePMode(SendingProcessingMode pmode)
-        {
-            var validator = new SendingProcessingModeValidator();
-
-            validator.Validate(pmode).Result(
+        {            
+            SendingProcessingModeValidator.Instance.Validate(pmode).Result(
                 onValidationSuccess: result => Logger.Info($"Sending PMode {pmode.Id} is valid for Submit Message"),
                 onValidationFailed: result =>
                 {

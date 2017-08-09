@@ -12,7 +12,7 @@ namespace Eu.EDelivery.AS4.Validators
         /// <summary>
         /// Initializes a new instance of the <see cref="ReceivingProcessingModeValidator" /> class.
         /// </summary>
-        public ReceivingProcessingModeValidator()
+        private ReceivingProcessingModeValidator()
         {
             RuleFor(pmode => pmode.Id).NotNull();
 

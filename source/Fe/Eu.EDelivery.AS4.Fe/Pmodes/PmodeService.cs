@@ -188,20 +188,32 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
         /// <exception cref="InvalidPmodeException"></exception>
         private void ValidateSendingPmode(SendingBasePmode sendingPmode)
         {
-            if (disableValidation) return;
-            var validator = new SendingProcessingModeValidator();
-            var result = validator.Validate(sendingPmode.Pmode);
+            if (disableValidation)
+            {
+                return;
+            }
+            
+            var result = SendingProcessingModeValidator.Instance.Validate(sendingPmode.Pmode);
+
             if (!result.IsValid)
+            {
                 throw new InvalidPmodeException(result.Errors);
+            }
         }
 
         private void ValidateReceivingPmode(ReceivingBasePmode sendingPmode)
         {
-            if (disableValidation) return;
-            var validator = new ReceivingProcessingModeValidator();
-            var result = validator.Validate(sendingPmode.Pmode);
+            if (disableValidation)
+            {
+                return;
+            }
+            
+            var result = ReceivingProcessingModeValidator.Instance.Validate(sendingPmode.Pmode);
+
             if (!result.IsValid)
+            {
                 throw new InvalidPmodeException(result.Errors);
+            }
         }
     }
 }
