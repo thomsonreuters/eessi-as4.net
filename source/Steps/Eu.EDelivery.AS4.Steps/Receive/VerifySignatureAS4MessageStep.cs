@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Eu.EDelivery.AS4.Exceptions;
@@ -35,13 +34,13 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             if (isMessageFailsTheRequiredSigning)
             {
                 string description = $"Receiving PMode {pmode.Id} requires a Signed AS4 Message and the message is not";
-                return InvalidSignatureResult(description, ErrorCode.Ebms0103, messagingContext);
+                return InvalidSignatureResult(description, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
             if (isMessageFailedTheUnallowedSigning)
             {
                 string description = $"Receiving PMode {pmode.Id} doesn't allow a signed AS4 Message and the message is";
-                return InvalidSignatureResult(description, ErrorCode.Ebms0103, messagingContext);
+                return InvalidSignatureResult(description, ErrorAlias.PolicyNonCompliance, messagingContext);
             }
 
             if (MessageDoesNotNeedToBeVerified(messagingContext))
@@ -69,7 +68,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             catch (CryptographicException exception)
             {
                 Logger.Error($"An exception occured while validating the signature: {exception.Message}");
-                return InvalidSignatureResult(exception.Message, ErrorCode.Ebms0101, messagingContext);
+                return InvalidSignatureResult(exception.Message, ErrorAlias.FailedAuthentication, messagingContext);
             }
         }
 
@@ -79,7 +78,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             {
                 string description = "The signature is invalid";
                 Logger.Error(description);
-                return InvalidSignatureResult(description, ErrorCode.Ebms0101, messagingContext);
+                return InvalidSignatureResult(description, ErrorAlias.FailedAuthentication, messagingContext);
             }
 
             Logger.Info($"{messagingContext.Prefix} AS4 Message has a valid Signature present");
@@ -107,9 +106,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             };
         }
 
-        private static StepResult InvalidSignatureResult(string description, ErrorCode code, MessagingContext context)
+        private static StepResult InvalidSignatureResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult(description, code, ErrorAlias.FailedAuthentication);
+            context.ErrorResult = new ErrorResult(description, errorAlias);
             return StepResult.Failed(context);
         }
     }

@@ -109,7 +109,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (validationResult.IsValid == false)
             {
-                messagingContext.ErrorResult = new ErrorResult("The receiving PMode is not valid.", ErrorCode.Ebms0004);
+                messagingContext.ErrorResult = new ErrorResult("The receiving PMode is not valid.", ErrorAlias.Other);
                 throw new InvalidPModeException($"The Receiving PMode {pmode.Id} is not valid.", validationResult);
             }
 
@@ -121,7 +121,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult FailedStepResult(string description, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult(description, ErrorCode.Ebms0010);
+            context.ErrorResult = new ErrorResult(description, ErrorAlias.ProcessingModeMismatch);
             return StepResult.Failed(context);
         }
 

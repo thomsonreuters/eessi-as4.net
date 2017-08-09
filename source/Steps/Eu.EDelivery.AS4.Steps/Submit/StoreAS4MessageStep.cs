@@ -66,7 +66,7 @@ namespace Eu.EDelivery.AS4.Steps.Submit
                 }
                 catch
                 {
-                    messagingContext.ErrorResult = new ErrorResult("Unable to store the received message.", ErrorCode.Ebms0004);
+                    messagingContext.ErrorResult = new ErrorResult("Unable to store the received message.", ErrorAlias.Other);
                     throw;
                 }
             }

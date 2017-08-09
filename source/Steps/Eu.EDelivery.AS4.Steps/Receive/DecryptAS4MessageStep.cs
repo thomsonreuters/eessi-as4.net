@@ -57,12 +57,12 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
             if (decryption.Encryption == Limit.Required && !as4Message.IsEncrypted)
             {
-               return FailedDecryptResult($"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it", context);
+               return FailedDecryptResult($"AS4 Message is not encrypted but Receiving PMode {pmode.Id} requires it", ErrorAlias.PolicyNonCompliance, context);
             }
 
             if (decryption.Encryption == Limit.NotAllowed && as4Message.IsEncrypted)
             {
-                return FailedDecryptResult($"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it", context);
+                return FailedDecryptResult($"AS4 Message is encrypted but Receiving PMode {pmode.Id} doesn't allow it", ErrorAlias.PolicyNonCompliance, context);
             }
 
             if (IsEncryptedIgnored(context) || !context.AS4Message.IsEncrypted)
@@ -73,9 +73,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             return await TryDecryptAS4Message(context);
         }
 
-        private static StepResult FailedDecryptResult(string description, MessagingContext context)
+        private static StepResult FailedDecryptResult(string description, ErrorAlias errorAlias, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult(description, ErrorCode.Ebms0103, ErrorAlias.FailedDecryption);
+            context.ErrorResult = new ErrorResult(description, errorAlias);
             return StepResult.Failed(context);
         }
 
@@ -108,8 +108,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             catch (CryptoException exception)
             {
                 messagingContext.ErrorResult = new ErrorResult(
-                    description: $"Decryption failed: {exception.Message}",
-                    code: ErrorCode.Ebms0102,
+                    description: $"Decryption failed: {exception.Message}",                    
                     alias: ErrorAlias.FailedDecryption);
 
                 return StepResult.Failed(messagingContext);

@@ -73,46 +73,36 @@ namespace Eu.EDelivery.AS4.Exceptions
                     return null;
             }
         }
-
-        private static readonly IDictionary<ErrorCode, ErrorAlias> ErrorAliases = new Dictionary<ErrorCode, ErrorAlias>
+      
+        private static readonly IDictionary<ErrorAlias, ErrorCode> ErrorCodes = new Dictionary<ErrorAlias, ErrorCode>
         {
-            [ErrorCode.Ebms0001] = ErrorAlias.ValueNotRecognized,
-            [ErrorCode.Ebms0002] = ErrorAlias.FeatureNotSupported,
-            [ErrorCode.Ebms0003] = ErrorAlias.ValueInconsistent,
-            [ErrorCode.Ebms0004] = ErrorAlias.Other,
-            [ErrorCode.Ebms0005] = ErrorAlias.ConnectionFailure,
-            [ErrorCode.Ebms0006] = ErrorAlias.EmptyMessagePartitionChannel,
-            [ErrorCode.Ebms0007] = ErrorAlias.MimeInconsistency,
-            [ErrorCode.Ebms0008] = ErrorAlias.FeatureNotSupported,
-            [ErrorCode.Ebms0009] = ErrorAlias.InvalidHeader,
-            [ErrorCode.Ebms0010] = ErrorAlias.ProcessingModeMismatch,
-            [ErrorCode.Ebms0011] = ErrorAlias.ExternalPayloadError,
-            [ErrorCode.Ebms0101] = ErrorAlias.FailedAuthentication,
-            [ErrorCode.Ebms0102] = ErrorAlias.FailedDecryption,
-            [ErrorCode.Ebms0103] = ErrorAlias.FailedDecryption,
-            [ErrorCode.Ebms0301] = ErrorAlias.MissingReceipt,
-            [ErrorCode.Ebms0302] = ErrorAlias.InvalidReceipt,
-            [ErrorCode.Ebms0303] = ErrorAlias.DecompressionFailure
+            [ErrorAlias.ValueNotRecognized] = ErrorCode.Ebms0001,
+            [ErrorAlias.FeatureNotSupported] = ErrorCode.Ebms0002,
+            [ErrorAlias.ValueInconsistent] = ErrorCode.Ebms0003,
+            [ErrorAlias.Other] = ErrorCode.Ebms0004,
+            [ErrorAlias.ConnectionFailure] = ErrorCode.Ebms0005,
+            [ErrorAlias.EmptyMessagePartitionChannel] = ErrorCode.Ebms0006,
+            [ErrorAlias.MimeInconsistency] = ErrorCode.Ebms0007,
+            [ErrorAlias.FeatureNotSupported] = ErrorCode.Ebms0008,
+            [ErrorAlias.InvalidHeader] = ErrorCode.Ebms0009,
+            [ErrorAlias.ProcessingModeMismatch] = ErrorCode.Ebms0010,
+            [ErrorAlias.ExternalPayloadError] = ErrorCode.Ebms0011,
+            [ErrorAlias.FailedAuthentication] = ErrorCode.Ebms0101,
+            [ErrorAlias.FailedDecryption] = ErrorCode.Ebms0102,
+            [ErrorAlias.PolicyNonCompliance] = ErrorCode.Ebms0103,
+            [ErrorAlias.MissingReceipt] = ErrorCode.Ebms0301,
+            [ErrorAlias.InvalidReceipt] = ErrorCode.Ebms0302,
+            [ErrorAlias.DecompressionFailure] = ErrorCode.Ebms0303,
         };
 
-        public static string GetShortDescription(ErrorCode errorCode)
+        public static ErrorCode GetErrorCode(ErrorAlias alias)
         {
-            if (ErrorAliases.TryGetValue(errorCode, out var alias))
+            if (ErrorCodes.TryGetValue(alias, out var code))
             {
-                return alias == ErrorAlias.NonApplicable ? null : alias.ToString();
+                return code;
             }
 
-            return string.Empty;
-        }
-
-        public static ErrorAlias GetErrorAlias(ErrorCode code)
-        {
-            if (ErrorAliases.TryGetValue(code, out var alias))
-            {
-                return alias;                
-            }
-
-            return ErrorAlias.Other;
+            return ErrorCode.Ebms0004;
         }
     }
 }

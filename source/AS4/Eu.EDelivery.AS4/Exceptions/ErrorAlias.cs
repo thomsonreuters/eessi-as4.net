@@ -19,6 +19,7 @@
         Other,
         FailedAuthentication,
         FailedDecryption,
+        PolicyNonCompliance,
         MissingReceipt,
         InvalidReceipt,
         DecompressionFailure

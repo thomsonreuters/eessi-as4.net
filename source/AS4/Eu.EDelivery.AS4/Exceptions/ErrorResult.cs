@@ -21,11 +21,11 @@ namespace Eu.EDelivery.AS4.Exceptions
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorResult" /> class.
         /// </summary>
-        public ErrorResult(string description, ErrorCode errorCode)
+        public ErrorResult(string description, ErrorAlias alias)
         {
             Description = description;
-            Code = errorCode;
-            Alias = ErrorCodeUtils.GetErrorAlias(errorCode);
+            Code = ErrorCodeUtils.GetErrorCode(alias);
+            Alias = alias;
         }
 
         public string Description { get; }
@@ -33,5 +33,15 @@ namespace Eu.EDelivery.AS4.Exceptions
         public ErrorCode Code { get; }
 
         public ErrorAlias Alias { get; }
+
+        public string GetAliasDescription()
+        {
+            if (Alias == ErrorAlias.NonApplicable)
+            {
+                return string.Empty;
+            }
+
+            return Alias.ToString();
+        }
     }
 }

@@ -105,7 +105,7 @@ namespace Eu.EDelivery.AS4.Services
         {
             return new ErrorBuilder()
                 .WithRefToEbmsMessageId(messageId)
-                .WithErrorResult(new ErrorResult($"[{messageId}] Missing Receipt", ErrorCode.Ebms0301, ErrorAlias.MissingReceipt))
+                .WithErrorResult(new ErrorResult($"[{messageId}] Missing Receipt", ErrorAlias.MissingReceipt))
                 .Build();
         }
 

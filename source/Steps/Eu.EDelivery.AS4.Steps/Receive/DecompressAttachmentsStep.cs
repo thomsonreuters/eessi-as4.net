@@ -84,7 +84,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
 
         private static StepResult DecompressFailureResult(string description, MessagingContext context)
         {
-            context.ErrorResult = new ErrorResult(description, ErrorCode.Ebms0303, ErrorAlias.DecompressionFailure);
+            context.ErrorResult = new ErrorResult(description, ErrorAlias.DecompressionFailure);
             return StepResult.Failed(context);
         }
 
