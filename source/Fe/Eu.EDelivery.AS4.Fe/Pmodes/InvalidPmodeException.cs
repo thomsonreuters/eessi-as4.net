@@ -8,6 +8,7 @@ namespace Eu.EDelivery.AS4.Fe.Pmodes
     ///     Exception thrown when a PMode is invalid
     /// </summary>
     /// <seealso cref="System.Exception" />
+    [Obsolete("Use Eu.EDelivery.AS4.Model.PMode.InvalidPModeException instead.")]
     public class InvalidPmodeException : Exception
     {
         /// <summary>

@@ -89,6 +89,7 @@ namespace Eu.EDelivery.AS4.Exceptions
             [ErrorCode.Ebms0011] = ErrorAlias.ExternalPayloadError,
             [ErrorCode.Ebms0101] = ErrorAlias.FailedAuthentication,
             [ErrorCode.Ebms0102] = ErrorAlias.FailedDecryption,
+            [ErrorCode.Ebms0103] = ErrorAlias.FailedDecryption,
             [ErrorCode.Ebms0301] = ErrorAlias.MissingReceipt,
             [ErrorCode.Ebms0302] = ErrorAlias.InvalidReceipt,
             [ErrorCode.Ebms0303] = ErrorAlias.DecompressionFailure
@@ -96,9 +97,22 @@ namespace Eu.EDelivery.AS4.Exceptions
 
         public static string GetShortDescription(ErrorCode errorCode)
         {
-            ErrorAliases.TryGetValue(errorCode, out var alias);
+            if (ErrorAliases.TryGetValue(errorCode, out var alias))
+            {
+                return alias == ErrorAlias.NonApplicable ? null : alias.ToString();
+            }
 
-            return alias == ErrorAlias.NonApplicable ? null : alias.ToString();
+            return string.Empty;
+        }
+
+        public static ErrorAlias GetErrorAlias(ErrorCode code)
+        {
+            if (ErrorAliases.TryGetValue(code, out var alias))
+            {
+                return alias;                
+            }
+
+            return ErrorAlias.Other;
         }
     }
 }

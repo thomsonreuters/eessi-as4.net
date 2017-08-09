@@ -41,9 +41,9 @@ namespace Eu.EDelivery.AS4.Steps.Receive
             Logger.Info($"[{messagingContext.AS4Message?.GetPrimaryMessageId()}] Create AS4 Error Message");
 
             AS4Message errorMessage = CreateAS4Error(messagingContext);
-            MessagingContext context = messagingContext.CloneWith(errorMessage);
+            messagingContext.ModifyContext(errorMessage);
           
-            return await StepResult.SuccessAsync(context);
+            return await StepResult.SuccessAsync(messagingContext);
         }
 
         private static AS4Message CreateAS4Error(MessagingContext context)

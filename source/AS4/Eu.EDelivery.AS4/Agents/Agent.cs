@@ -127,7 +127,7 @@ namespace Eu.EDelivery.AS4.Agents
             }
             catch (Exception exception)
             {
-                return await _exceptionHandler.HandleExecutionException(exception, result.MessagingContext);
+                return await _exceptionHandler.HandleExecutionException(exception, currentContext);
             }
 
             try
@@ -175,18 +175,20 @@ namespace Eu.EDelivery.AS4.Agents
         {
             StepResult result = StepResult.Success(context);
 
+            var currentContext = context;
+
             foreach (IStep step in steps)
             {
-                result = await step.ExecuteAsync(context, cancellation).ConfigureAwait(false);
+                result = await step.ExecuteAsync(currentContext, cancellation).ConfigureAwait(false);
 
                 if (result.CanProceed == false || result.Succeeded == false || result.MessagingContext?.Exception != null)
                 {
                     return result;
                 }
 
-                if (result.MessagingContext != null)
+                if (result.MessagingContext != null && currentContext != result.MessagingContext)
                 {
-                    context = result.MessagingContext;
+                    currentContext = result.MessagingContext;
                 }
             }
 

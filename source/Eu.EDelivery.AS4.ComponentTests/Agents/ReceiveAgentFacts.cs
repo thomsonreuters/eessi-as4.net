@@ -66,6 +66,57 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         }
 
         [Fact]
+        public async Task ThenAgentReturnsError_IfReceivingPModeIsNotValid()
+        {
+            const string messageId = "some-message-id";
+
+            // Arrange
+            var message = AS4Message.Create(new UserMessage
+            {
+                MessageId = messageId,
+                Sender =
+                {
+                    PartyIds = {new PartyId{Id = "org:eu:europa:as4:example:accesspoint:A" } },
+                    Role = "Sender"
+                },
+                Receiver =
+                {
+                    PartyIds =
+                    {
+                        new PartyId{ Id = "org:eu:europa:as4:example:accesspoint:B"}
+                    },
+                    Role = "Receiver"
+                },
+                CollaborationInfo =
+                {
+                    AgreementReference =
+                    {
+                        Value = "http://agreements.europa.org/agreement"
+                    },
+                    Action = "Invalid_PMode_Test_Action",
+                    Service =
+                    {
+                        Type = "eu:europa:services",
+                        Value = "Invalid_PMode_Test_Service"
+                    }
+                }
+            });
+
+
+            // Act
+            HttpResponseMessage response = await HttpClient.SendAsync(CreateSendMessage(message));
+
+            // Assert
+            Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
+
+            var inMessageRecord = _databaseSpy.GetInMessageFor(m => m.EbmsMessageId == messageId);
+            var inExceptionRecord = _databaseSpy.GetInExceptions(e => e.EbmsRefToMessageId == messageId).FirstOrDefault();
+
+            Assert.Equal(InStatus.Exception, inMessageRecord.Status);
+            Assert.NotNull(inExceptionRecord);
+        }
+
+        [Fact]
         public async Task ThenInMessageOperationIsToBeDelivered()
         {
             // Arrange
@@ -255,5 +306,5 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
         {
             _as4Msh.Dispose();
         }
-    }    
+    }
 }

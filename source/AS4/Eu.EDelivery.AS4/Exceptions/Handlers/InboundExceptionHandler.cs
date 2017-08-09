@@ -111,8 +111,18 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
                         repository.InsertInException(ex);
                     });
             }
-           
-            return new MessagingContext(exception);
+
+            return CreateExceptionContext(exception, context);
+        }
+
+        private static MessagingContext CreateExceptionContext(Exception exception, MessagingContext context)
+        {
+            var exceptionContext = new MessagingContext(exception)
+            {
+                ErrorResult = context.ErrorResult
+            };
+
+            return exceptionContext;
         }
 
         private static InException CreateInExceptionWithContextInfo(Exception exception, MessagingContext context)

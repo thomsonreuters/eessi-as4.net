@@ -122,7 +122,9 @@ namespace Eu.EDelivery.AS4.Steps.Send
 
         private static StepResult SuccessStepResult(AS4Message message, MessagingContext context)
         {
-            return StepResult.Success(context.CloneWith(message));
+            context.ModifyContext(message);
+
+            return StepResult.Success(context);
         }
     }
 }

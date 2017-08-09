@@ -122,7 +122,9 @@ namespace Eu.EDelivery.AS4.Services
                 InsertUserMessages(as4Message, mep, location, cancellationToken);
                 InsertSignalMessages(as4Message, mep, location, cancellationToken);
 
-                return context.CloneWith(as4Message);
+                context.ModifyContext(as4Message);
+
+                return context;
             }
             catch (Exception ex)
             {

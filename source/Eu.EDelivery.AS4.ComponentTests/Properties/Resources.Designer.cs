@@ -133,6 +133,16 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] receiveagent_message_invalidreceiving_pmode {
+            get {
+                object obj = ResourceManager.GetObject("receiveagent_message_invalidreceiving_pmode", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] receiveagent_message_nonexist_attachment {
             get {
                 object obj = ResourceManager.GetObject("receiveagent_message_nonexist_attachment", resourceCulture);

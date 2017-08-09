@@ -45,10 +45,10 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 string messageId = Guid.NewGuid().ToString();
-                var expected = new SendingProcessingMode {Id = Guid.NewGuid().ToString()};
+                var expected = new SendingProcessingMode { Id = Guid.NewGuid().ToString() };
                 InsertOutMessage(messageId, expected);
 
-                AS4Message as4Message = AS4Message.Create(new Receipt {RefToMessageId = messageId});
+                AS4Message as4Message = AS4Message.Create(new Receipt { RefToMessageId = messageId });
 
                 // Act
                 StepResult result = await ExerciseDeterminePModes(as4Message);
@@ -83,8 +83,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 // Arrange
                 const string sharedId = "01-receive";
-                var pmode = new ReceivePMode {Id = sharedId};
-                SetupPModes(pmode, CreateDefaultPMode());
+                var pmode = CreateDefaultPMode("01-receive");
+                SetupPModes(pmode, CreateDefaultPMode("defaultMode"));
 
                 MessagingContext messagingContext = new MessageContextBuilder().WithPModeId(sharedId).Build();
 
@@ -167,7 +167,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             {
                 ReceivePMode partyInfoPMode = CreatePModeWithParties(fromParty, toParty);
                 partyInfoPMode.MessagePackaging.CollaborationInfo.AgreementReference.Value = "not-equal";
-                var idPMode = new ReceivePMode {Id = sharedId};
+                var idPMode = CreateDefaultPMode(sharedId);
+                
                 SetupPModes(partyInfoPMode, idPMode);
                 return idPMode;
             }
@@ -231,7 +232,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
             private ReceivePMode CreatePModeWithParties(Party fromParty, Party toParty)
             {
-                ReceivePMode pmode = CreateDefaultPMode();
+                ReceivePMode pmode = CreateDefaultPMode("default-PMode");
                 pmode.MessagePackaging.PartyInfo.FromParty = fromParty;
                 pmode.MessagePackaging.PartyInfo.ToParty = toParty;
 
@@ -260,7 +261,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 Assert.False(result.Succeeded);
                 ErrorResult errorResult = result.MessagingContext.ErrorResult;
-                Assert.Equal(ErrorCode.Ebms0001, errorResult.Code);
+                Assert.Equal(ErrorCode.Ebms0010, errorResult.Code);
             }
 
             private void ArrangePModeThenServiceAndActionIsNotEnough(string action, string service)
@@ -276,7 +277,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             public async Task ThenAgreementRefIsNotEnoughAsync(string name, string type)
             {
                 // Arrange
-                var agreementRef = new AgreementReference {Value = name, Type = type};
+                var agreementRef = new AgreementReference { Value = name, Type = type };
                 ArrangePModeThenAgreementRefIsNotEnough(agreementRef);
 
                 MessagingContext messagingContext =
@@ -290,7 +291,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
                 // Assert
                 Assert.False(result.Succeeded);
                 ErrorResult errorResult = result.MessagingContext.ErrorResult;
-                Assert.Equal(ErrorCode.Ebms0001, errorResult.Code);
+                Assert.Equal(ErrorCode.Ebms0010, errorResult.Code);
             }
 
             private void ArrangePModeThenAgreementRefIsNotEnough(AgreementReference agreementRef)
@@ -301,13 +302,18 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             }
         }
 
-        protected ReceivePMode CreateDefaultPMode()
+        protected ReceivePMode CreateDefaultPMode(string id)
         {
-            return new ReceivePMode
+            var pmode = new ReceivePMode
             {
+                Id = id,
                 MessagePackaging =
-                    new MessagePackaging {CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo()}
+                    new MessagePackaging { CollaborationInfo = new CollaborationInfo(), PartyInfo = new PartyInfo() }
             };
+
+            pmode.ReplyHandling.SendingPMode = "response_pmode";
+
+            return pmode;
         }
 
         protected void SetupPModes(params ReceivePMode[] pmodes)
@@ -317,7 +323,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected ReceivePMode CreatePModeWithAgreementRef(AgreementReference agreementRef)
         {
-            ReceivePMode pmode = CreateDefaultPMode();
+            ReceivePMode pmode = CreateDefaultPMode("defaultPMode");
             pmode.MessagePackaging.CollaborationInfo.AgreementReference = agreementRef;
 
             return pmode;
@@ -325,7 +331,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
 
         protected ReceivePMode CreatePModeWithActionService(string service, string action)
         {
-            ReceivePMode pmode = CreateDefaultPMode();
+            ReceivePMode pmode = CreateDefaultPMode("defaultPMode");
             pmode.MessagePackaging.CollaborationInfo.Action = action;
             pmode.MessagePackaging.CollaborationInfo.Service.Value = service;
 
@@ -347,7 +353,7 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Receive
             var fromParty = new Party(fromId, new PartyId(fromId));
             var toParty = new Party(toId, new PartyId(toId));
 
-            pmode.MessagePackaging.PartyInfo = new PartyInfo {FromParty = fromParty, ToParty = toParty};
+            pmode.MessagePackaging.PartyInfo = new PartyInfo { FromParty = fromParty, ToParty = toParty };
         }
     }
 }

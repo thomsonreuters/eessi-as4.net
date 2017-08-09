@@ -53,9 +53,9 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
 
             DeliverMessageEnvelope deliverMessage = CreateDeliverMessageEnvelope(messagingContext, includeAttachments);
-            MessagingContext deliverContext = messagingContext.CloneWith(deliverMessage);
+            messagingContext.ModifyContext(deliverMessage);
 
-            return StepResult.SuccessAsync(deliverContext);
+            return StepResult.SuccessAsync(messagingContext);
         }
 
         private DeliverMessageEnvelope CreateDeliverMessageEnvelope(MessagingContext context, bool includeAttachments)

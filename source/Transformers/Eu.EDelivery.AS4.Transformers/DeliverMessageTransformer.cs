@@ -63,7 +63,9 @@ namespace Eu.EDelivery.AS4.Transformers
 
             as4Message = RemoveUnnecessaryAttachments(as4Message);
 
-            return messagingContext.CloneWith(as4Message);
+            messagingContext.ModifyContext(as4Message);
+
+            return messagingContext;
         }
 
         private static AS4Message RemoveUnnecessaryMessages(AS4Message as4Message, string userMessageId)
