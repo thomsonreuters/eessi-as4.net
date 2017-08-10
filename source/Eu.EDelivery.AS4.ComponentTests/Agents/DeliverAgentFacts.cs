@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,10 +7,12 @@ using Eu.EDelivery.AS4.Common;
 using Eu.EDelivery.AS4.ComponentTests.Common;
 using Eu.EDelivery.AS4.Entities;
 using Eu.EDelivery.AS4.Model.Core;
+using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Repositories;
 using Eu.EDelivery.AS4.Serialization;
 using Xunit;
 using static Eu.EDelivery.AS4.ComponentTests.Properties.Resources;
+using MessageExchangePattern = Eu.EDelivery.AS4.Entities.MessageExchangePattern;
 
 namespace Eu.EDelivery.AS4.ComponentTests.Agents
 {
@@ -17,6 +20,8 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
     {
         private const string ContentType =
             "multipart/related; boundary=\"MIMEBoundary_18bd76d83b2fa5adb6f4e198ff24bcc40fcdb2988035bd08\"; type=\"application/soap+xml\"; charset=\"utf-8\"";
+
+        private static readonly string AttachmentDeliverLocation = Path.Combine(Environment.CurrentDirectory, @"messages\in");
 
         private readonly AS4Component _as4Msh;
 
@@ -36,14 +41,13 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
             AS4Message as4Message = await CreateAS4MessageFrom(deliveragent_message);
             as4Message.AddAttachment(DummyAttachment());
 
-            string deliverLocation = AttachmentDeliverLocation();
-            CleanDirectoryAt(deliverLocation);
+            FileSystemUtils.ClearDirectory(AttachmentDeliverLocation);
 
             // Act
             await InsertToBeDeliveredMessage(as4Message);
 
             // Assert
-            AssertOnDeliveredAttachments(deliverLocation, files => Assert.True(files.Length == 1, "files.Length == 1"));
+            AssertOnDeliveredAttachments(AttachmentDeliverLocation, files => Assert.True(files.Length == 1, "files.Length == 1"));
         }
 
         private static Attachment DummyAttachment()
@@ -57,11 +61,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 Content = stream,
                 Location = uri
             };
-        }
-
-        private static string AttachmentDeliverLocation()
-        {
-            return Path.Combine(Environment.CurrentDirectory, @"messages\in");
         }
 
         private static void AssertOnDeliveredAttachments(string location, Action<FileInfo[]> assertion)
@@ -144,6 +143,25 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
 
         private static async Task<InMessage> CreateInMessageFrom(AS4Message as4Message)
         {
+            ReceivingProcessingMode CreateReceivedPMode()
+            {
+                var pmode = new ReceivingProcessingMode();
+                pmode.Id = "DeliverAgent_ReceivingPMode";
+                pmode.MessageHandling.DeliverInformation.IsEnabled = true;
+                pmode.MessageHandling.DeliverInformation.DeliverMethod = new Method()
+                {
+                    Type = "FILE",
+                    Parameters = new List<Parameter> { new Parameter() { Name = "Location", Value = AttachmentDeliverLocation } }
+                };
+                pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = new Method()
+                {
+                    Type = "FILE",
+                    Parameters = new List<Parameter> { new Parameter() { Name = "Location", Value = AttachmentDeliverLocation } }
+                };
+
+                return pmode;
+            }
+
             return new InMessage
             {
                 ContentType = as4Message.ContentType,
@@ -152,7 +170,7 @@ namespace Eu.EDelivery.AS4.ComponentTests.Agents
                 MEP = MessageExchangePattern.Push,
                 MessageLocation =
                     await Registry.Instance.MessageBodyStore.SaveAS4MessageAsync(Config.Instance.InMessageStoreLocation, as4Message, CancellationToken.None),
-                PMode = deliveragent_pmode, 
+                PMode = AS4XmlSerializer.ToString(CreateReceivedPMode()),
                 Operation = Operation.ToBeDelivered
             };
         }

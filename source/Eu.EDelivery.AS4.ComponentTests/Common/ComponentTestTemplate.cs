@@ -5,18 +5,9 @@ using Xunit;
 namespace Eu.EDelivery.AS4.ComponentTests.Common
 {
     [Collection("ComponentTest")]
-    public class ComponentTestTemplate : IDisposable
+    public class ComponentTestTemplate : IClassFixture<ComponentTestFixture>, IDisposable
     {
         private bool _restoreSettings = false;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ComponentTestTemplate"/> class.
-        /// </summary>
-        public ComponentTestTemplate()
-        {
-            CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
-            CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
-        }
 
         protected void OverrideSettings(string settingsFile)
         {
@@ -38,26 +29,23 @@ namespace Eu.EDelivery.AS4.ComponentTests.Common
 
         #region Infrastructure methods
 
-        private static void CopyDirectory(string sourceDirName, string destDirName)
-        {
-            if (Directory.Exists(sourceDirName) == false)
-            {
-                throw new DirectoryNotFoundException($"The {sourceDirName} directory can not be found.");
-            }
-
-            if (Directory.Exists(destDirName) == false)
-            {
-                Directory.CreateDirectory(destDirName);
-            }
-
-            var files = Directory.GetFiles(sourceDirName);
-
-            foreach (string fileName in files)
-            {
-                File.Copy(fileName, Path.Combine(destDirName, Path.GetFileName(fileName)), true);
-            }
-        }
 
         #endregion
+    }
+
+    public class ComponentTestFixture
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ComponentTestFixture"/> class.
+        /// </summary>
+        public ComponentTestFixture()
+        {
+            FileSystemUtils.ClearDirectory(@".\config\send-pmodes");
+            FileSystemUtils.ClearDirectory(@".\config\receive-pmodes");
+
+            FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\send-pmodes", @".\config\send-pmodes");
+            FileSystemUtils.CopyDirectory(@".\config\componenttest-settings\receive-pmodes", @".\config\receive-pmodes");
+        }
+
     }
 }
