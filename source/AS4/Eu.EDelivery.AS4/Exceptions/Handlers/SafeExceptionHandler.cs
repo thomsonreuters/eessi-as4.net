@@ -43,7 +43,7 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleExecutionException(Exception exception, MessagingContext context)
         {
-            return await TryHandling(() => _innerHandler.HandleExecutionException(exception, context));
+            return await TryHandling(() => _innerHandler.HandleExecutionException(exception, context), faultingContext: context);
         }
 
         /// <summary>
@@ -54,7 +54,28 @@ namespace Eu.EDelivery.AS4.Exceptions.Handlers
         /// <returns></returns>
         public async Task<MessagingContext> HandleErrorException(Exception exception, MessagingContext context)
         {
-            return await TryHandling(() => _innerHandler.HandleErrorException(exception, context));
+            return await TryHandling(() => _innerHandler.HandleErrorException(exception, context), faultingContext: context);
+        }
+
+        private static async Task<MessagingContext> TryHandling(Func<Task<MessagingContext>> actionToTry, MessagingContext faultingContext)
+        {
+            try
+            {
+                return await actionToTry();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("An error occured while trying to log an error:");
+                Logger.Error(ex);
+                Logger.Trace(ex.StackTrace);
+
+                if (faultingContext != null && faultingContext.Exception == null)
+                {
+                    faultingContext.Exception = ex;
+                }
+
+                return faultingContext ?? new MessagingContext(ex);
+            }
         }
 
         private static async Task<MessagingContext> TryHandling(Func<Task<MessagingContext>> actionToTry)
