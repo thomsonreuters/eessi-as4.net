@@ -71,26 +71,6 @@ namespace Eu.EDelivery.AS4.ComponentTests.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-        ///
-        ///&lt;PMode xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
-        ///       xmlns=&quot;eu:edelivery:as4:pmode&quot;&gt;
-        ///  &lt;Id&gt;8.3.1-pmode&lt;/Id&gt;&lt;Mep&gt;OneWay&lt;/Mep&gt;&lt;MepBinding&gt;Pull&lt;/MepBinding&gt;
-        ///  &lt;Reliability&gt;
-        ///    &lt;DuplicateElimination&gt;
-        ///      &lt;IsEnabled&gt;false&lt;/IsEnabled&gt;
-        ///    &lt;/DuplicateElimination&gt;
-        ///  &lt;/Reliability&gt;
-        ///  &lt;ReceiptHandling&gt;
-        ///    &lt;UseNNRFormat&gt;false&lt;/UseNNRFormat&gt;&lt;ReplyPattern&gt;Response&lt;/ReplyPattern&gt;&lt;SendingPMode&gt;pmode&lt;/SendingP [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string deliveragent_pmode {
-            get {
-                return ResourceManager.GetString("deliveragent_pmode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to  &lt;soapenv:Envelope xmlns:soapenv=&quot;http://www.w3.org/2003/05/soap-envelope&quot; xmlns:xsd=&quot;http://www.w3.org/1999/XMLSchema&quot; xmlns:eb3=&quot;http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/&quot; xmlns:xsi=&quot;http://www.w3.org/1999/XMLSchema-instance/&quot;&gt;&lt;soapenv:Header&gt;&lt;wsse:Security xmlns:wsse=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd&quot; xmlns:wsu=&quot;http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd&quot; soapenv:mustUnderstand=&quot;true&quot; soapenv:rol [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string pullrequest_without_mpc {
