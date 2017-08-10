@@ -51,7 +51,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string attachmentFilePath = Path.GetFullPath(downloadUrl);
 
             await TryUploadAttachment(attachment, attachmentFilePath).ConfigureAwait(false);
-            return new UploadResult {DownloadUrl = attachmentFilePath};
+            return new UploadResult { DownloadUrl = attachmentFilePath };
         }
 
         private string AssembleFileDownloadUrlFor(Attachment attachment)
@@ -61,7 +61,7 @@ namespace Eu.EDelivery.AS4.Strategies.Uploader
             string extension = _repository.GetExtensionFromMimeType(attachment.ContentType);
             string fileName = FilenameSanitizer.EnsureValidFilename(attachment.Id);
 
-            return $"{locationParameter.Value}{fileName}{extension}";
+            return Path.Combine(locationParameter.Value, $"{fileName}{extension}");
         }
 
         private static async Task TryUploadAttachment(Attachment attachment, string attachmentFilePath)
