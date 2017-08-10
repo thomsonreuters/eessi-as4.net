@@ -196,6 +196,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Receive\DetermineMessageHandlingStep.cs" />
     <Compile Include="Receive\SendAS4SignalMessageStep.cs" />
     <Compile Include="Receive\ValidateAS4MessageStep.cs" />
     <Compile Include="Send\LogReceivedProcessingErrorStep.cs" />
