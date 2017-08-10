@@ -3,8 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
@@ -64,12 +62,15 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
         protected MessagingContext CreateAS4MessageWithAttachment()
         {
             AS4Message as4Message = AS4Message.Empty;
-            as4Message.AddAttachment(new Attachment("attachment-id") {Content = Stream.Null});
+            as4Message.AddAttachment(new Attachment("attachment-id") { Content = Stream.Null });
+
+            var pmode = new ReceivingProcessingMode();
+            pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod = new Method { Type = "FILE" };
 
             return new MessagingContext(as4Message, MessagingContextMode.Unknown)
             {
-                ReceivingPMode =
-                    new ReceivingProcessingMode {Deliver = {PayloadReferenceMethod = new Method {Type = "FILE"}}}
+                ReceivingPMode = pmode
+
             };
         }
     }

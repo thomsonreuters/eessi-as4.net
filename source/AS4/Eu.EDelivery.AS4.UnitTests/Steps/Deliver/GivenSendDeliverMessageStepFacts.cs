@@ -66,7 +66,9 @@ namespace Eu.EDelivery.AS4.UnitTests.Steps.Deliver
 
         private static ReceivingProcessingMode CreateDefaultReceivingPMode()
         {
-            return new ReceivingProcessingMode {Deliver = {DeliverMethod = new Method()}};
+            var pmode = new ReceivingProcessingMode();
+            pmode.MessageHandling.DeliverInformation.DeliverMethod = new Method();
+            return pmode;            
         }
     }
 }

@@ -62,19 +62,21 @@
       </Service>
     </CollaborationInfo>
   </MessagePackaging>
-  <Deliver>
-    <IsEnabled>true</IsEnabled>
-    <PayloadReferenceMethod>
-      <Type>PAYLOAD-SERVICE</Type>
-      <Parameters>
-        <Parameter name="location" value="http://localhost:3000/api/Payload/Upload/" />
-      </Parameters>
-    </PayloadReferenceMethod>
-    <DeliverMethod>
-      <Type>FILE</Type>
-      <Parameters>
-        <Parameter name="location" value=".\messages\in\" />
-      </Parameters>
-    </DeliverMethod>
-  </Deliver>
+  <MessageHandling>
+    <Deliver>
+      <IsEnabled>true</IsEnabled>
+      <PayloadReferenceMethod>
+        <Type>PAYLOAD-SERVICE</Type>
+        <Parameters>
+          <Parameter name="location" value="http://localhost:3000/api/Payload/Upload/" />
+        </Parameters>
+      </PayloadReferenceMethod>
+      <DeliverMethod>
+        <Type>FILE</Type>
+        <Parameters>
+          <Parameter name="location" value=".\messages\in\" />
+        </Parameters>
+      </DeliverMethod>
+    </Deliver>
+  </MessageHandling>
 </PMode>

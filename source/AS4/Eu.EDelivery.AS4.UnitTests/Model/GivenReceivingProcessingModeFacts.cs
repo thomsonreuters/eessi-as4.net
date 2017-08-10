@@ -34,8 +34,8 @@ namespace Eu.EDelivery.AS4.UnitTests.Model
                 _pmode = new ReceivingProcessingMode();
 
                 // Assert
-                Assert.NotNull(_pmode.Deliver);
-                Assert.False(_pmode.Deliver.IsEnabled);
+                Assert.NotNull(_pmode.MessageHandling.DeliverInformation);
+                Assert.False(_pmode.MessageHandling.DeliverInformation.IsEnabled);
             }
 
             [Fact]

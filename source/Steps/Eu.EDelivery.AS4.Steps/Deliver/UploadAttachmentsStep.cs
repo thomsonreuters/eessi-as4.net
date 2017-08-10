@@ -4,14 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eu.EDelivery.AS4.Builders.Core;
 using Eu.EDelivery.AS4.Common;
-using Eu.EDelivery.AS4.Exceptions;
 using Eu.EDelivery.AS4.Model.Core;
 using Eu.EDelivery.AS4.Model.Internal;
 using Eu.EDelivery.AS4.Model.PMode;
 using Eu.EDelivery.AS4.Strategies.Uploader;
-using Eu.EDelivery.AS4.Streaming;
 using NLog;
 
 namespace Eu.EDelivery.AS4.Steps.Deliver
@@ -62,22 +59,42 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
 
             _messagingContext = messagingContext;
 
-            await UploadAttachments(messagingContext.AS4Message.Attachments).ConfigureAwait(false);
+            if (_messagingContext.ReceivingPMode?.MessageHandling?.DeliverInformation == null)
+            {
+                throw new InvalidOperationException("Unable to send DeliverMessage: the ReceivingPMode does not contain any DeliverInformation");
+            }
+
+            var uploader = GetAttachmentUploader();
+
+            await UploadAttachments(messagingContext.AS4Message.Attachments, uploader).ConfigureAwait(false);
 
             return await StepResult.SuccessAsync(messagingContext);
         }
 
-        private async Task UploadAttachments(IEnumerable<Attachment> attachments)
+        private IAttachmentUploader GetAttachmentUploader()
         {
-            await Task.WhenAll(attachments.Select(TryUploadAttachment));
+            ReceivingProcessingMode pmode = _messagingContext.ReceivingPMode;
+            Method payloadReferenceMethod = pmode.MessageHandling.DeliverInformation.PayloadReferenceMethod;
+            PreConditionsPayloadReferenceMethod(pmode, payloadReferenceMethod);
+
+            IAttachmentUploader uploader = _provider.Get(payloadReferenceMethod.Type);
+
+            uploader.Configure(payloadReferenceMethod);
+
+            return uploader;
         }
 
-        private async Task TryUploadAttachment(Attachment attachment)
+        private async Task UploadAttachments(IEnumerable<Attachment> attachments, IAttachmentUploader uploader)
+        {
+            await Task.WhenAll(attachments.Select(a => TryUploadAttachment(a, uploader)));
+        }
+
+        private async Task TryUploadAttachment(Attachment attachment, IAttachmentUploader uploader)
         {
             try
             {
                 _logger.Info($"{_messagingContext.Prefix} Start Uploading Attachment...");
-                await UploadAttachment(attachment).ConfigureAwait(false);
+                await UploadAttachment(attachment, uploader).ConfigureAwait(false);
 
                 attachment.ResetContentPosition();
             }
@@ -90,24 +107,11 @@ namespace Eu.EDelivery.AS4.Steps.Deliver
             }
         }
 
-        private async Task UploadAttachment(Attachment attachment)
+        private static async Task UploadAttachment(Attachment attachment, IAttachmentUploader uploader)
         {
-            Method payloadReferenceMethod = GetPayloadReferenceMethod();
-
-            IAttachmentUploader uploader = _provider.Get(payloadReferenceMethod.Type);
-            uploader.Configure(payloadReferenceMethod);
             UploadResult attachmentResult = await uploader.UploadAsync(attachment).ConfigureAwait(false);
 
             attachment.Location = attachmentResult.DownloadUrl;
-        }
-
-        private Method GetPayloadReferenceMethod()
-        {
-            ReceivingProcessingMode pmode = _messagingContext.ReceivingPMode;
-            Method payloadReferenceMethod = pmode.Deliver.PayloadReferenceMethod;
-            PreConditionsPayloadReferenceMethod(pmode, payloadReferenceMethod);
-
-            return payloadReferenceMethod;
         }
 
         private void PreConditionsPayloadReferenceMethod(IPMode pmode, Method payloadReferenceMethod)
