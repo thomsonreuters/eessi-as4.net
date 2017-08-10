@@ -472,9 +472,7 @@ namespace Eu.EDelivery.AS4.Receivers
                 protected override HttpListenerContentResult ExecuteCore(HttpListenerRequest request, MessagingContext processorResult)
                 {
                     if (processorResult.Exception != null)
-                    {
-                       
-
+                    {                       
                         string errorMessage = String.IsNullOrWhiteSpace(processorResult.ErrorResult?.Description) == false
                             ? processorResult.ErrorResult.Description
                             : processorResult.Exception.Message;

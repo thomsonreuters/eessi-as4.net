@@ -37,6 +37,11 @@ namespace Eu.EDelivery.AS4.Steps.Receive
         /// <returns></returns>
         public async Task<StepResult> ExecuteAsync(MessagingContext messagingContext, CancellationToken cancellationToken)
         {
+            if (messagingContext.AS4Message.IsSignalMessage && messagingContext.AS4Message.IsMultiHopMessage == false)
+            {
+                return StepResult.Success(messagingContext);
+            }
+
             if (messagingContext.ReceivingPMode == null)
             {
                 throw new InvalidOperationException("The Receiving PMode for this message has not been determined yet.");
@@ -55,7 +60,7 @@ namespace Eu.EDelivery.AS4.Steps.Receive
                 // When the Message has to be forwarded, the remaining Steps must not be executed.
                 // The MSH must answer with a HTTP Accepted status-code, so an empty context must be returned.
                 messagingContext.ModifyContext(AS4Message.Empty);
-                
+
                 return StepResult.Success(messagingContext).AndStopExecution();
             }
 
